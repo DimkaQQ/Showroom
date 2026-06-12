@@ -1,9 +1,12 @@
 "use client";
 
 import { projects, siteConfig } from "@/lib/data";
+import { useLang } from "@/lib/i18n";
 import { AnimateOnScroll } from "./animate-on-scroll";
 
 export function Showroom() {
+  const { t } = useLang();
+
   return (
     <section id="showroom" className="py-32 relative overflow-hidden">
       {/* Background accent */}
@@ -24,24 +27,29 @@ export function Showroom() {
         <AnimateOnScroll>
           <div className="flex items-center gap-3 mb-4">
             <span className="text-xs font-mono text-cyan-400/70 tracking-widest uppercase">
-              // portfolio
+              {t.showroom.label}
             </span>
             <div className="h-px flex-1 bg-gradient-to-r from-cyan-500/30 to-transparent max-w-xs" />
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-            Featured Work
+            {t.showroom.title}
           </h2>
           <p className="text-white/40 text-lg max-w-xl mb-16">
-            A selection of projects I&apos;m proud of. Each one is live — click
-            to explore it yourself.
+            {t.showroom.subtitle}
           </p>
         </AnimateOnScroll>
 
         {/* Project grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
           {projects.map((project, i) => (
-            <AnimateOnScroll key={project.id} delay={i * 100}>
-              <ProjectCard project={project} />
+            <AnimateOnScroll key={project.id} delay={i * 100} className="h-full">
+              <ProjectCard
+                project={project}
+                tagline={t.showroom.projects[i].tagline}
+                description={t.showroom.projects[i].description}
+                exploreLabel={t.showroom.explore}
+                liveLabel={t.showroom.live}
+              />
             </AnimateOnScroll>
           ))}
         </div>
@@ -49,7 +57,7 @@ export function Showroom() {
         {/* Bottom note */}
         <AnimateOnScroll delay={300}>
           <p className="text-center text-white/25 text-sm mt-16">
-            More projects on{" "}
+            {t.showroom.moreOn}{" "}
             <a
               href={siteConfig.github}
               target="_blank"
@@ -65,7 +73,19 @@ export function Showroom() {
   );
 }
 
-function ProjectCard({ project }: { project: (typeof projects)[number] }) {
+function ProjectCard({
+  project,
+  tagline,
+  description,
+  exploreLabel,
+  liveLabel,
+}: {
+  project: (typeof projects)[number];
+  tagline: string;
+  description: string;
+  exploreLabel: string;
+  liveLabel: string;
+}) {
   const href = `https://${project.subdomain}.${siteConfig.domain}`;
 
   return (
@@ -73,21 +93,18 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="project-card group block glass rounded-2xl overflow-hidden border border-white/[0.07] hover:border-white/[0.15]"
-      style={{
-        boxShadow: `0 0 0 0 ${project.accentColor}00`,
-        transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-      }}
+      className="project-card group block glass rounded-2xl overflow-hidden border border-white/[0.07] hover:border-white/[0.15] h-full flex flex-col"
+      style={{ transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)" }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.boxShadow = `0 20px 60px ${project.accentColor}25, 0 0 0 1px ${project.accentColor}20`;
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow = `0 0 0 0 ${project.accentColor}00`;
+        (e.currentTarget as HTMLElement).style.boxShadow = "";
       }}
     >
       {/* Header gradient */}
       <div
-        className="relative h-36 overflow-hidden"
+        className="relative h-36 overflow-hidden shrink-0"
         style={{
           background: `linear-gradient(135deg, ${project.gradientFrom}, ${project.gradientTo})`,
         }}
@@ -101,7 +118,7 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
             backgroundSize: "20px 20px",
           }}
         />
-        {/* Shine */}
+        {/* Shine on hover */}
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Year badge */}
@@ -115,31 +132,29 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
         <div className="absolute bottom-3 left-4">
           <span className="inline-flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 rounded-md bg-black/30 text-white/70 border border-white/10">
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-            {project.status}
+            {liveLabel}
           </span>
         </div>
 
-        {/* Arrow indicator */}
+        {/* Arrow on hover */}
         <div className="absolute top-3 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-1 group-hover:translate-y-0">
           <span className="text-white/70 text-xs font-mono">↗ explore</span>
         </div>
       </div>
 
       {/* Card body */}
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-1">
         <div className="mb-1">
           <span
             className="text-[11px] font-mono uppercase tracking-wider"
             style={{ color: project.accentColor, opacity: 0.8 }}
           >
-            {project.tagline}
+            {tagline}
           </span>
         </div>
-        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-white transition-colors">
-          {project.name}
-        </h3>
-        <p className="text-white/40 text-sm leading-relaxed mb-4 line-clamp-3">
-          {project.description}
+        <h3 className="text-lg font-bold text-white mb-2">{project.name}</h3>
+        <p className="text-white/40 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
+          {description}
         </p>
 
         {/* Tags */}
@@ -160,13 +175,15 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
         </div>
 
         {/* CTA */}
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-white/25">{project.subdomain}.{siteConfig.domain}</span>
+        <div className="flex items-center justify-between mt-auto">
+          <span className="text-xs text-white/25">
+            {project.subdomain}.{siteConfig.domain}
+          </span>
           <span
             className="text-xs font-medium flex items-center gap-1 group-hover:gap-2 transition-all"
             style={{ color: project.accentColor }}
           >
-            Explore project
+            {exploreLabel}
             <span className="transition-transform group-hover:translate-x-0.5">→</span>
           </span>
         </div>

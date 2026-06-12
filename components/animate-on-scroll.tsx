@@ -31,6 +31,7 @@ export function AnimateOnScroll({ children, className = "", delay = 0 }: Props) 
     return () => observer.disconnect();
   }, [delay]);
 
+  // Pass className through so callers can add h-full etc.
   return (
     <div ref={ref} className={`fade-up ${className}`}>
       {children}

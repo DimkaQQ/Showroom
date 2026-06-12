@@ -1,6 +1,10 @@
+"use client";
+
 import { siteConfig, techStack } from "@/lib/data";
+import { useLang } from "@/lib/i18n";
 
 export function Hero() {
+  const { t } = useLang();
   const doubled = [...techStack, ...techStack];
 
   return (
@@ -40,53 +44,41 @@ export function Hero() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-32 pb-16">
         {/* Available badge */}
         {siteConfig.available && (
-          <div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 mb-8"
-            style={{ animation: "fadeUp 0.5s ease forwards", opacity: 0 }}
-          >
+          <div className="hero-animate delay-0 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 mb-8">
             <span className="status-dot" />
-            Available for new projects
+            {t.hero.available}
           </div>
         )}
 
         {/* Heading */}
-        <h1
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6"
-          style={{ animation: "fadeUp 0.6s 0.1s ease forwards", opacity: 0 }}
-        >
-          Hi, I&apos;m{" "}
+        <h1 className="hero-animate delay-1 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6">
+          {t.hero.greeting}{" "}
           <span className="gradient-text">{siteConfig.name}</span>
           <br />
-          <span className="text-white/90">I build things</span>
+          <span className="text-white/90">{t.hero.line1}</span>
           <br />
-          <span className="text-white/40">people love.</span>
+          <span className="text-white/40">{t.hero.line2}</span>
         </h1>
 
         {/* Tagline */}
-        <p
-          className="text-lg md:text-xl text-white/50 max-w-xl leading-relaxed mb-10"
-          style={{ animation: "fadeUp 0.6s 0.2s ease forwards", opacity: 0 }}
-        >
-          {siteConfig.description}
+        <p className="hero-animate delay-2 text-lg md:text-xl text-white/50 max-w-xl leading-relaxed mb-10">
+          {t.hero.description}
         </p>
 
         {/* CTA buttons */}
-        <div
-          className="flex flex-wrap gap-4 mb-24"
-          style={{ animation: "fadeUp 0.6s 0.3s ease forwards", opacity: 0 }}
-        >
+        <div className="hero-animate delay-3 flex flex-wrap gap-4 mb-24">
           <a
             href="#showroom"
             className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5"
           >
-            View my work
+            {t.hero.viewWork}
             <span className="transition-transform group-hover:translate-x-1">→</span>
           </a>
           <a
             href={`mailto:${siteConfig.email}`}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/80 hover:text-white font-medium transition-all duration-300 hover:-translate-y-0.5"
           >
-            Get in touch
+            {t.hero.getInTouch}
           </a>
           <a
             href={siteConfig.github}
@@ -95,7 +87,7 @@ export function Hero() {
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/60 hover:text-white font-medium transition-all duration-300 hover:-translate-y-0.5"
           >
             <GithubIcon />
-            GitHub
+            {t.hero.github}
           </a>
         </div>
       </div>

@@ -1,7 +1,12 @@
+"use client";
+
 import { siteConfig } from "@/lib/data";
+import { useLang } from "@/lib/i18n";
 import { AnimateOnScroll } from "./animate-on-scroll";
 
 export function Contact() {
+  const { t } = useLang();
+
   return (
     <section id="contact" className="py-32 relative overflow-hidden">
       {/* Background */}
@@ -15,7 +20,7 @@ export function Contact() {
           }}
         />
         <div
-          className="blob absolute w-[400px] h-[400px] opacity-08"
+          className="blob absolute w-[400px] h-[400px] opacity-[0.08]"
           style={{
             background: "radial-gradient(circle, #0891b2, #0e7490)",
             top: "-50px",
@@ -30,22 +35,20 @@ export function Contact() {
           <AnimateOnScroll>
             <div className="flex items-center gap-3 mb-4">
               <span className="text-xs font-mono text-emerald-400/70 tracking-widest uppercase">
-                // let&apos;s talk
+                {t.contact.label}
               </span>
               <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/30 to-transparent max-w-xs" />
             </div>
 
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Got a project
+              {t.contact.title1}
               <br />
-              in mind?
-              <span className="gradient-text"> Let&apos;s build it.</span>
+              {t.contact.title2}
+              <span className="gradient-text"> {t.contact.cta}</span>
             </h2>
 
             <p className="text-white/40 text-lg leading-relaxed mb-10">
-              I&apos;m always open to discussing new projects, creative ideas, or
-              opportunities to be part of your vision. Drop me a line and
-              let&apos;s see what we can create together.
+              {t.contact.description}
             </p>
           </AnimateOnScroll>
 
@@ -66,19 +69,19 @@ export function Contact() {
                 href={siteConfig.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 text-white/40 hover:text-white/80 transition-colors text-sm animated-link"
+                className="flex items-center gap-2 text-white/40 hover:text-white/80 transition-colors text-sm animated-link"
               >
                 <GithubIcon />
-                GitHub
+                {t.contact.github}
               </a>
               <a
                 href={siteConfig.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-2 text-white/40 hover:text-white/80 transition-colors text-sm animated-link"
+                className="flex items-center gap-2 text-white/40 hover:text-white/80 transition-colors text-sm animated-link"
               >
                 <TelegramIcon />
-                Telegram
+                {t.contact.telegram}
               </a>
             </div>
           </AnimateOnScroll>

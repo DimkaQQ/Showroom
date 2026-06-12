@@ -2,16 +2,16 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/data";
+import { LanguageProvider } from "@/lib/i18n";
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
   title: `${siteConfig.name} — ${siteConfig.title}`,
   description: siteConfig.description,
-  keywords: ["developer", "full-stack", "web development", "portfolio", siteConfig.name],
 };
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );
