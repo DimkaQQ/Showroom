@@ -12,7 +12,7 @@ export const translations = {
       available: "Available for new projects",
       greeting: "Hi, I'm",
       line1: "I build things",
-      line2: "people love.",
+      line2: "that help.",
       description:
         "Full-stack developer specializing in web & mobile applications, scalable backends, and seamless user experiences.",
       viewWork: "View my work",
@@ -123,7 +123,7 @@ export const translations = {
       available: "Открыт для новых проектов",
       greeting: "Привет, я —",
       line1: "Создаю вещи,",
-      line2: "которые любят.",
+      line2: "которые помогают.",
       description:
         "Full-stack разработчик: веб и мобильные приложения, масштабируемые бэкенды и продуманный UX.",
       viewWork: "Смотреть работы",
@@ -211,9 +211,9 @@ export const translations = {
     },
     contact: {
       label: "// поговорим",
-      title1: "Есть проект",
-      title2: "в голове?",
-      cta: "Давай сделаем.",
+      title1: "Есть идея",
+      title2: "или задача?",
+      cta: "Решим вместе.",
       description:
         "Всегда открыт для обсуждения новых проектов, идей или возможностей стать частью твоей задумки. Напиши — разберёмся, что можем создать вместе.",
       github: "GitHub",
