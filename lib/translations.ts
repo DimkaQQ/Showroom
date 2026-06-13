@@ -67,34 +67,34 @@ export const translations = {
       live: "live",
       projects: [
         {
-          tagline: "E-Commerce Platform",
+          tagline: "Distribution Management",
           description:
-            "A full-stack marketplace with real-time inventory tracking, Stripe payments, seller dashboards, and an AI-powered recommendation engine. Handles thousands of concurrent users.",
+            "Internal platform for managing diesel fuel distribution: truck fleet, client debts, delivery dispatches, and financial analytics with role-based access control.",
         },
         {
-          tagline: "Team Productivity Suite",
+          tagline: "Car Rental Platform",
           description:
-            "A real-time collaborative project management tool with drag-and-drop Kanban boards, time tracking, Slack integration, and detailed analytics for engineering teams.",
+            "Online platform for browsing and booking rental cars. Clean catalog UI, booking flow, availability calendar and a simple admin panel for fleet management.",
         },
         {
-          tagline: "Analytics Dashboard",
+          tagline: "Trading Education",
           description:
-            "Real-time analytics platform with interactive D3 charts, custom reporting, multi-tenant architecture and automated alerts via email and Telegram.",
+            "Interactive platform to learn trading from scratch. Structured learning modules, quizzes, and a live simulator where users practice with virtual capital in real market conditions.",
         },
         {
-          tagline: "AI Chat Assistant",
+          tagline: "Resume / Portfolio",
           description:
-            "Context-aware conversational AI with multi-model support, file uploads, code execution sandbox, and team knowledge base integration.",
+            "Animated personal resume site with smooth scroll sections, skill timeline, project showcase and contact form. Designed for a clean, modern first impression.",
         },
         {
-          tagline: "Mobile Banking App",
+          tagline: "Shipping & Logistics",
           description:
-            "Secure cross-platform banking app with biometric auth, instant P2P transfers, spending analytics and virtual card management.",
+            "Web application for managing shipments and logistics operations. Track orders, assign couriers, generate reports and monitor delivery statuses in real time.",
         },
         {
-          tagline: "Internal DevOps Platform",
+          tagline: "Company Website",
           description:
-            "Developer platform for managing deployments across environments, viewing logs, triggering pipelines, and monitoring infrastructure health in one place.",
+            "Corporate website for MoraTech built with Next.js. Showcases services, team, and case studies with a fast, SEO-optimized static architecture.",
         },
       ],
     },
@@ -178,34 +178,34 @@ export const translations = {
       live: "живой",
       projects: [
         {
-          tagline: "E-Commerce платформа",
+          tagline: "Управление дистрибуцией",
           description:
-            "Full-stack маркетплейс с отслеживанием запасов в реальном времени, оплатой через Stripe, дашбордом продавца и AI-рекомендациями. Выдерживает тысячи одновременных пользователей.",
+            "Внутренняя платформа для управления дистрибуцией дизельного топлива: автопарк, долги клиентов, отгрузки и финансовая аналитика с разграничением прав доступа.",
         },
         {
-          tagline: "Инструмент продуктивности",
+          tagline: "Аренда автомобилей",
           description:
-            "Real-time система управления проектами с Kanban-досками, трекингом времени, интеграцией Slack и аналитикой для команд разработчиков.",
+            "Онлайн-платформа для просмотра и бронирования автомобилей напрокат. Каталог, форма бронирования, календарь доступности и панель управления автопарком.",
         },
         {
-          tagline: "Аналитический дашборд",
+          tagline: "Обучение трейдингу",
           description:
-            "Платформа аналитики в реальном времени с интерактивными D3-графиками, пользовательскими отчётами и автоматическими уведомлениями в email и Telegram.",
+            "Интерактивная платформа для изучения трейдинга с нуля. Структурированные модули, тесты и живой симулятор для практики с виртуальным капиталом.",
         },
         {
-          tagline: "AI-ассистент",
+          tagline: "Резюме / Портфолио",
           description:
-            "Контекстно-зависимый чат с поддержкой нескольких моделей, загрузкой файлов, sandbox для кода и базой знаний команды.",
+            "Анимированный сайт-резюме с плавными переходами, таймлайном навыков, витриной проектов и формой обратной связи. Создан для яркого первого впечатления.",
         },
         {
-          tagline: "Мобильный банкинг",
+          tagline: "Доставка и логистика",
           description:
-            "Безопасное кроссплатформенное приложение с биометрической аутентификацией, мгновенными переводами, аналитикой трат и виртуальными картами.",
+            "Веб-приложение для управления доставками и логистическими операциями. Отслеживание заказов, назначение курьеров, отчёты и статусы доставок в реальном времени.",
         },
         {
-          tagline: "Внутренняя DevOps-платформа",
+          tagline: "Корпоративный сайт",
           description:
-            "Платформа для управления деплоями, просмотра логов, запуска пайплайнов и мониторинга инфраструктуры в одном месте.",
+            "Корпоративный сайт MoraTech на Next.js. Услуги, команда и кейсы — с быстрой SEO-оптимизированной статической архитектурой.",
         },
       ],
     },
