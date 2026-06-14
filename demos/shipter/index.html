@@ -5,113 +5,157 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Shipter — Logistics Platform</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #05050f;
-    --surface: #0d0d20;
-    --surface2: #12122a;
-    --border: rgba(255,255,255,0.07);
-    --accent: #fb923c;
-    --accent2: #ea580c;
-    --text: #e2e8f0;
-    --muted: rgba(255,255,255,0.4);
-    --green: #34d399;
-    --yellow: #fbbf24;
-    --red: #f87171;
-    --blue: #60a5fa;
-  }
-  html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05050f;--surface:#0d0d20;--surface2:#12122a;--border:rgba(255,255,255,0.07);
+  --accent:#fb923c;--accent2:#ea580c;--text:#e2e8f0;--muted:rgba(255,255,255,0.38);
+  --green:#34d399;--yellow:#fbbf24;--red:#f87171;--blue:#60a5fa;--purple:#a78bfa;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
 
-  .demo-banner { background: rgba(251,146,60,0.1); border-bottom: 1px solid rgba(251,146,60,0.2); padding: 8px 20px; text-align: center; font-size: 13px; color: rgba(251,146,60,0.9); }
-  .demo-banner a { color: var(--accent); text-decoration: none; font-weight: 500; }
+.demo-banner{background:rgba(251,146,60,0.1);border-bottom:1px solid rgba(251,146,60,0.2);padding:8px 20px;text-align:center;font-size:13px;color:rgba(251,146,60,0.9)}
+.demo-banner a{color:var(--accent);text-decoration:none;font-weight:600}
 
-  /* LAYOUT */
-  .app { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 37px); }
-  @media (max-width: 768px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } }
+.app{display:grid;grid-template-columns:220px 1fr;flex:1;min-height:calc(100vh - 38px)}
+@media(max-width:768px){.app{grid-template-columns:1fr}.sidebar{display:none}}
 
-  /* SIDEBAR */
-  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; display: flex; flex-direction: column; }
-  .side-logo { padding: 8px 20px 24px; font-size: 18px; font-weight: 800; color: var(--text); border-bottom: 1px solid var(--border); margin-bottom: 16px; }
-  .side-logo span { color: var(--accent); }
-  .side-link { display: flex; align-items: center; gap: 12px; padding: 10px 20px; font-size: 14px; color: var(--muted); cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; }
-  .side-link:hover, .side-link.active { color: var(--text); background: rgba(255,255,255,0.03); border-left-color: var(--accent); }
-  .side-link.active { color: var(--accent); }
-  .side-icon { font-size: 16px; width: 20px; }
-  .side-badge { margin-left: auto; background: rgba(251,146,60,0.2); color: var(--accent); font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+/* SIDEBAR */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.side-logo{padding:18px 16px;font-size:18px;font-weight:800;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.side-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.side-logo span{color:var(--accent)}
+.side-section{padding:14px 12px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:.1em}
+.side-link{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 8px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:9px;transition:all .15s;border:none;background:transparent;font-family:inherit;width:calc(100% - 16px);text-align:left}
+.side-link:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.side-link.active{color:var(--accent);background:rgba(251,146,60,0.1)}
+.side-badge{margin-left:auto;background:rgba(248,113,113,0.2);color:var(--red);font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}
+.side-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid var(--border)}
+.user-chip{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface2)}
+.user-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:12px;font-weight:600}
+.user-role{font-size:10px;color:var(--muted)}
 
-  /* MAIN */
-  main { overflow-y: auto; }
-  .topbar { padding: 16px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
-  .topbar-title { font-size: 18px; font-weight: 700; flex: 1; }
-  .search-input { background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 14px; color: var(--text); font-size: 13px; width: 220px; outline: none; font-family: inherit; }
-  .search-input:focus { border-color: rgba(251,146,60,0.4); }
-  .btn-new { background: var(--accent); color: #fff; padding: 9px 18px; border-radius: 9px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; white-space: nowrap; }
+/* MAIN */
+main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--surface);flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:700;flex:1}
+.topbar-date{font-size:12px;color:var(--muted)}
+.search-inp{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:8px 14px;color:var(--text);font-size:13px;width:200px;outline:none;font-family:inherit;transition:border-color .2s}
+.search-inp:focus{border-color:rgba(251,146,60,0.4)}
+.btn-new{background:var(--accent);color:#fff;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.btn-new:hover{background:var(--accent2);transform:translateY(-1px)}
 
-  /* METRICS */
-  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 28px; }
-  @media (max-width: 1100px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
-  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
-  .metric-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-  .metric-val { font-size: 28px; font-weight: 800; }
-  .metric-sub { font-size: 12px; color: var(--green); margin-top: 4px; }
-  .metric-sub.neg { color: var(--red); }
+.content{overflow-y:auto;flex:1}
 
-  /* ORDERS TABLE */
-  .section { padding: 0 28px 28px; }
-  .sec-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .sec-title { font-size: 15px; font-weight: 700; }
-  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead { background: rgba(255,255,255,0.02); }
-  th { padding: 12px 16px; text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); }
-  td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,0.02); }
-  .order-id { font-family: 'SF Mono', monospace; color: var(--accent); font-weight: 600; }
-  .status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
-  .status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
-  .delivered { background: rgba(52,211,153,0.12); color: var(--green); }
-  .delivered::before { background: var(--green); }
-  .transit { background: rgba(96,165,250,0.12); color: var(--blue); }
-  .transit::before { background: var(--blue); animation: pulse 1.5s infinite; }
-  .pending { background: rgba(251,191,36,0.12); color: var(--yellow); }
-  .pending::before { background: var(--yellow); }
-  .returned { background: rgba(248,113,113,0.12); color: var(--red); }
-  .returned::before { background: var(--red); }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .courier-chip { display: inline-flex; align-items: center; gap: 6px; }
-  .courier-av { width: 24px; height: 24px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-  .btn-icon { background: transparent; border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px; border-radius: 7px; cursor: pointer; font-size: 13px; transition: all 0.15s; }
-  .btn-icon:hover { border-color: rgba(251,146,60,0.3); color: var(--accent); }
+/* KPIS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 24px}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;transition:all .2s}
+.kpi:hover{border-color:rgba(251,146,60,0.2);transform:translateY(-2px)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kcolor,var(--accent))}
+.kpi-label{font-size:12px;color:var(--muted);margin-bottom:8px}
+.kpi-val{font-size:28px;font-weight:800;color:var(--kcolor,var(--text));font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:12px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:4px}
+.trend{font-size:11px;font-weight:700}
+.trend.up{color:var(--green)}.trend.dn{color:var(--red)}
 
-  /* MAP + TRACK */
-  .two-col { display: grid; grid-template-columns: 1fr 320px; gap: 16px; padding: 0 28px 28px; }
-  @media (max-width: 1100px) { .two-col { grid-template-columns: 1fr; } }
-  .map-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
-  .map-canvas { width: 100%; height: 240px; background: var(--surface2); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-  .map-grid { position: absolute; inset: 0; opacity: 0.06; background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 30px 30px; }
-  .map-road { position: absolute; }
-  .map-pin { position: absolute; font-size: 22px; transform: translate(-50%, -100%); }
-  .map-pin-label { position: absolute; background: rgba(251,146,60,0.9); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -280%); }
-  .track-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
-  .track-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
-  .track-steps { position: relative; padding-left: 24px; }
-  .track-steps::before { content:''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--border); }
-  .track-step { position: relative; margin-bottom: 18px; }
-  .track-step:last-child { margin-bottom: 0; }
-  .step-dot { position: absolute; left: -24px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface2); border: 2px solid var(--border); }
-  .step-dot.done { background: var(--green); border-color: var(--green); }
-  .step-dot.active { background: var(--accent); border-color: var(--accent); animation: pulse 1.5s infinite; }
-  .step-title { font-size: 13px; font-weight: 600; }
-  .step-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .step-loc { font-size: 11px; color: var(--muted); }
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;padding:0 24px 16px}
+@media(max-width:1100px){.charts-row{grid-template-columns:1fr}}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+.cc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cc-title{font-size:14px;font-weight:700}
+.bar-chart-svg{width:100%;height:160px}
+.bar-rect{transform-origin:bottom;transition:transform .6s cubic-bezier(0.34,1.56,0.64,1)}
+.donut-wrap{display:flex;align-items:center;gap:16px}
+.donut-legend{display:flex;flex-direction:column;gap:8px;font-size:12px;flex:1}
+.leg-row{display:flex;align-items:center;gap:7px}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-name{flex:1;color:var(--muted)}
+.leg-pct{font-weight:700}
 
-  footer { border-top: 1px solid var(--border); padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--muted); }
-  footer a { color: var(--accent); text-decoration: none; }
+/* TABLE */
+.table-section{padding:0 24px 16px}
+.ts-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ts-title{font-size:14px;font-weight:700}
+.ts-link{font-size:12px;color:var(--accent);cursor:pointer}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:rgba(255,255,255,0.02)}
+th{padding:11px 14px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:12px 14px;border-top:1px solid var(--border);vertical-align:middle}
+tr.order-row{cursor:pointer;transition:background .15s}
+tr.order-row:hover td{background:rgba(251,146,60,0.04)}
+.order-id{font-family:'SF Mono',monospace;color:var(--accent);font-weight:600;font-size:12px}
+.sbadge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+.sbadge::before{content:'';width:5px;height:5px;border-radius:50%}
+.delivered{background:rgba(52,211,153,0.1);color:var(--green)}.delivered::before{background:var(--green)}
+.transit{background:rgba(96,165,250,0.1);color:var(--blue)}.transit::before{background:var(--blue);animation:blink 1.5s infinite}
+.pending{background:rgba(251,191,36,0.1);color:var(--yellow)}.pending::before{background:var(--yellow)}
+.returned{background:rgba(248,113,113,0.1);color:var(--red)}.returned::before{background:var(--red)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.courier-chip{display:flex;align-items:center;gap:6px}
+.courier-av{width:24px;height:24px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-detail{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-detail:hover{border-color:var(--accent);color:var(--accent)}
 
-  .toast { position: fixed; bottom: 32px; right: 32px; background: var(--surface2); border: 1px solid rgba(251,146,60,0.3); color: var(--text); padding: 12px 20px; border-radius: 12px; font-size: 14px; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 999; }
-  .toast.show { transform: translateY(0); opacity: 1; }
+/* MAP */
+.bottom-row{display:grid;grid-template-columns:1fr 300px;gap:14px;padding:0 24px 24px}
+@media(max-width:1100px){.bottom-row{grid-template-columns:1fr}}
+.map-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+.map-canvas{width:100%;height:220px;background:var(--surface2);border-radius:10px;position:relative;overflow:hidden}
+.map-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03)1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03)1px,transparent 1px);background-size:28px 28px}
+.courier-dot{position:absolute;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;cursor:pointer;z-index:2;border:2px solid rgba(255,255,255,0.2);transition:transform .2s}
+.courier-dot:hover{transform:scale(1.3)!important}
+.courier-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid currentColor;opacity:.3;animation:ripple 2s ease-out infinite}
+@keyframes ripple{0%{transform:scale(1);opacity:.3}100%{transform:scale(1.8);opacity:0}}
+.dot-label{position:absolute;background:rgba(5,5,15,0.9);border:1px solid var(--border);font-size:10px;padding:2px 6px;border-radius:5px;bottom:calc(100% + 4px);white-space:nowrap;left:50%;transform:translateX(-50%);pointer-events:none}
+.track-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+.track-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.track-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.track-steps{position:relative;padding-left:22px}
+.track-steps::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.tstep{position:relative;margin-bottom:16px}
+.tstep:last-child{margin-bottom:0}
+.tstep-dot{position:absolute;left:-22px;top:3px;width:13px;height:13px;border-radius:50%;border:2px solid var(--border);background:var(--surface2)}
+.tstep-dot.done{background:var(--green);border-color:var(--green)}
+.tstep-dot.active{background:var(--accent);border-color:var(--accent);animation:blink 1.5s infinite}
+.tstep-title{font-size:13px;font-weight:600}
+.tstep-time{font-size:11px;color:var(--muted);margin-top:2px}
+.tstep-info{font-size:11px;color:var(--muted)}
+
+/* DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.drawer-overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:380px;background:var(--surface);border-left:1px solid var(--border);padding:24px;overflow-y:auto;transform:translateX(100%);transition:transform .35s cubic-bezier(0.32,0.72,0,1);z-index:201}
+.drawer-overlay.open .drawer{transform:translateX(0)}
+.drawer-close{position:absolute;top:16px;right:16px;background:var(--surface2);border:1px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.drawer-close:hover{background:rgba(248,113,113,0.15);color:var(--red)}
+.drawer-id{font-family:monospace;font-size:13px;color:var(--accent);margin-bottom:4px}
+.drawer-title{font-size:18px;font-weight:800;margin-bottom:16px}
+.info-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-key{color:var(--muted)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:420px;width:90%;transform:scale(0.95);transition:transform .25s}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:18px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}
+.form-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:rgba(251,146,60,0.4)}
+.btn-submit{width:100%;padding:12px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;border:none;border-radius:10px;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:4px}
+.btn-submit:hover{background:var(--accent2)}
+.btn-cancel-modal{width:100%;padding:10px;background:transparent;color:var(--muted);font-size:14px;border:none;cursor:pointer;font-family:inherit;margin-top:6px}
+
+footer{border-top:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;font-size:12px;color:var(--muted);flex-shrink:0}
+footer a{color:var(--accent);text-decoration:none}
+
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid rgba(251,146,60,0.3);color:var(--text);padding:11px 20px;border-radius:11px;font-size:14px;z-index:999;transition:all .3s;opacity:0;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 </style>
 </head>
 <body>
@@ -122,176 +166,308 @@
 
 <div class="app">
   <div class="sidebar">
-    <div class="side-logo">Ship<span>ter</span></div>
-    <div class="side-link active"><span class="side-icon">📦</span> Dashboard</div>
-    <div class="side-link" onclick="showToast('Orders section — demo')"><span class="side-icon">📋</span> Orders <span class="side-badge">12</span></div>
-    <div class="side-link" onclick="showToast('Couriers section — demo')"><span class="side-icon">🛵</span> Couriers</div>
-    <div class="side-link" onclick="showToast('Routes section — demo')"><span class="side-icon">🗺️</span> Routes</div>
-    <div class="side-link" onclick="showToast('Reports section — demo')"><span class="side-icon">📊</span> Reports</div>
-    <div class="side-link" onclick="showToast('Clients section — demo')"><span class="side-icon">👥</span> Clients</div>
-    <div style="margin-top:auto;">
-      <div class="side-link" onclick="showToast('Settings — demo')"><span class="side-icon">⚙️</span> Settings</div>
+    <div class="side-logo">
+      <div class="side-logo-icon">📦</div>
+      Ship<span>ter</span>
+    </div>
+    <div class="side-section">Operations</div>
+    <button class="side-link active">📊 Dashboard</button>
+    <button class="side-link" onclick="t('Orders — demo')">📋 Orders <span class="side-badge">12</span></button>
+    <button class="side-link" onclick="t('Couriers — demo')">🛵 Couriers</button>
+    <button class="side-link" onclick="t('Routes — demo')">🗺️ Routes</button>
+    <div class="side-section">Finance</div>
+    <button class="side-link" onclick="t('Reports — demo')">📊 Reports</button>
+    <button class="side-link" onclick="t('Clients — demo')">👥 Clients</button>
+    <div class="side-bottom">
+      <div class="user-chip">
+        <div class="user-av">DM</div>
+        <div><div class="user-name">Dimash M.</div><div class="user-role">Administrator</div></div>
+      </div>
     </div>
   </div>
 
   <main>
     <div class="topbar">
       <div class="topbar-title">Dashboard</div>
-      <input class="search-input" placeholder="Search orders..." type="text" />
-      <button class="btn-new" onclick="showToast('New order form — demo')">+ New Order</button>
+      <div class="topbar-date">Saturday, June 14, 2026</div>
+      <input class="search-inp" type="text" placeholder="Search orders…" />
+      <button class="btn-new" onclick="openNewOrder()">+ New Order</button>
     </div>
 
-    <div class="metrics">
-      <div class="metric">
-        <div class="metric-label">Active Orders</div>
-        <div class="metric-val" style="color:var(--accent)">247</div>
-        <div class="metric-sub">↑ 12 since yesterday</div>
+    <div class="content">
+      <div class="kpi-grid">
+        <div class="kpi" style="--kcolor:var(--accent)"><div class="kpi-label">Active Orders</div><div class="kpi-val" data-target="247">0</div><div class="kpi-sub"><span class="trend up">↑ 12</span> since yesterday</div></div>
+        <div class="kpi" style="--kcolor:var(--green)"><div class="kpi-label">Delivered Today</div><div class="kpi-val" data-target="84">0</div><div class="kpi-sub"><span class="trend up">↑ 94%</span> on-time rate</div></div>
+        <div class="kpi" style="--kcolor:var(--blue)"><div class="kpi-label">Active Couriers</div><div class="kpi-val" data-target="18">0</div><div class="kpi-sub"><span class="trend up">↑ 3</span> more than usual</div></div>
+        <div class="kpi" style="--kcolor:var(--red)"><div class="kpi-label">Issues / Returns</div><div class="kpi-val" data-target="5">0</div><div class="kpi-sub"><span class="trend dn">↑ 2</span> new today</div></div>
       </div>
-      <div class="metric">
-        <div class="metric-label">Delivered Today</div>
-        <div class="metric-val" style="color:var(--green)">84</div>
-        <div class="metric-sub">↑ 94% on time</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Active Couriers</div>
-        <div class="metric-val" style="color:var(--blue)">18</div>
-        <div class="metric-sub">↑ 3 more than usual</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Returns / Issues</div>
-        <div class="metric-val" style="color:var(--red)">5</div>
-        <div class="metric-sub neg">↑ 2 new today</div>
-      </div>
-    </div>
 
-    <div class="section">
-      <div class="sec-header">
-        <div class="sec-title">Recent Orders</div>
-        <div style="font-size:13px; color:var(--accent); cursor:pointer;" onclick="showToast('View all orders — demo')">View all →</div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Recipient</th>
-              <th>Destination</th>
-              <th>Status</th>
-              <th>Courier</th>
-              <th>ETA</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="ordersTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="two-col">
-      <div class="map-box">
-        <div class="sec-header" style="margin-bottom:14px;">
-          <div class="sec-title">Live Courier Map</div>
-          <div style="font-size:12px; color:var(--green); display:flex; align-items:center; gap:5px;"><span style="display:inline-block; width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;"></span>18 active</div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="cc-head"><div class="cc-title">Daily Deliveries — This Week</div></div>
+          <svg class="bar-chart-svg" id="barSvg" viewBox="0 0 560 160" preserveAspectRatio="none"></svg>
         </div>
-        <div class="map-canvas">
-          <div class="map-grid"></div>
-          <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 500 240">
-            <path d="M 50 120 Q 150 60 250 100 Q 350 140 450 80" stroke="rgba(255,255,255,0.06)" stroke-width="12" fill="none"/>
-            <path d="M 80 200 Q 200 160 300 180 Q 400 200 460 160" stroke="rgba(255,255,255,0.06)" stroke-width="8" fill="none"/>
-            <path d="M 200 20 L 200 220" stroke="rgba(255,255,255,0.04)" stroke-width="6" fill="none"/>
-            <path d="M 350 20 L 350 220" stroke="rgba(255,255,255,0.04)" stroke-width="6" fill="none"/>
-            <!-- courier dots -->
-            <circle cx="120" cy="95" r="6" fill="var(--accent)"><animateTransform attributeName="transform" type="translate" values="0,0;5,3;0,0" dur="3s" repeatCount="indefinite"/></circle>
-            <circle cx="280" cy="130" r="6" fill="var(--blue)"><animateTransform attributeName="transform" type="translate" values="0,0;-3,2;0,0" dur="2.5s" repeatCount="indefinite"/></circle>
-            <circle cx="180" cy="170" r="6" fill="var(--green)"><animateTransform attributeName="transform" type="translate" values="0,0;4,-2;0,0" dur="2s" repeatCount="indefinite"/></circle>
-            <circle cx="390" cy="90" r="6" fill="var(--yellow)"><animateTransform attributeName="transform" type="translate" values="0,0;-2,4;0,0" dur="3.5s" repeatCount="indefinite"/></circle>
-            <circle cx="60" cy="180" r="6" fill="var(--accent)"/>
-            <circle cx="430" cy="170" r="6" fill="var(--blue)"/>
-            <!-- labels -->
-            <text x="125" y="86" fill="rgba(255,255,255,0.5)" font-size="9">K.A</text>
-            <text x="285" y="121" fill="rgba(255,255,255,0.5)" font-size="9">M.T</text>
-            <text x="185" y="161" fill="rgba(255,255,255,0.5)" font-size="9">R.B</text>
-          </svg>
+        <div class="chart-card">
+          <div class="cc-head"><div class="cc-title">Status Breakdown</div></div>
+          <div class="donut-wrap">
+            <svg width="110" height="110" viewBox="0 0 42 42" id="donutSvg">
+              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--surface2)" stroke-width="5"/>
+            </svg>
+            <div class="donut-legend" id="donutLegend"></div>
+          </div>
         </div>
       </div>
 
-      <div class="track-box">
-        <div class="track-title">📦 SHT-2847 · Live Tracking</div>
-        <div style="font-size:12px; color:var(--muted); margin-bottom:16px;">Almaty → Astana · Est. 2h 30min</div>
-        <div class="track-steps">
-          <div class="track-step">
-            <div class="step-dot done"></div>
-            <div class="step-title">Order Accepted</div>
-            <div class="step-time">09:14 · Jun 14</div>
+      <div class="table-section">
+        <div class="ts-head">
+          <div class="ts-title">Recent Orders</div>
+          <div class="ts-link" onclick="t('View all orders')">View all →</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Recipient</th><th>Destination</th><th>Status</th><th>Courier</th><th>ETA</th><th></th></tr></thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bottom-row">
+        <div class="map-card">
+          <div class="cc-head">
+            <div class="cc-title">Live Courier Map</div>
+            <div style="font-size:12px;color:var(--green);display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:blink 1.5s infinite"></span>18 active</div>
           </div>
-          <div class="track-step">
-            <div class="step-dot done"></div>
-            <div class="step-title">Picked Up</div>
-            <div class="step-time">10:02 · Jun 14</div>
-            <div class="step-loc">Almaty Depot, Raiymbek Ave</div>
+          <div class="map-canvas" id="mapCanvas">
+            <div class="map-grid-bg"></div>
+            <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 500 220" preserveAspectRatio="none">
+              <path d="M0 110 Q100 70 200 100 Q300 130 400 80 L500 90" stroke="rgba(255,255,255,0.05)" stroke-width="10" fill="none"/>
+              <path d="M0 160 Q120 140 240 155 Q360 170 500 150" stroke="rgba(255,255,255,0.04)" stroke-width="7" fill="none"/>
+              <path d="M200 0 L200 220" stroke="rgba(255,255,255,0.03)" stroke-width="5" fill="none"/>
+              <path d="M350 0 L350 220" stroke="rgba(255,255,255,0.03)" stroke-width="5" fill="none"/>
+            </svg>
           </div>
-          <div class="track-step">
-            <div class="step-dot done"></div>
-            <div class="step-title">Departed Almaty</div>
-            <div class="step-time">10:35 · Jun 14</div>
-          </div>
-          <div class="track-step">
-            <div class="step-dot active"></div>
-            <div class="step-title">In Transit</div>
-            <div class="step-time">Now · On A1 Highway</div>
-            <div class="step-loc">Courier: Karim A. · 🛵</div>
-          </div>
-          <div class="track-step">
-            <div class="step-dot"></div>
-            <div class="step-title">Out for Delivery</div>
-            <div class="step-time">Est. 14:00</div>
-          </div>
-          <div class="track-step">
-            <div class="step-dot"></div>
-            <div class="step-title">Delivered</div>
-            <div class="step-time">Est. 14:30</div>
+        </div>
+        <div class="track-card">
+          <div class="track-title">📦 SHT-2847</div>
+          <div class="track-sub">Almaty → Astana · ETA 2h 30min</div>
+          <div class="track-steps">
+            <div class="tstep"><div class="tstep-dot done"></div><div class="tstep-title">Order Accepted</div><div class="tstep-time">09:14 · Jun 14</div></div>
+            <div class="tstep"><div class="tstep-dot done"></div><div class="tstep-title">Picked Up</div><div class="tstep-time">10:02 · Jun 14</div><div class="tstep-info">Almaty Depot</div></div>
+            <div class="tstep"><div class="tstep-dot done"></div><div class="tstep-title">Departed Almaty</div><div class="tstep-time">10:35 · Jun 14</div></div>
+            <div class="tstep"><div class="tstep-dot active"></div><div class="tstep-title">In Transit</div><div class="tstep-time">Now · A1 Highway km 284</div><div class="tstep-info">Courier: Karim A. 🛵</div></div>
+            <div class="tstep"><div class="tstep-dot"></div><div class="tstep-title">Out for Delivery</div><div class="tstep-time">Est. 14:00</div></div>
+            <div class="tstep"><div class="tstep-dot"></div><div class="tstep-title">Delivered</div><div class="tstep-time">Est. 14:30</div></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <footer>
-      <div>Shipter · <a href="https://dimkaprojects.xyz">dimkaprojects.xyz</a></div>
-      <div>Part of <a href="https://dimkaprojects.xyz">DimkaQQ</a> portfolio</div>
-    </footer>
+      <footer>
+        <div>Shipter · <a href="https://dimkaprojects.xyz">dimkaprojects.xyz</a></div>
+        <div>Part of <a href="https://dimkaprojects.xyz">DimkaQQ</a> portfolio</div>
+      </footer>
+    </div>
   </main>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- ORDER DETAIL DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer">
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    <div class="drawer-id" id="dId">SHT-0000</div>
+    <div class="drawer-title" id="dTitle">Order Details</div>
+    <div id="dInfo"></div>
+    <div style="margin-top:20px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px">Tracking</div>
+      <div class="track-steps" id="dTrack"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW ORDER MODAL -->
+<div class="modal-overlay" id="newOrderModal">
+  <div class="modal">
+    <div class="modal-title">+ New Order</div>
+    <div class="form-group"><label class="form-label">Recipient Name</label><input class="form-input" type="text" placeholder="Full name" /></div>
+    <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="tel" placeholder="+7 (---) --- -- --" /></div>
+    <div class="form-group"><label class="form-label">Delivery Address</label><input class="form-input" type="text" placeholder="City, Street, Building" /></div>
+    <div class="form-group"><label class="form-label">Assign Courier</label>
+      <select class="form-input"><option>Auto-assign</option><option>Karim A.</option><option>Mira T.</option><option>Ruslan B.</option></select>
+    </div>
+    <button class="btn-submit" onclick="createOrder()">Create Order</button>
+    <button class="btn-cancel-modal" onclick="closeNewOrder()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
 
 <script>
-const orders = [
-  { id: 'SHT-2847', name: 'Aigerim T.', dest: 'Astana, Syganak 10', status: 'transit', statusLabel: 'In Transit', courier: 'KA', courierName: 'Karim A.', eta: '14:30' },
-  { id: 'SHT-2846', name: 'Nurzhan B.', dest: 'Almaty, Abay 42', status: 'delivered', statusLabel: 'Delivered', courier: 'MT', courierName: 'Mira T.', eta: '11:00 ✓' },
-  { id: 'SHT-2845', name: 'Dima S.', dest: 'Shymkent, Central', status: 'pending', statusLabel: 'Pending', courier: 'RB', courierName: 'Ruslan B.', eta: 'Unassigned' },
-  { id: 'SHT-2844', name: 'Sasha K.', dest: 'Almaty, Gogol 12', status: 'delivered', statusLabel: 'Delivered', courier: 'AT', courierName: 'Aida T.', eta: '10:15 ✓' },
-  { id: 'SHT-2843', name: 'Lena P.', dest: 'Astana, Khan Shatyr', status: 'returned', statusLabel: 'Returned', courier: 'KA', courierName: 'Karim A.', eta: 'Failed' },
-  { id: 'SHT-2842', name: 'Arman Z.', dest: 'Karaganda, Lenin 5', status: 'transit', statusLabel: 'In Transit', courier: 'RB', courierName: 'Ruslan B.', eta: '17:00' },
-];
+// KPI COUNTER ANIMATION
+document.querySelectorAll('.kpi-val[data-target]').forEach(el => {
+  const target = parseInt(el.dataset.target);
+  let start = null;
+  const duration = 1200;
+  function animate(ts) {
+    if(!start) start = ts;
+    const progress = Math.min((ts-start)/duration, 1);
+    const eased = 1 - Math.pow(1-progress, 3);
+    el.textContent = Math.round(eased * target);
+    if(progress < 1) requestAnimationFrame(animate);
+    else el.textContent = target;
+  }
+  setTimeout(() => requestAnimationFrame(animate), 200);
+});
 
-document.getElementById('ordersTable').innerHTML = orders.map(o => `
-  <tr>
+// BAR CHART
+const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const vals = [62,78,54,91,88,84,67];
+const barSvg = document.getElementById('barSvg');
+const maxV = Math.max(...vals);
+const bw=52, gap=28, sx=14;
+barSvg.innerHTML = days.map((d,i)=>{
+  const fullH = (vals[i]/maxV)*130;
+  const x = sx + i*(bw+gap);
+  return `
+    <defs><linearGradient id="bg${i}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fb923c" stop-opacity=".9"/>
+      <stop offset="100%" stop-color="#ea580c" stop-opacity=".4"/>
+    </linearGradient></defs>
+    <rect x="${x}" y="${150}" width="${bw}" height="0" rx="5" fill="url(#bg${i})" class="bar-rect" data-full="${fullH}" data-y="${150-fullH}"/>
+    <text x="${x+bw/2}" y="158" text-anchor="middle" fill="#64748b" font-size="10">${d}</text>
+    <text x="${x+bw/2}" y="${148-fullH}" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">${vals[i]}</text>
+  `;
+}).join('');
+setTimeout(()=>{
+  document.querySelectorAll('.bar-rect').forEach((r,i)=>{
+    const fh=parseFloat(r.dataset.full), fy=parseFloat(r.dataset.y);
+    setTimeout(()=>{ r.setAttribute('y',fy); r.setAttribute('height',fh); },i*80);
+  });
+},300);
+
+// DONUT CHART
+const segments=[
+  {label:'Delivered',pct:68,color:var_('--green')},
+  {label:'In Transit',pct:21,color:var_('--blue')},
+  {label:'Pending',pct:8,color:var_('--yellow')},
+  {label:'Failed',pct:3,color:var_('--red')},
+];
+function var_(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim()}
+const r=15.9, circ=2*Math.PI*r;
+const donut=document.getElementById('donutSvg');
+const legend=document.getElementById('donutLegend');
+let offset=0;
+segments.forEach((s,idx)=>{
+  const dash=(s.pct/100)*circ;
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('cx','21');c.setAttribute('cy','21');c.setAttribute('r',r);
+  c.setAttribute('fill','transparent');c.setAttribute('stroke',s.color);c.setAttribute('stroke-width','5');
+  const dashOff=-offset*circ/100 + circ*.25;
+  c.setAttribute('stroke-dasharray',`0 ${circ}`);
+  c.setAttribute('stroke-dashoffset',dashOff);
+  c.style.transition=`stroke-dasharray .8s ${idx*.15}s ease`;
+  donut.appendChild(c);
+  setTimeout(()=>{c.setAttribute('stroke-dasharray',`${dash} ${circ-dash}`)},100);
+  offset+=s.pct;
+  legend.innerHTML+=`<div class="leg-row"><div class="leg-dot" style="background:${s.color}"></div><span class="leg-name">${s.label}</span><span class="leg-pct">${s.pct}%</span></div>`;
+});
+
+// ORDERS TABLE
+const orders=[
+  {id:'SHT-2847',name:'Aigerim T.',dest:'Astana, Syganak 10',st:'transit',stl:'In Transit',courier:'KA',cname:'Karim A.',eta:'14:30'},
+  {id:'SHT-2846',name:'Nurzhan B.',dest:'Almaty, Abay 42',st:'delivered',stl:'Delivered',courier:'MT',cname:'Mira T.',eta:'✓ 11:00'},
+  {id:'SHT-2845',name:'Dima S.',dest:'Shymkent, Central',st:'pending',stl:'Pending',courier:'—',cname:'Unassigned',eta:'TBD'},
+  {id:'SHT-2844',name:'Sasha K.',dest:'Almaty, Gogol 12',st:'delivered',stl:'Delivered',courier:'AT',cname:'Aida T.',eta:'✓ 10:15'},
+  {id:'SHT-2843',name:'Lena P.',dest:'Astana, Khan Shatyr',st:'returned',stl:'Returned',courier:'KA',cname:'Karim A.',eta:'Failed'},
+  {id:'SHT-2842',name:'Arman Z.',dest:'Karaganda, Lenin 5',st:'transit',stl:'In Transit',courier:'RB',cname:'Ruslan B.',eta:'17:00'},
+  {id:'SHT-2841',name:'Victor M.',dest:'Almaty, Dostyk 89',st:'delivered',stl:'Delivered',courier:'MT',cname:'Mira T.',eta:'✓ 09:45'},
+  {id:'SHT-2840',name:'Ana K.',dest:'Astana, Kabanbay 12',st:'transit',stl:'In Transit',courier:'AT',cname:'Aida T.',eta:'15:20'},
+];
+document.getElementById('ordersBody').innerHTML=orders.map(o=>`
+  <tr class="order-row" onclick="openDrawer('${o.id}','${o.name}','${o.dest}','${o.stl}','${o.cname}','${o.eta}')">
     <td><span class="order-id">${o.id}</span></td>
     <td>${o.name}</td>
-    <td style="color:var(--muted);font-size:12px;">${o.dest}</td>
-    <td><span class="status-badge ${o.status}">${o.statusLabel}</span></td>
-    <td><div class="courier-chip"><div class="courier-av">${o.courier}</div>${o.courierName}</div></td>
-    <td style="font-size:12px; color:var(--muted);">${o.eta}</td>
-    <td><button class="btn-icon" onclick="showToast('Viewing order ${o.id}')">→</button></td>
+    <td style="font-size:12px;color:var(--muted)">${o.dest}</td>
+    <td><span class="sbadge ${o.st}">${o.stl}</span></td>
+    <td><div class="courier-chip"><div class="courier-av">${o.courier}</div>${o.cname}</div></td>
+    <td style="font-size:12px;color:var(--muted)">${o.eta}</td>
+    <td><button class="btn-detail" onclick="event.stopPropagation();openDrawer('${o.id}','${o.name}','${o.dest}','${o.stl}','${o.cname}','${o.eta}')">→</button></td>
   </tr>
 `).join('');
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+// MAP COURIERS
+const mapCanvas=document.getElementById('mapCanvas');
+const couriers=[
+  {initials:'KA',color:'#fb923c',x:22,y:40,dx:.3,dy:.15},
+  {initials:'MT',color:'#34d399',x:55,y:60,dx:-.2,dy:.2},
+  {initials:'RB',color:'#60a5fa',x:38,y:75,dx:.25,dy:-.1},
+  {initials:'AT',color:'#a78bfa',x:70,y:30,dx:-.15,dy:.25},
+  {initials:'BK',color:'#fbbf24',x:15,y:80,dx:.2,dy:-.2},
+  {initials:'ZD',color:'#f472b6',x:80,y:70,dx:-.2,dy:.1},
+];
+couriers.forEach(c=>{
+  const el=document.createElement('div');
+  el.className='courier-dot';
+  el.style.cssText=`left:${c.x}%;top:${c.y}%;background:${c.color};color:#000`;
+  el.innerHTML=`${c.initials}<div class="dot-label" style="color:${c.color}">${c.initials}</div>`;
+  el.style.color='rgba(0,0,0,0.8)';
+  mapCanvas.appendChild(el);
+  c.el=el;
+  c.px=c.x; c.py=c.y;
+});
+setInterval(()=>{
+  couriers.forEach(c=>{
+    c.px+=c.dx*(Math.random()*2-0.5);
+    c.py+=c.dy*(Math.random()*2-0.5);
+    c.px=Math.max(5,Math.min(90,c.px));
+    c.py=Math.max(5,Math.min(85,c.py));
+    c.el.style.left=c.px+'%';
+    c.el.style.top=c.py+'%';
+  });
+},1500);
+
+// DRAWER
+function openDrawer(id,name,dest,status,courier,eta){
+  document.getElementById('dId').textContent=id;
+  document.getElementById('dTitle').textContent=`${name} — ${status}`;
+  document.getElementById('dInfo').innerHTML=`
+    <div class="info-row"><span class="info-key">Recipient</span><span>${name}</span></div>
+    <div class="info-row"><span class="info-key">Destination</span><span>${dest}</span></div>
+    <div class="info-row"><span class="info-key">Courier</span><span>${courier}</span></div>
+    <div class="info-row"><span class="info-key">ETA</span><span>${eta}</span></div>
+    <div class="info-row"><span class="info-key">Status</span><span><span class="sbadge ${status.toLowerCase().replace(' ','')} delivered">${status}</span></span></div>
+  `;
+  const steps=[
+    {title:'Order Created',time:'Yesterday 22:10',done:true},
+    {title:'Picked Up',time:'Today 09:30',done:true},
+    {title:'In Transit',time:'Today 10:15',active:status==='In Transit'},
+    {title:'Out for Delivery',time:'Est. 13:00',done:status==='Delivered'},
+    {title:'Delivered',time:eta,done:status==='Delivered'},
+  ];
+  document.getElementById('dTrack').innerHTML=steps.map(s=>`
+    <div class="tstep">
+      <div class="tstep-dot ${s.done?'done':s.active?'active':''}"></div>
+      <div class="tstep-title">${s.title}</div>
+      <div class="tstep-time">${s.time}</div>
+    </div>
+  `).join('');
+  document.getElementById('drawerOverlay').classList.add('open');
+}
+function closeDrawer(){document.getElementById('drawerOverlay').classList.remove('open')}
+document.getElementById('drawerOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDrawer()});
+
+// NEW ORDER MODAL
+function openNewOrder(){document.getElementById('newOrderModal').classList.add('open')}
+function closeNewOrder(){document.getElementById('newOrderModal').classList.remove('open')}
+document.getElementById('newOrderModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeNewOrder()});
+function createOrder(){
+  const id='SHT-'+Math.floor(2900+Math.random()*100);
+  closeNewOrder();
+  t(`✅ Order ${id} created!`);
+}
+
+function t(msg){
+  const el=document.getElementById('toastEl');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3000);
 }
 </script>
 </body>
