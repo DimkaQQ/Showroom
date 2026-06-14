@@ -3,472 +3,916 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shipter — Logistics Platform</title>
+<title>Shipter — Logistics Dashboard</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#05050f;--surface:#0d0d20;--surface2:#12122a;--border:rgba(255,255,255,0.07);
-  --accent:#fb923c;--accent2:#ea580c;--text:#e2e8f0;--muted:rgba(255,255,255,0.38);
-  --green:#34d399;--yellow:#fbbf24;--red:#f87171;--blue:#60a5fa;--purple:#a78bfa;
-}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #05050f;
+    --surface: #0d0d20;
+    --surface2: #131328;
+    --border: rgba(255,255,255,0.07);
+    --accent: #fb923c;
+    --accent-dim: rgba(251,146,60,0.15);
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --sidebar-w: 220px;
+  }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow: hidden;
+  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-.demo-banner{background:rgba(251,146,60,0.1);border-bottom:1px solid rgba(251,146,60,0.2);padding:8px 20px;text-align:center;font-size:13px;color:rgba(251,146,60,0.9)}
-.demo-banner a{color:var(--accent);text-decoration:none;font-weight:600}
+  /* DEMO BANNER */
+  .demo-banner {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    background: #1a0a00;
+    border-bottom: 1px solid rgba(251,146,60,0.3);
+    padding: 7px 16px; text-align: center; font-size: 12px;
+    color: rgba(251,146,60,0.85); letter-spacing: 0.01em;
+  }
+  .demo-banner a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .demo-banner a:hover { text-decoration: underline; }
 
-.app{display:grid;grid-template-columns:220px 1fr;flex:1;min-height:calc(100vh - 38px)}
-@media(max-width:768px){.app{grid-template-columns:1fr}.sidebar{display:none}}
+  /* APP SHELL */
+  .app-shell { display: flex; height: 100vh; padding-top: 33px; }
 
-/* SIDEBAR */
-.sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.side-logo{padding:18px 16px;font-size:18px;font-weight:800;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.side-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.side-logo span{color:var(--accent)}
-.side-section{padding:14px 12px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:.1em}
-.side-link{display:flex;align-items:center;gap:10px;padding:9px 12px;margin:1px 8px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:9px;transition:all .15s;border:none;background:transparent;font-family:inherit;width:calc(100% - 16px);text-align:left}
-.side-link:hover{color:var(--text);background:rgba(255,255,255,0.04)}
-.side-link.active{color:var(--accent);background:rgba(251,146,60,0.1)}
-.side-badge{margin-left:auto;background:rgba(248,113,113,0.2);color:var(--red);font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}
-.side-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid var(--border)}
-.user-chip{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--surface2)}
-.user-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.user-name{font-size:12px;font-weight:600}
-.user-role{font-size:10px;color:var(--muted)}
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w); min-width: var(--sidebar-w);
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; height: 100%; overflow: hidden;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 20px 18px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .logo-icon {
+    width: 34px; height: 34px; background: var(--accent); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .logo-text { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; color: #fff; }
+  .sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+  .nav-section-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted); padding: 10px 8px 4px; font-weight: 600;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+    border-radius: 7px; cursor: pointer; color: var(--text-dim);
+    font-size: 13.5px; font-weight: 500;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    margin-bottom: 1px; border-left: 2px solid transparent; user-select: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .nav-item.active { background: var(--accent-dim); color: var(--accent); border-left-color: var(--accent); }
+  .nav-item svg { flex-shrink: 0; opacity: 0.75; }
+  .nav-item.active svg { opacity: 1; }
+  .sidebar-user {
+    padding: 14px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  }
+  .user-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #f97316);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .user-role { font-size: 11px; color: var(--text-muted); }
 
-/* MAIN */
-main{display:flex;flex-direction:column;overflow:hidden}
-.topbar{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--surface);flex-shrink:0}
-.topbar-title{font-size:16px;font-weight:700;flex:1}
-.topbar-date{font-size:12px;color:var(--muted)}
-.search-inp{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:8px 14px;color:var(--text);font-size:13px;width:200px;outline:none;font-family:inherit;transition:border-color .2s}
-.search-inp:focus{border-color:rgba(251,146,60,0.4)}
-.btn-new{background:var(--accent);color:#fff;padding:8px 16px;border-radius:9px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
-.btn-new:hover{background:var(--accent2);transform:translateY(-1px)}
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
-.content{overflow-y:auto;flex:1}
+  /* TOP BAR */
+  .topbar {
+    display: flex; align-items: center; gap: 16px; padding: 14px 24px;
+    border-bottom: 1px solid var(--border); background: var(--surface); flex-shrink: 0;
+  }
+  .topbar-title { font-size: 20px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .topbar-date { font-size: 12.5px; color: var(--text-muted); flex-shrink: 0; }
+  .topbar-spacer { flex: 1; }
+  .search-wrap { position: relative; flex-shrink: 0; }
+  .search-wrap svg {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); pointer-events: none;
+  }
+  .search-input {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 12px 7px 34px; color: var(--text); font-size: 13px; width: 200px;
+    outline: none; transition: border-color 0.2s; font-family: inherit;
+  }
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus { border-color: rgba(251,146,60,0.4); }
+  .btn-new-order {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.15s, transform 0.1s; white-space: nowrap; flex-shrink: 0; font-family: inherit;
+  }
+  .btn-new-order:hover { background: #f97316; }
+  .btn-new-order:active { transform: scale(0.97); }
 
-/* KPIS */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 24px}
-@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;transition:all .2s}
-.kpi:hover{border-color:rgba(251,146,60,0.2);transform:translateY(-2px)}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kcolor,var(--accent))}
-.kpi-label{font-size:12px;color:var(--muted);margin-bottom:8px}
-.kpi-val{font-size:28px;font-weight:800;color:var(--kcolor,var(--text));font-variant-numeric:tabular-nums}
-.kpi-sub{font-size:12px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:4px}
-.trend{font-size:11px;font-weight:700}
-.trend.up{color:var(--green)}.trend.dn{color:var(--red)}
+  /* CONTENT */
+  .content { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
 
-/* CHARTS */
-.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;padding:0 24px 16px}
-@media(max-width:1100px){.charts-row{grid-template-columns:1fr}}
-.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
-.cc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.cc-title{font-size:14px;font-weight:700}
-.bar-chart-svg{width:100%;height:160px}
-.bar-rect{transform-origin:bottom;transition:transform .6s cubic-bezier(0.34,1.56,0.64,1)}
-.donut-wrap{display:flex;align-items:center;gap:16px}
-.donut-legend{display:flex;flex-direction:column;gap:8px;font-size:12px;flex:1}
-.leg-row{display:flex;align-items:center;gap:7px}
-.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.leg-name{flex:1;color:var(--muted)}
-.leg-pct{font-weight:700}
+  /* KPI CARDS */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    display: flex; flex-direction: column; gap: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .kpi-card:hover { border-color: rgba(255,255,255,0.13); box-shadow: 0 6px 32px rgba(0,0,0,0.5); }
+  .kpi-header { display: flex; align-items: center; justify-content: space-between; }
+  .kpi-label { font-size: 11.5px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi-icon { width: 36px; height: 36px; border-radius: 9px; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; }
+  .kpi-value { font-size: 34px; font-weight: 800; color: #fff; line-height: 1; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; }
+  .kpi-trend { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 20px; display: inline-block; width: fit-content; }
+  .kpi-trend.up { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .kpi-trend.dn { background: rgba(239,68,68,0.12); color: #ef4444; }
 
-/* TABLE */
-.table-section{padding:0 24px 16px}
-.ts-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.ts-title{font-size:14px;font-weight:700}
-.ts-link{font-size:12px;color:var(--accent);cursor:pointer}
-.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead{background:rgba(255,255,255,0.02)}
-th{padding:11px 14px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
-td{padding:12px 14px;border-top:1px solid var(--border);vertical-align:middle}
-tr.order-row{cursor:pointer;transition:background .15s}
-tr.order-row:hover td{background:rgba(251,146,60,0.04)}
-.order-id{font-family:'SF Mono',monospace;color:var(--accent);font-weight:600;font-size:12px}
-.sbadge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
-.sbadge::before{content:'';width:5px;height:5px;border-radius:50%}
-.delivered{background:rgba(52,211,153,0.1);color:var(--green)}.delivered::before{background:var(--green)}
-.transit{background:rgba(96,165,250,0.1);color:var(--blue)}.transit::before{background:var(--blue);animation:blink 1.5s infinite}
-.pending{background:rgba(251,191,36,0.1);color:var(--yellow)}.pending::before{background:var(--yellow)}
-.returned{background:rgba(248,113,113,0.1);color:var(--red)}.returned::before{background:var(--red)}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.courier-chip{display:flex;align-items:center;gap:6px}
-.courier-av{width:24px;height:24px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.btn-detail{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
-.btn-detail:hover{border-color:var(--accent);color:var(--accent)}
+  /* CHARTS ROW */
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 18px; }
 
-/* MAP */
-.bottom-row{display:grid;grid-template-columns:1fr 300px;gap:14px;padding:0 24px 24px}
-@media(max-width:1100px){.bottom-row{grid-template-columns:1fr}}
-.map-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
-.map-canvas{width:100%;height:220px;background:var(--surface2);border-radius:10px;position:relative;overflow:hidden}
-.map-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03)1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03)1px,transparent 1px);background-size:28px 28px}
-.courier-dot{position:absolute;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;cursor:pointer;z-index:2;border:2px solid rgba(255,255,255,0.2);transition:transform .2s}
-.courier-dot:hover{transform:scale(1.3)!important}
-.courier-dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid currentColor;opacity:.3;animation:ripple 2s ease-out infinite}
-@keyframes ripple{0%{transform:scale(1);opacity:.3}100%{transform:scale(1.8);opacity:0}}
-.dot-label{position:absolute;background:rgba(5,5,15,0.9);border:1px solid var(--border);font-size:10px;padding:2px 6px;border-radius:5px;bottom:calc(100% + 4px);white-space:nowrap;left:50%;transform:translateX(-50%);pointer-events:none}
-.track-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
-.track-title{font-size:14px;font-weight:700;margin-bottom:4px}
-.track-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
-.track-steps{position:relative;padding-left:22px}
-.track-steps::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--border)}
-.tstep{position:relative;margin-bottom:16px}
-.tstep:last-child{margin-bottom:0}
-.tstep-dot{position:absolute;left:-22px;top:3px;width:13px;height:13px;border-radius:50%;border:2px solid var(--border);background:var(--surface2)}
-.tstep-dot.done{background:var(--green);border-color:var(--green)}
-.tstep-dot.active{background:var(--accent);border-color:var(--accent);animation:blink 1.5s infinite}
-.tstep-title{font-size:13px;font-weight:600}
-.tstep-time{font-size:11px;color:var(--muted);margin-top:2px}
-.tstep-info{font-size:11px;color:var(--muted)}
+  /* BAR CHART */
+  .bar-chart-wrap { width: 100%; overflow: hidden; }
+  #barChartSvg { width: 100%; display: block; }
+  .bar-value-label { font-size: 11px; fill: #94a3b8; text-anchor: middle; font-family: -apple-system, sans-serif; }
+  .bar-day-label { font-size: 11px; fill: #64748b; text-anchor: middle; font-family: -apple-system, sans-serif; }
+  .chart-bar { cursor: pointer; transition: opacity 0.15s; }
+  .chart-bar:hover { opacity: 0.72; }
 
-/* DRAWER */
-.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
-.drawer-overlay.open{opacity:1;pointer-events:auto}
-.drawer{position:fixed;right:0;top:0;bottom:0;width:380px;background:var(--surface);border-left:1px solid var(--border);padding:24px;overflow-y:auto;transform:translateX(100%);transition:transform .35s cubic-bezier(0.32,0.72,0,1);z-index:201}
-.drawer-overlay.open .drawer{transform:translateX(0)}
-.drawer-close{position:absolute;top:16px;right:16px;background:var(--surface2);border:1px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.drawer-close:hover{background:rgba(248,113,113,0.15);color:var(--red)}
-.drawer-id{font-family:monospace;font-size:13px;color:var(--accent);margin-bottom:4px}
-.drawer-title{font-size:18px;font-weight:800;margin-bottom:16px}
-.info-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
-.info-key{color:var(--muted)}
+  /* DONUT */
+  .donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .donut-svg-wrap { position: relative; width: 160px; height: 160px; flex-shrink: 0; }
+  #donutSvg { width: 160px; height: 160px; transform: rotate(-90deg); display: block; }
+  .donut-center-label {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    text-align: center; pointer-events: none;
+  }
+  .donut-center-value { font-size: 22px; font-weight: 800; color: #fff; line-height: 1; display: block; }
+  .donut-center-text { font-size: 11px; color: var(--text-muted); display: block; }
+  .donut-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; width: 100%; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12.5px; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { color: var(--text-dim); flex: 1; }
+  .legend-pct { color: var(--text); font-weight: 600; }
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
-.modal-overlay.open{opacity:1;pointer-events:auto}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:420px;width:90%;transform:scale(0.95);transition:transform .25s}
-.modal-overlay.open .modal{transform:scale(1)}
-.modal-title{font-size:18px;font-weight:800;margin-bottom:18px}
-.form-group{margin-bottom:14px}
-.form-label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}
-.form-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
-.form-input:focus{border-color:rgba(251,146,60,0.4)}
-.btn-submit{width:100%;padding:12px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;border:none;border-radius:10px;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:4px}
-.btn-submit:hover{background:var(--accent2)}
-.btn-cancel-modal{width:100%;padding:10px;background:transparent;color:var(--muted);font-size:14px;border:none;cursor:pointer;font-family:inherit;margin-top:6px}
+  /* BOTTOM ROW */
+  .bottom-row { display: grid; grid-template-columns: 1fr 340px; gap: 16px; }
 
-footer{border-top:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;font-size:12px;color:var(--muted);flex-shrink:0}
-footer a{color:var(--accent);text-decoration:none}
+  /* ORDERS TABLE */
+  .orders-table { width: 100%; border-collapse: collapse; }
+  .orders-table th {
+    text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-muted); padding: 0 12px 10px;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  .orders-table td {
+    padding: 11px 12px; border-bottom: 1px solid var(--border);
+    vertical-align: middle; white-space: nowrap;
+  }
+  .orders-table tr:last-child td { border-bottom: none; }
+  .orders-table tbody tr { cursor: pointer; transition: background 0.12s; }
+  .orders-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .order-id { font-family: 'Courier New', Courier, monospace; color: var(--accent); font-size: 13px; font-weight: 600; }
+  .recipient-name { color: var(--text); font-weight: 500; }
+  .destination { color: var(--text-dim); font-size: 12.5px; }
+  .eta-cell { color: var(--text-dim); font-size: 12.5px; }
 
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid rgba(251,146,60,0.3);color:var(--text);padding:11px 20px;border-radius:11px;font-size:14px;z-index:999;transition:all .3s;opacity:0;white-space:nowrap}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  /* STATUS BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+  .badge-delivered { background: rgba(34,197,94,0.13); color: #22c55e; }
+  .badge-transit   { background: rgba(59,130,246,0.13); color: #60a5fa; }
+  .badge-pending   { background: rgba(234,179,8,0.13);  color: #ca8a04; }
+  .badge-returned  { background: rgba(239,68,68,0.13);  color: #ef4444; }
+  .blink-dot { width: 6px; height: 6px; border-radius: 50%; background: #60a5fa; animation: blink 1.2s ease-in-out infinite; flex-shrink: 0; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+
+  /* COURIER CHIP */
+  .courier-chip { display: inline-flex; align-items: center; gap: 6px; }
+  .courier-initials {
+    width: 24px; height: 24px; border-radius: 50%; background: var(--surface2);
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: var(--text-dim); flex-shrink: 0;
+  }
+  .courier-name { color: var(--text-dim); font-size: 12.5px; }
+
+  /* MAP */
+  .map-card { display: flex; flex-direction: column; }
+  #mapSvg { width: 100%; flex: 1; min-height: 190px; border-radius: 8px; background: #080818; display: block; }
+  .map-footer { margin-top: 10px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+  .map-live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: blink 1.5s infinite; flex-shrink: 0; }
+
+  /* DRAWER */
+  .drawer-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .drawer-overlay.open { opacity: 1; pointer-events: all; }
+  .order-drawer {
+    position: fixed; top: 33px; right: 0; bottom: 0; width: 380px;
+    background: #0d0d20; border-left: 1px solid rgba(255,255,255,0.1); z-index: 1001;
+    transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .order-drawer.open { transform: translateX(0); }
+  .drawer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 20px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .drawer-title { font-size: 16px; font-weight: 700; color: #fff; }
+  .icon-btn {
+    width: 30px; height: 30px; border-radius: 6px; background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border); color: var(--text-dim); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s; font-size: 15px; line-height: 1; font-family: inherit;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 22px; }
+  .section-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 10px; }
+  .info-grid { display: flex; flex-direction: column; gap: 7px; }
+  .info-row { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; }
+  .info-lbl { color: var(--text-muted); min-width: 65px; flex-shrink: 0; }
+  .info-val { color: var(--text); font-weight: 500; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px;
+    width: 2px; background: rgba(255,255,255,0.07); border-radius: 1px;
+  }
+  .tl-step { position: relative; padding-bottom: 20px; }
+  .tl-step:last-child { padding-bottom: 0; }
+  .tl-dot-wrap { position: absolute; left: -22px; top: 1px; width: 14px; height: 14px; }
+  .tl-dot { width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .tl-dot.done   { background: rgba(34,197,94,0.18);  border: 2px solid #22c55e; }
+  .tl-dot.active { background: rgba(251,146,60,0.18); border: 2px solid var(--accent); }
+  .tl-dot.pend   { background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.15); }
+  .tl-inner { width: 6px; height: 6px; border-radius: 50%; }
+  .done  .tl-inner { background: #22c55e; }
+  .active .tl-inner { background: var(--accent); animation: blink 1.2s infinite; }
+  .pend  .tl-inner { background: rgba(255,255,255,0.2); }
+  .tl-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .tl-name.grey { color: var(--text-muted); font-weight: 400; }
+  .tl-time { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+    width: 460px; max-width: calc(100vw - 40px); box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+    transform: translateY(14px) scale(0.97); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+  .modal-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 16px; font-weight: 700; color: #fff; }
+  .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 11.5px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .form-input, .form-select {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 12px; color: var(--text); font-size: 13.5px; outline: none;
+    transition: border-color 0.2s; font-family: inherit; width: 100%;
+  }
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-input:focus, .form-select:focus { border-color: rgba(251,146,60,0.5); }
+  .form-select { cursor: pointer; }
+  .form-select option { background: #1a1a35; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: background 0.15s, transform 0.1s; font-family: inherit; }
+  .btn:active { transform: scale(0.97); }
+  .btn-cancel { background: rgba(255,255,255,0.06); color: var(--text-dim); border: 1px solid var(--border); }
+  .btn-cancel:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #f97316; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 28px; right: 24px; background: #0f2015;
+    border: 1px solid rgba(34,197,94,0.35); border-radius: 10px; padding: 12px 18px;
+    color: #22c55e; font-size: 13.5px; font-weight: 500; z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5); opacity: 0; transform: translateY(10px);
+    transition: opacity 0.3s, transform 0.3s; pointer-events: none; max-width: 320px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
 </style>
 </head>
 <body>
 
 <div class="demo-banner">
-  🔬 Demo preview · Real product in development · <a href="https://dimkaprojects.xyz">← Back to portfolio</a>
+  🔬 Demo preview &nbsp;·&nbsp; Real product in development &nbsp;·&nbsp;
+  <a href="https://dimkaprojects.xyz">← Back to portfolio</a>
 </div>
 
-<div class="app">
-  <div class="sidebar">
-    <div class="side-logo">
-      <div class="side-logo-icon">📦</div>
-      Ship<span>ter</span>
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="15" height="13" rx="2"/>
+          <path d="M16 8h4l3 5v5h-7V8z"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>
+      <span class="logo-text">Shipter</span>
     </div>
-    <div class="side-section">Operations</div>
-    <button class="side-link active">📊 Dashboard</button>
-    <button class="side-link" onclick="t('Orders — demo')">📋 Orders <span class="side-badge">12</span></button>
-    <button class="side-link" onclick="t('Couriers — demo')">🛵 Couriers</button>
-    <button class="side-link" onclick="t('Routes — demo')">🗺️ Routes</button>
-    <div class="side-section">Finance</div>
-    <button class="side-link" onclick="t('Reports — demo')">📊 Reports</button>
-    <button class="side-link" onclick="t('Clients — demo')">👥 Clients</button>
-    <div class="side-bottom">
-      <div class="user-chip">
-        <div class="user-av">DM</div>
-        <div><div class="user-name">Dimash M.</div><div class="user-role">Administrator</div></div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item active" onclick="setNav(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="setNav(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
+        Orders
+      </div>
+      <div class="nav-item" onclick="setNav(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a9 9 0 0 1 13 0"/></svg>
+        Couriers
+      </div>
+      <div class="nav-item" onclick="setNav(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="3" cy="6" r="2"/><circle cx="21" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M5 6h7a3 3 0 0 1 3 3v3"/><path d="M3 8v5a2 2 0 0 0 2 2h7"/></svg>
+        Routes
+      </div>
+      <div class="nav-section-label">Analytics</div>
+      <div class="nav-item" onclick="setNav(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-6"/></svg>
+        Reports
+      </div>
+      <div class="nav-item" onclick="setNav(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </div>
+      <div class="nav-section-label">System</div>
+      <div class="nav-item" onclick="setNav(this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </div>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">DM</div>
+      <div>
+        <div class="user-name">Dimash M.</div>
+        <div class="user-role">Administrator</div>
       </div>
     </div>
-  </div>
+  </aside>
 
-  <main>
+  <!-- MAIN -->
+  <main class="main">
     <div class="topbar">
       <div class="topbar-title">Dashboard</div>
-      <div class="topbar-date">Saturday, June 14, 2026</div>
-      <input class="search-inp" type="text" placeholder="Search orders…" />
-      <button class="btn-new" onclick="openNewOrder()">+ New Order</button>
+      <div class="topbar-date">June 14, 2026</div>
+      <div class="topbar-spacer"></div>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" type="text" placeholder="Search orders…">
+      </div>
+      <button class="btn-new-order" onclick="openModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Order
+      </button>
     </div>
 
     <div class="content">
-      <div class="kpi-grid">
-        <div class="kpi" style="--kcolor:var(--accent)"><div class="kpi-label">Active Orders</div><div class="kpi-val" data-target="247">0</div><div class="kpi-sub"><span class="trend up">↑ 12</span> since yesterday</div></div>
-        <div class="kpi" style="--kcolor:var(--green)"><div class="kpi-label">Delivered Today</div><div class="kpi-val" data-target="84">0</div><div class="kpi-sub"><span class="trend up">↑ 94%</span> on-time rate</div></div>
-        <div class="kpi" style="--kcolor:var(--blue)"><div class="kpi-label">Active Couriers</div><div class="kpi-val" data-target="18">0</div><div class="kpi-sub"><span class="trend up">↑ 3</span> more than usual</div></div>
-        <div class="kpi" style="--kcolor:var(--red)"><div class="kpi-label">Issues / Returns</div><div class="kpi-val" data-target="5">0</div><div class="kpi-sub"><span class="trend dn">↑ 2</span> new today</div></div>
+
+      <!-- KPI CARDS -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Active Orders</span>
+            <div class="kpi-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpi-0">0</div>
+          <div class="kpi-trend up">+12% this week</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Delivered Today</span>
+            <div class="kpi-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpi-1">0</div>
+          <div class="kpi-trend up">+7% vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Active Couriers</span>
+            <div class="kpi-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4a1 1 0 1 0 2 0 1 1 0 0 0-2 0"/><path d="m7 21 3-6 2 3 3-8 3 5"/><path d="M5 21h14"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpi-2">0</div>
+          <div class="kpi-trend dn">−2 since morning</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Issues</span>
+            <div class="kpi-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.29 3.86-8.28 14A1 1 0 0 0 2.87 19.5h16.26a1 1 0 0 0 .87-1.5L11.71 3.86a1 1 0 0 0-1.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+          </div>
+          <div class="kpi-value" id="kpi-3">0</div>
+          <div class="kpi-trend dn">+1 new</div>
+        </div>
       </div>
 
+      <!-- CHARTS ROW -->
       <div class="charts-row">
-        <div class="chart-card">
-          <div class="cc-head"><div class="cc-title">Daily Deliveries — This Week</div></div>
-          <svg class="bar-chart-svg" id="barSvg" viewBox="0 0 560 160" preserveAspectRatio="none"></svg>
+        <div class="card">
+          <div class="card-title">Delivery Volume (Last 7 Days)</div>
+          <div class="bar-chart-wrap">
+            <svg id="barChartSvg" viewBox="0 0 420 190" preserveAspectRatio="xMidYMid meet" style="height:190px"></svg>
+          </div>
         </div>
-        <div class="chart-card">
-          <div class="cc-head"><div class="cc-title">Status Breakdown</div></div>
+        <div class="card">
+          <div class="card-title">Delivery Status</div>
           <div class="donut-wrap">
-            <svg width="110" height="110" viewBox="0 0 42 42" id="donutSvg">
-              <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--surface2)" stroke-width="5"/>
-            </svg>
-            <div class="donut-legend" id="donutLegend"></div>
+            <div class="donut-svg-wrap">
+              <svg id="donutSvg" viewBox="0 0 160 160">
+                <circle id="d-delivered" cx="80" cy="80" r="62" fill="none" stroke="#22c55e" stroke-width="22"/>
+                <circle id="d-transit"   cx="80" cy="80" r="62" fill="none" stroke="#3b82f6" stroke-width="22"/>
+                <circle id="d-pending"   cx="80" cy="80" r="62" fill="none" stroke="#eab308" stroke-width="22"/>
+                <circle id="d-failed"    cx="80" cy="80" r="62" fill="none" stroke="#ef4444" stroke-width="22"/>
+              </svg>
+              <div class="donut-center-label">
+                <span class="donut-center-value">405</span>
+                <span class="donut-center-text">Total</span>
+              </div>
+            </div>
+            <div class="donut-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div><span class="legend-label">Delivered</span><span class="legend-pct">68%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div><span class="legend-label">In Transit</span><span class="legend-pct">21%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div><span class="legend-label">Pending</span><span class="legend-pct">8%</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span class="legend-label">Failed</span><span class="legend-pct">3%</span></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="table-section">
-        <div class="ts-head">
-          <div class="ts-title">Recent Orders</div>
-          <div class="ts-link" onclick="t('View all orders')">View all →</div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>Recipient</th><th>Destination</th><th>Status</th><th>Courier</th><th>ETA</th><th></th></tr></thead>
+      <!-- BOTTOM ROW -->
+      <div class="bottom-row">
+        <div class="card">
+          <div class="card-title">Recent Orders</div>
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Recipient</th>
+                <th>Destination</th>
+                <th>Status</th>
+                <th>Courier</th>
+                <th>ETA</th>
+              </tr>
+            </thead>
             <tbody id="ordersBody"></tbody>
           </table>
         </div>
-      </div>
-
-      <div class="bottom-row">
-        <div class="map-card">
-          <div class="cc-head">
-            <div class="cc-title">Live Courier Map</div>
-            <div style="font-size:12px;color:var(--green);display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:blink 1.5s infinite"></span>18 active</div>
-          </div>
-          <div class="map-canvas" id="mapCanvas">
-            <div class="map-grid-bg"></div>
-            <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 500 220" preserveAspectRatio="none">
-              <path d="M0 110 Q100 70 200 100 Q300 130 400 80 L500 90" stroke="rgba(255,255,255,0.05)" stroke-width="10" fill="none"/>
-              <path d="M0 160 Q120 140 240 155 Q360 170 500 150" stroke="rgba(255,255,255,0.04)" stroke-width="7" fill="none"/>
-              <path d="M200 0 L200 220" stroke="rgba(255,255,255,0.03)" stroke-width="5" fill="none"/>
-              <path d="M350 0 L350 220" stroke="rgba(255,255,255,0.03)" stroke-width="5" fill="none"/>
-            </svg>
-          </div>
-        </div>
-        <div class="track-card">
-          <div class="track-title">📦 SHT-2847</div>
-          <div class="track-sub">Almaty → Astana · ETA 2h 30min</div>
-          <div class="track-steps">
-            <div class="tstep"><div class="tstep-dot done"></div><div class="tstep-title">Order Accepted</div><div class="tstep-time">09:14 · Jun 14</div></div>
-            <div class="tstep"><div class="tstep-dot done"></div><div class="tstep-title">Picked Up</div><div class="tstep-time">10:02 · Jun 14</div><div class="tstep-info">Almaty Depot</div></div>
-            <div class="tstep"><div class="tstep-dot done"></div><div class="tstep-title">Departed Almaty</div><div class="tstep-time">10:35 · Jun 14</div></div>
-            <div class="tstep"><div class="tstep-dot active"></div><div class="tstep-title">In Transit</div><div class="tstep-time">Now · A1 Highway km 284</div><div class="tstep-info">Courier: Karim A. 🛵</div></div>
-            <div class="tstep"><div class="tstep-dot"></div><div class="tstep-title">Out for Delivery</div><div class="tstep-time">Est. 14:00</div></div>
-            <div class="tstep"><div class="tstep-dot"></div><div class="tstep-title">Delivered</div><div class="tstep-time">Est. 14:30</div></div>
+        <div class="card map-card">
+          <div class="card-title">Courier Map</div>
+          <svg id="mapSvg" viewBox="0 0 300 190"></svg>
+          <div class="map-footer">
+            <span class="map-live-dot"></span>
+            18 couriers active &nbsp;·&nbsp; 6 shown on map
           </div>
         </div>
       </div>
 
-      <footer>
-        <div>Shipter · <a href="https://dimkaprojects.xyz">dimkaprojects.xyz</a></div>
-        <div>Part of <a href="https://dimkaprojects.xyz">DimkaQQ</a> portfolio</div>
-      </footer>
-    </div>
+    </div><!-- /content -->
   </main>
-</div>
+</div><!-- /app-shell -->
 
-<!-- ORDER DETAIL DRAWER -->
-<div class="drawer-overlay" id="drawerOverlay">
-  <div class="drawer">
-    <button class="drawer-close" onclick="closeDrawer()">✕</button>
-    <div class="drawer-id" id="dId">SHT-0000</div>
-    <div class="drawer-title" id="dTitle">Order Details</div>
-    <div id="dInfo"></div>
-    <div style="margin-top:20px">
-      <div style="font-size:13px;font-weight:700;margin-bottom:12px">Tracking</div>
-      <div class="track-steps" id="dTrack"></div>
-    </div>
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- ORDER DRAWER -->
+<div class="order-drawer" id="orderDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitle">Order SHT-4821</div>
+    <button class="icon-btn" onclick="closeDrawer()">&#x2715;</button>
   </div>
+  <div class="drawer-body" id="drawerBody"></div>
 </div>
 
-<!-- NEW ORDER MODAL -->
-<div class="modal-overlay" id="newOrderModal">
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleModalBg(event)">
   <div class="modal">
-    <div class="modal-title">+ New Order</div>
-    <div class="form-group"><label class="form-label">Recipient Name</label><input class="form-input" type="text" placeholder="Full name" /></div>
-    <div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="tel" placeholder="+7 (---) --- -- --" /></div>
-    <div class="form-group"><label class="form-label">Delivery Address</label><input class="form-input" type="text" placeholder="City, Street, Building" /></div>
-    <div class="form-group"><label class="form-label">Assign Courier</label>
-      <select class="form-input"><option>Auto-assign</option><option>Karim A.</option><option>Mira T.</option><option>Ruslan B.</option></select>
+    <div class="modal-header">
+      <div class="modal-title">Create New Order</div>
+      <button class="icon-btn" onclick="closeModal()">&#x2715;</button>
     </div>
-    <button class="btn-submit" onclick="createOrder()">Create Order</button>
-    <button class="btn-cancel-modal" onclick="closeNewOrder()">Cancel</button>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Recipient Name</label>
+        <input class="form-input" id="f-name" type="text" placeholder="e.g. John Doe">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input class="form-input" id="f-phone" type="text" placeholder="+1 555 000 0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">City / Country</label>
+          <input class="form-input" id="f-city" type="text" placeholder="e.g. Berlin, DE">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Delivery Address</label>
+        <input class="form-input" id="f-address" type="text" placeholder="Street, building, apartment">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Assign Courier</label>
+          <select class="form-select" id="f-courier">
+            <option value="">&#x2014; Select &#x2014;</option>
+            <option>Aibek Kasymov</option>
+            <option>Nina Petrov</option>
+            <option>Omar Hassan</option>
+            <option>Yuki Tanaka</option>
+            <option>Riya Patel</option>
+            <option>Carlos Lima</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="form-select" id="f-priority">
+            <option>Standard</option>
+            <option>Express</option>
+            <option>Overnight</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitOrder()">Create Order</button>
+    </div>
   </div>
 </div>
 
-<div class="toast" id="toastEl"></div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-// KPI COUNTER ANIMATION
-document.querySelectorAll('.kpi-val[data-target]').forEach(el => {
-  const target = parseInt(el.dataset.target);
-  let start = null;
-  const duration = 1200;
-  function animate(ts) {
-    if(!start) start = ts;
-    const progress = Math.min((ts-start)/duration, 1);
-    const eased = 1 - Math.pow(1-progress, 3);
-    el.textContent = Math.round(eased * target);
-    if(progress < 1) requestAnimationFrame(animate);
-    else el.textContent = target;
-  }
-  setTimeout(() => requestAnimationFrame(animate), 200);
-});
+// ─── DATA ───────────────────────────────────────────
+const ORDERS = [
+  { id:'SHT-4821', name:'Alibek Dzhaksybekov', dest:'Almaty, KZ',      status:'In Transit', ini:'AK', courier:'A. Kasymov',   eta:'Today 18:30',    phone:'+7 701 234 5678',    addr:'ul. Abaya 12, apt. 3' },
+  { id:'SHT-4820', name:'Maria Santos',         dest:'São Paulo, BR',   status:'Delivered',  ini:'MS', courier:'M. Santos',    eta:'—',              phone:'+55 11 9 8765 4321', addr:'Rua das Flores 88' },
+  { id:'SHT-4819', name:'Chen Wei',             dest:'Shanghai, CN',    status:'Pending',    ini:'CW', courier:'C. Wei',       eta:'Tomorrow 09:00', phone:'+86 21 5550 1234',   addr:'Nanjing Rd 400, 5F' },
+  { id:'SHT-4818', name:'Fatima Al-Rashid',     dest:'Dubai, UAE',      status:'In Transit', ini:'FA', courier:'F. Al-Rashid', eta:'Today 21:00',    phone:'+971 50 123 4567',   addr:'Sheikh Zayed Rd, Tower B' },
+  { id:'SHT-4817', name:'Lena Müller',          dest:'Berlin, DE',      status:'Delivered',  ini:'LM', courier:'L. Müller',    eta:'—',              phone:'+49 30 1234 5678',   addr:'Unter den Linden 7' },
+  { id:'SHT-4816', name:'James Okafor',         dest:'Lagos, NG',       status:'Returned',   ini:'JO', courier:'J. Okafor',    eta:'—',              phone:'+234 802 345 6789',  addr:'Victoria Island, Plot 5' },
+  { id:'SHT-4815', name:'Priya Sharma',         dest:'Mumbai, IN',      status:'In Transit', ini:'PS', courier:'P. Sharma',    eta:'Today 22:15',    phone:'+91 98 2345 6789',   addr:'Bandra West, 16th Rd' },
+  { id:'SHT-4814', name:'Carlos Rivera',        dest:'Mexico City, MX', status:'Pending',    ini:'CR', courier:'C. Rivera',    eta:'Tomorrow 14:00', phone:'+52 55 1234 5678',   addr:'Paseo de la Reforma 123' },
+];
 
-// BAR CHART
-const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const vals = [62,78,54,91,88,84,67];
-const barSvg = document.getElementById('barSvg');
-const maxV = Math.max(...vals);
-const bw=52, gap=28, sx=14;
-barSvg.innerHTML = days.map((d,i)=>{
-  const fullH = (vals[i]/maxV)*130;
-  const x = sx + i*(bw+gap);
-  return `
-    <defs><linearGradient id="bg${i}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#fb923c" stop-opacity=".9"/>
-      <stop offset="100%" stop-color="#ea580c" stop-opacity=".4"/>
-    </linearGradient></defs>
-    <rect x="${x}" y="${150}" width="${bw}" height="0" rx="5" fill="url(#bg${i})" class="bar-rect" data-full="${fullH}" data-y="${150-fullH}"/>
-    <text x="${x+bw/2}" y="158" text-anchor="middle" fill="#64748b" font-size="10">${d}</text>
-    <text x="${x+bw/2}" y="${148-fullH}" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">${vals[i]}</text>
-  `;
-}).join('');
-setTimeout(()=>{
-  document.querySelectorAll('.bar-rect').forEach((r,i)=>{
-    const fh=parseFloat(r.dataset.full), fy=parseFloat(r.dataset.y);
-    setTimeout(()=>{ r.setAttribute('y',fy); r.setAttribute('height',fh); },i*80);
+// ─── NAV ────────────────────────────────────────────
+function setNav(el) {
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+// ─── EASING ─────────────────────────────────────────
+function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+
+// ─── COUNTER ANIMATION ──────────────────────────────
+function animCounter(elId, target, duration, delay) {
+  setTimeout(function() {
+    var el = document.getElementById(elId);
+    var start = performance.now();
+    function step(now) {
+      var p = Math.min((now - start) / duration, 1);
+      el.textContent = Math.round(easeOutQuart(p) * target);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }, delay);
+}
+animCounter('kpi-0', 247, 1200, 200);
+animCounter('kpi-1',  84, 1200, 280);
+animCounter('kpi-2',  18, 1200, 360);
+animCounter('kpi-3',   5, 1200, 440);
+
+// ─── BAR CHART ──────────────────────────────────────
+(function() {
+  var vals = [42, 58, 35, 71, 63, 89, 47];
+  var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var maxV = Math.max.apply(null, vals);
+  var svg  = document.getElementById('barChartSvg');
+  var VW = 420, barW = 38, barGap = 22;
+  var chartH = 130, chartTop = 18, bottomY = chartTop + chartH;
+  var totalW = vals.length * barW + (vals.length - 1) * barGap;
+  var startX = (VW - totalW) / 2;
+  var VH = 190;
+
+  // grid lines
+  [0.25, 0.5, 0.75, 1].forEach(function(frac) {
+    var y = chartTop + chartH * (1 - frac);
+    var l = document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1', startX - 6); l.setAttribute('x2', startX + totalW + 6);
+    l.setAttribute('y1', y); l.setAttribute('y2', y);
+    l.setAttribute('stroke','rgba(255,255,255,0.04)'); l.setAttribute('stroke-width','1');
+    svg.appendChild(l);
   });
-},300);
 
-// DONUT CHART
-const segments=[
-  {label:'Delivered',pct:68,color:var_('--green')},
-  {label:'In Transit',pct:21,color:var_('--blue')},
-  {label:'Pending',pct:8,color:var_('--yellow')},
-  {label:'Failed',pct:3,color:var_('--red')},
-];
-function var_(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim()}
-const r=15.9, circ=2*Math.PI*r;
-const donut=document.getElementById('donutSvg');
-const legend=document.getElementById('donutLegend');
-let offset=0;
-segments.forEach((s,idx)=>{
-  const dash=(s.pct/100)*circ;
-  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  c.setAttribute('cx','21');c.setAttribute('cy','21');c.setAttribute('r',r);
-  c.setAttribute('fill','transparent');c.setAttribute('stroke',s.color);c.setAttribute('stroke-width','5');
-  const dashOff=-offset*circ/100 + circ*.25;
-  c.setAttribute('stroke-dasharray',`0 ${circ}`);
-  c.setAttribute('stroke-dashoffset',dashOff);
-  c.style.transition=`stroke-dasharray .8s ${idx*.15}s ease`;
-  donut.appendChild(c);
-  setTimeout(()=>{c.setAttribute('stroke-dasharray',`${dash} ${circ-dash}`)},100);
-  offset+=s.pct;
-  legend.innerHTML+=`<div class="leg-row"><div class="leg-dot" style="background:${s.color}"></div><span class="leg-name">${s.label}</span><span class="leg-pct">${s.pct}%</span></div>`;
-});
+  vals.forEach(function(v, i) {
+    var x = startX + i * (barW + barGap);
+    var targetH = (v / maxV) * chartH;
+    var fill = (v === maxV) ? '#fb923c' : 'rgba(251,146,60,0.52)';
 
-// ORDERS TABLE
-const orders=[
-  {id:'SHT-2847',name:'Aigerim T.',dest:'Astana, Syganak 10',st:'transit',stl:'In Transit',courier:'KA',cname:'Karim A.',eta:'14:30'},
-  {id:'SHT-2846',name:'Nurzhan B.',dest:'Almaty, Abay 42',st:'delivered',stl:'Delivered',courier:'MT',cname:'Mira T.',eta:'✓ 11:00'},
-  {id:'SHT-2845',name:'Dima S.',dest:'Shymkent, Central',st:'pending',stl:'Pending',courier:'—',cname:'Unassigned',eta:'TBD'},
-  {id:'SHT-2844',name:'Sasha K.',dest:'Almaty, Gogol 12',st:'delivered',stl:'Delivered',courier:'AT',cname:'Aida T.',eta:'✓ 10:15'},
-  {id:'SHT-2843',name:'Lena P.',dest:'Astana, Khan Shatyr',st:'returned',stl:'Returned',courier:'KA',cname:'Karim A.',eta:'Failed'},
-  {id:'SHT-2842',name:'Arman Z.',dest:'Karaganda, Lenin 5',st:'transit',stl:'In Transit',courier:'RB',cname:'Ruslan B.',eta:'17:00'},
-  {id:'SHT-2841',name:'Victor M.',dest:'Almaty, Dostyk 89',st:'delivered',stl:'Delivered',courier:'MT',cname:'Mira T.',eta:'✓ 09:45'},
-  {id:'SHT-2840',name:'Ana K.',dest:'Astana, Kabanbay 12',st:'transit',stl:'In Transit',courier:'AT',cname:'Aida T.',eta:'15:20'},
-];
-document.getElementById('ordersBody').innerHTML=orders.map(o=>`
-  <tr class="order-row" onclick="openDrawer('${o.id}','${o.name}','${o.dest}','${o.stl}','${o.cname}','${o.eta}')">
-    <td><span class="order-id">${o.id}</span></td>
-    <td>${o.name}</td>
-    <td style="font-size:12px;color:var(--muted)">${o.dest}</td>
-    <td><span class="sbadge ${o.st}">${o.stl}</span></td>
-    <td><div class="courier-chip"><div class="courier-av">${o.courier}</div>${o.cname}</div></td>
-    <td style="font-size:12px;color:var(--muted)">${o.eta}</td>
-    <td><button class="btn-detail" onclick="event.stopPropagation();openDrawer('${o.id}','${o.name}','${o.dest}','${o.stl}','${o.cname}','${o.eta}')">→</button></td>
-  </tr>
-`).join('');
+    var rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', x); rect.setAttribute('y', bottomY);
+    rect.setAttribute('width', barW); rect.setAttribute('height', '0');
+    rect.setAttribute('rx', '5'); rect.setAttribute('fill', fill);
+    rect.classList.add('chart-bar');
+    svg.appendChild(rect);
 
-// MAP COURIERS
-const mapCanvas=document.getElementById('mapCanvas');
-const couriers=[
-  {initials:'KA',color:'#fb923c',x:22,y:40,dx:.3,dy:.15},
-  {initials:'MT',color:'#34d399',x:55,y:60,dx:-.2,dy:.2},
-  {initials:'RB',color:'#60a5fa',x:38,y:75,dx:.25,dy:-.1},
-  {initials:'AT',color:'#a78bfa',x:70,y:30,dx:-.15,dy:.25},
-  {initials:'BK',color:'#fbbf24',x:15,y:80,dx:.2,dy:-.2},
-  {initials:'ZD',color:'#f472b6',x:80,y:70,dx:-.2,dy:.1},
-];
-couriers.forEach(c=>{
-  const el=document.createElement('div');
-  el.className='courier-dot';
-  el.style.cssText=`left:${c.x}%;top:${c.y}%;background:${c.color};color:#000`;
-  el.innerHTML=`${c.initials}<div class="dot-label" style="color:${c.color}">${c.initials}</div>`;
-  el.style.color='rgba(0,0,0,0.8)';
-  mapCanvas.appendChild(el);
-  c.el=el;
-  c.px=c.x; c.py=c.y;
-});
-setInterval(()=>{
-  couriers.forEach(c=>{
-    c.px+=c.dx*(Math.random()*2-0.5);
-    c.py+=c.dy*(Math.random()*2-0.5);
-    c.px=Math.max(5,Math.min(90,c.px));
-    c.py=Math.max(5,Math.min(85,c.py));
-    c.el.style.left=c.px+'%';
-    c.el.style.top=c.py+'%';
+    var vl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    vl.setAttribute('x', x + barW / 2); vl.setAttribute('y', bottomY - targetH - 6);
+    vl.setAttribute('class','bar-value-label'); vl.setAttribute('opacity','0');
+    vl.textContent = v;
+    svg.appendChild(vl);
+
+    var dl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    dl.setAttribute('x', x + barW / 2); dl.setAttribute('y', VH - 2);
+    dl.setAttribute('class','bar-day-label'); dl.textContent = days[i];
+    svg.appendChild(dl);
+
+    setTimeout(function() {
+      var dur = 700, t0 = performance.now();
+      function step(now) {
+        var p = Math.min((now - t0) / dur, 1);
+        var e = easeOutQuart(p);
+        var ch = e * targetH;
+        rect.setAttribute('y', bottomY - ch); rect.setAttribute('height', ch);
+        if (p < 1) { requestAnimationFrame(step); }
+        else { vl.setAttribute('opacity','1'); }
+      }
+      requestAnimationFrame(step);
+    }, 350 + i * 70);
   });
-},1500);
+})();
 
-// DRAWER
-function openDrawer(id,name,dest,status,courier,eta){
-  document.getElementById('dId').textContent=id;
-  document.getElementById('dTitle').textContent=`${name} — ${status}`;
-  document.getElementById('dInfo').innerHTML=`
-    <div class="info-row"><span class="info-key">Recipient</span><span>${name}</span></div>
-    <div class="info-row"><span class="info-key">Destination</span><span>${dest}</span></div>
-    <div class="info-row"><span class="info-key">Courier</span><span>${courier}</span></div>
-    <div class="info-row"><span class="info-key">ETA</span><span>${eta}</span></div>
-    <div class="info-row"><span class="info-key">Status</span><span><span class="sbadge ${status.toLowerCase().replace(' ','')} delivered">${status}</span></span></div>
-  `;
-  const steps=[
-    {title:'Order Created',time:'Yesterday 22:10',done:true},
-    {title:'Picked Up',time:'Today 09:30',done:true},
-    {title:'In Transit',time:'Today 10:15',active:status==='In Transit'},
-    {title:'Out for Delivery',time:'Est. 13:00',done:status==='Delivered'},
-    {title:'Delivered',time:eta,done:status==='Delivered'},
+// ─── DONUT CHART ────────────────────────────────────
+(function() {
+  var R = 62, CIRC = 2 * Math.PI * R;
+  var segs = [
+    { id:'d-delivered', pct:0.68 },
+    { id:'d-transit',   pct:0.21 },
+    { id:'d-pending',   pct:0.08 },
+    { id:'d-failed',    pct:0.03 },
   ];
-  document.getElementById('dTrack').innerHTML=steps.map(s=>`
-    <div class="tstep">
-      <div class="tstep-dot ${s.done?'done':s.active?'active':''}"></div>
-      <div class="tstep-title">${s.title}</div>
-      <div class="tstep-time">${s.time}</div>
-    </div>
-  `).join('');
+  var cum = 0;
+  var targets = segs.map(function(s) {
+    var dash = s.pct * CIRC, gap = CIRC - dash, finalOff = -cum;
+    cum += dash;
+    var el = document.getElementById(s.id);
+    el.setAttribute('stroke-dasharray', dash + ' ' + gap);
+    el.setAttribute('stroke-dashoffset', CIRC);
+    return { el: el, finalOffset: finalOff };
+  });
+  targets.forEach(function(t, idx) {
+    setTimeout(function() {
+      var dur = 900, t0 = performance.now(), from = CIRC, to = t.finalOffset;
+      function step(now) {
+        var p = Math.min((now - t0) / dur, 1);
+        t.el.setAttribute('stroke-dashoffset', from + (to - from) * easeOutQuart(p));
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }, 400 + idx * 130);
+  });
+})();
+
+// ─── STATUS BADGE ───────────────────────────────────
+function badgeHtml(status) {
+  if (status === 'Delivered')  return '<span class="badge badge-delivered">Delivered</span>';
+  if (status === 'In Transit') return '<span class="badge badge-transit"><span class="blink-dot"></span>In Transit</span>';
+  if (status === 'Pending')    return '<span class="badge badge-pending">Pending</span>';
+  if (status === 'Returned')   return '<span class="badge badge-returned">Returned</span>';
+  return status;
+}
+
+// ─── ORDERS TABLE ───────────────────────────────────
+var tbody = document.getElementById('ordersBody');
+ORDERS.forEach(function(o, i) {
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td><span class="order-id">' + o.id + '</span></td>' +
+    '<td><span class="recipient-name">' + o.name + '</span></td>' +
+    '<td><span class="destination">' + o.dest + '</span></td>' +
+    '<td>' + badgeHtml(o.status) + '</td>' +
+    '<td><div class="courier-chip"><div class="courier-initials">' + o.ini + '</div><span class="courier-name">' + o.courier + '</span></div></td>' +
+    '<td><span class="eta-cell">' + o.eta + '</span></td>';
+  tr.onclick = (function(idx){ return function(){ openDrawer(idx); }; })(i);
+  tbody.appendChild(tr);
+});
+
+// ─── DRAWER ─────────────────────────────────────────
+function trackingFor(status) {
+  if (status === 'Delivered') return [
+    { name:'Order Accepted',     time:'Jun 14, 07:55', s:'done'   },
+    { name:'Picked Up',          time:'Jun 14, 08:30', s:'done'   },
+    { name:'Departed Warehouse', time:'Jun 14, 09:10', s:'done'   },
+    { name:'In Transit',         time:'Jun 14, 10:00', s:'done'   },
+    { name:'Delivered',          time:'Jun 14, 13:22', s:'done'   },
+  ];
+  if (status === 'Pending') return [
+    { name:'Order Accepted',     time:'Jun 14, 14:10', s:'done'   },
+    { name:'Picked Up',          time:'',              s:'active' },
+    { name:'Departed Warehouse', time:'',              s:'pend'   },
+    { name:'In Transit',         time:'',              s:'pend'   },
+    { name:'Delivered',          time:'',              s:'pend'   },
+  ];
+  if (status === 'Returned') return [
+    { name:'Order Accepted',     time:'Jun 13, 11:00', s:'done'   },
+    { name:'Picked Up',          time:'Jun 13, 12:30', s:'done'   },
+    { name:'Departed Warehouse', time:'Jun 13, 13:00', s:'done'   },
+    { name:'Delivery Attempted', time:'Jun 13, 17:45', s:'done'   },
+    { name:'Returned to Sender', time:'Jun 14, 09:30', s:'done'   },
+  ];
+  return [
+    { name:'Order Accepted',     time:'Jun 14, 09:12', s:'done'   },
+    { name:'Picked Up',          time:'Jun 14, 10:45', s:'done'   },
+    { name:'Departed Warehouse', time:'Jun 14, 11:30', s:'done'   },
+    { name:'In Transit',         time:'',              s:'active' },
+    { name:'Delivered',          time:'',              s:'pend'   },
+  ];
+}
+
+function dotHtml(s) {
+  return '<div class="tl-dot-wrap"><div class="tl-dot ' + s + '"><div class="tl-inner"></div></div></div>';
+}
+
+function openDrawer(idx) {
+  var o = ORDERS[idx];
+  document.getElementById('drawerTitle').textContent = 'Order ' + o.id;
+  var steps = trackingFor(o.status);
+  var tlHtml = steps.map(function(step) {
+    return '<div class="tl-step">' + dotHtml(step.s) +
+      '<div class="tl-name' + (step.s === 'pend' ? ' grey' : '') + '">' + step.name + '</div>' +
+      (step.time ? '<div class="tl-time">' + step.time + '</div>' : '') +
+      '</div>';
+  }).join('');
+  document.getElementById('drawerBody').innerHTML =
+    '<div><div class="section-label">Status</div>' + badgeHtml(o.status) + '</div>' +
+    '<div><div class="section-label">Recipient</div><div class="info-grid">' +
+      '<div class="info-row"><span class="info-lbl">Name</span><span class="info-val">' + o.name + '</span></div>' +
+      '<div class="info-row"><span class="info-lbl">Phone</span><span class="info-val">' + o.phone + '</span></div>' +
+      '<div class="info-row"><span class="info-lbl">Address</span><span class="info-val">' + o.addr + '</span></div>' +
+      '<div class="info-row"><span class="info-lbl">City</span><span class="info-val">' + o.dest + '</span></div>' +
+    '</div></div>' +
+    '<div><div class="section-label">Courier</div>' +
+      '<div class="courier-chip"><div class="courier-initials">' + o.ini + '</div>' +
+      '<span style="color:var(--text);font-size:13px;font-weight:500">' + o.courier + '</span></div></div>' +
+    '<div><div class="section-label">Estimated Arrival</div>' +
+      '<span style="color:var(--text);font-size:13px;font-weight:500">' + (o.eta === '—' ? 'N/A' : o.eta) + '</span></div>' +
+    '<div><div class="section-label">Tracking Timeline</div><div class="timeline">' + tlHtml + '</div></div>';
+
   document.getElementById('drawerOverlay').classList.add('open');
-}
-function closeDrawer(){document.getElementById('drawerOverlay').classList.remove('open')}
-document.getElementById('drawerOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDrawer()});
-
-// NEW ORDER MODAL
-function openNewOrder(){document.getElementById('newOrderModal').classList.add('open')}
-function closeNewOrder(){document.getElementById('newOrderModal').classList.remove('open')}
-document.getElementById('newOrderModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeNewOrder()});
-function createOrder(){
-  const id='SHT-'+Math.floor(2900+Math.random()*100);
-  closeNewOrder();
-  t(`✅ Order ${id} created!`);
+  document.getElementById('orderDrawer').classList.add('open');
 }
 
-function t(msg){
-  const el=document.getElementById('toastEl');
-  el.textContent=msg;el.classList.add('show');
-  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),3000);
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('orderDrawer').classList.remove('open');
 }
+
+// ─── MODAL ──────────────────────────────────────────
+function openModal()  { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function handleModalBg(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+function submitOrder() {
+  closeModal();
+  var num = Math.floor(1000 + Math.random() * 9000);
+  ['f-name','f-phone','f-city','f-address'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  showToast('✓ Order SHT-' + num + ' created successfully!');
+}
+
+// ─── TOAST ──────────────────────────────────────────
+var toastTimer = null;
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 3500);
+}
+
+// ─── MAP ────────────────────────────────────────────
+(function() {
+  var svg = document.getElementById('mapSvg');
+  var W = 300, H = 190;
+
+  // grid
+  var xi, yi;
+  for (xi = 0; xi <= W; xi += 30) {
+    var gl = document.createElementNS('http://www.w3.org/2000/svg','line');
+    gl.setAttribute('x1',xi); gl.setAttribute('y1',0); gl.setAttribute('x2',xi); gl.setAttribute('y2',H);
+    gl.setAttribute('stroke','rgba(255,255,255,0.035)'); gl.setAttribute('stroke-width','1');
+    svg.appendChild(gl);
+  }
+  for (yi = 0; yi <= H; yi += 30) {
+    var gl2 = document.createElementNS('http://www.w3.org/2000/svg','line');
+    gl2.setAttribute('x1',0); gl2.setAttribute('y1',yi); gl2.setAttribute('x2',W); gl2.setAttribute('y2',yi);
+    gl2.setAttribute('stroke','rgba(255,255,255,0.035)'); gl2.setAttribute('stroke-width','1');
+    svg.appendChild(gl2);
+  }
+
+  // roads
+  ['0,55 60,55 90,80 170,80 230,55 300,55',
+   '55,0 55,70 85,100 85,190',
+   '0,130 70,120 140,140 210,128 300,138',
+   '145,0 145,55 185,90 220,90',
+   '0,75 35,75 65,100 65,190',
+   '160,80 200,110 240,100 300,105'].forEach(function(pts) {
+    var p = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    p.setAttribute('points',pts); p.setAttribute('fill','none');
+    p.setAttribute('stroke','rgba(255,255,255,0.08)'); p.setAttribute('stroke-width','2');
+    p.setAttribute('stroke-linecap','round'); p.setAttribute('stroke-linejoin','round');
+    svg.appendChild(p);
+  });
+
+  var agents = [
+    { ini:'AK', x: 80, y: 58,  vx: 0.28, vy: 0.12 },
+    { ini:'FA', x:195, y: 80,  vx:-0.22, vy: 0.18 },
+    { ini:'PS', x: 58, y:120,  vx: 0.20, vy:-0.16 },
+    { ini:'NK', x:148, y: 52,  vx:-0.15, vy: 0.25 },
+    { ini:'YT', x:235, y:135,  vx: 0.18, vy:-0.20 },
+    { ini:'CL', x:108, y:165,  vx:-0.28, vy: 0.10 },
+  ];
+
+  var gEls = agents.map(function(a) {
+    var g = document.createElementNS('http://www.w3.org/2000/svg','g');
+
+    var ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    ring.setAttribute('r','14'); ring.setAttribute('fill','none');
+    ring.setAttribute('stroke','rgba(251,146,60,0.22)'); ring.setAttribute('stroke-width','2');
+    g.appendChild(ring);
+
+    var dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('r','10'); dot.setAttribute('fill','#fb923c');
+    dot.setAttribute('stroke','rgba(0,0,0,0.3)'); dot.setAttribute('stroke-width','1.5');
+    g.appendChild(dot);
+
+    var txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','central');
+    txt.setAttribute('fill','#fff'); txt.setAttribute('font-size','7');
+    txt.setAttribute('font-weight','700'); txt.setAttribute('font-family','-apple-system,sans-serif');
+    txt.textContent = a.ini;
+    g.appendChild(txt);
+
+    g.setAttribute('transform','translate('+a.x+','+a.y+')');
+    svg.appendChild(g);
+    return g;
+  });
+
+  var PAD = 14;
+  setInterval(function() {
+    agents.forEach(function(a, i) {
+      a.x += a.vx; a.y += a.vy;
+      if (a.x < PAD || a.x > W - PAD) { a.vx *= -1; a.x = Math.max(PAD, Math.min(W-PAD, a.x)); }
+      if (a.y < PAD || a.y > H - PAD) { a.vy *= -1; a.y = Math.max(PAD, Math.min(H-PAD, a.y)); }
+      gEls[i].setAttribute('transform','translate('+a.x.toFixed(2)+','+a.y.toFixed(2)+')');
+    });
+  }, 50);
+})();
 </script>
 </body>
 </html>
