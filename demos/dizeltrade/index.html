@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DizelTrade — Fuel Distribution Platform</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #05050f;
+    --surface: #0d0d20;
+    --surface2: #12122a;
+    --border: rgba(255,255,255,0.07);
+    --accent: #8b5cf6;
+    --accent2: #7c3aed;
+    --text: #e2e8f0;
+    --muted: rgba(255,255,255,0.4);
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --orange: #fb923c;
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  *, *::before, *::after { box-sizing: border-box; }
+
+  .demo-banner { background: rgba(139,92,246,0.1); border-bottom: 1px solid rgba(139,92,246,0.2); padding: 8px 20px; text-align: center; font-size: 13px; color: rgba(139,92,246,0.9); }
+  .demo-banner a { color: var(--accent); text-decoration: none; font-weight: 500; }
+
+  .app { display: grid; grid-template-columns: 220px 1fr; flex: 1; }
+  @media (max-width: 768px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 0; display: flex; flex-direction: column; }
+  .side-logo { padding: 20px; font-size: 17px; font-weight: 800; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .side-logo-icon { width: 30px; height: 30px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .side-logo span { color: var(--accent); }
+  .nav-section { padding: 16px 12px 8px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.2); text-transform: uppercase; letter-spacing: 0.1em; }
+  .side-link { display: flex; align-items: center; gap: 10px; padding: 9px 12px; margin: 1px 8px; font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s; border-radius: 9px; }
+  .side-link:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .side-link.active { color: var(--accent); background: rgba(139,92,246,0.1); }
+  .side-badge { margin-left: auto; background: rgba(248,113,113,0.2); color: var(--red); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 8px; }
+  .side-bottom { margin-top: auto; padding: 12px 8px; border-top: 1px solid var(--border); }
+  .user-chip { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 9px; background: var(--surface2); }
+  .user-av { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
+  .user-name { font-size: 12px; font-weight: 600; }
+  .user-role { font-size: 10px; color: var(--muted); }
+
+  main { overflow-y: auto; display: flex; flex-direction: column; }
+  .topbar { padding: 14px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: var(--surface); }
+  .topbar-title { font-size: 16px; font-weight: 700; flex: 1; }
+  .topbar-date { font-size: 12px; color: var(--muted); }
+  .btn-new { background: var(--accent); color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; }
+
+  /* KPI */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 20px 24px; }
+  @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; position: relative; overflow: hidden; }
+  .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--kpi-color, var(--accent)); }
+  .kpi-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .kpi-val { font-size: 26px; font-weight: 800; color: var(--kpi-color, var(--text)); }
+  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  .kpi-trend { font-size: 11px; font-weight: 700; }
+  .kpi-trend.up { color: var(--green); }
+  .kpi-trend.dn { color: var(--red); }
+
+  /* CHARTS ROW */
+  .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; padding: 0 24px 20px; }
+  @media (max-width: 1100px) { .charts-row { grid-template-columns: 1fr; } }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .chart-card-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .chart-period { display: flex; gap: 4px; }
+  .period-btn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: none; cursor: pointer; background: transparent; color: var(--muted); }
+  .period-btn.active { background: rgba(139,92,246,0.15); color: var(--accent); }
+  svg.bar-chart { width: 100%; height: 160px; }
+  .donut-wrap { display: flex; align-items: center; gap: 20px; }
+  .donut-legend { display: flex; flex-direction: column; gap: 10px; font-size: 12px; }
+  .leg-item { display: flex; align-items: center; gap: 8px; }
+  .leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .leg-val { color: var(--muted); }
+  .leg-pct { margin-left: auto; font-weight: 700; }
+
+  /* TABLES */
+  .tables-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 24px 20px; }
+  @media (max-width: 1100px) { .tables-row { grid-template-columns: 1fr; } }
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .tc-header { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .tc-title { font-size: 14px; font-weight: 700; }
+  .tc-link { font-size: 12px; color: var(--accent); cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { padding: 10px 14px; text-align: left; color: var(--muted); font-weight: 600; font-size: 11px; background: rgba(255,255,255,0.02); }
+  td { padding: 11px 14px; border-top: 1px solid var(--border); }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .status { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .status::before { content:''; width:5px;height:5px;border-radius:50%; }
+  .delivered { background: rgba(52,211,153,0.12); color: var(--green); }
+  .delivered::before { background: var(--green); }
+  .loading { background: rgba(96,165,250,0.12); color: var(--blue); }
+  .loading::before { background: var(--blue); animation: blink 1.5s infinite; }
+  .sched { background: rgba(251,191,36,0.12); color: var(--yellow); }
+  .sched::before { background: var(--yellow); }
+  .debt-hi { color: var(--red); font-weight: 700; }
+  .debt-ok { color: var(--green); }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+  /* FLEET */
+  .fleet-section { padding: 0 24px 24px; }
+  .fleet-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 1100px) { .fleet-grid { grid-template-columns: repeat(2, 1fr); } }
+  .truck-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+  .truck-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .truck-id { font-size: 13px; font-weight: 700; }
+  .truck-status { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+  .on-route { background: rgba(96,165,250,0.15); color: var(--blue); }
+  .available { background: rgba(52,211,153,0.12); color: var(--green); }
+  .maintenance { background: rgba(251,191,36,0.12); color: var(--yellow); }
+  .truck-icon { font-size: 28px; text-align: center; margin: 8px 0; }
+  .truck-info { font-size: 11px; color: var(--muted); }
+  .fuel-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .fuel-fill { height: 100%; border-radius: 2px; }
+
+  footer { border-top: 1px solid var(--border); padding: 16px 24px; display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface2); border: 1px solid rgba(139,92,246,0.3); color: var(--text); padding: 11px 18px; border-radius: 11px; font-size: 13px; transform: translateY(70px); opacity: 0; transition: all 0.3s; z-index: 999; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  🔬 Demo preview · Real product in development · <a href="https://dimkaprojects.xyz">← Back to portfolio</a>
+</div>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="side-logo">
+      <div class="side-logo-icon">⛽</div>
+      Dizel<span>Trade</span>
+    </div>
+
+    <div class="nav-section">Operations</div>
+    <div class="side-link active">📊 Dashboard</div>
+    <div class="side-link" onclick="t('Dispatches section')">🚚 Dispatches <span class="side-badge">3</span></div>
+    <div class="side-link" onclick="t('Fleet section')">🚛 Fleet</div>
+    <div class="side-link" onclick="t('Deliveries section')">📦 Deliveries</div>
+
+    <div class="nav-section">Finance</div>
+    <div class="side-link" onclick="t('Client debts section')">💳 Client Debts</div>
+    <div class="side-link" onclick="t('Invoices section')">🧾 Invoices</div>
+    <div class="side-link" onclick="t('Analytics section')">📈 Analytics</div>
+
+    <div class="nav-section">Admin</div>
+    <div class="side-link" onclick="t('Clients section')">👥 Clients</div>
+    <div class="side-link" onclick="t('Drivers section')">🪪 Drivers</div>
+    <div class="side-link" onclick="t('Settings section')">⚙️ Settings</div>
+
+    <div class="side-bottom">
+      <div class="user-chip">
+        <div class="user-av">DM</div>
+        <div>
+          <div class="user-name">Dimash M.</div>
+          <div class="user-role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div class="topbar">
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-date">Saturday, June 14, 2026</div>
+      <button class="btn-new" onclick="t('New dispatch created')">+ New Dispatch</button>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi" style="--kpi-color: var(--accent)">
+        <div class="kpi-label">Total Dispatched (Month)</div>
+        <div class="kpi-val">2,840 t</div>
+        <div class="kpi-sub"><span class="kpi-trend up">↑ 8.4%</span> vs last month</div>
+      </div>
+      <div class="kpi" style="--kpi-color: var(--blue)">
+        <div class="kpi-label">Active Deliveries</div>
+        <div class="kpi-val">12</div>
+        <div class="kpi-sub">3 trucks on route now</div>
+      </div>
+      <div class="kpi" style="--kpi-color: var(--red)">
+        <div class="kpi-label">Total Client Debt</div>
+        <div class="kpi-val">₸4.2M</div>
+        <div class="kpi-sub"><span class="kpi-trend dn">↑ 5 overdue</span> accounts</div>
+      </div>
+      <div class="kpi" style="--kpi-color: var(--green)">
+        <div class="kpi-label">Revenue (Month)</div>
+        <div class="kpi-val">₸38.5M</div>
+        <div class="kpi-sub"><span class="kpi-trend up">↑ 12%</span> vs last month</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-card-title">
+          Monthly Dispatch Volume (tonnes)
+          <div class="chart-period">
+            <button class="period-btn" onclick="setPeriod(this)">3M</button>
+            <button class="period-btn active" onclick="setPeriod(this)">6M</button>
+            <button class="period-btn" onclick="setPeriod(this)">1Y</button>
+          </div>
+        </div>
+        <svg class="bar-chart" viewBox="0 0 560 160" id="barChart"></svg>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Client Segments</div>
+        <div class="donut-wrap">
+          <svg width="120" height="120" viewBox="0 0 42 42" id="donutChart">
+            <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--surface2)" stroke-width="5"/>
+          </svg>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tables-row">
+      <div class="table-card">
+        <div class="tc-header">
+          <div class="tc-title">Recent Dispatches</div>
+          <div class="tc-link" onclick="t('View all dispatches')">View all →</div>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Client</th><th>Volume</th><th>Status</th></tr></thead>
+          <tbody id="dispatchTable"></tbody>
+        </table>
+      </div>
+      <div class="table-card">
+        <div class="tc-header">
+          <div class="tc-title">Client Debts</div>
+          <div class="tc-link" onclick="t('View all debts')">View all →</div>
+        </div>
+        <table>
+          <thead><tr><th>Client</th><th>Debt</th><th>Days</th><th>Status</th></tr></thead>
+          <tbody id="debtsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="fleet-section">
+      <div style="font-size:14px; font-weight:700; margin-bottom:14px; padding: 0 0 0 0;">Fleet Status</div>
+      <div class="fleet-grid" id="fleetGrid"></div>
+    </div>
+
+    <footer>
+      <div>DizelTrade · <a href="https://dimkaprojects.xyz">dimkaprojects.xyz</a></div>
+      <div>Part of <a href="https://dimkaprojects.xyz">DimkaQQ</a> portfolio</div>
+    </footer>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// BAR CHART
+const months = ['Jan','Feb','Mar','Apr','May','Jun'];
+const volumes = [1820, 2100, 1950, 2400, 2700, 2840];
+const svg = document.getElementById('barChart');
+const maxV = Math.max(...volumes);
+const bw = 60, gap = 32, startX = 20;
+svg.innerHTML = months.map((m, i) => {
+  const h = (volumes[i] / maxV) * 130;
+  const x = startX + i * (bw + gap);
+  const y = 150 - h;
+  const grad = `<defs><linearGradient id="bg${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.9"/><stop offset="100%" stop-color="#7c3aed" stop-opacity="0.4"/></linearGradient></defs>`;
+  return `${grad}
+    <rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="6" fill="url(#bg${i})"/>
+    <text x="${x + bw/2}" y="${y - 6}" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="700">${(volumes[i]/1000).toFixed(1)}k</text>
+    <text x="${x + bw/2}" y="160" text-anchor="middle" fill="#64748b" font-size="10">${m}</text>`;
+}).join('');
+
+// DONUT
+const segments = [
+  { label: 'Retail Stations', pct: 42, color: '#8b5cf6' },
+  { label: 'Industrial', pct: 31, color: '#60a5fa' },
+  { label: 'Agriculture', pct: 18, color: '#34d399' },
+  { label: 'Transport', pct: 9, color: '#fbbf24' },
+];
+const r = 15.9, circ = 2 * Math.PI * r;
+let offset = 0;
+const donut = document.getElementById('donutChart');
+const legend = document.getElementById('donutLegend');
+segments.forEach(s => {
+  const dash = (s.pct / 100) * circ;
+  const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  circle.setAttribute('cx', '21'); circle.setAttribute('cy', '21'); circle.setAttribute('r', r.toString());
+  circle.setAttribute('fill', 'transparent');
+  circle.setAttribute('stroke', s.color);
+  circle.setAttribute('stroke-width', '5');
+  circle.setAttribute('stroke-dasharray', `${dash} ${circ - dash}`);
+  circle.setAttribute('stroke-dashoffset', (-offset * circ / 100 + circ * 0.25).toString());
+  circle.style.transition = 'stroke-dashoffset 0.4s';
+  donut.appendChild(circle);
+  offset += s.pct;
+  legend.innerHTML += `<div class="leg-item"><div class="leg-dot" style="background:${s.color}"></div><span>${s.label}</span><span class="leg-pct">${s.pct}%</span></div>`;
+});
+
+// DISPATCHES
+const dispatches = [
+  { id: 'DT-0847', client: 'Kazmunaygaz AO', vol: '32 t', status: 'delivered', label: 'Delivered' },
+  { id: 'DT-0846', client: 'Arman Petrol', vol: '18 t', status: 'loading', label: 'Loading' },
+  { id: 'DT-0845', client: 'AgroFuel LLP', vol: '45 t', status: 'delivered', label: 'Delivered' },
+  { id: 'DT-0844', client: 'TechTrans KZ', vol: '27 t', status: 'sched', label: 'Scheduled' },
+  { id: 'DT-0843', client: 'NurAuto', vol: '12 t', status: 'loading', label: 'In Transit' },
+];
+document.getElementById('dispatchTable').innerHTML = dispatches.map(d => `
+  <tr>
+    <td style="font-family:monospace;color:var(--accent);font-size:11px;">${d.id}</td>
+    <td>${d.client}</td>
+    <td style="font-weight:600;">${d.vol}</td>
+    <td><span class="status ${d.status}">${d.label}</span></td>
+  </tr>
+`).join('');
+
+// DEBTS
+const debts = [
+  { client: 'AgroFuel LLP', debt: '₸820K', days: 45, hi: true },
+  { client: 'NurAuto', debt: '₸340K', days: 28, hi: true },
+  { client: 'TechTrans KZ', debt: '₸95K', days: 12, hi: false },
+  { client: 'BuildMat Co.', debt: '₸210K', days: 35, hi: true },
+  { client: 'Arman Petrol', debt: '₸0', days: 0, hi: false },
+];
+document.getElementById('debtsTable').innerHTML = debts.map(d => `
+  <tr>
+    <td>${d.client}</td>
+    <td class="${d.hi ? 'debt-hi' : 'debt-ok'}">${d.debt}</td>
+    <td style="color:var(--muted)">${d.days > 0 ? d.days + 'd' : '—'}</td>
+    <td><span class="status ${d.days > 30 ? 'returned' : d.days > 0 ? 'sched' : 'delivered'}" style="font-size:10px;">${d.days > 30 ? 'Overdue' : d.days > 0 ? 'Pending' : 'Paid'}</span></td>
+  </tr>
+`).join('');
+
+// FLEET
+const fleet = [
+  { id: 'KZ-847-AB', status: 'on-route', label: 'On Route', driver: 'A. Bekov', fuel: 72 },
+  { id: 'KZ-312-CD', status: 'available', label: 'Available', driver: 'M. Seiit', fuel: 95 },
+  { id: 'KZ-521-EF', status: 'on-route', label: 'On Route', driver: 'K. Akhmet', fuel: 48 },
+  { id: 'KZ-104-GH', status: 'maintenance', label: 'Maintenance', driver: '—', fuel: 20 },
+];
+const fuelColors = { 'on-route': '#60a5fa', 'available': '#34d399', 'maintenance': '#fbbf24' };
+document.getElementById('fleetGrid').innerHTML = fleet.map(f => `
+  <div class="truck-card">
+    <div class="truck-top">
+      <div class="truck-id">${f.id}</div>
+      <div class="truck-status ${f.status}">${f.label}</div>
+    </div>
+    <div class="truck-icon">🚛</div>
+    <div class="truck-info">Driver: ${f.driver}</div>
+    <div class="truck-info" style="margin-top:4px">Fuel: ${f.fuel}%</div>
+    <div class="fuel-bar"><div class="fuel-fill" style="width:${f.fuel}%;background:${fuelColors[f.status]}"></div></div>
+  </div>
+`).join('');
+
+function setPeriod(btn) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function t(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg + ' — demo';
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
