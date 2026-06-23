@@ -18,6 +18,9 @@ export const translations = {
       viewWork: "View my work",
       getInTouch: "Get in touch",
       github: "GitHub",
+      statProjects: "Projects Shipped",
+      statYears: "Years Coding",
+      statTech: "Technologies",
     },
     services: {
       label: "// what i do",
@@ -91,11 +94,6 @@ export const translations = {
           description:
             "Web application for managing shipments and logistics operations. Track orders, assign couriers, generate reports and monitor delivery statuses in real time.",
         },
-        {
-          tagline: "Company Website",
-          description:
-            "Corporate website for MoraTech built with Next.js. Showcases services, team, and case studies with a fast, SEO-optimized static architecture.",
-        },
       ],
     },
     contact: {
@@ -129,6 +127,9 @@ export const translations = {
       viewWork: "Смотреть работы",
       getInTouch: "Связаться",
       github: "GitHub",
+      statProjects: "Проектов запущено",
+      statYears: "Лет в коде",
+      statTech: "Технологий",
     },
     services: {
       label: "// что я делаю",
@@ -201,11 +202,6 @@ export const translations = {
           tagline: "Доставка и логистика",
           description:
             "Веб-приложение для управления доставками и логистическими операциями. Отслеживание заказов, назначение курьеров, отчёты и статусы доставок в реальном времени.",
-        },
-        {
-          tagline: "Корпоративный сайт",
-          description:
-            "Корпоративный сайт MoraTech на Next.js. Услуги, команда и кейсы — с быстрой SEO-оптимизированной статической архитектурой.",
         },
       ],
     },

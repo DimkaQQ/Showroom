@@ -4,10 +4,12 @@ import { Services } from "@/components/services";
 import { Showroom } from "@/components/showroom";
 import { Contact } from "@/components/contact";
 import { Footer } from "@/components/footer";
+import { CursorGlow } from "@/components/cursor-glow";
 
 export default function Home() {
   return (
     <main>
+      <CursorGlow />
       <Navbar />
       <Hero />
       <Services />
