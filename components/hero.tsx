@@ -54,7 +54,7 @@ export function Hero() {
 
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-32 pb-16 w-full">
-        <div className="flex items-center gap-16">
+        <div className="flex flex-col xl:flex-row xl:items-center xl:gap-16">
           {/* Left: main content */}
           <div className="flex-1 min-w-0">
             {siteConfig.available && (

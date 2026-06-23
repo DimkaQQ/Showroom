@@ -226,6 +226,20 @@ body {
   opacity: 1;
 }
 
+/* Mobile: ensure nothing stays invisible */
+@media (max-width: 768px) {
+  .hero-animate {
+    animation-duration: 0.5s;
+  }
+  .delay-1 { animation-delay: 60ms; }
+  .delay-2 { animation-delay: 120ms; }
+  .delay-3 { animation-delay: 180ms; }
+  .delay-4 { animation-delay: 240ms; }
+  .project-card:hover {
+    transform: none;
+  }
+}
+
 /* Noise overlay */
 body::after {
   content: "";

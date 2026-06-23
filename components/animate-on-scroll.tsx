@@ -15,20 +15,27 @@ export function AnimateOnScroll({ children, className = "", delay = 0 }: Props) 
     const el = ref.current;
     if (!el) return;
 
+    // Fallback: always show after 1.5s even if observer doesn't fire
+    const fallback = setTimeout(() => el.classList.add("visible"), 1500);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          clearTimeout(fallback);
           setTimeout(() => {
             el.classList.add("visible");
           }, delay);
           observer.unobserve(el);
         }
       },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.05, rootMargin: "0px 0px -20px 0px" }
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallback);
+    };
   }, [delay]);
 
   // Pass className through so callers can add h-full etc.
