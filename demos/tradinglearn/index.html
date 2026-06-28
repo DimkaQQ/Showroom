@@ -1,1275 +1,1052 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TradingLearn — Master the Markets</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradingLearn — Trading Education Platform</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface2: #263347;
-  --border: rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.12);
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
-  --green: #10b981;
-  --green-dim: rgba(16,185,129,0.12);
-  --red: #ef4444;
-  --red-dim: rgba(239,68,68,0.12);
-  --yellow: #f59e0b;
-  --orange: #f97316;
-  --blue: #3b82f6;
-  --shadow: rgba(0,0,0,0.3);
-}
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --border: rgba(255,255,255,0.08);
+    --accent: #10b981;
+    --red: #ef4444;
+    --text: #f1f5f9;
+    --muted: rgba(255,255,255,0.45);
+    --shadow: rgba(0,0,0,0.3);
+  }
 
-html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; }
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  font-size: 14px;
-  padding-top: 30px; /* demo banner */
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
 
-/* Demo Banner */
-.demo-banner {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 9999;
-  background: #0f172a;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  padding: 6px 16px;
-  text-align: center;
-  font-size: 11px;
-  color: rgba(255,255,255,0.3);
-  letter-spacing: 0.08em;
-  font-family: monospace;
-}
-.demo-banner a {
-  color: rgba(255,255,255,0.5);
-  text-decoration: none;
-}
-.demo-banner a:hover { color: rgba(255,255,255,0.75); }
+  /* ── DEMO BANNER ── */
+  #demo-banner {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 33px;
+    background: #0f172a;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "SF Mono", "Fira Mono", "Courier New", monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    z-index: 1000;
+    letter-spacing: 0.04em;
+  }
 
-/* Nav */
-.nav {
-  position: sticky;
-  top: 30px;
-  z-index: 100;
-  background: rgba(15,23,42,0.95);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
-}
-.nav-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-.nav-logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--text);
-  text-decoration: none;
-  flex-shrink: 0;
-}
-.nav-logo svg { color: var(--green); }
-.nav-links {
-  display: flex;
-  gap: 4px;
-  flex: 1;
-}
-.nav-links a {
-  color: var(--text-muted);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: color 0.15s, background 0.15s;
-}
-.nav-links a:hover {
-  color: var(--text);
-  background: rgba(255,255,255,0.06);
-}
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-.btn-ghost {
-  background: none;
-  border: 1px solid var(--border2);
-  color: var(--text-muted);
-  padding: 7px 16px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-.btn-ghost:hover {
-  border-color: rgba(255,255,255,0.2);
-  color: var(--text);
-  background: rgba(255,255,255,0.04);
-}
-.btn-primary {
-  background: var(--green);
-  border: 1px solid var(--green);
-  color: #fff;
-  padding: 7px 16px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-.btn-primary:hover { background: #0ea472; border-color: #0ea472; }
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  cursor: pointer;
-}
+  /* ── HEADER ── */
+  #header {
+    position: fixed;
+    top: 33px; left: 0; right: 0;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    gap: 40px;
+    z-index: 999;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
 
-/* Ticker */
-.ticker-wrap {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  overflow: hidden;
-  height: 36px;
-  display: flex;
-  align-items: center;
-}
-.ticker-track {
-  display: flex;
-  gap: 0;
-  animation: ticker-scroll 40s linear infinite;
-  white-space: nowrap;
-}
-@keyframes ticker-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-.ticker-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 28px;
-  border-right: 1px solid var(--border);
-  height: 36px;
-}
-.ticker-symbol {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 0.04em;
-}
-.ticker-price {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-}
-.ticker-change {
-  font-size: 11px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-.up { color: var(--green); }
-.down { color: var(--red); }
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
 
-/* Layout */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
+  .logo span { color: var(--text); }
 
-/* Hero */
-.hero {
-  padding: 80px 0 72px;
-  text-align: center;
-}
-.hero h1 {
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  margin-bottom: 20px;
-  color: var(--text);
-}
-.hero p {
-  font-size: 16px;
-  color: var(--text-muted);
-  max-width: 520px;
-  margin: 0 auto 36px;
-  line-height: 1.7;
-}
-.hero-ctas {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 56px;
-}
-.btn-lg {
-  padding: 12px 28px;
-  font-size: 14px;
-  border-radius: 7px;
-}
-.btn-outline {
-  background: none;
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 12px 28px;
-  border-radius: 7px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: inherit;
-}
-.btn-outline:hover {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.2);
-}
-.stats-row {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  max-width: 480px;
-  margin: 0 auto;
-  background: var(--surface);
-}
-.stat-item {
-  flex: 1;
-  padding: 16px;
-  text-align: center;
-  border-right: 1px solid var(--border);
-}
-.stat-item:last-child { border-right: none; }
-.stat-num {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  display: block;
-}
-.stat-label {
-  font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 0.04em;
-  margin-top: 2px;
-  text-transform: uppercase;
-}
+  nav {
+    display: flex;
+    gap: 28px;
+    flex: 1;
+  }
 
-/* Section */
-.section { padding: 72px 0; }
-.section-header {
-  margin-bottom: 36px;
-}
-.section-header h2 {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  margin-bottom: 6px;
-}
-.section-header p {
-  color: var(--text-muted);
-  font-size: 14px;
-}
-.section-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-}
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 0.15s;
+    cursor: pointer;
+  }
 
-/* Course Grid */
-.course-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-@media (max-width: 900px) { .course-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .course-grid { grid-template-columns: 1fr; } }
+  nav a:hover { color: var(--text); }
 
-.course-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-  cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.course-card:hover {
-  border-color: var(--border2);
-  box-shadow: 0 4px 16px var(--shadow);
-}
-.course-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.module-num {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--text-dim);
-  text-transform: uppercase;
-}
-.badge {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-.badge-beginner { background: rgba(16,185,129,0.12); color: #10b981; }
-.badge-intermediate { background: rgba(245,158,11,0.12); color: #f59e0b; }
-.badge-advanced { background: rgba(249,115,22,0.12); color: #f97316; }
-.badge-all { background: rgba(59,130,246,0.12); color: #3b82f6; }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+  }
 
-.course-card h3 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: var(--text);
-}
-.lesson-count {
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-bottom: 14px;
-}
-.progress-bar {
-  height: 3px;
-  background: var(--surface2);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 14px;
-}
-.progress-fill {
-  height: 100%;
-  background: var(--green);
-  border-radius: 2px;
-  transition: width 0.3s;
-}
-.course-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.progress-pct {
-  font-size: 11px;
-  color: var(--text-dim);
-}
-.btn-card {
-  background: none;
-  border: 1px solid var(--border2);
-  color: var(--text-muted);
-  padding: 5px 14px;
-  border-radius: 5px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-}
-.btn-card:hover {
-  border-color: var(--green);
-  color: var(--green);
-}
-.btn-card.started {
-  border-color: var(--green);
-  color: var(--green);
-}
+  .btn-primary:hover { opacity: 0.88; }
 
-.course-desc {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 0.3s ease, padding 0.3s;
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-.course-desc.open {
-  max-height: 120px;
-  padding-top: 12px;
-}
+  /* ── PRICE TICKER ── */
+  #ticker-wrap {
+    position: fixed;
+    top: 89px; left: 0; right: 0;
+    height: 40px;
+    background: #161f30;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    z-index: 998;
+  }
 
-/* Simulator */
-.simulator-layout {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 16px;
-}
-@media (max-width: 800px) { .simulator-layout { grid-template-columns: 1fr; } }
+  #ticker-track {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    white-space: nowrap;
+    will-change: transform;
+  }
 
-.chart-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-}
-.chart-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.chart-symbol {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-}
-.chart-live-price {
-  font-size: 22px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.chart-change {
-  font-size: 12px;
-  font-weight: 500;
-  margin-left: 8px;
-  font-variant-numeric: tabular-nums;
-}
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 28px;
+    height: 100%;
+    border-right: 1px solid var(--border);
+    font-size: 12px;
+    font-family: "SF Mono", "Fira Mono", monospace;
+    flex-shrink: 0;
+  }
 
-#simChart {
-  width: 100%;
-  display: block;
-}
+  .ticker-symbol { color: rgba(255,255,255,0.7); font-weight: 600; }
+  .ticker-price  { color: var(--text); }
+  .ticker-change.up   { color: var(--accent); }
+  .ticker-change.down { color: var(--red); }
 
-.order-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.order-panel h3 {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-}
-.side-toggle {
-  display: flex;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  overflow: hidden;
-}
-.side-btn {
-  flex: 1;
-  padding: 8px;
-  background: none;
-  border: none;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-  color: var(--text-dim);
-}
-.side-btn.active-buy { background: var(--green-dim); color: var(--green); }
-.side-btn.active-sell { background: var(--red-dim); color: var(--red); }
+  /* ── PAGE LAYOUT ── */
+  #page {
+    padding: 48px 32px 80px;
+    max-width: 1100px;
+    margin: calc(33px + 56px + 40px + 48px) auto 0;
+  }
 
-.field-label {
-  font-size: 11px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
-}
-.field-input {
-  width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 9px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-family: inherit;
-  font-variant-numeric: tabular-nums;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.field-input:focus { border-color: var(--border2); }
+  section { margin-bottom: 64px; }
 
-.price-display {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 9px 12px;
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
-  color: var(--text);
-}
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+  }
 
-.btn-execute {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  border: none;
-  transition: all 0.15s;
-}
-.btn-execute.buy { background: var(--green); color: #fff; }
-.btn-execute.buy:hover { background: #0ea472; }
-.btn-execute.sell { background: var(--red); color: #fff; }
-.btn-execute.sell:hover { background: #dc2626; }
+  /* ── COURSES ── */
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
 
-.position-box {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 12px;
-}
-.position-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-bottom: 6px;
-}
-.position-row:last-child { margin-bottom: 0; }
-.pos-label { color: var(--text-dim); }
-.pos-val { font-weight: 500; font-variant-numeric: tabular-nums; }
+  .course-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
 
-/* Order history */
-.order-history {
-  margin-top: 20px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.order-history h4 {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
-}
-.history-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.history-table th {
-  text-align: left;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--border);
-}
-.history-table td {
-  padding: 10px 20px;
-  font-size: 13px;
-  border-bottom: 1px solid var(--border);
-  font-variant-numeric: tabular-nums;
-}
-.history-table tr:last-child td { border-bottom: none; }
-.history-table tr:hover td { background: rgba(255,255,255,0.02); }
-.status-filled {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--green);
-  background: var(--green-dim);
-  padding: 2px 7px;
-  border-radius: 3px;
-}
+  .course-card:hover {
+    border-color: rgba(255,255,255,0.16);
+    box-shadow: 0 4px 16px var(--shadow);
+  }
 
-/* Leaderboard */
-.leaderboard-list { display: flex; flex-direction: column; gap: 4px; }
-.lb-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  transition: border-color 0.15s;
-}
-.lb-row:hover { border-color: var(--border2); }
-.rank-badge {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.rank-1 { background: rgba(245,158,11,0.15); color: #f59e0b; }
-.rank-2 { background: rgba(148,163,184,0.12); color: #94a3b8; }
-.rank-3 { background: rgba(161,98,7,0.15); color: #a16207; }
-.rank-other { background: rgba(255,255,255,0.05); color: var(--text-dim); }
-.lb-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-.lb-info { flex: 1; }
-.lb-name { font-size: 14px; font-weight: 600; color: var(--text); }
-.lb-sub { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
-.lb-return {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--green);
-  font-variant-numeric: tabular-nums;
-}
+  .course-card.expanded {
+    border-color: rgba(16,185,129,0.3);
+  }
 
-/* Footer */
-.footer {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  padding: 36px 0;
-  margin-top: 0;
-}
-.footer-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.footer-logo {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-}
-.footer-links {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.footer-links a {
-  color: var(--text-dim);
-  text-decoration: none;
-  font-size: 13px;
-  transition: color 0.15s;
-}
-.footer-links a:hover { color: var(--text-muted); }
-.footer-copy {
-  font-size: 12px;
-  color: var(--text-dim);
-  width: 100%;
-  text-align: center;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  margin-top: 8px;
-}
+  .course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .course-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .course-expand-icon {
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-left: 8px;
+    font-weight: 300;
+  }
+
+  .course-card.expanded .course-expand-icon { transform: rotate(45deg); }
+
+  .course-meta {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .badge-beginner     { background: rgba(16,185,129,0.12); color: #10b981; }
+  .badge-intermediate { background: rgba(251,191,36,0.12);  color: #fbbf24; }
+  .badge-advanced     { background: rgba(239,68,68,0.12);   color: #ef4444; }
+  .badge-lessons      { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .progress-bar-bg {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: var(--muted);
+    width: 30px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .course-desc {
+    display: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.65;
+  }
+
+  .course-card.expanded .course-desc { display: block; }
+
+  /* ── SIMULATOR ── */
+  #sim-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .sim-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+    animation: blink 1.8s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.25; }
+  }
+
+  .sim-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+  }
+
+  .price-display {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .price-current {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: "SF Mono", "Fira Mono", monospace;
+    letter-spacing: -0.02em;
+  }
+
+  .price-change-badge {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 5px;
+  }
+
+  .price-change-badge.up   { background: rgba(16,185,129,0.12); color: var(--accent); }
+  .price-change-badge.down { background: rgba(239,68,68,0.12);   color: var(--red); }
+
+  #chart-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+  }
+
+  /* Order panel */
+  .order-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .panel-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .panel-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .input-row label {
+    font-size: 12px;
+    color: var(--muted);
+    width: 56px;
+    flex-shrink: 0;
+  }
+
+  .qty-input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: "SF Mono", "Fira Mono", monospace;
+    outline: none;
+    transition: border-color 0.15s;
+    min-width: 0;
+  }
+
+  .qty-input:focus { border-color: rgba(16,185,129,0.4); }
+
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn-buy, .btn-sell {
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: 0.03em;
+  }
+
+  .btn-buy  { background: var(--accent); color: #fff; }
+  .btn-sell { background: var(--red);   color: #fff; }
+  .btn-buy:hover, .btn-sell:hover { opacity: 0.85; }
+
+  .position-empty { color: var(--muted); font-size: 13px; }
+
+  .pos-line { font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 4px; }
+  .pos-pnl  { font-size: 15px; font-weight: 700; margin-top: 6px; }
+
+  .order-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    font-family: "SF Mono", "Fira Mono", monospace;
+  }
+
+  .order-table th {
+    color: var(--muted);
+    text-align: left;
+    padding: 0 4px 6px;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .order-table td {
+    padding: 5px 4px;
+    border-top: 1px solid var(--border);
+    color: rgba(255,255,255,0.7);
+    vertical-align: middle;
+  }
+
+  .side-buy  { color: var(--accent); font-weight: 700; }
+  .side-sell { color: var(--red);   font-weight: 700; }
+
+  /* ── LEADERBOARD ── */
+  .leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .lb-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.15s;
+  }
+
+  .lb-row:hover { border-color: rgba(255,255,255,0.14); }
+
+  .lb-rank {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .lb-rank.gold   { color: #f59e0b; }
+  .lb-rank.silver { color: #94a3b8; }
+  .lb-rank.bronze { color: #b45309; }
+
+  .lb-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .lb-info { flex: 1; min-width: 0; }
+  .lb-name { font-weight: 600; font-size: 14px; }
+  .lb-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .lb-trades {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    width: 90px;
+    flex-shrink: 0;
+  }
+
+  .lb-return {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: "SF Mono", "Fira Mono", monospace;
+    text-align: right;
+    flex-shrink: 0;
+    min-width: 80px;
+  }
+
+  /* ── STATS BAR ── */
+  #stats-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .stat-item { text-align: center; }
+
+  .stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 32px;
+    color: rgba(255,255,255,0.18);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 820px) {
+    .courses-grid { grid-template-columns: 1fr 1fr; }
+    .sim-layout   { grid-template-columns: 1fr; }
+    #header { padding: 0 16px; gap: 20px; }
+    #page   { padding: 40px 16px 60px; }
+  }
+
+  @media (max-width: 560px) {
+    .courses-grid { grid-template-columns: 1fr; }
+    nav { gap: 16px; }
+    #stats-bar { flex-direction: column; gap: 20px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- Demo Banner -->
-<div class="demo-banner">
-  DEMO SITE &nbsp;·&nbsp; <a href="https://dimkaprojects.xyz">dimkaprojects.xyz ↗</a>
+<!-- DEMO BANNER -->
+<div id="demo-banner">DEMO SITE &nbsp;&middot;&nbsp; dimkaprojects.xyz &#8599;</div>
+
+<!-- HEADER -->
+<header id="header">
+  <div class="logo">Trading<span>Learn</span></div>
+  <nav>
+    <a onclick="scrollToSection('courses-section')">Courses</a>
+    <a onclick="scrollToSection('sim-section')">Simulator</a>
+    <a onclick="scrollToSection('leaderboard-section')">Leaderboard</a>
+  </nav>
+  <button class="btn-primary">Start Learning</button>
+</header>
+
+<!-- PRICE TICKER -->
+<div id="ticker-wrap">
+  <div id="ticker-track"></div>
 </div>
 
-<!-- Nav -->
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polyline points="2,14 7,8 11,11 18,4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
-      TradingLearn
-    </a>
-    <div class="nav-links">
-      <a href="#courses">Courses</a>
-      <a href="#simulator">Simulator</a>
-      <a href="#leaderboard">Leaderboard</a>
-      <a href="#community">Community</a>
-    </div>
-    <div class="nav-actions">
-      <button class="btn-ghost">Sign In</button>
-      <button class="btn-primary">Start Free</button>
-      <div class="avatar">JD</div>
-    </div>
-  </div>
-</nav>
+<!-- PAGE -->
+<div id="page">
 
-<!-- Ticker -->
-<div class="ticker-wrap">
-  <div class="ticker-track" id="tickerTrack">
-    <!-- Items injected by JS, duplicated for seamless loop -->
-  </div>
-</div>
+  <!-- COURSES -->
+  <section id="courses-section">
+    <div class="section-title">Learning Modules</div>
+    <div class="courses-grid" id="courses-grid"></div>
+  </section>
 
-<!-- Hero -->
-<section class="hero">
-  <div class="container">
-    <h1>Master Trading With<br>Real Market Simulation</h1>
-    <p>Learn at your own pace with interactive courses, live simulator, and a community of 12,400+ traders worldwide.</p>
-    <div class="hero-ctas">
-      <button class="btn-primary btn-lg">Start Learning Free</button>
-      <button class="btn-outline btn-lg">View Courses</button>
+  <!-- SIMULATOR -->
+  <section>
+    <div class="section-title">Practice Simulator</div>
+    <div id="sim-section">
+      <div class="sim-title">
+        <span class="live-dot"></span>
+        BTC/USD Live Practice
+      </div>
+      <div class="sim-layout">
+        <div class="sim-chart-area">
+          <div class="price-display">
+            <div class="price-current" id="sim-price">$43,000.00</div>
+            <div class="price-change-badge up" id="sim-change">+0.00%</div>
+          </div>
+          <svg id="chart-svg" viewBox="0 0 600 200" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stop-color="#10b981" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path id="chart-area" fill="url(#areaGrad)"/>
+            <path id="chart-line" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="order-panel">
+          <!-- Order entry -->
+          <div class="panel-box">
+            <div class="panel-label">Place Order</div>
+            <div class="input-row">
+              <label>Qty (BTC)</label>
+              <input class="qty-input" id="qty-input" type="number" value="0.01" step="0.01" min="0.001" max="10">
+            </div>
+            <div class="btn-row">
+              <button class="btn-buy"  onclick="placeOrder('buy')">BUY</button>
+              <button class="btn-sell" onclick="placeOrder('sell')">SELL</button>
+            </div>
+          </div>
+
+          <!-- Open Position -->
+          <div class="panel-box">
+            <div class="panel-label">Open Position</div>
+            <div id="position-display" class="position-empty">No open position</div>
+          </div>
+
+          <!-- Order history -->
+          <div class="panel-box">
+            <div class="panel-label">Order History</div>
+            <table class="order-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Side</th>
+                  <th>Qty</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody id="order-history-body">
+                <tr><td colspan="4" style="color:var(--muted);font-size:11px;padding:8px 0;">No orders yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="stats-row">
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section id="leaderboard-section">
+    <div class="section-title">Leaderboard</div>
+    <div class="leaderboard-list" id="leaderboard-list"></div>
+  </section>
+
+  <!-- STATS BAR -->
+  <section>
+    <div id="stats-bar">
       <div class="stat-item">
-        <span class="stat-num">12,400+</span>
+        <span class="stat-value">12,400</span>
         <span class="stat-label">Students</span>
       </div>
       <div class="stat-item">
-        <span class="stat-num">6</span>
+        <span class="stat-value">6</span>
         <span class="stat-label">Modules</span>
       </div>
       <div class="stat-item">
-        <span class="stat-num">94%</span>
-        <span class="stat-label">Completion</span>
+        <span class="stat-value">94%</span>
+        <span class="stat-label">Completion Rate</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">4.9&#9733;</span>
+        <span class="stat-label">Rating</span>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<hr class="section-divider">
+</div>
 
-<!-- Courses -->
-<section class="section" id="courses">
-  <div class="container">
-    <div class="section-header">
-      <h2>Course Modules</h2>
-      <p>Structured curriculum from foundations to advanced trading strategies</p>
-    </div>
-    <div class="course-grid" id="courseGrid">
-      <!-- Cards injected by JS -->
-    </div>
-  </div>
-</section>
-
-<hr class="section-divider">
-
-<!-- Simulator -->
-<section class="section" id="simulator">
-  <div class="container">
-    <div class="section-header">
-      <h2>Live Trading Simulator</h2>
-      <p>Practice with real-time simulated prices — no real money at risk</p>
-    </div>
-
-    <div class="simulator-layout">
-      <!-- Chart -->
-      <div class="chart-panel">
-        <div class="chart-header">
-          <div>
-            <div class="chart-symbol">BTC/USD &nbsp;<span style="font-size:11px;color:var(--text-dim);font-weight:400;">1m</span></div>
-          </div>
-          <div>
-            <span class="chart-live-price" id="chartPrice">43,500.00</span>
-            <span class="chart-change up" id="chartChange">+0.00%</span>
-          </div>
-        </div>
-        <svg id="simChart" viewBox="0 0 600 180" preserveAspectRatio="none" style="height:180px;">
-          <defs>
-            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
-              <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <!-- Grid lines -->
-          <line x1="0" y1="36" x2="600" y2="36" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4,4"/>
-          <line x1="0" y1="72" x2="600" y2="72" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4,4"/>
-          <line x1="0" y1="108" x2="600" y2="108" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4,4"/>
-          <line x1="0" y1="144" x2="600" y2="144" stroke="rgba(255,255,255,0.04)" stroke-dasharray="4,4"/>
-          <path id="chartArea" fill="url(#areaGrad)"/>
-          <path id="chartLine" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linejoin="round"/>
-        </svg>
-        <!-- X axis labels -->
-        <div style="display:flex;justify-content:space-between;padding-top:8px;">
-          <span id="xLabel0" style="font-size:10px;color:var(--text-dim)"></span>
-          <span id="xLabel1" style="font-size:10px;color:var(--text-dim)"></span>
-          <span id="xLabel2" style="font-size:10px;color:var(--text-dim)"></span>
-          <span id="xLabel3" style="font-size:10px;color:var(--text-dim)"></span>
-          <span id="xLabel4" style="font-size:10px;color:var(--text-dim)"></span>
-        </div>
-      </div>
-
-      <!-- Order Panel -->
-      <div class="order-panel">
-        <h3>Place Order</h3>
-
-        <div class="side-toggle">
-          <button class="side-btn active-buy" id="buyBtn" onclick="setSide('buy')">Buy</button>
-          <button class="side-btn" id="sellBtn" onclick="setSide('sell')">Sell</button>
-        </div>
-
-        <div>
-          <div class="field-label">Quantity (BTC)</div>
-          <input class="field-input" type="number" id="qtyInput" value="0.1" min="0.01" step="0.01">
-        </div>
-
-        <div>
-          <div class="field-label">Market Price</div>
-          <div class="price-display" id="orderPrice">43,500.00</div>
-        </div>
-
-        <div>
-          <div class="field-label">Est. Total (USD)</div>
-          <div class="price-display" id="orderTotal">4,350.00</div>
-        </div>
-
-        <button class="btn-execute buy" id="execBtn" onclick="executeOrder()">Buy BTC</button>
-
-        <div>
-          <div class="field-label" style="margin-bottom:8px;">Open Position</div>
-          <div class="position-box">
-            <div class="position-row">
-              <span class="pos-label">Size</span>
-              <span class="pos-val" id="posSize">—</span>
-            </div>
-            <div class="position-row">
-              <span class="pos-label">Avg Entry</span>
-              <span class="pos-val" id="posEntry">—</span>
-            </div>
-            <div class="position-row">
-              <span class="pos-label">Unrealized P&L</span>
-              <span class="pos-val" id="posPnl">—</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Order History -->
-    <div class="order-history">
-      <h4>Order History</h4>
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Type</th>
-            <th>Qty (BTC)</th>
-            <th>Price</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="orderHistoryBody">
-          <tr>
-            <td style="color:var(--text-muted)">14:22:08</td>
-            <td class="up">Buy</td>
-            <td>0.25</td>
-            <td>43,210.00</td>
-            <td><span class="status-filled">Filled</span></td>
-          </tr>
-          <tr>
-            <td style="color:var(--text-muted)">13:55:41</td>
-            <td class="down">Sell</td>
-            <td>0.10</td>
-            <td>43,180.50</td>
-            <td><span class="status-filled">Filled</span></td>
-          </tr>
-          <tr>
-            <td style="color:var(--text-muted)">13:31:17</td>
-            <td class="up">Buy</td>
-            <td>0.50</td>
-            <td>42,950.00</td>
-            <td><span class="status-filled">Filled</span></td>
-          </tr>
-          <tr>
-            <td style="color:var(--text-muted)">12:08:55</td>
-            <td class="down">Sell</td>
-            <td>0.15</td>
-            <td>43,320.75</td>
-            <td><span class="status-filled">Filled</span></td>
-          </tr>
-          <tr>
-            <td style="color:var(--text-muted)">11:44:02</td>
-            <td class="up">Buy</td>
-            <td>0.30</td>
-            <td>42,780.00</td>
-            <td><span class="status-filled">Filled</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<hr class="section-divider">
-
-<!-- Leaderboard -->
-<section class="section" id="leaderboard">
-  <div class="container">
-    <div class="section-header">
-      <h2>Top Traders This Month</h2>
-      <p>Compete on the simulator leaderboard and track your progress</p>
-    </div>
-    <div class="leaderboard-list">
-      <div class="lb-row">
-        <div class="rank-badge rank-1">1</div>
-        <div class="lb-avatar">AT</div>
-        <div class="lb-info">
-          <div class="lb-name">AlphaTrader</div>
-          <div class="lb-sub">142 trades · Joined Jan 2024</div>
-        </div>
-        <div class="lb-return">+142.3%</div>
-      </div>
-      <div class="lb-row">
-        <div class="rank-badge rank-2">2</div>
-        <div class="lb-avatar">MW</div>
-        <div class="lb-info">
-          <div class="lb-name">MarketWizard</div>
-          <div class="lb-sub">98 trades · Joined Feb 2024</div>
-        </div>
-        <div class="lb-return">+98.7%</div>
-      </div>
-      <div class="lb-row">
-        <div class="rank-badge rank-3">3</div>
-        <div class="lb-avatar">TF</div>
-        <div class="lb-info">
-          <div class="lb-name">TrendFollower</div>
-          <div class="lb-sub">211 trades · Joined Dec 2023</div>
-        </div>
-        <div class="lb-return">+87.2%</div>
-      </div>
-      <div class="lb-row">
-        <div class="rank-badge rank-other">4</div>
-        <div class="lb-avatar">RM</div>
-        <div class="lb-info">
-          <div class="lb-name">RiskMaster</div>
-          <div class="lb-sub">76 trades · Joined Mar 2024</div>
-        </div>
-        <div class="lb-return">+71.5%</div>
-      </div>
-      <div class="lb-row">
-        <div class="rank-badge rank-other">5</div>
-        <div class="lb-avatar">PP</div>
-        <div class="lb-info">
-          <div class="lb-name">PatternPro</div>
-          <div class="lb-sub">133 trades · Joined Nov 2023</div>
-        </div>
-        <div class="lb-return">+63.8%</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="footer" id="community">
-  <div class="footer-inner">
-    <div class="footer-logo">TradingLearn</div>
-    <div class="footer-links">
-      <a href="#">About</a>
-      <a href="#courses">Courses</a>
-      <a href="#simulator">Simulator</a>
-      <a href="#">Privacy</a>
-      <a href="#">Terms</a>
-    </div>
-    <div class="footer-copy">© 2024 TradingLearn. For educational purposes only. Not financial advice.</div>
-  </div>
-</footer>
+<footer>&copy; 2026 TradingLearn &mdash; For educational purposes only. Not financial advice.</footer>
 
 <script>
-// ── Ticker ─────────────────────────────────────────────────────────────────
-const ASSETS = [
-  { sym: 'BTC/USD',  price: 43500,  base: 43500 },
-  { sym: 'ETH/USD',  price: 2340,   base: 2340  },
-  { sym: 'SOL/USD',  price: 148.5,  base: 148.5 },
-  { sym: 'AAPL',     price: 189.25, base: 189.25 },
-  { sym: 'TSLA',     price: 248.60, base: 248.60 },
-  { sym: 'GOLD',     price: 2035.40,base: 2035.40},
-];
+"use strict";
 
-function fmtPrice(p) {
-  if (p >= 10000) return p.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2});
-  if (p >= 100)   return p.toFixed(2);
-  return p.toFixed(2);
+/* ── SCROLL HELPER ── */
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const offset = 33 + 56 + 40 + 12;
+  const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+  window.scrollTo({ top, behavior: 'smooth' });
 }
 
+/* ════════════════════════════════════════
+   PRICE TICKER
+═══════════════════════════════════════ */
+const TICKER_DATA = [
+  { sym: 'BTC/USD', price: 43215.80 },
+  { sym: 'ETH/USD', price: 2641.55  },
+  { sym: 'SOL/USD', price: 142.30   },
+  { sym: 'AAPL',    price: 195.42   },
+  { sym: 'TSLA',    price: 248.90   },
+  { sym: 'GOLD',    price: 2345.60  },
+];
+
+const tickerState = TICKER_DATA.map(s => ({
+  sym:    s.sym,
+  price:  s.price,
+  base:   s.price,
+  change: 0,
+}));
+
+const track = document.getElementById('ticker-track');
+
 function buildTicker() {
-  const track = document.getElementById('tickerTrack');
-  // Build two sets for seamless loop
-  let html = '';
-  for (let r = 0; r < 2; r++) {
-    ASSETS.forEach((a, i) => {
-      const chg = ((a.price - a.base) / a.base * 100);
-      const cls = chg >= 0 ? 'up' : 'down';
-      const sign = chg >= 0 ? '+' : '';
-      html += `<div class="ticker-item">
-        <span class="ticker-symbol">${a.sym}</span>
-        <span class="ticker-price" id="tp${r}_${i}">${fmtPrice(a.price)}</span>
-        <span class="ticker-change ${cls}" id="tc${r}_${i}">${sign}${chg.toFixed(2)}%</span>
-      </div>`;
+  track.innerHTML = '';
+  // Duplicate for seamless infinite scroll
+  [0, 1].forEach(() => {
+    tickerState.forEach((item, i) => {
+      const el = document.createElement('div');
+      el.className = 'ticker-item';
+      el.dataset.key = i;
+      el.innerHTML =
+        '<span class="ticker-symbol">' + item.sym + '</span>' +
+        '<span class="ticker-price">$' + fmtPrice(item.price) + '</span>' +
+        '<span class="ticker-change up">+0.00%</span>';
+      track.appendChild(el);
     });
-  }
-  track.innerHTML = html;
+  });
+}
+
+function fmtPrice(p) {
+  return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function updateTicker() {
-  ASSETS.forEach((a, i) => {
-    const volatility = a.base * 0.0008;
-    a.price += (Math.random() - 0.5) * 2 * volatility;
-    a.price = Math.max(a.price, a.base * 0.85);
-    const chg = ((a.price - a.base) / a.base * 100);
-    const cls = chg >= 0 ? 'up' : 'down';
-    const sign = chg >= 0 ? '+' : '';
-    const priceStr = fmtPrice(a.price);
-    const changeStr = `${sign}${chg.toFixed(2)}%`;
-    for (let r = 0; r < 2; r++) {
-      const tp = document.getElementById(`tp${r}_${i}`);
-      const tc = document.getElementById(`tc${r}_${i}`);
-      if (tp) tp.textContent = priceStr;
-      if (tc) { tc.textContent = changeStr; tc.className = `ticker-change ${cls}`; }
-    }
+  tickerState.forEach(item => {
+    const delta = (Math.random() - 0.5) * 0.01 * item.price;
+    item.price  = Math.max(item.price * 0.95, item.price + delta);
+    item.change = (item.price - item.base) / item.base * 100;
+  });
+
+  track.querySelectorAll('.ticker-item').forEach(el => {
+    const i    = parseInt(el.dataset.key);
+    const item = tickerState[i];
+    el.querySelector('.ticker-price').textContent = '$' + fmtPrice(item.price);
+    const ch = el.querySelector('.ticker-change');
+    ch.textContent = (item.change >= 0 ? '+' : '') + item.change.toFixed(2) + '%';
+    ch.className   = 'ticker-change ' + (item.change >= 0 ? 'up' : 'down');
   });
 }
 
 buildTicker();
 setInterval(updateTicker, 2000);
 
-// ── Courses ─────────────────────────────────────────────────────────────────
+// Infinite scroll animation via rAF
+(function tickerScroll() {
+  const ITEM_W    = 172; // px per item (approx)
+  const totalW    = tickerState.length * ITEM_W;
+  let   x         = 0;
+  let   lastTime  = null;
+
+  function step(ts) {
+    if (lastTime !== null) {
+      const dt = ts - lastTime;
+      x -= dt * 0.04; // speed: px/ms
+      if (x <= -totalW) x += totalW;
+      track.style.transform = 'translateX(' + x.toFixed(2) + 'px)';
+    }
+    lastTime = ts;
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+})();
+
+/* ════════════════════════════════════════
+   COURSES
+═══════════════════════════════════════ */
 const COURSES = [
-  { num:1, title:'Market Fundamentals', diff:'Beginner',   badge:'beginner',    lessons:8,  pct:72, desc:'Learn the foundations of financial markets including order types, market participants, basic trading terminology, and how exchanges operate. Perfect for those just starting their trading journey.' },
-  { num:2, title:'Chart Analysis',      diff:'Intermediate',badge:'intermediate',lessons:12, pct:45, desc:'Master candlestick patterns, support and resistance levels, trend lines, and price action analysis. Develop the ability to read charts and identify high-probability trading setups.' },
-  { num:3, title:'Risk Management',     diff:'Beginner',   badge:'beginner',    lessons:6,  pct:100,desc:'Understand position sizing, stop-loss placement, risk-reward ratios, and portfolio diversification. The most critical skill for long-term trading success.' },
-  { num:4, title:'Technical Indicators',diff:'Intermediate',badge:'intermediate',lessons:10, pct:20, desc:'In-depth coverage of RSI, MACD, Bollinger Bands, moving averages, volume indicators, and how to combine them for confluence-based decision making.' },
-  { num:5, title:'Trading Strategies',  diff:'Advanced',   badge:'advanced',    lessons:14, pct:0,  desc:'Explore proven strategies including swing trading, scalping, breakout trading, and mean reversion. Learn to build and backtest your own systematic trading approach.' },
-  { num:6, title:'Trading Psychology',  diff:'All Levels', badge:'all',         lessons:8,  pct:15, desc:'Conquer emotional trading, understand cognitive biases (loss aversion, recency bias, FOMO), build a disciplined routine, and develop the mental edge that separates consistent traders.' },
+  {
+    title:    'Market Basics',
+    level:    'Beginner',
+    lessons:  12,
+    progress: 100,
+    desc:     'Understand how financial markets work, from stock exchanges to crypto platforms. Learn about buyers and sellers, bid-ask spreads, and market hours. Discover the difference between equities, commodities, and digital assets. Build the foundation every trader needs before placing a single order.',
+  },
+  {
+    title:    'Reading Charts',
+    level:    'Beginner',
+    lessons:  8,
+    progress: 75,
+    desc:     'Master candlestick charts, line charts, and bar charts used by professional traders worldwide. Identify key patterns like doji, engulfing candles, and hammer formations. Learn to read price action without relying on indicators. Practice spotting trends and reversals on real historical data.',
+  },
+  {
+    title:    'Risk Management',
+    level:    'Intermediate',
+    lessons:  10,
+    progress: 40,
+    desc:     'Discover why most losing traders fail not from bad entries but from poor risk management. Learn position sizing, stop-loss placement, and the risk-reward ratio. Understand how to protect capital during drawdowns and live to trade another day. Apply the 1% and 2% rules used by professional fund managers.',
+  },
+  {
+    title:    'Technical Indicators',
+    level:    'Intermediate',
+    lessons:  15,
+    progress: 20,
+    desc:     'Go beyond price action and learn to use RSI, MACD, Bollinger Bands, and moving averages. Understand what each indicator measures and, crucially, its limitations. Learn to combine multiple indicators without creating conflicting signals. Avoid the common trap of indicator overload that confuses new traders.',
+  },
+  {
+    title:    'Trading Strategies',
+    level:    'Advanced',
+    lessons:  18,
+    progress: 0,
+    desc:     'Explore proven strategies including trend following, mean reversion, breakout trading, and swing trading. Learn to backtest a strategy on historical data before risking real capital. Understand how to journal trades to continuously refine your edge. Build a complete trading plan with defined entries, exits, and position sizes.',
+  },
+  {
+    title:    'Trading Psychology',
+    level:    'Advanced',
+    lessons:  6,
+    progress: 0,
+    desc:     'Discover the mental game behind consistent profitability — the aspect most traders ignore. Learn to manage fear, greed, revenge trading, and overconfidence. Study psychological biases like loss aversion and confirmation bias that wreck otherwise solid strategies. Build routines and habits that keep emotions from overriding your trading plan.',
+  },
 ];
 
-function renderCourses() {
-  const grid = document.getElementById('courseGrid');
-  grid.innerHTML = COURSES.map((c, idx) => {
-    const btnLabel = c.pct === 0 ? 'Start' : c.pct === 100 ? 'Review' : 'Continue';
-    const btnCls = c.pct > 0 ? 'btn-card started' : 'btn-card';
-    return `<div class="course-card" onclick="toggleDesc(${idx})" id="card${idx}">
-      <div class="course-card-header">
-        <div class="module-num">Module ${c.num}</div>
-        <span class="badge badge-${c.badge}">${c.diff}</span>
-      </div>
-      <h3>${c.title}</h3>
-      <div class="lesson-count">${c.lessons} lessons</div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${c.pct}%"></div></div>
-      <div class="course-card-footer">
-        <span class="progress-pct">${c.pct}% complete</span>
-        <button class="${btnCls}" onclick="event.stopPropagation()">${btnLabel}</button>
-      </div>
-      <div class="course-desc" id="desc${idx}">${c.desc}</div>
-    </div>`;
+const LEVEL_CLS = {
+  Beginner:     'badge-beginner',
+  Intermediate: 'badge-intermediate',
+  Advanced:     'badge-advanced',
+};
+
+const coursesGrid = document.getElementById('courses-grid');
+
+COURSES.forEach(course => {
+  const card = document.createElement('div');
+  card.className = 'course-card';
+  card.innerHTML =
+    '<div class="course-header">' +
+      '<div class="course-title">' + course.title + '</div>' +
+      '<div class="course-expand-icon">+</div>' +
+    '</div>' +
+    '<div class="course-meta">' +
+      '<span class="badge ' + LEVEL_CLS[course.level] + '">' + course.level + '</span>' +
+      '<span class="badge badge-lessons">' + course.lessons + ' lessons</span>' +
+    '</div>' +
+    '<div class="progress-row">' +
+      '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + course.progress + '%"></div></div>' +
+      '<div class="progress-label">' + course.progress + '%</div>' +
+    '</div>' +
+    '<div class="course-desc">' + course.desc + '</div>';
+
+  card.addEventListener('click', function() {
+    const wasOpen = card.classList.contains('expanded');
+    document.querySelectorAll('.course-card.expanded').forEach(c => c.classList.remove('expanded'));
+    if (!wasOpen) card.classList.add('expanded');
+  });
+
+  coursesGrid.appendChild(card);
+});
+
+/* ════════════════════════════════════════
+   SIMULATOR
+═══════════════════════════════════════ */
+const CHART_W   = 600;
+const CHART_H   = 200;
+const MAX_PTS   = 80;
+const CHART_PAD = 12;
+
+let simPrice    = 43000;
+let simBase     = 43000;
+const history   = [];
+
+// Seed realistic-looking price history
+(function seed() {
+  let p = 43000;
+  for (let i = 0; i < MAX_PTS; i++) {
+    p += (Math.random() - 0.48) * 280;
+    p  = Math.max(36000, Math.min(52000, p));
+    history.push(p);
+  }
+  simPrice = history[history.length - 1];
+  simBase  = history[0];
+})();
+
+const chartLineEl = document.getElementById('chart-line');
+const chartAreaEl = document.getElementById('chart-area');
+const simPriceEl  = document.getElementById('sim-price');
+const simChangeEl = document.getElementById('sim-change');
+
+function toY(p, lo, hi) {
+  return CHART_PAD + (1 - (p - lo) / (hi - lo)) * (CHART_H - CHART_PAD * 2);
+}
+
+function redrawChart() {
+  const lo  = Math.min(...history) * 0.9985;
+  const hi  = Math.max(...history) * 1.0015;
+  const n   = history.length;
+  let   d   = '';
+
+  history.forEach((p, i) => {
+    const x = (i / (n - 1)) * CHART_W;
+    const y = toY(p, lo, hi);
+    d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+  });
+
+  chartLineEl.setAttribute('d', d);
+  chartAreaEl.setAttribute('d', d + ' L' + CHART_W + ',' + CHART_H + ' L0,' + CHART_H + ' Z');
+
+  const color = simPrice >= simBase ? '#10b981' : '#ef4444';
+  chartLineEl.setAttribute('stroke', color);
+  document.querySelectorAll('#areaGrad stop').forEach(s => s.setAttribute('stop-color', color));
+}
+
+function updateSim() {
+  const delta = (Math.random() - 0.48) * 280;
+  simPrice = Math.max(28000, Math.min(62000, simPrice + delta));
+  history.push(simPrice);
+  if (history.length > MAX_PTS) history.shift();
+
+  const pct = (simPrice - simBase) / simBase * 100;
+  simPriceEl.textContent = '$' + fmtPrice(simPrice);
+  simChangeEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+  simChangeEl.className   = 'price-change-badge ' + (pct >= 0 ? 'up' : 'down');
+
+  redrawChart();
+  refreshPosition();
+}
+
+redrawChart();
+setInterval(updateSim, 2000);
+
+/* ── Orders & Positions ── */
+let position = null; // { side, qty, entryPrice }
+const orders = [];
+
+function placeOrder(side) {
+  const rawQty = parseFloat(document.getElementById('qty-input').value);
+  if (!rawQty || rawQty <= 0) return;
+  const qty = Math.round(rawQty * 10000) / 10000;
+
+  orders.unshift({ time: new Date(), side, qty, price: simPrice });
+  if (orders.length > 5) orders.pop();
+
+  if (!position) {
+    position = { side, qty, entryPrice: simPrice };
+  } else if (position.side === side) {
+    // Average in
+    const totalCost = position.entryPrice * position.qty + simPrice * qty;
+    position.qty   += qty;
+    position.entryPrice = totalCost / position.qty;
+  } else {
+    // Close or reverse
+    if (qty < position.qty) {
+      position.qty -= qty;
+    } else if (qty === position.qty) {
+      position = null;
+    } else {
+      position = { side, qty: qty - position.qty, entryPrice: simPrice };
+    }
+  }
+
+  renderOrders();
+  refreshPosition();
+}
+
+function refreshPosition() {
+  const el = document.getElementById('position-display');
+  if (!position) {
+    el.innerHTML = '<div class="position-empty">No open position</div>';
+    return;
+  }
+  const rawPnl = position.side === 'buy'
+    ? (simPrice - position.entryPrice) * position.qty
+    : (position.entryPrice - simPrice) * position.qty;
+  const pnlPct = rawPnl / (position.entryPrice * position.qty) * 100;
+  const color  = rawPnl >= 0 ? 'var(--accent)' : 'var(--red)';
+  const label  = position.side === 'buy' ? 'Long' : 'Short';
+
+  el.innerHTML =
+    '<div class="pos-line">' + label + ' ' + position.qty.toFixed(4) + ' BTC</div>' +
+    '<div class="pos-line">Entry: $' + fmtPrice(position.entryPrice) + '</div>' +
+    '<div class="pos-pnl" style="color:' + color + '">' +
+      (rawPnl >= 0 ? '+' : '') + '$' + Math.abs(rawPnl).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+      '&nbsp;<span style="font-size:11px;opacity:0.8">(' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%)</span>' +
+    '</div>';
+}
+
+function renderOrders() {
+  const tbody = document.getElementById('order-history-body');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);font-size:11px;padding:8px 0;">No orders yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.slice(0, 5).map(o => {
+    const t = o.time.toLocaleTimeString('en-US', { hour12: false });
+    const cls = o.side === 'buy' ? 'side-buy' : 'side-sell';
+    return '<tr>' +
+      '<td>' + t + '</td>' +
+      '<td class="' + cls + '">' + o.side.toUpperCase() + '</td>' +
+      '<td>' + o.qty.toFixed(4) + '</td>' +
+      '<td>$' + Math.round(o.price).toLocaleString('en-US') + '</td>' +
+    '</tr>';
   }).join('');
 }
 
-function toggleDesc(idx) {
-  const el = document.getElementById(`desc${idx}`);
-  el.classList.toggle('open');
-}
+/* ════════════════════════════════════════
+   LEADERBOARD
+═══════════════════════════════════════ */
+const LEADERS = [
+  { rank: 1, init: 'JK', name: 'JohnK',     ret: '+284.5%', trades: '1,247' },
+  { rank: 2, init: 'SR', name: 'SarahR',    ret: '+198.2%', trades: '984'   },
+  { rank: 3, init: 'MT', name: 'MarcT',     ret: '+155.9%', trades: '2,103' },
+  { rank: 4, init: 'AV', name: 'AlexV',     ret: '+122.7%', trades: '763'   },
+  { rank: 5, init: 'KL', name: 'KimberlyL', ret: '+97.4%',  trades: '441'   },
+];
 
-renderCourses();
+const RANK_CLS = { 1: 'gold', 2: 'silver', 3: 'bronze' };
+const lbList   = document.getElementById('leaderboard-list');
 
-// ── Simulator ────────────────────────────────────────────────────────────────
-const CHART_W = 600;
-const CHART_H = 180;
-const MAX_POINTS = 60;
-
-let simPrice = 43500;
-let simStart = 43500;
-let priceHistory = [];
-
-// Initialize history
-for (let i = 0; i < MAX_POINTS; i++) {
-  simStart += (Math.random() - 0.5) * 200;
-  priceHistory.push(simStart);
-}
-simStart = 43500;
-simPrice = priceHistory[priceHistory.length - 1];
-
-// Position tracking
-let posSize = 0;
-let posEntry = 0;
-let currentSide = 'buy';
-
-function setSide(side) {
-  currentSide = side;
-  const buyBtn = document.getElementById('buyBtn');
-  const sellBtn = document.getElementById('sellBtn');
-  const execBtn = document.getElementById('execBtn');
-  if (side === 'buy') {
-    buyBtn.className = 'side-btn active-buy';
-    sellBtn.className = 'side-btn';
-    execBtn.className = 'btn-execute buy';
-    execBtn.textContent = 'Buy BTC';
-  } else {
-    buyBtn.className = 'side-btn';
-    sellBtn.className = 'side-btn active-sell';
-    execBtn.className = 'btn-execute sell';
-    execBtn.textContent = 'Sell BTC';
-  }
-}
-
-function updateOrderEstimate() {
-  const qty = parseFloat(document.getElementById('qtyInput').value) || 0;
-  document.getElementById('orderPrice').textContent = fmtPrice(simPrice);
-  document.getElementById('orderTotal').textContent = fmtPrice(qty * simPrice);
-}
-
-document.getElementById('qtyInput').addEventListener('input', updateOrderEstimate);
-
-function updatePositionDisplay() {
-  if (posSize === 0) {
-    document.getElementById('posSize').textContent = '—';
-    document.getElementById('posEntry').textContent = '—';
-    document.getElementById('posPnl').textContent = '—';
-    document.getElementById('posPnl').style.color = 'var(--text-muted)';
-  } else {
-    const pnl = (simPrice - posEntry) * posSize;
-    const pnlPct = ((simPrice - posEntry) / posEntry * 100);
-    const pnlColor = pnl >= 0 ? 'var(--green)' : 'var(--red)';
-    const pnlSign = pnl >= 0 ? '+' : '';
-    document.getElementById('posSize').textContent = `${posSize.toFixed(4)} BTC`;
-    document.getElementById('posEntry').textContent = fmtPrice(posEntry);
-    document.getElementById('posPnl').textContent = `${pnlSign}$${Math.abs(pnl).toFixed(2)} (${pnlSign}${pnlPct.toFixed(2)}%)`;
-    document.getElementById('posPnl').style.color = pnlColor;
-  }
-}
-
-function executeOrder() {
-  const qty = parseFloat(document.getElementById('qtyInput').value) || 0;
-  if (qty <= 0) return;
-  const side = currentSide;
-  const price = simPrice;
-  const now = new Date();
-  const timeStr = now.toTimeString().slice(0,8);
-
-  // Update position
-  if (side === 'buy') {
-    if (posSize === 0) {
-      posSize = qty;
-      posEntry = price;
-    } else {
-      const totalCost = posEntry * posSize + price * qty;
-      posSize += qty;
-      posEntry = totalCost / posSize;
-    }
-  } else {
-    posSize = Math.max(0, posSize - qty);
-    if (posSize === 0) posEntry = 0;
-  }
-
-  updatePositionDisplay();
-
-  // Add to history table
-  const tbody = document.getElementById('orderHistoryBody');
-  const cls = side === 'buy' ? 'up' : 'down';
-  const label = side === 'buy' ? 'Buy' : 'Sell';
-  const row = document.createElement('tr');
-  row.innerHTML = `
-    <td style="color:var(--text-muted)">${timeStr}</td>
-    <td class="${cls}">${label}</td>
-    <td>${qty.toFixed(4)}</td>
-    <td>${fmtPrice(price)}</td>
-    <td><span class="status-filled">Filled</span></td>
-  `;
-  tbody.insertBefore(row, tbody.firstChild);
-}
-
-function drawChart() {
-  const prices = priceHistory;
-  const minP = Math.min(...prices) * 0.9995;
-  const maxP = Math.max(...prices) * 1.0005;
-  const range = maxP - minP || 1;
-
-  const pts = prices.map((p, i) => {
-    const x = (i / (MAX_POINTS - 1)) * CHART_W;
-    const y = CHART_H - ((p - minP) / range) * CHART_H;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-
-  const linePath = 'M' + pts.join(' L');
-  const areaPath = 'M0,' + CHART_H + ' L' + pts.join(' L') + ` L${CHART_W},${CHART_H} Z`;
-
-  document.getElementById('chartLine').setAttribute('d', linePath);
-  document.getElementById('chartArea').setAttribute('d', areaPath);
-
-  // Update price display
-  const chgPct = ((simPrice - 43500) / 43500 * 100);
-  const chgSign = chgPct >= 0 ? '+' : '';
-  const chgEl = document.getElementById('chartChange');
-  document.getElementById('chartPrice').textContent = fmtPrice(simPrice);
-  chgEl.textContent = `${chgSign}${chgPct.toFixed(2)}%`;
-  chgEl.className = `chart-change ${chgPct >= 0 ? 'up' : 'down'}`;
-
-  // Update order price
-  document.getElementById('orderPrice').textContent = fmtPrice(simPrice);
-  const qty = parseFloat(document.getElementById('qtyInput').value) || 0;
-  document.getElementById('orderTotal').textContent = fmtPrice(qty * simPrice);
-
-  // X-axis labels
-  const nowMs = Date.now();
-  for (let i = 0; i < 5; i++) {
-    const idx = Math.round(i * (MAX_POINTS - 1) / 4);
-    const secsAgo = (MAX_POINTS - 1 - idx) * 2;
-    const t = new Date(nowMs - secsAgo * 1000);
-    document.getElementById(`xLabel${i}`).textContent = t.toTimeString().slice(0,5);
-  }
-}
-
-function tickSim() {
-  const volatility = 80;
-  const drift = (Math.random() - 0.495) * volatility;
-  simPrice += drift;
-  simPrice = Math.max(simPrice, 38000);
-  priceHistory.push(simPrice);
-  if (priceHistory.length > MAX_POINTS) priceHistory.shift();
-  drawChart();
-  updatePositionDisplay();
-}
-
-drawChart();
-setInterval(tickSim, 2000);
+LEADERS.forEach(l => {
+  const row = document.createElement('div');
+  row.className = 'lb-row';
+  row.innerHTML =
+    '<div class="lb-rank ' + (RANK_CLS[l.rank] || '') + '">#' + l.rank + '</div>' +
+    '<div class="lb-avatar">' + l.init + '</div>' +
+    '<div class="lb-info">' +
+      '<div class="lb-name">' + l.name + '</div>' +
+      '<div class="lb-sub">Top Trader</div>' +
+    '</div>' +
+    '<div class="lb-trades">' + l.trades + ' trades</div>' +
+    '<div class="lb-return">' + l.ret + '</div>';
+  lbList.appendChild(row);
+});
 </script>
 </body>
 </html>
