@@ -765,13 +765,43 @@
     .account-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>
+
+  <!-- Calm override: remove neon, tone down glows -->
+  <style>
+    /* Neutral demo banner */
+    .demo-banner {
+      background: #13131f !important;
+      border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+      color: rgba(255,255,255,0.35) !important;
+      font-size: 11px !important;
+      letter-spacing: 0.06em !important;
+    }
+    .demo-banner a { color: rgba(255,255,255,0.5) !important; }
+    .demo-banner a:hover { color: rgba(255,255,255,0.8) !important; text-decoration: none !important; }
+    /* Kill all colored glows on box-shadow */
+    * { text-shadow: none !important; }
+    /* Reduce all colored box-shadows — override to just dark shadow */
+    .btn-primary, .btn-primary:hover,
+    .sidebar-link.active,
+    .tl-dot, .tl-dot.done, .tl-dot.active,
+    .form-control:focus,
+    [class*="card"]:hover,
+    [class*="truck"]:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important; }
+    /* No pulse/glow animations */
+    @keyframes badge-pulse { 0%,100%{ box-shadow: none; } }
+    @keyframes dot-pulse  { 0%,100%{ box-shadow: none; } }
+    @keyframes ring-pulse { 0%,100%{ box-shadow: none; } }
+    /* Subtler accent-dim */
+    :root { --accent-glow: rgba(0,0,0,0) !important; --accent-dim: rgba(255,255,255,0.06) !important; }
+    /* Scrollbar more neutral */
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12) !important; }
+  </style>
 </head>
 <body>
 
 <!-- DEMO BANNER -->
 <div class="demo-banner">
-  🔬 Demo preview &nbsp;·&nbsp; Real product in development &nbsp;·&nbsp;
-  <a href="https://dimkaprojects.xyz">← Back to portfolio</a>
+  Demo Site &nbsp;&middot;&nbsp; <a href="https://dimkaprojects.xyz">← Back to portfolio</a>
 </div>
 
 <!-- NAVBAR -->
