@@ -12,6 +12,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: `${siteConfig.name} — ${siteConfig.title}`,
   description: siteConfig.description,
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

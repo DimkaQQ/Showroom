@@ -58,7 +58,7 @@ export const projects = [
     accentColor: "#8b5cf6",
     gradientFrom: "#4c1d95",
     gradientTo: "#7c3aed",
-    year: "2024",
+    year: "2025",
     status: "live",
   },
   {
@@ -69,7 +69,7 @@ export const projects = [
     accentColor: "#22d3ee",
     gradientFrom: "#0e4f6e",
     gradientTo: "#0891b2",
-    year: "2024",
+    year: "2025",
     status: "live",
   },
   {
@@ -80,7 +80,7 @@ export const projects = [
     accentColor: "#34d399",
     gradientFrom: "#064e3b",
     gradientTo: "#047857",
-    year: "2024",
+    year: "2026",
     status: "live",
   },
   {
@@ -91,7 +91,7 @@ export const projects = [
     accentColor: "#f472b6",
     gradientFrom: "#831843",
     gradientTo: "#be185d",
-    year: "2024",
+    year: "2025",
     status: "live",
   },
   {
@@ -102,7 +102,7 @@ export const projects = [
     accentColor: "#fb923c",
     gradientFrom: "#7c2d12",
     gradientTo: "#c2410c",
-    year: "2023",
+    year: "2024",
     status: "live",
   },
 ];
