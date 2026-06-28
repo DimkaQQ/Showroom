@@ -1,1087 +1,1147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DizelTrade — Fuel Distribution ERP</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #05050f;
-    --surface: #0d0d20;
-    --surface2: #13132a;
-    --border: rgba(255,255,255,0.07);
-    --accent: #8b5cf6;
-    --accent-dim: rgba(139,92,246,0.15);
-    --accent-glow: rgba(139,92,246,0.35);
-    --text: #e2e2f0;
-    --text-muted: #6b6b8a;
-    --text-dim: #9090b0;
-    --green: #10b981;
-    --blue: #3b82f6;
-    --yellow: #f59e0b;
-    --red: #ef4444;
-    --sidebar-w: 220px;
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding-top: 33px;
+    display: flex;
+    font-size: 14px;
+    line-height: 1.5;
   }
-
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 14px; overflow-x: hidden; }
-
-  /* DEMO BANNER */
-  .demo-banner {
-    background: linear-gradient(90deg, rgba(139,92,246,0.18) 0%, rgba(59,130,246,0.12) 100%);
-    border-bottom: 1px solid rgba(139,92,246,0.3);
-    padding: 8px 20px;
-    display: flex; align-items: center; justify-content: center; gap: 16px;
-    font-size: 12.5px; color: #b0b0d0; position: relative; z-index: 100;
-    backdrop-filter: blur(4px);
-  }
-  .demo-banner span { display: flex; align-items: center; gap: 6px; }
-  .demo-banner a {
-    color: var(--accent); text-decoration: none; font-weight: 500;
-    display: flex; align-items: center; gap: 4px; transition: color .2s;
-  }
-  .demo-banner a:hover { color: #a78bfa; }
-  .demo-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; animation: pulse-dot 2s infinite; }
-  @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:.4;} }
-
-  /* LAYOUT */
-  .app-shell { display: flex; height: calc(100vh - 37px); overflow: hidden; }
 
   /* SIDEBAR */
   .sidebar {
-    width: var(--sidebar-w); flex-shrink: 0;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    overflow-y: auto; overflow-x: hidden;
+    width: 220px;
+    min-height: calc(100vh - 33px);
+    background: #1e293b;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 33px;
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
   }
-  .sidebar::-webkit-scrollbar { width: 3px; }
-  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   .sidebar-logo {
-    padding: 20px 16px 18px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 15px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.01em;
   }
-  .logo-icon {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), #6d28d9);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px; flex-shrink: 0;
-    box-shadow: 0 0 14px rgba(139,92,246,0.4);
-  }
-  .logo-text { font-size: 15px; font-weight: 700; color: var(--accent); letter-spacing: -.3px; }
-  .logo-sub { font-size: 10px; color: var(--text-muted); margin-top: 1px; letter-spacing: .5px; text-transform: uppercase; }
 
-  .sidebar-section { padding: 18px 12px 6px; }
-  .sidebar-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 0 4px 8px; font-weight: 600; }
+  .sidebar-section-label {
+    padding: 16px 16px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
 
   .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 10px; border-radius: 7px; cursor: pointer;
-    color: var(--text-dim); font-size: 13px; font-weight: 500;
-    transition: background .15s, color .15s; position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 16px;
+    color: rgba(255,255,255,0.5);
+    font-size: 13.5px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
     user-select: none;
   }
-  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
-  .nav-item.active { background: var(--accent-dim); color: var(--accent); }
-  .nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
-  .nav-badge {
-    margin-left: auto; background: var(--accent); color: #fff;
-    font-size: 10px; font-weight: 700; border-radius: 10px;
-    padding: 1px 6px; min-width: 18px; text-align: center;
+
+  .nav-item:hover {
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.03);
   }
 
-  .sidebar-footer {
-    margin-top: auto; padding: 14px 12px;
-    border-top: 1px solid var(--border);
+  .nav-item.active {
+    color: #a78bfa;
+    border-left-color: #7c3aed;
+    background: rgba(124,58,237,0.08);
   }
-  .user-chip {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 10px; border-radius: 8px;
-    background: var(--surface2); border: 1px solid var(--border);
+
+  .nav-item .nav-icon {
+    width: 15px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.8;
   }
-  .user-avatar {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
-  }
-  .user-name { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.2; }
-  .user-role { font-size: 10px; color: var(--text-muted); }
 
   /* MAIN */
-  .main { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
-  .main::-webkit-scrollbar { width: 4px; }
-  .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  /* TOP BAR */
-  .topbar {
-    padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid var(--border); background: var(--surface);
-    position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px);
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    min-width: 0;
+    padding: 28px 32px 48px;
   }
-  .topbar-left { display: flex; flex-direction: column; gap: 2px; }
-  .topbar-title { font-size: 18px; font-weight: 700; letter-spacing: -.3px; }
-  .topbar-date { font-size: 12px; color: var(--text-muted); }
+
+  /* PAGE HEADER */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.02em;
+  }
+
   .btn-primary {
-    background: var(--accent); color: #fff; border: none; border-radius: 8px;
-    padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
-    display: flex; align-items: center; gap: 6px; transition: all .2s;
-    box-shadow: 0 0 16px rgba(139,92,246,0.35);
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    letter-spacing: 0.01em;
   }
-  .btn-primary:hover { background: #7c3aed; box-shadow: 0 0 24px rgba(139,92,246,0.5); transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
 
-  /* CONTENT */
-  .content { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+  .btn-primary:hover { background: #6d28d9; }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.06);
+    color: #cbd5e1;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); }
 
   /* KPI CARDS */
-  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
   .kpi-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 18px 18px 16px; position: relative; overflow: hidden;
-    transition: transform .2s, box-shadow .2s;
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   }
-  .kpi-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    border-radius: 12px 12px 0 0;
+
+  .kpi-label {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
   }
-  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-  .kpi-card.c-violet::before { background: var(--accent); }
-  .kpi-card.c-blue::before { background: var(--blue); }
-  .kpi-card.c-red::before { background: var(--red); }
-  .kpi-card.c-green::before { background: var(--green); }
-  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; }
-  .kpi-value { font-size: 26px; font-weight: 800; letter-spacing: -.5px; line-height: 1; margin-bottom: 10px; }
-  .kpi-card.c-violet .kpi-value { color: var(--accent); }
-  .kpi-card.c-blue .kpi-value { color: var(--blue); }
-  .kpi-card.c-red .kpi-value { color: var(--red); }
-  .kpi-card.c-green .kpi-value { color: var(--green); }
-  .kpi-trend { font-size: 11.5px; display: flex; align-items: center; gap: 4px; }
-  .trend-up { color: var(--green); }
-  .trend-dn { color: var(--red); }
 
-  /* CHARTS ROW */
-  .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
-  .card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 20px;
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
-  .card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
-  .card-badge { font-size: 10px; background: var(--accent-dim); color: var(--accent); border-radius: 20px; padding: 2px 8px; font-weight: 600; }
 
-  /* BAR CHART */
-  .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 160px; padding-bottom: 28px; position: relative; }
-  .bar-chart::after { content: ''; position: absolute; bottom: 28px; left: 0; right: 0; height: 1px; background: var(--border); }
-  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
-  .bar {
-    width: 100%; border-radius: 6px 6px 0 0;
-    background: linear-gradient(180deg, #a78bfa 0%, var(--accent) 60%, #6d28d9 100%);
-    transition: height 1s cubic-bezier(.34,1.56,.64,1);
-    position: relative; cursor: pointer;
-    box-shadow: 0 0 10px rgba(139,92,246,0.3);
+  .kpi-value.red { color: #ef4444; }
+
+  .kpi-sub {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 5px;
   }
-  .bar:hover { filter: brightness(1.15); }
-  .bar-label { font-size: 10px; color: var(--text-muted); font-weight: 500; }
-  .bar-val { font-size: 9.5px; color: var(--accent); font-weight: 700; position: absolute; top: -16px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
 
-  /* DONUT CHART */
-  .donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-  .donut-svg { overflow: visible; }
-  .donut-legend { width: 100%; display: flex; flex-direction: column; gap: 7px; }
-  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-  .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-  .legend-label { color: var(--text-dim); flex: 1; }
-  .legend-pct { color: var(--text); font-weight: 700; font-size: 12px; }
+  /* CHART */
+  .chart-card {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
 
-  /* TABLES ROW */
-  .tables-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  table { width: 100%; border-collapse: collapse; }
-  thead th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .7px; color: var(--text-muted); font-weight: 600; padding: 0 10px 10px; text-align: left; border-bottom: 1px solid var(--border); }
-  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background .15s; cursor: pointer; }
+  .card-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-bottom: 18px;
+    letter-spacing: -0.01em;
+  }
+
+  .chart-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    height: 160px;
+  }
+
+  .chart-bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .chart-bar-track {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .chart-bar {
+    width: 100%;
+    background: #7c3aed;
+    border-radius: 4px 4px 0 0;
+    height: 0;
+    opacity: 0.85;
+  }
+
+  .chart-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    font-weight: 500;
+  }
+
+  .chart-val {
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 2px;
+  }
+
+  /* TABLE CARD */
+  .table-card {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    overflow: hidden;
+  }
+
+  .table-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #f1f5f9;
+    letter-spacing: -0.01em;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: 10px 20px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.15);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover { background: rgba(255,255,255,0.03); }
-  td { padding: 10px 10px; font-size: 12.5px; vertical-align: middle; }
-  .mono { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 12px; color: var(--accent); font-weight: 600; }
 
+  tbody td {
+    padding: 12px 20px;
+    font-size: 13.5px;
+    color: #cbd5e1;
+  }
+
+  .mono {
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    font-size: 12.5px;
+    color: #94a3b8;
+  }
+
+  /* BADGES */
   .badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    border-radius: 20px; padding: 2px 9px; font-size: 10.5px; font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
   }
-  .badge.delivered { background: rgba(16,185,129,0.15); color: var(--green); }
-  .badge.transit { background: rgba(59,130,246,0.15); color: var(--blue); }
-  .badge.pending { background: rgba(245,158,11,0.15); color: var(--yellow); }
-  .badge.overdue { background: rgba(239,68,68,0.15); color: var(--red); }
-  .badge.on-route { background: rgba(59,130,246,0.15); color: var(--blue); animation: badge-pulse 2s infinite; }
-  .badge.available { background: rgba(16,185,129,0.15); color: var(--green); }
-  .badge.maintenance { background: rgba(245,158,11,0.15); color: var(--yellow); }
 
-  @keyframes badge-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0);} 50%{box-shadow:0 0 0 3px rgba(59,130,246,0.2);} }
-
-  .debt-row-overdue td:first-child { border-left: 3px solid var(--red); padding-left: 8px; }
-  .debt-amount { font-weight: 700; }
-  .debt-amount.overdue { color: var(--red); }
-  .debt-amount.ok { color: var(--green); }
-
-  /* FLEET */
-  .fleet-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .truck-card {
-    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
-    padding: 16px; cursor: pointer; transition: all .2s; position: relative; overflow: hidden;
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
-  .truck-card:hover { border-color: rgba(139,92,246,0.3); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-  .truck-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .truck-id { font-family: 'SF Mono','Consolas',monospace; font-size: 13px; font-weight: 700; color: var(--text); }
-  .truck-emoji { font-size: 22px; }
-  .truck-driver { font-size: 11.5px; color: var(--text-muted); margin-bottom: 10px; }
-  .fuel-bar-wrap { display: flex; flex-direction: column; gap: 4px; }
-  .fuel-label { font-size: 10px; color: var(--text-muted); display: flex; justify-content: space-between; }
-  .fuel-bar-bg { background: rgba(255,255,255,0.07); border-radius: 20px; height: 5px; overflow: hidden; }
-  .fuel-bar-fill { height: 100%; border-radius: 20px; transition: width 1.2s cubic-bezier(.34,1.2,.64,1); }
-  .fuel-high { background: linear-gradient(90deg, var(--green), #34d399); }
-  .fuel-mid { background: linear-gradient(90deg, var(--yellow), #fbbf24); }
-  .fuel-low { background: linear-gradient(90deg, var(--red), #f87171); }
 
-  /* ANALYTICS */
-  .analytics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .analytics-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 18px; display: flex; flex-direction: column; gap: 10px;
+  .badge-green { background: rgba(34,197,94,0.12); color: #4ade80; }
+  .badge-green .badge-dot { background: #22c55e; }
+
+  .badge-blue { background: rgba(59,130,246,0.12); color: #60a5fa; }
+  .badge-blue .badge-dot { background: #3b82f6; }
+
+  .badge-yellow { background: rgba(234,179,8,0.12); color: #facc15; }
+  .badge-yellow .badge-dot { background: #eab308; }
+
+  .badge-gray { background: rgba(148,163,184,0.1); color: #94a3b8; }
+  .badge-gray .badge-dot { background: #64748b; }
+
+  .badge-orange { background: rgba(249,115,22,0.12); color: #fb923c; }
+  .badge-orange .badge-dot { background: #f97316; }
+
+  /* FLEET GRID */
+  .fleet-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
   }
-  .analytics-label { font-size: 11px; text-transform: uppercase; letter-spacing: .7px; color: var(--text-muted); font-weight: 600; }
-  .analytics-value { font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -.5px; }
-  .analytics-sub { font-size: 11px; color: var(--text-muted); }
-  .sparkline { display: block; }
 
-  /* TOAST */
-  .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-  .toast {
-    background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
-    border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--text);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4); max-width: 320px;
-    animation: toast-in .3s cubic-bezier(.34,1.56,.64,1);
-    display: flex; align-items: center; gap: 10px;
+  .fleet-card {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   }
-  .toast.success { border-left-color: var(--green); }
-  .toast.info { border-left-color: var(--blue); }
-  @keyframes toast-in { from{opacity:0;transform:translateX(20px);} to{opacity:1;transform:translateX(0);} }
-  .toast-fade-out { animation: toast-out .3s ease forwards; }
-  @keyframes toast-out { to{opacity:0;transform:translateX(20px);} }
 
-  /* MODAL */
+  .fleet-plate {
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .fleet-driver {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 12px;
+  }
+
+  .fleet-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .fuel-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fuel-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    white-space: nowrap;
+  }
+
+  .fuel-bar-track {
+    height: 5px;
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 80px;
+  }
+
+  .fuel-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: #7c3aed;
+  }
+
+  .fuel-pct {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  /* MODAL OVERLAY */
   .modal-overlay {
-    position: fixed; inset: 0; background: rgba(5,5,15,0.8); z-index: 1000;
-    display: flex; align-items: center; justify-content: center;
-    backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity .25s;
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
   }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal-overlay.open { display: flex; }
+
   .modal {
-    background: var(--surface); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
-    padding: 28px; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
-    transform: scale(.94) translateY(10px); transition: transform .3s cubic-bezier(.34,1.56,.64,1);
-    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    width: 520px;
+    max-width: calc(100vw - 48px);
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
-  .modal-overlay.open .modal { transform: scale(1) translateY(0); }
-  .modal::-webkit-scrollbar { width: 3px; }
-  .modal::-webkit-scrollbar-thumb { background: var(--border); }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
-  .modal-title { font-size: 16px; font-weight: 700; }
+
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.02em;
+  }
+
   .modal-close {
-    width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border);
-    background: transparent; color: var(--text-muted); cursor: pointer; font-size: 16px;
-    display: flex; align-items: center; justify-content: center; transition: all .2s;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #94a3b8;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s;
   }
-  .modal-close:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+  .modal-close:hover { background: rgba(255,255,255,0.1); color: #e2e8f0; }
+
+  .modal-body { padding: 20px 24px 24px; }
+
+  /* FORM */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .form-control {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 7px;
+    padding: 9px 12px;
+    color: #e2e8f0;
+    font-size: 13.5px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  .form-control:focus { border-color: rgba(124,58,237,0.6); }
+  .form-control option { background: #1e293b; }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
 
   /* DISPATCH DETAIL MODAL */
-  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-  .detail-field label { font-size: 10px; text-transform: uppercase; letter-spacing: .7px; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 4px; }
-  .detail-field .val { font-size: 13.5px; color: var(--text); font-weight: 500; }
-  .divider { height: 1px; background: var(--border); margin: 18px 0; }
-  .timeline { display: flex; flex-direction: column; gap: 0; }
-  .timeline-label { font-size: 11px; text-transform: uppercase; letter-spacing: .7px; color: var(--text-muted); font-weight: 600; margin-bottom: 14px; }
-  .tl-step { display: flex; gap: 12px; padding-bottom: 18px; position: relative; }
-  .tl-step:last-child { padding-bottom: 0; }
-  .tl-step:last-child .tl-line { display: none; }
-  .tl-dot-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
-  .tl-dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 2px; }
-  .tl-dot.done { background: var(--green); box-shadow: 0 0 6px rgba(16,185,129,0.5); }
-  .tl-dot.active { background: var(--accent); box-shadow: 0 0 6px rgba(139,92,246,0.5); animation: dot-pulse 1.5s infinite; }
-  .tl-dot.pending-dot { background: transparent; border: 2px solid var(--border); }
-  @keyframes dot-pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.2);} }
-  .tl-line { flex: 1; width: 1px; background: var(--border); margin-top: 4px; }
-  .tl-content { flex: 1; }
-  .tl-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-  .tl-time { font-size: 11px; color: var(--text-muted); }
-
-  /* NEW DISPATCH FORM */
-  .form-group { margin-bottom: 16px; }
-  .form-group label { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 6px; }
-  .form-control {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-    padding: 9px 12px; color: var(--text); font-size: 13px; outline: none;
-    transition: border-color .2s;
-    appearance: none; -webkit-appearance: none;
+  .detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+    margin-bottom: 20px;
   }
-  .form-control:focus { border-color: rgba(139,92,246,0.5); box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
-  .form-control option { background: #1a1a35; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .btn-secondary {
-    background: transparent; border: 1px solid var(--border); color: var(--text-muted);
-    border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
-    transition: all .2s;
+
+  .detail-item { display: flex; flex-direction: column; gap: 3px; }
+
+  .detail-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
-  .btn-secondary:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
 
-  /* SECTION TITLE */
-  .section-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .detail-value {
+    font-size: 13.5px;
+    color: #e2e8f0;
+    font-weight: 500;
+  }
 
-  * { scrollbar-width: thin; scrollbar-color: rgba(139,92,246,0.2) transparent; }
+  /* TIMELINE */
+  .timeline { margin-top: 6px; }
+
+  .timeline-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .timeline-steps {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .timeline-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .timeline-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    right: -50%;
+    height: 2px;
+    background: rgba(255,255,255,0.08);
+    z-index: 0;
+  }
+
+  .timeline-step.done:not(:last-child)::after { background: #7c3aed; }
+
+  .timeline-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 7px;
+  }
+
+  .timeline-step.done .timeline-dot {
+    background: #7c3aed;
+    border-color: #7c3aed;
+  }
+
+  .timeline-step.current .timeline-dot {
+    background: rgba(124,58,237,0.2);
+    border-color: #7c3aed;
+  }
+
+  .timeline-dot-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+  }
+
+  .timeline-step.done .timeline-dot-inner { background: #fff; }
+  .timeline-step.current .timeline-dot-inner { background: #a78bfa; }
+
+  .timeline-step-label {
+    font-size: 10.5px;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    line-height: 1.3;
+    font-weight: 500;
+  }
+
+  .timeline-step.done .timeline-step-label { color: #a78bfa; }
+  .timeline-step.current .timeline-step-label { color: #c4b5fd; font-weight: 600; }
+
+  /* SUCCESS MSG */
+  .success-msg {
+    display: none;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #4ade80;
+    font-size: 13.5px;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .section-gap { margin-top: 28px; }
+  .text-red { color: #ef4444; }
+  .text-muted { color: rgba(255,255,255,0.35); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 </style>
-
-  <!-- Calm override: remove neon, tone down glows -->
-  <style>
-    /* Neutral demo banner */
-    .demo-banner {
-      background: #13131f !important;
-      border-bottom: 1px solid rgba(255,255,255,0.07) !important;
-      color: rgba(255,255,255,0.35) !important;
-      font-size: 11px !important;
-      letter-spacing: 0.06em !important;
-    }
-    .demo-banner a { color: rgba(255,255,255,0.5) !important; }
-    .demo-banner a:hover { color: rgba(255,255,255,0.8) !important; text-decoration: none !important; }
-    /* Kill all colored glows on box-shadow */
-    * { text-shadow: none !important; }
-    /* Reduce all colored box-shadows — override to just dark shadow */
-    .btn-primary, .btn-primary:hover,
-    .sidebar-link.active,
-    .tl-dot, .tl-dot.done, .tl-dot.active,
-    .form-control:focus,
-    [class*="card"]:hover,
-    [class*="truck"]:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important; }
-    /* No pulse/glow animations */
-    @keyframes badge-pulse { 0%,100%{ box-shadow: none; } }
-    @keyframes dot-pulse  { 0%,100%{ box-shadow: none; } }
-    @keyframes ring-pulse { 0%,100%{ box-shadow: none; } }
-    /* Subtler accent-dim */
-    :root { --accent-glow: rgba(0,0,0,0) !important; --accent-dim: rgba(255,255,255,0.06) !important; }
-    /* Scrollbar more neutral */
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12) !important; }
-  </style>
 </head>
 <body>
 
 <!-- DEMO BANNER -->
-<div class="demo-banner">
-  <span><span class="demo-dot"></span> Demo Site</span>
-  <span>&middot;</span>
-  <a href="https://dimkaprojects.xyz">&#8592; Back to portfolio</a>
-</div>
+<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.06);padding:6px 16px;text-align:center;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;font-family:monospace;">DEMO SITE &nbsp;·&nbsp; <a href="https://dimkaprojects.xyz" style="color:rgba(255,255,255,0.5);text-decoration:none;">dimkaprojects.xyz ↗</a></div>
 
-<!-- APP SHELL -->
-<div class="app-shell">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">⛽ DizelTrade</div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">&#9981;</div>
-      <div>
-        <div class="logo-text">DizelTrade</div>
-        <div class="logo-sub">Fuel ERP</div>
+  <div class="sidebar-section-label">Operations</div>
+  <div class="nav-item active" onclick="navigate(this,'dispatches')">
+    <span class="nav-icon">📋</span> Dispatches
+  </div>
+  <div class="nav-item" onclick="navigate(this,'fleet')">
+    <span class="nav-icon">🚛</span> Fleet
+  </div>
+  <div class="nav-item" onclick="navigate(this,'routes')">
+    <span class="nav-icon">🗺️</span> Routes
+  </div>
+
+  <div class="sidebar-section-label">Finance</div>
+  <div class="nav-item" onclick="navigate(this,'payments')">
+    <span class="nav-icon">💳</span> Payments
+  </div>
+  <div class="nav-item" onclick="navigate(this,'debts')">
+    <span class="nav-icon">⚠️</span> Client Debts
+  </div>
+  <div class="nav-item" onclick="navigate(this,'reports')">
+    <span class="nav-icon">📊</span> Reports
+  </div>
+
+  <div class="sidebar-section-label">Admin</div>
+  <div class="nav-item" onclick="navigate(this,'users')">
+    <span class="nav-icon">👥</span> Users
+  </div>
+  <div class="nav-item" onclick="navigate(this,'settings')">
+    <span class="nav-icon">⚙️</span> Settings
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- DISPATCHES VIEW -->
+  <div id="view-dispatches">
+    <div class="page-header">
+      <div class="page-title">Dispatches</div>
+      <button class="btn-primary" onclick="openNewDispatch()">+ New Dispatch</button>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Dispatched This Month</div>
+        <div class="kpi-value" id="kpi-volume">0t</div>
+        <div class="kpi-sub">+8.4% vs last month</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Deliveries</div>
+        <div class="kpi-value" id="kpi-active">0</div>
+        <div class="kpi-sub">Across 4 routes</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Client Debts</div>
+        <div class="kpi-value red" id="kpi-debts">₸0</div>
+        <div class="kpi-sub">3 overdue accounts</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Monthly Revenue</div>
+        <div class="kpi-value" id="kpi-revenue">₸0</div>
+        <div class="kpi-sub">+12.1% vs last month</div>
       </div>
     </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Operations</div>
-      <div class="nav-item active" onclick="setActive(this)">
-        <span class="nav-icon">&#128202;</span> Dashboard
-      </div>
-      <div class="nav-item" onclick="setActive(this); showToast('Dispatches — 3 pending', 'info')">
-        <span class="nav-icon">&#128230;</span> Dispatches
-        <span class="nav-badge">3</span>
-      </div>
-      <div class="nav-item" onclick="setActive(this); scrollToFleet()">
-        <span class="nav-icon">&#128666;</span> Fleet
-      </div>
-      <div class="nav-item" onclick="setActive(this); showToast('Deliveries module — coming soon', 'info')">
-        <span class="nav-icon">&#128506;</span> Deliveries
-      </div>
+    <!-- Chart -->
+    <div class="chart-card">
+      <div class="card-title">Monthly Dispatch Volume (tonnes)</div>
+      <div class="chart-wrap" id="bar-chart"></div>
     </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Finance</div>
-      <div class="nav-item" onclick="setActive(this); showToast('Client Debts — coming soon', 'info')">
-        <span class="nav-icon">&#128179;</span> Client Debts
-      </div>
-      <div class="nav-item" onclick="setActive(this); showToast('Invoices — coming soon', 'info')">
-        <span class="nav-icon">&#129534;</span> Invoices
-      </div>
-      <div class="nav-item" onclick="setActive(this); showToast('Analytics — coming soon', 'info')">
-        <span class="nav-icon">&#128200;</span> Analytics
-      </div>
+    <!-- Dispatches Table -->
+    <div class="table-card">
+      <div class="table-card-header">Recent Dispatches</div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Volume (t)</th>
+            <th>Driver</th>
+            <th>Truck</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="dispatch-tbody"></tbody>
+      </table>
     </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Admin</div>
-      <div class="nav-item" onclick="setActive(this); showToast('Clients module — coming soon', 'info')">
-        <span class="nav-icon">&#127970;</span> Clients
-      </div>
-      <div class="nav-item" onclick="setActive(this); showToast('Drivers module — coming soon', 'info')">
-        <span class="nav-icon">&#128100;</span> Drivers
-      </div>
-      <div class="nav-item" onclick="setActive(this); showToast('Settings — coming soon', 'info')">
-        <span class="nav-icon">&#9881;</span> Settings
-      </div>
+    <!-- Client Debts Table -->
+    <div class="section-gap"></div>
+    <div class="table-card">
+      <div class="table-card-header">Client Debts</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Total Debt</th>
+            <th>Overdue</th>
+            <th>Last Payment</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="debts-tbody"></tbody>
+      </table>
     </div>
+  </div>
 
-    <div class="sidebar-footer">
-      <div class="user-chip">
-        <div class="user-avatar">DM</div>
-        <div>
-          <div class="user-name">Dimash M.</div>
-          <div class="user-role">Administrator</div>
-        </div>
-      </div>
+  <!-- FLEET VIEW -->
+  <div id="view-fleet" style="display:none;">
+    <div class="page-header">
+      <div class="page-title">Fleet</div>
     </div>
-  </aside>
+    <div class="fleet-grid" id="fleet-grid"></div>
+  </div>
 
-  <!-- MAIN -->
-  <main class="main">
+  <!-- STUB VIEWS -->
+  <div id="view-routes" style="display:none;">
+    <div class="page-header"><div class="page-title">Routes</div></div>
+    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Routes module — coming soon</div>
+  </div>
+  <div id="view-payments" style="display:none;">
+    <div class="page-header"><div class="page-title">Payments</div></div>
+    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Payments module — coming soon</div>
+  </div>
+  <div id="view-debts" style="display:none;">
+    <div class="page-header"><div class="page-title">Client Debts</div></div>
+    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Full debt ledger — coming soon</div>
+  </div>
+  <div id="view-reports" style="display:none;">
+    <div class="page-header"><div class="page-title">Reports</div></div>
+    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Reports module — coming soon</div>
+  </div>
+  <div id="view-users" style="display:none;">
+    <div class="page-header"><div class="page-title">Users</div></div>
+    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">User management — coming soon</div>
+  </div>
+  <div id="view-settings" style="display:none;">
+    <div class="page-header"><div class="page-title">Settings</div></div>
+    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Settings — coming soon</div>
+  </div>
 
-    <!-- TOP BAR -->
-    <div class="topbar">
-      <div class="topbar-left">
-        <div class="topbar-title">Dashboard</div>
-        <div class="topbar-date" id="today-date"></div>
-      </div>
-      <button class="btn-primary" onclick="openNewDispatch()">
-        <span>+</span> New Dispatch
-      </button>
-    </div>
-
-    <div class="content">
-
-      <!-- KPI CARDS -->
-      <div class="kpi-grid">
-        <div class="kpi-card c-violet">
-          <div class="kpi-label">Total Dispatched</div>
-          <div class="kpi-value" id="kpi-dispatched">0 t</div>
-          <div class="kpi-trend trend-up">&#8593; 5.2% vs last month</div>
-        </div>
-        <div class="kpi-card c-blue">
-          <div class="kpi-label">Active Deliveries</div>
-          <div class="kpi-value" id="kpi-active">0</div>
-          <div class="kpi-trend trend-up">&#8593; 2 new today</div>
-        </div>
-        <div class="kpi-card c-red">
-          <div class="kpi-label">Client Debt</div>
-          <div class="kpi-value" id="kpi-debt">&#8366;0</div>
-          <div class="kpi-trend trend-dn">&#8593; 3 overdue clients</div>
-        </div>
-        <div class="kpi-card c-green">
-          <div class="kpi-label">Monthly Revenue</div>
-          <div class="kpi-value" id="kpi-revenue">&#8366;0</div>
-          <div class="kpi-trend trend-up">&#8593; 12.4% vs last month</div>
-        </div>
-      </div>
-
-      <!-- CHARTS ROW -->
-      <div class="charts-row">
-        <div class="card">
-          <div class="card-title">
-            Monthly Dispatch Volume
-            <span class="card-badge">Jan &ndash; Jun 2025</span>
-          </div>
-          <div class="bar-chart" id="bar-chart"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Client Segments</div>
-          <div class="donut-wrap">
-            <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140" id="donut-svg">
-              <circle cx="70" cy="70" r="52" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="18"/>
-            </svg>
-            <div class="donut-legend" id="donut-legend"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TABLES ROW -->
-      <div class="tables-row">
-        <div class="card">
-          <div class="card-title">Recent Dispatches <span class="card-badge">6 entries</span></div>
-          <table>
-            <thead>
-              <tr>
-                <th>Dispatch ID</th>
-                <th>Client</th>
-                <th>Volume</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="dispatches-tbody"></tbody>
-          </table>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Client Debts <span class="card-badge">5 clients</span></div>
-          <table>
-            <thead>
-              <tr>
-                <th>Client</th>
-                <th>Amount</th>
-                <th>Days</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="debts-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- FLEET STATUS -->
-      <div id="fleet-section">
-        <div class="section-title">Fleet Status</div>
-        <div class="fleet-grid" id="fleet-grid"></div>
-      </div>
-
-      <!-- ANALYTICS MINI -->
-      <div>
-        <div class="section-title">Performance Analytics</div>
-        <div class="analytics-grid">
-          <div class="analytics-card">
-            <div class="analytics-label">Avg Delivery Time</div>
-            <div class="analytics-value">4.2<span style="font-size:16px;color:var(--text-muted)">h</span></div>
-            <svg class="sparkline" width="100%" height="36" viewBox="0 0 140 36" preserveAspectRatio="none">
-              <defs><linearGradient id="spark1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
-              <polygon points="0,28 20,22 40,26 60,14 80,18 100,10 120,15 140,8 140,36 0,36" fill="url(#spark1)" opacity=".15"/>
-              <polyline points="0,28 20,22 40,26 60,14 80,18 100,10 120,15 140,8" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
-            </svg>
-            <div class="analytics-sub trend-up">&#8595; 0.3h improvement this week</div>
-          </div>
-          <div class="analytics-card">
-            <div class="analytics-label">On-Time Rate</div>
-            <div class="analytics-value">94<span style="font-size:16px;color:var(--text-muted)">%</span></div>
-            <svg class="sparkline" width="100%" height="36" viewBox="0 0 140 36" preserveAspectRatio="none">
-              <defs><linearGradient id="spark2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
-              <polygon points="0,24 20,20 40,22 60,16 80,12 100,14 120,10 140,8 140,36 0,36" fill="url(#spark2)" opacity=".15"/>
-              <polyline points="0,24 20,20 40,22 60,16 80,12 100,14 120,10 140,8" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
-            </svg>
-            <div class="analytics-sub trend-up">&#8593; 2% vs last month</div>
-          </div>
-          <div class="analytics-card">
-            <div class="analytics-label">Client Satisfaction</div>
-            <div class="analytics-value">4.8<span style="font-size:16px;color:#f59e0b">&#9733;</span></div>
-            <svg class="sparkline" width="100%" height="36" viewBox="0 0 140 36" preserveAspectRatio="none">
-              <defs><linearGradient id="spark3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
-              <polygon points="0,26 20,22 40,20 60,18 80,16 100,14 120,12 140,10 140,36 0,36" fill="url(#spark3)" opacity=".15"/>
-              <polyline points="0,26 20,22 40,20 60,18 80,16 100,14 120,12 140,10" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
-            </svg>
-            <div class="analytics-sub trend-up">&#8593; 0.1 vs last quarter</div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /content -->
-  </main>
-</div>
-
-<!-- TOAST CONTAINER -->
-<div class="toast-container" id="toast-container"></div>
+</main>
 
 <!-- DISPATCH DETAIL MODAL -->
-<div class="modal-overlay" id="dispatch-modal" onclick="handleOverlayClick(event,'dispatch-modal')">
-  <div class="modal">
+<div class="modal-overlay" id="detail-modal" onclick="closeOnBackdrop(event,'detail-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
-      <div class="modal-title" id="dm-title">Dispatch Details</div>
-      <button class="modal-close" onclick="closeModal('dispatch-modal')">&#10005;</button>
+      <div class="modal-title" id="detail-modal-title">Dispatch Details</div>
+      <button class="modal-close" onclick="closeModal('detail-modal')">&#x2715;</button>
     </div>
-    <div class="detail-grid">
-      <div class="detail-field"><label>Dispatch ID</label><div class="val mono" id="dm-id"></div></div>
-      <div class="detail-field"><label>Date</label><div class="val" id="dm-date"></div></div>
-      <div class="detail-field"><label>Client</label><div class="val" id="dm-client"></div></div>
-      <div class="detail-field"><label>Destination</label><div class="val" id="dm-dest"></div></div>
-      <div class="detail-field"><label>Truck</label><div class="val" id="dm-truck"></div></div>
-      <div class="detail-field"><label>Driver</label><div class="val" id="dm-driver"></div></div>
-      <div class="detail-field"><label>Volume</label><div class="val" id="dm-vol"></div></div>
-      <div class="detail-field"><label>Status</label><div class="val" id="dm-status"></div></div>
-    </div>
-    <div class="divider"></div>
-    <div class="timeline-label">Delivery Timeline</div>
-    <div class="timeline" id="dm-timeline"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('dispatch-modal')">Close</button>
-      <button class="btn-primary" onclick="showToast('Print feature coming soon','info');closeModal('dispatch-modal')">&#128424; Print</button>
+    <div class="modal-body">
+      <div class="detail-row" id="detail-fields"></div>
+      <div class="timeline">
+        <div class="timeline-label">Delivery Progress</div>
+        <div class="timeline-steps" id="timeline-steps"></div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- NEW DISPATCH MODAL -->
-<div class="modal-overlay" id="new-dispatch-modal" onclick="handleOverlayClick(event,'new-dispatch-modal')">
-  <div class="modal">
+<div class="modal-overlay" id="new-dispatch-modal" onclick="closeOnBackdrop(event,'new-dispatch-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
       <div class="modal-title">New Dispatch</div>
-      <button class="modal-close" onclick="closeModal('new-dispatch-modal')">&#10005;</button>
+      <button class="modal-close" onclick="closeModal('new-dispatch-modal')">&#x2715;</button>
     </div>
-    <div class="form-group">
-      <label>Client</label>
-      <select class="form-control" id="nd-client">
-        <option value="">Select client&hellip;</option>
-        <option>AO "KazMunayGas"</option>
-        <option>TOO "AgroSteppe"</option>
-        <option>TOO "Sintez Capital"</option>
-        <option>IP Bekzat Trucks</option>
-        <option>AO "TransLogistic KZ"</option>
-        <option>TOO "NovaSeed"</option>
-      </select>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Fuel Type</label>
-        <select class="form-control" id="nd-fuel">
-          <option>Diesel DT-Z</option>
-          <option>Diesel DT-L</option>
-          <option>Diesel DT-A</option>
-          <option>Gasoline AI-92</option>
-          <option>Gasoline AI-95</option>
-        </select>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Client</label>
+          <select class="form-control" id="f-client">
+            <option value="">Select client...</option>
+            <option>KazMunaiGaz JSC</option>
+            <option>Tengri Fuel LLP</option>
+            <option>Almaty Transport Co.</option>
+            <option>NovaTrade Group</option>
+            <option>SteppeOil Ltd</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Volume (tonnes)</label>
+          <input type="number" class="form-control" id="f-volume" placeholder="e.g. 32.5" min="1" max="40">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Driver</label>
+          <select class="form-control" id="f-driver">
+            <option value="">Select driver...</option>
+            <option>Aset Nurmagambetov</option>
+            <option>Daniyar Serikbayev</option>
+            <option>Ruslan Akhmetov</option>
+            <option>Marat Bekzhan</option>
+            <option>Aziz Dzhaksybekov</option>
+            <option>Timur Ospanov</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Truck</label>
+          <select class="form-control" id="f-truck">
+            <option value="">Select truck...</option>
+            <option>172 AKB 01</option>
+            <option>089 ZHK 02</option>
+            <option>341 BAB 01</option>
+            <option>455 AKB 07</option>
+            <option>007 MTB 05</option>
+            <option>623 NRZ 03</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Destination</label>
+          <input type="text" class="form-control" id="f-dest" placeholder="e.g. Almaty Depot — 32 Raiymbek Ave">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Scheduled Date</label>
+          <input type="date" class="form-control" id="f-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fuel Type</label>
+          <select class="form-control" id="f-fuel">
+            <option>Diesel DT-L</option>
+            <option>Diesel DT-Z</option>
+            <option>AI-92</option>
+            <option>AI-95</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Volume (tonnes)</label>
-        <input class="form-control" type="number" id="nd-volume" placeholder="e.g. 32" min="1" max="500"/>
+      <div class="form-actions">
+        <button class="btn-secondary" onclick="closeModal('new-dispatch-modal')">Cancel</button>
+        <button class="btn-primary" onclick="submitDispatch()">Create Dispatch</button>
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Truck</label>
-        <select class="form-control" id="nd-truck">
-          <option value="">Select truck&hellip;</option>
-          <option>KZ-2847 (Available)</option>
-          <option>KZ-1193 (Available)</option>
-          <option>KZ-4420 (Available)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Dispatch Date</label>
-        <input class="form-control" type="date" id="nd-date"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Destination</label>
-      <input class="form-control" type="text" id="nd-dest" placeholder="e.g. Almaty, Seifullin depot"/>
-    </div>
-    <div class="form-group">
-      <label>Notes (optional)</label>
-      <textarea class="form-control" id="nd-notes" rows="2" placeholder="Any special instructions&hellip;" style="resize:vertical;min-height:60px;"></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('new-dispatch-modal')">Cancel</button>
-      <button class="btn-primary" onclick="submitDispatch()">Create Dispatch</button>
+      <div class="success-msg" id="dispatch-success">&#x2713; Dispatch created successfully</div>
     </div>
   </div>
 </div>
 
 <script>
-// =========================================================
-// DATA
-// =========================================================
-const DISPATCHES = [
-  { id:'DT-0881', client:'AO "KazMunayGas"',     vol:'48 t', status:'delivered', date:'14 Jun 2025', dest:'Almaty, Seifullin',  truck:'KZ-7731', driver:'Arman K.'   },
-  { id:'DT-0880', client:'TOO "AgroSteppe"',      vol:'32 t', status:'transit',   date:'14 Jun 2025', dest:'Shymkent, Central', truck:'KZ-2847', driver:'Nurlan B.'  },
-  { id:'DT-0879', client:'TOO "Sintez Capital"',  vol:'60 t', status:'transit',   date:'13 Jun 2025', dest:'Astana, Saryarka',  truck:'KZ-5512', driver:'Berik O.'   },
-  { id:'DT-0878', client:'IP Bekzat Trucks',      vol:'24 t', status:'pending',   date:'13 Jun 2025', dest:'Karaganda North',   truck:'KZ-1193', driver:'Zhandos M.' },
-  { id:'DT-0877', client:'AO "TransLogistic KZ"', vol:'40 t', status:'delivered', date:'12 Jun 2025', dest:'Aktobe West',       truck:'KZ-4420', driver:'Arman K.'   },
-  { id:'DT-0876', client:'TOO "NovaSeed"',        vol:'18 t', status:'delivered', date:'12 Jun 2025', dest:'Kokshetau',         truck:'KZ-7731', driver:'Nurlan B.'  },
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+
+var dispatches = [
+  { id: 'DT-2841', client: 'KazMunaiGaz JSC',     volume: 38.0, driver: 'Aset Nurmagambetov',  truck: '172 AKB 01', status: 'Delivered',  date: '2026-06-25', dest: 'Almaty Depot',       timeline: 4 },
+  { id: 'DT-2840', client: 'Tengri Fuel LLP',      volume: 24.5, driver: 'Daniyar Serikbayev',  truck: '089 ZHK 02', status: 'In Transit', date: '2026-06-27', dest: 'Shymkent Base',      timeline: 3 },
+  { id: 'DT-2839', client: 'Almaty Transport Co.', volume: 32.0, driver: 'Ruslan Akhmetov',      truck: '341 BAB 01', status: 'In Transit', date: '2026-06-26', dest: 'Karaganda Hub',      timeline: 3 },
+  { id: 'DT-2838', client: 'NovaTrade Group',      volume: 18.5, driver: 'Marat Bekzhan',        truck: '455 AKB 07', status: 'Delivered',  date: '2026-06-24', dest: 'Astana Terminal',    timeline: 4 },
+  { id: 'DT-2837', client: 'SteppeOil Ltd',        volume: 40.0, driver: 'Aziz Dzhaksybekov',   truck: '007 MTB 05', status: 'Pending',    date: '2026-06-28', dest: 'Aktau Port',         timeline: 0 },
+  { id: 'DT-2836', client: 'KazMunaiGaz JSC',     volume: 29.0, driver: 'Timur Ospanov',        truck: '623 NRZ 03', status: 'Delivered',  date: '2026-06-23', dest: 'Pavlodar Plant',     timeline: 4 },
 ];
 
-const DEBTS = [
-  { client:'TOO "Sintez Capital"',  amount:'₸1,240,000', days:42, over:true  },
-  { client:'IP Bekzat Trucks',      amount:'₸380,000',   days:28, over:true  },
-  { client:'TOO "AgroSteppe"',      amount:'₸870,000',   days:14, over:true  },
-  { client:'AO "KazMunayGas"',      amount:'₸2,100,000', days:6,  over:false },
-  { client:'AO "TransLogistic KZ"', amount:'₸560,000',   days:3,  over:false },
+var debts = [
+  { client: 'NovaTrade Group',      total: '&#x20B8;1,840,000', overdue: '&#x20B8;920,000',   last: '2026-06-01', status: 'Overdue'  },
+  { client: 'Tengri Fuel LLP',      total: '&#x20B8;980,000',   overdue: '&#x20B8;0',         last: '2026-06-20', status: 'Current'  },
+  { client: 'SteppeOil Ltd',        total: '&#x20B8;1,320,000', overdue: '&#x20B8;1,320,000', last: '2026-05-14', status: 'Overdue'  },
+  { client: 'Almaty Transport Co.', total: '&#x20B8;560,000',   overdue: '&#x20B8;0',         last: '2026-06-22', status: 'Current'  },
+  { client: 'BestRoute LLP',        total: '&#x20B8;2,060,000', overdue: '&#x20B8;1,960,000', last: '2026-04-30', status: 'Overdue'  },
 ];
 
-const FLEET = [
-  { id:'KZ-7731', status:'on-route',    driver:'Arman K.',   fuel:72 },
-  { id:'KZ-2847', status:'on-route',    driver:'Nurlan B.',  fuel:55 },
-  { id:'KZ-5512', status:'on-route',    driver:'Berik O.',   fuel:88 },
-  { id:'KZ-1193', status:'available',   driver:'Zhandos M.', fuel:91 },
-  { id:'KZ-4420', status:'available',   driver:'Damir T.',   fuel:43 },
-  { id:'KZ-9900', status:'maintenance', driver:'—',     fuel:20 },
+var fleet = [
+  { plate: '172 AKB 01', driver: 'Aset Nurmagambetov',  status: 'Active',       fuel: 82 },
+  { plate: '089 ZHK 02', driver: 'Daniyar Serikbayev',  status: 'Active',       fuel: 54 },
+  { plate: '341 BAB 01', driver: 'Ruslan Akhmetov',      status: 'Active',       fuel: 67 },
+  { plate: '455 AKB 07', driver: 'Marat Bekzhan',        status: 'Maintenance',  fuel: 30 },
+  { plate: '007 MTB 05', driver: 'Aziz Dzhaksybekov',   status: 'Idle',         fuel: 91 },
+  { plate: '623 NRZ 03', driver: 'Timur Ospanov',        status: 'Active',       fuel: 45 },
 ];
 
-const DONUT_SEGMENTS = [
-  { label:'Retail',      pct:42, color:'#8b5cf6' },
-  { label:'Industrial',  pct:31, color:'#3b82f6' },
-  { label:'Agriculture', pct:18, color:'#10b981' },
-  { label:'Transport',   pct:9,  color:'#f59e0b' },
+var chartData = [
+  { month: 'Jan', value: 1820 },
+  { month: 'Feb', value: 2140 },
+  { month: 'Mar', value: 1980 },
+  { month: 'Apr', value: 2450 },
+  { month: 'May', value: 2610 },
+  { month: 'Jun', value: 2840 },
 ];
 
-const BAR_DATA = [
-  { month:'Jan', val:1820 },
-  { month:'Feb', val:2100 },
-  { month:'Mar', val:1950 },
-  { month:'Apr', val:2400 },
-  { month:'May', val:2700 },
-  { month:'Jun', val:2840 },
-];
+var timelineSteps = ['Ordered', 'Loaded', 'Departed', 'In Transit', 'Delivered'];
 
-const TIMELINE_TEMPLATES = {
-  delivered: [
-    { title:'Order Received',    time:'08:30',       state:'done'        },
-    { title:'Loading Complete',  time:'10:15',       state:'done'        },
-    { title:'Departed Depot',    time:'10:45',       state:'done'        },
-    { title:'En Route',          time:'11:00',       state:'done'        },
-    { title:'Delivered',         time:'15:20',       state:'done'        },
-  ],
-  transit: [
-    { title:'Order Received',    time:'09:00',       state:'done'        },
-    { title:'Loading Complete',  time:'10:40',       state:'done'        },
-    { title:'Departed Depot',    time:'11:10',       state:'done'        },
-    { title:'En Route',          time:'11:25',       state:'active'      },
-    { title:'Awaiting Delivery', time:'Est. 16:00',  state:'pending-dot' },
-  ],
-  pending: [
-    { title:'Order Received',    time:'14:00',       state:'done'        },
-    { title:'Awaiting Loading',  time:'—',      state:'active'      },
-    { title:'Departed Depot',    time:'—',      state:'pending-dot' },
-    { title:'En Route',          time:'—',      state:'pending-dot' },
-    { title:'Delivery',          time:'—',      state:'pending-dot' },
-  ],
-};
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
 
-// =========================================================
-// INIT
-// =========================================================
-document.addEventListener('DOMContentLoaded', () => {
-  setTodayDate();
-  initKPICounters();
-  renderBarChart();
-  renderDonut();
-  renderDispatches();
-  renderDebts();
-  renderFleet();
-  document.getElementById('nd-date').value = new Date().toISOString().slice(0,10);
-});
-
-function setTodayDate() {
-  const d = new Date();
-  document.getElementById('today-date').textContent = d.toLocaleDateString('en-GB', {
-    weekday:'long', year:'numeric', month:'long', day:'numeric'
-  });
+function navigate(el, view) {
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('[id^="view-"]').forEach(function(v) { v.style.display = 'none'; });
+  var target = document.getElementById('view-' + view);
+  if (target) target.style.display = '';
+  if (view === 'fleet') renderFleet();
 }
 
-// =========================================================
-// KPI COUNTERS
-// =========================================================
-function animateCounter(el, from, to, duration, format) {
-  const start = performance.now();
-  function step(now) {
-    const t = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - t, 3);
-    el.textContent = format(from + (to - from) * ease);
-    if (t < 1) requestAnimationFrame(step);
-    else el.textContent = format(to);
-  }
-  requestAnimationFrame(step);
+// ─── STATUS BADGES ────────────────────────────────────────────────────────────
+
+function statusBadge(s) {
+  if (s === 'Delivered')  return '<span class="badge badge-green"><span class="badge-dot"></span>Delivered</span>';
+  if (s === 'In Transit') return '<span class="badge badge-blue"><span class="badge-dot"></span>In Transit</span>';
+  if (s === 'Pending')    return '<span class="badge badge-yellow"><span class="badge-dot"></span>Pending</span>';
+  return '<span class="badge badge-gray"><span class="badge-dot"></span>' + s + '</span>';
 }
 
-function initKPICounters() {
-  animateCounter(document.getElementById('kpi-dispatched'), 0, 2840, 1800,
-    v => Number(Math.round(v)).toLocaleString('en') + ' t');
-  animateCounter(document.getElementById('kpi-active'), 0, 12, 1200,
-    v => Math.round(v).toString());
-  animateCounter(document.getElementById('kpi-debt'), 0, 4.2, 1600,
-    v => '₸' + v.toFixed(1) + 'M');
-  animateCounter(document.getElementById('kpi-revenue'), 0, 38.5, 2000,
-    v => '₸' + v.toFixed(1) + 'M');
+function debtStatusBadge(s) {
+  if (s === 'Overdue') return '<span class="badge badge-orange"><span class="badge-dot"></span>Overdue</span>';
+  return '<span class="badge badge-green"><span class="badge-dot"></span>Current</span>';
 }
 
-// =========================================================
-// BAR CHART
-// =========================================================
-function renderBarChart() {
-  const container = document.getElementById('bar-chart');
-  const maxVal = Math.max(...BAR_DATA.map(d => d.val));
-  const chartH = 130;
-
-  BAR_DATA.forEach(d => {
-    const targetH = Math.round((d.val / maxVal) * chartH);
-    const wrap = document.createElement('div');
-    wrap.className = 'bar-wrap';
-
-    const bar = document.createElement('div');
-    bar.className = 'bar';
-    bar.style.height = '0px';
-    bar.style.width = '100%';
-
-    const valLabel = document.createElement('span');
-    valLabel.className = 'bar-val';
-    valLabel.textContent = (d.val / 1000).toFixed(2) + 'k';
-    bar.appendChild(valLabel);
-
-    const monthLabel = document.createElement('div');
-    monthLabel.className = 'bar-label';
-    monthLabel.textContent = d.month;
-
-    wrap.appendChild(bar);
-    wrap.appendChild(monthLabel);
-    container.appendChild(wrap);
-
-    requestAnimationFrame(() => {
-      setTimeout(() => { bar.style.height = targetH + 'px'; }, 120);
-    });
-  });
+function fleetBadge(s) {
+  if (s === 'Active')      return '<span class="badge badge-green"><span class="badge-dot"></span>Active</span>';
+  if (s === 'Maintenance') return '<span class="badge badge-orange"><span class="badge-dot"></span>Maintenance</span>';
+  if (s === 'Idle')        return '<span class="badge badge-gray"><span class="badge-dot"></span>Idle</span>';
+  return '<span class="badge badge-gray"><span class="badge-dot"></span>' + s + '</span>';
 }
 
-// =========================================================
-// DONUT CHART
-// =========================================================
-function renderDonut() {
-  const svg = document.getElementById('donut-svg');
-  const legend = document.getElementById('donut-legend');
-  const cx = 70, cy = 70, r = 52, strokeW = 18;
-  const circ = 2 * Math.PI * r;
-  const startOff = circ * 0.25; // rotate start to top
+// ─── RENDER DISPATCHES ────────────────────────────────────────────────────────
 
-  let cumPct = 0;
-  DONUT_SEGMENTS.forEach((seg, i) => {
-    const dashLen = (seg.pct / 100) * circ;
-    const gap = circ - dashLen;
-    const offset = circ - (cumPct / 100) * circ + startOff;
-
-    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    circle.setAttribute('cx', cx);
-    circle.setAttribute('cy', cy);
-    circle.setAttribute('r', r);
-    circle.setAttribute('fill','none');
-    circle.setAttribute('stroke', seg.color);
-    circle.setAttribute('stroke-width', strokeW);
-    circle.setAttribute('stroke-dasharray', dashLen + ' ' + gap);
-    circle.setAttribute('stroke-dashoffset', offset);
-    circle.setAttribute('transform','rotate(-90 ' + cx + ' ' + cy + ')');
-    circle.style.opacity = '0';
-    circle.style.transition = 'none';
-    svg.insertBefore(circle, svg.firstChild.nextSibling);
-
-    setTimeout(() => {
-      circle.style.transition = 'opacity .4s ease ' + (i * 180) + 'ms';
-      circle.style.opacity = '1';
-    }, 200);
-
-    cumPct += seg.pct;
-
-    // legend
-    const item = document.createElement('div');
-    item.className = 'legend-item';
-    item.innerHTML =
-      '<span class="legend-dot" style="background:' + seg.color + '"></span>' +
-      '<span class="legend-label">' + seg.label + '</span>' +
-      '<span class="legend-pct">' + seg.pct + '%</span>';
-    legend.appendChild(item);
-  });
-
-  // center label
-  const t1 = document.createElementNS('http://www.w3.org/2000/svg','text');
-  t1.setAttribute('x', cx); t1.setAttribute('y', cy - 5);
-  t1.setAttribute('text-anchor','middle'); t1.setAttribute('fill','#e2e2f0');
-  t1.setAttribute('font-size','13'); t1.setAttribute('font-weight','700');
-  t1.setAttribute('font-family','system-ui'); t1.textContent = '4 Segments';
-  svg.appendChild(t1);
-
-  const t2 = document.createElementNS('http://www.w3.org/2000/svg','text');
-  t2.setAttribute('x', cx); t2.setAttribute('y', cy + 10);
-  t2.setAttribute('text-anchor','middle'); t2.setAttribute('fill','#6b6b8a');
-  t2.setAttribute('font-size','9'); t2.setAttribute('font-family','system-ui');
-  t2.textContent = '2025';
-  svg.appendChild(t2);
-}
-
-// =========================================================
-// DISPATCH TABLE
-// =========================================================
 function renderDispatches() {
-  const tbody = document.getElementById('dispatches-tbody');
-  DISPATCHES.forEach((d, i) => {
-    const tr = document.createElement('tr');
-    const statusLabel = d.status.charAt(0).toUpperCase() + d.status.slice(1);
-    tr.innerHTML =
-      '<td><span class="mono">' + d.id + '</span></td>' +
-      '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.client + '</td>' +
-      '<td>' + d.vol + '</td>' +
-      '<td><span class="badge ' + d.status + '">' + statusLabel + '</span></td>';
-    tr.onclick = () => openDispatchDetail(i);
-    tbody.appendChild(tr);
-  });
+  var tbody = document.getElementById('dispatch-tbody');
+  tbody.innerHTML = dispatches.map(function(d, i) {
+    return '<tr onclick="openDetailModal(' + i + ')">' +
+      '<td class="mono">' + d.id + '</td>' +
+      '<td>' + d.client + '</td>' +
+      '<td>' + d.volume + 't</td>' +
+      '<td>' + d.driver + '</td>' +
+      '<td class="mono">' + d.truck + '</td>' +
+      '<td>' + statusBadge(d.status) + '</td>' +
+      '<td class="text-muted">' + d.date + '</td>' +
+      '</tr>';
+  }).join('');
 }
 
-// =========================================================
-// DEBTS TABLE
-// =========================================================
+// ─── RENDER DEBTS ─────────────────────────────────────────────────────────────
+
 function renderDebts() {
-  const tbody = document.getElementById('debts-tbody');
-  DEBTS.forEach(d => {
-    const tr = document.createElement('tr');
-    if (d.over) tr.className = 'debt-row-overdue';
-    tr.innerHTML =
-      '<td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + d.client + '</td>' +
-      '<td><span class="debt-amount ' + (d.over ? 'overdue' : 'ok') + '">' + d.amount + '</span></td>' +
-      '<td style="color:' + (d.over ? 'var(--red)' : 'var(--text-muted)') + ';">' + d.days + 'd</td>' +
-      '<td><span class="badge ' + (d.over ? 'overdue' : 'pending') + '">' + (d.over ? 'Overdue' : 'Pending') + '</span></td>';
-    tbody.appendChild(tr);
-  });
+  var tbody = document.getElementById('debts-tbody');
+  tbody.innerHTML = debts.map(function(d) {
+    var isOverdue = d.status === 'Overdue';
+    return '<tr>' +
+      '<td>' + d.client + '</td>' +
+      '<td>' + d.total + '</td>' +
+      '<td class="' + (isOverdue ? 'text-red' : 'text-muted') + '">' + d.overdue + '</td>' +
+      '<td class="text-muted">' + d.last + '</td>' +
+      '<td>' + debtStatusBadge(d.status) + '</td>' +
+      '</tr>';
+  }).join('');
 }
 
-// =========================================================
-// FLEET
-// =========================================================
+// ─── RENDER FLEET ─────────────────────────────────────────────────────────────
+
 function renderFleet() {
-  const grid = document.getElementById('fleet-grid');
-  FLEET.forEach(truck => {
-    const fuelClass = truck.fuel >= 60 ? 'fuel-high' : truck.fuel >= 35 ? 'fuel-mid' : 'fuel-low';
-    const statusMap = { 'on-route':'On Route', 'available':'Available', 'maintenance':'Maintenance' };
-    const statusLabel = statusMap[truck.status] || truck.status;
-
-    const card = document.createElement('div');
-    card.className = 'truck-card';
-    card.innerHTML =
-      '<div class="truck-card-top">' +
-        '<div class="truck-id">' + truck.id + '</div>' +
-        '<div class="truck-emoji">&#128666;</div>' +
-      '</div>' +
-      '<div style="margin-bottom:8px;"><span class="badge ' + truck.status + '">' + statusLabel + '</span></div>' +
-      '<div class="truck-driver">&#128100; ' + truck.driver + '</div>' +
+  var grid = document.getElementById('fleet-grid');
+  grid.innerHTML = fleet.map(function(f) {
+    return '<div class="fleet-card">' +
+      '<div class="fleet-plate">' + f.plate + '</div>' +
+      '<div class="fleet-driver">' + f.driver + '</div>' +
+      '<div class="fleet-status-row">' + fleetBadge(f.status) + '<span class="fuel-pct">' + f.fuel + '%</span></div>' +
       '<div class="fuel-bar-wrap">' +
-        '<div class="fuel-label"><span>Fuel</span><span>' + truck.fuel + '%</span></div>' +
-        '<div class="fuel-bar-bg">' +
-          '<div class="fuel-bar-fill ' + fuelClass + '" id="fuel-' + truck.id + '" style="width:0%"></div>' +
-        '</div>' +
-      '</div>';
-    card.onclick = () => showToast('Opening truck ' + truck.id + ' details…', 'info');
-    grid.appendChild(card);
-
-    setTimeout(() => {
-      const fill = document.getElementById('fuel-' + truck.id);
-      if (fill) fill.style.width = truck.fuel + '%';
-    }, 400);
-  });
-}
-
-// =========================================================
-// DISPATCH DETAIL MODAL
-// =========================================================
-function openDispatchDetail(idx) {
-  const d = DISPATCHES[idx];
-  document.getElementById('dm-title').textContent = 'Dispatch ' + d.id;
-  document.getElementById('dm-id').textContent    = d.id;
-  document.getElementById('dm-date').textContent  = d.date;
-  document.getElementById('dm-client').textContent= d.client;
-  document.getElementById('dm-dest').textContent  = d.dest;
-  document.getElementById('dm-truck').textContent = d.truck;
-  document.getElementById('dm-driver').textContent= d.driver;
-  document.getElementById('dm-vol').textContent   = d.vol;
-  const sl = d.status.charAt(0).toUpperCase() + d.status.slice(1);
-  document.getElementById('dm-status').innerHTML  = '<span class="badge ' + d.status + '">' + sl + '</span>';
-
-  const tl = document.getElementById('dm-timeline');
-  tl.innerHTML = '';
-  (TIMELINE_TEMPLATES[d.status] || TIMELINE_TEMPLATES.pending).forEach(step => {
-    const div = document.createElement('div');
-    div.className = 'tl-step';
-    div.innerHTML =
-      '<div class="tl-dot-wrap">' +
-        '<div class="tl-dot ' + step.state + '"></div>' +
-        '<div class="tl-line"></div>' +
+        '<span class="fuel-label">Fuel</span>' +
+        '<div class="fuel-bar-track"><div class="fuel-bar-fill" style="width:' + f.fuel + '%"></div></div>' +
       '</div>' +
-      '<div class="tl-content">' +
-        '<div class="tl-title">' + step.title + '</div>' +
-        '<div class="tl-time">' + step.time + '</div>' +
       '</div>';
-    tl.appendChild(div);
-  });
-
-  openModal('dispatch-modal');
+  }).join('');
 }
 
-// =========================================================
-// NEW DISPATCH MODAL
-// =========================================================
-function openNewDispatch() { openModal('new-dispatch-modal'); }
+// ─── CHART ────────────────────────────────────────────────────────────────────
 
-function submitDispatch() {
-  const client = document.getElementById('nd-client').value;
-  const volume = document.getElementById('nd-volume').value;
-  const truck  = document.getElementById('nd-truck').value;
-  if (!client || !volume || !truck) {
-    showToast('Please fill in all required fields', 'info');
-    return;
+function renderChart() {
+  var wrap = document.getElementById('bar-chart');
+  var MAX_H = 120;
+  var maxVal = 3000;
+  wrap.innerHTML = chartData.map(function(d, i) {
+    var targetH = Math.round((d.value / maxVal) * MAX_H);
+    return '<div class="chart-bar-group">' +
+      '<div class="chart-val">' + (d.value / 1000).toFixed(1) + 'k</div>' +
+      '<div class="chart-bar-track"><div class="chart-bar" id="bar-' + i + '" data-target="' + targetH + '"></div></div>' +
+      '<div class="chart-label">' + d.month + '</div>' +
+      '</div>';
+  }).join('');
+
+  var bars = chartData.map(function(_, i) { return document.getElementById('bar-' + i); });
+  var duration = 900;
+  var startTime = null;
+
+  function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+  function frame(now) {
+    if (!startTime) startTime = now;
+    var elapsed = now - startTime;
+    var t = Math.min(elapsed / duration, 1);
+    var e = ease(t);
+    bars.forEach(function(bar) {
+      var target = parseInt(bar.getAttribute('data-target'));
+      bar.style.height = (e * target) + 'px';
+    });
+    if (t < 1) requestAnimationFrame(frame);
   }
-  const newId = 'DT-' + String(882 + Math.floor(Math.random() * 900)).padStart(4,'0');
-  closeModal('new-dispatch-modal');
-  setTimeout(() => showToast('Dispatch ' + newId + ' created successfully!', 'success'), 220);
-  document.getElementById('nd-client').value = '';
-  document.getElementById('nd-volume').value = '';
-  document.getElementById('nd-truck').value  = '';
-  document.getElementById('nd-dest').value   = '';
-  document.getElementById('nd-notes').value  = '';
+  requestAnimationFrame(frame);
 }
 
-// =========================================================
-// MODALS
-// =========================================================
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-  document.body.style.overflow = 'hidden';
+// ─── KPI COUNTER ANIMATION ────────────────────────────────────────────────────
+
+function animateCounters() {
+  var counters = [
+    { el: document.getElementById('kpi-volume'),  end: 2840, format: function(v) { return Math.round(v).toLocaleString() + 't'; } },
+    { el: document.getElementById('kpi-active'),  end: 12,   format: function(v) { return Math.round(v) + ''; } },
+    { el: document.getElementById('kpi-debts'),   end: 4.2,  format: function(v) { return '₸' + v.toFixed(1) + 'M'; } },
+    { el: document.getElementById('kpi-revenue'), end: 38.5, format: function(v) { return '₸' + v.toFixed(1) + 'M'; } },
+  ];
+
+  var duration = 1500;
+  var startTime = null;
+  function ease(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function frame(now) {
+    if (!startTime) startTime = now;
+    var elapsed = now - startTime;
+    var t = Math.min(elapsed / duration, 1);
+    var e = ease(t);
+    counters.forEach(function(c) {
+      c.el.textContent = c.format(e * c.end);
+    });
+    if (t < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 }
+
+// ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
+
+function openDetailModal(idx) {
+  var d = dispatches[idx];
+  document.getElementById('detail-modal-title').textContent = 'Dispatch ' + d.id;
+
+  document.getElementById('detail-fields').innerHTML =
+    '<div class="detail-item"><div class="detail-label">Client</div><div class="detail-value">' + d.client + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Destination</div><div class="detail-value">' + d.dest + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Volume</div><div class="detail-value">' + d.volume + ' tonnes</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Fuel Type</div><div class="detail-value">Diesel DT-L</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Driver</div><div class="detail-value">' + d.driver + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Truck</div><div class="detail-value">' + d.truck + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Status</div><div class="detail-value">' + statusBadge(d.status) + '</div></div>' +
+    '<div class="detail-item"><div class="detail-label">Date</div><div class="detail-value">' + d.date + '</div></div>';
+
+  var stepsHtml = timelineSteps.map(function(label, i) {
+    var cls = '';
+    if (i < d.timeline) cls = 'done';
+    else if (i === d.timeline && d.timeline < timelineSteps.length) cls = 'current';
+    return '<div class="timeline-step ' + cls + '">' +
+      '<div class="timeline-dot"><div class="timeline-dot-inner"></div></div>' +
+      '<div class="timeline-step-label">' + label + '</div>' +
+      '</div>';
+  }).join('');
+  document.getElementById('timeline-steps').innerHTML = stepsHtml;
+
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+// ─── MODAL HELPERS ────────────────────────────────────────────────────────────
+
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
-  document.body.style.overflow = '';
 }
-function handleOverlayClick(e, id) {
-  if (e.target === document.getElementById(id)) closeModal(id);
+
+function closeOnBackdrop(event, id) {
+  if (event.target === document.getElementById(id)) closeModal(id);
 }
-document.addEventListener('keydown', e => {
+
+// ─── NEW DISPATCH ─────────────────────────────────────────────────────────────
+
+function openNewDispatch() {
+  document.getElementById('dispatch-success').style.display = 'none';
+  ['f-client','f-driver','f-truck'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('f-volume').value = '';
+  document.getElementById('f-dest').value = '';
+  document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('new-dispatch-modal').classList.add('open');
+}
+
+function submitDispatch() {
+  var client = document.getElementById('f-client').value;
+  var volume = document.getElementById('f-volume').value;
+  var driver = document.getElementById('f-driver').value;
+  var truck  = document.getElementById('f-truck').value;
+  var dest   = document.getElementById('f-dest').value;
+  var date   = document.getElementById('f-date').value;
+  if (!client || !volume || !driver || !truck || !dest || !date) {
+    alert('Please fill in all fields.');
+    return;
+  }
+  var msg = document.getElementById('dispatch-success');
+  msg.style.display = 'block';
+  setTimeout(function() { closeModal('new-dispatch-modal'); }, 1800);
+}
+
+// ─── KEYBOARD ESC ─────────────────────────────────────────────────────────────
+
+document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay.open').forEach(el => {
-      el.classList.remove('open');
-      document.body.style.overflow = '';
-    });
+    closeModal('detail-modal');
+    closeModal('new-dispatch-modal');
   }
 });
 
-// =========================================================
-// TOAST
-// =========================================================
-function showToast(msg, type) {
-  type = type || 'success';
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = 'toast ' + type;
-  const icon = type === 'success' ? '✓' : type === 'info' ? 'i' : '!';
-  toast.innerHTML = '<span style="font-weight:700;font-size:15px;flex-shrink:0;">' + icon + '</span> ' + msg;
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.classList.add('toast-fade-out');
-    setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 320);
-  }, 3200);
-}
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 
-// =========================================================
-// NAV / FLEET SCROLL
-// =========================================================
-function setActive(el) {
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  el.classList.add('active');
-}
-function scrollToFleet() {
-  document.getElementById('fleet-section').scrollIntoView({ behavior:'smooth', block:'start' });
-}
+renderDispatches();
+renderDebts();
+renderChart();
+animateCounters();
 </script>
 </body>
 </html>
