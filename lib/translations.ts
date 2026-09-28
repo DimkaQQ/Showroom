@@ -94,6 +94,11 @@ export const translations = {
           description:
             "Web application for managing shipments and logistics operations. Track orders, assign couriers, generate reports and monitor delivery statuses in real time.",
         },
+        {
+          tagline: "Procurement & Price Verification",
+          description:
+            "Multi-entity warehouse management system for restaurant chains. Inventory tracking, purchase orders, supplier management, and automated price verification across multiple venues.",
+        },
       ],
     },
     contact: {
@@ -202,6 +207,11 @@ export const translations = {
           tagline: "Доставка и логистика",
           description:
             "Веб-приложение для управления доставками и логистическими операциями. Отслеживание заказов, назначение курьеров, отчёты и статусы доставок в реальном времени.",
+        },
+        {
+          tagline: "Закупки и верификация цен",
+          description:
+            "Система управления складом для сети ресторанов. Учёт товаров, заявки на закупку, управление поставщиками и автоматическая проверка цен по нескольким точкам.",
         },
       ],
     },
