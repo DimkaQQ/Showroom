@@ -99,6 +99,26 @@ export const translations = {
           description:
             "Multi-entity warehouse management system for restaurant chains. Inventory tracking, purchase orders, supplier management, and automated price verification across multiple venues.",
         },
+        {
+          tagline: "Energy Marketplace",
+          description:
+            "Professional B2B fuel trading platform for Central Asia and the Caspian Region. Real-time price reference, P2P marketplace for diesel, gasoline and jet fuel, with integrated calculator and Stripe payments.",
+        },
+        {
+          tagline: "Restaurant Management",
+          description:
+            "Full-featured restaurant OS: live order board with kitchen view, menu and guest management, staff scheduling, loyalty points, financial reports and multi-venue analytics.",
+        },
+        {
+          tagline: "Staff Onboarding & HR",
+          description:
+            "PWA-based HR platform for restaurant staff. Gamified onboarding with XP and certificates, AI-powered group chat, and daily shift checklists with real-time progress tracking.",
+        },
+        {
+          tagline: "Telegram Bot Builder",
+          description:
+            "Visual block-based Telegram bot constructor as a Mini App. Drag-and-drop welcome, description, buttons and delivery blocks — publish a live bot in minutes.",
+        },
       ],
     },
     contact: {
@@ -212,6 +232,26 @@ export const translations = {
           tagline: "Закупки и верификация цен",
           description:
             "Система управления складом для сети ресторанов. Учёт товаров, заявки на закупку, управление поставщиками и автоматическая проверка цен по нескольким точкам.",
+        },
+        {
+          tagline: "Энергетический маркетплейс",
+          description:
+            "B2B платформа для торговли топливом в Центральной Азии и Каспийском регионе. Котировки в реальном времени, P2P маркетплейс дизеля, бензина и авиатоплива, калькулятор и оплата через Stripe.",
+        },
+        {
+          tagline: "Управление рестораном",
+          description:
+            "Полноценная операционная система ресторана: живая доска заказов с видом кухни, управление меню и гостями, расписание персонала, баллы лояльности и аналитика по заведениям.",
+        },
+        {
+          tagline: "HR и онбординг персонала",
+          description:
+            "PWA-платформа для сотрудников ресторана. Геймифицированный онбординг с XP и сертификатами, групповой чат с ИИ и ежедневные чек-листы смены с отслеживанием прогресса.",
+        },
+        {
+          tagline: "Конструктор Telegram-ботов",
+          description:
+            "Визуальный блочный конструктор Telegram-ботов в формате Mini App. Перетаскивай блоки приветствия, описания, кнопок и выдачи — публикуй живого бота за минуты.",
         },
       ],
     },
