@@ -1,1147 +1,957 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DizelTrade — Fuel Distribution ERP</title>
+<title>DizelTrade ERP</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
-    background: #0f172a;
-    color: #e2e8f0;
-    min-height: 100vh;
-    padding-top: 33px;
-    display: flex;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  /* SIDEBAR */
-  .sidebar {
-    width: 220px;
-    min-height: calc(100vh - 33px);
-    background: #1e293b;
-    border-right: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 33px;
-    left: 0;
-    bottom: 0;
-    overflow-y: auto;
-    z-index: 100;
-  }
-
-  .sidebar-logo {
-    padding: 20px 16px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    font-size: 15px;
-    font-weight: 700;
-    color: #f1f5f9;
-    letter-spacing: -0.01em;
-  }
-
-  .sidebar-section-label {
-    padding: 16px 16px 6px;
-    font-size: 10px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.3);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 8px 16px;
-    color: rgba(255,255,255,0.5);
-    font-size: 13.5px;
-    cursor: pointer;
-    border-left: 2px solid transparent;
-    transition: color 0.15s, border-color 0.15s, background 0.15s;
-    user-select: none;
-  }
-
-  .nav-item:hover {
-    color: rgba(255,255,255,0.75);
-    background: rgba(255,255,255,0.03);
-  }
-
-  .nav-item.active {
-    color: #a78bfa;
-    border-left-color: #7c3aed;
-    background: rgba(124,58,237,0.08);
-  }
-
-  .nav-item .nav-icon {
-    width: 15px;
-    text-align: center;
-    font-size: 13px;
-    opacity: 0.8;
-  }
-
-  /* MAIN */
-  .main {
-    margin-left: 220px;
-    flex: 1;
-    min-width: 0;
-    padding: 28px 32px 48px;
-  }
-
-  /* PAGE HEADER */
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-
-  .page-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #f1f5f9;
-    letter-spacing: -0.02em;
-  }
-
-  .btn-primary {
-    background: #7c3aed;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-    letter-spacing: 0.01em;
-  }
-
-  .btn-primary:hover { background: #6d28d9; }
-
-  .btn-secondary {
-    background: rgba(255,255,255,0.06);
-    color: #cbd5e1;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .btn-secondary:hover { background: rgba(255,255,255,0.1); }
-
-  /* KPI CARDS */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .kpi-card {
-    background: #1e293b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    padding: 18px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  }
-
-  .kpi-label {
-    font-size: 11.5px;
-    color: rgba(255,255,255,0.4);
-    font-weight: 500;
-    letter-spacing: 0.03em;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-  }
-
-  .kpi-value {
-    font-size: 26px;
-    font-weight: 700;
-    color: #f1f5f9;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-
-  .kpi-value.red { color: #ef4444; }
-
-  .kpi-sub {
-    font-size: 11.5px;
-    color: rgba(255,255,255,0.35);
-    margin-top: 5px;
-  }
-
-  /* CHART */
-  .chart-card {
-    background: #1e293b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    padding: 20px 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  }
-
-  .card-title {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #f1f5f9;
-    margin-bottom: 18px;
-    letter-spacing: -0.01em;
-  }
-
-  .chart-wrap {
-    display: flex;
-    align-items: flex-end;
-    gap: 14px;
-    height: 160px;
-  }
-
-  .chart-bar-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-  }
-
-  .chart-bar-track {
-    width: 100%;
-    height: 120px;
-    display: flex;
-    align-items: flex-end;
-  }
-
-  .chart-bar {
-    width: 100%;
-    background: #7c3aed;
-    border-radius: 4px 4px 0 0;
-    height: 0;
-    opacity: 0.85;
-  }
-
-  .chart-label {
-    font-size: 11px;
-    color: rgba(255,255,255,0.35);
-    font-weight: 500;
-  }
-
-  .chart-val {
-    font-size: 10.5px;
-    color: rgba(255,255,255,0.45);
-    margin-bottom: 2px;
-  }
-
-  /* TABLE CARD */
-  .table-card {
-    background: #1e293b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    overflow: hidden;
-  }
-
-  .table-card-header {
-    padding: 16px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    font-size: 13.5px;
-    font-weight: 600;
-    color: #f1f5f9;
-    letter-spacing: -0.01em;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  thead th {
-    padding: 10px 20px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    background: rgba(0,0,0,0.15);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-
-  tbody tr {
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    cursor: pointer;
-    transition: background 0.12s;
-  }
-
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.03); }
-
-  tbody td {
-    padding: 12px 20px;
-    font-size: 13.5px;
-    color: #cbd5e1;
-  }
-
-  .mono {
-    font-family: 'SF Mono', 'Fira Mono', monospace;
-    font-size: 12.5px;
-    color: #94a3b8;
-  }
-
-  /* BADGES */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 3px 9px;
-    border-radius: 20px;
-  }
-
-  .badge-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .badge-green { background: rgba(34,197,94,0.12); color: #4ade80; }
-  .badge-green .badge-dot { background: #22c55e; }
-
-  .badge-blue { background: rgba(59,130,246,0.12); color: #60a5fa; }
-  .badge-blue .badge-dot { background: #3b82f6; }
-
-  .badge-yellow { background: rgba(234,179,8,0.12); color: #facc15; }
-  .badge-yellow .badge-dot { background: #eab308; }
-
-  .badge-gray { background: rgba(148,163,184,0.1); color: #94a3b8; }
-  .badge-gray .badge-dot { background: #64748b; }
-
-  .badge-orange { background: rgba(249,115,22,0.12); color: #fb923c; }
-  .badge-orange .badge-dot { background: #f97316; }
-
-  /* FLEET GRID */
-  .fleet-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-  }
-
-  .fleet-card {
-    background: #1e293b;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    padding: 16px 18px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  }
-
-  .fleet-plate {
-    font-family: 'SF Mono', 'Fira Mono', monospace;
-    font-size: 15px;
-    font-weight: 700;
-    color: #f1f5f9;
-    letter-spacing: 0.05em;
-    margin-bottom: 4px;
-  }
-
-  .fleet-driver {
-    font-size: 12.5px;
-    color: rgba(255,255,255,0.45);
-    margin-bottom: 12px;
-  }
-
-  .fleet-status-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-
-  .fuel-bar-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .fuel-label {
-    font-size: 11px;
-    color: rgba(255,255,255,0.35);
-    white-space: nowrap;
-  }
-
-  .fuel-bar-track {
-    height: 5px;
-    flex: 1;
-    background: rgba(255,255,255,0.08);
-    border-radius: 3px;
-    overflow: hidden;
-    min-width: 80px;
-  }
-
-  .fuel-bar-fill {
-    height: 100%;
-    border-radius: 3px;
-    background: #7c3aed;
-  }
-
-  .fuel-pct {
-    font-size: 11px;
-    color: rgba(255,255,255,0.4);
-    min-width: 28px;
-    text-align: right;
-  }
-
-  /* MODAL OVERLAY */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: #1e293b;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    width: 520px;
-    max-width: calc(100vw - 48px);
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  }
-
-  .modal-header {
-    padding: 20px 24px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .modal-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #f1f5f9;
-    letter-spacing: -0.02em;
-  }
-
-  .modal-close {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #94a3b8;
-    border-radius: 6px;
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    font-size: 16px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.12s;
-  }
-
-  .modal-close:hover { background: rgba(255,255,255,0.1); color: #e2e8f0; }
-
-  .modal-body { padding: 20px 24px 24px; }
-
-  /* FORM */
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group.full { grid-column: 1 / -1; }
-
-  .form-label {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.4);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .form-control {
-    background: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 7px;
-    padding: 9px 12px;
-    color: #e2e8f0;
-    font-size: 13.5px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s;
-    width: 100%;
-  }
-
-  .form-control:focus { border-color: rgba(124,58,237,0.6); }
-  .form-control option { background: #1e293b; }
-
-  .form-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }
-
-  /* DISPATCH DETAIL MODAL */
-  .detail-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 20px;
-    margin-bottom: 20px;
-  }
-
-  .detail-item { display: flex; flex-direction: column; gap: 3px; }
-
-  .detail-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .detail-value {
-    font-size: 13.5px;
-    color: #e2e8f0;
-    font-weight: 500;
-  }
-
-  /* TIMELINE */
-  .timeline { margin-top: 6px; }
-
-  .timeline-label {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-
-  .timeline-steps {
-    display: flex;
-    align-items: flex-start;
-    position: relative;
-  }
-
-  .timeline-step {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-  }
-
-  .timeline-step:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 11px;
-    left: 50%;
-    right: -50%;
-    height: 2px;
-    background: rgba(255,255,255,0.08);
-    z-index: 0;
-  }
-
-  .timeline-step.done:not(:last-child)::after { background: #7c3aed; }
-
-  .timeline-dot {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(255,255,255,0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 1;
-    margin-bottom: 7px;
-  }
-
-  .timeline-step.done .timeline-dot {
-    background: #7c3aed;
-    border-color: #7c3aed;
-  }
-
-  .timeline-step.current .timeline-dot {
-    background: rgba(124,58,237,0.2);
-    border-color: #7c3aed;
-  }
-
-  .timeline-dot-inner {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.6);
-  }
-
-  .timeline-step.done .timeline-dot-inner { background: #fff; }
-  .timeline-step.current .timeline-dot-inner { background: #a78bfa; }
-
-  .timeline-step-label {
-    font-size: 10.5px;
-    color: rgba(255,255,255,0.35);
-    text-align: center;
-    line-height: 1.3;
-    font-weight: 500;
-  }
-
-  .timeline-step.done .timeline-step-label { color: #a78bfa; }
-  .timeline-step.current .timeline-step-label { color: #c4b5fd; font-weight: 600; }
-
-  /* SUCCESS MSG */
-  .success-msg {
-    display: none;
-    background: rgba(34,197,94,0.1);
-    border: 1px solid rgba(34,197,94,0.2);
-    border-radius: 8px;
-    padding: 12px 16px;
-    color: #4ade80;
-    font-size: 13.5px;
-    font-weight: 500;
-    text-align: center;
-    margin-top: 16px;
-  }
-
-  .section-gap { margin-top: 28px; }
-  .text-red { color: #ef4444; }
-  .text-muted { color: rgba(255,255,255,0.35); }
-
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+/* ── Design tokens ── */
+:root{
+  --bg:#111;--card:#1c1c1e;--card2:#242426;--card3:#2c2c2e;
+  --accent:#c8ff00;--accent-dim:rgba(200,255,0,.12);--accent-mid:rgba(200,255,0,.2);
+  --text:#fff;--text2:#8e8e93;--text3:#48484a;
+  --border:#2c2c2e;--border2:#3a3a3c;
+  --red:#ff453a;--green:#32d74b;--orange:#ff9f0a;--blue:#0a84ff;--purple:#bf5af2;
+  color-scheme:dark;
+}
+/* This is a deliberately dark-only design (matches real app) */
+
+/* ── Reset ── */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:#0a0a0a;color:var(--text)}
+body{display:flex;flex-direction:column;min-height:100%;padding:0}
+
+/* ── Demo banner ── */
+.demo-banner{
+  background:rgba(200,255,0,.1);border-bottom:1px solid rgba(200,255,0,.25);
+  color:#c8ff00;font-size:11px;font-weight:600;text-align:center;padding:5px;
+  flex-shrink:0;z-index:200;position:relative;
+}
+
+/* ── App shell ── */
+#app{flex:1;display:flex;flex-direction:column;height:calc(100% - 26px)}
+.app-shell{display:flex;flex-direction:column;flex:1;background:var(--bg);overflow:hidden}
+
+/* ══ MOBILE STYLES (default) ══ */
+.sidebar{display:none}
+.main{display:flex;flex-direction:column;flex:1;overflow:hidden}
+
+.nav-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.nav-logo{font-size:18px;font-weight:900;letter-spacing:-.5px;color:var(--text)}
+.nav-logo span{color:var(--accent)}
+.nav-user{font-size:12px;color:var(--text2);background:var(--card);padding:4px 10px;border-radius:20px}
+
+.topbar{display:none}
+
+#content{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+#content::-webkit-scrollbar{width:5px}
+#content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+.content{padding:18px 16px 90px}
+
+/* ── Tab bar (mobile) ── */
+.tab-bar{
+  display:flex;background:rgba(28,28,30,.97);
+  border-top:1px solid var(--border);padding:6px 0 env(safe-area-inset-bottom,12px);
+  position:sticky;bottom:0;z-index:50;flex-shrink:0;
+}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:5px 0}
+.tab-icon{font-size:21px}
+.tab-label{font-size:9px;font-weight:600;color:var(--text2)}
+.tab-item.active .tab-label{color:var(--accent)}
+
+/* ══ DESKTOP STYLES (≥768px) ══ */
+@media(min-width:768px){
+  body{overflow:hidden;height:100%}
+  #app{flex-direction:row;height:calc(100% - 26px);overflow:hidden}
+  .app-shell{flex-direction:row;overflow:hidden}
+  .tab-bar{display:none}
+  .nav-bar{display:none}
+
+  /* Sidebar */
+  .sidebar{
+    display:flex;flex-direction:column;
+    width:220px;flex-shrink:0;
+    background:#111113;border-right:1px solid var(--border);
+    overflow:hidden;
+  }
+  .sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+  .sidebar-logo .logo{font-size:18px;font-weight:900;letter-spacing:-.5px;color:var(--text)}
+  .sidebar-logo .logo span{color:var(--accent)}
+  .sidebar-logo .version{font-size:11px;color:var(--text3);margin-top:2px}
+  .sidebar-nav{flex:1;padding:12px 8px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+  .nav-group-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;padding:12px 12px 6px}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 12px;border-radius:9px;
+    font-size:14px;font-weight:500;color:var(--text2);
+    cursor:pointer;transition:all .15s;
+    position:relative;margin-bottom:2px;user-select:none;
+  }
+  .nav-item:hover{background:var(--card2);color:var(--text)}
+  .nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:600}
+  .ni-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+  .ni-badge{
+    margin-left:auto;background:var(--orange);color:#000;
+    font-size:10px;font-weight:800;
+    min-width:18px;height:18px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;padding:0 4px;
+  }
+  .sidebar-user{
+    padding:14px 16px;border-top:1px solid var(--border);
+    display:flex;align-items:center;gap:10px;flex-shrink:0;
+  }
+  .user-avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),#60c800);
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;color:#000;flex-shrink:0;
+  }
+  .user-name{font-size:13px;font-weight:600;color:var(--text)}
+  .user-role{font-size:11px;color:var(--text2)}
+
+  /* Main */
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+  .topbar{
+    display:flex;align-items:center;
+    height:56px;flex-shrink:0;
+    background:#111113;border-bottom:1px solid var(--border);
+    padding:0 24px;gap:12px;
+  }
+  .topbar-title{font-size:17px;font-weight:700;color:var(--text);flex:1}
+  .topbar-stat{
+    display:flex;align-items:center;gap:8px;
+    background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:7px 14px;
+  }
+  .ts-val{font-size:15px;font-weight:800;color:var(--accent)}
+  .ts-lbl{font-size:12px;color:var(--text2)}
+  .ts-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0}
+  #content{flex:1;overflow-y:auto}
+  .content{padding:24px}
+}
+
+/* ── Shared components ── */
+.stitle{font-size:26px;font-weight:800;color:var(--text);margin-bottom:3px;letter-spacing:-.5px}
+.ssub{font-size:13px;color:var(--text2);margin-bottom:18px}
+.sh{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin:18px 0 9px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.sc{background:var(--card);border-radius:13px;padding:12px 10px;border:1px solid var(--border);text-align:center}
+.sc .v{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.sc .v.a{color:var(--accent)}
+.sc .v.o{color:var(--orange)}
+.sc .v.g{color:var(--green)}
+.sc .lv{font-size:10px;color:var(--text2);margin-top:3px;line-height:1.3}
+@media(min-width:768px){.stats{grid-template-columns:repeat(3,1fr);gap:12px}}
+
+/* Progress */
+.pi{background:var(--card);border-radius:13px;padding:13px 14px;margin-bottom:7px;border:1px solid var(--border)}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.pn{font-size:13px;font-weight:600;color:var(--text)}
+.pv{font-size:12px;color:var(--text2)}
+.pb{background:var(--card2);border-radius:5px;height:7px;overflow:hidden}
+.pf{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--accent),#90ff00)}
+.pf.o{background:linear-gradient(90deg,var(--orange),#ffcc00)}
+
+/* Pending block */
+.pending-block{background:rgba(255,149,0,.07);border:1px solid rgba(255,149,0,.18);border-radius:14px;padding:14px;margin-bottom:14px}
+.pt{font-size:12px;font-weight:700;color:var(--orange);margin-bottom:9px}
+.pr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,149,0,.1)}
+.pr:last-child{border:none;padding-bottom:0}
+.pr .prt{font-size:13px;color:var(--text)}
+.pr .prs{font-size:11px;color:var(--text2);margin-top:1px}
+.prb{background:var(--card2);color:var(--text2);border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0}
+
+/* List items */
+.li{background:var(--card);border-radius:13px;padding:12px 14px;margin-bottom:7px;border:1px solid var(--border);display:flex;align-items:center;gap:11px;cursor:pointer}
+.li:hover{background:var(--card2)}
+.lic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.lic.g{background:rgba(50,215,75,.14)}
+.lic.o{background:rgba(255,149,0,.14)}
+.lic.b{background:rgba(10,132,255,.14)}
+.lic.y{background:rgba(200,255,0,.12)}
+.lic.tr{background:rgba(10,132,255,.14)}
+.lit{flex:1;min-width:0}
+.lim{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lis{font-size:12px;color:var(--text2);margin-top:2px}
+.lir{text-align:right;flex-shrink:0}
+.lival{font-size:14px;font-weight:700;color:var(--text)}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.badge.transit{background:rgba(10,132,255,.18);color:var(--blue);border:1px solid rgba(10,132,255,.35);font-size:12px;padding:3px 10px}
+.badge.done{background:rgba(50,215,75,.12);color:var(--green)}
+.badge.pending{background:rgba(255,149,0,.14);color:var(--orange)}
+.badge.free{background:rgba(200,255,0,.12);color:var(--accent)}
+
+/* Order card */
+.oc{background:var(--card);border-radius:16px;padding:16px;margin-bottom:11px;border:1px solid var(--border);cursor:pointer}
+.oc:hover{border-color:var(--border2)}
+.och{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:13px}
+.ocn{font-size:16px;font-weight:800;color:var(--text)}
+.ocd{font-size:11px;color:var(--text2);margin-top:2px}
+.oca{font-size:15px;font-weight:800;color:var(--accent);text-align:right}
+.ocsub{font-size:11px;color:var(--text2);text-align:right;margin-top:1px}
+.ocp-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:7px}
+.ocp-labels strong{color:var(--text)}
+.ocbar{background:var(--card2);border-radius:6px;height:9px;overflow:hidden;margin-bottom:8px}
+.ocfill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),#90ff00)}
+.ocfill.o{background:linear-gradient(90deg,var(--orange),#ffcc00)}
+.oc-sites{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+.oc-site{background:var(--card2);border-radius:7px;padding:3px 9px;font-size:11px;color:var(--text2)}
+
+/* Big stat */
+.big-stat{background:var(--card);border-radius:18px;padding:18px;margin-bottom:12px;border:1px solid var(--border)}
+.big-stat .bl{font-size:12px;color:var(--text2);margin-bottom:5px}
+.big-stat .bv{font-size:44px;font-weight:900;color:var(--accent);letter-spacing:-2px;line-height:1}
+.big-stat .bu{font-size:18px;color:var(--text2);font-weight:400}
+.big-stat .bs{font-size:12px;color:var(--text2);margin-top:6px}
+
+/* Balance box */
+.bb{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--border);margin-bottom:11px}
+.bbr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.bbr:last-child{border:none}
+.bbl{font-size:13px;color:var(--text2)}
+.bbv{font-size:14px;font-weight:700;color:var(--text)}
+.bbt{display:flex;justify-content:space-between;font-size:15px;font-weight:700;padding-top:10px;margin-top:3px}
+
+/* Sub tabs */
+.sub-tabs{display:flex;gap:0;margin-bottom:16px;background:var(--card2);border-radius:10px;padding:3px;overflow-x:auto;scrollbar-width:none}
+.sub-tabs::-webkit-scrollbar{display:none}
+.sub-tab{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap}
+.sub-tab.active{background:var(--accent);color:#000}
+.sub-tab:hover:not(.active){color:var(--text)}
+
+/* Buttons */
+.btn-primary{background:var(--accent);color:#000;border:none;border-radius:13px;padding:17px;width:100%;font-size:17px;font-weight:800;cursor:pointer;margin-top:8px;transition:transform .15s,opacity .15s}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:hover{opacity:.92}
+.btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:13px;padding:15px;width:100%;font-size:15px;font-weight:600;cursor:pointer;margin-top:7px}
+.btn-secondary:hover{background:var(--card2)}
+
+/* Form */
+.fsec{margin-bottom:18px}
+.fl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;font-weight:600;margin-bottom:7px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{background:var(--card);border:1px solid var(--border2);border-radius:9px;padding:7px 13px;font-size:13px;color:var(--text2);cursor:pointer;user-select:none}
+.chip.sel{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+.inp{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:13px 14px;width:100%;font-size:16px;color:var(--text);outline:none;font-family:inherit}
+.inp::placeholder{color:var(--text3)}
+.inp:focus{border-color:var(--accent)}
+.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+/* Modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);
+  display:flex;align-items:flex-end;justify-content:center;
+  z-index:500;animation:fadeIn .2s ease;
+}
+@media(min-width:768px){.modal-overlay{align-items:center;padding:20px}}
+.modal-sheet{
+  background:#1c1c1e;border:1px solid var(--border2);
+  border-radius:22px 22px 0 0;
+  padding:24px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;
+}
+@media(min-width:768px){.modal-sheet{border-radius:20px;padding:28px;max-height:85vh}}
+.modal-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0}
+.modal-footer-btns{display:flex;gap:10px;margin-top:18px}
+.modal-footer-btns .btn-secondary{margin-top:0}
+.modal-footer-btns .btn-primary{margin-top:0;flex:2}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--card);border:1px solid var(--border2);border-radius:12px;
+  padding:12px 20px;font-size:14px;font-weight:600;color:var(--text);
+  z-index:1000;opacity:0;transition:all .25s ease;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);pointer-events:none;
+}
+@media(min-width:768px){.toast{bottom:24px}}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(200,255,0,.3);color:var(--accent)}
+.toast.error{border-color:rgba(255,69,58,.4);color:var(--red)}
+
+/* Bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;background:var(--accent);opacity:.7;min-height:4px;transition:height .4s}
+.bar-fill.current{opacity:1;box-shadow:0 0 12px rgba(200,255,0,.35)}
+.bar-label{font-size:9px;color:var(--text2);white-space:nowrap}
+.bar-val{font-size:9px;color:var(--text2);margin-bottom:2px}
+
+/* Progress mini */
+.prog-mini-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.prog-mini-label{font-size:12px;color:var(--text);width:130px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prog-mini-bar{flex:1;background:var(--card2);border-radius:4px;height:6px;overflow:hidden}
+.prog-mini-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),#90ff00)}
+.prog-mini-val{font-size:12px;color:var(--text2);width:55px;text-align:right;flex-shrink:0}
+
+/* Timeline */
+.timeline{padding-left:16px;border-left:2px solid var(--border);margin:14px 0}
+.tl-item{position:relative;padding:0 0 16px 20px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-9px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#000}
+.tl-dot.done{background:var(--green)}
+.tl-dot.pending{background:var(--border2)}
+.tl-title{font-size:13px;font-weight:600;color:var(--text)}
+.tl-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* Table */
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;min-width:400px}
+thead th{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;font-weight:600;padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;background:var(--card2)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--card2)}
+tbody td{padding:12px 14px;font-size:14px;vertical-align:middle;color:var(--text)}
+.td-sub{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.content>*{animation:pageIn .2s ease}
 </style>
-</head>
-<body>
 
-<!-- DEMO BANNER -->
-<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.06);padding:6px 16px;text-align:center;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;font-family:monospace;">DEMO SITE &nbsp;·&nbsp; <a href="https://dimkaprojects.xyz" style="color:rgba(255,255,255,0.5);text-decoration:none;">dimkaprojects.xyz ↗</a></div>
+<!-- Demo Banner -->
+<div class="demo-banner">⚡ DEMO — DizelTrade ERP · Diesel Trade Logistic · Тында</div>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-logo">⛽ DizelTrade</div>
-
-  <div class="sidebar-section-label">Operations</div>
-  <div class="nav-item active" onclick="navigate(this,'dispatches')">
-    <span class="nav-icon">📋</span> Dispatches
-  </div>
-  <div class="nav-item" onclick="navigate(this,'fleet')">
-    <span class="nav-icon">🚛</span> Fleet
-  </div>
-  <div class="nav-item" onclick="navigate(this,'routes')">
-    <span class="nav-icon">🗺️</span> Routes
-  </div>
-
-  <div class="sidebar-section-label">Finance</div>
-  <div class="nav-item" onclick="navigate(this,'payments')">
-    <span class="nav-icon">💳</span> Payments
-  </div>
-  <div class="nav-item" onclick="navigate(this,'debts')">
-    <span class="nav-icon">⚠️</span> Client Debts
-  </div>
-  <div class="nav-item" onclick="navigate(this,'reports')">
-    <span class="nav-icon">📊</span> Reports
-  </div>
-
-  <div class="sidebar-section-label">Admin</div>
-  <div class="nav-item" onclick="navigate(this,'users')">
-    <span class="nav-icon">👥</span> Users
-  </div>
-  <div class="nav-item" onclick="navigate(this,'settings')">
-    <span class="nav-icon">⚙️</span> Settings
-  </div>
-</aside>
-
-<!-- MAIN CONTENT -->
-<main class="main">
-
-  <!-- DISPATCHES VIEW -->
-  <div id="view-dispatches">
-    <div class="page-header">
-      <div class="page-title">Dispatches</div>
-      <button class="btn-primary" onclick="openNewDispatch()">+ New Dispatch</button>
-    </div>
-
-    <!-- KPI Cards -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">Dispatched This Month</div>
-        <div class="kpi-value" id="kpi-volume">0t</div>
-        <div class="kpi-sub">+8.4% vs last month</div>
+<div id="app">
+  <div class="app-shell">
+    <!-- Sidebar (desktop) -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo">DIZEL<span>TRADE</span></div>
+        <div class="version">Управление · v2.0</div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Active Deliveries</div>
-        <div class="kpi-value" id="kpi-active">0</div>
-        <div class="kpi-sub">Across 4 routes</div>
+      <div class="sidebar-nav">
+        <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')"><span class="ni-icon">📊</span> Дашборд</div>
+        <div class="nav-group-label">База</div>
+        <div class="nav-item" data-page="base" onclick="showPage('base')"><span class="ni-icon">⛽</span> База Тында</div>
+        <div class="nav-item" data-page="orders" onclick="showPage('orders')"><span class="ni-icon">📦</span> Заказы клиентов</div>
+        <div class="nav-group-label">Операционка</div>
+        <div class="nav-item" data-page="fleet" onclick="showPage('fleet')"><span class="ni-icon">🚛</span> Автопарк DTL</div>
+        <div class="nav-group-label">Аналитика</div>
+        <div class="nav-item" data-page="analytics" onclick="showPage('analytics')"><span class="ni-icon">📈</span> Аналитика</div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Client Debts</div>
-        <div class="kpi-value red" id="kpi-debts">₸0</div>
-        <div class="kpi-sub">3 overdue accounts</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Monthly Revenue</div>
-        <div class="kpi-value" id="kpi-revenue">₸0</div>
-        <div class="kpi-sub">+12.1% vs last month</div>
+      <div class="sidebar-user">
+        <div class="user-avatar">СВ</div>
+        <div>
+          <div class="user-name">Сперанский В.А.</div>
+          <div class="user-role">Партнёр DTL · Полный доступ</div>
+        </div>
       </div>
     </div>
 
-    <!-- Chart -->
-    <div class="chart-card">
-      <div class="card-title">Monthly Dispatch Volume (tonnes)</div>
-      <div class="chart-wrap" id="bar-chart"></div>
-    </div>
+    <!-- Main area -->
+    <div class="main">
+      <!-- Topbar (desktop) -->
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Дашборд</div>
+        <div class="topbar-stat">
+          <div class="ts-dot"></div>
+          <div><div class="ts-val">847 куб</div><div class="ts-lbl">На базе сейчас</div></div>
+        </div>
+        <div class="topbar-stat">
+          <div><div class="ts-val" style="color:var(--orange)">3</div><div class="ts-lbl">Рейса в пути</div></div>
+        </div>
+      </div>
 
-    <!-- Dispatches Table -->
-    <div class="table-card">
-      <div class="table-card-header">Recent Dispatches</div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Client</th>
-            <th>Volume (t)</th>
-            <th>Driver</th>
-            <th>Truck</th>
-            <th>Status</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody id="dispatch-tbody"></tbody>
-      </table>
-    </div>
+      <!-- Mobile nav bar -->
+      <div class="nav-bar">
+        <div class="nav-logo">DIZEL<span>TRADE</span></div>
+        <span class="nav-user">Партнёр</span>
+      </div>
 
-    <!-- Client Debts Table -->
-    <div class="section-gap"></div>
-    <div class="table-card">
-      <div class="table-card-header">Client Debts</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Total Debt</th>
-            <th>Overdue</th>
-            <th>Last Payment</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="debts-tbody"></tbody>
-      </table>
-    </div>
-  </div>
+      <!-- Content -->
+      <div id="content"></div>
 
-  <!-- FLEET VIEW -->
-  <div id="view-fleet" style="display:none;">
-    <div class="page-header">
-      <div class="page-title">Fleet</div>
-    </div>
-    <div class="fleet-grid" id="fleet-grid"></div>
-  </div>
-
-  <!-- STUB VIEWS -->
-  <div id="view-routes" style="display:none;">
-    <div class="page-header"><div class="page-title">Routes</div></div>
-    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Routes module — coming soon</div>
-  </div>
-  <div id="view-payments" style="display:none;">
-    <div class="page-header"><div class="page-title">Payments</div></div>
-    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Payments module — coming soon</div>
-  </div>
-  <div id="view-debts" style="display:none;">
-    <div class="page-header"><div class="page-title">Client Debts</div></div>
-    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Full debt ledger — coming soon</div>
-  </div>
-  <div id="view-reports" style="display:none;">
-    <div class="page-header"><div class="page-title">Reports</div></div>
-    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Reports module — coming soon</div>
-  </div>
-  <div id="view-users" style="display:none;">
-    <div class="page-header"><div class="page-title">Users</div></div>
-    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">User management — coming soon</div>
-  </div>
-  <div id="view-settings" style="display:none;">
-    <div class="page-header"><div class="page-title">Settings</div></div>
-    <div style="color:rgba(255,255,255,0.3);font-size:14px;padding:60px 0;text-align:center;">Settings — coming soon</div>
-  </div>
-
-</main>
-
-<!-- DISPATCH DETAIL MODAL -->
-<div class="modal-overlay" id="detail-modal" onclick="closeOnBackdrop(event,'detail-modal')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-title" id="detail-modal-title">Dispatch Details</div>
-      <button class="modal-close" onclick="closeModal('detail-modal')">&#x2715;</button>
-    </div>
-    <div class="modal-body">
-      <div class="detail-row" id="detail-fields"></div>
-      <div class="timeline">
-        <div class="timeline-label">Delivery Progress</div>
-        <div class="timeline-steps" id="timeline-steps"></div>
+      <!-- Tab bar (mobile) -->
+      <div class="tab-bar">
+        <div class="tab-item" data-tab="dashboard" onclick="showPage('dashboard')"><div class="tab-icon">📊</div><div class="tab-label">Дашборд</div></div>
+        <div class="tab-item" data-tab="base" onclick="showPage('base')"><div class="tab-icon">⛽</div><div class="tab-label">БАЗА</div></div>
+        <div class="tab-item" data-tab="orders" onclick="showPage('orders')"><div class="tab-icon">📦</div><div class="tab-label">Заказы</div></div>
+        <div class="tab-item" data-tab="fleet" onclick="showPage('fleet')"><div class="tab-icon">🚛</div><div class="tab-label">Парк</div></div>
+        <div class="tab-item" data-tab="analytics" onclick="showPage('analytics')"><div class="tab-icon">📈</div><div class="tab-label">Аналитика</div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- NEW DISPATCH MODAL -->
-<div class="modal-overlay" id="new-dispatch-modal" onclick="closeOnBackdrop(event,'new-dispatch-modal')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-title">New Dispatch</div>
-      <button class="modal-close" onclick="closeModal('new-dispatch-modal')">&#x2715;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Client</label>
-          <select class="form-control" id="f-client">
-            <option value="">Select client...</option>
-            <option>KazMunaiGaz JSC</option>
-            <option>Tengri Fuel LLP</option>
-            <option>Almaty Transport Co.</option>
-            <option>NovaTrade Group</option>
-            <option>SteppeOil Ltd</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Volume (tonnes)</label>
-          <input type="number" class="form-control" id="f-volume" placeholder="e.g. 32.5" min="1" max="40">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Driver</label>
-          <select class="form-control" id="f-driver">
-            <option value="">Select driver...</option>
-            <option>Aset Nurmagambetov</option>
-            <option>Daniyar Serikbayev</option>
-            <option>Ruslan Akhmetov</option>
-            <option>Marat Bekzhan</option>
-            <option>Aziz Dzhaksybekov</option>
-            <option>Timur Ospanov</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Truck</label>
-          <select class="form-control" id="f-truck">
-            <option value="">Select truck...</option>
-            <option>172 AKB 01</option>
-            <option>089 ZHK 02</option>
-            <option>341 BAB 01</option>
-            <option>455 AKB 07</option>
-            <option>007 MTB 05</option>
-            <option>623 NRZ 03</option>
-          </select>
-        </div>
-        <div class="form-group full">
-          <label class="form-label">Destination</label>
-          <input type="text" class="form-control" id="f-dest" placeholder="e.g. Almaty Depot — 32 Raiymbek Ave">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Scheduled Date</label>
-          <input type="date" class="form-control" id="f-date">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Fuel Type</label>
-          <select class="form-control" id="f-fuel">
-            <option>Diesel DT-L</option>
-            <option>Diesel DT-Z</option>
-            <option>AI-92</option>
-            <option>AI-95</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn-secondary" onclick="closeModal('new-dispatch-modal')">Cancel</button>
-        <button class="btn-primary" onclick="submitDispatch()">Create Dispatch</button>
-      </div>
-      <div class="success-msg" id="dispatch-success">&#x2713; Dispatch created successfully</div>
-    </div>
-  </div>
-</div>
+<!-- Modal container -->
+<div id="modal-root"></div>
 
 <script>
-// ─── DATA ─────────────────────────────────────────────────────────────────────
+'use strict';
 
-var dispatches = [
-  { id: 'DT-2841', client: 'KazMunaiGaz JSC',     volume: 38.0, driver: 'Aset Nurmagambetov',  truck: '172 AKB 01', status: 'Delivered',  date: '2026-06-25', dest: 'Almaty Depot',       timeline: 4 },
-  { id: 'DT-2840', client: 'Tengri Fuel LLP',      volume: 24.5, driver: 'Daniyar Serikbayev',  truck: '089 ZHK 02', status: 'In Transit', date: '2026-06-27', dest: 'Shymkent Base',      timeline: 3 },
-  { id: 'DT-2839', client: 'Almaty Transport Co.', volume: 32.0, driver: 'Ruslan Akhmetov',      truck: '341 BAB 01', status: 'In Transit', date: '2026-06-26', dest: 'Karaganda Hub',      timeline: 3 },
-  { id: 'DT-2838', client: 'NovaTrade Group',      volume: 18.5, driver: 'Marat Bekzhan',        truck: '455 AKB 07', status: 'Delivered',  date: '2026-06-24', dest: 'Astana Terminal',    timeline: 4 },
-  { id: 'DT-2837', client: 'SteppeOil Ltd',        volume: 40.0, driver: 'Aziz Dzhaksybekov',   truck: '007 MTB 05', status: 'Pending',    date: '2026-06-28', dest: 'Aktau Port',         timeline: 0 },
-  { id: 'DT-2836', client: 'KazMunaiGaz JSC',     volume: 29.0, driver: 'Timur Ospanov',        truck: '623 NRZ 03', status: 'Delivered',  date: '2026-06-23', dest: 'Pavlodar Plant',     timeline: 4 },
+// ── Demo data ──────────────────────────────────────────────────────────────────
+
+const CLIENTS = [
+  { id:1, name:'Мираж ДВ',       color:'a' },
+  { id:2, name:'Сах Транс',      color:'o' },
+  { id:3, name:'ГРК Белая Гора', color:'g' },
+  { id:4, name:'Аэропорт Тында', color:'b' },
+  { id:5, name:'РЖД Тында',      color:'a' },
 ];
 
-var debts = [
-  { client: 'NovaTrade Group',      total: '&#x20B8;1,840,000', overdue: '&#x20B8;920,000',   last: '2026-06-01', status: 'Overdue'  },
-  { client: 'Tengri Fuel LLP',      total: '&#x20B8;980,000',   overdue: '&#x20B8;0',         last: '2026-06-20', status: 'Current'  },
-  { client: 'SteppeOil Ltd',        total: '&#x20B8;1,320,000', overdue: '&#x20B8;1,320,000', last: '2026-05-14', status: 'Overdue'  },
-  { client: 'Almaty Transport Co.', total: '&#x20B8;560,000',   overdue: '&#x20B8;0',         last: '2026-06-22', status: 'Current'  },
-  { client: 'BestRoute LLP',        total: '&#x20B8;2,060,000', overdue: '&#x20B8;1,960,000', last: '2026-04-30', status: 'Overdue'  },
+const ORDERS = [
+  { id:101, client:'Мираж ДВ',       date:'05.06.2026', total:400, delivered:370, inTransit:30, sites:['Дипкун','Сковородино'],       amount:'8 360 000 ₽', price:'20 900 ₽/куб' },
+  { id:102, client:'Сах Транс',      date:'12.05.2026', total:250, delivered:195, inTransit:18, sites:['Акурдан'],                    amount:'4 875 000 ₽', price:'19 500 ₽/куб' },
+  { id:103, client:'ГРК Белая Гора', date:'20.05.2026', total:600, delivered:510, inTransit:40, sites:['Белая Гора','Чульман'],        amount:'13 200 000 ₽', price:'22 000 ₽/куб' },
+  { id:104, client:'Аэропорт Тында', date:'01.06.2026', total:180, delivered:155, inTransit:0,  sites:['Тында·Аэропорт'],             amount:'3 330 000 ₽', price:'18 500 ₽/куб' },
+  { id:105, client:'РЖД Тында',      date:'15.04.2026', total:1200,delivered:1150,inTransit:0,  sites:['Тында·депо','Зейск'],         amount:'25 300 000 ₽', price:'21 100 ₽/куб' },
 ];
 
-var fleet = [
-  { plate: '172 AKB 01', driver: 'Aset Nurmagambetov',  status: 'Active',       fuel: 82 },
-  { plate: '089 ZHK 02', driver: 'Daniyar Serikbayev',  status: 'Active',       fuel: 54 },
-  { plate: '341 BAB 01', driver: 'Ruslan Akhmetov',      status: 'Active',       fuel: 67 },
-  { plate: '455 AKB 07', driver: 'Marat Bekzhan',        status: 'Maintenance',  fuel: 30 },
-  { plate: '007 MTB 05', driver: 'Aziz Dzhaksybekov',   status: 'Idle',         fuel: 91 },
-  { plate: '623 NRZ 03', driver: 'Timur Ospanov',        status: 'Active',       fuel: 45 },
+const DISPATCHES_TIMELINE = [
+  { vol:25, date:'02.06.2026', site:'Дипкун',        truck:'КамАЗ-6522',    driver:'Иванов А.Е.',   status:'done' },
+  { vol:18, date:'28.05.2026', site:'Акурдан',       truck:'МАЗ-5337',      driver:'Петров С.Н.',   status:'done' },
+  { vol:22, date:'25.05.2026', site:'Белая Гора',    truck:'КамАЗ-65115',   driver:'Кузнецов Р.В.', status:'done' },
+  { vol:15, date:'20.05.2026', site:'Сковородино',   truck:'КамАЗ-6520',    driver:'Иванов А.Е.',   status:'done' },
+  { vol:30, date:'10.06.2026', site:'Дипкун',        truck:'Урал-4320',     driver:'Сидоров П.Л.',  status:'transit' },
 ];
 
-var chartData = [
-  { month: 'Jan', value: 1820 },
-  { month: 'Feb', value: 2140 },
-  { month: 'Mar', value: 1980 },
-  { month: 'Apr', value: 2450 },
-  { month: 'May', value: 2610 },
-  { month: 'Jun', value: 2840 },
+const TRUCKS = [
+  { id:1, name:'КамАЗ-6522',  plate:'Е412УА28', owner:'DTL', tank:20, driver:'Иванов А.Е.',   status:'transit', lastSite:'Дипкун',      trips:14 },
+  { id:2, name:'МАЗ-5337',    plate:'О185НА28', owner:'DTL', tank:14, driver:'Петров С.Н.',   status:'base',    lastSite:'Акурдан',     trips:11 },
+  { id:3, name:'КамАЗ-65115', plate:'А741КР28', owner:'DTL', tank:16, driver:'Кузнецов Р.В.', status:'free',    lastSite:'Белая Гора',  trips: 9 },
+  { id:4, name:'КамАЗ-6520',  plate:'М329ОА28', owner:'Артём',tank:18,driver:'Иванов А.Е.',  status:'transit', lastSite:'Чульман',     trips: 7 },
+  { id:5, name:'Урал-4320',   plate:'В558КН28', owner:'Артём',tank:12,driver:'Сидоров П.Л.', status:'transit', lastSite:'Дипкун',      trips: 6 },
+  { id:6, name:'КамАЗ-5350',  plate:'Т770МЕ28', owner:'Артём',tank:16,driver:'Романов Д.А.', status:'base',    lastSite:'Зейск',       trips: 8 },
 ];
 
-var timelineSteps = ['Ordered', 'Loaded', 'Departed', 'In Transit', 'Delivered'];
+const MONTHLY = [
+  { m:'Янв', vol:280, rev:5600  },
+  { m:'Фев', vol:310, rev:6200  },
+  { m:'Мар', vol:420, rev:9240  },
+  { m:'Апр', vol:510, rev:11730 },
+  { m:'Май', vol:680, rev:15640 },
+  { m:'Июн', vol:490, rev:10780, current:true },
+];
 
-// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+const RECEIPTS = [
+  { id:1, source:'Роснефть-Тында', vol:120, ttn:'ТТН-2026-1842', date:'03.06.2026', confirmed:true  },
+  { id:2, source:'Газпромнефть',   vol:200, ttn:'ТТН-2026-1791', date:'27.05.2026', confirmed:true  },
+  { id:3, source:'Камыш (частник)',vol: 80, ttn:'ТТН-2026-1780', date:'20.05.2026', confirmed:true  },
+  { id:4, source:'Роснефть-Тында', vol:150, ttn:'ТТН-2026-1901', date:'08.06.2026', confirmed:false },
+];
 
-function navigate(el, view) {
-  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-  el.classList.add('active');
-  document.querySelectorAll('[id^="view-"]').forEach(function(v) { v.style.display = 'none'; });
-  var target = document.getElementById('view-' + view);
-  if (target) target.style.display = '';
-  if (view === 'fleet') renderFleet();
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmt(n){return Number(n).toLocaleString('ru')}
+
+function showToast(msg, type='success'){
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350)}, 2800);
 }
 
-// ─── STATUS BADGES ────────────────────────────────────────────────────────────
-
-function statusBadge(s) {
-  if (s === 'Delivered')  return '<span class="badge badge-green"><span class="badge-dot"></span>Delivered</span>';
-  if (s === 'In Transit') return '<span class="badge badge-blue"><span class="badge-dot"></span>In Transit</span>';
-  if (s === 'Pending')    return '<span class="badge badge-yellow"><span class="badge-dot"></span>Pending</span>';
-  return '<span class="badge badge-gray"><span class="badge-dot"></span>' + s + '</span>';
+function closeModal(){
+  const m = document.getElementById('modal-root');
+  if(m) m.innerHTML='';
 }
 
-function debtStatusBadge(s) {
-  if (s === 'Overdue') return '<span class="badge badge-orange"><span class="badge-dot"></span>Overdue</span>';
-  return '<span class="badge badge-green"><span class="badge-dot"></span>Current</span>';
-}
+function pct(del,tot){return tot>0?Math.round(del/tot*100):0}
 
-function fleetBadge(s) {
-  if (s === 'Active')      return '<span class="badge badge-green"><span class="badge-dot"></span>Active</span>';
-  if (s === 'Maintenance') return '<span class="badge badge-orange"><span class="badge-dot"></span>Maintenance</span>';
-  if (s === 'Idle')        return '<span class="badge badge-gray"><span class="badge-dot"></span>Idle</span>';
-  return '<span class="badge badge-gray"><span class="badge-dot"></span>' + s + '</span>';
-}
+// ── Page router ────────────────────────────────────────────────────────────────
 
-// ─── RENDER DISPATCHES ────────────────────────────────────────────────────────
+let currentPage = 'dashboard';
 
-function renderDispatches() {
-  var tbody = document.getElementById('dispatch-tbody');
-  tbody.innerHTML = dispatches.map(function(d, i) {
-    return '<tr onclick="openDetailModal(' + i + ')">' +
-      '<td class="mono">' + d.id + '</td>' +
-      '<td>' + d.client + '</td>' +
-      '<td>' + d.volume + 't</td>' +
-      '<td>' + d.driver + '</td>' +
-      '<td class="mono">' + d.truck + '</td>' +
-      '<td>' + statusBadge(d.status) + '</td>' +
-      '<td class="text-muted">' + d.date + '</td>' +
-      '</tr>';
-  }).join('');
-}
+function showPage(page){
+  currentPage = page;
 
-// ─── RENDER DEBTS ─────────────────────────────────────────────────────────────
+  // Update nav items
+  document.querySelectorAll('.nav-item[data-page]').forEach(el=>{
+    el.classList.toggle('active', el.dataset.page===page);
+  });
+  document.querySelectorAll('.tab-item[data-tab]').forEach(el=>{
+    el.classList.toggle('active', el.dataset.tab===page);
+  });
 
-function renderDebts() {
-  var tbody = document.getElementById('debts-tbody');
-  tbody.innerHTML = debts.map(function(d) {
-    var isOverdue = d.status === 'Overdue';
-    return '<tr>' +
-      '<td>' + d.client + '</td>' +
-      '<td>' + d.total + '</td>' +
-      '<td class="' + (isOverdue ? 'text-red' : 'text-muted') + '">' + d.overdue + '</td>' +
-      '<td class="text-muted">' + d.last + '</td>' +
-      '<td>' + debtStatusBadge(d.status) + '</td>' +
-      '</tr>';
-  }).join('');
-}
+  const titles={dashboard:'Дашборд',base:'База Тында',orders:'Заказы',fleet:'Автопарк',analytics:'Аналитика'};
+  const tb=document.getElementById('topbar-title');
+  if(tb) tb.textContent=titles[page]||page;
 
-// ─── RENDER FLEET ─────────────────────────────────────────────────────────────
+  const pages={dashboard:renderDashboard,base:renderBase,orders:renderOrders,fleet:renderFleet,analytics:renderAnalytics};
+  const fn=pages[page]||renderDashboard;
+  document.getElementById('content').innerHTML=`<div class="content">${fn()}</div>`;
 
-function renderFleet() {
-  var grid = document.getElementById('fleet-grid');
-  grid.innerHTML = fleet.map(function(f) {
-    return '<div class="fleet-card">' +
-      '<div class="fleet-plate">' + f.plate + '</div>' +
-      '<div class="fleet-driver">' + f.driver + '</div>' +
-      '<div class="fleet-status-row">' + fleetBadge(f.status) + '<span class="fuel-pct">' + f.fuel + '%</span></div>' +
-      '<div class="fuel-bar-wrap">' +
-        '<span class="fuel-label">Fuel</span>' +
-        '<div class="fuel-bar-track"><div class="fuel-bar-fill" style="width:' + f.fuel + '%"></div></div>' +
-      '</div>' +
-      '</div>';
-  }).join('');
-}
-
-// ─── CHART ────────────────────────────────────────────────────────────────────
-
-function renderChart() {
-  var wrap = document.getElementById('bar-chart');
-  var MAX_H = 120;
-  var maxVal = 3000;
-  wrap.innerHTML = chartData.map(function(d, i) {
-    var targetH = Math.round((d.value / maxVal) * MAX_H);
-    return '<div class="chart-bar-group">' +
-      '<div class="chart-val">' + (d.value / 1000).toFixed(1) + 'k</div>' +
-      '<div class="chart-bar-track"><div class="chart-bar" id="bar-' + i + '" data-target="' + targetH + '"></div></div>' +
-      '<div class="chart-label">' + d.month + '</div>' +
-      '</div>';
-  }).join('');
-
-  var bars = chartData.map(function(_, i) { return document.getElementById('bar-' + i); });
-  var duration = 900;
-  var startTime = null;
-
-  function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
-
-  function frame(now) {
-    if (!startTime) startTime = now;
-    var elapsed = now - startTime;
-    var t = Math.min(elapsed / duration, 1);
-    var e = ease(t);
-    bars.forEach(function(bar) {
-      var target = parseInt(bar.getAttribute('data-target'));
-      bar.style.height = (e * target) + 'px';
+  // bind base sub-tabs after render
+  bindSubTabs();
+  // bind chips
+  document.querySelectorAll('.chips .chip').forEach(c=>{
+    c.addEventListener('click',()=>{
+      c.closest('.chips').querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));
+      c.classList.add('sel');
     });
-    if (t < 1) requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
+  });
 }
 
-// ─── KPI COUNTER ANIMATION ────────────────────────────────────────────────────
+function bindSubTabs(){
+  document.querySelectorAll('.sub-tab').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const tab=el.dataset.tab;
+      document.querySelectorAll('.sub-tab').forEach(x=>x.classList.remove('active'));
+      el.classList.add('active');
+      const target=document.getElementById('base-tab-content');
+      if(target) target.innerHTML=renderBaseTab(tab);
+    });
+  });
+}
 
-function animateCounters() {
-  var counters = [
-    { el: document.getElementById('kpi-volume'),  end: 2840, format: function(v) { return Math.round(v).toLocaleString() + 't'; } },
-    { el: document.getElementById('kpi-active'),  end: 12,   format: function(v) { return Math.round(v) + ''; } },
-    { el: document.getElementById('kpi-debts'),   end: 4.2,  format: function(v) { return '₸' + v.toFixed(1) + 'M'; } },
-    { el: document.getElementById('kpi-revenue'), end: 38.5, format: function(v) { return '₸' + v.toFixed(1) + 'M'; } },
+// ── Dashboard ──────────────────────────────────────────────────────────────────
+
+function renderDashboard(){
+  const maxVol=Math.max(...MONTHLY.map(m=>m.vol));
+  const barH=70;
+  const bars=MONTHLY.map(m=>{
+    const h=Math.max(4,Math.round((m.vol/maxVol)*barH));
+    return `<div class="bar-col">
+      <div class="bar-val">${m.vol}</div>
+      <div class="bar-fill${m.current?' current':''}" style="height:${h}px"></div>
+      <div class="bar-label">${m.m}</div>
+    </div>`;
+  }).join('');
+
+  const totalDelivered=ORDERS.reduce((s,o)=>s+o.delivered,0);
+  const totalOrdered=ORDERS.reduce((s,o)=>s+o.total,0);
+  const inTransitTotal=ORDERS.reduce((s,o)=>s+o.inTransit,0);
+
+  const clientProgress=CLIENTS.map(c=>{
+    const ord=ORDERS.find(o=>o.client===c.name);
+    if(!ord) return '';
+    const p=pct(ord.delivered,ord.total);
+    return `<div class="prog-mini-row">
+      <div class="prog-mini-label">${esc(c.name)}</div>
+      <div class="prog-mini-bar"><div class="prog-mini-fill" style="width:${p}%"></div></div>
+      <div class="prog-mini-val">${p}% · ${ord.delivered} куб</div>
+    </div>`;
+  }).join('');
+
+  const pendingDispatches=DISPATCHES_TIMELINE.filter(d=>d.status==='transit').map(d=>`
+    <div class="pr">
+      <div><div class="prt">🚚 ${esc(d.truck)} → ${esc(d.site)}</div><div class="prs">${esc(d.driver)} · ${d.vol} куб</div></div>
+      <button class="prb" onclick="showToast('✅ Рейс подтверждён','success')">Доставлено</button>
+    </div>`).join('');
+
+  return `
+    <div class="stitle">Дашборд</div>
+    <div class="ssub">// июнь 2026 · в реальном времени</div>
+    <div class="stats">
+      <div class="sc"><div class="v o">${ORDERS.length}</div><div class="lv">Активных заказов</div></div>
+      <div class="sc"><div class="v a">${fmt(totalDelivered)}</div><div class="lv">Доставлено куб</div></div>
+      <div class="sc"><div class="v g">${fmt(145200000)}</div><div class="lv">Выручка ₽</div></div>
+    </div>
+
+    <div class="sh">Объёмы по месяцам (куб)</div>
+    <div style="background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px">
+      <div class="bar-chart" style="height:80px;align-items:flex-end">${bars}</div>
+    </div>
+
+    <div class="sh">Прогресс по клиентам</div>
+    <div style="background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px">
+      ${clientProgress}
+    </div>
+
+    ${pendingDispatches ? `<div class="pending-block"><div class="pt">🚚 Рейсы в пути (${DISPATCHES_TIMELINE.filter(d=>d.status==='transit').length})</div>${pendingDispatches}</div>` : ''}
+
+    <div class="sh">Сводка по базе</div>
+    <div class="bb">
+      <div class="bbr"><div class="bbl">Остаток на базе</div><div class="bbv" style="color:var(--accent)">847 куб</div></div>
+      <div class="bbr"><div class="bbl">Принято за месяц</div><div class="bbv" style="color:var(--green)">+490 куб</div></div>
+      <div class="bbr"><div class="bbl">В пути сейчас</div><div class="bbv" style="color:var(--orange)">67 куб (3 рейса)</div></div>
+      <div class="bbt"><span style="color:var(--text2)">Вместимость базы</span><span style="color:var(--text)">2 500 куб</span></div>
+    </div>`;
+}
+
+// ── Base ───────────────────────────────────────────────────────────────────────
+
+function renderBase(){
+  return `
+    <div class="sub-tabs">
+      <div class="sub-tab active" data-tab="main">Баланс</div>
+      <div class="sub-tab" data-tab="receipts">Приходы</div>
+      <div class="sub-tab" data-tab="dispatches">Рейсы</div>
+    </div>
+    <div id="base-tab-content">${renderBaseTab('main')}</div>`;
+}
+
+function renderBaseTab(tab){
+  if(tab==='receipts') return renderBaseReceipts();
+  if(tab==='dispatches') return renderBaseDispatches();
+  return renderBaseMain();
+}
+
+function renderBaseMain(){
+  const balPct=Math.round(847/2500*100);
+  return `
+    <div class="big-stat">
+      <div class="bl">⛽ Сейчас на базе</div>
+      <div class="bv">847 <span class="bu">куб</span></div>
+      <div class="bs">Из 2 500 куб · заполнено на ${balPct}%</div>
+    </div>
+    <div class="pb" style="margin-bottom:18px;height:10px;border-radius:6px;background:var(--card2)">
+      <div class="pf" style="height:100%;border-radius:6px;width:${balPct}%"></div>
+    </div>
+    <div class="bb">
+      <div class="bbr"><div class="bbl">Принято всего (тек. месяц)</div><div class="bbv" style="color:var(--green)">490 куб</div></div>
+      <div class="bbr"><div class="bbl">Отгружено</div><div class="bbv">320 куб</div></div>
+      <div class="bbr"><div class="bbl">В пути (3 рейса)</div><div class="bbv" style="color:var(--orange)">67 куб</div></div>
+      <div class="bbt"><span style="color:var(--text2)">Остаток</span><span style="color:var(--accent)">847 куб</span></div>
+    </div>
+    <div class="pending-block">
+      <div class="pt">⏳ Ожидает подтверждения (1)</div>
+      <div class="pr">
+        <div><div class="prt">ТТН-2026-1901 — Роснефть-Тында · 150 куб</div><div class="prs">08.06.2026</div></div>
+        <button class="prb" onclick="showToast('✅ Приёмка подтверждена','success')">Принял</button>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="showToast('📥 Форма приёмки — в реальном приложении','success')">+ Принял топливо</button>
+    <button class="btn-secondary" onclick="openDispatchModal()">+ Новый рейс</button>`;
+}
+
+function renderBaseReceipts(){
+  const rows=RECEIPTS.map(r=>`
+    <div class="li" onclick="showToast('ТТН ${esc(r.ttn)} · ${r.vol} куб','success')">
+      <div class="lic ${r.confirmed?'g':'o'}">${r.confirmed?'✅':'⏳'}</div>
+      <div class="lit">
+        <div class="lim">${esc(r.source)} — ${r.vol} куб</div>
+        <div class="lis">${esc(r.ttn)} · ${esc(r.date)}</div>
+      </div>
+      <div class="lir">
+        <span class="badge ${r.confirmed?'done':'pending'}">${r.confirmed?'Подтверждено':'Ожидает'}</span>
+      </div>
+    </div>`).join('');
+  return `
+    <button class="btn-primary" style="margin-bottom:14px" onclick="showToast('📥 Форма приёмки','success')">+ Принял топливо</button>
+    ${rows}`;
+}
+
+function renderBaseDispatches(){
+  const allTrips=[
+    {id:1,truck:'КамАЗ-6522',site:'Дипкун',vol:30,driver:'Иванов А.Е.',  status:'transit', tariff:25000},
+    {id:2,truck:'Урал-4320',  site:'Дипкун',vol:22,driver:'Сидоров П.Л.',status:'transit', tariff:22000},
+    {id:3,truck:'КамАЗ-6520', site:'Чульман',vol:15,driver:'Иванов А.Е.',status:'transit', tariff:18000},
+    {id:4,truck:'МАЗ-5337',   site:'Акурдан',vol:18,driver:'Петров С.Н.',status:'delivered',tariff:20000},
+    {id:5,truck:'КамАЗ-65115',site:'Белая Гора',vol:22,driver:'Кузнецов Р.В.',status:'delivered',tariff:24000},
+    {id:6,truck:'КамАЗ-5350', site:'Зейск', vol:14,driver:'Романов Д.А.',status:'delivered',tariff:17000},
   ];
-
-  var duration = 1500;
-  var startTime = null;
-  function ease(t) { return 1 - Math.pow(1 - t, 3); }
-
-  function frame(now) {
-    if (!startTime) startTime = now;
-    var elapsed = now - startTime;
-    var t = Math.min(elapsed / duration, 1);
-    var e = ease(t);
-    counters.forEach(function(c) {
-      c.el.textContent = c.format(e * c.end);
-    });
-    if (t < 1) requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-}
-
-// ─── DETAIL MODAL ─────────────────────────────────────────────────────────────
-
-function openDetailModal(idx) {
-  var d = dispatches[idx];
-  document.getElementById('detail-modal-title').textContent = 'Dispatch ' + d.id;
-
-  document.getElementById('detail-fields').innerHTML =
-    '<div class="detail-item"><div class="detail-label">Client</div><div class="detail-value">' + d.client + '</div></div>' +
-    '<div class="detail-item"><div class="detail-label">Destination</div><div class="detail-value">' + d.dest + '</div></div>' +
-    '<div class="detail-item"><div class="detail-label">Volume</div><div class="detail-value">' + d.volume + ' tonnes</div></div>' +
-    '<div class="detail-item"><div class="detail-label">Fuel Type</div><div class="detail-value">Diesel DT-L</div></div>' +
-    '<div class="detail-item"><div class="detail-label">Driver</div><div class="detail-value">' + d.driver + '</div></div>' +
-    '<div class="detail-item"><div class="detail-label">Truck</div><div class="detail-value">' + d.truck + '</div></div>' +
-    '<div class="detail-item"><div class="detail-label">Status</div><div class="detail-value">' + statusBadge(d.status) + '</div></div>' +
-    '<div class="detail-item"><div class="detail-label">Date</div><div class="detail-value">' + d.date + '</div></div>';
-
-  var stepsHtml = timelineSteps.map(function(label, i) {
-    var cls = '';
-    if (i < d.timeline) cls = 'done';
-    else if (i === d.timeline && d.timeline < timelineSteps.length) cls = 'current';
-    return '<div class="timeline-step ' + cls + '">' +
-      '<div class="timeline-dot"><div class="timeline-dot-inner"></div></div>' +
-      '<div class="timeline-step-label">' + label + '</div>' +
-      '</div>';
+  const rows=allTrips.map(d=>{
+    const isTransit=d.status==='transit';
+    const badge=isTransit?`<span class="badge transit">В пути</span>`:`<span class="badge done">Доставлено</span>`;
+    return `<div class="li" style="opacity:${isTransit?1:.7}" onclick="showTruckModal(${d.id})">
+      <div class="lic tr">🚚</div>
+      <div class="lit">
+        <div class="lim">${esc(d.truck)} → ${esc(d.site)}</div>
+        <div class="lis">${d.vol} куб · ${esc(d.driver)} · ${fmt(d.tariff)} ₽</div>
+      </div>
+      <div class="lir" style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        ${badge}
+        ${isTransit?`<button class="prb" onclick="event.stopPropagation();showToast('✅ Рейс отмечен доставленным','success')">Доставлено</button>`:''}
+      </div>
+    </div>`;
   }).join('');
-  document.getElementById('timeline-steps').innerHTML = stepsHtml;
-
-  document.getElementById('detail-modal').classList.add('open');
+  return `
+    <button class="btn-primary" style="margin-bottom:14px" onclick="openDispatchModal()">+ Новый рейс</button>
+    ${rows}`;
 }
 
-// ─── MODAL HELPERS ────────────────────────────────────────────────────────────
+// ── Orders ─────────────────────────────────────────────────────────────────────
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+function renderOrders(){
+  const cards=ORDERS.map(o=>{
+    const p=pct(o.delivered,o.total);
+    const isOver=p>=80;
+    const sites=o.sites.map(s=>`<div class="oc-site">${esc(s)}</div>`).join('');
+    return `<div class="oc" onclick="openOrderModal(${o.id})">
+      <div class="och">
+        <div style="flex:1;min-width:0">
+          <div class="ocn">${esc(o.client)}</div>
+          <div class="ocd">${esc(o.date)} · <strong>${o.total} куб</strong></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="oca">${esc(o.amount)}</div>
+          <div class="ocsub">${esc(o.price)}</div>
+        </div>
+      </div>
+      <div class="ocp-labels">
+        <span>✅ ${o.delivered} куб</span>
+        ${o.inTransit>0?`<span style="color:var(--orange)">🚚 ${o.inTransit} куб</span>`:''}
+        <span style="color:var(--text2)">осталось: <strong style="color:var(--orange)">${Math.max(0,o.total-o.delivered-o.inTransit)} куб</strong></span>
+        <span style="color:var(--accent);font-weight:700">${p}%</span>
+      </div>
+      <div class="ocbar"><div class="ocfill${isOver?' o':''}" style="width:${p}%"></div></div>
+      <div class="oc-sites">${sites}</div>
+    </div>`;
+  }).join('');
+  return `
+    <div class="stitle">Заказы</div>
+    <div class="ssub">// ${ORDERS.length} активных заказов</div>
+    ${cards}`;
 }
 
-function closeOnBackdrop(event, id) {
-  if (event.target === document.getElementById(id)) closeModal(id);
-}
+// ── Fleet ──────────────────────────────────────────────────────────────────────
 
-// ─── NEW DISPATCH ─────────────────────────────────────────────────────────────
+function renderFleet(){
+  const statusLabel={transit:'В пути',base:'На базе',free:'Свободен'};
+  const statusBadge={transit:'transit',base:'done',free:'free'};
 
-function openNewDispatch() {
-  document.getElementById('dispatch-success').style.display = 'none';
-  ['f-client','f-driver','f-truck'].forEach(function(id) { document.getElementById(id).value = ''; });
-  document.getElementById('f-volume').value = '';
-  document.getElementById('f-dest').value = '';
-  document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
-  document.getElementById('new-dispatch-modal').classList.add('open');
-}
+  const dtl=TRUCKS.filter(t=>t.owner==='DTL');
+  const artem=TRUCKS.filter(t=>t.owner==='Артём');
 
-function submitDispatch() {
-  var client = document.getElementById('f-client').value;
-  var volume = document.getElementById('f-volume').value;
-  var driver = document.getElementById('f-driver').value;
-  var truck  = document.getElementById('f-truck').value;
-  var dest   = document.getElementById('f-dest').value;
-  var date   = document.getElementById('f-date').value;
-  if (!client || !volume || !driver || !truck || !dest || !date) {
-    alert('Please fill in all fields.');
-    return;
+  function truckRows(trucks){
+    return trucks.map(t=>`
+      <div class="li" onclick="showTruckModal(${t.id})">
+        <div class="lic tr">🚛</div>
+        <div class="lit">
+          <div class="lim">${esc(t.name)} <span style="color:var(--text3);font-weight:400;font-size:12px">${esc(t.plate)}</span></div>
+          <div class="lis">${esc(t.driver)} · бак ${t.tank} куб · ${t.trips} рейсов</div>
+        </div>
+        <div class="lir">
+          <span class="badge ${statusBadge[t.status]}">${esc(statusLabel[t.status])}</span>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px">→ ${esc(t.lastSite)}</div>
+        </div>
+      </div>`).join('');
   }
-  var msg = document.getElementById('dispatch-success');
-  msg.style.display = 'block';
-  setTimeout(function() { closeModal('new-dispatch-modal'); }, 1800);
+
+  const inTransit=TRUCKS.filter(t=>t.status==='transit').length;
+  const onBase=TRUCKS.filter(t=>t.status==='base').length;
+  const free=TRUCKS.filter(t=>t.status==='free').length;
+
+  return `
+    <div class="stitle">Автопарк</div>
+    <div class="ssub">// ${TRUCKS.length} машин</div>
+    <div class="stats">
+      <div class="sc"><div class="v o">${inTransit}</div><div class="lv">В пути</div></div>
+      <div class="sc"><div class="v g">${onBase}</div><div class="lv">На базе</div></div>
+      <div class="sc"><div class="v a">${free}</div><div class="lv">Свободно</div></div>
+    </div>
+    <div class="sh">Автопарк DTL</div>
+    ${truckRows(dtl)}
+    <div class="sh">Автопарк Артёма</div>
+    ${truckRows(artem)}`;
 }
 
-// ─── KEYBOARD ESC ─────────────────────────────────────────────────────────────
+// ── Analytics ─────────────────────────────────────────────────────────────────
 
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    closeModal('detail-modal');
-    closeModal('new-dispatch-modal');
-  }
-});
+function renderAnalytics(){
+  const maxVol=Math.max(...MONTHLY.map(m=>m.vol));
+  const maxRev=Math.max(...MONTHLY.map(m=>m.rev));
+  const barH=70;
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
+  const volBars=MONTHLY.map(m=>{
+    const h=Math.max(4,Math.round((m.vol/maxVol)*barH));
+    return `<div class="bar-col">
+      <div class="bar-val">${m.vol}</div>
+      <div class="bar-fill${m.current?' current':''}" style="height:${h}px"></div>
+      <div class="bar-label">${m.m}</div>
+    </div>`;
+  }).join('');
 
-renderDispatches();
-renderDebts();
-renderChart();
-animateCounters();
+  const revBars=MONTHLY.map(m=>{
+    const h=Math.max(4,Math.round((m.rev/maxRev)*barH));
+    return `<div class="bar-col">
+      <div class="bar-val" style="font-size:8px">${(m.rev/1000).toFixed(0)}М</div>
+      <div class="bar-fill${m.current?' current':''}" style="height:${h}px;background:var(--blue);opacity:.8"></div>
+      <div class="bar-label">${m.m}</div>
+    </div>`;
+  }).join('');
+
+  const totalVol=MONTHLY.reduce((s,m)=>s+m.vol,0);
+  const totalRev=MONTHLY.reduce((s,m)=>s+m.rev,0);
+
+  const clientProgress=CLIENTS.map(c=>{
+    const ord=ORDERS.find(o=>o.client===c.name);
+    if(!ord) return '';
+    const p=pct(ord.delivered,ord.total);
+    const rev=parseInt(ord.amount.replace(/[^0-9]/g,''));
+    return `<div class="prog-mini-row">
+      <div class="prog-mini-label">${esc(c.name)}</div>
+      <div class="prog-mini-bar"><div class="prog-mini-fill" style="width:${p}%"></div></div>
+      <div class="prog-mini-val">${fmt(ord.delivered)} куб</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="stitle">Аналитика</div>
+    <div class="ssub">// Янв–Июн 2026</div>
+    <div class="stats">
+      <div class="sc"><div class="v a">${fmt(totalVol)}</div><div class="lv">Куб всего</div></div>
+      <div class="sc"><div class="v g">${(totalRev/1000).toFixed(0)}М</div><div class="lv">Выручка ₽</div></div>
+      <div class="sc"><div class="v o">${Math.round(totalRev/totalVol/1000)}К</div><div class="lv">Ср. цена ₽/куб</div></div>
+    </div>
+    <div class="sh">Объёмы по месяцам (куб)</div>
+    <div style="background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px">
+      <div class="bar-chart" style="height:80px;align-items:flex-end">${volBars}</div>
+    </div>
+    <div class="sh">Выручка по месяцам (тыс ₽)</div>
+    <div style="background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px">
+      <div class="bar-chart" style="height:80px;align-items:flex-end">${revBars}</div>
+    </div>
+    <div class="sh">Доля клиентов по объёму</div>
+    <div style="background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:14px">
+      ${clientProgress}
+    </div>
+    <div class="sh">Доходы / Расходы</div>
+    <div class="bb">
+      <div class="bbr"><div class="bbl">Доходы (фактические)</div><div class="bbv" style="color:var(--green)">${fmt(145200000)} ₽</div></div>
+      <div class="bbr"><div class="bbl">Расходы (топливо, транспорт)</div><div class="bbv" style="color:var(--red)">${fmt(89500000)} ₽</div></div>
+      <div class="bbr"><div class="bbl">Маржа</div><div class="bbv" style="color:var(--accent)">38.4%</div></div>
+      <div class="bbt"><span style="color:var(--text2)">Прибыль</span><span style="color:var(--green)">${fmt(55700000)} ₽</span></div>
+    </div>`;
+}
+
+// ── Modals ─────────────────────────────────────────────────────────────────────
+
+function openOrderModal(orderId){
+  const o=ORDERS.find(x=>x.id===orderId);
+  if(!o) return;
+  const p=pct(o.delivered,o.total);
+
+  const timeline=DISPATCHES_TIMELINE.map((d,i)=>{
+    const done=d.status==='done';
+    return `<div class="tl-item">
+      <div class="tl-dot ${done?'done':'pending'}">${done?'✓':'…'}</div>
+      <div class="tl-title">${esc(d.truck)} → ${esc(d.site)}</div>
+      <div class="tl-sub">${d.vol} куб · ${esc(d.driver)} · ${esc(d.date)}</div>
+    </div>`;
+  }).join('');
+
+  const html=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span>${esc(o.client)}</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${esc(o.date)} · Заказ #${o.id}</div>
+      <div class="stats" style="margin-bottom:16px">
+        <div class="sc"><div class="v a">${p}%</div><div class="lv">Выполнение</div></div>
+        <div class="sc"><div class="v g">${o.delivered}</div><div class="lv">Доставлено куб</div></div>
+        <div class="sc"><div class="v o">${Math.max(0,o.total-o.delivered-o.inTransit)}</div><div class="lv">Осталось куб</div></div>
+      </div>
+      <div class="ocbar" style="margin-bottom:16px"><div class="ocfill${p>=80?' o':''}" style="width:${p}%"></div></div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        ${o.sites.map(s=>`<div class="oc-site">${esc(s)}</div>`).join('')}
+      </div>
+      <div style="background:var(--card2);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Сумма заказа</div>
+        <div style="font-size:22px;font-weight:800;color:var(--accent)">${esc(o.amount)}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px">${esc(o.price)}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:10px">Рейсы по заказу</div>
+      <div class="timeline">${timeline}</div>
+      <div class="modal-footer-btns">
+        <button class="btn-secondary" onclick="closeModal()">Закрыть</button>
+        <button class="btn-primary" onclick="showToast('📄 Акт сверки сформирован','success');closeModal()">Акт сверки</button>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('modal-root').innerHTML=html;
+}
+
+function showTruckModal(truckId){
+  const t=TRUCKS.find(x=>x.id===truckId);
+  if(!t) return;
+  const statusLabel={transit:'В пути',base:'На базе',free:'Свободен'};
+  const statusBadge={transit:'transit',base:'done',free:'free'};
+  const lastTrips=DISPATCHES_TIMELINE.slice(0,3).map(d=>`
+    <div class="li" style="cursor:default">
+      <div class="lic ${d.status==='done'?'g':'tr'}">${d.status==='done'?'✓':'🚚'}</div>
+      <div class="lit">
+        <div class="lim">${esc(d.site)}</div>
+        <div class="lis">${d.vol} куб · ${esc(d.date)}</div>
+      </div>
+      <div class="lir"><span class="badge ${d.status==='done'?'done':'transit'}">${d.status==='done'?'Доставлено':'В пути'}</span></div>
+    </div>`).join('');
+
+  const html=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span>${esc(t.name)}</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+        <span class="badge ${statusBadge[t.status]}" style="font-size:12px;padding:4px 12px">${statusLabel[t.status]}</span>
+        <span style="font-size:13px;color:var(--text2)">${esc(t.plate)} · Владелец: ${esc(t.owner)}</span>
+      </div>
+      <div class="bb">
+        <div class="bbr"><div class="bbl">Водитель</div><div class="bbv">${esc(t.driver)}</div></div>
+        <div class="bbr"><div class="bbl">Объём бака</div><div class="bbv">${t.tank} куб</div></div>
+        <div class="bbr"><div class="bbl">Рейсов в этом месяце</div><div class="bbv" style="color:var(--accent)">${t.trips}</div></div>
+        <div class="bbr"><div class="bbl">Последний участок</div><div class="bbv">${esc(t.lastSite)}</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin:14px 0 10px">Последние рейсы</div>
+      ${lastTrips}
+      <button class="btn-secondary" onclick="closeModal()">Закрыть</button>
+    </div>
+  </div>`;
+  document.getElementById('modal-root').innerHTML=html;
+}
+
+function openDispatchModal(){
+  const truckChips=TRUCKS.filter(t=>t.status!=='transit').map((t,i)=>`
+    <div class="chip${i===0?' sel':''}" data-val="${t.id}">${esc(t.name)}</div>`).join('');
+
+  const html=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span>Новый рейс</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="fsec">
+        <div class="fl">Выбор машины</div>
+        <div class="chips" id="truck-chips">${truckChips}</div>
+      </div>
+      <div class="fsec">
+        <div class="fl">Участок назначения</div>
+        <div class="chips">
+          <div class="chip sel" data-val="dipkun">Дипкун</div>
+          <div class="chip" data-val="akurdan">Акурдан</div>
+          <div class="chip" data-val="belaya">Белая Гора</div>
+          <div class="chip" data-val="chulman">Чульман</div>
+          <div class="chip" data-val="zeisk">Зейск</div>
+        </div>
+      </div>
+      <div class="inp-row">
+        <div class="fsec">
+          <div class="fl">Объём, куб</div>
+          <input class="inp" type="number" id="d-vol" placeholder="20" value="20">
+        </div>
+        <div class="fsec">
+          <div class="fl">Тариф, ₽/рейс</div>
+          <input class="inp" type="number" id="d-tariff" placeholder="22000" value="22000">
+        </div>
+      </div>
+      <div style="background:var(--accent-dim);border:1px solid rgba(200,255,0,.2);border-radius:9px;padding:9px 12px;font-size:12px;color:var(--accent);margin-bottom:10px">
+        💡 После отправки рейс появится в журнале — отметьте "Доставлено" по прибытии
+      </div>
+      <div class="modal-footer-btns">
+        <button class="btn-secondary" onclick="closeModal()">Отмена</button>
+        <button class="btn-primary" onclick="submitDispatch()">Отправить рейс</button>
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('modal-root').innerHTML=html;
+
+  // bind chips inside modal
+  document.querySelectorAll('#modal-root .chips .chip').forEach(c=>{
+    c.addEventListener('click',()=>{
+      c.closest('.chips').querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));
+      c.classList.add('sel');
+    });
+  });
+}
+
+function submitDispatch(){
+  const vol=document.getElementById('d-vol')?.value||'20';
+  showToast(`✅ Рейс ${vol} куб отправлен`,'success');
+  closeModal();
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+
+showPage('dashboard');
+document.querySelector('.tab-item[data-tab="dashboard"]')?.classList.add('active');
 </script>
-</body>
-</html>

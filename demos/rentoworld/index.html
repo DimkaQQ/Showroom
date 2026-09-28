@@ -1,1155 +1,1592 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RentoWorld — Rent a car, anywhere.</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>RentoWorld — Аренда авто</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       DESIGN TOKENS — RentoWorld Demo
+       Layout: sticky header → demo banner → tab-based content area
+       ============================================================ */
+    :root {
+      --primary:        #2563eb;
+      --primary-dark:   #1d4ed8;
+      --primary-light:  #dbeafe;
+      --accent:         #f97316;
+      --accent-light:   #fed7aa;
+      --success:        #16a34a;
+      --success-light:  #dcfce7;
+      --warning:        #eab308;
+      --warning-light:  #fef9c3;
+      --danger:         #ef4444;
+      --text:           #0f172a;
+      --text-muted:     #64748b;
+      --text-light:     #94a3b8;
+      --border:         #e2e8f0;
+      --border-dark:    #cbd5e1;
+      --bg:             #f8fafc;
+      --bg-white:       #ffffff;
+      --bg-card:        #ffffff;
+      --shadow-sm:      0 1px 3px rgba(0,0,0,.06);
+      --shadow-md:      0 4px 16px rgba(0,0,0,.08);
+      --shadow-lg:      0 12px 40px rgba(0,0,0,.14);
+      --radius-sm:      6px;
+      --radius:         10px;
+      --radius-md:      14px;
+      --radius-lg:      20px;
+      --radius-full:    9999px;
+      --transition:     all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      --font:           'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --container:      1200px;
+    }
 
-  :root {
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --text: #0f172a;
-    --muted: #64748b;
-    --border: #e2e8f0;
-    --accent: #0891b2;
-    --accent-dark: #0e7490;
-    --shadow: rgba(0,0,0,0.06);
-    --radius: 10px;
-  }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --text:        #f1f5f9;
+        --text-muted:  #94a3b8;
+        --text-light:  #64748b;
+        --border:      #1e293b;
+        --border-dark: #334155;
+        --bg:          #0f172a;
+        --bg-white:    #1e293b;
+        --bg-card:     #1e293b;
+        --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
+        --shadow-md:   0 4px 16px rgba(0,0,0,.4);
+        --shadow-lg:   0 12px 40px rgba(0,0,0,.5);
+        --primary-light: rgba(37,99,235,.18);
+        --accent-light:  rgba(249,115,22,.18);
+        --success-light: rgba(22,163,74,.15);
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --text:        #f1f5f9;
+      --text-muted:  #94a3b8;
+      --text-light:  #64748b;
+      --border:      #1e293b;
+      --border-dark: #334155;
+      --bg:          #0f172a;
+      --bg-white:    #1e293b;
+      --bg-card:     #1e293b;
+      --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
+      --shadow-md:   0 4px 16px rgba(0,0,0,.4);
+      --shadow-lg:   0 12px 40px rgba(0,0,0,.5);
+      --primary-light: rgba(37,99,235,.18);
+      --accent-light:  rgba(249,115,22,.18);
+      --success-light: rgba(22,163,74,.15);
+      color-scheme: dark;
+    }
 
-  html { scroll-behavior: smooth; }
+    /* ============================================================
+       RESET
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+    ul, ol { list-style: none; }
+    img { max-width: 100%; height: auto; display: block; }
+    button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+    input, select { font-family: var(--font); font-size: 1rem; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.6;
-    padding-top: 33px;
-  }
+    /* ============================================================
+       ANIMATIONS
+       ============================================================ */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(100%) scale(.95); }
+      to   { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateX(0) scale(1); }
+      to   { opacity: 0; transform: translateX(100%) scale(.95); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
 
-  /* ── DEMO BANNER ── */
-  #demo-banner {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 33px;
-    background: #f1f5f9;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-    font-size: 11px;
-    color: #94a3b8;
-    letter-spacing: 0.08em;
-    z-index: 1000;
-  }
-  #demo-banner a { color: #64748b; text-decoration: none; }
-  #demo-banner a:hover { text-decoration: underline; }
+    /* ============================================================
+       LAYOUT HELPERS
+       ============================================================ */
+    .container {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding-inline: 1rem;
+    }
 
-  /* ── HEADER ── */
-  header {
-    position: sticky;
-    top: 33px;
-    background: #ffffff;
-    border-bottom: 1px solid var(--border);
-    z-index: 900;
-  }
-  .header-inner {
-    max-width: 1140px;
-    margin: 0 auto;
-    padding: 0 24px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    gap: 40px;
-  }
-  .logo {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: -0.02em;
-    text-decoration: none;
-  }
-  nav {
-    display: flex;
-    align-items: center;
-    gap: 28px;
-    flex: 1;
-  }
-  nav a {
-    text-decoration: none;
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 500;
-    transition: color 0.15s;
-  }
-  nav a:hover { color: var(--text); }
-  .btn-signin {
-    margin-left: auto;
-    padding: 8px 20px;
-    border: 1.5px solid var(--accent);
-    border-radius: 7px;
-    color: var(--accent);
-    background: transparent;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    white-space: nowrap;
-  }
-  .btn-signin:hover { background: var(--accent); color: #fff; }
+    /* ============================================================
+       DEMO BANNER
+       ============================================================ */
+    .demo-banner {
+      background: var(--success);
+      color: #fff;
+      text-align: center;
+      padding: .5rem 1rem;
+      font-size: .8125rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      position: relative;
+      z-index: 100;
+    }
 
-  /* ── HERO ── */
-  .hero {
-    background: #ffffff;
-    padding: 80px 24px 72px;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-  }
-  .hero h1 {
-    font-size: clamp(36px, 5vw, 58px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: var(--text);
-    line-height: 1.1;
-  }
-  .hero p {
-    margin-top: 16px;
-    font-size: 18px;
-    color: var(--muted);
-  }
-  .search-bar {
-    margin-top: 40px;
-    display: inline-flex;
-    align-items: stretch;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    box-shadow: 0 4px 18px var(--shadow);
-    overflow: hidden;
-    max-width: 780px;
-    width: 100%;
-  }
-  .search-bar input[type="text"] {
-    flex: 1.5;
-    border: none;
-    outline: none;
-    padding: 16px 20px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--text);
-    background: transparent;
-    min-width: 0;
-  }
-  .search-bar input[type="text"]::placeholder { color: #94a3b8; }
-  .search-bar input[type="date"] {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 16px 16px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--text);
-    background: transparent;
-    min-width: 0;
-  }
-  .search-divider { width: 1px; background: var(--border); flex-shrink: 0; }
-  .btn-search {
-    padding: 16px 28px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s;
-    white-space: nowrap;
-    letter-spacing: 0.02em;
-  }
-  .btn-search:hover { background: var(--accent-dark); }
+    /* ============================================================
+       HEADER
+       ============================================================ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .navbar {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 64px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.03em;
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: var(--primary);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .logo em { color: var(--primary); font-style: normal; }
 
-  /* ── SECTION WRAPPER ── */
-  .section {
-    max-width: 1140px;
-    margin: 0 auto;
-    padding: 60px 24px;
-  }
-  .section-title {
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: 32px;
-  }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: .25rem;
+      flex: 1;
+    }
+    .nav-links a {
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: .375rem .75rem;
+      border-radius: var(--radius);
+      transition: var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); background: var(--bg); }
+    .nav-links a.active { color: var(--primary); background: var(--primary-light); }
 
-  /* ── CATEGORY FILTER TABS ── */
-  .filter-tabs {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 36px;
-  }
-  .tab-btn {
-    padding: 8px 20px;
-    border-radius: 99px;
-    border: 1.5px solid var(--border);
-    background: var(--card);
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .tab-btn.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-left: auto;
+    }
 
-  /* ── CAR GRID ── */
-  .car-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-  @media (max-width: 900px) { .car-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 580px) { .car-grid { grid-template-columns: 1fr; } }
+    .btn {
+      display: inline-flex; align-items: center; gap: .375rem;
+      font-family: var(--font); font-size: .875rem; font-weight: 600;
+      padding: .5rem 1.125rem;
+      border-radius: var(--radius);
+      border: 1.5px solid transparent;
+      cursor: pointer; transition: var(--transition);
+      white-space: nowrap; text-decoration: none;
+    }
+    .btn-ghost {
+      color: var(--text-muted);
+      border-color: var(--border);
+      background: transparent;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border-dark); background: var(--bg); }
+    .btn-primary {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+    }
+    .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,.35); }
+    .btn-outline {
+      background: transparent; color: var(--primary); border-color: var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary-light); }
+    .btn-lg { padding: .75rem 1.5rem; font-size: 1rem; }
+    .btn-sm { padding: .375rem .875rem; font-size: .8125rem; }
+    .btn-accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-accent:hover { background: #ea6c06; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,.3); }
 
-  .car-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: 0 2px 12px var(--shadow);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.18s, box-shadow 0.18s;
-  }
-  .car-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.09);
-  }
-  .car-card.hidden { display: none; }
+    /* Mobile menu toggle */
+    .mobile-toggle {
+      display: none;
+      width: 36px; height: 36px;
+      align-items: center; justify-content: center;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted); font-size: 1.25rem;
+    }
+    .mobile-toggle:hover { background: var(--bg); color: var(--text); }
 
-  .car-img {
-    width: 100%;
-    height: 158px;
-    background: #f1f5f9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 72px;
-  }
+    /* ============================================================
+       MAIN TABS
+       ============================================================ */
+    .tabs-bar {
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 64px;
+      z-index: 80;
+    }
+    .tabs-inner {
+      display: flex;
+      gap: 0;
+    }
+    .tab-btn {
+      flex: none;
+      padding: .875rem 1.25rem;
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-  .car-body {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 12px;
-  }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn .25s ease; }
 
-  .car-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
-  }
-  .car-name { font-size: 16px; font-weight: 700; color: var(--text); }
+    /* ============================================================
+       CATALOG TAB
+       ============================================================ */
+    .catalog-header {
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+    }
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .filter-chips {
+      display: flex;
+      gap: .375rem;
+      flex-wrap: wrap;
+    }
+    .chip {
+      padding: .375rem .875rem;
+      border-radius: var(--radius-full);
+      font-size: .8125rem; font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: var(--bg-white);
+      color: var(--text-muted);
+      cursor: pointer; transition: var(--transition);
+    }
+    .chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-  .cat-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 9px;
-    border-radius: 99px;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-  }
-  .cat-economy { background: #ecfdf5; color: #059669; }
-  .cat-suv     { background: #eff6ff; color: #2563eb; }
-  .cat-luxury  { background: #faf5ff; color: #7c3aed; }
-  .cat-electric{ background: #f0fdf4; color: #16a34a; }
-  .cat-van     { background: #fff7ed; color: #c2410c; }
+    .sort-select {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: .4rem .875rem .4rem .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-white);
+      color: var(--text);
+      font-size: .8125rem; font-weight: 500;
+      cursor: pointer;
+      outline: none;
+    }
+    .sort-select:focus { border-color: var(--primary); }
 
-  .car-features {
-    display: flex;
-    gap: 16px;
-    font-size: 13px;
-    color: var(--muted);
-    flex-wrap: wrap;
-  }
-  .feature { display: flex; align-items: center; gap: 5px; }
-  .feature svg { flex-shrink: 0; }
+    .catalog-body { padding-block: 2rem; }
+    .cars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
 
-  .car-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid #f1f5f9;
-  }
-  .car-price { font-size: 20px; font-weight: 800; color: var(--text); }
-  .car-price span { font-size: 13px; font-weight: 500; color: var(--muted); }
+    /* Car Card */
+    .car-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .car-card:hover {
+      border-color: transparent;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+    .car-card:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    .car-img {
+      width: 100%; aspect-ratio: 16/10;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .car-img .car-emoji { position: relative; z-index: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,.15)); }
+    .cat-pill {
+      position: absolute; top: .625rem; left: .625rem; z-index: 2;
+      background: rgba(255,255,255,.9);
+      backdrop-filter: blur(6px);
+      font-size: .7rem; font-weight: 700;
+      padding: .2rem .55rem;
+      border-radius: var(--radius-full);
+      color: var(--text);
+    }
+    .instant-pill {
+      position: absolute; top: .625rem; right: .625rem; z-index: 2;
+      background: var(--success); color: #fff;
+      font-size: .7rem; font-weight: 700;
+      padding: .2rem .55rem;
+      border-radius: var(--radius-full);
+    }
+    .car-body { padding: 1rem; }
+    .car-name {
+      font-size: 1rem; font-weight: 700; color: var(--text);
+      margin-bottom: .2rem; letter-spacing: -.015em;
+    }
+    .car-sub {
+      font-size: .8rem; color: var(--text-muted);
+      margin-bottom: .625rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .car-meta {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: .625rem;
+    }
+    .car-rating {
+      display: flex; align-items: center; gap: .25rem;
+      font-size: .8125rem; font-weight: 600; color: var(--text);
+    }
+    .star { color: var(--warning); font-size: .875rem; }
+    .review-count { color: var(--text-muted); font-weight: 400; }
+    .owner-row {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .8rem; color: var(--text-muted);
+    }
+    .avatar-sm {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .car-price-row {
+      border-top: 1px solid var(--border);
+      padding-top: .625rem;
+      display: flex; align-items: baseline; gap: .25rem;
+    }
+    .car-price {
+      font-size: 1.2rem; font-weight: 800; color: var(--text);
+      letter-spacing: -.025em; font-variant-numeric: tabular-nums;
+    }
+    .price-unit { font-size: .8rem; font-weight: 500; color: var(--text-muted); }
 
-  .btn-book {
-    padding: 9px 20px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 7px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-book:hover { background: var(--accent-dark); }
+    .no-results {
+      grid-column: 1/-1; text-align: center;
+      padding: 3rem 1rem; color: var(--text-muted);
+    }
+    .no-results .no-icon { font-size: 3rem; margin-bottom: .75rem; }
+    .no-results p { font-size: .95rem; }
 
-  /* ── CALENDAR ── */
-  .calendar-section {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: 0 2px 12px var(--shadow);
-    padding: 32px;
-    max-width: 480px;
-  }
-  .cal-month { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .cal-legend {
-    display: flex;
-    gap: 20px;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-  .legend-dot {
-    display: inline-block;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    margin-right: 5px;
-    vertical-align: middle;
-  }
-  .dot-avail  { background: #d1fae5; border: 1px solid #6ee7b7; }
-  .dot-booked { background: #f1f5f9; border: 1px solid #cbd5e1; }
-  .dot-select { background: var(--accent); }
+    /* ============================================================
+       CAR DETAIL TAB
+       ============================================================ */
+    .detail-panel { background: var(--bg); min-height: 60vh; }
+    .back-bar {
+      padding: 1.25rem 0 0;
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .875rem; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; transition: var(--transition);
+      background: none; border: none; padding: .375rem .75rem .375rem .5rem;
+      border-radius: var(--radius);
+    }
+    .back-btn:hover { color: var(--primary); background: var(--primary-light); }
+    .back-arrow { font-size: 1rem; line-height: 1; }
 
-  .cal-grid-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--muted);
-    letter-spacing: 0.05em;
-    margin-bottom: 8px;
-  }
-  .cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-  }
-  .cal-day {
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 7px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    user-select: none;
-  }
-  .cal-day.empty { cursor: default; }
-  .cal-day.avail { background: #ecfdf5; color: #065f46; }
-  .cal-day.avail:hover { background: #a7f3d0; }
-  .cal-day.booked {
-    background: #f1f5f9;
-    color: #94a3b8;
-    text-decoration: line-through;
-    cursor: not-allowed;
-  }
-  .cal-day.selected {
-    background: var(--accent) !important;
-    color: #fff !important;
-    text-decoration: none !important;
-    font-weight: 700;
-  }
+    .detail-hero {
+      width: 100%; height: 360px;
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8rem;
+      margin: 1rem 0 1.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .detail-hero-emoji { position: relative; z-index: 1; filter: drop-shadow(0 8px 24px rgba(0,0,0,.25)); }
 
-  /* ── WHY US ── */
-  .why-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-  @media (max-width: 720px) { .why-grid { grid-template-columns: 1fr; } }
-  .why-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: 0 2px 12px var(--shadow);
-    padding: 32px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .why-icon {
-    width: 48px; height: 48px;
-    background: #e0f2fe;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-  }
-  .why-title { font-size: 17px; font-weight: 700; }
-  .why-desc  { font-size: 14px; color: var(--muted); line-height: 1.65; }
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+      align-items: start;
+      padding-bottom: 4rem;
+    }
 
-  /* ── FOOTER ── */
-  footer {
-    background: #fff;
-    border-top: 1px solid var(--border);
-    padding: 28px 24px;
-    text-align: center;
-    font-size: 13px;
-    color: #94a3b8;
-  }
-  footer a { color: #94a3b8; text-decoration: none; }
-  footer a:hover { color: var(--muted); }
+    /* Detail info cards */
+    .dcard {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .dcard:last-child { margin-bottom: 0; }
+    .dcard-title {
+      font-size: 1rem; font-weight: 700; color: var(--text);
+      margin-bottom: 1rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .dcard-icon { color: var(--primary); font-size: 1.1rem; }
 
-  /* ── MODAL ── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15,23,42,0.38);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1100;
-    padding: 24px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-  }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-  .modal {
-    background: var(--card);
-    border-radius: 14px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.14);
-    width: 100%;
-    max-width: 500px;
-    overflow: hidden;
-    transform: translateY(16px);
-    transition: transform 0.22s;
-  }
-  .modal-overlay.open .modal { transform: translateY(0); }
+    .car-headline {
+      font-size: 1.75rem; font-weight: 800;
+      letter-spacing: -.03em; color: var(--text);
+      margin-bottom: .25rem;
+    }
+    .car-headline-sub {
+      font-size: .9rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+    }
+    .dot-sep { color: var(--border-dark); }
+    .rating-inline {
+      display: flex; align-items: center; gap: .3rem;
+      font-size: .9rem; font-weight: 600;
+    }
 
-  .modal-header {
-    padding: 24px 28px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .modal-title { font-size: 18px; font-weight: 700; }
-  .modal-close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 24px;
-    line-height: 1;
-    padding: 2px 6px;
-    border-radius: 5px;
-    transition: color 0.15s, background 0.15s;
-  }
-  .modal-close:hover { color: var(--text); background: var(--bg); }
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .875rem;
+    }
+    .spec-item {
+      display: flex; flex-direction: column; align-items: center;
+      gap: .3rem; text-align: center;
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: .75rem .5rem;
+    }
+    .spec-icon { font-size: 1.4rem; }
+    .spec-label { font-size: .7rem; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+    .spec-value { font-size: .875rem; font-weight: 700; color: var(--text); }
 
-  /* Steps */
-  .steps-bar {
-    display: flex;
-    padding: 20px 28px 0;
-    align-items: center;
-  }
-  .step-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #94a3b8;
-  }
-  .step-item.active { color: var(--accent); }
-  .step-item.done   { color: #059669; }
-  .step-num {
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    background: #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .step-item.active .step-num { background: var(--accent); color: #fff; }
-  .step-item.done .step-num   { background: #059669; color: #fff; }
-  .step-connector {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-    margin: 0 10px;
-  }
+    /* Owner block */
+    .owner-block {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .avatar-lg {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .owner-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: .1rem; }
+    .owner-info p { font-size: .8rem; color: var(--text-muted); }
 
-  .modal-body { padding: 24px 28px; }
+    /* Reviews */
+    .reviews-list { display: flex; flex-direction: column; gap: 1rem; }
+    .review-item {
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .review-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .review-header {
+      display: flex; align-items: center; gap: .75rem;
+      margin-bottom: .5rem;
+    }
+    .review-stars { color: var(--warning); font-size: .85rem; }
+    .review-author { font-size: .875rem; font-weight: 600; }
+    .review-date { font-size: .78rem; color: var(--text-muted); margin-left: auto; }
+    .review-text { font-size: .875rem; color: var(--text-muted); line-height: 1.6; }
 
-  .form-group { margin-bottom: 16px; }
-  .form-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .form-group input[type="text"],
-  .form-group input[type="email"],
-  .form-group input[type="tel"],
-  .form-group input[type="date"] {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 7px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-    background: var(--bg);
-  }
-  .form-group input:focus { border-color: var(--accent); background: #fff; }
+    /* Booking widget */
+    .booking-widget {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      position: sticky;
+      top: calc(64px + 49px + 1.5rem);
+      box-shadow: var(--shadow-md);
+    }
+    .bw-price-row {
+      margin-bottom: 1.25rem;
+    }
+    .bw-price {
+      font-size: 1.75rem; font-weight: 800; color: var(--text);
+      letter-spacing: -.04em; font-variant-numeric: tabular-nums;
+    }
+    .bw-price-unit { font-size: .9rem; font-weight: 500; color: var(--text-muted); }
+    .bw-rating { display: flex; align-items: center; gap: .25rem; font-size: .85rem; font-weight: 600; color: var(--text-muted); margin-top: .3rem; }
 
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .date-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: .75rem;
+      margin-bottom: 1rem;
+    }
+    .date-field { display: flex; flex-direction: column; gap: .25rem; }
+    .date-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); }
+    .date-input {
+      width: 100%; padding: .625rem .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      font-size: .875rem; font-weight: 500;
+      outline: none; transition: var(--transition);
+    }
+    .date-input:focus { border-color: var(--primary); background: var(--bg-white); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
 
-  .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
-  .radio-label {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 14px;
-    cursor: pointer;
-    color: var(--text);
-    padding: 9px 16px;
-    border: 1.5px solid var(--border);
-    border-radius: 7px;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .radio-label input[type="radio"] { accent-color: var(--accent); cursor: pointer; }
-  .radio-label:has(input:checked) { border-color: var(--accent); background: #e0f2fe; }
+    .price-breakdown {
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: .875rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .pb-row {
+      display: flex; justify-content: space-between;
+      font-size: .875rem; color: var(--text-muted);
+      margin-bottom: .375rem;
+    }
+    .pb-row:last-child { margin-bottom: 0; }
+    .pb-total {
+      border-top: 1px solid var(--border); padding-top: .5rem;
+      margin-top: .5rem;
+      font-weight: 700; color: var(--text); font-size: .95rem;
+      font-variant-numeric: tabular-nums;
+    }
 
-  .modal-footer {
-    padding: 0 28px 24px;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-  }
-  .btn-secondary {
-    padding: 10px 22px;
-    border: 1.5px solid var(--border);
-    border-radius: 7px;
-    background: transparent;
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-secondary:hover { border-color: var(--text); color: var(--text); }
-  .btn-primary {
-    padding: 10px 24px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 7px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-primary:hover { background: var(--accent-dark); }
+    .book-btn {
+      width: 100%;
+      padding: .875rem;
+      background: var(--primary); color: #fff;
+      border-radius: var(--radius-md);
+      font-size: 1rem; font-weight: 700;
+      border: none; cursor: pointer;
+      transition: var(--transition);
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .book-btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,.35); }
+    .book-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-  /* Confirmation */
-  .confirm-ref { text-align: center; padding: 12px 0 20px; }
-  .success-icon { font-size: 44px; margin-bottom: 10px; }
-  .ref-badge {
-    display: inline-block;
-    background: #e0f2fe;
-    color: var(--accent);
-    font-size: 20px;
-    font-weight: 800;
-    font-family: "SFMono-Regular", Consolas, monospace;
-    padding: 10px 24px;
-    border-radius: 10px;
-    letter-spacing: 0.06em;
-    margin-bottom: 16px;
-  }
-  .confirm-msg {
-    font-size: 14px;
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
-  .confirm-summary {
-    background: #f8fafc;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 18px;
-    font-size: 13px;
-    text-align: left;
-  }
-  .s-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
-    gap: 12px;
-  }
-  .s-row:last-child { border-bottom: none; }
-  .s-label { font-weight: 600; color: var(--text); flex-shrink: 0; }
-  .s-val { color: var(--muted); text-align: right; }
-</style>
+    .bw-note { text-align: center; font-size: .78rem; color: var(--text-muted); margin-top: .75rem; }
+
+    /* ============================================================
+       HOW IT WORKS TAB
+       ============================================================ */
+    .how-section { padding: 3rem 0 4rem; }
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section-eyebrow {
+      display: inline-block;
+      font-size: .75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: .25rem .75rem;
+      border-radius: var(--radius-full);
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-size: clamp(1.5rem, 4vw, 2.25rem);
+      font-weight: 800; color: var(--text);
+      letter-spacing: -.04em; margin-bottom: .75rem;
+      text-wrap: balance;
+    }
+    .section-sub { font-size: 1.0625rem; color: var(--text-muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+    .how-steps {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 2rem; position: relative;
+    }
+    .how-steps::before {
+      content: '';
+      position: absolute; top: 36px; left: calc(16.6% + 36px); right: calc(16.6% + 36px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      z-index: 0;
+    }
+    .how-step { text-align: center; position: relative; z-index: 1; }
+    .how-num {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin: 0 auto 1.25rem;
+      box-shadow: 0 4px 20px rgba(37,99,235,.35);
+    }
+    .how-step h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; color: var(--text); }
+    .how-step p { font-size: .9rem; color: var(--text-muted); line-height: 1.65; max-width: 240px; margin: 0 auto; }
+
+    .why-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-top: 3rem;
+    }
+    .why-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 1.5rem;
+      transition: var(--transition);
+    }
+    .why-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .why-icon {
+      font-size: 2rem; margin-bottom: 1rem;
+      width: 56px; height: 56px;
+      background: var(--primary-light);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .why-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; color: var(--text); }
+    .why-card p { font-size: .875rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ============================================================
+       BOOKING MODAL
+       ============================================================ */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(15,23,42,.55);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      animation: fadeIn .2s ease;
+    }
+    .modal-backdrop[hidden] { display: none; }
+    .modal-box {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      max-width: 480px; width: 100%;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp .25s ease;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .modal-title { font-size: 1.2rem; font-weight: 800; color: var(--text); letter-spacing: -.025em; }
+    .modal-close {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; color: var(--text-muted); font-size: 1.1rem;
+      cursor: pointer; transition: var(--transition);
+    }
+    .modal-close:hover { background: var(--bg); color: var(--text); }
+
+    .modal-summary {
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .ms-car-name { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 1rem; }
+    .ms-row {
+      display: flex; justify-content: space-between;
+      font-size: .875rem; margin-bottom: .5rem;
+    }
+    .ms-label { color: var(--text-muted); }
+    .ms-value { font-weight: 600; color: var(--text); }
+    .ms-total {
+      border-top: 1px solid var(--border); padding-top: .75rem; margin-top: .75rem;
+      font-size: 1rem; font-weight: 800; color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+    .modal-actions { display: flex; gap: .75rem; }
+    .modal-actions .btn { flex: 1; justify-content: center; padding-block: .75rem; }
+
+    /* ============================================================
+       TOAST
+       ============================================================ */
+    .toast-container {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      z-index: 300; display: flex; flex-direction: column; gap: .625rem;
+      pointer-events: none;
+    }
+    .toast {
+      display: flex; align-items: flex-start; gap: .75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: .875rem 1rem;
+      max-width: 340px;
+      box-shadow: var(--shadow-lg);
+      pointer-events: all;
+      animation: toastIn .3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .toast.removing { animation: toastOut .25s ease both; }
+    .toast-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .toast-success .toast-icon { background: var(--success-light); color: var(--success); }
+    .toast-info    .toast-icon { background: var(--primary-light); color: var(--primary); }
+    .toast-body { min-width: 0; }
+    .toast-title { font-size: .875rem; font-weight: 700; color: var(--text); margin-bottom: .1rem; }
+    .toast-message { font-size: .8125rem; color: var(--text-muted); }
+    .toast-close {
+      margin-left: auto; flex-shrink: 0;
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: .85rem; cursor: pointer;
+    }
+    .toast-close:hover { background: var(--bg); color: var(--text); }
+
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+    @media (max-width: 1024px) {
+      .detail-layout { grid-template-columns: 1fr 340px; }
+      .specs-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 860px) {
+      .cars-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-steps { grid-template-columns: 1fr; }
+      .how-steps::before { display: none; }
+      .why-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .detail-layout { grid-template-columns: 1fr; }
+      .booking-widget { position: static; }
+      .nav-links { display: none; }
+      .nav-links.open { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; position: absolute; top: 64px; left: 0; right: 0; background: var(--bg-white); border-bottom: 1px solid var(--border); padding: .75rem 1rem; z-index: 80; box-shadow: var(--shadow-md); }
+      .nav-links.open a { width: 100%; padding: .625rem .75rem; }
+      .mobile-toggle { display: flex; }
+      .nav-actions .btn-ghost, .nav-actions .btn-primary { display: none; }
+      .nav-actions .btn-primary { display: inline-flex; }
+    }
+    @media (max-width: 600px) {
+      .cars-grid { grid-template-columns: 1fr; }
+      .why-grid { grid-template-columns: 1fr; }
+      .specs-grid { grid-template-columns: repeat(2, 1fr); }
+      .detail-hero { height: 220px; font-size: 5rem; }
+    }
+    @media (max-width: 480px) {
+      .filter-row { flex-direction: column; align-items: flex-start; }
+      .date-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- DEMO BANNER -->
-<div id="demo-banner">
-  DEMO SITE &nbsp;·&nbsp; <a href="https://dimkaprojects.xyz" target="_blank" rel="noopener">dimkaprojects.xyz ↗</a>
+<!-- ============================================================
+     DEMO BANNER
+     ============================================================ -->
+<div class="demo-banner">
+  ⚡ Demo Site — RentoWorld · Все данные для демонстрации
 </div>
 
-<!-- HEADER -->
-<header>
-  <div class="header-inner">
-    <a class="logo" href="#">RentoWorld</a>
-    <nav>
-      <a href="#cars">How it works</a>
-      <a href="#cars">Cars</a>
-      <a href="#why">Pricing</a>
-      <a href="#why">Contact</a>
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="header" id="siteHeader">
+  <div class="container navbar">
+    <a href="#" class="logo" onclick="showTab('catalog'); return false;">
+      <div class="logo-icon">🚗</div>
+      Rento<em>World</em>
+    </a>
+
+    <nav class="nav-links" id="navMenu">
+      <a href="#" class="active" id="navCatalog" onclick="switchNav('catalog'); return false;">Каталог</a>
+      <a href="#" id="navHow" onclick="switchNav('how'); return false;">Как это работает</a>
+      <a href="#" id="navList" onclick="return false;">Сдать авто</a>
     </nav>
-    <button class="btn-signin">Sign In</button>
+
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="showToast('Войти', 'Функция входа в демо-версии недоступна.', 'info')">Войти</button>
+      <button class="btn btn-primary" onclick="showTab('catalog')">Арендовать</button>
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Меню" onclick="document.getElementById('navMenu').classList.toggle('open')">☰</button>
+    </div>
   </div>
 </header>
 
-<!-- HERO -->
-<section class="hero">
-  <h1>Rent a car, anywhere.</h1>
-  <p>Simple booking, fair prices, reliable cars.</p>
-  <div class="search-bar">
-    <input type="text" id="search-city" placeholder="City or destination">
-    <div class="search-divider"></div>
-    <input type="date" id="search-pickup" title="Pickup date">
-    <div class="search-divider"></div>
-    <input type="date" id="search-return" title="Return date">
-    <button class="btn-search" onclick="handleSearch()">Search Cars</button>
-  </div>
-</section>
-
-<!-- CARS SECTION -->
-<section id="cars">
-  <div class="section">
-    <div class="section-title">Browse Our Fleet</div>
-
-    <div class="filter-tabs">
-      <button class="tab-btn active" onclick="filterCars(this,'all')">All</button>
-      <button class="tab-btn" onclick="filterCars(this,'economy')">Economy</button>
-      <button class="tab-btn" onclick="filterCars(this,'suv')">SUV</button>
-      <button class="tab-btn" onclick="filterCars(this,'luxury')">Luxury</button>
-      <button class="tab-btn" onclick="filterCars(this,'electric')">Electric</button>
-      <button class="tab-btn" onclick="filterCars(this,'van')">Van</button>
-    </div>
-
-    <div class="car-grid" id="car-grid">
-
-      <!-- Economy: Toyota Corolla -->
-      <div class="car-card" data-cat="economy">
-        <div class="car-img">🚗</div>
-        <div class="car-body">
-          <div class="car-header">
-            <div class="car-name">Toyota Corolla</div>
-            <span class="cat-badge cat-economy">Economy</span>
-          </div>
-          <div class="car-features">
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>5 seats</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Auto</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 10 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>AC</span>
-          </div>
-          <div class="car-footer">
-            <div class="car-price">$35<span>/day</span></div>
-            <button class="btn-book" onclick="openModal('Toyota Corolla','Economy',35)">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Economy: Honda Civic -->
-      <div class="car-card" data-cat="economy">
-        <div class="car-img">🚘</div>
-        <div class="car-body">
-          <div class="car-header">
-            <div class="car-name">Honda Civic</div>
-            <span class="cat-badge cat-economy">Economy</span>
-          </div>
-          <div class="car-features">
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>5 seats</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Auto</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 10 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>AC</span>
-          </div>
-          <div class="car-footer">
-            <div class="car-price">$32<span>/day</span></div>
-            <button class="btn-book" onclick="openModal('Honda Civic','Economy',32)">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Economy: Hyundai Elantra -->
-      <div class="car-card" data-cat="economy">
-        <div class="car-img">🚙</div>
-        <div class="car-body">
-          <div class="car-header">
-            <div class="car-name">Hyundai Elantra</div>
-            <span class="cat-badge cat-economy">Economy</span>
-          </div>
-          <div class="car-features">
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>5 seats</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Manual</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 10 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>AC</span>
-          </div>
-          <div class="car-footer">
-            <div class="car-price">$30<span>/day</span></div>
-            <button class="btn-book" onclick="openModal('Hyundai Elantra','Economy',30)">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- SUV: Toyota RAV4 -->
-      <div class="car-card" data-cat="suv">
-        <div class="car-img">🛻</div>
-        <div class="car-body">
-          <div class="car-header">
-            <div class="car-name">Toyota RAV4</div>
-            <span class="cat-badge cat-suv">SUV</span>
-          </div>
-          <div class="car-features">
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>5 seats</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Auto</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 10 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>AC</span>
-          </div>
-          <div class="car-footer">
-            <div class="car-price">$65<span>/day</span></div>
-            <button class="btn-book" onclick="openModal('Toyota RAV4','SUV',65)">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- SUV: Ford Explorer -->
-      <div class="car-card" data-cat="suv">
-        <div class="car-img">🚐</div>
-        <div class="car-body">
-          <div class="car-header">
-            <div class="car-name">Ford Explorer</div>
-            <span class="cat-badge cat-suv">SUV</span>
-          </div>
-          <div class="car-features">
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>7 seats</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Auto</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 10 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>AC</span>
-          </div>
-          <div class="car-footer">
-            <div class="car-price">$72<span>/day</span></div>
-            <button class="btn-book" onclick="openModal('Ford Explorer','SUV',72)">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Luxury: BMW 5 Series -->
-      <div class="car-card" data-cat="luxury">
-        <div class="car-img">🏎️</div>
-        <div class="car-body">
-          <div class="car-header">
-            <div class="car-name">BMW 5 Series</div>
-            <span class="cat-badge cat-luxury">Luxury</span>
-          </div>
-          <div class="car-features">
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>5 seats</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Auto</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 10 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>AC</span>
-          </div>
-          <div class="car-footer">
-            <div class="car-price">$120<span>/day</span></div>
-            <button class="btn-book" onclick="openModal('BMW 5 Series','Luxury',120)">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Luxury: Mercedes E-Class -->
-      <div class="car-card" data-cat="luxury">
-        <div class="car-img">🚕</div>
-        <div class="car-body">
-          <div class="car-header">
-            <div class="car-name">Mercedes E-Class</div>
-            <span class="cat-badge cat-luxury">Luxury</span>
-          </div>
-          <div class="car-features">
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>5 seats</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Auto</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 10 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>AC</span>
-          </div>
-          <div class="car-footer">
-            <div class="car-price">$135<span>/day</span></div>
-            <button class="btn-book" onclick="openModal('Mercedes E-Class','Luxury',135)">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Electric: Tesla Model 3 -->
-      <div class="car-card" data-cat="electric">
-        <div class="car-img">⚡</div>
-        <div class="car-body">
-          <div class="car-header">
-            <div class="car-name">Tesla Model 3</div>
-            <span class="cat-badge cat-electric">Electric</span>
-          </div>
-          <div class="car-features">
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>5 seats</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Auto</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 10 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>AC</span>
-          </div>
-          <div class="car-footer">
-            <div class="car-price">$85<span>/day</span></div>
-            <button class="btn-book" onclick="openModal('Tesla Model 3','Electric',85)">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Van: Ford Transit -->
-      <div class="car-card" data-cat="van">
-        <div class="car-img">🚌</div>
-        <div class="car-body">
-          <div class="car-header">
-            <div class="car-name">Ford Transit</div>
-            <span class="cat-badge cat-van">Van</span>
-          </div>
-          <div class="car-features">
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>12 seats</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Manual</span>
-            <span class="feature"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 10 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>AC</span>
-          </div>
-          <div class="car-footer">
-            <div class="car-price">$90<span>/day</span></div>
-            <button class="btn-book" onclick="openModal('Ford Transit','Van',90)">Book Now</button>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /car-grid -->
-  </div>
-</section>
-
-<!-- AVAILABILITY CALENDAR -->
-<section style="background: var(--card); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
-  <div class="section">
-    <div class="section-title">Availability — June 2026</div>
-    <div class="calendar-section">
-      <div class="cal-month">June 2026</div>
-      <div class="cal-legend">
-        <span><span class="legend-dot dot-avail"></span>Available</span>
-        <span><span class="legend-dot dot-booked"></span>Booked</span>
-        <span><span class="legend-dot dot-select"></span>Selected</span>
-      </div>
-      <div class="cal-grid-header">
-        <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
-      </div>
-      <div class="cal-grid" id="cal-grid"></div>
-    </div>
-  </div>
-</section>
-
-<!-- WHY US -->
-<section id="why">
-  <div class="section">
-    <div class="section-title">Why choose RentoWorld?</div>
-    <div class="why-grid">
-      <div class="why-card">
-        <div class="why-icon">⚡</div>
-        <div class="why-title">Instant Booking</div>
-        <div class="why-desc">Reserve your car in under two minutes. No waiting, no back-and-forth — your booking is confirmed immediately with a reference number.</div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon">💰</div>
-        <div class="why-title">No Hidden Fees</div>
-        <div class="why-desc">The price you see is the price you pay. Fuel policy, insurance, and mileage terms are always shown upfront before you confirm.</div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon">🛎️</div>
-        <div class="why-title">24/7 Support</div>
-        <div class="why-desc">Our team is available around the clock by phone, chat, or email. Wherever you are, help is always one message away.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  &copy; 2026 RentoWorld. All rights reserved. &nbsp;&middot;&nbsp;
-  <a href="#">Privacy</a> &nbsp;&middot;&nbsp; <a href="#">Terms</a>
-</footer>
-
-<!-- BOOKING MODAL -->
-<div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title">Book a Car</div>
-      <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
-    </div>
-
-    <div class="steps-bar">
-      <div class="step-item active" id="si-1"><div class="step-num">1</div>Trip Details</div>
-      <div class="step-connector"></div>
-      <div class="step-item" id="si-2"><div class="step-num">2</div>Your Info</div>
-      <div class="step-connector"></div>
-      <div class="step-item" id="si-3"><div class="step-num">3</div>Confirm</div>
-    </div>
-
-    <!-- Step 1: Trip Details -->
-    <div class="modal-body" id="step-1">
-      <div class="form-group">
-        <label for="m-city">Pickup City</label>
-        <input type="text" id="m-city" placeholder="e.g. New York">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="m-pickup">Pickup Date</label>
-          <input type="date" id="m-pickup">
-        </div>
-        <div class="form-group">
-          <label for="m-return">Return Date</label>
-          <input type="date" id="m-return">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Pickup Location</label>
-        <div class="radio-group">
-          <label class="radio-label"><input type="radio" name="pickup-loc" value="Airport" checked> Airport</label>
-          <label class="radio-label"><input type="radio" name="pickup-loc" value="Downtown"> Downtown</label>
-          <label class="radio-label"><input type="radio" name="pickup-loc" value="Hotel"> Hotel</label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 2: Your Info -->
-    <div class="modal-body" id="step-2" style="display:none;">
-      <div class="form-group">
-        <label for="m-name">Full Name</label>
-        <input type="text" id="m-name" placeholder="Jane Smith">
-      </div>
-      <div class="form-group">
-        <label for="m-email">Email Address</label>
-        <input type="email" id="m-email" placeholder="jane@example.com">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="m-phone">Phone Number</label>
-          <input type="tel" id="m-phone" placeholder="+1 555 000 0000">
-        </div>
-        <div class="form-group">
-          <label for="m-license">Driver License No.</label>
-          <input type="text" id="m-license" placeholder="DL-123456">
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: Confirmation -->
-    <div class="modal-body" id="step-3" style="display:none;">
-      <div class="confirm-ref">
-        <div class="success-icon">✅</div>
-        <div class="ref-badge" id="ref-number">RW-2026-8842</div>
-        <div class="confirm-msg">Booking confirmed! Here's your summary:</div>
-        <div class="confirm-summary" id="booking-summary"></div>
-      </div>
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn-secondary" id="btn-back" onclick="modalBack()" style="display:none;">Back</button>
-      <button class="btn-primary" id="btn-next" onclick="modalNext()">Next Step</button>
-    </div>
-
+<!-- ============================================================
+     MAIN TABS BAR
+     ============================================================ -->
+<div class="tabs-bar">
+  <div class="container tabs-inner">
+    <button class="tab-btn active" id="tab-catalog" onclick="showTab('catalog')">🔍 Каталог</button>
+    <button class="tab-btn" id="tab-detail" onclick="showTab('detail')" style="display:none" id="tab-detail-btn">🚘 Автомобиль</button>
+    <button class="tab-btn" id="tab-how" onclick="showTab('how')">💡 Как это работает</button>
   </div>
 </div>
 
+<!-- ============================================================
+     CATALOG TAB
+     ============================================================ -->
+<div class="tab-panel active" id="panel-catalog">
+  <div class="catalog-header">
+    <div class="container">
+      <div class="filter-row">
+        <div class="filter-chips" id="filterChips">
+          <button class="chip active" data-cat="all" onclick="filterCars('all')">Все</button>
+          <button class="chip" data-cat="Седан" onclick="filterCars('Седан')">🚗 Седан</button>
+          <button class="chip" data-cat="Внедорожник" onclick="filterCars('Внедорожник')">🚙 Внедорожник</button>
+          <button class="chip" data-cat="Кроссовер" onclick="filterCars('Кроссовер')">🛻 Кроссовер</button>
+          <button class="chip" data-cat="Электро" onclick="filterCars('Электро')">⚡ Электро</button>
+        </div>
+        <select class="sort-select" id="sortSelect" onchange="sortCars(this.value)" aria-label="Сортировка">
+          <option value="rating">По рейтингу</option>
+          <option value="price_asc">По цене (↑)</option>
+          <option value="price_desc">По цене (↓)</option>
+          <option value="newest">Свежие</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="catalog-body">
+    <div class="container">
+      <div class="cars-grid" id="carsGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CAR DETAIL TAB
+     ============================================================ -->
+<div class="tab-panel" id="panel-detail">
+  <div class="detail-panel">
+    <div class="container">
+      <div class="back-bar">
+        <button class="back-btn" onclick="showTab('catalog')">
+          <span class="back-arrow">←</span> Назад к каталогу
+        </button>
+      </div>
+
+      <div class="detail-hero" id="detailHero">
+        <span class="detail-hero-emoji" id="detailEmoji">🚗</span>
+      </div>
+
+      <div class="detail-layout">
+        <!-- Left column: info -->
+        <div class="detail-left">
+          <!-- Title card -->
+          <div class="dcard" id="detailTitleCard">
+            <h1 class="car-headline" id="detailName">—</h1>
+            <div class="car-headline-sub">
+              <span id="detailYear">—</span>
+              <span class="dot-sep">·</span>
+              <span id="detailCat">—</span>
+              <span class="dot-sep">·</span>
+              <span id="detailLoc">—</span>
+              <span class="dot-sep">·</span>
+              <span class="rating-inline">
+                <span class="star">★</span>
+                <span id="detailRating">—</span>
+                <span class="review-count" id="detailRevCount"></span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Specs -->
+          <div class="dcard">
+            <div class="dcard-title"><span class="dcard-icon">⚙️</span> Характеристики</div>
+            <div class="specs-grid" id="detailSpecs">
+              <div class="spec-item"><div class="spec-icon">👥</div><div class="spec-label">Мест</div><div class="spec-value" id="specSeats">5</div></div>
+              <div class="spec-item"><div class="spec-icon">📅</div><div class="spec-label">Год</div><div class="spec-value" id="specYear">—</div></div>
+              <div class="spec-item"><div class="spec-icon">⚙️</div><div class="spec-label">КПП</div><div class="spec-value" id="specTrans">Автомат</div></div>
+              <div class="spec-item"><div class="spec-icon">⛽</div><div class="spec-label">Топливо</div><div class="spec-value" id="specFuel">Бензин</div></div>
+            </div>
+          </div>
+
+          <!-- Owner -->
+          <div class="dcard">
+            <div class="dcard-title"><span class="dcard-icon">👤</span> Владелец</div>
+            <div class="owner-block">
+              <div class="avatar-lg" id="detailOwnerAvatar" style="background:#2563eb">АИ</div>
+              <div class="owner-info">
+                <h4 id="detailOwnerName">—</h4>
+                <p id="detailOwnerSub">Верифицированный хозяин · На сервисе с 2021</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews -->
+          <div class="dcard">
+            <div class="dcard-title"><span class="dcard-icon">⭐</span> Отзывы</div>
+            <div class="reviews-list" id="detailReviews"></div>
+          </div>
+        </div>
+
+        <!-- Right column: booking widget -->
+        <div class="detail-right">
+          <div class="booking-widget">
+            <div class="bw-price-row">
+              <div>
+                <span class="bw-price" id="bwPrice">—</span>
+                <span class="bw-price-unit"> ₽/день</span>
+              </div>
+              <div class="bw-rating">
+                <span class="star" style="color:var(--warning)">★</span>
+                <span id="bwRating">—</span>
+                <span id="bwRevCount" style="color:var(--text-muted);font-weight:400"></span>
+              </div>
+            </div>
+
+            <div class="date-grid">
+              <div class="date-field">
+                <label class="date-label" for="dateStart">Дата начала</label>
+                <input type="date" id="dateStart" class="date-input" oninput="calcPrice()">
+              </div>
+              <div class="date-field">
+                <label class="date-label" for="dateEnd">Дата конца</label>
+                <input type="date" id="dateEnd" class="date-input" oninput="calcPrice()">
+              </div>
+            </div>
+
+            <div class="price-breakdown" id="priceBreakdown" hidden>
+              <div class="pb-row"><span class="pb-label" id="pbDaysLabel">—</span><span class="pb-value" id="pbSubtotal">—</span></div>
+              <div class="pb-row"><span class="pb-label">Сервисный сбор</span><span class="pb-value" id="pbFee">—</span></div>
+              <div class="pb-row pb-total"><span>Итого</span><span id="pbTotal">—</span></div>
+            </div>
+
+            <button class="book-btn" id="bookBtn" onclick="openModal()" disabled>
+              🔒 Выберите даты
+            </button>
+            <div class="bw-note">Бронирование без предоплаты · Отмена бесплатно</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HOW IT WORKS TAB
+     ============================================================ -->
+<div class="tab-panel" id="panel-how">
+  <div class="how-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Простой процесс</span>
+        <h2 class="section-title">Как это работает</h2>
+        <p class="section-sub">Арендовать автомобиль у реального человека — быстро, безопасно и выгодно.</p>
+      </div>
+
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-num">🔍</div>
+          <h3>Найди авто</h3>
+          <p>Выбери автомобиль из каталога — фильтруй по категории, цене или рейтингу. Все объявления от реальных владельцев.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">📅</div>
+          <h3>Забронируй</h3>
+          <p>Укажи даты аренды, ознакомься с условиями и нажми «Забронировать». Никакой предоплаты — договор напрямую с хозяином.</p>
+        </div>
+        <div class="how-step">
+          <div class="how-num">🚗</div>
+          <h3>Поехали!</h3>
+          <p>Встреться с владельцем, получи ключи и отправляйся в путь. По завершении оставь отзыв.</p>
+        </div>
+      </div>
+
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon">💰</div>
+          <h4>Без посредников</h4>
+          <p>Владельцы зарабатывают больше, арендаторы платят меньше. Честные цены напрямую.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">🛡️</div>
+          <h4>Верифицированные профили</h4>
+          <p>Каждый владелец и арендатор проходит проверку. Рейтинги и отзывы после каждой сделки.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">🔒</div>
+          <h4>Безопасное бронирование</h4>
+          <p>Прозрачный процесс с подтверждением, депозитом и политикой отмены.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">🗺️</div>
+          <h4>По всей России</h4>
+          <p>Автомобили в Москве, Санкт-Петербурге, Казани и десятках других городов.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">⚡</div>
+          <h4>Мгновенное подтверждение</h4>
+          <p>Большинство объявлений с мгновенным одобрением — ждать ответа не нужно.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">📱</div>
+          <h4>Удобно с телефона</h4>
+          <p>Найти и забронировать авто можно прямо со смартфона за несколько минут.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     BOOKING MODAL
+     ============================================================ -->
+<div class="modal-backdrop" id="bookingModal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Подтверждение бронирования</div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Закрыть">✕</button>
+    </div>
+    <div class="modal-summary">
+      <div class="ms-car-name" id="modalCarName">—</div>
+      <div class="ms-row"><span class="ms-label">Дата начала</span><span class="ms-value" id="modalDateStart">—</span></div>
+      <div class="ms-row"><span class="ms-label">Дата конца</span><span class="ms-value" id="modalDateEnd">—</span></div>
+      <div class="ms-row"><span class="ms-label">Количество дней</span><span class="ms-value" id="modalDays">—</span></div>
+      <div class="ms-row"><span class="ms-label">Стоимость аренды</span><span class="ms-value" id="modalSubtotal">—</span></div>
+      <div class="ms-row"><span class="ms-label">Сервисный сбор (5%)</span><span class="ms-value" id="modalFee">—</span></div>
+      <div class="ms-row ms-total"><span>Итого</span><span id="modalTotal">—</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="confirmBooking()">✓ Подтвердить бронь</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
 <script>
-/* ── FILTER ── */
-function filterCars(btn, cat) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.car-card').forEach(card => {
-    card.classList.toggle('hidden', cat !== 'all' && card.dataset.cat !== cat);
+'use strict';
+
+/* ─── Car data ───────────────────────────────────────────────── */
+const CARS = [
+  {
+    id: 1,
+    name: 'Toyota Camry',
+    year: 2022,
+    cat: 'Седан',
+    price: 4500,
+    city: 'Москва',
+    rating: 4.9,
+    reviews: 47,
+    emoji: '🚗',
+    gradient: 'linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%)',
+    owner: 'Алексей И.',
+    ownerInitials: 'АИ',
+    ownerColor: '#2563eb',
+    seats: 5,
+    trans: 'Автомат',
+    fuel: 'Бензин',
+    instant: true,
+  },
+  {
+    id: 2,
+    name: 'BMW X5',
+    year: 2021,
+    cat: 'Внедорожник',
+    price: 8900,
+    city: 'Москва',
+    rating: 4.8,
+    reviews: 32,
+    emoji: '🚙',
+    gradient: 'linear-gradient(135deg,#ede9fe 0%,#ddd6fe 100%)',
+    owner: 'Михаил С.',
+    ownerInitials: 'МС',
+    ownerColor: '#7c3aed',
+    seats: 5,
+    trans: 'Автомат',
+    fuel: 'Бензин',
+    instant: false,
+  },
+  {
+    id: 3,
+    name: 'Hyundai Tucson',
+    year: 2023,
+    cat: 'Кроссовер',
+    price: 5200,
+    city: 'Санкт-Петербург',
+    rating: 4.7,
+    reviews: 28,
+    emoji: '🚘',
+    gradient: 'linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%)',
+    owner: 'Ольга В.',
+    ownerInitials: 'ОВ',
+    ownerColor: '#16a34a',
+    seats: 5,
+    trans: 'Автомат',
+    fuel: 'Бензин',
+    instant: true,
+  },
+  {
+    id: 4,
+    name: 'VW Tiguan',
+    year: 2022,
+    cat: 'Кроссовер',
+    price: 5800,
+    city: 'Москва',
+    rating: 4.8,
+    reviews: 41,
+    emoji: '🚗',
+    gradient: 'linear-gradient(135deg,#ffedd5 0%,#fed7aa 100%)',
+    owner: 'Дмитрий Н.',
+    ownerInitials: 'ДН',
+    ownerColor: '#ea580c',
+    seats: 5,
+    trans: 'Автомат',
+    fuel: 'Дизель',
+    instant: false,
+  },
+  {
+    id: 5,
+    name: 'Kia Rio',
+    year: 2021,
+    cat: 'Седан',
+    price: 2900,
+    city: 'Москва',
+    rating: 4.6,
+    reviews: 55,
+    emoji: '🚗',
+    gradient: 'linear-gradient(135deg,#e0f2fe 0%,#bae6fd 100%)',
+    owner: 'Елена К.',
+    ownerInitials: 'ЕК',
+    ownerColor: '#0284c7',
+    seats: 5,
+    trans: 'Механика',
+    fuel: 'Бензин',
+    instant: true,
+  },
+  {
+    id: 6,
+    name: 'Mercedes GLC',
+    year: 2023,
+    cat: 'Внедорожник',
+    price: 12000,
+    city: 'Москва',
+    rating: 5.0,
+    reviews: 19,
+    emoji: '🚙',
+    gradient: 'linear-gradient(135deg,#fef3c7 0%,#fde68a 100%)',
+    owner: 'Сергей Т.',
+    ownerInitials: 'СТ',
+    ownerColor: '#b45309',
+    seats: 5,
+    trans: 'Автомат',
+    fuel: 'Бензин',
+    instant: false,
+  },
+  {
+    id: 7,
+    name: 'Toyota RAV4',
+    year: 2022,
+    cat: 'Внедорожник',
+    price: 6700,
+    city: 'Казань',
+    rating: 4.9,
+    reviews: 38,
+    emoji: '🚙',
+    gradient: 'linear-gradient(135deg,#fee2e2 0%,#fecaca 100%)',
+    owner: 'Айдар М.',
+    ownerInitials: 'АМ',
+    ownerColor: '#dc2626',
+    seats: 5,
+    trans: 'Автомат',
+    fuel: 'Гибрид',
+    instant: true,
+  },
+  {
+    id: 8,
+    name: 'Skoda Octavia',
+    year: 2021,
+    cat: 'Седан',
+    price: 3800,
+    city: 'Санкт-Петербург',
+    rating: 4.5,
+    reviews: 62,
+    emoji: '🚗',
+    gradient: 'linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%)',
+    owner: 'Игорь Ф.',
+    ownerInitials: 'ИФ',
+    ownerColor: '#4338ca',
+    seats: 5,
+    trans: 'Механика',
+    fuel: 'Бензин',
+    instant: false,
+  },
+  {
+    id: 9,
+    name: 'Tesla Model 3',
+    year: 2023,
+    cat: 'Электро',
+    price: 9500,
+    city: 'Москва',
+    rating: 4.9,
+    reviews: 23,
+    emoji: '⚡',
+    gradient: 'linear-gradient(135deg,#d1fae5 0%,#a7f3d0 100%)',
+    owner: 'Виктор Л.',
+    ownerInitials: 'ВЛ',
+    ownerColor: '#059669',
+    seats: 5,
+    trans: 'Автомат',
+    fuel: 'Электро',
+    instant: true,
+  },
+];
+
+const REVIEWS_BY_CAR = {
+  1: [
+    { author: 'Иван П.', rating: 5, date: 'Сентябрь 2026', text: 'Отличный автомобиль, чистый, ухоженный. Алексей — очень отзывчивый хозяин, всё объяснил.' },
+    { author: 'Марина О.', rating: 5, date: 'Август 2026', text: 'Брала на неделю, всё прошло без нареканий. Рекомендую!' },
+    { author: 'Денис Р.', rating: 4, date: 'Июль 2026', text: 'Хороший автомобиль, нашлась небольшая царапина о которой не предупредили, но в целом всё ок.' },
+  ],
+  2: [
+    { author: 'Светлана К.', rating: 5, date: 'Август 2026', text: 'BMW X5 в идеальном состоянии. Михаил — порядочный человек, сделка прошла гладко.' },
+    { author: 'Андрей Г.', rating: 5, date: 'Август 2026', text: 'Машина класс! Очень мощная и комфортная. Однозначно возьму снова.' },
+    { author: 'Татьяна В.', rating: 4, date: 'Июль 2026', text: 'Всё понравилось, хотя цена немного высоковата. Но за качество платить стоит.' },
+  ],
+};
+// default reviews for all other cars
+const DEFAULT_REVIEWS = [
+  { author: 'Алексей В.', rating: 5, date: 'Сентябрь 2026', text: 'Отлично! Авто в хорошем состоянии, хозяин пунктуальный. Сделка прошла без проблем.' },
+  { author: 'Наталья С.', rating: 5, date: 'Август 2026', text: 'Всё чисто и вовремя. Буду рекомендовать знакомым.' },
+  { author: 'Роман Д.', rating: 4, date: 'Август 2026', text: 'Хорошая машина за адекватные деньги. Небольшие нюансы по салону, но некритично.' },
+];
+
+/* ─── State ─────────────────────────────────────────────────── */
+let currentFilter = 'all';
+let currentSort   = 'rating';
+let selectedCarId = null;
+
+/* ─── Tab switching ──────────────────────────────────────────── */
+function showTab(name) {
+  ['catalog','detail','how'].forEach(t => {
+    document.getElementById('panel-' + t).classList.toggle('active', t === name);
+    const btn = document.getElementById('tab-' + t);
+    if (btn) btn.classList.toggle('active', t === name);
   });
+  // show/hide detail tab button
+  const detailTabBtn = document.getElementById('tab-detail');
+  if (detailTabBtn) detailTabBtn.style.display = (name === 'detail' || selectedCarId !== null) ? '' : 'none';
+
+  // update nav active
+  const map = { catalog: 'navCatalog', how: 'navHow' };
+  ['navCatalog','navHow','navList'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  if (map[name]) {
+    const el = document.getElementById(map[name]);
+    if (el) el.classList.add('active');
+  }
+
+  // close mobile menu
+  document.getElementById('navMenu').classList.remove('open');
 }
 
-/* ── SEARCH ── */
-function handleSearch() {
-  const city = document.getElementById('search-city').value.trim();
-  if (!city) { document.getElementById('search-city').focus(); return; }
-  document.getElementById('cars').scrollIntoView({ behavior: 'smooth' });
+function switchNav(tab) {
+  showTab(tab);
 }
 
-/* ── MODAL ── */
-let step = 1;
-let bCar = {};
+/* ─── Render catalog ─────────────────────────────────────────── */
+function starsHtml(r) {
+  let html = '';
+  const full = Math.floor(r);
+  for (let i = 0; i < 5; i++) html += `<span class="star" style="color:${i < full ? 'var(--warning)' : 'var(--border-dark)'}">★</span>`;
+  return html;
+}
 
-function openModal(name, cat, price) {
-  bCar = { name, cat, price };
-  step = 1;
-  // Pre-fill from hero search
-  const hc = document.getElementById('search-city').value;
-  const hp = document.getElementById('search-pickup').value;
-  const hr = document.getElementById('search-return').value;
-  if (hc) document.getElementById('m-city').value = hc;
-  if (hp) document.getElementById('m-pickup').value = hp;
-  if (hr) document.getElementById('m-return').value = hr;
-  renderStep();
-  document.getElementById('modal-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+function renderGrid() {
+  const grid = document.getElementById('carsGrid');
+  let cars = currentFilter === 'all' ? [...CARS] : CARS.filter(c => c.cat === currentFilter);
+
+  if (currentSort === 'price_asc')   cars.sort((a, b) => a.price - b.price);
+  else if (currentSort === 'price_desc') cars.sort((a, b) => b.price - a.price);
+  else if (currentSort === 'newest') cars.sort((a, b) => b.year - a.year);
+  else /* rating */                  cars.sort((a, b) => b.rating - a.rating);
+
+  if (cars.length === 0) {
+    grid.innerHTML = `<div class="no-results">
+      <div class="no-icon">🚘</div>
+      <p>По выбранному фильтру автомобилей не найдено.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = cars.map(car => `
+    <div class="car-card" role="button" tabindex="0"
+         onclick="openDetail(${car.id})"
+         onkeydown="if(event.key==='Enter'||event.key===' ')openDetail(${car.id})">
+      <div class="car-img" style="background:${car.gradient}">
+        <span class="cat-pill">${car.cat}</span>
+        ${car.instant ? '<span class="instant-pill">⚡ Мгновенно</span>' : ''}
+        <span class="car-emoji">${car.emoji}</span>
+      </div>
+      <div class="car-body">
+        <div class="car-name">${car.name} ${car.year}</div>
+        <div class="car-sub">
+          <span>📍 ${car.city}</span>
+        </div>
+        <div class="car-meta">
+          <div class="car-rating">
+            ${starsHtml(car.rating)}
+            <span style="margin-left:.25rem">${car.rating.toFixed(1)}</span>
+            <span class="review-count">(${car.reviews})</span>
+          </div>
+          <div class="owner-row">
+            <div class="avatar-sm" style="background:${car.ownerColor}">${car.ownerInitials}</div>
+            <span>${car.owner}</span>
+          </div>
+        </div>
+        <div class="car-price-row">
+          <span class="car-price">${car.price.toLocaleString('ru-RU')}</span>
+          <span class="price-unit">₽/день</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterCars(cat) {
+  currentFilter = cat;
+  document.querySelectorAll('.chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.cat === cat);
+  });
+  renderGrid();
+}
+
+function sortCars(val) {
+  currentSort = val;
+  renderGrid();
+}
+
+/* ─── Car detail ─────────────────────────────────────────────── */
+function openDetail(id) {
+  const car = CARS.find(c => c.id === id);
+  if (!car) return;
+  selectedCarId = id;
+
+  // Hero
+  const hero = document.getElementById('detailHero');
+  hero.style.background = car.gradient;
+  document.getElementById('detailEmoji').textContent = car.emoji;
+
+  // Info
+  document.getElementById('detailName').textContent = car.name + ' ' + car.year;
+  document.getElementById('detailYear').textContent = car.year;
+  document.getElementById('detailCat').textContent = car.cat;
+  document.getElementById('detailLoc').textContent = '📍 ' + car.city;
+  document.getElementById('detailRating').textContent = car.rating.toFixed(1);
+  document.getElementById('detailRevCount').textContent = '(' + car.reviews + ' отз.)';
+
+  // Specs
+  document.getElementById('specSeats').textContent = car.seats;
+  document.getElementById('specYear').textContent = car.year;
+  document.getElementById('specTrans').textContent = car.trans;
+  document.getElementById('specFuel').textContent = car.fuel;
+
+  // Owner
+  document.getElementById('detailOwnerAvatar').textContent = car.ownerInitials;
+  document.getElementById('detailOwnerAvatar').style.background = car.ownerColor;
+  document.getElementById('detailOwnerName').textContent = car.owner;
+
+  // Booking widget
+  document.getElementById('bwPrice').textContent = car.price.toLocaleString('ru-RU');
+  document.getElementById('bwRating').textContent = car.rating.toFixed(1);
+  document.getElementById('bwRevCount').textContent = ' · ' + car.reviews + ' отз.';
+
+  // Reviews
+  const revs = REVIEWS_BY_CAR[id] || DEFAULT_REVIEWS;
+  document.getElementById('detailReviews').innerHTML = revs.map(r => `
+    <div class="review-item">
+      <div class="review-header">
+        <span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+        <span class="review-author">${r.author}</span>
+        <span class="review-date">${r.date}</span>
+      </div>
+      <div class="review-text">${r.text}</div>
+    </div>
+  `).join('');
+
+  // Reset dates
+  document.getElementById('dateStart').value = '';
+  document.getElementById('dateEnd').value = '';
+  document.getElementById('priceBreakdown').hidden = true;
+  const bookBtn = document.getElementById('bookBtn');
+  bookBtn.disabled = true;
+  bookBtn.textContent = '🔒 Выберите даты';
+
+  // Set default dates (tomorrow + 3 days)
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  const end = new Date(); end.setDate(end.getDate() + 4);
+  document.getElementById('dateStart').value = tomorrow.toISOString().split('T')[0];
+  document.getElementById('dateEnd').value = end.toISOString().split('T')[0];
+  calcPrice();
+
+  showTab('detail');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ─── Price calculation ──────────────────────────────────────── */
+function calcPrice() {
+  const car = CARS.find(c => c.id === selectedCarId);
+  if (!car) return;
+
+  const startVal = document.getElementById('dateStart').value;
+  const endVal   = document.getElementById('dateEnd').value;
+  const bookBtn  = document.getElementById('bookBtn');
+
+  if (!startVal || !endVal) {
+    document.getElementById('priceBreakdown').hidden = true;
+    bookBtn.disabled = true;
+    bookBtn.textContent = '🔒 Выберите даты';
+    return;
+  }
+
+  const start = new Date(startVal);
+  const end   = new Date(endVal);
+  const days  = Math.round((end - start) / 86400000);
+
+  if (days <= 0) {
+    document.getElementById('priceBreakdown').hidden = true;
+    bookBtn.disabled = true;
+    bookBtn.textContent = '⚠ Проверьте даты';
+    return;
+  }
+
+  const subtotal = car.price * days;
+  const fee = Math.round(subtotal * 0.05);
+  const total = subtotal + fee;
+
+  document.getElementById('pbDaysLabel').textContent = `${car.price.toLocaleString('ru-RU')} ₽ × ${days} ${pluralDays(days)}`;
+  document.getElementById('pbSubtotal').textContent = subtotal.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('pbFee').textContent = fee.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('pbTotal').textContent = total.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('priceBreakdown').hidden = false;
+
+  bookBtn.disabled = false;
+  bookBtn.textContent = `Забронировать · ${total.toLocaleString('ru-RU')} ₽`;
+  bookBtn.innerHTML = `✓ Забронировать &nbsp;·&nbsp; ${total.toLocaleString('ru-RU')} ₽`;
+}
+
+function pluralDays(n) {
+  if (n % 10 === 1 && n % 100 !== 11) return 'день';
+  if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'дня';
+  return 'дней';
+}
+
+/* ─── Modal ──────────────────────────────────────────────────── */
+function openModal() {
+  const car = CARS.find(c => c.id === selectedCarId);
+  if (!car) return;
+
+  const startVal = document.getElementById('dateStart').value;
+  const endVal   = document.getElementById('dateEnd').value;
+  const start = new Date(startVal);
+  const end   = new Date(endVal);
+  const days  = Math.round((end - start) / 86400000);
+  const subtotal = car.price * days;
+  const fee = Math.round(subtotal * 0.05);
+  const total = subtotal + fee;
+
+  const fmtDate = d => new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  document.getElementById('modalCarName').textContent = car.name + ' ' + car.year;
+  document.getElementById('modalDateStart').textContent = fmtDate(startVal);
+  document.getElementById('modalDateEnd').textContent = fmtDate(endVal);
+  document.getElementById('modalDays').textContent = days + ' ' + pluralDays(days);
+  document.getElementById('modalSubtotal').textContent = subtotal.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('modalFee').textContent = fee.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('modalTotal').textContent = total.toLocaleString('ru-RU') + ' ₽';
+
+  document.getElementById('bookingModal').hidden = false;
 }
 
 function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-  document.body.style.overflow = '';
+  document.getElementById('bookingModal').hidden = true;
 }
 
-function overlayClick(e) {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
+function confirmBooking() {
+  const car = CARS.find(c => c.id === selectedCarId);
+  closeModal();
+  showToast(
+    'Бронь подтверждена! 🎉',
+    `${car ? car.name + ' ' + car.year : 'Автомобиль'} успешно забронирован. Ожидайте контакта от хозяина.`,
+    'success'
+  );
+  // Reset booking widget
+  document.getElementById('dateStart').value = '';
+  document.getElementById('dateEnd').value = '';
+  document.getElementById('priceBreakdown').hidden = true;
+  const bookBtn = document.getElementById('bookBtn');
+  bookBtn.disabled = true;
+  bookBtn.textContent = '🔒 Выберите даты';
 }
 
-function renderStep() {
-  [1,2,3].forEach(n => {
-    document.getElementById('step-'+n).style.display = n === step ? 'block' : 'none';
-    const si = document.getElementById('si-'+n);
-    si.classList.remove('active','done');
-    if (n < step) si.classList.add('done');
-    if (n === step) si.classList.add('active');
-  });
-  const btnBack = document.getElementById('btn-back');
-  const btnNext = document.getElementById('btn-next');
-  btnBack.style.display = step === 2 ? 'block' : 'none';
-  btnNext.textContent = step === 1 ? 'Next Step' : step === 2 ? 'Confirm Booking' : 'Done';
-  document.getElementById('modal-title').textContent =
-    step === 1 ? 'Trip Details' : step === 2 ? 'Your Info' : 'Booking Confirmed';
+// Close modal on backdrop click
+document.getElementById('bookingModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+/* ─── Toast ──────────────────────────────────────────────────── */
+function showToast(title, msg, type = 'info') {
+  const icons = { success: '✓', info: 'ℹ', warning: '⚠', danger: '✕' };
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `
+    <div class="toast-icon">${icons[type] || icons.info}</div>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${msg}</div>
+    </div>
+    <button class="toast-close" onclick="removeToast(this.closest('.toast'))" aria-label="Закрыть">✕</button>
+  `;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => removeToast(el), 5000);
 }
 
-function modalNext() {
-  if (step === 1) {
-    const city   = document.getElementById('m-city').value.trim();
-    const pickup = document.getElementById('m-pickup').value;
-    const ret    = document.getElementById('m-return').value;
-    if (!city)   { document.getElementById('m-city').focus(); shake('m-city'); return; }
-    if (!pickup) { document.getElementById('m-pickup').focus(); return; }
-    if (!ret)    { document.getElementById('m-return').focus(); return; }
-    step = 2; renderStep();
-  } else if (step === 2) {
-    const name    = document.getElementById('m-name').value.trim();
-    const email   = document.getElementById('m-email').value.trim();
-    const phone   = document.getElementById('m-phone').value.trim();
-    const license = document.getElementById('m-license').value.trim();
-    if (!name)    { document.getElementById('m-name').focus(); return; }
-    if (!email)   { document.getElementById('m-email').focus(); return; }
-    if (!phone)   { document.getElementById('m-phone').focus(); return; }
-    if (!license) { document.getElementById('m-license').focus(); return; }
-    buildConfirm();
-    step = 3; renderStep();
-  } else {
-    closeModal();
-  }
+function removeToast(el) {
+  if (!el || !el.parentNode) return;
+  el.classList.add('removing');
+  setTimeout(() => el.remove(), 260);
 }
 
-function modalBack() { if (step > 1) { step--; renderStep(); } }
-
-function buildConfirm() {
-  const ref = 'RW-' + new Date().getFullYear() + '-' + (Math.floor(1000 + Math.random() * 8999));
-  document.getElementById('ref-number').textContent = ref;
-
-  const city   = document.getElementById('m-city').value;
-  const pickup = document.getElementById('m-pickup').value;
-  const ret    = document.getElementById('m-return').value;
-  const loc    = (document.querySelector('input[name="pickup-loc"]:checked') || {}).value || 'Airport';
-  const name   = document.getElementById('m-name').value;
-  const email  = document.getElementById('m-email').value;
-
-  const days = (pickup && ret)
-    ? Math.max(1, Math.round((new Date(ret) - new Date(pickup)) / 86400000))
-    : 1;
-  const total = days * bCar.price;
-
-  document.getElementById('booking-summary').innerHTML =
-    row('Vehicle', bCar.name + ' (' + bCar.cat + ')') +
-    row('Guest', name) +
-    row('Email', email) +
-    row('City', city) +
-    row('Pickup', fmtDate(pickup) + ' — ' + loc) +
-    row('Return', fmtDate(ret)) +
-    row('Duration', days + ' day' + (days !== 1 ? 's' : '')) +
-    '<div class="s-row"><span class="s-label">Total</span>' +
-    '<span class="s-val" style="font-weight:700;color:var(--accent);">$' + total + '</span></div>';
-}
-
-function row(label, val) {
-  return '<div class="s-row"><span class="s-label">'+label+'</span><span class="s-val">'+val+'</span></div>';
-}
-
-function fmtDate(str) {
-  if (!str) return '—';
-  return new Date(str + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function shake(id) {
-  const el = document.getElementById(id);
-  el.style.animation = 'none';
-  void el.offsetWidth;
-  el.style.borderColor = '#ef4444';
-  setTimeout(() => { el.style.borderColor = ''; }, 1200);
-}
-
-/* ── CALENDAR ── */
-(function () {
-  const grid = document.getElementById('cal-grid');
-  // June 1 2026 = Monday (getDay() = 1)
-  const firstDay = 1; // Sunday=0, Monday=1
-  for (let i = 0; i < firstDay; i++) {
-    const e = document.createElement('div');
-    e.className = 'cal-day empty';
-    grid.appendChild(e);
-  }
-  for (let d = 1; d <= 30; d++) {
-    const el = document.createElement('div');
-    const avail = d <= 10 || d >= 21;
-    el.className = 'cal-day ' + (avail ? 'avail' : 'booked');
-    el.textContent = d;
-    if (avail) {
-      el.addEventListener('click', function () {
-        grid.querySelectorAll('.cal-day.selected').forEach(x => {
-          const n = parseInt(x.textContent);
-          x.className = 'cal-day ' + (n <= 10 || n >= 21 ? 'avail' : 'booked');
-        });
-        el.classList.add('selected');
-      });
-    }
-    grid.appendChild(el);
-  }
-})();
-
-/* ── ESC to close ── */
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+/* ─── Init ───────────────────────────────────────────────────── */
+renderGrid();
+// Hide detail tab initially
+const detailTabEl = document.getElementById('tab-detail');
+if (detailTabEl) detailTabEl.style.display = 'none';
 </script>
 </body>
 </html>
