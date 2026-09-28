@@ -1,0 +1,1158 @@
+<title>Склад / Ресторан</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* ─── Design tokens — dark-first ─── */
+:root {
+  --black: #080808;
+  --bg: #0d0d0d;
+  --card: #141414;
+  --card-hover: #1a1a1a;
+  --border: rgba(255,255,255,0.07);
+  --muted: rgba(255,255,255,0.4);
+  --white: #f5f5f7;
+  --gold: #c8a84b;
+  --gold-dim: rgba(200,168,75,0.12);
+  --red: #ff453a;
+  --green: #30d158;
+  --amber: #ffd60a;
+  --blue: #0a84ff;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+  --sidebar-w: 240px;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f2f2f5;
+    --card: #ffffff;
+    --card-hover: #f8f8fa;
+    --border: rgba(0,0,0,0.08);
+    --muted: rgba(0,0,0,0.45);
+    --white: #1a1a1e;
+    --gold-dim: rgba(200,168,75,0.10);
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f2f2f5;
+  --card: #ffffff;
+  --card-hover: #f8f8fa;
+  --border: rgba(0,0,0,0.08);
+  --muted: rgba(0,0,0,0.45);
+  --white: #1a1a1e;
+  --gold-dim: rgba(200,168,75,0.10);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* ─── Demo banner ─── */
+#demo-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: #1a1200;
+  border-bottom: 1px solid rgba(200,168,75,0.25);
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+#demo-banner span { color: var(--muted); text-transform: none; letter-spacing: 0; }
+
+/* ─── App shell ─── */
+#app {
+  display: flex;
+  height: 100%;
+  padding-top: 30px; /* banner height */
+}
+
+/* ─── Sidebar ─── */
+#sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: var(--gold-dim);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.logo-text { display: flex; flex-direction: column; line-height: 1.2; }
+.logo-text strong { font-size: 15px; font-weight: 700; color: var(--white); }
+.logo-text small { font-size: 11px; color: var(--muted); }
+nav { padding: 12px 0; flex: 1; }
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: color 0.15s, background 0.15s;
+  user-select: none;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.sidebar-link:hover { color: var(--white); background: rgba(255,255,255,0.03); }
+.sidebar-link.active {
+  color: var(--gold);
+  background: var(--gold-dim);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+.sidebar-link svg { flex-shrink: 0; opacity: 0.8; }
+.sidebar-link.active svg { opacity: 1; }
+.sidebar-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ─── Main content ─── */
+#main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.screen { display: none; padding: 28px 32px 40px; min-height: 100%; }
+.screen.active { display: block; }
+
+/* ─── Page header ─── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.page-header h1 { font-size: 22px; font-weight: 700; color: var(--white); }
+.page-header .subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+/* ─── Buttons ─── */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--gold) 0%, #a8882e 100%);
+  color: #0d0c08;
+  font-weight: 600; font-size: 13px;
+  border: none; border-radius: 8px; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  color: var(--white);
+  font-weight: 500; font-size: 13px;
+  border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.05); }
+.btn-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  border: none; border-radius: 6px; cursor: pointer;
+  font-size: 13px; transition: background 0.15s, color 0.15s;
+  background: transparent; color: var(--muted);
+}
+.btn-icon:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+.btn-icon.del:hover { background: rgba(255,69,58,0.12); color: var(--red); }
+.btn-icon.inc:hover { background: rgba(48,209,88,0.12); color: var(--green); }
+.btn-icon.dec:hover { background: rgba(255,214,10,0.12); color: var(--amber); }
+
+/* ─── Cards ─── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.kpi-row { display: grid; gap: 14px; margin-bottom: 24px; }
+.kpi-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.kpi-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.kpi-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+}
+.kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 500; margin-bottom: 6px; }
+.kpi-value { font-size: 22px; font-weight: 700; color: var(--white); font-variant-numeric: tabular-nums; font-family: ui-monospace, 'Fira Code', monospace; line-height: 1; }
+.kpi-value.gold { color: var(--gold); }
+.kpi-value.red { color: var(--red); }
+.kpi-value.green { color: var(--green); }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* ─── Badges ─── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.badge-ok { background: rgba(48,209,88,0.12); color: var(--green); }
+.badge-warning { background: rgba(255,214,10,0.12); color: var(--amber); }
+.badge-low { background: rgba(255,69,58,0.12); color: var(--red); }
+.badge-pending { background: rgba(255,214,10,0.12); color: var(--amber); }
+.badge-ordered { background: rgba(10,132,255,0.12); color: var(--blue); }
+.badge-received { background: rgba(48,209,88,0.12); color: var(--green); }
+.badge-cancelled { background: rgba(255,69,58,0.10); color: var(--red); }
+
+/* ─── Data table ─── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th {
+  background: rgba(255,255,255,0.02);
+  color: var(--muted);
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--white);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr { transition: background 0.1s; }
+.data-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+/* ─── Filter chips ─── */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.chip {
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+  white-space: nowrap;
+}
+.chip:hover { background: rgba(255,255,255,0.07); color: var(--white); }
+.chip.active {
+  background: var(--gold-dim);
+  border-color: rgba(200,168,75,0.3);
+  color: var(--gold);
+}
+
+/* ─── Status filter cards ─── */
+.status-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+.status-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.status-card:hover { background: var(--card-hover); }
+.status-card.active { border-color: rgba(200,168,75,0.3); background: var(--gold-dim); }
+.status-card .sc-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.status-card .sc-count { font-size: 20px; font-weight: 700; font-family: ui-monospace, monospace; color: var(--white); }
+
+/* ─── Search input ─── */
+.search-row { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; }
+.input-wrap { position: relative; flex: 1; }
+.input-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px 8px 34px;
+  color: var(--white);
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  outline: none;
+}
+.input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,168,75,0.1); }
+.input::placeholder { color: var(--muted); }
+
+/* ─── Stock bar ─── */
+.stock-bar {
+  width: 80px; height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px; overflow: hidden;
+  display: inline-block; vertical-align: middle;
+}
+.stock-bar-fill { height: 100%; border-radius: 2px; }
+.stock-bar-fill.ok { background: var(--green); }
+.stock-bar-fill.warning { background: var(--amber); }
+.stock-bar-fill.low { background: var(--red); }
+
+/* ─── Form panel ─── */
+.form-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.form-panel h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+.label {
+  display: block;
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.field { margin-bottom: 14px; }
+.select {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--white);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+.select:focus { border-color: var(--gold); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ─── Two-col grid ─── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.card-header h3 { font-size: 13px; font-weight: 600; }
+
+/* ─── Shortage list ─── */
+.shortage-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.shortage-item:last-child { border-bottom: none; }
+.shortage-name { font-weight: 500; }
+.shortage-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+/* ─── Purchase list ─── */
+.purchase-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px; border-bottom: 1px solid var(--border);
+  font-size: 13px; gap: 10px;
+}
+.purchase-item:last-child { border-bottom: none; }
+.purch-supplier { font-weight: 500; }
+.purch-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+/* ─── Quick actions ─── */
+.quick-actions { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.qa-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  text-align: center;
+}
+.qa-card:hover { background: var(--card-hover); border-color: rgba(200,168,75,0.2); transform: translateY(-2px); }
+.qa-icon { width: 40px; height: 40px; background: var(--gold-dim); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: var(--gold); }
+.qa-label { font-size: 12px; font-weight: 600; color: var(--white); }
+
+/* ─── Venue selector ─── */
+.venue-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.venue-select {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: var(--white);
+  font-size: 13px; font-family: inherit;
+  cursor: pointer; outline: none;
+}
+.venue-select:focus { border-color: var(--gold); }
+
+/* ─── Analytics ─── */
+.chart-card { padding: 20px; }
+.chart-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: var(--white); }
+.bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 120px; }
+.bar-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+.bar-rect { width: 100%; border-radius: 4px 4px 0 0; background: var(--gold); opacity: 0.9; min-height: 4px; transition: opacity 0.15s; }
+.bar-rect:hover { opacity: 1; }
+.bar-label { font-size: 10px; color: var(--muted); }
+.bar-val { font-size: 10px; color: var(--gold); font-variant-numeric: tabular-nums; }
+.cat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
+.cat-name { width: 90px; color: var(--muted); flex-shrink: 0; }
+.cat-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
+.cat-bar-fill { height: 100%; border-radius: 3px; background: var(--gold); }
+.cat-val { width: 55px; text-align: right; color: var(--white); font-variant-numeric: tabular-nums; font-size: 11px; flex-shrink: 0; }
+
+/* ─── Num class ─── */
+.num { font-family: ui-monospace, 'Fira Code', 'SF Mono', monospace; font-variant-numeric: tabular-nums; }
+
+/* ─── Modal ─── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.65);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay[hidden] { display: none !important; }
+.modal-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  width: 100%; max-width: 440px;
+  overflow: hidden;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { font-size: 15px; font-weight: 600; }
+.modal-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 18px; line-height: 1;
+  padding: 2px 6px; border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.modal-close:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+.modal-body { padding: 20px; }
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+
+/* ─── Suppliers ─── */
+.star { color: var(--gold); font-size: 11px; }
+.star.off { color: var(--border); }
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 56px; }
+  .sidebar-logo { justify-content: center; padding: 14px; }
+  .logo-text { display: none; }
+  .sidebar-link span { display: none; }
+  .sidebar-link { justify-content: center; padding: 12px; }
+  .sidebar-link.active { box-shadow: inset 3px 0 0 var(--gold); }
+  .sidebar-footer { display: none; }
+  .kpi-row.cols-4 { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .quick-actions { grid-template-columns: repeat(2,1fr); }
+  .status-cards { grid-template-columns: repeat(2,1fr); }
+  .screen { padding: 20px 16px 32px; }
+}
+@media (max-width: 600px) {
+  .kpi-row.cols-3 { grid-template-columns: 1fr 1fr; }
+  .kpi-row.cols-4 { grid-template-columns: 1fr 1fr; }
+  .page-header { flex-direction: column; align-items: flex-start; }
+}
+</style>
+
+<!-- Demo banner -->
+<div id="demo-banner">
+  Demo Site
+  <span>— данные вымышлены, бекенд не подключён</span>
+</div>
+
+<div id="app">
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6z"/>
+          <line x1="6" y1="17" x2="18" y2="17"/>
+          <line x1="6" y1="21" x2="18" y2="21"/>
+        </svg>
+      </div>
+      <div class="logo-text"><strong>Склад</strong><small>Ресторан</small></div>
+    </div>
+    <nav>
+      <button class="sidebar-link active" onclick="showScreen('dashboard',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span>Дашборд</span>
+      </button>
+      <button class="sidebar-link" onclick="showScreen('inventory',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        <span>Склад</span>
+      </button>
+      <button class="sidebar-link" onclick="showScreen('purchases',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span>Закупки</span>
+      </button>
+      <button class="sidebar-link" onclick="showScreen('suppliers',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <span>Поставщики</span>
+      </button>
+      <button class="sidebar-link" onclick="showScreen('categories',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        <span>Категории</span>
+      </button>
+      <button class="sidebar-link" onclick="showScreen('analytics',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Аналитика</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">v2.4.1 · 2026</div>
+  </aside>
+
+  <!-- Main -->
+  <main id="main">
+
+    <!-- ══════════════ DASHBOARD ══════════════ -->
+    <section id="screen-dashboard" class="screen active">
+      <div class="page-header">
+        <div>
+          <h1>Дашборд</h1>
+          <div class="subtitle">Обзор всех точек продаж</div>
+        </div>
+        <div class="header-actions">
+          <select class="venue-select" id="venueSelect" onchange="updateDashboard()">
+            <option value="all">Все точки продаж</option>
+            <option value="center">Кофейня Центр</option>
+            <option value="north">Ресторан Север</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="kpi-row cols-4" id="dashKpis"></div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><h3>Нехватка товаров</h3><span class="badge badge-low" id="shortageCount">3</span></div>
+          <div id="shortageList"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Последние закупки</h3></div>
+          <div id="recentPurchases"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; font-weight: 600;">Быстрый доступ</div>
+        <div class="quick-actions">
+          <div class="qa-card" onclick="showScreen('inventory',document.querySelector('[onclick*=inventory]'))">
+            <div class="qa-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/></svg></div>
+            <div class="qa-label">Склад</div>
+          </div>
+          <div class="qa-card" onclick="showScreen('purchases',document.querySelector('[onclick*=purchases]'))">
+            <div class="qa-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+            <div class="qa-label">Закупки</div>
+          </div>
+          <div class="qa-card" onclick="showScreen('suppliers',document.querySelector('[onclick*=suppliers]'))">
+            <div class="qa-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+            <div class="qa-label">Поставщики</div>
+          </div>
+          <div class="qa-card" onclick="showScreen('analytics',document.querySelector('[onclick*=analytics]'))">
+            <div class="qa-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <div class="qa-label">Аналитика</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ INVENTORY ══════════════ -->
+    <section id="screen-inventory" class="screen">
+      <div class="page-header">
+        <div>
+          <h1>Склад</h1>
+          <div class="subtitle" id="invSubtitle">47 позиций · ₽284 500</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal('addItem')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Добавить
+          </button>
+        </div>
+      </div>
+
+      <div class="kpi-row cols-3">
+        <div class="kpi-card"><div class="kpi-label">Всего позиций</div><div class="kpi-value num">47</div></div>
+        <div class="kpi-card"><div class="kpi-label">Стоимость склада</div><div class="kpi-value gold num">₽284 500</div></div>
+        <div class="kpi-card"><div class="kpi-label">Нехватка товаров</div><div class="kpi-value red num">3</div></div>
+      </div>
+
+      <div class="search-row">
+        <div class="input-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="input" id="invSearch" placeholder="Поиск по наименованию…" oninput="renderInventory()">
+        </div>
+      </div>
+      <div class="chips" id="catChips"></div>
+
+      <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px; align-items:start;">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>Наименование</th>
+              <th>Остаток</th>
+              <th>Статус</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="invTableBody"></tbody>
+          </table>
+        </div>
+        <div class="form-panel">
+          <h3>Добавить позицию</h3>
+          <div class="field"><label class="label">Наименование</label><input class="input" placeholder="Напр. Говядина" style="padding-left:12px"></div>
+          <div class="field"><label class="label">Категория</label>
+            <select class="select"><option>🥩 Мясо</option><option>🥛 Молочные</option><option>🧄 Овощи</option><option>🌾 Крупы</option><option>🧴 Соусы</option><option>🍷 Напитки</option></select>
+          </div>
+          <div class="row2">
+            <div class="field"><label class="label">Количество</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
+            <div class="field"><label class="label">Единица</label>
+              <select class="select"><option>кг</option><option>л</option><option>шт</option><option>г</option></select>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field"><label class="label">Цена за ед.</label><input class="input" type="number" placeholder="₽0" style="padding-left:12px"></div>
+            <div class="field"><label class="label">Мин. остаток</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
+          </div>
+          <button class="btn-primary" style="width:100%;justify-content:center">Добавить позицию</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ PURCHASES ══════════════ -->
+    <section id="screen-purchases" class="screen">
+      <div class="page-header">
+        <div><h1>Закупки</h1><div class="subtitle">Управление заказами поставщикам</div></div>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal('addPurchase')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Создать закупку
+          </button>
+        </div>
+      </div>
+
+      <div class="status-cards" id="purchaseStatusCards"></div>
+
+      <div class="search-row">
+        <div class="input-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="input" id="purchSearch" placeholder="Поиск по поставщику…" oninput="renderPurchases()">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Поставщик</th>
+            <th>Дата</th>
+            <th>Позиций</th>
+            <th>Сумма</th>
+            <th>Статус</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="purchTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════ SUPPLIERS ══════════════ -->
+    <section id="screen-suppliers" class="screen">
+      <div class="page-header">
+        <div><h1>Поставщики</h1><div class="subtitle">8 активных партнёров</div></div>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal('addSupplier')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Добавить
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Поставщик</th>
+            <th>Контакт</th>
+            <th>Телефон</th>
+            <th>Email</th>
+            <th>Рейтинг</th>
+            <th>Закупок</th>
+          </tr></thead>
+          <tbody id="suppTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════ CATEGORIES ══════════════ -->
+    <section id="screen-categories" class="screen">
+      <div class="page-header">
+        <div><h1>Категории</h1><div class="subtitle">6 категорий товаров</div></div>
+        <div class="header-actions"><button class="btn-primary">+ Добавить</button></div>
+      </div>
+      <div class="kpi-row cols-3">
+        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
+          <div style="font-size:22px;margin-bottom:8px">🥩</div>
+          <div class="kpi-label">Мясо</div>
+          <div class="kpi-value num">6</div>
+          <div class="kpi-sub">позиций · ₽96 200</div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
+          <div style="font-size:22px;margin-bottom:8px">🥛</div>
+          <div class="kpi-label">Молочные</div>
+          <div class="kpi-value num">8</div>
+          <div class="kpi-sub">позиций · ₽54 800</div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
+          <div style="font-size:22px;margin-bottom:8px">🧄</div>
+          <div class="kpi-label">Овощи</div>
+          <div class="kpi-value num">9</div>
+          <div class="kpi-sub">позиций · ₽38 500</div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
+          <div style="font-size:22px;margin-bottom:8px">🌾</div>
+          <div class="kpi-label">Крупы</div>
+          <div class="kpi-value num">7</div>
+          <div class="kpi-sub">позиций · ₽28 900</div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
+          <div style="font-size:22px;margin-bottom:8px">🧴</div>
+          <div class="kpi-label">Соусы</div>
+          <div class="kpi-value num">5</div>
+          <div class="kpi-sub">позиций · ₽24 100</div>
+        </div>
+        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
+          <div style="font-size:22px;margin-bottom:8px">🍷</div>
+          <div class="kpi-label">Напитки</div>
+          <div class="kpi-value num">12</div>
+          <div class="kpi-sub">позиций · ₽42 000</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ ANALYTICS ══════════════ -->
+    <section id="screen-analytics" class="screen">
+      <div class="page-header">
+        <div><h1>Аналитика</h1><div class="subtitle">Закупки и расходы за 2026 год</div></div>
+      </div>
+      <div class="kpi-row cols-3">
+        <div class="kpi-card"><div class="kpi-label">Закупки за месяц</div><div class="kpi-value gold num">₽348 200</div><div class="kpi-sub">сентябрь 2026</div></div>
+        <div class="kpi-card"><div class="kpi-label">Средний чек</div><div class="kpi-value num">₽43 525</div><div class="kpi-sub">по 8 заказам</div></div>
+        <div class="kpi-card"><div class="kpi-label">Топ поставщик</div><div class="kpi-value" style="font-size:16px">ООО Мяском</div><div class="kpi-sub">₽127 400 · 3 заказа</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+        <div class="card chart-card">
+          <div class="chart-title">Расходы по месяцам, ₽</div>
+          <div id="barChart"></div>
+        </div>
+        <div class="card chart-card">
+          <div class="chart-title">Распределение по категориям</div>
+          <div id="catChart"></div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Поставщик</th><th>Кол-во заказов</th><th>Сумма</th><th>Доля</th></tr></thead>
+          <tbody>
+            <tr><td>ООО Мяском</td><td class="num">3</td><td class="num">₽127 400</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:37%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">37%</span></div></td></tr>
+            <tr><td>МолочныйДвор</td><td class="num">2</td><td class="num">₽84 300</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:24%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">24%</span></div></td></tr>
+            <tr><td>ФермаПоставки</td><td class="num">2</td><td class="num">₽67 500</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:19%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">19%</span></div></td></tr>
+            <tr><td>ОвощБаза</td><td class="num">1</td><td class="num">₽42 800</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:12%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">12%</span></div></td></tr>
+            <tr><td>РестоПоставки</td><td class="num">1</td><td class="num">₽26 200</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:8%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">8%</span></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Add Item Modal -->
+<div class="modal-overlay" id="modal-addItem" hidden>
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Добавить позицию на склад</h3>
+      <button class="modal-close" onclick="closeModal('addItem')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label class="label">Наименование</label><input class="input" placeholder="Напр. Говядина мраморная" style="padding-left:12px"></div>
+      <div class="field"><label class="label">Категория</label>
+        <select class="select"><option>🥩 Мясо</option><option>🥛 Молочные</option><option>🧄 Овощи</option><option>🌾 Крупы</option><option>🧴 Соусы</option><option>🍷 Напитки</option></select>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="label">Количество</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
+        <div class="field"><label class="label">Единица</label><select class="select"><option>кг</option><option>л</option><option>шт</option><option>г</option></select></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="label">Цена за единицу, ₽</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
+        <div class="field"><label class="label">Мин. остаток</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('addItem')">Отмена</button>
+      <button class="btn-primary" onclick="closeModal('addItem')">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Purchase Modal -->
+<div class="modal-overlay" id="modal-addPurchase" hidden>
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Создать закупку</h3>
+      <button class="modal-close" onclick="closeModal('addPurchase')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label class="label">Поставщик</label>
+        <select class="select"><option>ООО Мяском</option><option>ФермаПоставки</option><option>МолочныйДвор</option><option>ОвощБаза</option><option>АгроПлюс</option><option>РестоПоставки</option><option>МегаФуд</option><option>СвежеСнабж</option></select>
+      </div>
+      <div class="row2">
+        <div class="field"><label class="label">Дата поставки</label><input class="input" type="date" style="padding-left:12px"></div>
+        <div class="field"><label class="label">Сумма, ₽</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
+      </div>
+      <div class="field"><label class="label">Комментарий</label><input class="input" placeholder="Необязательно" style="padding-left:12px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('addPurchase')">Отмена</button>
+      <button class="btn-primary" onclick="closeModal('addPurchase')">Создать заказ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Supplier Modal -->
+<div class="modal-overlay" id="modal-addSupplier" hidden>
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Добавить поставщика</h3>
+      <button class="modal-close" onclick="closeModal('addSupplier')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label class="label">Название компании</label><input class="input" placeholder="ООО Название" style="padding-left:12px"></div>
+      <div class="field"><label class="label">Контактное лицо</label><input class="input" placeholder="Иванов Иван" style="padding-left:12px"></div>
+      <div class="row2">
+        <div class="field"><label class="label">Телефон</label><input class="input" placeholder="+7 (___) ___-__-__" style="padding-left:12px"></div>
+        <div class="field"><label class="label">Email</label><input class="input" type="email" placeholder="mail@example.com" style="padding-left:12px"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('addSupplier')">Отмена</button>
+      <button class="btn-primary" onclick="closeModal('addSupplier')">Добавить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Data ───
+const INVENTORY = [
+  {id:1, name:'Говядина',       cat:'Мясо',     qty:12, unit:'кг', min:20, price:850,  status:'low'},
+  {id:2, name:'Молоко 3.2%',    cat:'Молочные', qty:45, unit:'л',  min:20, price:85,   status:'ok'},
+  {id:3, name:'Картофель',      cat:'Овощи',    qty:8,  unit:'кг', min:15, price:38,   status:'low'},
+  {id:4, name:'Сливки 33%',     cat:'Молочные', qty:6,  unit:'л',  min:10, price:240,  status:'low'},
+  {id:5, name:'Куриное филе',   cat:'Мясо',     qty:25, unit:'кг', min:10, price:420,  status:'ok'},
+  {id:6, name:'Масло сливочное',cat:'Молочные', qty:4,  unit:'кг', min:5,  price:680,  status:'warning'},
+  {id:7, name:'Лук репчатый',   cat:'Овощи',    qty:22, unit:'кг', min:10, price:28,   status:'ok'},
+  {id:8, name:'Морковь',        cat:'Овощи',    qty:18, unit:'кг', min:10, price:32,   status:'ok'},
+  {id:9, name:'Рис длиннозёрный',cat:'Крупы',   qty:30, unit:'кг', min:15, price:95,   status:'ok'},
+  {id:10,name:'Гречка',         cat:'Крупы',    qty:7,  unit:'кг', min:10, price:88,   status:'warning'},
+  {id:11,name:'Томатная паста', cat:'Соусы',    qty:24, unit:'шт', min:10, price:65,   status:'ok'},
+  {id:12,name:'Майонез',        cat:'Соусы',    qty:12, unit:'шт', min:8,  price:120,  status:'ok'},
+  {id:13,name:'Вода минеральная',cat:'Напитки', qty:120,unit:'шт', min:50, price:35,   status:'ok'},
+  {id:14,name:'Сок апельсин',   cat:'Напитки',  qty:18, unit:'л',  min:10, price:180,  status:'ok'},
+  {id:15,name:'Свинина шейная', cat:'Мясо',     qty:14, unit:'кг', min:12, price:560,  status:'ok'},
+];
+
+const PURCHASES = [
+  {id:1, supplier:'ООО Мяском',     date:'28.09.2026', items:6,  amount:85400, status:'received'},
+  {id:2, supplier:'МолочныйДвор',   date:'27.09.2026', items:4,  amount:42100, status:'received'},
+  {id:3, supplier:'ФермаПоставки',  date:'26.09.2026', items:8,  amount:67500, status:'ordered'},
+  {id:4, supplier:'ОвощБаза',       date:'25.09.2026', items:5,  amount:42800, status:'ordered'},
+  {id:5, supplier:'РестоПоставки',  date:'24.09.2026', items:3,  amount:26200, status:'pending'},
+  {id:6, supplier:'ООО Мяском',     date:'20.09.2026', items:7,  amount:71600, status:'received'},
+  {id:7, supplier:'МолочныйДвор',   date:'18.09.2026', items:3,  amount:32800, status:'received'},
+  {id:8, supplier:'АгроПлюс',       date:'15.09.2026', items:4,  amount:15000, status:'cancelled'},
+];
+
+const SUPPLIERS = [
+  {name:'ООО Мяском',      contact:'Петров А.В.',  phone:'+7 (495) 123-45-67', email:'petrov@myaskom.ru',    rating:5, orders:18},
+  {name:'ФермаПоставки',   contact:'Сидорова Е.Н.',phone:'+7 (812) 234-56-78', email:'info@fermapostavki.ru', rating:4, orders:12},
+  {name:'МолочныйДвор',    contact:'Кузнецов П.С.',phone:'+7 (495) 345-67-89', email:'kuzn@moldvor.ru',       rating:5, orders:21},
+  {name:'ОвощБаза',        contact:'Иванова М.И.', phone:'+7 (495) 456-78-90', email:'ivanova@ovoshbaza.ru',  rating:3, orders:7},
+  {name:'АгроПлюс',        contact:'Фёдоров Д.О.', phone:'+7 (391) 567-89-01', email:'fedorov@agroplus.ru',   rating:4, orders:9},
+  {name:'РестоПоставки',   contact:'Смирнова Л.Г.',phone:'+7 (499) 678-90-12', email:'smirn@restopost.ru',    rating:4, orders:14},
+  {name:'МегаФуд',         contact:'Орлов В.В.',   phone:'+7 (495) 789-01-23', email:'orlov@megafood.ru',     rating:3, orders:5},
+  {name:'СвежеСнабж',      contact:'Попова К.А.',  phone:'+7 (495) 890-12-34', email:'popova@svezhesnabzh.ru',rating:5, orders:16},
+];
+
+const DASH_DATA = {
+  all:    {items:47, cost:'₽284 500', orders:3, suppliers:8},
+  center: {items:28, cost:'₽162 300', orders:2, suppliers:5},
+  north:  {items:19, cost:'₽122 200', orders:1, suppliers:4},
+};
+
+const STATUS_LABEL = {ok:'Норма', warning:'Мало', low:'Критично'};
+const PURCH_STATUS = {
+  pending:   {label:'Ожидание',  cls:'badge-pending'},
+  ordered:   {label:'Заказано',  cls:'badge-ordered'},
+  received:  {label:'Получено',  cls:'badge-received'},
+  cancelled: {label:'Отменено',  cls:'badge-cancelled'},
+};
+
+let activeInvCat = 'Все';
+let activePurchStatus = 'all';
+
+// ─── Navigation ───
+function showScreen(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ─── Modal ───
+function openModal(id) {
+  document.getElementById('modal-' + id).hidden = false;
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).hidden = true;
+}
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.hidden = true; });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(o => o.hidden = true);
+});
+
+// ─── Dashboard ───
+function updateDashboard() {
+  const v = document.getElementById('venueSelect').value;
+  const d = DASH_DATA[v];
+  document.getElementById('dashKpis').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Позиций на складе</div><div class="kpi-value num">${d.items}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Стоимость склада</div><div class="kpi-value gold num">${d.cost}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Активных заказов</div><div class="kpi-value num">${d.orders}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Поставщиков</div><div class="kpi-value num">${d.suppliers}</div></div>
+  `;
+
+  const shortages = INVENTORY.filter(i => i.status !== 'ok');
+  document.getElementById('shortageCount').textContent = shortages.length;
+  document.getElementById('shortageList').innerHTML = shortages.map(i => `
+    <div class="shortage-item">
+      <div>
+        <div class="shortage-name">${i.name}</div>
+        <div class="shortage-sub">${i.qty} ${i.unit} · мин. ${i.min} ${i.unit}</div>
+      </div>
+      <span class="badge badge-${i.status}">${STATUS_LABEL[i.status]}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('recentPurchases').innerHTML = PURCHASES.slice(0,5).map(p => {
+    const s = PURCH_STATUS[p.status];
+    return `<div class="purchase-item">
+      <div style="flex:1;min-width:0">
+        <div class="purch-supplier">${p.supplier}</div>
+        <div class="purch-meta">${p.date} · ${p.items} поз.</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="num" style="font-weight:600">₽${p.amount.toLocaleString('ru')}</div>
+        <span class="badge ${s.cls}" style="margin-top:3px">${s.label}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Inventory ───
+function renderInventory() {
+  const q = document.getElementById('invSearch').value.toLowerCase();
+  const filtered = INVENTORY.filter(i =>
+    (activeInvCat === 'Все' || i.cat === activeInvCat) &&
+    (!q || i.name.toLowerCase().includes(q))
+  );
+  document.getElementById('invTableBody').innerHTML = filtered.map(i => {
+    const pct = Math.min(100, Math.round(i.qty / i.min * 100));
+    return `<tr>
+      <td>
+        <div style="font-weight:500">${i.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${i.cat}</div>
+      </td>
+      <td>
+        <div class="num" style="font-weight:600">${i.qty} ${i.unit}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <div class="stock-bar"><div class="stock-bar-fill ${i.status}" style="width:${pct}%"></div></div>
+          <span style="font-size:10px;color:var(--muted)" class="num">мин ${i.min}</span>
+        </div>
+      </td>
+      <td><span class="badge badge-${i.status}">${STATUS_LABEL[i.status]}</span></td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn-icon inc" title="Приход">↓</button>
+          <button class="btn-icon dec" title="Списание">↑</button>
+          <button class="btn-icon del" title="Удалить">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function buildCatChips() {
+  const cats = ['Все', ...new Set(INVENTORY.map(i => i.cat))];
+  const emojis = {Мясо:'🥩', Молочные:'🥛', Овощи:'🧄', Крупы:'🌾', Соусы:'🧴', Напитки:'🍷'};
+  document.getElementById('catChips').innerHTML = cats.map(c => `
+    <button class="chip ${c === activeInvCat ? 'active' : ''}" onclick="setInvCat('${c}')">
+      ${c === 'Все' ? c : (emojis[c] || '') + ' ' + c}
+    </button>
+  `).join('');
+}
+
+function setInvCat(cat) {
+  activeInvCat = cat;
+  buildCatChips();
+  renderInventory();
+}
+
+// ─── Purchases ───
+function buildPurchaseStatusCards() {
+  const counts = {all:0, pending:0, ordered:0, received:0, cancelled:0};
+  PURCHASES.forEach(p => { counts[p.status]++; counts.all++; });
+  const labels = {all:'Все', pending:'Ожидание', ordered:'Заказано', received:'Получено', cancelled:'Отменено'};
+  document.getElementById('purchaseStatusCards').innerHTML = ['pending','ordered','received','cancelled'].map(s => `
+    <div class="status-card ${activePurchStatus === s ? 'active' : ''}" onclick="setPurchStatus('${s}')">
+      <div class="sc-label">${labels[s]}</div>
+      <div class="sc-count">${counts[s]}</div>
+    </div>
+  `).join('');
+}
+
+function setPurchStatus(s) {
+  activePurchStatus = s;
+  buildPurchaseStatusCards();
+  renderPurchases();
+}
+
+function renderPurchases() {
+  const q = document.getElementById('purchSearch').value.toLowerCase();
+  const filtered = PURCHASES.filter(p =>
+    (activePurchStatus === 'all' || p.status === activePurchStatus) &&
+    (!q || p.supplier.toLowerCase().includes(q))
+  );
+  document.getElementById('purchTableBody').innerHTML = filtered.map(p => {
+    const s = PURCH_STATUS[p.status];
+    return `<tr>
+      <td style="font-weight:500">${p.supplier}</td>
+      <td class="num">${p.date}</td>
+      <td class="num">${p.items}</td>
+      <td class="num" style="font-weight:600">₽${p.amount.toLocaleString('ru')}</td>
+      <td><span class="badge ${s.cls}">${s.label}</span></td>
+      <td><button class="btn-icon" style="font-size:16px;color:var(--gold)">→</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Suppliers ───
+function renderSuppliers() {
+  function stars(n) {
+    return [1,2,3,4,5].map(i => `<span class="${i<=n?'star':'star off'}">★</span>`).join('');
+  }
+  document.getElementById('suppTableBody').innerHTML = SUPPLIERS.map(s => `
+    <tr>
+      <td style="font-weight:600">${s.name}</td>
+      <td>${s.contact}</td>
+      <td class="num" style="white-space:nowrap">${s.phone}</td>
+      <td style="color:var(--muted);font-size:12px">${s.email}</td>
+      <td>${stars(s.rating)}</td>
+      <td class="num" style="font-weight:600">${s.orders}</td>
+    </tr>
+  `).join('');
+}
+
+// ─── Analytics ───
+function renderAnalytics() {
+  const months = ['Апр','Май','Июн','Июл','Авг','Сен'];
+  const vals =   [218000, 265000, 194000, 312000, 287000, 348200];
+  const max = Math.max(...vals);
+  const chartH = 110;
+
+  document.getElementById('barChart').innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:8px;height:${chartH}px;padding-bottom:0">
+      ${months.map((m,i) => {
+        const h = Math.round(vals[i]/max*(chartH-28));
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+          <div style="font-size:10px;color:var(--gold);font-family:ui-monospace,monospace">${(vals[i]/1000).toFixed(0)}k</div>
+          <div style="width:100%;height:${h}px;border-radius:4px 4px 0 0;background:var(--gold);opacity:${i===5?1:0.6};transition:opacity 0.15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=${i===5?1:0.6}"></div>
+          <div style="font-size:10px;color:var(--muted)">${m}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+
+  const cats = [
+    {name:'Мясо',    pct:34, val:'₽118 388'},
+    {name:'Молочные',pct:19, val:'₽66 158'},
+    {name:'Напитки', pct:16, val:'₽55 712'},
+    {name:'Овощи',   pct:14, val:'₽48 748'},
+    {name:'Крупы',   pct:10, val:'₽34 820'},
+    {name:'Соусы',   pct:7,  val:'₽24 374'},
+  ];
+  document.getElementById('catChart').innerHTML = cats.map(c => `
+    <div class="cat-row">
+      <span class="cat-name">${c.name}</span>
+      <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${c.pct}%"></div></div>
+      <span class="cat-val num">${c.val}</span>
+    </div>
+  `).join('');
+}
+
+// ─── Init ───
+updateDashboard();
+buildCatChips();
+renderInventory();
+buildPurchaseStatusCards();
+renderPurchases();
+renderSuppliers();
+renderAnalytics();
+</script>

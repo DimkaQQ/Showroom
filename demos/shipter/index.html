@@ -1,1095 +1,1075 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shipter — Logistics Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Shipter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Layout: fixed 240px sidebar + demo banner 36px pinned top */
+:root {
+  --bg: #0a0e14;
+  --surface: #111722;
+  --surface2: #161d2b;
+  --border: rgba(255,255,255,0.08);
+  --text: #e8edf5;
+  --text-muted: rgba(232,237,245,0.5);
+  --accent: #5b8af0;
+  --accent-glow: rgba(91,138,240,0.12);
+  --green: #3ecf8e;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --sidebar-w: 240px;
+  --banner-h: 36px;
+  --ff-display: 'Syne', system-ui, sans-serif;
+  --ff-body: 'DM Sans', system-ui, sans-serif;
+  --ff-mono: 'JetBrains Mono', monospace;
+  color-scheme: dark;
+}
 
-  :root {
-    --bg: #0f172a;
-    --card: #1e293b;
-    --border: rgba(255,255,255,0.08);
-    --accent: #f97316;
-    --text: #f1f5f9;
-    --muted: #94a3b8;
-    --shadow: rgba(0,0,0,0.25);
-    --sidebar-w: 220px;
-    --banner-h: 33px;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--ff-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  overflow-x: hidden;
+}
+button { cursor: pointer; font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+input, select, textarea { font-family: inherit; color: var(--text); }
 
-  html, body {
-    height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    overflow: hidden;
-  }
+/* ── Demo Banner ──────────────────────────────────────────────────────── */
+.demo-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--banner-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 200;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  font-family: var(--ff-mono);
+}
+.demo-bar b { color: var(--text); font-weight: 500; }
 
-  /* ── Demo Banner ── */
-  .demo-banner {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: var(--banner-h);
-    background: #0f172a;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    color: rgba(255,255,255,0.3);
-    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
-    letter-spacing: 0.08em;
-    z-index: 1000;
-  }
-  .demo-banner a {
-    color: rgba(255,255,255,0.45);
-    text-decoration: none;
-  }
-  .demo-banner a:hover { color: rgba(255,255,255,0.7); }
+/* ── Sidebar ──────────────────────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: var(--banner-h);
+  width: var(--sidebar-w);
+  height: calc(100vh - var(--banner-h));
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+  transition: transform 0.25s ease;
+}
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.logo-glyph { font-size: 21px; color: var(--accent); line-height: 1; }
+.logo-name {
+  font-family: var(--ff-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.sidebar-nav { padding: 10px 0; flex: 1; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: color 0.13s, background 0.13s;
+  user-select: none;
+}
+.nav-item:hover { color: var(--text); background: var(--accent-glow); }
+.nav-item.active { color: var(--text); border-left-color: var(--accent); background: var(--accent-glow); }
+.nav-icon { width: 18px; text-align: center; font-size: 14px; }
+.nav-divider { height: 1px; background: var(--border); margin: 6px 20px; }
+.sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border); flex-shrink: 0; }
+.user-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.user-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-display);
+  font-size: 11px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.user-name { font-size: 13px; font-weight: 500; }
+.trial-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.22);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--amber);
+  font-family: var(--ff-mono);
+  margin-bottom: 10px;
+}
+.logout-btn {
+  width: 100%;
+  padding: 7px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: border-color 0.13s, color 0.13s;
+}
+.logout-btn:hover { border-color: rgba(239,68,68,0.5); color: var(--red); }
 
-  /* ── Sidebar ── */
-  .sidebar {
-    position: fixed;
-    top: var(--banner-h);
-    left: 0;
-    bottom: 0;
-    width: var(--sidebar-w);
-    background: var(--card);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
-    overflow: hidden;
-  }
+/* ── Main ─────────────────────────────────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  padding-top: var(--banner-h);
+  min-height: 100vh;
+}
+.screen { display: none; padding: 32px 36px; max-width: 1080px; }
+.screen.active { display: block; }
 
-  .sidebar-logo {
-    padding: 20px 20px 16px;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    border-bottom: 1px solid var(--border);
-  }
-  .sidebar-logo span { color: var(--accent); }
+/* ── Page Header ──────────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-title {
+  font-family: var(--ff-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+.page-sub { color: var(--text-muted); font-size: 13px; margin-top: 3px; }
 
-  .sidebar-nav {
-    flex: 1;
-    padding: 12px 0;
-    overflow-y: auto;
-  }
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 15px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  transition: all 0.13s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #4a78e0; }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.btn-ghost:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+.btn-sm { padding: 5px 11px; font-size: 12px; border-radius: 5px; }
 
-  .nav-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    padding: 8px 20px 4px;
-    text-transform: uppercase;
-  }
+/* ── Badges ───────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--ff-mono);
+  white-space: nowrap;
+}
+.badge-blue { background: rgba(91,138,240,0.14); color: var(--accent); border: 1px solid rgba(91,138,240,0.22); }
+.badge-green { background: rgba(62,207,142,0.1); color: var(--green); border: 1px solid rgba(62,207,142,0.18); }
+.badge-amber { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.18); }
+.badge-muted { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
 
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 20px;
-    color: var(--muted);
-    cursor: pointer;
-    border-left: 2px solid transparent;
-    transition: color 0.15s, background 0.15s, border-color 0.15s;
-    user-select: none;
-    font-size: 13.5px;
-  }
-  .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
-  .nav-item.active {
-    color: var(--accent);
-    border-left-color: var(--accent);
-    background: rgba(249,115,22,0.08);
-  }
-  .nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
+/* ── Section title ────────────────────────────────────────────────────── */
+.section-label {
+  font-family: var(--ff-display);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
 
-  .sidebar-user {
-    padding: 16px 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .user-avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: var(--accent);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: #fff;
-    flex-shrink: 0;
-  }
-  .user-info { min-width: 0; }
-  .user-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-role { font-size: 11px; color: var(--muted); }
+/* ── Dashboard ────────────────────────────────────────────────────────── */
+.greeting { margin-bottom: 26px; }
+.greeting h1 {
+  font-family: var(--ff-display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.greeting p { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
 
-  /* ── Main ── */
-  .main {
-    margin-left: var(--sidebar-w);
-    margin-top: var(--banner-h);
-    height: calc(100vh - var(--banner-h));
-    overflow-y: auto;
-    padding: 28px 32px 48px;
-  }
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+.stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+.stat-value {
+  font-family: var(--ff-display);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.v-accent { color: var(--accent); }
+.v-green  { color: var(--green); }
+.v-amber  { color: var(--amber); }
 
-  /* ── Page Header ── */
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-  }
-  .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
-  .page-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+/* ── Project Cards (grid) ─────────────────────────────────────────────── */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.project-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.project-card:hover { border-color: rgba(91,138,240,0.32); transform: translateY(-1px); }
+.pc-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+.pc-name { font-family: var(--ff-display); font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; }
+.pc-desc { color: var(--text-muted); font-size: 12.5px; line-height: 1.5; margin-bottom: 13px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pc-stats { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 13px; }
+.pc-actions { display: flex; gap: 5px; flex-wrap: wrap; }
 
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 9px 18px;
-    border-radius: 7px;
-    font-size: 13px; font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: opacity 0.15s, transform 0.1s;
-    font-family: inherit;
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { opacity: 0.9; }
-  .btn-ghost { background: rgba(255,255,255,0.07); color: var(--text); border: 1px solid var(--border); }
-  .btn-ghost:hover { background: rgba(255,255,255,0.11); }
+/* ── Recent Generations ───────────────────────────────────────────────── */
+.gen-list { display: flex; flex-direction: column; gap: 7px; }
+.gen-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 11px 15px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.gen-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.gen-body { flex: 1; min-width: 0; }
+.gen-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gen-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.gen-time { font-size: 11px; color: var(--text-muted); font-family: var(--ff-mono); white-space: nowrap; }
 
-  /* ── KPI Cards ── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  .kpi-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px 22px;
-    box-shadow: 0 2px 8px var(--shadow);
-  }
-  .kpi-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-  .kpi-value {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  .kpi-value .unit { font-size: 16px; font-weight: 500; }
-  .kpi-sub { font-size: 11px; color: var(--muted); }
-  .kpi-up { color: #22c55e; }
-  .kpi-down { color: #ef4444; }
+/* ── Projects List ────────────────────────────────────────────────────── */
+.filter-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+.ftab {
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--ff-body);
+  margin-bottom: -1px;
+  transition: color 0.13s, border-color 0.13s;
+}
+.ftab:hover { color: var(--text); }
+.ftab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* ── Section Card ── */
-  .section-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 22px 24px;
-    box-shadow: 0 2px 8px var(--shadow);
-    margin-bottom: 24px;
-  }
-  .section-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .section-title small { font-size: 11px; font-weight: 400; color: var(--muted); }
+.proj-list { display: flex; flex-direction: column; gap: 9px; }
+.pl-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: border-color 0.13s;
+}
+.pl-card:hover { border-color: rgba(91,138,240,0.28); }
+.pl-info { flex: 1; min-width: 0; }
+.pl-name { font-family: var(--ff-display); font-size: 14.5px; font-weight: 600; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 4px; }
+.pl-desc { color: var(--text-muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 9px; }
+.pl-stats { display: flex; flex-wrap: wrap; gap: 5px; }
+.pl-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
-  /* ── Bar Chart ── */
-  .bar-chart {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 10px;
-    height: 180px;
-  }
-  .bar-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    height: 100%;
-    justify-content: flex-end;
-  }
-  .bar-val {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    transition: color 0.2s;
-    min-height: 16px;
-  }
-  .bar-col:hover .bar-val { color: var(--text); }
-  .bar-wrap {
-    width: 100%;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    flex: 1;
-  }
-  .bar {
-    width: 100%;
-    max-width: 48px;
-    background: var(--accent);
-    border-radius: 4px 4px 0 0;
-    height: 0;
-    transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    opacity: 0.85;
-  }
-  .bar:hover { opacity: 1; }
-  .bar-label {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 500;
-  }
+/* Create form */
+.create-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.create-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.create-toggle span { font-family: var(--ff-display); font-size: 14px; font-weight: 600; }
+.create-body { margin-top: 18px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fg { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.flabel { font-size: 11.5px; color: var(--text-muted); letter-spacing: 0.03em; }
+.finput {
+  padding: 8px 11px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.13s;
+  width: 100%;
+}
+.finput:focus { border-color: var(--accent); }
 
-  /* ── Table ── */
-  .table-wrap { overflow-x: auto; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  thead th {
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--muted);
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-  }
-  tbody tr {
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    cursor: pointer;
-    transition: background 0.12s;
-  }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.04); }
-  tbody td {
-    padding: 11px 14px;
-    font-size: 13px;
-    color: var(--text);
-    white-space: nowrap;
-  }
-  .order-id { font-family: "SF Mono","Fira Code",monospace; font-size: 12px; color: var(--muted); }
-  .customer { font-weight: 500; }
-  .td-muted { color: var(--muted); }
+/* ── AI Analysis ──────────────────────────────────────────────────────── */
+.analysis-layout { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }
+.a-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 14px; }
+.a-placeholder { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 48px 32px; text-align: center; color: var(--text-muted); }
+.a-placeholder .ph-icon { font-size: 34px; margin-bottom: 10px; }
+.a-result { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; display: none; }
+.a-result.open { display: block; }
+.typewriter { font-family: var(--ff-mono); font-size: 12px; line-height: 1.85; color: var(--text); white-space: pre-wrap; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.cur { display: inline-block; width: 6px; height: 12px; background: var(--accent); margin-left: 1px; vertical-align: middle; animation: blink .8s step-end infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.dots { display: flex; align-items: center; gap: 5px; margin-bottom: 14px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.4s ease-in-out infinite; }
+.dot:nth-child(2){ animation-delay:.18s }
+.dot:nth-child(3){ animation-delay:.36s }
+.dots-label { font-size: 12px; color: var(--accent); font-family: var(--ff-mono); margin-left: 4px; }
 
-  /* ── Status Badges ── */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
-  .badge-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .badge-delivered { background: rgba(34,197,94,0.12); color: #22c55e; }
-  .badge-delivered .badge-dot { background: #22c55e; }
-  .badge-transit { background: rgba(59,130,246,0.12); color: #60a5fa; }
-  .badge-transit .badge-dot { background: #60a5fa; }
-  .badge-pending { background: rgba(234,179,8,0.12); color: #facc15; }
-  .badge-pending .badge-dot { background: #facc15; }
-  .badge-failed { background: rgba(239,68,68,0.12); color: #f87171; }
-  .badge-failed .badge-dot { background: #f87171; }
+.plan-steps { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+.step {
+  display: flex;
+  gap: 13px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.step:last-child { border-bottom: none; }
+.step-n {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  border: 1px solid rgba(91,138,240,0.28);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-family: var(--ff-mono);
+  color: var(--accent); flex-shrink: 0; margin-top: 2px;
+}
+.step-h { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.step-p { font-size: 12px; color: var(--text-muted); }
 
-  /* ── Drawer ── */
-  .drawer-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 500;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s;
-  }
-  .drawer-overlay.open { opacity: 1; pointer-events: all; }
+/* ── Project Detail ───────────────────────────────────────────────────── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--ff-body);
+  margin-bottom: 18px;
+  transition: color 0.13s;
+}
+.back-link:hover { color: var(--text); }
+.detail-top { margin-bottom: 20px; }
+.detail-meta { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 7px; }
+.detail-title { font-family: var(--ff-display); font-size: 24px; font-weight: 700; letter-spacing: -0.03em; }
+.detail-desc { color: var(--text-muted); font-size: 13.5px; max-width: 580px; line-height: 1.6; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.d-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
 
-  .drawer {
-    position: fixed;
-    top: var(--banner-h);
-    right: 0;
-    bottom: 0;
-    width: 340px;
-    background: var(--card);
-    border-left: 1px solid var(--border);
-    z-index: 501;
-    transform: translateX(100%);
-    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-    display: flex;
-    flex-direction: column;
-    box-shadow: -4px 0 24px var(--shadow);
-    overflow: hidden;
-  }
-  .drawer.open { transform: translateX(0); }
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.task-item:last-child { border-bottom: none; }
+.task-cb {
+  width: 15px; height: 15px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: transparent;
+  flex-shrink: 0; margin-top: 2px;
+  cursor: pointer; appearance: none; -webkit-appearance: none;
+  transition: all 0.13s;
+}
+.task-cb:checked { background: var(--green); border-color: var(--green); }
+.task-txt { flex: 1; }
+.task-p { font-size: 10.5px; font-family: var(--ff-mono); padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
+.p-hi { background: rgba(239,68,68,0.13); color: var(--red); }
+.p-md { background: rgba(245,158,11,0.1); color: var(--amber); }
+.p-lo { background: var(--surface2); color: var(--text-muted); }
 
-  .drawer-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 22px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .drawer-title { font-size: 15px; font-weight: 700; }
-  .close-btn {
-    background: none; border: none; color: var(--muted);
-    font-size: 20px; cursor: pointer; line-height: 1;
-    padding: 2px 6px; border-radius: 4px;
-    transition: color 0.15s, background 0.15s;
-  }
-  .close-btn:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+.gen-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.gen-output {
+  margin-top: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: var(--ff-mono);
+  font-size: 11.5px;
+  line-height: 1.75;
+  display: none;
+}
 
-  .drawer-body { padding: 22px; overflow-y: auto; flex: 1; }
+/* ── Pricing ──────────────────────────────────────────────────────────── */
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 820px; }
+.pricing-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; position: relative; }
+.pricing-card.featured { border-color: rgba(91,138,240,0.38); background: linear-gradient(170deg, rgba(91,138,240,0.05) 0%, var(--surface) 60%); }
+.pop-tag {
+  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+  padding: 2px 12px; background: var(--accent); border-radius: 20px;
+  font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap;
+}
+.tier-name { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); font-family: var(--ff-mono); margin-bottom: 7px; }
+.tier-price { font-family: var(--ff-display); font-size: 38px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.tier-period { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; margin-top: 3px; }
+.tier-divider { height: 1px; background: var(--border); margin: 14px 0; }
+.tier-features { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; padding: 0; }
+.tier-features li { display: flex; align-items: flex-start; gap: 7px; font-size: 12.5px; color: var(--text-muted); }
+.tier-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+.tier-features li.off { color: rgba(232,237,245,0.22); }
+.tier-features li.off::before { content: '—'; color: rgba(232,237,245,0.14); }
+.tier-cta { width: 100%; }
 
-  .detail-group { margin-bottom: 18px; }
-  .detail-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 3px; }
-  .detail-value { font-size: 13.5px; color: var(--text); }
-  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-  .divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
-
-  /* ── Timeline ── */
-  .timeline { display: flex; flex-direction: column; }
-  .tl-step {
-    display: flex;
-    gap: 14px;
-    position: relative;
-  }
-  .tl-line {
-    position: absolute;
-    left: 10px;
-    top: 22px;
-    bottom: -4px;
-    width: 1px;
-    background: var(--border);
-  }
-  .tl-step.done .tl-line { background: #22c55e; }
-
-  .tl-icon {
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 700;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
-    margin-top: 1px;
-  }
-  .tl-step.done .tl-icon { border-color: #22c55e; background: rgba(34,197,94,0.15); color: #22c55e; }
-  .tl-step.current .tl-icon { border-color: var(--accent); background: rgba(249,115,22,0.12); color: var(--accent); }
-
-  .tl-content { padding-bottom: 18px; flex: 1; }
-  .tl-title { font-size: 13px; font-weight: 600; color: var(--text); }
-  .tl-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-  /* ── Modal ── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.55);
-    z-index: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-  }
-  .modal-overlay.open { opacity: 1; pointer-events: all; }
-
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    width: 480px;
-    max-width: calc(100vw - 40px);
-    box-shadow: 0 16px 48px rgba(0,0,0,0.45);
-    transform: translateY(12px) scale(0.98);
-    transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;
-    opacity: 0;
-  }
-  .modal-overlay.open .modal { transform: translateY(0) scale(1); opacity: 1; }
-
-  .modal-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .modal-title { font-size: 16px; font-weight: 700; }
-  .modal-body { padding: 22px 24px; }
-  .modal-footer {
-    padding: 16px 24px;
-    border-top: 1px solid var(--border);
-    display: flex; gap: 10px; justify-content: flex-end;
-  }
-
-  .form-row { margin-bottom: 14px; }
-  .form-row label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 5px; }
-  .form-row input,
-  .form-row select {
-    width: 100%;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    font-size: 13.5px;
-    padding: 8px 12px;
-    outline: none;
-    transition: border-color 0.15s;
-    font-family: inherit;
-  }
-  .form-row input:focus,
-  .form-row select:focus { border-color: rgba(249,115,22,0.6); }
-  .form-row select option { background: #1e293b; color: var(--text); }
-  .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  .success-msg {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 28px 20px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #22c55e;
-  }
-  .success-icon { font-size: 28px; }
-
-  /* ── Placeholder views ── */
-  .placeholder-view {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 320px;
-    color: var(--muted);
-    gap: 12px;
-    text-align: center;
-  }
-  .ph-icon { font-size: 48px; opacity: 0.4; }
-  .ph-text { font-size: 14px; font-weight: 500; }
-  .ph-sub { font-size: 12px; opacity: 0.6; }
-
-  /* ── Scrollbar ── */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+/* ── Mobile ───────────────────────────────────────────────────────────── */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 6px; right: 14px;
+  z-index: 300;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 4px 8px;
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 90;
+}
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  .hamburger { display: block; }
+  .sidebar { transform: translateX(-240px); width: 240px; }
+  .sidebar.open { transform: translateX(0); }
+  .overlay.open { display: block; }
+  .main { margin-left: 0; }
+  .screen { padding: 20px 16px; }
+  .stats-row, .projects-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .analysis-layout, .detail-grid { grid-template-columns: 1fr; }
+  .pl-card { flex-direction: column; align-items: flex-start; }
+  .pl-actions { width: 100%; }
+  .form-row { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
 </style>
 </head>
 <body>
 
-<!-- Demo Banner -->
-<div class="demo-banner">DEMO SITE &nbsp;·&nbsp; <a href="https://dimkaprojects.xyz">dimkaprojects.xyz ↗</a></div>
+<!-- Demo banner -->
+<div class="demo-bar"><b>Demo</b> — интерактивный прототип · данные не сохраняются</div>
+
+<!-- Mobile hamburger -->
+<button class="hamburger" onclick="toggleSidebar()" aria-label="Меню">☰</button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
 <!-- Sidebar -->
-<aside class="sidebar">
-  <div class="sidebar-logo">📦 <span>Shipter</span></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-glyph">◈</span>
+    <span class="logo-name">Shipter</span>
+  </div>
   <nav class="sidebar-nav">
-    <div class="nav-label">Main</div>
-    <div class="nav-item active" data-view="dashboard">
-      <span class="icon">⊞</span> Dashboard
+    <div class="nav-item active" data-screen="dashboard" onclick="nav('dashboard')">
+      <span class="nav-icon">📊</span> Дашборд
     </div>
-    <div class="nav-item" data-view="orders">
-      <span class="icon">🗒</span> Orders
+    <div class="nav-item" data-screen="projects" onclick="nav('projects')">
+      <span class="nav-icon">📁</span> Проекты
     </div>
-    <div class="nav-item" data-view="couriers">
-      <span class="icon">🚚</span> Couriers
+    <div class="nav-item" data-screen="analysis" onclick="nav('analysis')">
+      <span class="nav-icon">🤖</span> ИИ Анализ
     </div>
-    <div class="nav-label">Reports</div>
-    <div class="nav-item" data-view="analytics">
-      <span class="icon">📈</span> Analytics
+    <div class="nav-item" data-screen="pricing" onclick="nav('pricing')">
+      <span class="nav-icon">💳</span> Тарифы
     </div>
-    <div class="nav-label">System</div>
-    <div class="nav-item" data-view="settings">
-      <span class="icon">⚙</span> Settings
-    </div>
+    <div class="nav-divider"></div>
   </nav>
-  <div class="sidebar-user">
-    <div class="user-avatar">AM</div>
-    <div class="user-info">
-      <div class="user-name">Alex Manager</div>
-      <div class="user-role">Operations Lead</div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar">АЛ</div>
+      <div class="user-name">Алекс</div>
     </div>
+    <div class="trial-badge">⏱ Trial: 5 дн.</div>
+    <button class="logout-btn" onclick="nav('pricing')">Выйти</button>
   </div>
 </aside>
 
-<!-- Main Content -->
-<main class="main" id="main">
+<!-- Main -->
+<main class="main">
 
-  <!-- ── Dashboard View ── -->
-  <div id="view-dashboard">
+  <!-- ── Dashboard ──────────────────────────────────────────────────── -->
+  <section class="screen active" id="screen-dashboard">
+    <div class="greeting">
+      <h1>Привет, Алекс 👋</h1>
+      <p>Добро пожаловать в Shipter — управляйте дистрибуцией ваших продуктов</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Проекты</div><div class="stat-value v-accent">3</div></div>
+      <div class="stat-card"><div class="stat-label">Генераций сегодня</div><div class="stat-value v-green">7</div></div>
+      <div class="stat-card"><div class="stat-label">Дней до конца trial</div><div class="stat-value v-amber">5</div></div>
+    </div>
+    <div class="section-label">Ваши проекты</div>
+    <div class="projects-grid" id="dash-grid"></div>
+    <div class="section-label">Последние генерации</div>
+    <div class="gen-list" id="dash-gens"></div>
+  </section>
+
+  <!-- ── Projects ───────────────────────────────────────────────────── -->
+  <section class="screen" id="screen-projects">
     <div class="page-header">
       <div>
-        <div class="page-title">Dashboard</div>
-        <div class="page-subtitle">Saturday, June 28, 2026</div>
+        <div class="page-title">Проекты</div>
+        <div class="page-sub">Управляйте всеми вашими цифровыми продуктами</div>
       </div>
-      <button class="btn btn-primary" id="newOrderBtn">+ New Order</button>
+      <button class="btn btn-primary" onclick="toggleCreatePanel()">+ Новый проект</button>
     </div>
-
-    <!-- KPI Cards -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">Total Orders</div>
-        <div class="kpi-value" id="kpi-orders">0</div>
-        <div class="kpi-sub"><span class="kpi-up">↑ 12%</span> vs last week</div>
+    <div class="create-panel" id="createPanel" style="display:none">
+      <div class="create-toggle" onclick="toggleCreatePanel()">
+        <span>Создать проект</span>
+        <span style="font-size:18px;color:var(--text-muted)">×</span>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Delivery Rate</div>
-        <div class="kpi-value"><span id="kpi-rate">0</span><span class="unit">%</span></div>
-        <div class="kpi-sub"><span class="kpi-up">↑ 0.4%</span> vs last week</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Avg Delivery Time</div>
-        <div class="kpi-value"><span id="kpi-time">0</span><span class="unit">h</span></div>
-        <div class="kpi-sub"><span class="kpi-down">↑ 0.2h</span> slower</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Revenue</div>
-        <div class="kpi-value">$<span id="kpi-rev">0</span></div>
-        <div class="kpi-sub"><span class="kpi-up">↑ 8%</span> vs last week</div>
-      </div>
-    </div>
-
-    <!-- Bar Chart -->
-    <div class="section-card">
-      <div class="section-title">
-        Deliveries This Week
-        <small>Mon – Sun · June 2026</small>
-      </div>
-      <div class="bar-chart" id="barChart"></div>
-    </div>
-
-    <!-- Orders Table -->
-    <div class="section-card">
-      <div class="section-title">
-        Recent Orders
-        <small>Click a row for details</small>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Destination</th>
-              <th>Status</th>
-              <th>Courier</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-          <tbody id="ordersTable"></tbody>
-        </table>
+      <div class="create-body">
+        <div class="form-row">
+          <div class="fg">
+            <label class="flabel">Название</label>
+            <input class="finput" id="newName" type="text" placeholder="Например: My SaaS App">
+          </div>
+          <div class="fg">
+            <label class="flabel">Тип</label>
+            <select class="finput" id="newType">
+              <option>SaaS</option><option>App</option><option>Game</option>
+              <option>Landing</option><option>Bot</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="flabel">Описание</label>
+          <textarea class="finput" id="newDesc" rows="2" placeholder="Краткое описание продукта..."></textarea>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="createProject()">Создать</button>
       </div>
     </div>
-  </div>
+    <div class="filter-tabs">
+      <button class="ftab active" onclick="filterBy('all',this)">Все</button>
+      <button class="ftab" onclick="filterBy('SaaS',this)">SaaS</button>
+      <button class="ftab" onclick="filterBy('App',this)">App</button>
+      <button class="ftab" onclick="filterBy('Game',this)">Game</button>
+      <button class="ftab" onclick="filterBy('Landing',this)">Landing</button>
+    </div>
+    <div class="proj-list" id="proj-list"></div>
+  </section>
 
-  <!-- ── Orders View ── -->
-  <div id="view-orders" style="display:none">
+  <!-- ── AI Analysis ────────────────────────────────────────────────── -->
+  <section class="screen" id="screen-analysis">
     <div class="page-header">
       <div>
-        <div class="page-title">Orders</div>
-        <div class="page-subtitle">All shipment orders</div>
+        <div class="page-title">ИИ Анализ</div>
+        <div class="page-sub">Генерируйте план дистрибуции с помощью AI</div>
       </div>
-      <button class="btn btn-primary" onclick="openModal()">+ New Order</button>
     </div>
-    <div class="placeholder-view">
-      <div class="ph-icon">🗒</div>
-      <div class="ph-text">Full orders management</div>
-      <div class="ph-sub">Advanced filtering and bulk actions coming soon</div>
+    <div class="analysis-layout">
+      <div>
+        <div class="a-card">
+          <div class="section-label">Параметры анализа</div>
+          <div class="fg">
+            <label class="flabel">Проект</label>
+            <select class="finput" id="aProject">
+              <option value="0">TelegramBot Pro</option>
+              <option value="1">SaaS Landing Kit</option>
+              <option value="2">GameApp Store</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="flabel">Целевая аудитория</label>
+            <input class="finput" id="aAudience" type="text" value="Разработчики Telegram-ботов">
+          </div>
+          <div class="fg">
+            <label class="flabel">Рынок</label>
+            <select class="finput" id="aMarket">
+              <option>СНГ</option><option>Глобальный</option>
+              <option>Европа</option><option>Азия</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="flabel">Маркетинговый бюджет</label>
+            <select class="finput">
+              <option>$100–500/мес</option><option>$500–2000/мес</option>
+              <option>$2000+/мес</option><option>Нет бюджета</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:4px" id="aBtn" onclick="runAnalysis()">
+            🤖 Анализировать
+          </button>
+        </div>
+      </div>
+      <div>
+        <div class="a-placeholder" id="aPlaceholder">
+          <div class="ph-icon">🤖</div>
+          <div style="font-size:14px;font-weight:500;margin-bottom:5px">Готов к анализу</div>
+          <div style="font-size:12.5px">Настройте параметры и нажмите «Анализировать»</div>
+        </div>
+        <div class="a-result" id="aResult">
+          <div class="dots" id="aDots" style="display:none">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            <span class="dots-label">Анализирую...</span>
+          </div>
+          <div id="aResultTitle" class="section-label" style="margin-bottom:10px"></div>
+          <div class="typewriter" id="aTypewriter"></div>
+          <div id="aPlanSteps"></div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- ── Couriers View ── -->
-  <div id="view-couriers" style="display:none">
+  <!-- ── Project Detail ─────────────────────────────────────────────── -->
+  <section class="screen" id="screen-detail">
+    <button class="back-link" onclick="nav('projects')">← Назад к проектам</button>
+    <div id="detailContent"></div>
+  </section>
+
+  <!-- ── Pricing ────────────────────────────────────────────────────── -->
+  <section class="screen" id="screen-pricing">
     <div class="page-header">
       <div>
-        <div class="page-title">Couriers</div>
-        <div class="page-subtitle">Active delivery agents</div>
+        <div class="page-title">Тарифы</div>
+        <div class="page-sub">Выберите план, подходящий для вашего продукта</div>
       </div>
     </div>
-    <div class="placeholder-view">
-      <div class="ph-icon">🚚</div>
-      <div class="ph-text">Courier management</div>
-      <div class="ph-sub">Assign routes and track live courier locations</div>
-    </div>
-  </div>
-
-  <!-- ── Analytics View ── -->
-  <div id="view-analytics" style="display:none">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Analytics</div>
-        <div class="page-subtitle">Performance reports</div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="tier-name">Trial</div>
+        <div class="tier-price">$0</div>
+        <div class="tier-period">7 дней бесплатно</div>
+        <div class="tier-divider"></div>
+        <ul class="tier-features">
+          <li>1 проект</li>
+          <li>10 генераций</li>
+          <li>Базовый анализ</li>
+          <li class="off">Несколько проектов</li>
+          <li class="off">Приоритетная поддержка</li>
+          <li class="off">API доступ</li>
+        </ul>
+        <button class="btn btn-ghost tier-cta" disabled style="opacity:.45;cursor:default">Текущий план</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pop-tag">Популярный</div>
+        <div class="tier-name">Starter</div>
+        <div class="tier-price">$29</div>
+        <div class="tier-period">в месяц · отмена в любое время</div>
+        <div class="tier-divider"></div>
+        <ul class="tier-features">
+          <li>До 5 проектов</li>
+          <li>200 генераций в месяц</li>
+          <li>Полный ИИ-анализ</li>
+          <li>Шаблоны контента</li>
+          <li>Email поддержка</li>
+          <li class="off">API доступ</li>
+        </ul>
+        <button class="btn btn-primary tier-cta">Выбрать Starter</button>
+      </div>
+      <div class="pricing-card">
+        <div class="tier-name">Pro</div>
+        <div class="tier-price">$79</div>
+        <div class="tier-period">в месяц · отмена в любое время</div>
+        <div class="tier-divider"></div>
+        <ul class="tier-features">
+          <li>Неограниченно проектов</li>
+          <li>Неограниченно генераций</li>
+          <li>GPT-4 уровень анализа</li>
+          <li>Белый лейбл</li>
+          <li>Приоритетная поддержка 24/7</li>
+          <li>Полный API доступ</li>
+        </ul>
+        <button class="btn btn-ghost tier-cta" style="border-color:rgba(91,138,240,0.4);color:var(--accent)">Выбрать Pro</button>
       </div>
     </div>
-    <div class="placeholder-view">
-      <div class="ph-icon">📈</div>
-      <div class="ph-text">Analytics dashboard</div>
-      <div class="ph-sub">Charts, cohort reports, and export tools</div>
-    </div>
-  </div>
-
-  <!-- ── Settings View ── -->
-  <div id="view-settings" style="display:none">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Settings</div>
-        <div class="page-subtitle">System configuration</div>
-      </div>
-    </div>
-    <div class="placeholder-view">
-      <div class="ph-icon">⚙</div>
-      <div class="ph-text">Settings panel</div>
-      <div class="ph-sub">Preferences, integrations, and team management</div>
-    </div>
-  </div>
+    <p style="margin-top:18px;font-size:12px;color:var(--text-muted);max-width:480px">
+      Все тарифы включают SSL, защиту от спама и доступ к базовым шаблонам. Без скрытых платежей.
+    </p>
+  </section>
 
 </main>
 
-<!-- Drawer Overlay -->
-<div class="drawer-overlay" id="drawerOverlay"></div>
-
-<!-- Order Detail Drawer -->
-<div class="drawer" id="drawer">
-  <div class="drawer-header">
-    <span class="drawer-title" id="drawerTitle">Order Details</span>
-    <button class="close-btn" id="drawerClose" aria-label="Close">×</button>
-  </div>
-  <div class="drawer-body" id="drawerBody"></div>
-</div>
-
-<!-- New Order Modal -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modal">
-    <div class="modal-header">
-      <span class="modal-title">New Order</span>
-      <button class="close-btn" id="modalClose" aria-label="Close">×</button>
-    </div>
-    <div class="modal-body" id="modalBody">
-      <div class="form-2col">
-        <div class="form-row">
-          <label>Customer Name</label>
-          <input type="text" id="f-name" placeholder="Jane Smith">
-        </div>
-        <div class="form-row">
-          <label>Phone</label>
-          <input type="text" id="f-phone" placeholder="+1 555 000 0000">
-        </div>
-      </div>
-      <div class="form-row">
-        <label>From Address</label>
-        <input type="text" id="f-from" placeholder="123 Warehouse Blvd, Chicago, IL">
-      </div>
-      <div class="form-row">
-        <label>To Address</label>
-        <input type="text" id="f-to" placeholder="456 Main St, New York, NY">
-      </div>
-      <div class="form-2col">
-        <div class="form-row">
-          <label>Package Type</label>
-          <select id="f-pkg">
-            <option>Small</option>
-            <option>Medium</option>
-            <option>Large</option>
-            <option>Fragile</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <label>Courier</label>
-          <select id="f-courier">
-            <option>Marcus Hill</option>
-            <option>Sofia Reyes</option>
-            <option>Derek Tang</option>
-            <option>Priya Nair</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer" id="modalFooter">
-      <button class="btn btn-ghost" id="modalCancelBtn">Cancel</button>
-      <button class="btn btn-primary" id="modalSubmitBtn">Create Order</button>
-    </div>
-  </div>
-</div>
-
 <script>
-// ─────────────────────────────────────────────────────────────────────────────
-// DATA
-// ─────────────────────────────────────────────────────────────────────────────
-
-const ORDERS = [
-  { id: "SHP-8821", customer: "Emily Carter",  dest: "Portland, OR",  status: "delivered", courier: "Marcus Hill", time: "2h 18m" },
-  { id: "SHP-8820", customer: "James Liu",     dest: "Denver, CO",    status: "transit",   courier: "Sofia Reyes", time: "3h 45m" },
-  { id: "SHP-8819", customer: "Nora Patel",    dest: "Austin, TX",    status: "transit",   courier: "Derek Tang",  time: "1h 22m" },
-  { id: "SHP-8818", customer: "Tom Weston",    dest: "Miami, FL",     status: "pending",   courier: "Priya Nair",  time: "0h 50m" },
-  { id: "SHP-8817", customer: "Aisha Johnson", dest: "Seattle, WA",   status: "delivered", courier: "Marcus Hill", time: "4h 05m" },
-  { id: "SHP-8816", customer: "Rafael Gomez",  dest: "Phoenix, AZ",   status: "pending",   courier: "Sofia Reyes", time: "0h 30m" },
-  { id: "SHP-8815", customer: "Claire Dupont", dest: "Boston, MA",    status: "failed",    courier: "Derek Tang",  time: "6h 12m" },
-  { id: "SHP-8814", customer: "Samuel Brooks", dest: "Nashville, TN", status: "delivered", courier: "Priya Nair",  time: "3h 55m" },
-];
-
-const ORDER_DETAILS = {
-  "SHP-8821": { address: "88 Maple Ave, Portland, OR 97201",         pkg: "Medium",   note: "Leave at door" },
-  "SHP-8820": { address: "301 Cherry Creek Dr, Denver, CO 80206",    pkg: "Large",    note: "Fragile contents" },
-  "SHP-8819": { address: "512 Congress Ave, Austin, TX 78701",       pkg: "Small",    note: "None" },
-  "SHP-8818": { address: "900 Brickell Bay Dr, Miami, FL 33131",     pkg: "Small",    note: "Call on arrival" },
-  "SHP-8817": { address: "200 Pike St, Seattle, WA 98101",           pkg: "Medium",   note: "None" },
-  "SHP-8816": { address: "20 E Thomas Rd, Phoenix, AZ 85012",        pkg: "Large",    note: "Signature required" },
-  "SHP-8815": { address: "100 Cambridge St, Boston, MA 02114",       pkg: "Fragile",  note: "Handle with care" },
-  "SHP-8814": { address: "333 Commerce St, Nashville, TN 37201",     pkg: "Medium",   note: "None" },
-};
-
-const TRACKING_STEPS = {
-  delivered: [
-    { title: "Order Placed", time: "8:00 AM",  done: true,  current: false },
-    { title: "Picked Up",    time: "9:15 AM",  done: true,  current: false },
-    { title: "In Transit",   time: "10:30 AM", done: true,  current: false },
-    { title: "Delivered",    time: "12:18 PM", done: true,  current: false },
-  ],
-  transit: [
-    { title: "Order Placed", time: "9:00 AM",  done: true,  current: false },
-    { title: "Picked Up",    time: "10:10 AM", done: true,  current: false },
-    { title: "In Transit",   time: "11:20 AM", done: false, current: true  },
-    { title: "Delivered",    time: "Pending",  done: false, current: false },
-  ],
-  pending: [
-    { title: "Order Placed", time: "11:30 AM", done: true,  current: false },
-    { title: "Picked Up",    time: "Pending",  done: false, current: true  },
-    { title: "In Transit",   time: "—",        done: false, current: false },
-    { title: "Delivered",    time: "—",        done: false, current: false },
-  ],
-  failed: [
-    { title: "Order Placed", time: "6:00 AM",  done: true,  current: false },
-    { title: "Picked Up",    time: "7:30 AM",  done: true,  current: false },
-    { title: "In Transit",   time: "9:00 AM",  done: true,  current: false },
-    { title: "Delivered",    time: "Failed",   done: false, current: false },
-  ],
-};
-
-const CHART_DATA = [
-  { label: "Mon", val: 45 },
-  { label: "Tue", val: 62 },
-  { label: "Wed", val: 38 },
-  { label: "Thu", val: 71 },
-  { label: "Fri", val: 55 },
-  { label: "Sat", val: 83 },
-  { label: "Sun", val: 47 },
-];
-
-const STATUS_CONFIG = {
-  delivered: { cls: "badge-delivered", label: "Delivered" },
-  transit:   { cls: "badge-transit",   label: "In Transit" },
-  pending:   { cls: "badge-pending",   label: "Pending"    },
-  failed:    { cls: "badge-failed",    label: "Failed"     },
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// KPI ANIMATION
-// ─────────────────────────────────────────────────────────────────────────────
-
-function animateValue(setter, target, duration, format) {
-  const start = performance.now();
-  function step(now) {
-    const elapsed = now - start;
-    const p = Math.min(elapsed / duration, 1);
-    // ease out cubic
-    const eased = 1 - Math.pow(1 - p, 3);
-    setter(format(target * eased));
-    if (p < 1) requestAnimationFrame(step);
+// ── Data ───────────────────────────────────────────────────────────────────
+const projects = [
+  {
+    id:1, name:'TelegramBot Pro', type:'SaaS',
+    description:'Платформа для создания и монетизации Telegram-ботов с подпиской, встроенной аналитикой и инструментами для авторов.',
+    hasPlan:true, contentCount:12, activeTasks:3,
+    tasks:[
+      {text:'Написать серию onboarding-писем (5 шт.)', p:'hi', done:false},
+      {text:'Создать промо-видео для Product Hunt', p:'hi', done:false},
+      {text:'Настроить интеграцию с Stripe', p:'md', done:true},
+      {text:'Разместить на 3 SaaS-директориях', p:'md', done:false},
+      {text:'Написать статью на VC.ru', p:'lo', done:false},
+    ],
+    plan:[
+      {h:'Анализ целевой аудитории', p:'Составить ICP и провести 5 интервью с разработчиками Telegram-ботов'},
+      {h:'Контент-стратегия', p:'Подготовить 10 постов для тематических каналов, 3 статьи и 2 видео-демо'},
+      {h:'Product Hunt запуск', p:'Собрать поддержку, подготовить все материалы, опубликовать во вторник'},
+      {h:'Партнёрства с каналами', p:'Договориться с 3–5 Telegram-каналами про разработку о нативных публикациях'},
+    ]
+  },
+  {
+    id:2, name:'SaaS Landing Kit', type:'Landing',
+    description:'Набор готовых React-компонентов для создания лендингов SaaS-продуктов с высокой конверсией.',
+    hasPlan:false, contentCount:5, activeTasks:7,
+    tasks:[
+      {text:'Запустить open source версию на GitHub', p:'hi', done:false},
+      {text:'Создать демо-сайт с примерами компонентов', p:'hi', done:false},
+      {text:'Написать документацию', p:'md', done:false},
+      {text:'Разместить на GitHub Trending', p:'lo', done:false},
+    ],
+    plan:[]
+  },
+  {
+    id:3, name:'GameApp Store', type:'Game',
+    description:'Мобильная игра-симулятор магазина с механикой управления, прокачкой персонажа и монетизацией через IAP.',
+    hasPlan:true, contentCount:8, activeTasks:2,
+    tasks:[
+      {text:'Подать заявку на App Store Feature', p:'hi', done:false},
+      {text:'Записать геймплейный трейлер', p:'hi', done:false},
+      {text:'Добавить в 5 игровых каталогов', p:'md', done:true},
+      {text:'Договориться с 2 мобильными блогерами', p:'md', done:false},
+    ],
+    plan:[
+      {h:'ASO оптимизация', p:'Обновить скриншоты, иконку и описания для App Store и Google Play'},
+      {h:'Инфлюенсер-кампания', p:'Найти 5–10 мобильных игровых каналов для партнёрских обзоров'},
+      {h:'Soft launch', p:'Тестовый запуск в 2 странах: сбор отзывов, анализ retention'},
+      {h:'Глобальный запуск', p:'Полный rollout с PR-кампанией и рекламой в Meta и TikTok Ads'},
+    ]
   }
-  requestAnimationFrame(step);
+];
+
+const gens = [
+  {project:'TelegramBot Pro', type:'Email', text:'Приветственное письмо для новых пользователей', t:'2 ч. назад', c:'#5b8af0'},
+  {project:'GameApp Store',   type:'Пост',  text:'Анонс нового уровня для Instagram', t:'5 ч. назад', c:'#3ecf8e'},
+  {project:'SaaS Landing Kit',type:'Копи',  text:'Hero-текст для главной страницы', t:'Вчера', c:'#f59e0b'},
+  {project:'TelegramBot Pro', type:'SEO',   text:'Мета-описания для 5 страниц продукта', t:'Вчера', c:'#5b8af0'},
+];
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+let activeScreen = 'dashboard';
+function nav(screen, projectId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (screen === 'detail') {
+    renderDetail(projectId);
+    document.getElementById('screen-detail').classList.add('active');
+  } else {
+    document.getElementById('screen-' + screen).classList.add('active');
+    const ni = document.querySelector('[data-screen="' + screen + '"]');
+    if (ni) ni.classList.add('active');
+  }
+  activeScreen = screen;
+  closeSidebar();
+  window.scrollTo(0, 0);
 }
 
-function initKPIs() {
-  animateValue(
-    v => document.getElementById("kpi-orders").textContent = v,
-    1240, 1200,
-    v => Math.round(v).toLocaleString()
-  );
-  animateValue(
-    v => document.getElementById("kpi-rate").textContent = v,
-    98.2, 1200,
-    v => v.toFixed(1)
-  );
-  animateValue(
-    v => document.getElementById("kpi-time").textContent = v,
-    4.2, 1200,
-    v => v.toFixed(1)
-  );
-  animateValue(
-    v => document.getElementById("kpi-rev").textContent = v,
-    48.5, 1200,
-    v => v.toFixed(1) + "K"
-  );
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BAR CHART
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────
+function planBadge(hasPlan) {
+  return hasPlan
+    ? '<span class="badge badge-green">✓ План создан</span>'
+    : '<span class="badge badge-amber">⏳ Нет плана</span>';
+}
 
-function initChart() {
-  const maxVal = Math.max(...CHART_DATA.map(d => d.val));
-  const container = document.getElementById("barChart");
-  container.innerHTML = "";
-
-  CHART_DATA.forEach(d => {
-    const pct = (d.val / maxVal) * 100;
-    const col = document.createElement("div");
-    col.className = "bar-col";
-    col.innerHTML = `
-      <span class="bar-val">${d.val}</span>
-      <div class="bar-wrap">
-        <div class="bar" data-pct="${pct}"></div>
+// ── Dashboard ──────────────────────────────────────────────────────────────
+function renderDash() {
+  document.getElementById('dash-grid').innerHTML = projects.map(p => `
+    <div class="project-card" onclick="nav('detail',${p.id})">
+      <div class="pc-header">
+        <div class="pc-name">${p.name}</div>
+        <span class="badge badge-blue">${p.type}</span>
       </div>
-      <span class="bar-label">${d.label}</span>
-    `;
-    container.appendChild(col);
-  });
+      <div class="pc-desc">${p.description}</div>
+      <div class="pc-stats">
+        ${planBadge(p.hasPlan)}
+        <span class="badge badge-muted">📝 ${p.contentCount}</span>
+        <span class="badge badge-muted">✓ ${p.activeTasks} задач</span>
+      </div>
+      <div class="pc-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-primary btn-sm" onclick="nav('detail',${p.id})">Открыть</button>
+        <button class="btn btn-ghost btn-sm">Редактировать</button>
+        <button class="btn btn-ghost btn-sm" onclick="goAnalyze(${p.id})">Анализировать</button>
+      </div>
+    </div>
+  `).join('');
 
-  // Trigger animation after two frames to ensure layout is ready
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      document.querySelectorAll(".bar").forEach(bar => {
-        bar.style.height = bar.dataset.pct + "%";
-      });
-    });
-  });
+  document.getElementById('dash-gens').innerHTML = gens.map(g => `
+    <div class="gen-item">
+      <div class="gen-dot" style="background:${g.c}"></div>
+      <div class="gen-body">
+        <div class="gen-title">${g.text}</div>
+        <div class="gen-meta">${g.project} · <span class="badge badge-muted" style="padding:1px 5px;font-size:10px">${g.type}</span></div>
+      </div>
+      <div class="gen-time">${g.t}</div>
+    </div>
+  `).join('');
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ORDERS TABLE
-// ─────────────────────────────────────────────────────────────────────────────
-
-function initTable() {
-  const tbody = document.getElementById("ordersTable");
-  tbody.innerHTML = "";
-
-  ORDERS.forEach(order => {
-    const sc = STATUS_CONFIG[order.status];
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="order-id">${order.id}</td>
-      <td class="customer">${order.customer}</td>
-      <td class="td-muted">${order.dest}</td>
-      <td>
-        <span class="badge ${sc.cls}">
-          <span class="badge-dot"></span>${sc.label}
-        </span>
-      </td>
-      <td class="td-muted">${order.courier}</td>
-      <td class="td-muted">${order.time}</td>
-    `;
-    tr.addEventListener("click", () => openDrawer(order));
-    tbody.appendChild(tr);
-  });
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DRAWER
-// ─────────────────────────────────────────────────────────────────────────────
-
-function openDrawer(order) {
-  const detail = ORDER_DETAILS[order.id] || {};
-  const steps = TRACKING_STEPS[order.status] || TRACKING_STEPS.pending;
-  const sc = STATUS_CONFIG[order.status];
-
-  document.getElementById("drawerTitle").textContent = order.id;
-
-  const timelineHTML = steps.map((step, i) => {
-    const cls = step.done ? "done" : (step.current ? "current" : "");
-    const lineHTML = i < steps.length - 1 ? '<div class="tl-line"></div>' : "";
-    const iconChar = step.done ? "✓" : (step.current ? "●" : "");
-    return `
-      <div class="tl-step ${cls}">
-        <div class="tl-icon">${iconChar}</div>
-        ${lineHTML}
-        <div class="tl-content">
-          <div class="tl-title">${step.title}</div>
-          <div class="tl-time">${step.time}</div>
+// ── Projects List ──────────────────────────────────────────────────────────
+let curFilter = 'all';
+function renderProjList(f) {
+  const list = f === 'all' ? projects : projects.filter(p => p.type === f);
+  document.getElementById('proj-list').innerHTML = list.map(p => `
+    <div class="pl-card">
+      <div class="pl-info">
+        <div class="pl-name">${p.name} <span class="badge badge-blue">${p.type}</span></div>
+        <div class="pl-desc">${p.description}</div>
+        <div class="pl-stats">
+          ${planBadge(p.hasPlan)}
+          <span class="badge badge-muted">📝 Контент: ${p.contentCount}</span>
+          <span class="badge badge-muted">✓ Задачи: ${p.activeTasks} активных</span>
         </div>
       </div>
-    `;
-  }).join("");
-
-  document.getElementById("drawerBody").innerHTML = `
-    <div class="detail-grid">
-      <div class="detail-group">
-        <div class="detail-label">Customer</div>
-        <div class="detail-value">${order.customer}</div>
+      <div class="pl-actions">
+        <button class="btn btn-primary btn-sm" onclick="nav('detail',${p.id})">Открыть</button>
+        <button class="btn btn-ghost btn-sm">Редактировать</button>
+        <button class="btn btn-ghost btn-sm" onclick="goAnalyze(${p.id})">Анализировать</button>
       </div>
-      <div class="detail-group">
-        <div class="detail-label">Status</div>
-        <div class="detail-value">
-          <span class="badge ${sc.cls}">
-            <span class="badge-dot"></span>${sc.label}
-          </span>
+    </div>
+  `).join('');
+}
+function filterBy(f, btn) {
+  curFilter = f;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderProjList(f);
+}
+function toggleCreatePanel() {
+  const el = document.getElementById('createPanel');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function createProject() {
+  const name = document.getElementById('newName').value.trim();
+  if (!name) { document.getElementById('newName').focus(); return; }
+  const type = document.getElementById('newType').value;
+  const desc = document.getElementById('newDesc').value.trim();
+  projects.push({id: Date.now(), name, type, description: desc || 'Новый проект', hasPlan:false, contentCount:0, activeTasks:0, tasks:[], plan:[]});
+  document.getElementById('newName').value = '';
+  document.getElementById('newDesc').value = '';
+  toggleCreatePanel();
+  renderProjList(curFilter);
+  renderDash();
+}
+
+// ── Project Detail ─────────────────────────────────────────────────────────
+const copyTemplates = {
+  email: n => `Тема: Добро пожаловать в ${n}! 🎉\n\nПривет!\n\nСпасибо, что выбрали ${n}. Вот с чего стоит начать:\n→ Создайте первый проект\n→ Запустите ИИ-анализ\n→ Сгенерируйте контент-план\n\nЕсли возникнут вопросы — мы рядом.\n\nС уважением, команда Shipter`,
+  post:  n => `🚀 Встречайте ${n}!\n\n✅ Готово за 5 минут\n✅ ИИ-планирование дистрибуции\n✅ Аналитика в реальном времени\n\nПопробуйте бесплатно → ссылка в шапке`,
+  seo:   n => `Title: ${n} — Дистрибуция цифровых продуктов\nDescription: ${n} помогает запускать и продвигать цифровые продукты в 3× быстрее. Бесплатный trial 7 дней.\nKeywords: дистрибуция продукта, digital marketing, SaaS рост`,
+  copy:  n => `Заголовок: Запустите продукт быстро и правильно\n\nПодзаголовок: ${n} — AI-платформа для дистрибуции\n\nCTA: Начать бесплатно →\n\nПреимущества:\n• Готовый план за минуты\n• ИИ-генерация маркетинговых материалов\n• Отслеживание задач и прогресса`,
+};
+function renderDetail(id) {
+  const p = projects.find(x => x.id == id);
+  if (!p) return;
+  const stepsHTML = p.plan.length
+    ? p.plan.map((s,i) => `<div class="step"><div class="step-n">${i+1}</div><div><div class="step-h">${s.h}</div><div class="step-p">${s.p}</div></div></div>`).join('')
+    : '<p style="color:var(--text-muted);font-size:12.5px;padding:10px 0">План ещё не создан. Нажмите «Анализировать» для генерации.</p>';
+  const tasksHTML = p.tasks.map((t,i) => `
+    <div class="task-item">
+      <input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleTask(${p.id},${i},this.checked)">
+      <span class="task-txt" style="${t.done?'text-decoration:line-through;color:var(--text-muted)':''}">${t.text}</span>
+      <span class="task-p ${t.p==='hi'?'p-hi':t.p==='md'?'p-md':'p-lo'}">${t.p==='hi'?'Высокий':t.p==='md'?'Средний':'Низкий'}</span>
+    </div>`).join('');
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-top">
+      <div class="detail-meta">
+        <span class="detail-title">${p.name}</span>
+        <span class="badge badge-blue">${p.type}</span>
+        ${planBadge(p.hasPlan)}
+      </div>
+      <div class="detail-desc">${p.description}</div>
+    </div>
+    <div class="detail-grid">
+      <div>
+        <div class="d-card" style="margin-bottom:14px">
+          <div class="section-label">План дистрибуции</div>
+          ${stepsHTML}
+          <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="goAnalyze(${p.id})">🤖 Сгенерировать план</button>
+        </div>
+        <div class="d-card">
+          <div class="section-label">Генерация контента</div>
+          <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:2px">Создайте маркетинговые материалы с помощью ИИ</p>
+          <div class="gen-buttons">
+            <button class="btn btn-ghost btn-sm" onclick="genCopy(${p.id},'email','${p.name}')">📧 Email</button>
+            <button class="btn btn-ghost btn-sm" onclick="genCopy(${p.id},'post','${p.name}')">📱 Соцсети</button>
+            <button class="btn btn-ghost btn-sm" onclick="genCopy(${p.id},'seo','${p.name}')">🔍 SEO</button>
+            <button class="btn btn-ghost btn-sm" onclick="genCopy(${p.id},'copy','${p.name}')">✍️ Копи</button>
+          </div>
+          <div class="gen-output" id="go-${p.id}"></div>
         </div>
       </div>
-    </div>
-
-    <div class="detail-group">
-      <div class="detail-label">Delivery Address</div>
-      <div class="detail-value">${detail.address || order.dest}</div>
-    </div>
-
-    <div class="detail-grid">
-      <div class="detail-group">
-        <div class="detail-label">Courier</div>
-        <div class="detail-value">${order.courier}</div>
+      <div>
+        <div class="d-card">
+          <div class="section-label">Задачи <span style="font-family:var(--ff-mono);font-size:11px;color:var(--text-muted);font-weight:400;margin-left:5px">${p.tasks.filter(t=>!t.done).length} активных</span></div>
+          ${tasksHTML || '<p style="color:var(--text-muted);font-size:12.5px;padding:8px 0">Задач пока нет</p>'}
+          <button class="btn btn-ghost btn-sm" style="margin-top:10px">+ Добавить задачу</button>
+        </div>
       </div>
-      <div class="detail-group">
-        <div class="detail-label">Package Type</div>
-        <div class="detail-value">${detail.pkg || "Standard"}</div>
-      </div>
-    </div>
-
-    <div class="detail-group">
-      <div class="detail-label">Note</div>
-      <div class="detail-value" style="color:var(--muted)">${detail.note || "—"}</div>
-    </div>
-
-    <hr class="divider">
-
-    <div class="detail-label" style="margin-bottom:16px">Tracking Timeline</div>
-    <div class="timeline">${timelineHTML}</div>
-  `;
-
-  document.getElementById("drawerOverlay").classList.add("open");
-  document.getElementById("drawer").classList.add("open");
+    </div>`;
+}
+function toggleTask(pid, idx, val) {
+  const p = projects.find(x => x.id == pid);
+  if (p && p.tasks[idx]) p.tasks[idx].done = val;
+}
+let _twTimer = null;
+function typewrite(el, text, speed) {
+  if (_twTimer) clearInterval(_twTimer);
+  el.innerHTML = '';
+  let i = 0;
+  const cur = document.createElement('span');
+  cur.className = 'cur';
+  el.appendChild(cur);
+  _twTimer = setInterval(() => {
+    if (i < text.length) { el.insertBefore(document.createTextNode(text[i++]), cur); }
+    else { clearInterval(_twTimer); cur.remove(); }
+  }, speed);
+}
+function genCopy(pid, type, name) {
+  const box = document.getElementById('go-' + pid);
+  box.style.display = 'block';
+  typewrite(box, copyTemplates[type](name), 12);
 }
 
-function closeDrawer() {
-  document.getElementById("drawerOverlay").classList.remove("open");
-  document.getElementById("drawer").classList.remove("open");
+// ── AI Analysis ────────────────────────────────────────────────────────────
+function goAnalyze(id) {
+  const idx = projects.findIndex(p => p.id == id);
+  nav('analysis');
+  if (idx >= 0) document.getElementById('aProject').selectedIndex = idx;
 }
+function runAnalysis() {
+  const idx = +document.getElementById('aProject').value;
+  const p = projects[idx];
+  const audience = document.getElementById('aAudience').value || 'широкая аудитория';
+  const market = document.getElementById('aMarket').value;
 
-document.getElementById("drawerClose").addEventListener("click", closeDrawer);
-document.getElementById("drawerOverlay").addEventListener("click", closeDrawer);
+  document.getElementById('aPlaceholder').style.display = 'none';
+  const result = document.getElementById('aResult');
+  result.classList.add('open');
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MODAL
-// ─────────────────────────────────────────────────────────────────────────────
+  const dots = document.getElementById('aDots');
+  const title = document.getElementById('aResultTitle');
+  const tw = document.getElementById('aTypewriter');
+  const stepsEl = document.getElementById('aPlanSteps');
+  const btn = document.getElementById('aBtn');
 
-function openModal() {
-  // Reset form fields
-  ["f-name","f-phone","f-from","f-to"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = "";
-  });
-  document.getElementById("modalBody").style.display = "";
-  document.getElementById("modalFooter").style.display = "";
+  dots.style.display = 'flex';
+  title.textContent = '';
+  tw.innerHTML = '';
+  stepsEl.innerHTML = '';
+  btn.disabled = true;
+  btn.textContent = '⏳ Анализирую...';
 
-  // Remove success message if present
-  const successEl = document.getElementById("modalSuccess");
-  if (successEl) successEl.remove();
-
-  document.getElementById("modalOverlay").classList.add("open");
-}
-
-function closeModal() {
-  document.getElementById("modalOverlay").classList.remove("open");
-}
-
-document.getElementById("newOrderBtn").addEventListener("click", openModal);
-document.getElementById("modalClose").addEventListener("click", closeModal);
-document.getElementById("modalCancelBtn").addEventListener("click", closeModal);
-
-document.getElementById("modalOverlay").addEventListener("click", function(e) {
-  if (e.target === this) closeModal();
-});
-
-document.getElementById("modalSubmitBtn").addEventListener("click", function() {
-  const body = document.getElementById("modalBody");
-  const footer = document.getElementById("modalFooter");
-
-  body.style.display = "none";
-  footer.style.display = "none";
-
-  const success = document.createElement("div");
-  success.id = "modalSuccess";
-  success.className = "success-msg";
-  success.innerHTML = '<span class="success-icon">✓</span> Order Created!';
-  document.getElementById("modal").appendChild(success);
+  const summary = `Продукт: ${p.name} (${p.type})\nРынок: ${market} · Аудитория: ${audience}\n\nКлючевые выводы:\n→ Высокий потенциал органического роста через тематические сообщества\n→ Оптимальный стек: Telegram-каналы + Product Hunt + партнёрские статьи\n→ Рекомендуемый CAC: $8–15 при бюджете $300/мес\n→ Time-to-revenue: 4–6 недель при выполнении плана\n→ Главный риск: слабый onboarding — требует проработки`;
 
   setTimeout(() => {
-    closeModal();
+    dots.style.display = 'none';
+    title.textContent = `Анализ: ${p.name}`;
+    typewrite(tw, summary, 16);
+
+    const planData = p.plan.length ? p.plan : [
+      {h:'Определить целевую аудиторию', p:'Составить ICP и провести интервью с 5+ потенциальными пользователями'},
+      {h:'Создать контент-план', p:'Подготовить 10 постов, 2 статьи и лендинг с чётким value proposition'},
+      {h:'Мягкий запуск', p:'Открыть доступ для 50 бета-пользователей, собрать обратную связь'},
+      {h:'Глобальный запуск', p:'Product Hunt, PR-кампания, посевы в тематических каналах'},
+    ];
+
     setTimeout(() => {
-      success.remove();
-      body.style.display = "";
-      footer.style.display = "";
-    }, 300);
-  }, 1500);
-});
+      stepsEl.innerHTML = `
+        <div class="plan-steps">
+          <div class="section-label">Рекомендуемый план дистрибуции</div>
+          ${planData.map((s,i)=>`<div class="step"><div class="step-n">${i+1}</div><div><div class="step-h">${s.h}</div><div class="step-p">${s.p}</div></div></div>`).join('')}
+        </div>`;
+      btn.disabled = false;
+      btn.innerHTML = '🤖 Анализировать';
+    }, summary.length * 16 + 600);
+  }, 1800);
+}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// NAVIGATION
-// ─────────────────────────────────────────────────────────────────────────────
-
-const VIEWS = ["dashboard","orders","couriers","analytics","settings"];
-
-document.querySelectorAll(".nav-item").forEach(item => {
-  item.addEventListener("click", function() {
-    const view = this.dataset.view;
-    if (!view) return;
-
-    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-    this.classList.add("active");
-
-    VIEWS.forEach(v => {
-      const el = document.getElementById("view-" + v);
-      if (el) el.style.display = v === view ? "" : "none";
-    });
-
-    // Scroll main back to top on view change
-    document.getElementById("main").scrollTop = 0;
-  });
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────────────────────────────
-
-initTable();
-initChart();
-initKPIs();
+// ── Init ───────────────────────────────────────────────────────────────────
+renderDash();
+renderProjList('all');
 </script>
 </body>
 </html>
