@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CaspianFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#04080f;--surface:#080d18;--surface-2:#0c1422;--surface-3:#111c2e;--border:#162035;--border-2:#1e2f48;--gold:#c8952a;--gold-2:#e8b84b;--gold-dim:rgba(200,149,42,0.12);--teal:#2ab8c8;--teal-dim:rgba(42,184,200,0.1);--red:#e84b4b;--green:#4bce8a;--text:#a8bdd4;--text-2:#6a8aaa;--white:#ddeeff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;font-size:14px}
+/* Demo Banner */
+.demo-bar{background:var(--surface-3);border-bottom:1px solid var(--border-2);text-align:center;padding:6px 0;font-size:12px;color:var(--text-2);letter-spacing:.04em;z-index:100;flex-shrink:0}
+.demo-bar span{color:var(--gold);font-weight:600}
+/* Layout */
+.layout{display:flex;flex:1;overflow:hidden;height:calc(100vh - 31px)}
+/* Sidebar */
+.sidebar{width:260px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.logo{padding:22px 20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:var(--gold-dim);border:1px solid var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700;color:var(--white)}.logo-text .flow{color:var(--gold)}
+.nav-section{padding:16px 12px 4px}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:7px;cursor:pointer;color:var(--text);font-size:13.5px;font-weight:500;transition:background .15s,color .15s;margin-bottom:2px;text-decoration:none}
+.nav-item:hover{background:var(--surface-2);color:var(--white)}
+.nav-item.active{background:var(--gold-dim);color:var(--gold-2);border:1px solid rgba(200,149,42,.2)}
+.nav-item .icon{width:20px;text-align:center;font-size:15px;flex-shrink:0}
+.nav-item.upgrade{color:var(--gold);margin-top:2px}
+.nav-item.upgrade:hover{background:var(--gold-dim)}
+.badge-plan{font-size:10px;background:var(--gold-dim);color:var(--gold);border:1px solid rgba(200,149,42,.3);border-radius:4px;padding:1px 6px;font-weight:600}
+.sidebar-footer{margin-top:auto;padding:14px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1e3a5f,#2a4a7f);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--gold-2);flex-shrink:0;border:1px solid var(--border-2)}
+.user-info{flex:1;min-width:0}.user-name{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-plan{font-size:11px;color:var(--text-2)}
+/* Main */
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.screen{display:none;padding:28px 32px;max-width:1100px}.screen.active{display:block}
+/* Ticker */
+.ticker-wrap{background:var(--surface);border-bottom:1px solid var(--border);border-top:1px solid var(--border);padding:10px 0;overflow:hidden;position:relative}
+.ticker-wrap::before,.ticker-wrap::after{content:'';position:absolute;top:0;width:60px;height:100%;z-index:2}
+.ticker-wrap::before{left:0;background:linear-gradient(to right,var(--surface),transparent)}
+.ticker-wrap::after{right:0;background:linear-gradient(to left,var(--surface),transparent)}
+.ticker-inner{display:flex;gap:0;animation:ticker 28s linear infinite;width:max-content}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.tick-item{display:flex;align-items:center;gap:8px;padding:0 28px;border-right:1px solid var(--border);white-space:nowrap}
+.tick-name{font-size:12px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em}
+.tick-price{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--white)}
+.tick-chg.up{color:var(--green)}.tick-chg.dn{color:var(--red)}
+.tick-chg{font-size:12px;font-family:'JetBrains Mono',monospace}
+/* Page Header */
+.page-header{margin-bottom:26px}
+.page-header h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:700;color:var(--white);margin-bottom:4px}
+.page-header p{color:var(--text-2);font-size:14px}
+/* Hero */
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px 36px;margin-bottom:24px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(200,149,42,.06) 0%,transparent 70%)}
+.hero h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:30px;font-weight:800;color:var(--white);line-height:1.25;margin-bottom:12px;max-width:560px}
+.hero h1 em{color:var(--gold-2);font-style:normal}
+.hero p{color:var(--text);font-size:15px;max-width:520px;line-height:1.6;margin-bottom:24px}
+.btn-primary{background:var(--gold);color:#04080f;font-weight:700;font-size:13.5px;padding:10px 22px;border-radius:7px;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s}
+.btn-primary:hover{background:var(--gold-2)}
+.btn-secondary{background:transparent;color:var(--text);font-weight:600;font-size:13.5px;padding:10px 20px;border-radius:7px;border:1px solid var(--border-2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:6px 14px;font-size:12.5px;font-weight:600;border-radius:6px;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.hero-btns{display:flex;gap:10px;align-items:center}
+/* Stats Row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:700;color:var(--gold-2);margin-bottom:2px}
+.stat-label{font-size:12px;color:var(--text-2);font-weight:500}
+/* Cards Grid */
+.cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+.market-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;transition:border-color .15s}
+.market-card:hover{border-color:var(--border-2)}
+.mc-type{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-2);margin-bottom:8px}
+.mc-price{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--white);margin-bottom:6px}
+.mc-chg{font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:500}
+.mc-chg.up{color:var(--green)}.mc-chg.dn{color:var(--red)}
+.mc-region{font-size:11px;color:var(--text-2);margin-top:4px}
+/* Section title */
+.section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.view-all{font-size:12px;color:var(--gold);cursor:pointer;font-weight:500}
+/* Tables */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{padding:11px 16px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-2);border-bottom:1px solid var(--border);background:var(--surface-2)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+tbody td{padding:12px 16px;font-size:13px}
+/* Badges */
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 9px;border-radius:5px;letter-spacing:.02em}
+.badge-green{background:rgba(75,206,138,.12);color:var(--green);border:1px solid rgba(75,206,138,.2)}
+.badge-gold{background:var(--gold-dim);color:var(--gold-2);border:1px solid rgba(200,149,42,.2)}
+.badge-red{background:rgba(232,75,75,.1);color:var(--red);border:1px solid rgba(232,75,75,.2)}
+.badge-teal{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(42,184,200,.2)}
+.badge-gray{background:rgba(106,138,170,.1);color:var(--text-2);border:1px solid rgba(106,138,170,.2)}
+/* Filter bar */
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;align-items:center}
+.chip{padding:6px 14px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid var(--border-2);color:var(--text-2);background:var(--surface-2);transition:all .15s}
+.chip:hover,.chip.active{background:var(--gold-dim);color:var(--gold-2);border-color:rgba(200,149,42,.3)}
+.filter-select{background:var(--surface-2);border:1px solid var(--border-2);border-radius:7px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:6px 12px;cursor:pointer;outline:none}
+.filter-select:focus{border-color:var(--gold)}
+/* Listing cards */
+.listings-grid{display:grid;gap:12px}
+.listing-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;display:grid;grid-template-columns:140px 1fr auto auto auto 100px;align-items:center;gap:14px;transition:border-color .15s}
+.listing-row:hover{border-color:var(--border-2)}
+.listing-fuel{font-size:12px;font-weight:700;color:var(--text-2)}
+.listing-seller{font-size:13px;font-weight:600;color:var(--white);margin-bottom:2px}
+.listing-location{font-size:12px;color:var(--text-2)}
+.listing-vol{font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:500;color:var(--white)}
+.listing-vol span{font-size:11px;color:var(--text-2);font-family:'Inter',sans-serif}
+.listing-price{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500;color:var(--gold-2)}
+.listing-price span{font-size:11px;color:var(--text-2);font-family:'Inter',sans-serif}
+.listing-date{font-size:11px;color:var(--text-2)}
+.btn-contact{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:7px 16px;border-radius:6px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-contact:hover{background:var(--gold-dim)}
+/* Sparkline */
+.sparkline{display:inline-block;vertical-align:middle}
+/* Calculator */
+.calc-layout{display:grid;grid-template-columns:1fr 340px;gap:22px}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:26px}
+.form-row{margin-bottom:18px}
+label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);margin-bottom:7px}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--surface-2);border:1px solid var(--border-2);border-radius:7px;color:var(--white);font-family:'Inter',sans-serif;font-size:14px;padding:9px 13px;outline:none;transition:border-color .15s}
+input:focus,select:focus{border-color:var(--gold)}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:26px;height:fit-content}
+.result-card h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:20px}
+.result-line{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)}
+.result-line:last-of-type{border-bottom:none}
+.result-line .lbl{font-size:13px;color:var(--text)}
+.result-line .val{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--white);font-weight:500}
+.result-total{background:var(--gold-dim);border:1px solid rgba(200,149,42,.25);border-radius:8px;padding:14px;margin-top:14px;display:flex;justify-content:space-between;align-items:center}
+.result-total .lbl{font-size:13px;font-weight:600;color:var(--gold)}
+.result-total .val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:500;color:var(--gold-2)}
+.success-msg{background:rgba(75,206,138,.1);border:1px solid rgba(75,206,138,.25);border-radius:8px;padding:12px 16px;color:var(--green);font-size:13px;font-weight:500;margin-top:14px;display:none}
+/* FAQ accordion */
+.faq-list{display:grid;gap:8px}
+.faq-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;font-weight:600;color:var(--white);font-size:14px;transition:background .15s}
+.faq-q:hover{background:var(--surface-2)}
+.faq-arrow{font-size:16px;color:var(--text-2);transition:transform .2s;flex-shrink:0}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-a{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .25s ease,padding .25s ease;color:var(--text);font-size:13.5px;line-height:1.65}
+.faq-item.open .faq-a{max-height:200px;padding:0 20px 16px}
+/* My Listings */
+.listings-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(4,8,15,.8);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border-2);border-radius:12px;padding:28px;width:480px;max-width:95vw}
+.modal h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700;color:var(--white);margin-bottom:20px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+/* Price reference sparklines */
+.spark{width:80px;height:30px}
+/* Divider */
+.divider{height:1px;background:var(--border);margin:20px 0}
+/* Incoterms */
+.inco-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.inco-btn{padding:8px;border:1px solid var(--border-2);border-radius:6px;background:var(--surface-2);color:var(--text);font-size:12px;font-weight:600;text-align:center;cursor:pointer;transition:all .15s}
+.inco-btn.active,.inco-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+/* Close btn */
+.modal-close{background:none;border:none;color:var(--text-2);cursor:pointer;font-size:20px;line-height:1;padding:0 4px;transition:color .15s}
+.modal-close:hover{color:var(--white)}
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <span>DEMO SITE</span> — CaspianFlow Professional Energy Marketplace &nbsp;·&nbsp; For demonstration purposes only
+</div>
+
+<div class="layout">
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">⛽</div>
+    <div class="logo-text">Caspian<span class="flow">Flow</span></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <div class="nav-item active" data-screen="home"><span class="icon">🏠</span>Home</div>
+    <div class="nav-item" data-screen="marketplace"><span class="icon">⚖️</span>Marketplace</div>
+    <div class="nav-item" data-screen="prices"><span class="icon">📊</span>Price Reference</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Trading</div>
+    <div class="nav-item" data-screen="calculator"><span class="icon">🧮</span>Calculator</div>
+    <div class="nav-item" data-screen="mylistings"><span class="icon">📦</span>My Listings</div>
+    <div class="nav-item" data-screen="settings"><span class="icon">⚙️</span>Settings</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Support</div>
+    <div class="nav-item" data-screen="faq"><span class="icon">❓</span>FAQ</div>
+    <div class="nav-item upgrade" data-screen="upgrade"><span class="icon">💎</span>Upgrade &nbsp;<span class="badge-plan">$199/mo</span></div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="avatar">AK</div>
+    <div class="user-info">
+      <div class="user-name">Aslan Karimov</div>
+      <div class="user-plan">Professional Plan</div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="ticker-wrap">
+    <div class="ticker-inner" id="ticker"></div>
+  </div>
+  <div style="padding:28px 32px;max-width:1100px">
+    <div class="hero">
+      <h1>Professional <em>Energy Marketplace</em><br>for Central Asia</h1>
+      <p>Real-time fuel prices, P2P trading, and transparent pricing for the Caspian Region. Connect buyers and sellers across Kazakhstan, Azerbaijan, Turkmenistan, and beyond.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="nav('marketplace')">Browse Marketplace</button>
+        <button class="btn-secondary" onclick="nav('prices')">View Price Reference</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val">1,240</div><div class="stat-label">Active Listings</div></div>
+      <div class="stat-card"><div class="stat-val">47</div><div class="stat-label">Countries</div></div>
+      <div class="stat-card"><div class="stat-val">$2.4M</div><div class="stat-label">24h Volume</div></div>
+      <div class="stat-card"><div class="stat-val">99.7%</div><div class="stat-label">Uptime SLA</div></div>
+    </div>
+
+    <div class="section-title">Market Overview <span class="view-all" onclick="nav('prices')">View All →</span></div>
+    <div class="cards-grid">
+      <div class="market-card"><div class="mc-type">Diesel EN590</div><div class="mc-price">$685</div><div class="mc-chg up">▲ +1.2% today</div><div class="mc-region">Almaty Hub</div></div>
+      <div class="market-card"><div class="mc-type">AI-95 Petrol</div><div class="mc-price">$712</div><div class="mc-chg dn">▼ −0.4% today</div><div class="mc-region">Baku Exchange</div></div>
+      <div class="market-card"><div class="mc-type">Jet A-1</div><div class="mc-price">$910</div><div class="mc-chg up">▲ +0.8% today</div><div class="mc-region">Aktau Terminal</div></div>
+      <div class="market-card"><div class="mc-type">Mazut M-100</div><div class="mc-price">$310</div><div class="mc-chg dn">▼ −0.9% today</div><div class="mc-region">Turkmenistan</div></div>
+    </div>
+
+    <div class="section-title">Recent Trades <span class="view-all" onclick="nav('marketplace')">Browse All →</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Fuel Type</th><th>Volume</th><th>Price/ton</th><th>Buyer</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text-2)">27 Sep 2026</td><td><span class="badge badge-teal">Diesel</span></td><td style="font-family:monospace">5,000 t</td><td style="font-family:'JetBrains Mono',monospace;color:var(--gold-2)">$685</td><td>KazOil Trading</td><td><span class="badge badge-green">Completed</span></td></tr>
+          <tr><td style="color:var(--text-2)">26 Sep 2026</td><td><span class="badge badge-gold">Jet A-1</span></td><td style="font-family:monospace">1,200 t</td><td style="font-family:'JetBrains Mono',monospace;color:var(--gold-2)">$908</td><td>AirAsia Cargo</td><td><span class="badge badge-green">Completed</span></td></tr>
+          <tr><td style="color:var(--text-2)">26 Sep 2026</td><td><span class="badge badge-gray">AI-92</span></td><td style="font-family:monospace">3,500 t</td><td style="font-family:'JetBrains Mono',monospace;color:var(--gold-2)">$648</td><td>UzFuel LLC</td><td><span class="badge badge-teal">In Transit</span></td></tr>
+          <tr><td style="color:var(--text-2)">25 Sep 2026</td><td><span class="badge badge-gray">Mazut</span></td><td style="font-family:monospace">8,000 t</td><td style="font-family:'JetBrains Mono',monospace;color:var(--gold-2)">$312</td><td>TurkEnergy Co.</td><td><span class="badge badge-green">Completed</span></td></tr>
+          <tr><td style="color:var(--text-2)">24 Sep 2026</td><td><span class="badge badge-teal">LPG</span></td><td style="font-family:monospace">2,000 t</td><td style="font-family:'JetBrains Mono',monospace;color:var(--gold-2)">$520</td><td>CaspGas Int.</td><td><span class="badge badge-gold">Pending</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MARKETPLACE -->
+<div id="screen-marketplace" class="screen">
+  <div class="page-header"><h1>Marketplace</h1><p>Browse and contact fuel suppliers across Central Asia and the Caspian Region.</p></div>
+  <div class="filter-bar">
+    <div class="chip active" data-filter="all">All</div>
+    <div class="chip" data-filter="Diesel">Diesel</div>
+    <div class="chip" data-filter="AI-95">AI-95</div>
+    <div class="chip" data-filter="AI-92">AI-92</div>
+    <div class="chip" data-filter="Jet A-1">Jet A-1</div>
+    <div class="chip" data-filter="Mazut">Mazut</div>
+    <div class="chip" data-filter="LPG">LPG</div>
+    <select class="filter-select" id="country-filter" onchange="filterListings()">
+      <option value="">All Countries</option>
+      <option>Kazakhstan</option><option>Azerbaijan</option><option>Turkmenistan</option><option>Uzbekistan</option><option>Russia</option>
+    </select>
+  </div>
+
+  <div class="listings-grid" id="listings-container"></div>
+</div>
+
+<!-- PRICE REFERENCE -->
+<div id="screen-prices" class="screen">
+  <div class="page-header"><h1>Price Reference</h1><p>Benchmark prices sourced from major regional exchanges and spot markets. Updated every 15 minutes.</p></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fuel Type</th><th>Region</th><th>Price (USD/t)</th><th>24h Change</th><th>7d Change</th><th>Trend</th><th>Last Updated</th></tr></thead>
+      <tbody id="prices-table"></tbody>
+    </table>
+  </div>
+  <p style="font-size:12px;color:var(--text-2);margin-top:12px">* Prices are indicative only and sourced from major regional commodity exchanges, terminals, and brokerage data.</p>
+</div>
+
+<!-- CALCULATOR -->
+<div id="screen-calculator" class="screen">
+  <div class="page-header"><h1>Trade Calculator</h1><p>Estimate total landed cost including transport, duties, and fees.</p></div>
+  <div class="calc-layout">
+    <div class="form-card">
+      <div class="form-row">
+        <label>Fuel Type</label>
+        <select id="c-fuel" onchange="calcUpdate()">
+          <option>Diesel EN590</option><option>AI-95 Petrol</option><option>AI-92 Petrol</option><option>Jet A-1</option><option>Mazut M-100</option><option>LPG</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Volume (metric tons)</label>
+        <input type="number" id="c-vol" value="1000" min="1" oninput="calcUpdate()">
+      </div>
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label>Origin Country</label>
+          <select id="c-origin" onchange="calcUpdate()">
+            <option>Kazakhstan</option><option>Azerbaijan</option><option>Turkmenistan</option><option>Uzbekistan</option><option>Russia</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Destination Country</label>
+          <select id="c-dest" onchange="calcUpdate()">
+            <option>Germany</option><option>Turkey</option><option>China</option><option>India</option><option>Poland</option><option>Kazakhstan</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Incoterms</label>
+        <div class="inco-grid">
+          <div class="inco-btn active" data-inco="EXW" onclick="selectInco(this)">EXW</div>
+          <div class="inco-btn" data-inco="FCA" onclick="selectInco(this)">FCA</div>
+          <div class="inco-btn" data-inco="FOB" onclick="selectInco(this)">FOB</div>
+          <div class="inco-btn" data-inco="CIF" onclick="selectInco(this)">CIF</div>
+        </div>
+      </div>
+      <button class="btn-primary" id="quote-btn" onclick="sendQuote()" style="width:100%;margin-top:8px">Get Quote</button>
+      <div class="success-msg" id="quote-success">✓ Quote request sent! A broker will contact you within 2 business hours.</div>
+    </div>
+
+    <div class="result-card">
+      <h3>Estimated Cost Breakdown</h3>
+      <div class="result-line"><span class="lbl">Base Price</span><span class="val" id="r-base">—</span></div>
+      <div class="result-line"><span class="lbl">Transport &amp; Logistics</span><span class="val" id="r-transport">—</span></div>
+      <div class="result-line"><span class="lbl">Duties &amp; Taxes</span><span class="val" id="r-duties">—</span></div>
+      <div class="result-line"><span class="lbl">Platform Fee (0.35%)</span><span class="val" id="r-fee">—</span></div>
+      <div class="result-total"><span class="lbl">Total (USD)</span><span class="val" id="r-total">—</span></div>
+      <p style="font-size:11px;color:var(--text-2);margin-top:12px;line-height:1.5">Estimates are indicative. Final pricing subject to market conditions and confirmed by broker.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MY LISTINGS -->
+<div id="screen-mylistings" class="screen">
+  <div class="listings-header">
+    <div class="page-header" style="margin-bottom:0"><h1>My Listings</h1><p>Manage your active fuel offers.</p></div>
+    <button class="btn-primary" onclick="document.getElementById('create-modal').classList.add('open')">+ Create Listing</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fuel Type</th><th>Volume</th><th>Price/ton</th><th>Location</th><th>Posted</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-teal">Diesel EN590</span></td>
+          <td style="font-family:'JetBrains Mono',monospace">10,000 t</td>
+          <td style="font-family:'JetBrains Mono',monospace;color:var(--gold-2)">$678</td>
+          <td>Almaty, KZ</td>
+          <td style="color:var(--text-2)">20 Sep 2026</td>
+          <td><span class="badge badge-green">Active</span></td>
+          <td><button class="btn-sm btn-secondary" style="margin-right:6px">Edit</button><button class="btn-sm" style="background:rgba(232,75,75,.1);color:var(--red);border:1px solid rgba(232,75,75,.2)">Delete</button></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gold">Jet A-1</span></td>
+          <td style="font-family:'JetBrains Mono',monospace">2,500 t</td>
+          <td style="font-family:'JetBrains Mono',monospace;color:var(--gold-2)">$905</td>
+          <td>Aktau, KZ</td>
+          <td style="color:var(--text-2)">22 Sep 2026</td>
+          <td><span class="badge badge-gold">Pending</span></td>
+          <td><button class="btn-sm btn-secondary" style="margin-right:6px">Edit</button><button class="btn-sm" style="background:rgba(232,75,75,.1);color:var(--red);border:1px solid rgba(232,75,75,.2)">Delete</button></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gray">AI-92</span></td>
+          <td style="font-family:'JetBrains Mono',monospace">5,000 t</td>
+          <td style="font-family:'JetBrains Mono',monospace;color:var(--gold-2)">$641</td>
+          <td>Shymkent, KZ</td>
+          <td style="color:var(--text-2)">10 Sep 2026</td>
+          <td><span class="badge badge-red">Expired</span></td>
+          <td><button class="btn-sm btn-secondary" style="margin-right:6px">Edit</button><button class="btn-sm" style="background:rgba(232,75,75,.1);color:var(--red);border:1px solid rgba(232,75,75,.2)">Delete</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SETTINGS (stub) -->
+<div id="screen-settings" class="screen">
+  <div class="page-header"><h1>Settings</h1><p>Manage account, notifications, and API integrations.</p></div>
+  <div class="form-card" style="max-width:520px">
+    <div class="form-row"><label>Full Name</label><input type="text" value="Aslan Karimov"></div>
+    <div class="form-row"><label>Company</label><input type="text" value="KazOil Trading LLP"></div>
+    <div class="form-row"><label>Email</label><input type="text" value="a.karimov@kazoil.kz"></div>
+    <div class="form-row"><label>Phone</label><input type="text" value="+7 727 300 1200"></div>
+    <div class="form-row"><label>Currency Preference</label><select><option>USD</option><option>EUR</option><option>KZT</option></select></div>
+    <button class="btn-primary">Save Changes</button>
+  </div>
+</div>
+
+<!-- UPGRADE (stub) -->
+<div id="screen-upgrade" class="screen">
+  <div class="page-header"><h1>Upgrade to Professional</h1><p>Unlock unlimited listings, API access, and priority support.</p></div>
+  <div style="background:var(--surface);border:1px solid var(--border-2);border-radius:12px;padding:32px;max-width:460px">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:30px;font-weight:800;color:var(--gold-2);margin-bottom:4px">$199 <span style="font-size:15px;color:var(--text-2);font-weight:500">/month</span></div>
+    <div style="color:var(--text-2);font-size:13px;margin-bottom:22px">Billed annually. Cancel anytime.</div>
+    <div style="display:grid;gap:10px;margin-bottom:26px">
+      <div style="color:var(--text);font-size:13.5px">✓ &nbsp;Unlimited active listings</div>
+      <div style="color:var(--text);font-size:13.5px">✓ &nbsp;API access for price feeds</div>
+      <div style="color:var(--text);font-size:13.5px">✓ &nbsp;Priority broker support</div>
+      <div style="color:var(--text);font-size:13.5px">✓ &nbsp;Advanced analytics dashboard</div>
+      <div style="color:var(--text);font-size:13.5px">✓ &nbsp;KYC fast-track verification</div>
+    </div>
+    <button class="btn-primary" style="width:100%;padding:12px">Subscribe Now</button>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div id="screen-faq" class="screen">
+  <div class="page-header"><h1>Frequently Asked Questions</h1><p>Everything you need to know about CaspianFlow.</p></div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What is CaspianFlow and who is it for? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">CaspianFlow is a B2B energy and fuel marketplace designed for traders, refineries, distributors, and industrial buyers operating in Kazakhstan, Azerbaijan, Turkmenistan, Uzbekistan, Russia, and neighboring markets. It provides a verified environment to post and discover bulk fuel offers with transparent, auditable pricing.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How are prices determined on the platform? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Benchmark prices in the Price Reference section are aggregated from major regional commodity exchanges, published government tariffs, terminal spot data, and broker feeds. They are updated every 15 minutes during trading hours and are indicative — final transaction prices are agreed P2P between buyer and seller.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What payment methods and currencies are supported? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Transactions are denominated in USD as the regional industry standard, with optional display in EUR, KZT, and AZN. Payment is handled off-platform between parties via SWIFT, escrow, or letters of credit. CaspianFlow does not intermediate funds — it is a discovery and introduction platform with optional broker facilitation.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What KYC requirements apply to sellers? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">All sellers must complete KYC Level 2 verification: business registration documents, authorized signatory ID, and proof of fuel origin (supply contract or refinery allocation letter). Verification typically completes in 2–5 business days. Professional plan subscribers receive a fast-track review within 24 hours.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I use the platform API to pull live prices? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Yes — the REST and WebSocket price feed API is available to Professional and Enterprise plan subscribers. It provides tick-level price updates, historical OHLCV data, and listing webhooks. API keys are generated from Settings → API Access. Rate limits apply per plan tier.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .main -->
+</div><!-- end .layout -->
+
+<!-- Create Listing Modal -->
+<div class="modal-overlay" id="create-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h2>Create New Listing</h2>
+      <button class="modal-close" onclick="document.getElementById('create-modal').classList.remove('open')">×</button>
+    </div>
+    <div class="form-row"><label>Fuel Type</label><select><option>Diesel EN590</option><option>AI-95</option><option>AI-92</option><option>Jet A-1</option><option>Mazut M-100</option><option>LPG</option></select></div>
+    <div class="form-grid-2">
+      <div class="form-row"><label>Volume (tons)</label><input type="number" placeholder="e.g. 5000"></div>
+      <div class="form-row"><label>Price (USD/ton)</label><input type="number" placeholder="e.g. 680"></div>
+    </div>
+    <div class="form-row"><label>Origin Location</label><input type="text" placeholder="City, Country"></div>
+    <div class="form-row"><label>Additional Notes</label><textarea style="height:70px;resize:none" placeholder="Quality certificates, loading terms, minimum order…"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="document.getElementById('create-modal').classList.remove('open')">Cancel</button>
+      <button class="btn-primary" onclick="document.getElementById('create-modal').classList.remove('open')">Post Listing</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ——————————————————————————————
+// Navigation
+// ——————————————————————————————
+function nav(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const s=document.getElementById('screen-'+id);
+  if(s) s.classList.add('active');
+  const n=document.querySelector('[data-screen="'+id+'"]');
+  if(n) n.classList.add('active');
+}
+document.querySelectorAll('.nav-item[data-screen]').forEach(el=>{
+  el.addEventListener('click',()=>nav(el.dataset.screen));
+});
+
+// ——————————————————————————————
+// Ticker
+// ——————————————————————————————
+const tickerData=[
+  {name:'Diesel EN590',price:685.20,chg:+1.2},
+  {name:'AI-95',price:712.50,chg:-0.4},
+  {name:'AI-92',price:648.00,chg:+0.6},
+  {name:'Jet A-1',price:910.80,chg:+0.8},
+  {name:'Mazut M-100',price:310.40,chg:-0.9},
+  {name:'LPG',price:520.10,chg:+1.5},
+  {name:'Naphtha',price:580.00,chg:-0.2},
+  {name:'Fuel Oil',price:345.60,chg:+0.3},
+];
+function buildTicker(){
+  const t=document.getElementById('ticker');
+  const items=[...tickerData,...tickerData].map(d=>{
+    const up=d.chg>=0;
+    return `<div class="tick-item"><span class="tick-name">${d.name}</span><span class="tick-price">$${d.price.toFixed(2)}</span><span class="tick-chg ${up?'up':'dn'}">${up?'▲':'▼'} ${Math.abs(d.chg).toFixed(1)}%</span></div>`;
+  }).join('');
+  t.innerHTML=items;
+}
+buildTicker();
+
+// ——————————————————————————————
+// Marketplace Listings
+// ——————————————————————————————
+const listings=[
+  {fuel:'Diesel',badge:'badge-teal',seller:'KazMunayGas Trading',loc:'Atyrau, Kazakhstan',vol:20000,price:678,date:'25 Sep 2026'},
+  {fuel:'AI-95',badge:'badge-gold',seller:'AzEnergy Export',loc:'Baku, Azerbaijan',vol:8000,price:708,date:'24 Sep 2026'},
+  {fuel:'Jet A-1',badge:'badge-gold',seller:'Turkmenbashi Refinery',loc:'Turkmenbashi, TM',vol:5000,price:902,date:'23 Sep 2026'},
+  {fuel:'Mazut',badge:'badge-gray',seller:'UzNefteGaz LLC',loc:'Fergana, Uzbekistan',vol:15000,price:308,date:'22 Sep 2026'},
+  {fuel:'AI-92',badge:'badge-gray',seller:'Pavlodar Oil Refinery',loc:'Pavlodar, Kazakhstan',vol:12000,price:645,date:'21 Sep 2026'},
+  {fuel:'LPG',badge:'badge-teal',seller:'CaspGas International',loc:'Aktau, Kazakhstan',vol:3000,price:515,date:'20 Sep 2026'},
+  {fuel:'Diesel',badge:'badge-teal',seller:'Lukoil Central Asia',loc:'Tashkent, Uzbekistan',vol:7500,price:682,date:'19 Sep 2026'},
+  {fuel:'AI-95',badge:'badge-gold',seller:'Mangistau Energy',loc:'Aktau, Kazakhstan',vol:4000,price:715,date:'18 Sep 2026'},
+];
+let activeFilter='all';
+function filterListings(){
+  const country=document.getElementById('country-filter').value;
+  const c=document.getElementById('listings-container');
+  const filtered=listings.filter(l=>{
+    const fuelMatch=activeFilter==='all'||l.fuel===activeFilter;
+    const countryMatch=!country||l.loc.includes(country);
+    return fuelMatch&&countryMatch;
+  });
+  c.innerHTML=filtered.length===0?'<p style="color:var(--text-2);padding:20px">No listings match your filters.</p>':filtered.map(l=>`
+    <div class="listing-row">
+      <span class="badge ${l.badge}">${l.fuel}</span>
+      <div><div class="listing-seller">${l.seller}</div><div class="listing-location">${l.loc}</div></div>
+      <div class="listing-vol">${l.vol.toLocaleString()}<span> t</span></div>
+      <div class="listing-price">$${l.price}<span> /ton</span></div>
+      <div class="listing-date">${l.date}</div>
+      <button class="btn-contact">Contact</button>
+    </div>`).join('');
+}
+document.querySelectorAll('.chip[data-filter]').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('.chip[data-filter]').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    activeFilter=c.dataset.filter;
+    filterListings();
+  });
+});
+filterListings();
+
+// ——————————————————————————————
+// Price Reference
+// ——————————————————————————————
+const priceData=[
+  {fuel:'Diesel EN590',region:'Almaty Hub, KZ',price:685.20,d:+1.2,w:+2.8,sp:[660,665,672,668,678,680,685]},
+  {fuel:'AI-95 Petrol',region:'Baku Exchange, AZ',price:712.50,d:-0.4,w:+1.1,sp:[700,704,710,715,712,708,712]},
+  {fuel:'AI-92 Petrol',region:'Shymkent, KZ',price:648.00,d:+0.6,w:-0.3,sp:[652,648,644,646,648,647,648]},
+  {fuel:'Jet A-1',region:'Aktau Terminal, KZ',price:910.80,d:+0.8,w:+3.5,sp:[878,884,892,898,902,906,910]},
+  {fuel:'Mazut M-100',region:'Turkmenistan',price:310.40,d:-0.9,w:-2.1,sp:[320,318,316,315,313,312,310]},
+  {fuel:'LPG',region:'Fergana Valley, UZ',price:520.10,d:+1.5,w:+0.9,sp:[508,510,514,516,518,519,520]},
+  {fuel:'Naphtha',region:'Caspian Spot',price:580.00,d:-0.2,w:+1.4,sp:[572,574,576,578,580,581,580]},
+  {fuel:'Fuel Oil 380',region:'Aktau, KZ',price:345.60,d:+0.3,w:-1.0,sp:[350,348,346,347,346,346,345]},
+];
+function sparkSVG(vals){
+  const w=80,h=30,mn=Math.min(...vals),mx=Math.max(...vals),rng=mx-mn||1;
+  const pts=vals.map((v,i)=>`${i*(w/(vals.length-1))},${h-(v-mn)/rng*(h-4)-2}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="var(--gold)" stroke-width="1.5"/></svg>`;
+}
+function buildPrices(){
+  document.getElementById('prices-table').innerHTML=priceData.map(r=>{
+    const up=r.d>=0;const uw=r.w>=0;
+    return `<tr>
+      <td style="font-weight:600;color:var(--white)">${r.fuel}</td>
+      <td style="color:var(--text-2)">${r.region}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--gold-2)">$${r.price.toFixed(2)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:${up?'var(--green)':'var(--red)'}">${up?'▲':'▼'} ${Math.abs(r.d).toFixed(1)}%</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:${uw?'var(--green)':'var(--red)'}">${uw?'▲':'▼'} ${Math.abs(r.w).toFixed(1)}%</td>
+      <td>${sparkSVG(r.sp)}</td>
+      <td style="color:var(--text-2);font-size:12px">28 Sep 2026 09:${(14+priceData.indexOf(r)).toString().padStart(2,'0')} UTC</td>
+    </tr>`;
+  }).join('');
+}
+buildPrices();
+
+// ——————————————————————————————
+// Calculator
+// ——————————————————————————————
+const fuelPrices={'Diesel EN590':685,'AI-95 Petrol':712,'AI-92 Petrol':648,'Jet A-1':910,'Mazut M-100':310,'LPG':520};
+const transportRates={EXW:0,FCA:18,FOB:32,CIF:55};
+const dutyRates={Germany:0.065,Turkey:0.04,China:0.05,India:0.08,Poland:0.065,Kazakhstan:0.02};
+let selectedInco='EXW';
+function selectInco(el){
+  document.querySelectorAll('.inco-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  selectedInco=el.dataset.inco;
+  calcUpdate();
+}
+function fmt(n){return n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function calcUpdate(){
+  const fuel=document.getElementById('c-fuel').value;
+  const vol=parseFloat(document.getElementById('c-vol').value)||0;
+  const dest=document.getElementById('c-dest').value;
+  const base=(fuelPrices[fuel]||680)*vol;
+  const transport=(transportRates[selectedInco]||0)*vol;
+  const duty=(dutyRates[dest]||0.05)*base;
+  const fee=base*0.0035;
+  const total=base+transport+duty+fee;
+  document.getElementById('r-base').textContent='$'+fmt(base);
+  document.getElementById('r-transport').textContent='$'+fmt(transport);
+  document.getElementById('r-duties').textContent='$'+fmt(duty);
+  document.getElementById('r-fee').textContent='$'+fmt(fee);
+  document.getElementById('r-total').textContent='$'+fmt(total);
+}
+function sendQuote(){
+  const btn=document.getElementById('quote-btn');
+  const msg=document.getElementById('quote-success');
+  btn.textContent='Sending…';btn.disabled=true;
+  setTimeout(()=>{btn.textContent='Get Quote';btn.disabled=false;msg.style.display='block';},1600);
+}
+calcUpdate();
+
+// ——————————————————————————————
+// FAQ
+// ——————————————————————————————
+function toggleFaq(el){
+  const item=el.parentElement;
+  item.classList.toggle('open');
+}
+</script>
+</body>
+</html>
