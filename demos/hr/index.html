@@ -1,0 +1,686 @@
+<title>RestOS HR</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* dark-first single-theme: deliberate iOS dark */
+:root {
+  --bg: #161616;
+  --card: #1E1E1E;
+  --card2: #272727;
+  --gold: #0A84FF;
+  --gold-dim: rgba(10,132,255,0.12);
+  --border: rgba(255,255,255,0.07);
+  --white: #F5F5F5;
+  --muted: rgba(245,245,245,0.45);
+  --danger: #FF453A;
+  --success: #30D158;
+  --warning: #FFD60A;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.6);
+  --sidebar: 240px;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--white);font-size:14px;line-height:1.5}
+
+/* Demo banner */
+#demo-banner{background:var(--gold);color:#fff;text-align:center;padding:6px 16px;font-size:12px;font-weight:600;letter-spacing:.04em;position:fixed;top:0;left:0;right:0;z-index:100}
+#app{display:flex;height:100%;padding-top:30px}
+
+/* Sidebar */
+#sidebar{width:var(--sidebar);min-width:var(--sidebar);background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100%;overflow:hidden;flex-shrink:0}
+.sidebar-brand{padding:20px 16px 12px;border-bottom:1px solid var(--border)}
+.sidebar-brand h1{font-size:18px;font-weight:700;color:var(--white);letter-spacing:-.02em}
+.sidebar-brand p{font-size:11px;color:var(--muted);margin-top:2px}
+nav{flex:1;padding:8px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;border-radius:0;transition:background .15s;position:relative;font-size:13px;font-weight:500;color:var(--muted)}
+.nav-item:hover{background:var(--card2);color:var(--white)}
+.nav-item.active{color:var(--gold);background:var(--gold-dim)}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;border-radius:9px;font-size:10px;font-weight:700;padding:1px 6px;min-width:18px;text-align:center}
+.sidebar-user{padding:12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;display:inline-block;margin-top:2px}
+.btn-logout{padding:5px 10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);cursor:pointer;font-size:11px;font-family:inherit;transition:all .15s;white-space:nowrap}
+.btn-logout:hover{border-color:var(--danger);color:var(--danger)}
+
+/* Main content */
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
+.screen{display:none;flex:1;flex-direction:column;padding:24px;gap:16px;animation:fadeIn .2s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.screen-title{font-size:20px;font-weight:700;letter-spacing:-.02em}
+
+/* Stats strip */
+.stats-strip{display:flex;gap:12px;flex-wrap:wrap}
+.stat-pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:8px 16px;display:flex;align-items:center;gap:8px;font-size:13px}
+.stat-pill span:first-child{font-size:16px}
+.stat-val{font-weight:700;color:var(--white)}
+.stat-lbl{color:var(--muted)}
+
+/* Skill path */
+.skill-path-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.skill-path-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
+.skill-path{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px}
+.module-node{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
+.module-node-circle{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .15s;border:2px solid transparent}
+.module-node-circle.done{background:#30D15820;border-color:var(--success)}
+.module-node-circle.current{background:var(--gold-dim);border-color:var(--gold)}
+.module-node-circle.locked{background:var(--card2);border-color:var(--border);opacity:.5}
+.module-node:hover .module-node-circle:not(.locked){transform:scale(1.08)}
+.module-node-label{font-size:11px;font-weight:500;color:var(--muted);text-align:center;max-width:72px;line-height:1.3}
+.module-node-label.active-lbl{color:var(--gold)}
+.path-line{flex:1;height:2px;background:var(--border);min-width:20px;max-width:48px;flex-shrink:0;margin-top:-20px}
+.path-line.done-line{background:var(--success)}
+
+/* Module cards */
+.module-cards{display:flex;flex-direction:column;gap:8px}
+.module-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s,background .15s}
+.module-card:hover:not(.locked-card){border-color:var(--gold);background:var(--card2)}
+.module-card.locked-card{opacity:.5;cursor:default}
+.module-card.active-card{border-color:var(--gold);background:var(--gold-dim)}
+.mc-icon{font-size:22px;width:36px;text-align:center;flex-shrink:0}
+.mc-body{flex:1;min-width:0}
+.mc-title{font-size:14px;font-weight:600}
+.mc-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.mc-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-done{background:#30D15820;color:var(--success)}
+.badge-active{background:var(--gold-dim);color:var(--gold)}
+.badge-locked{background:var(--card2);color:var(--muted)}
+
+/* Step viewer */
+.step-viewer{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;gap:14px}
+.step-header{display:flex;align-items:center;gap:10px}
+.btn-back{background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
+.btn-back:hover{border-color:var(--white);color:var(--white)}
+.step-prog{font-size:12px;color:var(--muted);margin-left:auto}
+.step-title{font-size:17px;font-weight:700}
+.step-content{color:rgba(245,245,245,.8);line-height:1.65;font-size:14px}
+.step-bar{background:var(--card2);border-radius:4px;height:4px;overflow:hidden}
+.step-bar-fill{height:4px;background:var(--gold);border-radius:4px;transition:width .3s ease}
+.btn-primary{background:var(--gold);color:#fff;border:none;border-radius:var(--radius);padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;align-self:flex-start}
+.btn-primary:hover{opacity:.85}
+
+/* Quiz */
+.quiz-wrap{display:flex;flex-direction:column;gap:16px}
+.quiz-q{font-size:14px;font-weight:600;margin-bottom:8px}
+.quiz-opts{display:flex;flex-direction:column;gap:6px}
+.quiz-opt{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;cursor:pointer;transition:border-color .15s}
+.quiz-opt:hover{border-color:var(--gold)}
+.quiz-opt input{accent-color:var(--gold)}
+.quiz-opt label{cursor:pointer;font-size:13px}
+
+/* Certificate */
+.cert-wrap{background:linear-gradient(135deg,#1a2640,#111827);border:1px solid var(--gold);border-radius:var(--radius-lg);padding:32px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.cert-icon{font-size:48px;margin-bottom:4px}
+.cert-title{font-size:20px;font-weight:700;color:var(--gold)}
+.cert-sub{color:var(--muted);font-size:13px}
+.cert-xp{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold);border-radius:20px;padding:6px 18px;font-weight:700;font-size:14px;margin-top:4px}
+
+/* Chat */
+.chat-layout{display:flex;gap:0;flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;min-height:500px}
+.chat-rooms{width:180px;min-width:180px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.chat-rooms-header{padding:14px 14px 10px;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.room-item{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--muted);border-left:2px solid transparent;transition:all .15s}
+.room-item:hover{background:var(--card2);color:var(--white)}
+.room-item.active{color:var(--gold);background:var(--gold-dim);border-left-color:var(--gold)}
+.chat-main{flex:1;display:flex;flex-direction:column;min-width:0}
+.chat-topbar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.chat-topbar-name{font-weight:600;font-size:14px}
+.chat-topbar-count{font-size:12px;color:var(--muted)}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.msg-body{flex:1;min-width:0}
+.msg-meta{display:flex;align-items:baseline;gap:6px;margin-bottom:3px}
+.msg-name{font-size:13px;font-weight:600}
+.msg-role-tag{font-size:10px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:3px;padding:1px 5px}
+.msg-time{font-size:11px;color:var(--muted)}
+.msg-text{font-size:13px;color:rgba(245,245,245,.85);line-height:1.55}
+.chat-input-wrap{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.chat-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--white);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+.chat-input:focus{border-color:var(--gold)}
+.btn-send{background:var(--gold);color:#fff;border:none;border-radius:var(--radius);padding:9px 16px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:opacity .15s;white-space:nowrap}
+.btn-send:hover{opacity:.85}
+
+/* Checklists */
+.date-tabs{display:flex;gap:6px}
+.date-tab{padding:7px 16px;border-radius:20px;background:var(--card);border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .15s}
+.date-tab:hover{border-color:var(--white);color:var(--white)}
+.date-tab.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+.progress-header{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;display:flex;align-items:center;gap:20px}
+.ring-wrap{position:relative;width:72px;height:72px;flex-shrink:0}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:7}
+.ring-fg{fill:none;stroke:var(--gold);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .4s ease}
+.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.prog-info{flex:1}
+.prog-title{font-size:16px;font-weight:700}
+.prog-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.btn-hist{margin-left:auto;background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:7px 14px;color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;white-space:nowrap}
+.btn-hist:hover{border-color:var(--white);color:var(--white)}
+.cl-sections{display:flex;flex-direction:column;gap:8px}
+.cl-section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.cl-section-header{padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .15s}
+.cl-section-header:hover{background:var(--card2)}
+.cl-section-icon{font-size:16px}
+.cl-section-title{font-size:14px;font-weight:600;flex:1}
+.cl-section-count{font-size:12px;color:var(--muted)}
+.cl-chevron{color:var(--muted);transition:transform .2s;font-size:11px}
+.cl-section.open .cl-chevron{transform:rotate(90deg)}
+.cl-tasks{padding:0 16px 12px;display:flex;flex-direction:column;gap:4px;display:none}
+.cl-section.open .cl-tasks{display:flex}
+.cl-task{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.cl-task:last-child{border-bottom:none}
+.cl-task input[type=checkbox]{width:17px;height:17px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+.cl-task-label{font-size:13px;cursor:pointer;transition:color .15s}
+.cl-task-label.done{color:var(--muted);text-decoration:line-through}
+
+/* History table */
+.hist-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.hist-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.hist-table th{padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.hist-table td{padding:10px 16px;font-size:13px;border-bottom:1px solid var(--border)}
+.hist-table tr:last-child td{border-bottom:none}
+.hist-bar-cell{width:140px}
+.hist-bar{background:var(--card2);border-radius:3px;height:8px;overflow:hidden}
+.hist-bar-fill{height:8px;border-radius:3px;background:var(--gold)}
+
+/* Responsive */
+@media(max-width:640px){
+  :root{--sidebar:0px}
+  #sidebar{display:none}
+  .screen{padding:16px}
+  .chat-rooms{display:none}
+  .skill-path-wrap{overflow-x:hidden}
+  .stats-strip{flex-direction:column}
+}
+</style>
+
+<!-- Demo banner -->
+<div id="demo-banner">🚀 Demo Site — RestOS HR Platform</div>
+
+<div id="app">
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-brand">
+      <h1>RestOS</h1>
+      <p>Demo Platform</p>
+    </div>
+    <nav>
+      <div class="nav-item active" data-screen="onboard" onclick="switchScreen('onboard',this)">
+        <span class="nav-icon">🎓</span> Онбординг
+      </div>
+      <div class="nav-item" data-screen="chat" onclick="switchScreen('chat',this)">
+        <span class="nav-icon">💬</span> Чат
+        <span class="nav-badge" id="chat-badge">3</span>
+      </div>
+      <div class="nav-item" data-screen="checklist" onclick="switchScreen('checklist',this)">
+        <span class="nav-icon">✅</span> Чек-листы
+      </div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="avatar" style="background:#5E5CE6">АК</div>
+      <div class="user-info">
+        <div class="user-name">Айдан Кержанова</div>
+        <div class="user-role">Сотрудник</div>
+      </div>
+      <button class="btn-logout">Выйти</button>
+    </div>
+  </aside>
+
+  <!-- ONBOARDING SCREEN -->
+  <div id="screen-onboard" class="screen active">
+    <div class="screen-title">Онбординг</div>
+
+    <div class="stats-strip">
+      <div class="stat-pill"><span>⚡</span><span class="stat-lbl">XP заработано:</span><span class="stat-val">240</span></div>
+      <div class="stat-pill"><span>🏆</span><span class="stat-lbl">Пройдено модулей:</span><span class="stat-val">2 / 5</span></div>
+    </div>
+
+    <div class="skill-path-wrap">
+      <div class="skill-path-title">Путь обучения</div>
+      <div class="skill-path">
+        <div class="module-node" onclick="openModule(0)">
+          <div class="module-node-circle done">✅</div>
+          <div class="module-node-label">Введение</div>
+        </div>
+        <div class="path-line done-line"></div>
+        <div class="module-node" onclick="openModule(1)">
+          <div class="module-node-circle done">✅</div>
+          <div class="module-node-label">Безопасность</div>
+        </div>
+        <div class="path-line done-line"></div>
+        <div class="module-node" onclick="openModule(2)">
+          <div class="module-node-circle current">📖</div>
+          <div class="module-node-label active-lbl">Работа с гостями</div>
+        </div>
+        <div class="path-line"></div>
+        <div class="module-node">
+          <div class="module-node-circle locked">🔒</div>
+          <div class="module-node-label">Касса</div>
+        </div>
+        <div class="path-line"></div>
+        <div class="module-node">
+          <div class="module-node-circle locked">🔒</div>
+          <div class="module-node-label">Склад</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Module list -->
+    <div id="module-list" class="module-cards">
+      <div class="module-card" onclick="openModule(0)">
+        <div class="mc-icon">✅</div>
+        <div class="mc-body">
+          <div class="mc-title">1. Введение</div>
+          <div class="mc-meta">4 шага · 40 XP</div>
+        </div>
+        <span class="mc-badge badge-done">Завершено</span>
+      </div>
+      <div class="module-card" onclick="openModule(1)">
+        <div class="mc-icon">✅</div>
+        <div class="mc-body">
+          <div class="mc-title">2. Безопасность на кухне</div>
+          <div class="mc-meta">5 шагов · 60 XP</div>
+        </div>
+        <span class="mc-badge badge-done">Завершено</span>
+      </div>
+      <div class="module-card active-card" onclick="openModule(2)">
+        <div class="mc-icon">📖</div>
+        <div class="mc-body">
+          <div class="mc-title">3. Работа с гостями</div>
+          <div class="mc-meta">4 шага · 80 XP</div>
+        </div>
+        <span class="mc-badge badge-active">В процессе</span>
+      </div>
+      <div class="module-card locked-card">
+        <div class="mc-icon">🔒</div>
+        <div class="mc-body">
+          <div class="mc-title">4. Кассовое оборудование</div>
+          <div class="mc-meta">6 шагов · 100 XP</div>
+        </div>
+        <span class="mc-badge badge-locked">Заблокировано</span>
+      </div>
+      <div class="module-card locked-card">
+        <div class="mc-icon">🔒</div>
+        <div class="mc-body">
+          <div class="mc-title">5. Работа со складом</div>
+          <div class="mc-meta">5 шагов · 90 XP</div>
+        </div>
+        <span class="mc-badge badge-locked">Заблокировано</span>
+      </div>
+    </div>
+
+    <!-- Step viewer (hidden) -->
+    <div id="step-viewer" class="step-viewer" style="display:none">
+      <div class="step-header">
+        <button class="btn-back" onclick="closeModule()">← Назад</button>
+        <div class="step-prog" id="step-prog-label">Шаг 1 из 4</div>
+      </div>
+      <div class="step-bar"><div class="step-bar-fill" id="step-bar-fill" style="width:25%"></div></div>
+      <div class="step-title" id="step-title"></div>
+      <div class="step-content" id="step-content"></div>
+      <button class="btn-primary" id="step-btn" onclick="nextStep()">Следующий шаг →</button>
+    </div>
+
+    <!-- Quiz (hidden) -->
+    <div id="quiz-wrap" class="step-viewer" style="display:none">
+      <div class="step-header">
+        <button class="btn-back" onclick="closeModule()">← Назад</button>
+        <div class="step-prog">Финальный тест</div>
+      </div>
+      <div class="step-title">Проверка знаний: Работа с гостями</div>
+      <div class="quiz-wrap" id="quiz-body"></div>
+      <button class="btn-primary" onclick="submitQuiz()">Проверить ответы</button>
+    </div>
+
+    <!-- Certificate (hidden) -->
+    <div id="cert-wrap" class="step-viewer" style="display:none">
+      <div class="cert-wrap">
+        <div class="cert-icon">🏆</div>
+        <div class="cert-title">Модуль завершён!</div>
+        <div style="font-size:17px;font-weight:700;margin-top:4px">Работа с гостями</div>
+        <div class="cert-sub">Айдан Кержанова успешно прошла модуль<br>28 сентября 2026 г.</div>
+        <div class="cert-xp">+80 XP заработано</div>
+        <button class="btn-primary" style="margin-top:8px;align-self:center" onclick="closeModule()">Вернуться к программе</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT SCREEN -->
+  <div id="screen-chat" class="screen">
+    <div class="screen-title">Чат</div>
+    <div class="chat-layout">
+      <div class="chat-rooms">
+        <div class="chat-rooms-header">Каналы</div>
+        <div class="room-item active" onclick="switchRoom('general',this)">💬 Общий чат</div>
+        <div class="room-item" onclick="switchRoom('kitchen',this)">🍳 Кухня</div>
+        <div class="room-item" onclick="switchRoom('stock',this)">🛒 Склад</div>
+      </div>
+      <div class="chat-main">
+        <div class="chat-topbar">
+          <span style="font-size:18px" id="room-icon">💬</span>
+          <span class="chat-topbar-name" id="room-name">Общий чат</span>
+          <span class="chat-topbar-count" id="room-count">3 участника</span>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-wrap">
+          <input class="chat-input" id="chat-input" placeholder="Написать сообщение..." autocomplete="off" onkeydown="if(event.key==='Enter')sendMessage()">
+          <button class="btn-send" onclick="sendMessage()">Отправить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST SCREEN -->
+  <div id="screen-checklist" class="screen">
+    <div class="screen-title">Чек-листы</div>
+    <div class="date-tabs">
+      <div class="date-tab active" onclick="switchDate(0,this)">Сегодня 🔥</div>
+      <div class="date-tab" onclick="switchDate(1,this)">Вчера</div>
+      <div class="date-tab" onclick="switchDate(2,this)" id="tab-day2"></div>
+    </div>
+    <div class="progress-header">
+      <div class="ring-wrap">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle class="ring-bg" cx="36" cy="36" r="30"/>
+          <circle class="ring-fg" id="ring-fg" cx="36" cy="36" r="30" stroke-dasharray="188.5" stroke-dashoffset="60"/>
+        </svg>
+        <div class="ring-pct" id="ring-pct">68%</div>
+      </div>
+      <div class="prog-info">
+        <div class="prog-title" id="prog-title">Прогресс смены</div>
+        <div class="prog-sub" id="prog-sub">13 из 19 задач</div>
+      </div>
+      <button class="btn-hist" onclick="toggleHistory()">История</button>
+    </div>
+
+    <!-- History (hidden) -->
+    <div id="hist-panel" style="display:none" class="hist-table-wrap">
+      <table class="hist-table">
+        <thead><tr><th>Дата</th><th>Выполнено</th><th>Всего</th><th class="hist-bar-cell">Прогресс</th></tr></thead>
+        <tbody id="hist-body"></tbody>
+      </table>
+    </div>
+
+    <div class="cl-sections" id="cl-sections"></div>
+  </div>
+</div>
+
+<script>
+// ── Onboarding ───────────────────────────────────────────────────────────────
+const modules = [
+  {title:'Введение',steps:[
+    {t:'Добро пожаловать в RestOS',c:'Добро пожаловать в команду нашего ресторана! RestOS — платформа, которая помогает новым сотрудникам быстро освоиться. Вы найдёте здесь всё необходимое для успешного старта.'},
+    {t:'Структура команды',c:'Наш ресторан работает по чётко выстроенной иерархии: управляющий, су-шефы, повара, официанты и хостес. Каждый знает свою роль и ответственность — это залог слаженной работы.'},
+    {t:'Рабочий график',c:'Смены планируются еженедельно в системе RestOS. Вы получаете уведомление о расписании за 5 дней. Замена смены согласовывается с менеджером не позднее чем за 24 часа.'},
+    {t:'Первый рабочий день',c:'В первый день вас встретит менеджер смены, проведёт экскурсию и представит команде. Все рабочие инструменты и доступы будут настроены заранее.'}
+  ]},
+  {title:'Безопасность на кухне',steps:[
+    {t:'Правила личной гигиены',c:'Обязательны чистая спецодежда, вымытые руки перед каждым касанием продуктов и после работы с сырьём. Украшения, часы и телефоны на кухне запрещены.'},
+    {t:'Температурный контроль',c:'Холодные блюда хранятся при 0–4°C, горячие — не ниже 65°C. Каждые 2 часа проводится контрольный замер и фиксируется в журнале ХАССП.'},
+    {t:'Работа с оборудованием',c:'Перед использованием любого прибора прочтите инструкцию, закреплённую на нём. Неисправное оборудование немедленно выводится из эксплуатации и помечается красным стикером.'},
+    {t:'Пожарная безопасность',c:'Эвакуационные выходы должны быть свободны в любое время. Огнетушитель находится у входа на кухню. Ознакомьтесь с планом эвакуации, размещённым у раздевалки.'},
+    {t:'Инциденты и травмы',c:'Любой порез, ожог или падение фиксируется в журнале происшествий немедленно. Оказание первой помощи — аптечка у поста менеджера. При серьёзной травме вызывайте 103.'}
+  ]},
+  {title:'Работа с гостями',steps:[
+    {t:'Приветствие гостя',c:'Гость должен быть встречен в течение 30 секунд после входа. Улыбка, зрительный контакт и искреннее «Добро пожаловать!» — основа первого впечатления. Если вы заняты, кивок и короткое «Одну минуту» лучше, чем игнорирование.'},
+    {t:'Принятие заказа',c:'Предложите меню, дайте 2–3 минуты на выбор, затем подойдите. Уточняйте предпочтения: степень прожарки, аллергии, детали к напиткам. Повторите заказ вслух для подтверждения и улыбнитесь.'},
+    {t:'Обслуживание за столом',c:'Блюда подаются слева, напитки — справа. При принесении блюда называйте его название. Проверяйте удовлетворённость гостя через 2 минуты после подачи — одна фраза «Всё в порядке?» создаёт доверие.'},
+    {t:'Работа с жалобами',c:'Выслушайте гостя, не перебивая. Принесите извинения, даже если вины нет — это разряжает напряжение. Предложите решение: замену блюда, скидку или комплимент. Сообщите менеджеру о любой жалобе.'}
+  ]}
+];
+
+const quiz = [
+  {q:'Как быстро нужно встретить гостя?',opts:['Когда освободитесь','В течение 30 секунд','В течение 2 минут','После того как он сядет'],ans:1},
+  {q:'Что делать, если гость жалуется?',opts:['Объяснить, что вы не виноваты','Позвать менеджера и уйти','Выслушать и предложить решение','Предложить скидку без извинений'],ans:2},
+  {q:'С какой стороны подают напитки?',opts:['Слева','Справа','С любой','Только с торца'],ans:1}
+];
+
+let currentModule = null, currentStep = 0;
+
+function openModule(idx) {
+  if (idx > 2) return;
+  currentModule = idx;
+  currentStep = 0;
+  document.getElementById('module-list').style.display = 'none';
+  document.querySelectorAll('.skill-path-wrap,.stats-strip').forEach(e=>e.style.display='none');
+  showStep();
+}
+
+function showStep() {
+  const mod = modules[currentModule];
+  const sv = document.getElementById('step-viewer');
+  document.getElementById('quiz-wrap').style.display = 'none';
+  document.getElementById('cert-wrap').style.display = 'none';
+  sv.style.display = 'flex';
+  const total = mod.steps.length;
+  document.getElementById('step-prog-label').textContent = `Шаг ${currentStep+1} из ${total}`;
+  document.getElementById('step-bar-fill').style.width = ((currentStep+1)/total*100)+'%';
+  document.getElementById('step-title').textContent = mod.steps[currentStep].t;
+  document.getElementById('step-content').textContent = mod.steps[currentStep].c;
+  document.getElementById('step-btn').textContent = currentStep < total-1 ? 'Следующий шаг →' : 'Начать тест ✏️';
+}
+
+function nextStep() {
+  const mod = modules[currentModule];
+  if (currentStep < mod.steps.length - 1) { currentStep++; showStep(); return; }
+  if (currentModule !== 2) { showCert(); return; }
+  document.getElementById('step-viewer').style.display = 'none';
+  const qb = document.getElementById('quiz-body');
+  qb.innerHTML = quiz.map((q,i)=>`
+    <div><div class="quiz-q">${i+1}. ${q.q}</div>
+    <div class="quiz-opts">${q.opts.map((o,j)=>`
+      <div class="quiz-opt"><input type="radio" name="q${i}" id="q${i}o${j}" value="${j}"><label for="q${i}o${j}">${o}</label>
+      </div>`).join('')}</div></div>`).join('');
+  document.getElementById('quiz-wrap').style.display = 'flex';
+}
+
+function submitQuiz() {
+  let ok = true;
+  quiz.forEach((q,i)=>{ const r = document.querySelector(`input[name=q${i}]:checked`); if(!r||+r.value!==q.ans) ok=false; });
+  if (!ok) { alert('Не все ответы верны. Попробуйте ещё раз!'); return; }
+  showCert();
+}
+
+function showCert() {
+  document.getElementById('step-viewer').style.display = 'none';
+  document.getElementById('quiz-wrap').style.display = 'none';
+  document.getElementById('cert-wrap').style.display = 'flex';
+}
+
+function closeModule() {
+  currentModule = null;
+  ['step-viewer','quiz-wrap','cert-wrap'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('module-list').style.display='flex';
+  document.querySelectorAll('.skill-path-wrap,.stats-strip').forEach(e=>e.style.display='');
+}
+
+// ── Chat ─────────────────────────────────────────────────────────────────────
+const rooms = {
+  general:{icon:'💬',name:'Общий чат',count:'3 участника',msgs:[
+    {av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:'09:14',text:'Всем привет! Готова к смене 🙌'},
+    {av:'ДМ',color:'#30D158',name:'Диас Мухамедов',role:'Менеджер',time:'09:17',text:'Привет! Сегодня ожидаем большой поток — банкет на 30 человек в 19:00.'},
+    {av:'ЗН',color:'#FF9F0A',name:'Зарина Нурова',role:'Сотрудник',time:'09:22',text:'Поняла, подготовлю зал заранее.'},
+    {av:'ДМ',color:'#30D158',name:'Диас Мухамедов',role:'Менеджер',time:'09:25',text:'Форма — чистая, причёска убрана. Инструктаж в 10:00 у входа.'},
+    {av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:'09:28',text:'Буду вовремя ✅'}
+  ]},
+  kitchen:{icon:'🍳',name:'Кухня',count:'2 участника',msgs:[
+    {av:'ИС',color:'#FF453A',name:'Иван Соколов',role:'Су-шеф',time:'08:45',text:'Доставка продуктов задерживается на 30 минут.'},
+    {av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:'08:48',text:'Понял, успеем подготовить заготовки.'},
+    {av:'ИС',color:'#FF453A',name:'Иван Соколов',role:'Су-шеф',time:'08:52',text:'Проверьте запасы лосося — вчера использовали много.'},
+    {av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:'08:55',text:'Остаток 2.4 кг, должно хватить до доставки.'},
+    {av:'ИС',color:'#FF453A',name:'Иван Соколов',role:'Су-шеф',time:'09:00',text:'Отлично. Начинаем подготовку соусов.'}
+  ]},
+  stock:{icon:'🛒',name:'Склад',count:'2 участника',msgs:[
+    {av:'БА',color:'#0A84FF',name:'Болат Ахметов',role:'Менеджер',time:'07:30',text:'Сделал инвентаризацию: недостача сыра моцарелла 800г.'},
+    {av:'ЗН',color:'#FF9F0A',name:'Зарина Нурова',role:'Сотрудник',time:'07:45',text:'Вчера брали под банкет, всё в накладной.'},
+    {av:'БА',color:'#0A84FF',name:'Болат Ахметов',role:'Менеджер',time:'07:50',text:'Нашёл накладную, всё сходится. ОК.'},
+    {av:'ЗН',color:'#FF9F0A',name:'Зарина Нурова',role:'Сотрудник',time:'08:15',text:'Дозаказ на пятницу уже сформирован.'},
+    {av:'БА',color:'#0A84FF',name:'Болат Ахметов',role:'Менеджер',time:'08:20',text:'Подтверждаю. Накладную отправь в бухгалтерию.'}
+  ]}
+};
+let activeRoom = 'general';
+
+function switchRoom(key,el) {
+  activeRoom = key;
+  document.querySelectorAll('.room-item').forEach(r=>r.classList.remove('active'));
+  el.classList.add('active');
+  const r = rooms[key];
+  document.getElementById('room-icon').textContent = r.icon;
+  document.getElementById('room-name').textContent = r.name;
+  document.getElementById('room-count').textContent = r.count;
+  renderMessages();
+}
+
+function renderMessages() {
+  const wrap = document.getElementById('chat-messages');
+  wrap.innerHTML = rooms[activeRoom].msgs.map(m=>`
+    <div class="msg">
+      <div class="msg-av" style="background:${m.color}">${m.av}</div>
+      <div class="msg-body">
+        <div class="msg-meta">
+          <span class="msg-name">${m.name}</span>
+          <span class="msg-role-tag">${m.role}</span>
+          <span class="msg-time">${m.time}</span>
+        </div>
+        <div class="msg-text">${m.text}</div>
+      </div>
+    </div>`).join('');
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  rooms[activeRoom].msgs.push({av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:t,text});
+  input.value = '';
+  renderMessages();
+  const badge = document.getElementById('chat-badge');
+  if (badge) badge.style.display='none';
+}
+
+// ── Checklist ────────────────────────────────────────────────────────────────
+const checklistData = [
+  [
+    {section:'🌅 Открытие смены',tasks:['Надеть форму и пройти осмотр','Проверить чистоту рабочей зоны','Принять товар по накладной','Проверить температуры холодильников','Подготовить кассу к работе'],done:[true,true,true,true,false]},
+    {section:'🍽 Обслуживание',tasks:['Расставить меню на столы','Подготовить комплименты','Проверить наличие специй','Заполнить журнал уборки','Подготовить детские стулья','Проверить чистоту туалетов','Пополнить салфетницы','Зарядить терминалы оплаты'],done:[true,true,true,false,false,false,false,false]},
+    {section:'🌙 Закрытие смены',tasks:['Пересчитать выручку кассы','Убрать зал','Вымыть кухонное оборудование','Заполнить журнал ХАССП','Сдать ключи менеджеру','Отчёт по ингредиентам'],done:[false,false,false,false,false,false]}
+  ],
+  [
+    {section:'🌅 Открытие смены',tasks:['Надеть форму и пройти осмотр','Проверить чистоту рабочей зоны','Принять товар по накладной','Проверить температуры холодильников','Подготовить кассу к работе'],done:[true,true,true,true,true]},
+    {section:'🍽 Обслуживание',tasks:['Расставить меню на столы','Подготовить комплименты','Проверить наличие специй','Заполнить журнал уборки','Подготовить детские стулья','Проверить чистоту туалетов','Пополнить салфетницы','Зарядить терминалы оплаты'],done:[true,true,true,true,true,true,false,true]},
+    {section:'🌙 Закрытие смены',tasks:['Пересчитать выручку кассы','Убрать зал','Вымыть кухонное оборудование','Заполнить журнал ХАССП','Сдать ключи менеджеру','Отчёт по ингредиентам'],done:[true,true,true,true,true,true]}
+  ],
+  [
+    {section:'🌅 Открытие смены',tasks:['Надеть форму и пройти осмотр','Проверить чистоту рабочей зоны','Принять товар по накладной','Проверить температуры холодильников','Подготовить кассу к работе'],done:[true,true,true,false,false]},
+    {section:'🍽 Обслуживание',tasks:['Расставить меню на столы','Подготовить комплименты','Проверить наличие специй','Заполнить журнал уборки','Подготовить детские стулья','Проверить чистоту туалетов','Пополнить салфетницы','Зарядить терминалы оплаты'],done:[true,true,false,false,false,false,false,false]},
+    {section:'🌙 Закрытие смены',tasks:['Пересчитать выручку кассы','Убрать зал','Вымыть кухонное оборудование','Заполнить журнал ХАССП','Сдать ключи менеджеру','Отчёт по ингредиентам'],done:[false,false,false,false,false,false]}
+  ]
+];
+
+let currentDay = 0;
+const histData = [
+  {date:'28.09',done:13,total:19},{date:'27.09',done:19,total:19},{date:'26.09',done:11,total:19},
+  {date:'25.09',done:17,total:19},{date:'24.09',done:19,total:19},{date:'23.09',done:14,total:19},{date:'22.09',done:18,total:19}
+];
+
+function getDateLabel(offset) {
+  const d = new Date(); d.setDate(d.getDate()-offset);
+  return d.getDate().toString().padStart(2,'0')+'.'+(d.getMonth()+1).toString().padStart(2,'0');
+}
+
+function countProgress(dayIdx) {
+  const day = checklistData[dayIdx];
+  let done=0,total=0;
+  day.forEach(s=>{ total+=s.tasks.length; done+=s.done.filter(Boolean).length; });
+  return {done,total};
+}
+
+function updateRing(dayIdx) {
+  const {done,total} = countProgress(dayIdx);
+  const pct = total ? Math.round(done/total*100) : 0;
+  const circ = 188.5;
+  const offset = circ - (circ * pct / 100);
+  document.getElementById('ring-fg').style.strokeDashoffset = offset;
+  document.getElementById('ring-pct').textContent = pct+'%';
+  document.getElementById('prog-sub').textContent = `${done} из ${total} задач`;
+}
+
+function renderChecklist(dayIdx) {
+  const day = checklistData[dayIdx];
+  const wrap = document.getElementById('cl-sections');
+  wrap.innerHTML = day.map((sec,si)=>`
+    <div class="cl-section ${si===0?'open':''}" id="sec-${si}">
+      <div class="cl-section-header" onclick="toggleSection(${si})">
+        <span class="cl-section-icon">${sec.section.split(' ')[0]}</span>
+        <span class="cl-section-title">${sec.section.split(' ').slice(1).join(' ')}</span>
+        <span class="cl-section-count" id="sec-count-${si}">${sec.done.filter(Boolean).length}/${sec.tasks.length}</span>
+        <span class="cl-chevron">▶</span>
+      </div>
+      <div class="cl-tasks">
+        ${sec.tasks.map((t,ti)=>`
+          <div class="cl-task">
+            <input type="checkbox" id="t-${si}-${ti}" ${sec.done[ti]?'checked':''} onchange="toggleTask(${si},${ti},this)">
+            <label class="cl-task-label${sec.done[ti]?' done':''}" for="t-${si}-${ti}">${t}</label>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+  updateRing(dayIdx);
+}
+
+function toggleSection(si) {
+  document.getElementById('sec-'+si).classList.toggle('open');
+}
+
+function toggleTask(si, ti, cb) {
+  checklistData[currentDay][si].done[ti] = cb.checked;
+  const lbl = cb.nextElementSibling;
+  lbl.classList.toggle('done', cb.checked);
+  const sec = checklistData[currentDay][si];
+  document.getElementById('sec-count-'+si).textContent = sec.done.filter(Boolean).length+'/'+sec.tasks.length;
+  updateRing(currentDay);
+}
+
+function switchDate(idx, el) {
+  currentDay = idx;
+  document.querySelectorAll('.date-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('hist-panel').style.display='none';
+  renderChecklist(idx);
+}
+
+function toggleHistory() {
+  const hp = document.getElementById('hist-panel');
+  if (hp.style.display==='none'||!hp.style.display) {
+    const tbody = document.getElementById('hist-body');
+    tbody.innerHTML = histData.map(d=>{
+      const pct = Math.round(d.done/d.total*100);
+      return `<tr><td>${d.date}</td><td>${d.done}</td><td>${d.total}</td><td class="hist-bar-cell"><div class="hist-bar"><div class="hist-bar-fill" style="width:${pct}%"></div></div></td></tr>`;
+    }).join('');
+    hp.style.display='block';
+  } else { hp.style.display='none'; }
+}
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function switchScreen(key, el) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('screen-'+key).classList.add('active');
+  el.classList.add('active');
+  if (key==='chat') { renderMessages(); document.getElementById('chat-badge').style.display='none'; }
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+(function init(){
+  const d = new Date(); d.setDate(d.getDate()-2);
+  document.getElementById('tab-day2').textContent = d.getDate().toString().padStart(2,'0')+'.'+(d.getMonth()+1).toString().padStart(2,'0');
+  renderChecklist(0);
+})();
+</script>
