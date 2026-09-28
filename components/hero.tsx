@@ -1,253 +1,193 @@
 "use client";
 
-import { siteConfig, techStack } from "@/lib/data";
+import { siteConfig, techStack, projects } from "@/lib/data";
 import { useLang } from "@/lib/i18n";
+import { useEffect, useRef } from "react";
 
 export function Hero() {
   const { t } = useLang();
   const doubled = [...techStack, ...techStack];
+  const heroRef = useRef<HTMLDivElement>(null);
 
-  const recentWork = [
-    { name: "Shipter", stack: "Python · FastAPI", color: "#fb923c", ago: "2d ago" },
-    { name: "DizelTrade", stack: "Python · Next.js", color: "#8b5cf6", ago: "1w ago" },
-    { name: "RentoWorld", stack: "HTML · JS · CSS", color: "#22d3ee", ago: "2w ago" },
-  ];
+  // Subtle parallax on scroll — transform only (GPU)
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > window.innerHeight) return;
+      const orbs = hero.querySelectorAll<HTMLElement>(".hero-orb");
+      orbs.forEach((orb, i) => {
+        const speed = (i % 2 === 0 ? 0.15 : -0.1);
+        orb.style.transform = `translateY(${y * speed}px)`;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const stats = [
-    { num: "5+", label: t.hero.statProjects },
-    { num: "3+", label: t.hero.statYears },
-    { num: "15+", label: t.hero.statTech },
+    { num: 9,  suffix: "+", label: t.hero.statProjects },
+    { num: 3,  suffix: "+", label: t.hero.statYears },
+    { num: 15, suffix: "+", label: t.hero.statTech },
   ];
 
+  const recentProjects = projects.slice(-4).reverse();
+
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden dot-grid">
-      {/* Background blobs */}
-      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
-        <div
-          className="blob absolute w-[600px] h-[600px] opacity-20"
-          style={{
-            background: "radial-gradient(circle, #7c3aed, #4c1d95)",
-            top: "-100px",
-            left: "-200px",
-            animationDelay: "0s",
-          }}
-        />
-        <div
-          className="blob absolute w-[500px] h-[500px] opacity-15"
-          style={{
-            background: "radial-gradient(circle, #0891b2, #0e7490)",
-            top: "100px",
-            right: "-150px",
-            animationDelay: "-4s",
-          }}
-        />
-        <div
-          className="blob absolute w-[400px] h-[400px] opacity-10"
-          style={{
-            background: "radial-gradient(circle, #059669, #047857)",
-            bottom: "100px",
-            left: "30%",
-            animationDelay: "-7s",
-          }}
-        />
+    <section
+      ref={heroRef}
+      className="relative min-h-screen flex flex-col justify-center overflow-hidden dot-grid"
+    >
+      {/* Background orbs — NO filter:blur, just radial gradients */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none select-none">
+        <div className="hero-orb absolute"
+          style={{ width: 700, height: 700, top: -180, left: -220,
+            background: "radial-gradient(circle, rgba(124,58,237,0.18) 0%, rgba(124,58,237,0.04) 55%, transparent 75%)",
+            borderRadius: "50%" }} />
+        <div className="hero-orb absolute"
+          style={{ width: 600, height: 600, top: 60, right: -180,
+            background: "radial-gradient(circle, rgba(8,145,178,0.14) 0%, rgba(8,145,178,0.03) 55%, transparent 75%)",
+            borderRadius: "50%" }} />
+        <div className="hero-orb absolute"
+          style={{ width: 500, height: 500, bottom: 80, left: "28%",
+            background: "radial-gradient(circle, rgba(5,150,105,0.1) 0%, transparent 70%)",
+            borderRadius: "50%" }} />
       </div>
 
-      {/* Content */}
+      {/* Main content */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-32 pb-16 w-full">
-        <div className="flex flex-col xl:flex-row xl:items-center xl:gap-16">
-          {/* Left: main content */}
+        <div className="flex flex-col xl:flex-row xl:items-center xl:gap-20">
+
+          {/* Left */}
           <div className="flex-1 min-w-0">
             {siteConfig.available && (
-              <div className="hero-animate delay-0 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 mb-8">
+              <div className="hero-animate delay-0 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-white/65 mb-8">
                 <span className="status-dot" />
                 {t.hero.available}
               </div>
             )}
 
-            <h1 className="hero-animate delay-1 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6">
+            <h1 className="hero-animate delay-1 font-bold tracking-tight leading-[1.05] mb-6"
+              style={{ fontSize: "clamp(2.8rem, 7vw, 5.5rem)" }}>
               {t.hero.greeting}{" "}
               <span className="gradient-text">{siteConfig.name}</span>
               <br />
               <span className="text-white/90">{t.hero.line1}</span>
               <br />
-              <span className="text-white/40">{t.hero.line2}</span>
+              <span className="text-white/35">{t.hero.line2}</span>
             </h1>
 
-            <p className="hero-animate delay-2 text-lg md:text-xl text-white/50 max-w-xl leading-relaxed mb-10">
+            <p className="hero-animate delay-2 text-lg md:text-xl text-white/45 max-w-xl leading-relaxed mb-10">
               {t.hero.description}
             </p>
 
-            <div className="hero-animate delay-3 flex flex-wrap gap-4 mb-10">
-              <a
-                href="#showroom"
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5"
-              >
-                {t.hero.viewWork}
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </a>
-              <a
-                href={`mailto:${siteConfig.email}`}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/80 hover:text-white font-medium transition-all duration-300 hover:-translate-y-0.5"
-              >
-                {t.hero.getInTouch}
-              </a>
-              <a
-                href={siteConfig.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/60 hover:text-white font-medium transition-all duration-300 hover:-translate-y-0.5"
-              >
-                <GithubIcon />
-                {t.hero.github}
-              </a>
+            {/* CTAs */}
+            <div className="hero-animate delay-3 flex flex-wrap gap-4 mb-12">
+              <span className="magnetic">
+                <a href="#showroom"
+                  className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-medium shimmer"
+                  style={{ transition: "background 0.25s ease, box-shadow 0.25s ease",
+                    boxShadow: "0 0 0 rgba(139,92,246,0)" }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 32px rgba(139,92,246,0.4)"}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 rgba(139,92,246,0)"}>
+                  {t.hero.viewWork}
+                  <span className="transition-transform group-hover:translate-x-1">→</span>
+                </a>
+              </span>
+              <span className="magnetic">
+                <a href={`mailto:${siteConfig.email}`}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/80 hover:text-white font-medium shimmer"
+                  style={{ transition: "all 0.25s ease" }}>
+                  {t.hero.getInTouch}
+                </a>
+              </span>
+              <span className="magnetic">
+                <a href={siteConfig.github} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/55 hover:text-white font-medium shimmer"
+                  style={{ transition: "all 0.25s ease" }}>
+                  <GithubIcon />
+                  {t.hero.github}
+                </a>
+              </span>
             </div>
 
-            {/* Stats row */}
-            <div className="hero-animate delay-4 flex flex-wrap gap-8">
+            {/* Stats */}
+            <div className="hero-animate delay-4 flex flex-wrap gap-10">
               {stats.map((s) => (
                 <div key={s.label}>
-                  <div className="text-2xl font-bold text-white tracking-tight">{s.num}</div>
-                  <div className="text-xs text-white/35 mt-0.5">{s.label}</div>
+                  <div className="text-2xl font-bold text-white tracking-tight">
+                    <span data-count={s.num} data-suffix={s.suffix}>
+                      {s.num}{s.suffix}
+                    </span>
+                  </div>
+                  <div className="text-xs text-white/30 mt-0.5">{s.label}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right: floating recent deploys card (desktop only) */}
-          <div className="hidden xl:block flex-shrink-0 w-64 hero-animate delay-4">
-            <div
+          {/* Right: recent projects card */}
+          <div className="hidden xl:block flex-shrink-0 w-[240px] hero-animate delay-5">
+            <div className="card-3d rounded-2xl overflow-hidden"
               style={{
-                background: "rgba(13,13,32,0.85)",
-                border: "1px solid rgba(255,255,255,0.09)",
-                borderRadius: 16,
-                padding: "18px",
-                backdropFilter: "blur(24px)",
-                WebkitBackdropFilter: "blur(24px)",
-                boxShadow: "0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04)",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 10,
-                  color: "rgba(255,255,255,0.35)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.1em",
-                  marginBottom: 14,
-                  fontFamily: "monospace",
-                }}
-              >
-                // recent deploys
+                background: "rgba(13,13,32,0.9)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: "0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03)",
+              }}>
+              <div style={{ padding: "16px 16px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "monospace",
+                  textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                  // recent deploys
+                </span>
               </div>
-
-              {recentWork.map((p) => (
-                <div
-                  key={p.name}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    marginBottom: 12,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 8,
-                      background: `${p.color}18`,
-                      border: `1px solid ${p.color}35`,
-                      flexShrink: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: "50%",
-                        background: p.color,
-                        boxShadow: `0 0 8px ${p.color}`,
-                      }}
-                    />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "white", lineHeight: 1.2 }}>
-                      {p.name}
+              <div style={{ padding: "14px 16px 4px" }}>
+                {recentProjects.map((p) => (
+                  <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 11 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 7, flexShrink: 0,
+                      background: `${p.accentColor}18`, border: `1px solid ${p.accentColor}30`,
+                      display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ width: 7, height: 7, borderRadius: "50%", background: p.accentColor,
+                        boxShadow: `0 0 6px ${p.accentColor}80` }} />
                     </div>
-                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 1 }}>
-                      {p.stack}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 11.5, fontWeight: 600, color: "white", lineHeight: 1.2,
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {p.name}
+                      </div>
+                      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>
+                        {p.tags[0]} · {p.year}
+                      </div>
                     </div>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e",
+                      flexShrink: 0, boxShadow: "0 0 6px #22c55e80" }} />
                   </div>
-                  <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", flexShrink: 0 }}>
-                    {p.ago}
-                  </div>
-                </div>
-              ))}
-
-              <div
-                style={{
-                  borderTop: "1px solid rgba(255,255,255,0.06)",
-                  paddingTop: 12,
-                  marginTop: 2,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 8,
-                  }}
-                >
-                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>
-                    All systems
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      color: "#22c55e",
-                      fontFamily: "monospace",
-                      fontWeight: 700,
-                    }}
-                  >
-                    5 / 5 live ✓
+                ))}
+              </div>
+              <div style={{ padding: "10px 16px 14px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
+                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>All systems</span>
+                  <span style={{ fontSize: 10, color: "#22c55e", fontFamily: "monospace", fontWeight: 700 }}>
+                    {projects.length} / {projects.length} live ✓
                   </span>
                 </div>
-                <div
-                  style={{
-                    height: 4,
-                    background: "rgba(255,255,255,0.06)",
-                    borderRadius: 2,
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      height: "100%",
-                      width: "100%",
-                      background:
-                        "linear-gradient(90deg, #8b5cf6, #22d3ee, #34d399, #fb923c, #f472b6)",
-                      borderRadius: 2,
-                    }}
-                  />
+                <div style={{ height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: "100%", borderRadius: 2,
+                    background: "linear-gradient(90deg, #8b5cf6, #22d3ee, #34d399, #c8a84b, #f472b6)" }} />
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
       {/* Tech ticker */}
-      <div className="relative z-10 w-full overflow-hidden border-y border-white/5 py-4 bg-white/[0.02]">
+      <div className="relative z-10 w-full overflow-hidden border-y border-white/[0.04] py-4 bg-white/[0.015]">
         <div className="ticker-track">
           {doubled.map((tech, i) => (
-            <span
-              key={i}
-              className="inline-flex items-center gap-2 px-6 text-sm text-white/30 whitespace-nowrap"
-            >
-              <span className="text-violet-500/60">◆</span>
+            <span key={i} className="inline-flex items-center gap-2 px-6 text-sm text-white/25 whitespace-nowrap">
+              <span style={{ color: "rgba(139,92,246,0.5)" }}>◆</span>
               {tech}
             </span>
           ))}

@@ -9,35 +9,23 @@ export function Contact() {
 
   return (
     <section id="contact" className="py-32 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="blob absolute w-[500px] h-[500px] opacity-10"
-          style={{
-            background: "radial-gradient(circle, #7c3aed, #4c1d95)",
-            bottom: "-100px",
-            right: "-100px",
-          }}
-        />
-        <div
-          className="blob absolute w-[400px] h-[400px] opacity-[0.08]"
-          style={{
-            background: "radial-gradient(circle, #0891b2, #0e7490)",
-            top: "-50px",
-            left: "-100px",
-            animationDelay: "-5s",
-          }}
-        />
+      <div aria-hidden className="absolute inset-0 pointer-events-none">
+        <div style={{ position: "absolute", width: 500, height: 500, bottom: -100, right: -100,
+          background: "radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%)",
+          borderRadius: "50%" }} />
+        <div style={{ position: "absolute", width: 400, height: 400, top: -50, left: -100,
+          background: "radial-gradient(circle, rgba(8,145,178,0.07) 0%, transparent 70%)",
+          borderRadius: "50%" }} />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         <div className="max-w-2xl">
           <AnimateOnScroll>
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-xs font-mono text-emerald-400/70 tracking-widest uppercase">
+              <span className="text-xs font-mono tracking-widest uppercase" style={{ color: "rgba(52,211,153,0.7)" }}>
                 {t.contact.label}
               </span>
-              <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/30 to-transparent max-w-xs" />
+              <div className="h-px flex-1 max-w-xs" style={{ background: "linear-gradient(90deg, rgba(52,211,153,0.3), transparent)" }} />
             </div>
 
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
@@ -54,14 +42,24 @@ export function Contact() {
 
           <AnimateOnScroll delay={100}>
             <div className="flex flex-wrap gap-4 mb-12">
-              <a
-                href={`mailto:${siteConfig.email}`}
-                className="group inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-violet-600 hover:bg-violet-500 text-white font-medium transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5"
-              >
-                <EmailIcon />
-                {siteConfig.email}
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </a>
+              <span className="magnetic">
+                <a href={`mailto:${siteConfig.email}`}
+                  className="group inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-violet-600 text-white font-medium shimmer"
+                  style={{ transition: "background 0.25s ease, box-shadow 0.25s ease",
+                    boxShadow: "0 0 0 rgba(139,92,246,0)" }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.background = "#7c3aed";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 32px rgba(139,92,246,0.4)";
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.background = "";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 rgba(139,92,246,0)";
+                  }}>
+                  <EmailIcon />
+                  {siteConfig.email}
+                  <span className="transition-transform group-hover:translate-x-1">→</span>
+                </a>
+              </span>
             </div>
 
             <div className="flex items-center gap-6">
