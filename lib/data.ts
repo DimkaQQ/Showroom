@@ -1,11 +1,11 @@
 export const siteConfig = {
-  name: "DimkaQQ",
+  name: "Darian Mirelli",
   title: "Full-Stack Developer",
   description:
     "Full-stack developer specializing in web & mobile applications, scalable backends, and seamless user experiences.",
   domain: "dimkaprojects.xyz",
   email: "altynbek.din@gmail.com",
-  github: "https://github.com/DimkaQQ",
+  github: "https://github.com/DarQQ",
   telegram: "https://t.me/Dimka_Hum",
   available: true,
 };
