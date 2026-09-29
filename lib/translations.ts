@@ -85,11 +85,6 @@ export const translations = {
             "Interactive platform to learn trading from scratch. Structured learning modules, quizzes, and a live simulator where users practice with virtual capital in real market conditions.",
         },
         {
-          tagline: "Resume / Portfolio",
-          description:
-            "Animated personal resume site with smooth scroll sections, skill timeline, project showcase and contact form. Designed for a clean, modern first impression.",
-        },
-        {
           tagline: "Shipping & Logistics",
           description:
             "Web application for managing shipments and logistics operations. Track orders, assign couriers, generate reports and monitor delivery statuses in real time.",
@@ -217,11 +212,6 @@ export const translations = {
           tagline: "Обучение трейдингу",
           description:
             "Интерактивная платформа для изучения трейдинга с нуля. Структурированные модули, тесты и живой симулятор для практики с виртуальным капиталом.",
-        },
-        {
-          tagline: "Резюме / Портфолио",
-          description:
-            "Анимированный сайт-резюме с плавными переходами, таймлайном навыков, витриной проектов и формой обратной связи. Создан для яркого первого впечатления.",
         },
         {
           tagline: "Доставка и логистика",

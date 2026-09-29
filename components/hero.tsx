@@ -27,7 +27,7 @@ export function Hero() {
   }, []);
 
   const stats = [
-    { num: 9,  suffix: "+", label: t.hero.statProjects },
+    { num: 9,  suffix: "", label: t.hero.statProjects },
     { num: 3,  suffix: "+", label: t.hero.statYears },
     { num: 15, suffix: "+", label: t.hero.statTech },
   ];

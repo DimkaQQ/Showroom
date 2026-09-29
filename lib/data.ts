@@ -84,17 +84,6 @@ export const projects = [
     status: "live",
   },
   {
-    id: "cv",
-    name: "CV / Resume",
-    tags: ["HTML", "CSS", "JavaScript"],
-    subdomain: "zhasmin",
-    accentColor: "#f472b6",
-    gradientFrom: "#831843",
-    gradientTo: "#be185d",
-    year: "2025",
-    status: "live",
-  },
-  {
     id: "shipter",
     name: "Shipter",
     tags: ["Python", "HTML", "FastAPI"],
