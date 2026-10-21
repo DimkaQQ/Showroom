@@ -12,10 +12,21 @@ export default function Home() {
       <Hero />
       <Work />
       <Services />
+      <Stack />
       <Contact />
       <Footer />
       <Enhance />
     </>
+  );
+}
+
+function Letters({ word, from }: { word: string; from: number }) {
+  return (
+    <span aria-hidden="true">
+      {word.split("").map((c, i) => (
+        <span key={i} className="ch" style={{ "--i": from + i } as React.CSSProperties}>{c}</span>
+      ))}
+    </span>
   );
 }
 
@@ -66,8 +77,8 @@ function Hero() {
         </dl>
       </div>
 
-      <h1 className="wordmark rise rise-3">
-        <span>Darian</span> <span>Mirelli</span>
+      <h1 className="wordmark" aria-label="Darian Mirelli">
+        <Letters word="Darian" from={0} /> <Letters word="Mirelli" from={6} />
       </h1>
     </header>
   );
@@ -82,21 +93,29 @@ function Work() {
       </div>
 
       <div className="scene">
-        <div className="stage" aria-hidden="true">
+        <div className="stage">
           {projects.map((p, i) => (
-            <a
+            <div
               key={p.id}
-              href={`https://${p.subdomain}.${siteConfig.domain}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              tabIndex={-1}
               className={`frame${i === 0 ? " is-active" : ""}`}
               data-frame={p.id}
               style={{ background: p.stage }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/shots/${p.id}.jpg`} width={1440} height={900} alt="" loading={i < 2 ? "eager" : "lazy"} />
-            </a>
+              <div className="win" data-win>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/shots/${p.id}.jpg`} width={1440} height={900} alt={p.name} loading={i < 2 ? "eager" : "lazy"} />
+                <iframe
+                  title={p.name}
+                  data-src={`https://${p.subdomain}.${siteConfig.domain}`}
+                  tabIndex={-1}
+                  allow="fullscreen"
+                />
+              </div>
+              <button type="button" className="try" data-try aria-pressed="false">
+                <span className="try-off"><L ru="Потрогать демо" en="Try the demo" /></span>
+                <span className="try-on"><L ru="Вернуть прокрутку" en="Back to scrolling" /></span>
+              </button>
+            </div>
           ))}
         </div>
 
@@ -148,6 +167,21 @@ function Services() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+const STACK = ["TypeScript", "React", "Next.js", "Node.js", "Go", "PostgreSQL", "Redis", "Docker", "GraphQL", "React Native", "FastAPI", "Python"];
+
+function Stack() {
+  return (
+    <section className="stack" aria-label="Stack">
+      <p className="sr-only">{STACK.join(", ")}</p>
+      <div className="stack-track" aria-hidden="true">
+        {[...STACK, ...STACK].map((t, i) => (
+          <span key={i}>{t}</span>
+        ))}
+      </div>
     </section>
   );
 }
