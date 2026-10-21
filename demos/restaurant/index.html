@@ -1,475 +1,568 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>RestOS — Управление рестораном</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RestOS — управление рестораном (демо)</title>
+<meta name="description" content="Демо: доска заказов кухни, меню со стоп-листом, гости, персонал и финансы ресторана. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
 <style>
-/* RestOS — dark-first single-theme restaurant management UI
-   Layout: fixed sidebar (220px) + scrollable main area, full-height app shell */
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
 :root {
-  --bg:        #0D0D0D;
-  --surface:   #161410;
-  --surface-2: #1A1814;
-  --surface-3: #211F1C;
-  --fg:        #F7F5F0;
-  --fg-muted:  #6B6560;
-  --gold:      #C8A84B;
-  --gold-dim:  rgba(200,168,75,0.15);
-  --gold-sub:  rgba(200,168,75,0.08);
-  --border:    rgba(200,168,75,0.18);
-  --border-2:  rgba(200,168,75,0.08);
-  --danger:    #C84B4B;
-  --success:   #4BC87A;
-  --info:      #4B96C8;
-  --warn:      #C88040;
-  --font-body:    'Inter', system-ui, sans-serif;
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --sidebar-w:    220px;
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
   color-scheme: dark;
 }
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box }
-html, body { height: 100%; overflow: hidden }
-body { font-family: var(--font-body); background: var(--bg); color: var(--fg); font-size: 14px; line-height: 1.5 }
-.demo-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(200,168,75,0.09); border-bottom: 1px solid rgba(200,168,75,0.3); color: var(--gold); text-align: center; padding: 7px; font-size: 11px; font-weight: 600; letter-spacing: 1.3px; text-transform: uppercase }
-.app { display: flex; height: 100%; padding-top: 32px }
-.sidebar { width: var(--sidebar-w); background: #0C0B09; border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden }
-.main { flex: 1; overflow-y: auto; padding: 24px 28px }
-.screen { display: none }.screen.active { display: block }
-.sb-head { padding: 18px 16px 14px; border-bottom: 1px solid var(--border) }
-.logo { font-size: 20px; line-height: 1; display: block }
-.logo-serif { font-family: var(--font-display); color: var(--gold); font-weight: 400 }
-.logo-mono  { color: var(--fg); font-weight: 700 }
-.logo-sub { display: block; font-size: 9px; color: var(--fg-muted); letter-spacing: 1.6px; text-transform: uppercase; margin-top: 4px }
-.nav { flex: 1; padding: 10px 8px; overflow-y: auto }
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px 9px 12px; border-radius: 7px; cursor: pointer; color: var(--fg-muted); font-size: 13px; font-weight: 500; transition: background 0.14s, color 0.14s; margin-bottom: 1px; border-left: 2px solid transparent; user-select: none }
-.nav-item:hover  { background: var(--gold-dim); color: var(--fg) }
-.nav-item.active { background: var(--gold-dim); color: var(--gold); border-left-color: var(--gold) }
-.nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0 }
-.sb-foot { padding: 12px 14px; border-top: 1px solid var(--border) }
-.user-email { font-size: 11px; color: var(--fg-muted); margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-.btn-logout { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--fg-muted); padding: 7px; border-radius: 6px; cursor: pointer; font-size: 12px; font-family: var(--font-body); transition: border-color 0.14s, color 0.14s }
-.btn-logout:hover { border-color: var(--danger); color: var(--danger) }
-.ph { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px }
-.page-title { font-family: var(--font-display); font-size: 26px; color: var(--fg); line-height: 1.1 }
-.page-sub { font-size: 12px; color: var(--fg-muted) }
-.stats-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 20px }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px }
-.stat-label { font-size: 10px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px }
-.stat-value { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums }
-.stat-value.gold { color: var(--gold) }
-.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 14px }
-.panel-flush { padding: 0; overflow: hidden }
-.panel-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px }
-.panel-title { font-size: 14px; font-weight: 600 }
-.live-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(75,200,122,0.11); color: var(--success); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px }
-.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: pulse 1.6s ease-in-out infinite }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.25;transform:scale(0.65)} }
-.order-pills { display: flex; gap: 10px; flex-wrap: wrap }
-.pill { background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 8px 18px; text-align: center; min-width: 84px }
-.pill-n { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; display: block }
-.pill-label { font-size: 10px; color: var(--fg-muted) }
-.venues-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px }
-.venue-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 14px }
-.venue-name { font-weight: 600; font-size: 13px; margin-bottom: 6px }
-.badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px }
-.b-active  { background: rgba(75,200,122,0.12); color: var(--success) }
-.b-launch  { background: rgba(200,168,75,0.14); color: var(--gold) }
-.b-new     { background: rgba(107,101,96,0.24); color: #9B9590 }
-.b-confirm { background: rgba(200,168,75,0.11); color: var(--gold) }
-.b-cooking { background: rgba(200,128,64,0.15); color: var(--warn) }
-.b-ready   { background: rgba(75,150,200,0.14); color: var(--info) }
-.b-done    { background: rgba(107,101,96,0.18); color: var(--fg-muted) }
-.b-cancel  { background: rgba(200,75,75,0.11); color: var(--danger) }
-.b-vip     { background: rgba(200,168,75,0.18); color: var(--gold) }
-.b-regular { background: rgba(75,150,200,0.11); color: var(--info) }
-.b-hot     { background: rgba(200,80,64,0.14); color: #C87060 }
-.b-cold    { background: rgba(75,150,200,0.11); color: var(--info) }
-.b-drink   { background: rgba(75,200,150,0.11); color: #4BC8A0 }
-.b-dessert { background: rgba(180,75,200,0.11); color: #C878D8 }
-.b-break   { background: rgba(200,168,75,0.11); color: var(--gold) }
-.tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap }
-.tab { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--fg-muted); font-size: 12px; font-family: var(--font-body); cursor: pointer; transition: all 0.14s }
-.tab.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); font-weight: 600 }
-.tab:hover:not(.active) { color: var(--fg); border-color: rgba(200,168,75,0.35) }
-table { width: 100%; border-collapse: collapse }
-thead th { padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--fg-muted); border-bottom: 1px solid var(--border) }
-tbody tr { border-bottom: 1px solid var(--border-2); transition: background 0.1s }
-tbody tr:hover { background: rgba(255,255,255,0.022); cursor: pointer }
-tbody td { padding: 11px 12px; font-size: 13px }
-.btn { padding: 7px 16px; border-radius: 7px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font-body); transition: all 0.14s; display: inline-block }
-.btn-gold  { background: var(--gold); color: #0D0D0D }.btn-gold:hover { background: #D4B45A }
-.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--fg-muted) }.btn-ghost:hover { border-color: var(--gold); color: var(--gold) }
-input[type=text],input[type=tel],input[type=number],select,textarea { background: var(--surface-2); border: 1px solid var(--border); color: var(--fg); padding: 8px 12px; border-radius: 7px; font-size: 13px; font-family: var(--font-body); outline: none; transition: border-color 0.14s }
-input:focus,select:focus,textarea:focus { border-color: var(--gold) }
-input::placeholder { color: var(--fg-muted) }
-select option { background: var(--surface-2); color: var(--fg) }
-.toggle { position: relative; width: 36px; height: 20px; display: inline-block; cursor: pointer; vertical-align: middle }
-.toggle input { opacity: 0; width: 0; height: 0; position: absolute }
-.t-track { position: absolute; inset: 0; background: var(--surface-3); border: 1px solid var(--border); border-radius: 20px; transition: 0.2s }
-.t-thumb { position: absolute; width: 14px; height: 14px; left: 2px; top: 2px; background: #555; border-radius: 50%; transition: 0.2s }
-.toggle input:checked ~ .t-track { background: rgba(200,168,75,0.2); border-color: var(--gold) }
-.toggle input:checked ~ .t-thumb { transform: translateX(16px); background: var(--gold) }
-.menu-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px }
-.menu-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; transition: border-color 0.14s }
-.menu-card:hover { border-color: rgba(200,168,75,0.4) }
-.mc-name { font-weight: 600; font-size: 13px; margin-bottom: 4px }
-.mc-price { font-size: 17px; font-weight: 700; color: var(--gold); margin: 7px 0; font-variant-numeric: tabular-nums }
-.mc-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 9px }
-.search-row { display: flex; gap: 10px; margin-bottom: 16px; align-items: center }
-.search-row input { flex: 1; min-width: 0 }
-.kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px }
-.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px }
-.kpi-label { font-size: 10px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px }
-.kpi-value { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums }
-.kpi-gold { color: var(--gold) }
-.chart-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 14px }
-.chart-title { font-size: 14px; font-weight: 600; margin-bottom: 14px }
-.hbar { margin-bottom: 10px }
-.hbar-top { display: flex; justify-content: space-between; font-size: 11px; color: var(--fg-muted); margin-bottom: 3px }
-.hbar-track { background: var(--surface-3); border-radius: 4px; height: 7px; overflow: hidden }
-.hbar-fill { background: var(--gold); height: 100%; border-radius: 4px }
-.rating { color: var(--gold) }
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 900; display: none; align-items: center; justify-content: center; padding: 20px }
-.modal-overlay.open { display: flex }
-.modal { background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; width: 460px; max-width: 100%; max-height: 85vh; overflow-y: auto }
-.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border) }
-.modal-title { font-size: 15px; font-weight: 700 }
-.modal-close { background: none; border: none; color: var(--fg-muted); font-size: 24px; cursor: pointer; line-height: 1 }
-.modal-close:hover { color: var(--fg) }
-.modal-body { padding: 20px 22px }
-.modal-foot { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end }
-.form-group { margin-bottom: 14px }
-.form-label { font-size: 11px; font-weight: 600; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; display: block }
-.form-group input,.form-group select,.form-group textarea { width: 100% }
-.oi-list { list-style: none; margin-bottom: 8px }
-.oi-list li { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border-2); font-size: 13px }
-.oi-total { display: flex; justify-content: space-between; padding: 10px 0 0; font-weight: 700; font-size: 14px }
-.sh-item { display: flex; gap: 10px; padding: 5px 0; font-size: 12px; color: var(--fg-muted) }
-.sh-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); margin-top: 4px; flex-shrink: 0 }
-.divider-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--fg-muted); margin: 14px 0 8px; display: flex; align-items: center; gap: 8px }
-.divider-label::after { content: ''; flex: 1; height: 1px; background: var(--border) }
-.ph-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 12px }
-.ph-icon { font-size: 52px; opacity: 0.18 }
-.ph-text { color: var(--fg-muted); font-size: 15px }
-::-webkit-scrollbar { width: 4px }::-webkit-scrollbar-track { background: transparent }::-webkit-scrollbar-thumb { background: rgba(200,168,75,0.18); border-radius: 4px }
-@media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2,1fr) } .kpi-row { grid-template-columns: repeat(2,1fr) } .menu-grid { grid-template-columns: repeat(2,1fr) } .venues-grid { grid-template-columns: 1fr } }
-@media (max-width: 640px) { .sidebar { width: 52px } .nav-item span:not(.nav-icon) { display: none } .logo-serif,.logo-mono,.logo-sub,.user-email,.btn-logout { display: none } .main { padding: 16px } .stats-grid { grid-template-columns: 1fr 1fr } }
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
+
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
+
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
+
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
+
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
+
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
+
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
+
+:root[data-theme="light"] {
+  --bg: #efece6; --surface: #ffffff; --raised: #f6f3ee; --hover: #efebe4; --border: #e2ded4; --rule: #eeeae2;
+  --text: #1d1a16; --muted: #5f5a50; --faint: #716b60;
+  --accent: #d9461f; --accent-ink: #ffffff;
+  --font: "Golos Text", system-ui, sans-serif; --display: "Fraunces", Georgia, serif;
+}
+.brand-mark { background: var(--accent); color: #fff; }
+.brand-name { font-family: var(--display); font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+.head h1, .big, .kpi b { font-family: var(--display); font-weight: 600; letter-spacing: -.02em; }
+.nav .count { background: var(--accent); color: #fff; }
+.board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); align-items: start; }
+.col-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.col-h h2 { font-size: 15px; font-weight: 600; } .col-h span { color: var(--muted); font-size: 13px; }
+.tickets { display: flex; flex-direction: column; gap: 10px; min-height: 64px; }
+.ticket { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px 12px; animation: pop .25s var(--ease) both; }
+.ticket.late { border-color: var(--accent); }
+.t-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.t-top b { font-size: 15px; } .t-top span { font-size: 13px; color: var(--muted); }
+.t-top .late { color: var(--accent); font-weight: 600; }
+.t-items { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+.t-items li { display: flex; justify-content: space-between; gap: 8px; } .t-items li + li { margin-top: 2px; }
+.t-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.t-foot b { font-variant-numeric: tabular-nums; }
+.none { color: var(--faint); padding: 18px 4px; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius); }
+.menu-grp { margin-bottom: 22px; } .menu-grp h2 { font-size: 15px; margin-bottom: 8px; }
+.dish { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; min-height: 48px; padding: 6px 0; }
+.dish + .dish { border-top: 1px solid var(--rule); }
+.dish.off b { color: var(--faint); text-decoration: line-through; }
+.sw { width: 40px; height: 24px; border-radius: 12px; border: 0; background: var(--border); position: relative; cursor: pointer; transition: background-color .18s; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s var(--ease); }
+.sw[aria-pressed="true"] { background: var(--pos); } .sw[aria-pressed="true"]::after { transform: translateX(16px); }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--gap); }
+.filters input, .filters select { height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); outline: none; }
+.filters input { min-width: 220px; } .filters input:focus, .filters select:focus { border-color: var(--accent); }
+.stars { color: var(--accent); letter-spacing: 1px; }
+@media (max-width: 899px) { .board { grid-template-columns: 1fr; } .filters input { min-width: 0; flex: 1; } }
 </style>
 </head>
 <body>
-
-<div class="demo-banner">⚠ Demo Site — RestOS Demo · Данные вымышлены</div>
+<div class="notice"><b>Демо</b> RestOS · данные вымышлены</div>
 <div class="app">
-
-<aside class="sidebar">
-  <div class="sb-head">
-    <span class="logo"><span class="logo-serif">Resto</span><span class="logo-mono">OS</span></span>
-    <span class="logo-sub">Управление рестораном</span>
-  </div>
-  <nav class="nav">
-    <div class="nav-item active" data-screen="dashboard"><span class="nav-icon">📊</span>Дашборд</div>
-    <div class="nav-item" data-screen="orders"><span class="nav-icon">🛍</span>Заказы</div>
-    <div class="nav-item" data-screen="menu"><span class="nav-icon">🍽</span>Меню</div>
-    <div class="nav-item" data-screen="guests"><span class="nav-icon">👥</span>Гости</div>
-    <div class="nav-item" data-screen="staff"><span class="nav-icon">👷</span>Персонал</div>
-    <div class="nav-item" data-screen="shifts"><span class="nav-icon">🕐</span>Смены</div>
-    <div class="nav-item" data-screen="finance"><span class="nav-icon">💰</span>Финансы</div>
-    <div class="nav-item" data-screen="analytics"><span class="nav-icon">📈</span>Аналитика</div>
-    <div class="nav-item" data-screen="settings"><span class="nav-icon">⚙️</span>Настройки</div>
-  </nav>
-  <div class="sb-foot">
-    <div class="user-email">dimash210775@gmail.com</div>
-    <button class="btn-logout">Выйти из системы</button>
-  </div>
-</aside>
-
-<main class="main">
-
-<section id="screen-dashboard" class="screen active">
-  <div class="ph">
-    <h1 class="page-title">Дашборд</h1>
-    <span class="page-sub" id="today-date"></span>
-  </div>
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-label">Выручка сегодня</div><div class="stat-value gold">84 500 ₸</div></div>
-    <div class="stat-card"><div class="stat-label">Всего выручки</div><div class="stat-value">2 847 000 ₸</div></div>
-    <div class="stat-card"><div class="stat-label">Заказов сегодня</div><div class="stat-value">37</div></div>
-    <div class="stat-card"><div class="stat-label">Новых гостей</div><div class="stat-value">12</div></div>
-    <div class="stat-card"><div class="stat-label">Активных заведений</div><div class="stat-value gold">3</div></div>
-  </div>
-  <div class="panel">
-    <div class="panel-hd">
-      <span class="panel-title">Активные заказы</span>
-      <span class="live-badge"><span class="live-dot"></span>LIVE</span>
-    </div>
-    <div class="order-pills">
-      <div class="pill"><span class="pill-n">4</span><span class="pill-label">Новых</span></div>
-      <div class="pill"><span class="pill-n">6</span><span class="pill-label">Подтверждено</span></div>
-      <div class="pill"><span class="pill-n">3</span><span class="pill-label">Готовится</span></div>
-      <div class="pill"><span class="pill-n">2</span><span class="pill-label">Готово</span></div>
-      <div class="pill"><span class="pill-n">22</span><span class="pill-label">Выдано</span></div>
-    </div>
-  </div>
-  <div class="panel">
-    <div class="panel-hd"><span class="panel-title">Заведения</span></div>
-    <div class="venues-grid">
-      <div class="venue-card"><div class="venue-name">Кофейня Центр</div><span class="badge b-active">Активно</span></div>
-      <div class="venue-card"><div class="venue-name">Ресторан Север</div><span class="badge b-active">Активно</span></div>
-      <div class="venue-card"><div class="venue-name">Бистро Юг</div><span class="badge b-launch">Запуск</span></div>
-    </div>
-  </div>
-</section>
-
-<section id="screen-orders" class="screen">
-  <div class="ph"><h1 class="page-title">Заказы</h1></div>
-  <div class="tabs" id="order-tabs">
-    <button class="tab active" data-filter="all">Все</button>
-    <button class="tab" data-filter="new">Новые</button>
-    <button class="tab" data-filter="cooking">Готовятся</button>
-    <button class="tab" data-filter="ready">Готово</button>
-    <button class="tab" data-filter="done">Выдано</button>
-    <button class="tab" data-filter="cancel">Отменено</button>
-  </div>
-  <div class="panel panel-flush">
-    <table>
-      <thead><tr><th>#</th><th>Стол / Тип</th><th>Гость</th><th>Позиций</th><th>Сумма</th><th>Статус</th><th>Время</th><th>Действия</th></tr></thead>
-      <tbody id="orders-tbody"></tbody>
-    </table>
-  </div>
-</section>
-
-<section id="screen-menu" class="screen">
-  <div class="ph">
-    <h1 class="page-title">Меню</h1>
-    <button class="btn btn-gold" id="add-dish-btn">+ Добавить блюдо</button>
-  </div>
-  <div class="tabs" id="menu-tabs">
-    <button class="tab active" data-cat="all">Все</button>
-    <button class="tab" data-cat="hot">Горячие блюда</button>
-    <button class="tab" data-cat="cold">Холодные</button>
-    <button class="tab" data-cat="drinks">Напитки</button>
-    <button class="tab" data-cat="desserts">Десерты</button>
-    <button class="tab" data-cat="breakfast">Завтраки</button>
-  </div>
-  <div class="menu-grid" id="menu-grid"></div>
-</section>
-
-<section id="screen-guests" class="screen">
-  <div class="ph"><h1 class="page-title">Гости</h1></div>
-  <div class="search-row">
-    <input type="text" id="guest-search" placeholder="🔍  Поиск по имени или телефону…">
-    <select id="guest-level-filter">
-      <option value="all">Все уровни</option>
-      <option value="new">Новый</option>
-      <option value="regular">Постоянный</option>
-      <option value="vip">VIP</option>
-    </select>
-  </div>
-  <div class="panel panel-flush">
-    <table>
-      <thead><tr><th>Имя</th><th>Телефон</th><th>Визитов</th><th>Потрачено ₸</th><th>Баллы</th><th>Последний визит</th><th>Уровень</th></tr></thead>
-      <tbody id="guests-tbody"></tbody>
-    </table>
-  </div>
-</section>
-
-<section id="screen-staff" class="screen">
-  <div class="ph"><h1 class="page-title">Персонал</h1></div>
-  <div class="panel panel-flush">
-    <table>
-      <thead><tr><th>Имя</th><th>Должность</th><th>Статус</th><th>Рейтинг</th><th>Смен в месяце</th></tr></thead>
-      <tbody id="staff-tbody"></tbody>
-    </table>
-  </div>
-</section>
-
-<section id="screen-shifts" class="screen">
-  <div class="ph-screen"><div class="ph-icon">🕐</div><div class="ph-text">Расписание смен — в разработке</div></div>
-</section>
-
-<section id="screen-finance" class="screen">
-  <div class="ph"><h1 class="page-title">Финансы</h1><span class="page-sub">Сентябрь 2026</span></div>
-  <div class="kpi-row">
-    <div class="kpi-card"><div class="kpi-label">Выручка за месяц</div><div class="kpi-value">2 847 000 ₸</div></div>
-    <div class="kpi-card"><div class="kpi-label">Расходы</div><div class="kpi-value">1 240 000 ₸</div></div>
-    <div class="kpi-card"><div class="kpi-label">Прибыль</div><div class="kpi-value kpi-gold">1 607 000 ₸</div></div>
-    <div class="kpi-card"><div class="kpi-label">Средний чек</div><div class="kpi-value">3 420 ₸</div></div>
-  </div>
-  <div class="chart-box">
-    <div class="chart-title">Выручка по дням (последние 7 дней)</div>
-    <svg id="bar-chart" viewBox="0 0 600 200" style="width:100%;display:block;overflow:visible"></svg>
-  </div>
-  <div class="panel panel-flush">
-    <table>
-      <thead><tr><th>Дата</th><th>Тип</th><th>Категория</th><th>Сумма</th></tr></thead>
-      <tbody id="tx-tbody"></tbody>
-    </table>
-  </div>
-</section>
-
-<section id="screen-analytics" class="screen">
-  <div class="ph"><h1 class="page-title">Аналитика</h1><span class="page-sub">Последние 30 дней</span></div>
-  <div class="kpi-row">
-    <div class="kpi-card"><div class="kpi-label">Конверсия</div><div class="kpi-value">68<span style="font-size:14px;color:var(--fg-muted)">%</span></div></div>
-    <div class="kpi-card"><div class="kpi-label">Возврат гостей</div><div class="kpi-value">42<span style="font-size:14px;color:var(--fg-muted)">%</span></div></div>
-    <div class="kpi-card"><div class="kpi-label">Топ блюдо</div><div class="kpi-value" style="font-size:13px;padding-top:4px;line-height:1.4">Борщ домашний</div></div>
-    <div class="kpi-card"><div class="kpi-label">Средний чек</div><div class="kpi-value kpi-gold">3 420 ₸</div></div>
-  </div>
-  <div class="chart-box">
-    <div class="chart-title">Тренд выручки (30 дней)</div>
-    <svg id="line-chart" viewBox="0 0 600 180" style="width:100%;display:block;overflow:visible"></svg>
-  </div>
-  <div class="chart-box">
-    <div class="chart-title">Выручка по категориям меню</div>
-    <div id="cat-bars"></div>
-  </div>
-</section>
-
-<section id="screen-settings" class="screen">
-  <div class="ph-screen"><div class="ph-icon">⚙️</div><div class="ph-text">Настройки системы — в разработке</div></div>
-</section>
-
-</main>
+  <aside class="side">
+    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/></svg></div><div><div class="brand-name">RestOS</div><div class="brand-sub">Ресторан Север</div></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">АС</div><div class="who"><b>Айнур Сейткалиева</b><span>Администратор</span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
 </div>
-
-<!-- ORDER DETAIL MODAL -->
-<div class="modal-overlay" id="order-modal">
-  <div class="modal">
-    <div class="modal-head">
-      <span class="modal-title" id="om-title">Заказ</span>
-      <button class="modal-close" data-close="order-modal">×</button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex;justify-content:space-between;margin-bottom:14px;gap:16px">
-        <div><div style="font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px">Гость</div><div id="om-guest" style="font-weight:600"></div></div>
-        <div style="text-align:right"><div style="font-size:10px;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px">Статус</div><div id="om-status"></div></div>
-      </div>
-      <div class="divider-label">Состав заказа</div>
-      <ul class="oi-list" id="om-items"></ul>
-      <div class="oi-total"><span>Итого</span><span id="om-total" style="color:var(--gold)"></span></div>
-      <div class="divider-label" style="margin-top:16px">История статусов</div>
-      <div id="om-history"></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" data-close="order-modal">Закрыть</button>
-      <button class="btn btn-gold">Изменить статус</button>
-    </div>
-  </div>
-</div>
-
-<!-- ADD DISH MODAL -->
-<div class="modal-overlay" id="dish-modal">
-  <div class="modal">
-    <div class="modal-head">
-      <span class="modal-title">Добавить блюдо</span>
-      <button class="modal-close" data-close="dish-modal">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label" for="dish-name">Название блюда</label><input type="text" id="dish-name" placeholder="Напр. Цезарь с курицей"></div>
-      <div class="form-group"><label class="form-label" for="dish-cat">Категория</label>
-        <select id="dish-cat"><option>Горячие блюда</option><option>Холодные</option><option>Напитки</option><option>Десерты</option><option>Завтраки</option></select>
-      </div>
-      <div class="form-group"><label class="form-label" for="dish-price">Цена (₸)</label><input type="number" id="dish-price" placeholder="0" min="0"></div>
-      <div class="form-group"><label class="form-label" for="dish-desc">Описание</label><textarea id="dish-desc" rows="3" placeholder="Краткое описание блюда…"></textarea></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" data-close="dish-modal">Отмена</button>
-      <button class="btn btn-gold" data-close="dish-modal">Сохранить</button>
-    </div>
-  </div>
-</div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
 
 <script>
-const ORDERS=[{id:'#1042',table:'Стол 5',type:'Зал',guest:'Алмас К.',items:[{n:'Борщ домашний',q:1,p:1800},{n:'Хлеб',q:2,p:200},{n:'Чай зелёный',q:1,p:500}],total:2700,status:'new',time:'14:23'},{id:'#1041',table:'Стол 2',type:'Зал',guest:'Дина М.',items:[{n:'Бефстроганов',q:2,p:2400},{n:'Сок апельсиновый',q:2,p:600}],total:6000,status:'cooking',time:'14:18'},{id:'#1040',table:'Доставка',type:'Доставка',guest:'Серик Н.',items:[{n:'Плов узбекский',q:1,p:2200},{n:'Лагман',q:1,p:1900},{n:'Морс',q:2,p:400}],total:4900,status:'confirm',time:'14:10'},{id:'#1039',table:'Стол 8',type:'Зал',guest:'Айгуль Т.',items:[{n:'Салат Цезарь',q:1,p:1600},{n:'Стейк из говядины',q:1,p:4500},{n:'Вино красное',q:1,p:1800}],total:7900,status:'ready',time:'13:55'},{id:'#1038',table:'Стол 1',type:'Зал',guest:'Руслан А.',items:[{n:'Пицца Маргарита',q:2,p:1800},{n:'Кола',q:2,p:400}],total:4400,status:'done',time:'13:40'},{id:'#1037',table:'Доставка',type:'Доставка',guest:'Карина Б.',items:[{n:'Роллы Калифорния',q:2,p:2100}],total:4200,status:'done',time:'13:20'},{id:'#1036',table:'Стол 4',type:'Зал',guest:'Нурлан Ж.',items:[{n:'Харчо',q:1,p:1700},{n:'Манты',q:10,p:200},{n:'Чай чёрный',q:2,p:400}],total:4100,status:'cooking',time:'13:15'},{id:'#1035',table:'Стол 7',type:'Зал',guest:'Зарина С.',items:[{n:'Паста Карбонара',q:2,p:1900}],total:3800,status:'confirm',time:'13:05'},{id:'#1034',table:'Стол 3',type:'Зал',guest:'Адиль К.',items:[{n:'Оливье',q:1,p:900},{n:'Шашлык куриный',q:1,p:2600}],total:3500,status:'done',time:'12:50'},{id:'#1033',table:'Стол 6',type:'Зал',guest:'Меруерт О.',items:[{n:'Торт медовик',q:1,p:1200}],total:1200,status:'cancel',time:'12:30'}];
-const S_META={new:{label:'Новый',cls:'b-new'},confirm:{label:'Подтверждён',cls:'b-confirm'},cooking:{label:'Готовится',cls:'b-cooking'},ready:{label:'Готово',cls:'b-ready'},done:{label:'Выдано',cls:'b-done'},cancel:{label:'Отменено',cls:'b-cancel'}};
-const MENU=[{name:'Борщ домашний',cat:'hot',catL:'Горячее',price:1800,avail:true},{name:'Бефстроганов',cat:'hot',catL:'Горячее',price:2400,avail:true},{name:'Плов узбекский',cat:'hot',catL:'Горячее',price:2200,avail:true},{name:'Лагман',cat:'hot',catL:'Горячее',price:1900,avail:false},{name:'Салат Цезарь',cat:'cold',catL:'Холодное',price:1600,avail:true},{name:'Оливье',cat:'cold',catL:'Холодное',price:900,avail:true},{name:'Чай зелёный',cat:'drinks',catL:'Напиток',price:500,avail:true},{name:'Сок апельсиновый',cat:'drinks',catL:'Напиток',price:600,avail:true},{name:'Торт медовик',cat:'desserts',catL:'Десерт',price:1200,avail:true},{name:'Тирамису',cat:'desserts',catL:'Десерт',price:1400,avail:false},{name:'Яичница с беконом',cat:'breakfast',catL:'Завтрак',price:1100,avail:true},{name:'Каша овсяная',cat:'breakfast',catL:'Завтрак',price:700,avail:true}];
-const CAT_BADGE={hot:'b-hot',cold:'b-cold',drinks:'b-drink',desserts:'b-dessert',breakfast:'b-break'};
-const GUESTS=[{name:'Алмас Кожабеков',phone:'+7 701 234-56-78',visits:28,spent:145000,pts:1450,last:'25.09.2026',lvl:'vip'},{name:'Дина Мусаева',phone:'+7 702 345-67-89',visits:15,spent:72000,pts:720,last:'27.09.2026',lvl:'regular'},{name:'Серик Нурланов',phone:'+7 705 456-78-90',visits:6,spent:28000,pts:280,last:'28.09.2026',lvl:'regular'},{name:'Айгуль Токова',phone:'+7 707 567-89-01',visits:2,spent:8900,pts:89,last:'28.09.2026',lvl:'new'},{name:'Руслан Асанов',phone:'+7 708 678-90-12',visits:42,spent:320000,pts:3200,last:'26.09.2026',lvl:'vip'},{name:'Карина Байжанова',phone:'+7 700 789-01-23',visits:9,spent:43000,pts:430,last:'22.09.2026',lvl:'regular'},{name:'Нурлан Жаксыбеков',phone:'+7 701 890-12-34',visits:1,spent:4100,pts:41,last:'28.09.2026',lvl:'new'},{name:'Зарина Сейткали',phone:'+7 702 901-23-45',visits:18,spent:98000,pts:980,last:'24.09.2026',lvl:'regular'}];
-const LVL_META={vip:{label:'VIP',cls:'b-vip'},regular:{label:'Постоянный',cls:'b-regular'},new:{label:'Новый',cls:'b-new'}};
-const STAFF=[{name:'Айнур Сейткалиева',role:'Администратор',active:true,rating:4.8,shifts:22},{name:'Болат Дюсенов',role:'Повар',active:true,rating:4.9,shifts:20},{name:'Гульнара Аблаева',role:'Официант',active:false,rating:4.5,shifts:17},{name:'Данияр Касымов',role:'Официант',active:true,rating:4.6,shifts:19},{name:'Елена Петрова',role:'Бармен',active:false,rating:4.7,shifts:15},{name:'Жасулан Нурмагамбетов',role:'Кассир',active:true,rating:4.3,shifts:21}];
-const TX=[{date:'28.09.2026',type:'Выручка',cat:'Зал',sum:'+84 500 ₸'},{date:'28.09.2026',type:'Расход',cat:'Продукты',sum:'−32 000 ₸'},{date:'27.09.2026',type:'Выручка',cat:'Зал',sum:'+95 000 ₸'},{date:'27.09.2026',type:'Расход',cat:'Зарплата',sum:'−45 000 ₸'},{date:'26.09.2026',type:'Выручка',cat:'Доставка',sum:'+91 000 ₸'},{date:'26.09.2026',type:'Списание',cat:'Продукты',sum:'−8 200 ₸'},{date:'25.09.2026',type:'Выручка',cat:'Зал',sum:'+78 000 ₸'},{date:'24.09.2026',type:'Выручка',cat:'Зал',sum:'+58 000 ₸'}];
-const BAR_DAYS=['Ср','Чт','Пт','Сб','Вс','Пн','Вт'],BAR_VALS=[58000,84500,91000,95000,78000,65000,72000];
-const LINE_VALS=[45,48,52,49,55,58,62,60,65,68,72,70,75,78,82,80,85,84,90,88,92,95,91,88,93,96,98,95,92,84];
-const badge=(t,c)=>`<span class="badge ${c}">${t}</span>`;
-const fmt=n=>n.toLocaleString('ru-RU');
-function renderOrders(f='all'){
-  const rows=ORDERS.filter(o=>f==='all'||o.status===f);
-  document.getElementById('orders-tbody').innerHTML=rows.map(o=>{const m=S_META[o.status];return`<tr data-id="${o.id}"><td style="color:var(--fg-muted)">${o.id}</td><td><strong>${o.table}</strong><br><span style="color:var(--fg-muted);font-size:11px">${o.type}</span></td><td>${o.guest}</td><td style="text-align:center">${o.items.length}</td><td style="font-weight:600;font-variant-numeric:tabular-nums">${fmt(o.total)} ₸</td><td>${badge(m.label,m.cls)}</td><td style="color:var(--fg-muted)">${o.time}</td><td><button class="btn btn-ghost" style="padding:5px 10px;font-size:11px">Открыть</button></td></tr>`;}).join('');
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('ru-RU');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
+
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
+
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
-function renderMenu(c='all'){
-  const items=MENU.filter(m=>c==='all'||m.cat===c);
-  document.getElementById('menu-grid').innerHTML=items.map(m=>`<div class="menu-card"><div class="mc-name">${m.name}</div>${badge(m.catL,CAT_BADGE[m.cat]||'b-new')}<div class="mc-price">${fmt(m.price)} ₸</div><div class="mc-foot"><span style="font-size:11px;color:${m.avail?'var(--success)':'var(--fg-muted)'}">${m.avail?'В наличии':'Нет'}</span><label class="toggle"><input type="checkbox" ${m.avail?'checked':''}><span class="t-track"></span><span class="t-thumb"></span></label></div></div>`).join('');
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
 }
-function renderGuests(){
-  const q=document.getElementById('guest-search').value.toLowerCase();
-  const lv=document.getElementById('guest-level-filter').value;
-  const rows=GUESTS.filter(g=>(!q||g.name.toLowerCase().includes(q)||g.phone.includes(q))&&(lv==='all'||g.lvl===lv));
-  document.getElementById('guests-tbody').innerHTML=rows.map(g=>{const lm=LVL_META[g.lvl];return`<tr><td style="font-weight:600">${g.name}</td><td style="color:var(--fg-muted)">${g.phone}</td><td style="text-align:center">${g.visits}</td><td style="font-weight:600;font-variant-numeric:tabular-nums">${fmt(g.spent)} ₸</td><td style="color:var(--gold)">${g.pts}</td><td style="color:var(--fg-muted)">${g.last}</td><td>${badge(lm.label,lm.cls)}</td></tr>`;}).join('');
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
 }
-function renderStaff(){
-  document.getElementById('staff-tbody').innerHTML=STAFF.map(s=>{const stars='★'.repeat(Math.round(s.rating))+'☆'.repeat(5-Math.round(s.rating));return`<tr><td style="font-weight:600">${s.name}</td><td style="color:var(--fg-muted)">${s.role}</td><td>${s.active?badge('На смене','b-active'):badge('Выходной','b-done')}</td><td class="rating">${stars} <span style="color:var(--fg-muted);font-size:11px">${s.rating}</span></td><td style="text-align:center">${s.shifts}</td></tr>`;}).join('');
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
+
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
+  }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
 }
-function renderTx(){
-  document.getElementById('tx-tbody').innerHTML=TX.map(t=>{const c=t.type==='Выручка'?'color:var(--success)':t.type==='Расход'?'color:var(--danger)':'color:var(--fg-muted)';return`<tr><td style="color:var(--fg-muted)">${t.date}</td><td>${t.type}</td><td style="color:var(--fg-muted)">${t.cat}</td><td style="font-weight:700;font-variant-numeric:tabular-nums;${c}">${t.sum}</td></tr>`;}).join('');
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Динамика: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
 }
-function renderBarChart(){
-  const svg=document.getElementById('bar-chart');
-  const max=Math.max(...BAR_VALS);
-  const padL=46,padR=16,padT=14,padB=28,W=600-padL-padR,H=200-padT-padB;
-  const slotW=W/BAR_VALS.length,barW=slotW*0.55;
-  let out='';
-  for(let i=0;i<=4;i++){const y=padT+H-i*H/4;const v=Math.round(max*i/4/1000);out+=`<line x1="${padL}" y1="${y}" x2="${padL+W}" y2="${y}" stroke="rgba(200,168,75,0.07)" stroke-width="1"/><text x="${padL-8}" y="${y+4}" text-anchor="end" fill="#6B6560" font-size="10" font-family="Inter,sans-serif">${v}k</text>`;}
-  out+=`<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+H}" stroke="rgba(200,168,75,0.15)" stroke-width="1"/><line x1="${padL}" y1="${padT+H}" x2="${padL+W}" y2="${padT+H}" stroke="rgba(200,168,75,0.15)" stroke-width="1"/>`;
-  BAR_VALS.forEach((v,i)=>{const bh=(v/max)*H,x=padL+i*slotW+(slotW-barW)/2,y=padT+H-bh;out+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" rx="4" fill="#C8A84B" opacity="0.88"/><text x="${(x+barW/2).toFixed(1)}" y="${(padT+H+padB-8).toFixed(1)}" text-anchor="middle" fill="#6B6560" font-size="11" font-family="Inter,sans-serif">${BAR_DAYS[i]}</text><text x="${(x+barW/2).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" fill="#C8A84B" font-size="10" font-family="Inter,sans-serif">${Math.round(v/1000)}k</text>`;});
-  svg.innerHTML=out;
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
 }
-function renderLineChart(){
-  const svg=document.getElementById('line-chart');
-  const max=Math.max(...LINE_VALS),min=Math.min(...LINE_VALS);
-  const padL=36,padR=12,padT=16,padB=20,W=600-padL-padR,H=180-padT-padB,n=LINE_VALS.length;
-  const pts=LINE_VALS.map((v,i)=>({x:padL+i*W/(n-1),y:padT+(1-(v-min)/(max-min))*H}));
-  const lp=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-  const ap=lp+` L${pts[n-1].x.toFixed(1)},${(padT+H).toFixed(1)} L${padL},${(padT+H).toFixed(1)} Z`;
-  let out='';
-  for(let i=0;i<=3;i++){const v=min+i*(max-min)/3,y=padT+H-i*H/3;out+=`<line x1="${padL}" y1="${y.toFixed(1)}" x2="${padL+W}" y2="${y.toFixed(1)}" stroke="rgba(200,168,75,0.07)" stroke-width="1"/><text x="${padL-6}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="#6B6560" font-size="10" font-family="Inter,sans-serif">${Math.round(v)}k</text>`;}
-  out+=`<defs><linearGradient id="aG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C8A84B" stop-opacity="0.22"/><stop offset="100%" stop-color="#C8A84B" stop-opacity="0"/></linearGradient></defs><path d="${ap}" fill="url(#aG)"/><path d="${lp}" fill="none" stroke="#C8A84B" stroke-width="2" stroke-linejoin="round"/><circle cx="${pts[n-1].x.toFixed(1)}" cy="${pts[n-1].y.toFixed(1)}" r="4" fill="#C8A84B"/>`;
-  svg.innerHTML=out;
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
 }
-function renderCatBars(){
-  const cats=[{name:'Горячие блюда',pct:38},{name:'Напитки',pct:22},{name:'Холодные закуски',pct:18},{name:'Десерты',pct:12},{name:'Завтраки',pct:10}];
-  document.getElementById('cat-bars').innerHTML=cats.map(c=>`<div class="hbar"><div class="hbar-top"><span>${c.name}</span><span>${c.pct}%</span></div><div class="hbar-track"><div class="hbar-fill" style="width:${(c.pct/38*100).toFixed(1)}%"></div></div></div>`).join('');
+
+'use strict';
+
+/* ── data: every total is computed from the rows ───────── */
+const NOW = '14:35', TODAY = '28.09.2026';
+const CATS = { hot: 'Горячее', cold: 'Холодное', drinks: 'Напитки', desserts: 'Десерты', breakfast: 'Завтраки', pizza: 'Пицца и паста', grill: 'Гриль' };
+const MENU = [
+  ['Борщ домашний', 'hot', 1800], ['Бефстроганов', 'hot', 2400], ['Плов узбекский', 'hot', 2200], ['Лагман', 'hot', 1900, false], ['Харчо', 'hot', 1700], ['Манты', 'hot', 200],
+  ['Салат Цезарь', 'cold', 1600], ['Оливье', 'cold', 900], ['Роллы Калифорния', 'cold', 2100],
+  ['Чай зелёный', 'drinks', 500], ['Чай чёрный', 'drinks', 400], ['Сок апельсиновый', 'drinks', 600], ['Морс', 'drinks', 400], ['Кола', 'drinks', 400], ['Вино красное', 'drinks', 1800], ['Хлеб', 'cold', 200],
+  ['Торт медовик', 'desserts', 1200], ['Тирамису', 'desserts', 1400, false],
+  ['Яичница с беконом', 'breakfast', 1100], ['Каша овсяная', 'breakfast', 700],
+  ['Пицца Маргарита', 'pizza', 1800], ['Паста Карбонара', 'pizza', 1900],
+  ['Стейк из говядины', 'grill', 4500], ['Шашлык куриный', 'grill', 2600],
+].map(([n, c, p, a = true]) => ({ n, c, p, a }));
+const price = (n) => MENU.find((m) => m.n === n).p;
+const cat = (n) => MENU.find((m) => m.n === n).c;
+const O = (id, table, type, guest, items, status, time) => ({ id, table, type, guest, items: items.map(([n, q]) => ({ n, q, p: price(n) })), status, time });
+const S = {
+  orders: [
+    O('#1042', 'Стол 5', 'Зал', 'Алмас К.', [['Борщ домашний', 1], ['Хлеб', 2], ['Чай зелёный', 1]], 'new', '14:23'),
+    O('#1041', 'Стол 2', 'Зал', 'Дина М.', [['Бефстроганов', 2], ['Сок апельсиновый', 2]], 'cooking', '14:18'),
+    O('#1040', 'Доставка', 'Доставка', 'Серик Н.', [['Плов узбекский', 1], ['Лагман', 1], ['Морс', 2]], 'confirm', '14:10'),
+    O('#1039', 'Стол 8', 'Зал', 'Айгуль Т.', [['Салат Цезарь', 1], ['Стейк из говядины', 1], ['Вино красное', 1]], 'ready', '13:55'),
+    O('#1038', 'Стол 1', 'Зал', 'Руслан А.', [['Пицца Маргарита', 2], ['Кола', 2]], 'done', '13:40'),
+    O('#1037', 'Доставка', 'Доставка', 'Карина Б.', [['Роллы Калифорния', 2]], 'done', '13:20'),
+    O('#1036', 'Стол 4', 'Зал', 'Нурлан Ж.', [['Харчо', 1], ['Манты', 10], ['Чай чёрный', 2]], 'cooking', '13:15'),
+    O('#1035', 'Стол 7', 'Зал', 'Зарина С.', [['Паста Карбонара', 2]], 'confirm', '13:05'),
+    O('#1034', 'Стол 3', 'Зал', 'Адиль К.', [['Оливье', 1], ['Шашлык куриный', 1]], 'done', '12:50'),
+    O('#1033', 'Стол 6', 'Зал', 'Меруерт О.', [['Торт медовик', 1]], 'cancel', '12:30'),
+  ],
+  menu: MENU,
+  guests: [
+    ['Руслан Асанов', '+7 708 678-90-12', 42, 320000, '26.09.2026', 'vip'], ['Алмас Кожабеков', '+7 701 234-56-78', 28, 145000, '25.09.2026', 'vip'],
+    ['Зарина Сейткали', '+7 702 901-23-45', 18, 98000, '24.09.2026', 'regular'], ['Дина Мусаева', '+7 702 345-67-89', 15, 72000, '27.09.2026', 'regular'],
+    ['Карина Байжанова', '+7 700 789-01-23', 9, 43000, '22.09.2026', 'regular'], ['Серик Нурланов', '+7 705 456-78-90', 6, 28000, '28.09.2026', 'regular'],
+    ['Айгуль Токова', '+7 707 567-89-01', 2, 8900, '28.09.2026', 'new'], ['Нурлан Жаксыбеков', '+7 701 890-12-34', 1, 4100, '28.09.2026', 'new'],
+  ].map(([name, phone, visits, spent, last, lvl]) => ({ name, phone, visits, spent, last, lvl })),
+  staff: [
+    ['Айнур Сейткалиева', 'Администратор', true, 4.8, 22], ['Болат Дюсенов', 'Повар', true, 4.9, 20], ['Гульнара Аблаева', 'Официант', false, 4.5, 17],
+    ['Данияр Касымов', 'Официант', true, 4.6, 19], ['Елена Петрова', 'Бармен', false, 4.7, 15], ['Жасулан Нурмагамбетов', 'Кассир', true, 4.3, 21],
+  ].map(([name, role, on, rating, shifts]) => ({ name, role, on, rating, shifts })),
+  days: [['Вт', '22.09', 72000], ['Ср', '23.09', 58000], ['Чт', '24.09', 84500], ['Пт', '25.09', 91000], ['Сб', '26.09', 95000], ['Вс', '27.09', 78000]],
+  expenses: [['28.09.2026', 'Продукты', 32000], ['27.09.2026', 'Зарплата', 45000], ['26.09.2026', 'Списание', 8200], ['25.09.2026', 'Аренда', 150000], ['24.09.2026', 'Продукты', 41000], ['23.09.2026', 'Коммунальные', 38000]],
+  month30: [49, 53, 57, 52, 60, 63, 68, 61, 66, 70, 74, 69, 77, 81, 86, 72, 79, 83, 88, 76, 84, 89, 93, 80, 72, 58, 84.5, 91, 95, 78],
+};
+const SM = { new: ['Новый', ''], confirm: ['Принят', ''], cooking: ['Готовится', 'warn'], ready: ['Готово', 'pos'], done: ['Выдано', ''], cancel: ['Отменён', 'neg'] };
+const NEXT = { new: ['confirm', 'Принять'], confirm: ['cooking', 'На кухню'], cooking: ['ready', 'Готово'], ready: ['done', 'Выдать'] };
+const total = (o) => o.items.reduce((s, i) => s + i.p * i.q, 0);
+const live = () => S.orders.filter((o) => o.status !== 'cancel');
+const revenueToday = () => live().reduce((s, o) => s + total(o), 0);
+const mins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const wait = (o) => mins(NOW) - mins(o.time);
+const tg = (n) => fmt(n) + ' ₸';
+const week = () => S.days.reduce((s, d) => s + d[2], 0) + revenueToday();
+console.assert(revenueToday() === 41900 && S.orders.length === 10, 'orders total'); // 4 700 − 4 100: Харчо + 10 манты + 2 чая = 4 500
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { dashboard: ['Дашборд', 'home'], orders: ['Заказы', 'bag'], menu: ['Меню', 'utensils'], guests: ['Гости', 'users'], staff: ['Персонал', 'calendar'], finance: ['Финансы', 'coin'], analytics: ['Аналитика', 'chart'] };
+let page = 'dashboard', ordFilter = 'all', guestQ = '', guestL = 'all';
+const newCount = () => S.orders.filter((o) => o.status === 'new').length;
+
+function chrome() {
+  const n = newCount();
+  const item = (k, extra = '') => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${extra}</a>`;
+  $('#nav').innerHTML = item('dashboard') + item('orders', n ? `<span class="count" title="Новых заказов">${n}</span>` : '') + item('menu') + `<div class="nav-label">Люди</div>` + item('guests') + item('staff') + `<div class="nav-label">Деньги</div>` + item('finance') + item('analytics');
+  const tabs = ['dashboard', 'orders', 'menu', 'guests', 'finance'];
+  $('#tabbar').innerHTML = tabs.map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'orders' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
+  setNav(page);
 }
-document.querySelectorAll('.nav-item').forEach(item=>{
-  item.addEventListener('click',()=>{
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    document.getElementById('screen-'+item.dataset.screen).classList.add('active');
-    item.classList.add('active');
-  });
+function render() { chrome(); $('#main').innerHTML = ({ dashboard, orders, menu, guests, staff, finance, analytics })[page](); mount(); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const adv = e.target.closest('[data-adv]'); if (adv) return advance(adv.dataset.adv);
+  const op = e.target.closest('[data-order]'); if (op && !e.target.closest('button')) return openOrder(op.dataset.order);
+  const f = e.target.closest('[data-filter]'); if (f) { ordFilter = f.dataset.filter; return render(); }
+  const sw = e.target.closest('[data-dish]'); if (sw) { const d = S.menu[+sw.dataset.dish]; d.a = !d.a; toast(d.a ? `${d.n} вернули в меню` : `${d.n} в стоп-листе`); return render(); }
+  const act = e.target.closest('[data-act]'); if (act) ACT[act.dataset.act](act.dataset);
 });
-document.getElementById('order-tabs').addEventListener('click',e=>{const t=e.target.closest('.tab');if(!t)return;document.querySelectorAll('#order-tabs .tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');renderOrders(t.dataset.filter);});
-document.getElementById('menu-tabs').addEventListener('click',e=>{const t=e.target.closest('.tab');if(!t)return;document.querySelectorAll('#menu-tabs .tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');renderMenu(t.dataset.cat);});
-document.getElementById('orders-tbody').addEventListener('click',e=>{
-  const row=e.target.closest('tr[data-id]');if(!row)return;
-  const o=ORDERS.find(x=>x.id===row.dataset.id);if(!o)return;
-  const m=S_META[o.status];
-  document.getElementById('om-title').textContent=`Заказ ${o.id} — ${o.table}`;
-  document.getElementById('om-guest').textContent=o.guest;
-  document.getElementById('om-status').innerHTML=badge(m.label,m.cls);
-  document.getElementById('om-items').innerHTML=o.items.map(it=>`<li><span>${it.n} × ${it.q}</span><span style="color:var(--gold);font-variant-numeric:tabular-nums">${fmt(it.p*it.q)} ₸</span></li>`).join('');
-  document.getElementById('om-total').textContent=fmt(o.total)+' ₸';
-  document.getElementById('om-history').innerHTML=['Принят в систему','Передан на кухню',m.label].map(s=>`<div class="sh-item"><span class="sh-dot"></span><span>${s}</span></div>`).join('');
-  document.getElementById('order-modal').classList.add('open');
-});
-document.getElementById('guest-search').addEventListener('input',renderGuests);
-document.getElementById('guest-level-filter').addEventListener('change',renderGuests);
-document.getElementById('add-dish-btn').addEventListener('click',()=>document.getElementById('dish-modal').classList.add('open'));
-document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>document.getElementById(btn.dataset.close).classList.remove('open')));
-document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');}));
-document.getElementById('today-date').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-renderOrders();renderMenu();renderGuests();renderStaff();renderTx();renderBarChart();renderLineChart();renderCatBars();
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('input', (e) => { if (e.target.id === 'g-q') { guestQ = e.target.value.toLowerCase(); const p = e.target.selectionStart; render(); const i = $('#g-q'); i.focus(); i.setSelectionRange(p, p); } });
+document.addEventListener('change', (e) => { if (e.target.id === 'g-l') { guestL = e.target.value; render(); } });
+
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+const pill = (s) => `<span class="pill ${SM[s][1]}"><i></i>${SM[s][0]}</span>`;
+
+function advance(id) {
+  const o = S.orders.find((x) => x.id === id), [next] = NEXT[o.status];
+  o.status = next; toast(`${o.id} · ${SM[next][0]}`); render();
+}
+
+/* ── dashboard: the live board ────────────────────────── */
+function ticket(o) {
+  const w = wait(o), late = o.status !== 'ready' && w >= 12;
+  const nx = NEXT[o.status];
+  return `<article class="ticket${late ? ' late' : ''}" data-order="${o.id}" style="cursor:pointer">
+    <div class="t-top"><b>${esc(o.table)} <span>${o.id}</span></b><span class="${late ? 'late' : ''}">${w} мин</span></div>
+    <ul class="t-items">${o.items.slice(0, 3).map((i) => `<li><span>${esc(i.n)}${i.q > 1 ? ' × ' + i.q : ''}</span></li>`).join('')}${o.items.length > 3 ? `<li><span>и ещё ${o.items.length - 3}</span></li>` : ''}</ul>
+    <div class="t-foot"><b>${tg(total(o))}</b><button class="btn sm ${o.status === 'new' ? 'primary' : ''}" data-adv="${o.id}">${nx[1]}</button></div></article>`;
+}
+function dashboard() {
+  const col = (title, sts) => { const l = S.orders.filter((o) => sts.includes(o.status)).sort((a, b) => mins(a.time) - mins(b.time)); return `<section><div class="col-h"><h2>${title}</h2><span>${l.length}</span></div><div class="tickets">${l.length ? l.map(ticket).join('') : '<div class="none">Пусто</div>'}</div></section>`; };
+  const waiting = S.orders.filter((o) => o.status === 'new').sort((a, b) => mins(a.time) - mins(b.time))[0];
+  const stop = S.menu.filter((m) => !m.a).map((m) => m.n);
+  const conflict = S.orders.filter((o) => !['done', 'cancel'].includes(o.status) && o.items.some((i) => stop.includes(i.n)))[0];
+  const avg = revenueToday() / live().length;
+  const finding = conflict ? `<div class="finding">${ic('alert')}<span>В заказе ${conflict.id} есть «${esc(conflict.items.find((i) => stop.includes(i.n)).n)}», а блюдо в стоп-листе. Позвоните гостю до отправки на кухню.</span><button class="btn sm" data-order="${conflict.id}">Открыть заказ</button></div>`
+    : waiting && wait(waiting) >= 10 ? `<div class="finding">${ic('clock')}<span>${esc(waiting.table)} ждёт ${wait(waiting)} мин: заказ ${waiting.id} ещё не принят.</span><button class="btn sm primary" data-adv="${waiting.id}">Принять</button></div>` : '';
+  return head('Дашборд', `${TODAY} · на ${NOW}`, `<button class="btn primary" data-act="newOrder">${ic('plus')}Новый заказ</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${fmt(revenueToday())}<small>₸</small></b><span>Выручка за день на ${NOW}</span></div>
+      <div class="kpi"><b>${live().length}</b><span>Заказов, ${S.orders.length - live().length} отменён</span></div>
+      <div class="kpi"><b>${fmt(avg)}<small>₸</small></b><span>Средний чек</span></div>
+      <div class="kpi"><b>${S.orders.filter((o) => o.status === 'done').length}</b><span>Выдано гостям</span></div></div>
+    <div class="board">${col('Новые', ['new', 'confirm'])}${col('На кухне', ['cooking'])}${col('Готово к выдаче', ['ready'])}</div>`;
+}
+
+function orders() {
+  const f = ordFilter;
+  const list = S.orders.filter((o) => f === 'all' || o.status === f);
+  const tab = (k, t) => `<button data-filter="${k}" class="${f === k ? 'on' : ''}">${t}</button>`;
+  return head('Заказы', `${S.orders.length} за сегодня · ${tg(revenueToday())}`, `<button class="btn primary" data-act="newOrder">${ic('plus')}Новый заказ</button>`) +
+    `<div class="tabs">${tab('all', 'Все')}${tab('new', 'Новые')}${tab('cooking', 'На кухне')}${tab('ready', 'Готово')}${tab('done', 'Выдано')}${tab('cancel', 'Отменены')}</div>
+    <div class="card">${list.length ? `<div class="tbl" style="--cols:70px 1.2fr 1fr 70px 110px 100px;--colsm:60px 1fr 90px">
+      <div class="tr th"><span>№</span><span>Стол и гость</span><span class="hm">Состав</span><span class="hm r">Время</span><span class="r">Сумма</span><span class="r hm">Статус</span></div>
+      ${list.map((o) => `<div class="tr" data-order="${o.id}" data-open style="cursor:pointer"><span class="muted">${o.id}</span><span class="cell-main"><b>${esc(o.table)}</b><span>${esc(o.guest)}</span></span><span class="hm muted">${esc(o.items.map((i) => i.n).slice(0, 2).join(', '))}${o.items.length > 2 ? '…' : ''}</span><span class="hm r muted">${o.time}</span><span class="r">${tg(total(o))}</span><span class="r hm">${pill(o.status)}</span></div>`).join('')}</div>` : '<div class="empty">Заказов с таким статусом нет.</div>'}</div>`;
+}
+
+function menu() {
+  const stop = S.menu.filter((m) => !m.a).length;
+  return head('Меню', `${S.menu.length} позиций · ${stop ? stop + ' в стоп-листе' : 'стоп-лист пуст'}`, `<button class="btn primary" data-act="newDish">${ic('plus')}Новое блюдо</button>`) +
+    Object.entries(CATS).map(([k, name]) => { const items = S.menu.map((m, i) => ({ ...m, i })).filter((m) => m.c === k); if (!items.length) return ''; return `<section class="card menu-grp"><h2>${name}</h2>${items.map((m) => `<div class="dish ${m.a ? '' : 'off'}"><b style="font-weight:500">${esc(m.n)}</b><span>${tg(m.p)}</span><button class="sw" role="switch" aria-pressed="${m.a}" aria-label="${esc(m.n)} в продаже" data-dish="${m.i}"></button></div>`).join('')}</section>`; }).join('');
+}
+
+function guests() {
+  const l = S.guests.filter((g) => (!guestQ || g.name.toLowerCase().includes(guestQ) || g.phone.includes(guestQ)) && (guestL === 'all' || g.lvl === guestL));
+  const LV = { vip: ['VIP', 'warn'], regular: ['Постоянный', ''], new: ['Новый', 'pos'] };
+  return head('Гости', `${S.guests.length} в базе · баллы: 1 за каждые 100 ₸`) +
+    `<div class="filters"><input id="g-q" type="search" placeholder="Имя или телефон" value="${esc(guestQ)}" aria-label="Поиск"><select id="g-l" aria-label="Уровень"><option value="all">Все уровни</option>${Object.entries(LV).map(([k, v]) => `<option value="${k}" ${guestL === k ? 'selected' : ''}>${v[0]}</option>`).join('')}</select></div>
+    <div class="card">${l.length ? `<div class="tbl" style="--cols:1.4fr 150px 70px 110px 80px 110px;--colsm:1.4fr 90px"><div class="tr th"><span>Гость</span><span class="hm">Телефон</span><span class="hm r">Визитов</span><span class="hm r">Потрачено</span><span class="hm r">Баллы</span><span class="r">Уровень</span></div>
+      ${l.map((g) => `<div class="tr"><span class="cell-main"><b>${esc(g.name)}</b><span>был ${g.last}</span></span><span class="hm muted">${esc(g.phone)}</span><span class="hm r">${g.visits}</span><span class="hm r">${tg(g.spent)}</span><span class="hm r">${fmt(g.spent / 100)}</span><span class="r"><span class="pill ${LV[g.lvl][1]}">${LV[g.lvl][0]}</span></span></div>`).join('')}</div>` : '<div class="empty">Никого не нашли. Попробуйте другое имя.</div>'}</div>`;
+}
+
+function staff() {
+  const on = S.staff.filter((s) => s.on).length;
+  return head('Персонал', `${on} из ${S.staff.length} на смене сейчас`) +
+    `<div class="card"><div class="tbl" style="--cols:1.4fr 1fr 120px 110px 90px;--colsm:1.3fr 110px"><div class="tr th"><span>Сотрудник</span><span class="hm">Роль</span><span class="hm">Смена</span><span class="hm r">Рейтинг</span><span class="r">Статус</span></div>
+    ${S.staff.map((s) => `<div class="tr"><span class="cell-main"><b>${esc(s.name)}</b><span>${s.shifts} смен в сентябре</span></span><span class="hm">${s.role}</span><span class="hm muted">${s.on ? '10:00–22:00' : 'выходной'}</span><span class="hm r"><span class="stars">${'★'.repeat(Math.round(s.rating))}</span> ${fmtD(s.rating)}</span><span class="r"><span class="pill ${s.on ? 'pos' : ''}"><i></i>${s.on ? 'На смене' : 'Не на смене'}</span></span></div>`).join('')}</div></div>`;
+}
+
+function finance() {
+  const exp = S.expenses.reduce((s, e) => s + e[2], 0), rev = week();
+  const rows = [...S.days.map((d) => [d[1] + '.2026', 'Выручка', 'Зал и доставка', d[2]]), [TODAY, 'Выручка', `Зал и доставка (на ${NOW})`, revenueToday()], ...S.expenses.map((e) => [e[0], 'Расход', e[1], -e[2]])]
+    .sort((a, b) => b[0].split('.').reverse().join('').localeCompare(a[0].split('.').reverse().join('')));
+  return head('Финансы', '22–28 сентября 2026') +
+    `<div class="kpis"><div class="kpi"><b>${fmt(rev)}<small>₸</small></b><span>Выручка за 7 дней</span></div><div class="kpi"><b>${fmt(exp)}<small>₸</small></b><span>Расходы</span></div><div class="kpi"><b class="${rev - exp >= 0 ? 'pos' : 'neg'}">${signed(rev - exp)}<small>₸</small></b><span>Результат (${Math.round(((rev - exp) / rev) * 100)}% от выручки)</span></div></div>
+    <div class="card"><div class="tbl" style="--cols:110px 1fr 1.2fr 140px;--colsm:90px 1fr 100px"><div class="tr th"><span>Дата</span><span>Тип</span><span class="hm">Категория</span><span class="r">Сумма</span></div>
+    ${rows.map((r) => `<div class="tr"><span class="muted">${r[0].slice(0, 5)}</span><span>${r[1]}</span><span class="hm muted">${esc(r[2])}</span><span class="r ${r[3] > 0 ? 'pos' : ''}">${signed(r[3], (v) => fmt(v) + ' ₸')}</span></div>`).join('')}</div></div>`;
+}
+
+function analytics() {
+  const byCat = {}; live().forEach((o) => o.items.forEach((i) => { byCat[cat(i.n)] = (byCat[cat(i.n)] || 0) + i.p * i.q; }));
+  const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]), t = rows.reduce((s, r) => s + r[1], 0);
+  const best = S.days.reduce((a, b) => (b[2] > a[2] ? b : a));
+  return head('Аналитика', 'Выручка и структура продаж') +
+    `<div class="kpis"><div class="kpi"><b>${fmt(best[2] / 1000)}<small>тыс. ₸</small></b><span>Лучший день недели: ${best[0]}, ${best[1]}</span></div><div class="kpi"><b>${fmt(rows.length ? t / live().length : 0)}<small>₸</small></b><span>Средний чек сегодня</span></div></div>
+    <div class="grid"><section class="card c7"><div class="card-h"><h2>Выручка по дням, тыс. ₸</h2><span>сегодня — на ${NOW}</span></div><div id="ch-days"></div></section>
+    <section class="card c5"><div class="card-h"><h2>Структура продаж сегодня</h2><span>доля выручки</span></div>${rows.map(([k, v]) => barRow(CATS[k], (v / t) * 100, Math.round((v / t) * 100) + '%', tg(v))).join('')}</section>
+    <section class="card c12"><div class="card-h"><h2>Выручка за 30 дней, тыс. ₸</h2></div><div id="ch-30"></div></section></div>`;
+}
+function mount() {
+  const a = $('#ch-days'); if (a) { const labels = [...S.days.map((d) => d[0]), 'Пн'], vals = [...S.days.map((d) => d[2] / 1000), revenueToday() / 1000]; chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (v) => fmtD(v, v % 1 ? 1 : 0), unit: 'тыс. ₸' })); }
+  const b = $('#ch-30'); if (b) { const v = S.month30, labels = v.map((_, i) => i + 1 + ''); chart(b, (w) => lineSVG(w, { labels, values: v, xAt: [0, 7, 14, 21, 29], fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) })); }
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const ACT = {
+  newOrder() {
+    const avail = S.menu.filter((m) => m.a);
+    modal(`<h2>Новый заказ</h2><p>Попадёт в колонку «Новые».</p>
+      <div class="field"><label>Стол</label><select id="o-t">${[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `<option>Стол ${n}</option>`).join('')}<option>Доставка</option></select></div>
+      <div class="field"><label>Блюдо</label><select id="o-d">${avail.map((m) => `<option>${esc(m.n)} · ${fmt(m.p)} ₸</option>`).join('')}</select></div>
+      <div class="field"><label>Количество</label><input id="o-q" type="number" min="1" max="20" value="1"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="o-ok">Создать</button></div>`, () => {
+      $('#o-ok').onclick = () => {
+        const name = $('#o-d').value.split(' · ')[0], q = Math.max(1, +$('#o-q').value || 1), t = $('#o-t').value;
+        S.orders.unshift(O('#' + (1043 + S.orders.length - 10), t, t === 'Доставка' ? 'Доставка' : 'Зал', 'Гость', [[name, q]], 'new', NOW));
+        closeModal(); toast('Заказ создан'); render();
+      };
+    });
+  },
+  newDish() {
+    modal(`<h2>Новое блюдо</h2><p>Появится в меню сразу.</p><div class="field"><label>Название</label><input id="d-n" placeholder="Например, Баурсаки"></div>
+      <div class="field"><label>Раздел</label><select id="d-c">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div><div class="field"><label>Цена, ₸</label><input id="d-p" type="number" min="0" value="1000"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="d-ok">Добавить</button></div>`, () => {
+      $('#d-ok').onclick = () => { const n = $('#d-n').value.trim(); if (!n) { $('#d-n').focus(); return; } S.menu.push({ n, c: $('#d-c').value, p: +$('#d-p').value || 0, a: true }); closeModal(); toast(`${n} добавлено в меню`); render(); };
+    });
+  },
+};
+function openOrder(id) {
+  const o = S.orders.find((x) => x.id === id), stop = S.menu.filter((m) => !m.a).map((m) => m.n), nx = NEXT[o.status];
+  modal(`<h2>${o.id} · ${esc(o.table)}</h2><p>${esc(o.guest)} · принят в ${o.time} · ${pill(o.status)}</p>
+    ${o.items.map((i) => `<div class="trip" style="grid-template-columns:1fr auto;padding:8px 0;display:grid"><span>${esc(i.n)} × ${i.q}${stop.includes(i.n) ? ' <span class="pill neg">в стоп-листе</span>' : ''}</span><b>${tg(i.p * i.q)}</b></div>`).join('')}
+    <div class="trip" style="grid-template-columns:1fr auto;display:grid;border-top:1px solid var(--border);margin-top:6px;padding-top:12px"><b>Итого</b><b>${tg(total(o))}</b></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Закрыть</button>${nx ? `<button class="btn primary" id="adv">${nx[1]}</button>` : ''}${nx && o.status !== 'ready' ? '' : ''}</div>`, () => { const b = $('#adv'); if (b) b.onclick = () => { closeModal(); advance(id); }; });
+}
+render();
 </script>
 </body>
 </html>

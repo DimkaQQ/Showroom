@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RestOS — управление рестораном (демо)</title>
+<meta name="description" content="Демо: доска заказов кухни, меню со стоп-листом, гости, персонал и финансы ресторана. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<style>
+/*@kit.css*/
+:root[data-theme="light"] {
+  --bg: #efece6; --surface: #ffffff; --raised: #f6f3ee; --hover: #efebe4; --border: #e2ded4; --rule: #eeeae2;
+  --text: #1d1a16; --muted: #5f5a50; --faint: #716b60;
+  --accent: #d9461f; --accent-ink: #ffffff;
+  --font: "Golos Text", system-ui, sans-serif; --display: "Fraunces", Georgia, serif;
+}
+.brand-mark { background: var(--accent); color: #fff; }
+.brand-name { font-family: var(--display); font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+.head h1, .big, .kpi b { font-family: var(--display); font-weight: 600; letter-spacing: -.02em; }
+.nav .count { background: var(--accent); color: #fff; }
+.board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); align-items: start; }
+.col-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.col-h h2 { font-size: 15px; font-weight: 600; } .col-h span { color: var(--muted); font-size: 13px; }
+.tickets { display: flex; flex-direction: column; gap: 10px; min-height: 64px; }
+.ticket { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px 12px; animation: pop .25s var(--ease) both; }
+.ticket.late { border-color: var(--accent); }
+.t-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.t-top b { font-size: 15px; } .t-top span { font-size: 13px; color: var(--muted); }
+.t-top .late { color: var(--accent); font-weight: 600; }
+.t-items { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+.t-items li { display: flex; justify-content: space-between; gap: 8px; } .t-items li + li { margin-top: 2px; }
+.t-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.t-foot b { font-variant-numeric: tabular-nums; }
+.none { color: var(--faint); padding: 18px 4px; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius); }
+.menu-grp { margin-bottom: 22px; } .menu-grp h2 { font-size: 15px; margin-bottom: 8px; }
+.dish { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; min-height: 48px; padding: 6px 0; }
+.dish + .dish { border-top: 1px solid var(--rule); }
+.dish.off b { color: var(--faint); text-decoration: line-through; }
+.sw { width: 40px; height: 24px; border-radius: 12px; border: 0; background: var(--border); position: relative; cursor: pointer; transition: background-color .18s; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s var(--ease); }
+.sw[aria-pressed="true"] { background: var(--pos); } .sw[aria-pressed="true"]::after { transform: translateX(16px); }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--gap); }
+.filters input, .filters select { height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); outline: none; }
+.filters input { min-width: 220px; } .filters input:focus, .filters select:focus { border-color: var(--accent); }
+.stars { color: var(--accent); letter-spacing: 1px; }
+@media (max-width: 899px) { .board { grid-template-columns: 1fr; } .filters input { min-width: 0; flex: 1; } }
+</style>
+</head>
+<body>
+<div class="notice"><b>Демо</b> RestOS · данные вымышлены</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/></svg></div><div><div class="brand-name">RestOS</div><div class="brand-sub">Ресторан Север</div></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">АС</div><div class="who"><b>Айнур Сейткалиева</b><span>Администратор</span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+
+<script>
+/*@kit.js*/
+'use strict';
+
+/* ── data: every total is computed from the rows ───────── */
+const NOW = '14:35', TODAY = '28.09.2026';
+const CATS = { hot: 'Горячее', cold: 'Холодное', drinks: 'Напитки', desserts: 'Десерты', breakfast: 'Завтраки', pizza: 'Пицца и паста', grill: 'Гриль' };
+const MENU = [
+  ['Борщ домашний', 'hot', 1800], ['Бефстроганов', 'hot', 2400], ['Плов узбекский', 'hot', 2200], ['Лагман', 'hot', 1900, false], ['Харчо', 'hot', 1700], ['Манты', 'hot', 200],
+  ['Салат Цезарь', 'cold', 1600], ['Оливье', 'cold', 900], ['Роллы Калифорния', 'cold', 2100],
+  ['Чай зелёный', 'drinks', 500], ['Чай чёрный', 'drinks', 400], ['Сок апельсиновый', 'drinks', 600], ['Морс', 'drinks', 400], ['Кола', 'drinks', 400], ['Вино красное', 'drinks', 1800], ['Хлеб', 'cold', 200],
+  ['Торт медовик', 'desserts', 1200], ['Тирамису', 'desserts', 1400, false],
+  ['Яичница с беконом', 'breakfast', 1100], ['Каша овсяная', 'breakfast', 700],
+  ['Пицца Маргарита', 'pizza', 1800], ['Паста Карбонара', 'pizza', 1900],
+  ['Стейк из говядины', 'grill', 4500], ['Шашлык куриный', 'grill', 2600],
+].map(([n, c, p, a = true]) => ({ n, c, p, a }));
+const price = (n) => MENU.find((m) => m.n === n).p;
+const cat = (n) => MENU.find((m) => m.n === n).c;
+const O = (id, table, type, guest, items, status, time) => ({ id, table, type, guest, items: items.map(([n, q]) => ({ n, q, p: price(n) })), status, time });
+const S = {
+  orders: [
+    O('#1042', 'Стол 5', 'Зал', 'Алмас К.', [['Борщ домашний', 1], ['Хлеб', 2], ['Чай зелёный', 1]], 'new', '14:23'),
+    O('#1041', 'Стол 2', 'Зал', 'Дина М.', [['Бефстроганов', 2], ['Сок апельсиновый', 2]], 'cooking', '14:18'),
+    O('#1040', 'Доставка', 'Доставка', 'Серик Н.', [['Плов узбекский', 1], ['Лагман', 1], ['Морс', 2]], 'confirm', '14:10'),
+    O('#1039', 'Стол 8', 'Зал', 'Айгуль Т.', [['Салат Цезарь', 1], ['Стейк из говядины', 1], ['Вино красное', 1]], 'ready', '13:55'),
+    O('#1038', 'Стол 1', 'Зал', 'Руслан А.', [['Пицца Маргарита', 2], ['Кола', 2]], 'done', '13:40'),
+    O('#1037', 'Доставка', 'Доставка', 'Карина Б.', [['Роллы Калифорния', 2]], 'done', '13:20'),
+    O('#1036', 'Стол 4', 'Зал', 'Нурлан Ж.', [['Харчо', 1], ['Манты', 10], ['Чай чёрный', 2]], 'cooking', '13:15'),
+    O('#1035', 'Стол 7', 'Зал', 'Зарина С.', [['Паста Карбонара', 2]], 'confirm', '13:05'),
+    O('#1034', 'Стол 3', 'Зал', 'Адиль К.', [['Оливье', 1], ['Шашлык куриный', 1]], 'done', '12:50'),
+    O('#1033', 'Стол 6', 'Зал', 'Меруерт О.', [['Торт медовик', 1]], 'cancel', '12:30'),
+  ],
+  menu: MENU,
+  guests: [
+    ['Руслан Асанов', '+7 708 678-90-12', 42, 320000, '26.09.2026', 'vip'], ['Алмас Кожабеков', '+7 701 234-56-78', 28, 145000, '25.09.2026', 'vip'],
+    ['Зарина Сейткали', '+7 702 901-23-45', 18, 98000, '24.09.2026', 'regular'], ['Дина Мусаева', '+7 702 345-67-89', 15, 72000, '27.09.2026', 'regular'],
+    ['Карина Байжанова', '+7 700 789-01-23', 9, 43000, '22.09.2026', 'regular'], ['Серик Нурланов', '+7 705 456-78-90', 6, 28000, '28.09.2026', 'regular'],
+    ['Айгуль Токова', '+7 707 567-89-01', 2, 8900, '28.09.2026', 'new'], ['Нурлан Жаксыбеков', '+7 701 890-12-34', 1, 4100, '28.09.2026', 'new'],
+  ].map(([name, phone, visits, spent, last, lvl]) => ({ name, phone, visits, spent, last, lvl })),
+  staff: [
+    ['Айнур Сейткалиева', 'Администратор', true, 4.8, 22], ['Болат Дюсенов', 'Повар', true, 4.9, 20], ['Гульнара Аблаева', 'Официант', false, 4.5, 17],
+    ['Данияр Касымов', 'Официант', true, 4.6, 19], ['Елена Петрова', 'Бармен', false, 4.7, 15], ['Жасулан Нурмагамбетов', 'Кассир', true, 4.3, 21],
+  ].map(([name, role, on, rating, shifts]) => ({ name, role, on, rating, shifts })),
+  days: [['Вт', '22.09', 72000], ['Ср', '23.09', 58000], ['Чт', '24.09', 84500], ['Пт', '25.09', 91000], ['Сб', '26.09', 95000], ['Вс', '27.09', 78000]],
+  expenses: [['28.09.2026', 'Продукты', 32000], ['27.09.2026', 'Зарплата', 45000], ['26.09.2026', 'Списание', 8200], ['25.09.2026', 'Аренда', 150000], ['24.09.2026', 'Продукты', 41000], ['23.09.2026', 'Коммунальные', 38000]],
+  month30: [49, 53, 57, 52, 60, 63, 68, 61, 66, 70, 74, 69, 77, 81, 86, 72, 79, 83, 88, 76, 84, 89, 93, 80, 72, 58, 84.5, 91, 95, 78],
+};
+const SM = { new: ['Новый', ''], confirm: ['Принят', ''], cooking: ['Готовится', 'warn'], ready: ['Готово', 'pos'], done: ['Выдано', ''], cancel: ['Отменён', 'neg'] };
+const NEXT = { new: ['confirm', 'Принять'], confirm: ['cooking', 'На кухню'], cooking: ['ready', 'Готово'], ready: ['done', 'Выдать'] };
+const total = (o) => o.items.reduce((s, i) => s + i.p * i.q, 0);
+const live = () => S.orders.filter((o) => o.status !== 'cancel');
+const revenueToday = () => live().reduce((s, o) => s + total(o), 0);
+const mins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const wait = (o) => mins(NOW) - mins(o.time);
+const tg = (n) => fmt(n) + ' ₸';
+const week = () => S.days.reduce((s, d) => s + d[2], 0) + revenueToday();
+console.assert(revenueToday() === 41900 && S.orders.length === 10, 'orders total'); // 4 700 − 4 100: Харчо + 10 манты + 2 чая = 4 500
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { dashboard: ['Дашборд', 'home'], orders: ['Заказы', 'bag'], menu: ['Меню', 'utensils'], guests: ['Гости', 'users'], staff: ['Персонал', 'calendar'], finance: ['Финансы', 'coin'], analytics: ['Аналитика', 'chart'] };
+let page = 'dashboard', ordFilter = 'all', guestQ = '', guestL = 'all';
+const newCount = () => S.orders.filter((o) => o.status === 'new').length;
+
+function chrome() {
+  const n = newCount();
+  const item = (k, extra = '') => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${extra}</a>`;
+  $('#nav').innerHTML = item('dashboard') + item('orders', n ? `<span class="count" title="Новых заказов">${n}</span>` : '') + item('menu') + `<div class="nav-label">Люди</div>` + item('guests') + item('staff') + `<div class="nav-label">Деньги</div>` + item('finance') + item('analytics');
+  const tabs = ['dashboard', 'orders', 'menu', 'guests', 'finance'];
+  $('#tabbar').innerHTML = tabs.map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'orders' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
+  setNav(page);
+}
+function render() { chrome(); $('#main').innerHTML = ({ dashboard, orders, menu, guests, staff, finance, analytics })[page](); mount(); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const adv = e.target.closest('[data-adv]'); if (adv) return advance(adv.dataset.adv);
+  const op = e.target.closest('[data-order]'); if (op && !e.target.closest('button')) return openOrder(op.dataset.order);
+  const f = e.target.closest('[data-filter]'); if (f) { ordFilter = f.dataset.filter; return render(); }
+  const sw = e.target.closest('[data-dish]'); if (sw) { const d = S.menu[+sw.dataset.dish]; d.a = !d.a; toast(d.a ? `${d.n} вернули в меню` : `${d.n} в стоп-листе`); return render(); }
+  const act = e.target.closest('[data-act]'); if (act) ACT[act.dataset.act](act.dataset);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('input', (e) => { if (e.target.id === 'g-q') { guestQ = e.target.value.toLowerCase(); const p = e.target.selectionStart; render(); const i = $('#g-q'); i.focus(); i.setSelectionRange(p, p); } });
+document.addEventListener('change', (e) => { if (e.target.id === 'g-l') { guestL = e.target.value; render(); } });
+
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+const pill = (s) => `<span class="pill ${SM[s][1]}"><i></i>${SM[s][0]}</span>`;
+
+function advance(id) {
+  const o = S.orders.find((x) => x.id === id), [next] = NEXT[o.status];
+  o.status = next; toast(`${o.id} · ${SM[next][0]}`); render();
+}
+
+/* ── dashboard: the live board ────────────────────────── */
+function ticket(o) {
+  const w = wait(o), late = o.status !== 'ready' && w >= 12;
+  const nx = NEXT[o.status];
+  return `<article class="ticket${late ? ' late' : ''}" data-order="${o.id}" style="cursor:pointer">
+    <div class="t-top"><b>${esc(o.table)} <span>${o.id}</span></b><span class="${late ? 'late' : ''}">${w} мин</span></div>
+    <ul class="t-items">${o.items.slice(0, 3).map((i) => `<li><span>${esc(i.n)}${i.q > 1 ? ' × ' + i.q : ''}</span></li>`).join('')}${o.items.length > 3 ? `<li><span>и ещё ${o.items.length - 3}</span></li>` : ''}</ul>
+    <div class="t-foot"><b>${tg(total(o))}</b><button class="btn sm ${o.status === 'new' ? 'primary' : ''}" data-adv="${o.id}">${nx[1]}</button></div></article>`;
+}
+function dashboard() {
+  const col = (title, sts) => { const l = S.orders.filter((o) => sts.includes(o.status)).sort((a, b) => mins(a.time) - mins(b.time)); return `<section><div class="col-h"><h2>${title}</h2><span>${l.length}</span></div><div class="tickets">${l.length ? l.map(ticket).join('') : '<div class="none">Пусто</div>'}</div></section>`; };
+  const waiting = S.orders.filter((o) => o.status === 'new').sort((a, b) => mins(a.time) - mins(b.time))[0];
+  const stop = S.menu.filter((m) => !m.a).map((m) => m.n);
+  const conflict = S.orders.filter((o) => !['done', 'cancel'].includes(o.status) && o.items.some((i) => stop.includes(i.n)))[0];
+  const avg = revenueToday() / live().length;
+  const finding = conflict ? `<div class="finding">${ic('alert')}<span>В заказе ${conflict.id} есть «${esc(conflict.items.find((i) => stop.includes(i.n)).n)}», а блюдо в стоп-листе. Позвоните гостю до отправки на кухню.</span><button class="btn sm" data-order="${conflict.id}">Открыть заказ</button></div>`
+    : waiting && wait(waiting) >= 10 ? `<div class="finding">${ic('clock')}<span>${esc(waiting.table)} ждёт ${wait(waiting)} мин: заказ ${waiting.id} ещё не принят.</span><button class="btn sm primary" data-adv="${waiting.id}">Принять</button></div>` : '';
+  return head('Дашборд', `${TODAY} · на ${NOW}`, `<button class="btn primary" data-act="newOrder">${ic('plus')}Новый заказ</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${fmt(revenueToday())}<small>₸</small></b><span>Выручка за день на ${NOW}</span></div>
+      <div class="kpi"><b>${live().length}</b><span>Заказов, ${S.orders.length - live().length} отменён</span></div>
+      <div class="kpi"><b>${fmt(avg)}<small>₸</small></b><span>Средний чек</span></div>
+      <div class="kpi"><b>${S.orders.filter((o) => o.status === 'done').length}</b><span>Выдано гостям</span></div></div>
+    <div class="board">${col('Новые', ['new', 'confirm'])}${col('На кухне', ['cooking'])}${col('Готово к выдаче', ['ready'])}</div>`;
+}
+
+function orders() {
+  const f = ordFilter;
+  const list = S.orders.filter((o) => f === 'all' || o.status === f);
+  const tab = (k, t) => `<button data-filter="${k}" class="${f === k ? 'on' : ''}">${t}</button>`;
+  return head('Заказы', `${S.orders.length} за сегодня · ${tg(revenueToday())}`, `<button class="btn primary" data-act="newOrder">${ic('plus')}Новый заказ</button>`) +
+    `<div class="tabs">${tab('all', 'Все')}${tab('new', 'Новые')}${tab('cooking', 'На кухне')}${tab('ready', 'Готово')}${tab('done', 'Выдано')}${tab('cancel', 'Отменены')}</div>
+    <div class="card">${list.length ? `<div class="tbl" style="--cols:70px 1.2fr 1fr 70px 110px 100px;--colsm:60px 1fr 90px">
+      <div class="tr th"><span>№</span><span>Стол и гость</span><span class="hm">Состав</span><span class="hm r">Время</span><span class="r">Сумма</span><span class="r hm">Статус</span></div>
+      ${list.map((o) => `<div class="tr" data-order="${o.id}" data-open style="cursor:pointer"><span class="muted">${o.id}</span><span class="cell-main"><b>${esc(o.table)}</b><span>${esc(o.guest)}</span></span><span class="hm muted">${esc(o.items.map((i) => i.n).slice(0, 2).join(', '))}${o.items.length > 2 ? '…' : ''}</span><span class="hm r muted">${o.time}</span><span class="r">${tg(total(o))}</span><span class="r hm">${pill(o.status)}</span></div>`).join('')}</div>` : '<div class="empty">Заказов с таким статусом нет.</div>'}</div>`;
+}
+
+function menu() {
+  const stop = S.menu.filter((m) => !m.a).length;
+  return head('Меню', `${S.menu.length} позиций · ${stop ? stop + ' в стоп-листе' : 'стоп-лист пуст'}`, `<button class="btn primary" data-act="newDish">${ic('plus')}Новое блюдо</button>`) +
+    Object.entries(CATS).map(([k, name]) => { const items = S.menu.map((m, i) => ({ ...m, i })).filter((m) => m.c === k); if (!items.length) return ''; return `<section class="card menu-grp"><h2>${name}</h2>${items.map((m) => `<div class="dish ${m.a ? '' : 'off'}"><b style="font-weight:500">${esc(m.n)}</b><span>${tg(m.p)}</span><button class="sw" role="switch" aria-pressed="${m.a}" aria-label="${esc(m.n)} в продаже" data-dish="${m.i}"></button></div>`).join('')}</section>`; }).join('');
+}
+
+function guests() {
+  const l = S.guests.filter((g) => (!guestQ || g.name.toLowerCase().includes(guestQ) || g.phone.includes(guestQ)) && (guestL === 'all' || g.lvl === guestL));
+  const LV = { vip: ['VIP', 'warn'], regular: ['Постоянный', ''], new: ['Новый', 'pos'] };
+  return head('Гости', `${S.guests.length} в базе · баллы: 1 за каждые 100 ₸`) +
+    `<div class="filters"><input id="g-q" type="search" placeholder="Имя или телефон" value="${esc(guestQ)}" aria-label="Поиск"><select id="g-l" aria-label="Уровень"><option value="all">Все уровни</option>${Object.entries(LV).map(([k, v]) => `<option value="${k}" ${guestL === k ? 'selected' : ''}>${v[0]}</option>`).join('')}</select></div>
+    <div class="card">${l.length ? `<div class="tbl" style="--cols:1.4fr 150px 70px 110px 80px 110px;--colsm:1.4fr 90px"><div class="tr th"><span>Гость</span><span class="hm">Телефон</span><span class="hm r">Визитов</span><span class="hm r">Потрачено</span><span class="hm r">Баллы</span><span class="r">Уровень</span></div>
+      ${l.map((g) => `<div class="tr"><span class="cell-main"><b>${esc(g.name)}</b><span>был ${g.last}</span></span><span class="hm muted">${esc(g.phone)}</span><span class="hm r">${g.visits}</span><span class="hm r">${tg(g.spent)}</span><span class="hm r">${fmt(g.spent / 100)}</span><span class="r"><span class="pill ${LV[g.lvl][1]}">${LV[g.lvl][0]}</span></span></div>`).join('')}</div>` : '<div class="empty">Никого не нашли. Попробуйте другое имя.</div>'}</div>`;
+}
+
+function staff() {
+  const on = S.staff.filter((s) => s.on).length;
+  return head('Персонал', `${on} из ${S.staff.length} на смене сейчас`) +
+    `<div class="card"><div class="tbl" style="--cols:1.4fr 1fr 120px 110px 90px;--colsm:1.3fr 110px"><div class="tr th"><span>Сотрудник</span><span class="hm">Роль</span><span class="hm">Смена</span><span class="hm r">Рейтинг</span><span class="r">Статус</span></div>
+    ${S.staff.map((s) => `<div class="tr"><span class="cell-main"><b>${esc(s.name)}</b><span>${s.shifts} смен в сентябре</span></span><span class="hm">${s.role}</span><span class="hm muted">${s.on ? '10:00–22:00' : 'выходной'}</span><span class="hm r"><span class="stars">${'★'.repeat(Math.round(s.rating))}</span> ${fmtD(s.rating)}</span><span class="r"><span class="pill ${s.on ? 'pos' : ''}"><i></i>${s.on ? 'На смене' : 'Не на смене'}</span></span></div>`).join('')}</div></div>`;
+}
+
+function finance() {
+  const exp = S.expenses.reduce((s, e) => s + e[2], 0), rev = week();
+  const rows = [...S.days.map((d) => [d[1] + '.2026', 'Выручка', 'Зал и доставка', d[2]]), [TODAY, 'Выручка', `Зал и доставка (на ${NOW})`, revenueToday()], ...S.expenses.map((e) => [e[0], 'Расход', e[1], -e[2]])]
+    .sort((a, b) => b[0].split('.').reverse().join('').localeCompare(a[0].split('.').reverse().join('')));
+  return head('Финансы', '22–28 сентября 2026') +
+    `<div class="kpis"><div class="kpi"><b>${fmt(rev)}<small>₸</small></b><span>Выручка за 7 дней</span></div><div class="kpi"><b>${fmt(exp)}<small>₸</small></b><span>Расходы</span></div><div class="kpi"><b class="${rev - exp >= 0 ? 'pos' : 'neg'}">${signed(rev - exp)}<small>₸</small></b><span>Результат (${Math.round(((rev - exp) / rev) * 100)}% от выручки)</span></div></div>
+    <div class="card"><div class="tbl" style="--cols:110px 1fr 1.2fr 140px;--colsm:90px 1fr 100px"><div class="tr th"><span>Дата</span><span>Тип</span><span class="hm">Категория</span><span class="r">Сумма</span></div>
+    ${rows.map((r) => `<div class="tr"><span class="muted">${r[0].slice(0, 5)}</span><span>${r[1]}</span><span class="hm muted">${esc(r[2])}</span><span class="r ${r[3] > 0 ? 'pos' : ''}">${signed(r[3], (v) => fmt(v) + ' ₸')}</span></div>`).join('')}</div></div>`;
+}
+
+function analytics() {
+  const byCat = {}; live().forEach((o) => o.items.forEach((i) => { byCat[cat(i.n)] = (byCat[cat(i.n)] || 0) + i.p * i.q; }));
+  const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]), t = rows.reduce((s, r) => s + r[1], 0);
+  const best = S.days.reduce((a, b) => (b[2] > a[2] ? b : a));
+  return head('Аналитика', 'Выручка и структура продаж') +
+    `<div class="kpis"><div class="kpi"><b>${fmt(best[2] / 1000)}<small>тыс. ₸</small></b><span>Лучший день недели: ${best[0]}, ${best[1]}</span></div><div class="kpi"><b>${fmt(rows.length ? t / live().length : 0)}<small>₸</small></b><span>Средний чек сегодня</span></div></div>
+    <div class="grid"><section class="card c7"><div class="card-h"><h2>Выручка по дням, тыс. ₸</h2><span>сегодня — на ${NOW}</span></div><div id="ch-days"></div></section>
+    <section class="card c5"><div class="card-h"><h2>Структура продаж сегодня</h2><span>доля выручки</span></div>${rows.map(([k, v]) => barRow(CATS[k], (v / t) * 100, Math.round((v / t) * 100) + '%', tg(v))).join('')}</section>
+    <section class="card c12"><div class="card-h"><h2>Выручка за 30 дней, тыс. ₸</h2></div><div id="ch-30"></div></section></div>`;
+}
+function mount() {
+  const a = $('#ch-days'); if (a) { const labels = [...S.days.map((d) => d[0]), 'Пн'], vals = [...S.days.map((d) => d[2] / 1000), revenueToday() / 1000]; chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (v) => fmtD(v, v % 1 ? 1 : 0), unit: 'тыс. ₸' })); }
+  const b = $('#ch-30'); if (b) { const v = S.month30, labels = v.map((_, i) => i + 1 + ''); chart(b, (w) => lineSVG(w, { labels, values: v, xAt: [0, 7, 14, 21, 29], fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) })); }
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const ACT = {
+  newOrder() {
+    const avail = S.menu.filter((m) => m.a);
+    modal(`<h2>Новый заказ</h2><p>Попадёт в колонку «Новые».</p>
+      <div class="field"><label>Стол</label><select id="o-t">${[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `<option>Стол ${n}</option>`).join('')}<option>Доставка</option></select></div>
+      <div class="field"><label>Блюдо</label><select id="o-d">${avail.map((m) => `<option>${esc(m.n)} · ${fmt(m.p)} ₸</option>`).join('')}</select></div>
+      <div class="field"><label>Количество</label><input id="o-q" type="number" min="1" max="20" value="1"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="o-ok">Создать</button></div>`, () => {
+      $('#o-ok').onclick = () => {
+        const name = $('#o-d').value.split(' · ')[0], q = Math.max(1, +$('#o-q').value || 1), t = $('#o-t').value;
+        S.orders.unshift(O('#' + (1043 + S.orders.length - 10), t, t === 'Доставка' ? 'Доставка' : 'Зал', 'Гость', [[name, q]], 'new', NOW));
+        closeModal(); toast('Заказ создан'); render();
+      };
+    });
+  },
+  newDish() {
+    modal(`<h2>Новое блюдо</h2><p>Появится в меню сразу.</p><div class="field"><label>Название</label><input id="d-n" placeholder="Например, Баурсаки"></div>
+      <div class="field"><label>Раздел</label><select id="d-c">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div><div class="field"><label>Цена, ₸</label><input id="d-p" type="number" min="0" value="1000"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="d-ok">Добавить</button></div>`, () => {
+      $('#d-ok').onclick = () => { const n = $('#d-n').value.trim(); if (!n) { $('#d-n').focus(); return; } S.menu.push({ n, c: $('#d-c').value, p: +$('#d-p').value || 0, a: true }); closeModal(); toast(`${n} добавлено в меню`); render(); };
+    });
+  },
+};
+function openOrder(id) {
+  const o = S.orders.find((x) => x.id === id), stop = S.menu.filter((m) => !m.a).map((m) => m.n), nx = NEXT[o.status];
+  modal(`<h2>${o.id} · ${esc(o.table)}</h2><p>${esc(o.guest)} · принят в ${o.time} · ${pill(o.status)}</p>
+    ${o.items.map((i) => `<div class="trip" style="grid-template-columns:1fr auto;padding:8px 0;display:grid"><span>${esc(i.n)} × ${i.q}${stop.includes(i.n) ? ' <span class="pill neg">в стоп-листе</span>' : ''}</span><b>${tg(i.p * i.q)}</b></div>`).join('')}
+    <div class="trip" style="grid-template-columns:1fr auto;display:grid;border-top:1px solid var(--border);margin-top:6px;padding-top:12px"><b>Итого</b><b>${tg(total(o))}</b></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Закрыть</button>${nx ? `<button class="btn primary" id="adv">${nx[1]}</button>` : ''}${nx && o.status !== 'ready' ? '' : ''}</div>`, () => { const b = $('#adv'); if (b) b.onclick = () => { closeModal(); advance(id); }; });
+}
+render();
+</script>
+</body>
+</html>
