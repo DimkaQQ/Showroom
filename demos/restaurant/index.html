@@ -189,9 +189,9 @@ svg { display: block; }
 .col-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
 .col-h h2 { font-size: 15px; font-weight: 600; } .col-h span { color: var(--muted); font-size: 13px; }
 .tickets { display: flex; flex-direction: column; gap: 10px; min-height: 64px; }
-.ticket { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px 12px; animation: pop .25s var(--ease) both; }
+.ticket { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px 12px; }
 .ticket.late { border-color: var(--accent); }
-.t-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.t-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
 .t-top b { font-size: 15px; } .t-top span { font-size: 13px; color: var(--muted); }
 .t-top .late { color: var(--accent); font-weight: 600; }
 .t-items { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
@@ -211,6 +211,19 @@ svg { display: block; }
 .filters input { min-width: 220px; } .filters input:focus, .filters select:focus { border-color: var(--accent); }
 .stars { color: var(--accent); letter-spacing: 1px; }
 @media (max-width: 899px) { .board { grid-template-columns: 1fr; } .filters input { min-width: 0; flex: 1; } }
+
+.dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.dcard { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: transform .25s var(--ease), border-color .15s; }
+.dcard:hover { transform: translateY(-3px); border-color: var(--faint); }
+.dcard.off { opacity: .6; } .dcard.off .dart svg { filter: grayscale(1); }
+.dart { display: block; padding: 8px 10px 0; } .dart svg { width: 100%; height: auto; display: block; }
+.dbody { padding: 10px 14px 14px; } .dbody b { display: block; font-weight: 600; line-height: 1.25; min-height: 2.5em; }
+.dfoot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; } .dfoot span { font: 600 17px var(--display); }
+.thumb { width: 44px; height: 44px; border-radius: 12px; flex: none; overflow: hidden; } .thumb svg { width: 100%; height: 100%; display: block; }
+.t-top .tt { display: flex; align-items: center; gap: 10px; }
+.ticket.fresh { animation: fresh 1.6s var(--ease) both; }
+@keyframes fresh { 0% { transform: translateY(-14px) scale(.97); opacity: 0; box-shadow: 0 0 0 0 rgba(217,70,31,.5); } 30% { transform: none; opacity: 1; box-shadow: 0 0 0 10px rgba(217,70,31,0); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.liveclock { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); } .liveclock i { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); animation: lp 1.6s ease-in-out infinite; } @keyframes lp { 50% { opacity: .3; } }
 </style>
 </head>
 <body>
@@ -360,7 +373,7 @@ function setNav(page) {
 'use strict';
 
 /* ── data: every total is computed from the rows ───────── */
-const NOW = '14:35', TODAY = '28.09.2026';
+let NOW = '14:35'; const TODAY = '28.09.2026';
 const CATS = { hot: 'Горячее', cold: 'Холодное', drinks: 'Напитки', desserts: 'Десерты', breakfast: 'Завтраки', pizza: 'Пицца и паста', grill: 'Гриль' };
 const MENU = [
   ['Борщ домашний', 'hot', 1800], ['Бефстроганов', 'hot', 2400], ['Плов узбекский', 'hot', 2200], ['Лагман', 'hot', 1900, false], ['Харчо', 'hot', 1700], ['Манты', 'hot', 200],
@@ -371,6 +384,45 @@ const MENU = [
   ['Пицца Маргарита', 'pizza', 1800], ['Паста Карбонара', 'pizza', 1900],
   ['Стейк из говядины', 'grill', 4500], ['Шашлык куриный', 'grill', 2600],
 ].map(([n, c, p, a = true]) => ({ n, c, p, a }));
+
+/* ── dish illustrations: flat vector, one per category, tinted per dish ─ */
+const hue = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+const drink = (c, ice) => `<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 34 h34 l-3.4 40 h-27.2 z" fill="${c}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="${ice}" opacity=".5" transform="rotate(12 54 46)"/><rect x="62" y="56" width="9" height="9" rx="2" fill="${ice}" opacity=".4"/><path d="M68 8 l-7 38" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`;
+function dishSVG(name, c, size = 'card') {
+  const h = hue(name), bg = { hot: '#f7e3d6', cold: '#e2efd9', drinks: '#dcebf2', desserts: '#f6dfe6', breakfast: '#f8ecc9', pizza: '#f6e2cc', grill: '#ead9d0' }[c];
+  const warm = `hsl(${(h % 40) + 5} 70% 48%)`, leaf = `hsl(${95 + (h % 30)} 45% 42%)`, liq = `hsl(${[28, 12, 200, 340, 45][h % 5]} 75% 55%)`;
+  const plate = '<ellipse cx="60" cy="74" rx="46" ry="6" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#fff"/><circle cx="60" cy="48" r="27" fill="#f4f1ec"/>';
+
+  const mk = {
+    'Борщ': `${plate}<circle cx="60" cy="48" r="22" fill="#a3201f"/><circle cx="60" cy="48" r="16" fill="#b92a26"/><circle cx="60" cy="47" r="6" fill="#fff6e8"/><path d="M52 56 q6 4 12 0" stroke="#7a1516" stroke-width="2.5" fill="none"/><path d="M70 36 l4 -3 M48 38 l-3 -3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
+    'Харчо': `${plate}<circle cx="60" cy="48" r="22" fill="#d9731f"/><circle cx="52" cy="44" r="5" fill="#8a3b14"/><circle cx="68" cy="52" r="5" fill="#8a3b14"/><circle cx="66" cy="40" r="3" fill="#f4e2a4"/><circle cx="50" cy="56" r="3" fill="#f4e2a4"/><path d="M58 34 l4 -5 M64 60 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
+    'Лагман': `${plate}<circle cx="60" cy="48" r="22" fill="#c4521f"/><path d="M42 46 q9 -10 18 0 t18 0 M44 54 q8 -8 16 0 t16 0 M48 40 q6 -6 12 0 t14 0" stroke="#f4dba0" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="68" cy="58" r="3.5" fill="#3f7a3a"/>`,
+    'Плов': `${plate}<path d="M32 56 q4 -30 28 -30 q24 0 28 30 q-28 10 -56 0z" fill="#e6b44a"/><path d="M44 42 l6 5 M62 36 l7 3 M54 52 l8 2 M72 48 l5 6" stroke="#d9741a" stroke-width="3.5" stroke-linecap="round"/><circle cx="58" cy="32" r="3" fill="#7a4a21"/><circle cx="68" cy="30" r="2.5" fill="#fff3d0"/>`,
+    'Манты': `${plate}${[[48, 56], [64, 58], [56, 44], [72, 46]].map(([x, y]) => `<path d="M${x - 10} ${y + 4} q10 -18 20 0 q-10 4 -20 0z" fill="#f6e4c2" stroke="#e0c89a" stroke-width="2"/><path d="M${x - 4} ${y - 4} l8 0" stroke="#e0c89a" stroke-width="2" stroke-linecap="round"/>`).join('')}<circle cx="84" cy="62" r="4" fill="#fff"/>`,
+    'Бефстроганов': `${plate}<path d="M36 52 q-2 -18 22 -20 q22 -2 26 14 q-4 16 -26 14 q-18 0 -22 -8z" fill="#8a4a24"/><path d="M42 46 l10 -4 M56 50 l10 -4 M62 40 l9 3" stroke="#c98a55" stroke-width="3.5" stroke-linecap="round"/><circle cx="82" cy="58" r="6" fill="#f2d78a"/><circle cx="74" cy="64" r="5" fill="#f2d78a"/><path d="M48 58 l4 3 M52 36 l3 -4" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
+    'Салат Цезарь': `${plate}${[0, 70, 140, 210, 280].map((r) => `<ellipse cx="60" cy="38" rx="8" ry="13" fill="#7fbf4f" transform="rotate(${r} 60 48)"/>`).join('')}${[[52, 46], [68, 50], [60, 40], [48, 54]].map(([x, y]) => `<rect x="${x - 4}" y="${y - 4}" width="8" height="8" rx="2" fill="#e8b563" transform="rotate(${x * 3} ${x} ${y})"/>`).join('')}<path d="M62 54 l5 -3 M54 38 l4 -2" stroke="#f5efdc" stroke-width="3" stroke-linecap="round"/>`,
+    'Оливье': `${plate}<path d="M36 54 q2 -26 24 -26 q22 0 24 26 q-24 8 -48 0z" fill="#f2e6c0"/>${[[48, 46], [60, 40], [70, 48], [56, 54], [66, 56]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="3" fill="${i % 2 ? '#e9753a' : '#6fae4a'}"/>`).join('')}`,
+    'Роллы': `${plate}${[[44, 50], [62, 40], [76, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="10" fill="#1f2a24"/><circle cx="${x}" cy="${y}" r="8" fill="#f8f4ea"/><circle cx="${x}" cy="${y}" r="3.5" fill="#ee6f3c"/>`).join('')}<path d="M80 36 h6" stroke="#6fae4a" stroke-width="3" stroke-linecap="round"/>`,
+    'Хлеб': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M24 62 q0 -30 36 -30 q36 0 36 30 q-36 8 -72 0z" fill="#d9a24f"/><path d="M42 44 l6 12 M58 40 l6 14 M74 44 l5 11" stroke="#b9772a" stroke-width="4" stroke-linecap="round"/>`,
+    'Чай зелёный': drink('#9bc24a', '#e8f4d0'), 'Чай чёрный': drink('#9a4a1b', '#fff'), 'Сок': drink('#f09a22', '#fff'), 'Морс': drink('#c4263a', '#fff'), 'Кола': drink('#3a2418', '#fff'),
+    'Вино': `<ellipse cx="60" cy="78" rx="22" ry="4" fill="#000" opacity=".1"/><path d="M44 14 h32 q4 28 -16 36 q-20 -8 -16 -36z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M47 28 h26 q0 16 -13 22 q-13 -6 -13 -22z" fill="#7a1a3a"/><path d="M60 50 v22 M48 74 h24" stroke="#c9d6dc" stroke-width="3" stroke-linecap="round"/>`,
+    'Торт': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 64 L26 36 q34 -12 68 0 L94 64 Z" fill="#e2b072"/><path d="M26 44 h68 M26 54 h68" stroke="#fff1d6" stroke-width="5"/><path d="M26 36 q34 -12 68 0" stroke="#c98a45" stroke-width="3" fill="none"/><circle cx="48" cy="26" r="4" fill="#f4c542"/><circle cx="62" cy="22" r="4" fill="#f4c542"/><circle cx="76" cy="27" r="4" fill="#f4c542"/>`,
+    'Тирамису': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><rect x="28" y="30" width="64" height="34" rx="4" fill="#f4e6cd"/><rect x="28" y="40" width="64" height="6" fill="#6b3a1c"/><rect x="28" y="54" width="64" height="6" fill="#6b3a1c"/><path d="M28 30 h64 v6 h-64z" fill="#4a2814"/>`,
+    'Яичница': `${plate}<path d="M38 52 q-6 -16 10 -22 q16 -8 28 4 q10 12 -2 22 q-14 12 -36 -4z" fill="#fffdf8" stroke="#eee4d0" stroke-width="2"/><circle cx="58" cy="44" r="10" fill="#f4b81f"/><circle cx="55" cy="41" r="3" fill="#fff" opacity=".6"/><path d="M70 62 q8 -10 14 -2 t-2 12" stroke="#b9432c" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+  };
+  const key = Object.keys(mk).find((k) => name.startsWith(k));
+  const art = key ? mk[key] : {
+    hot: `${plate}<ellipse cx="60" cy="48" rx="22" ry="21" fill="${warm}"/><path d="M42 44 q9 -8 18 0 t18 0" stroke="#fff3df" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".9"/><circle cx="52" cy="54" r="3" fill="#fff3df"/><circle cx="68" cy="40" r="3" fill="${leaf}"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
+    cold: `${plate}${[0, 60, 120, 180, 240, 300].map((r, i) => `<ellipse cx="60" cy="38" rx="7" ry="14" fill="${i % 2 ? leaf : `hsl(${100 + (h % 20)} 50% 50%)`}" transform="rotate(${r} 60 48)"/>`).join('')}<circle cx="52" cy="46" r="5" fill="#d8402c"/><circle cx="68" cy="52" r="5" fill="#d8402c"/><circle cx="62" cy="40" r="3.5" fill="#f2d36b"/>`,
+    drinks: `<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 36 h34 l-3.4 38 h-27.2 z" fill="${liq}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="#fff" opacity=".55" transform="rotate(12 54 46)"/><rect x="62" y="54" width="9" height="9" rx="2" fill="#fff" opacity=".45" transform="rotate(-10 66 58)"/><path d="M66 8 l-6 40" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`,
+    desserts: `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 66 L26 40 L94 40 L94 66 Z" fill="#e7c08a"/><path d="M26 54 h68" stroke="#f9e7c8" stroke-width="5"/><path d="M26 40 q34 -22 68 0 z" fill="${`hsl(${340 + (h % 20)} 55% 62%)`}"/><circle cx="60" cy="25" r="6" fill="#c8302f"/><path d="M60 19 q2 -7 7 -9" stroke="#3f7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+    breakfast: `${plate}<path d="M38 52 q-6 -16 10 -22 q16 -8 28 4 q10 12 -2 22 q-14 12 -36 -4z" fill="#fffdf8" stroke="#eee4d0" stroke-width="2"/><circle cx="58" cy="44" r="10" fill="#f4b81f"/><circle cx="55" cy="41" r="3" fill="#fff" opacity=".6"/><path d="M70 62 q8 -10 14 -2 t-2 12" stroke="#b9432c" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    pizza: /Паста/.test(name) ? `${plate}<path d="M40 52 q10 -20 20 -2 q10 -18 20 2 q-10 16 -20 0 q-10 16 -20 0z" fill="#f3d58b"/><path d="M44 50 q8 -10 16 0 t16 0" stroke="#e3b95a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="60" cy="46" r="6" fill="#fff6dc"/><circle cx="52" cy="42" r="2" fill="#6b4a2b"/><circle cx="68" cy="52" r="2" fill="#6b4a2b"/>`
+      : `<ellipse cx="60" cy="76" rx="44" ry="5" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#e7b872"/><circle cx="60" cy="48" r="28" fill="#d8402c"/><circle cx="60" cy="48" r="26" fill="#f6e7b8" opacity=".9"/>${[[50, 38], [68, 40], [60, 56], [46, 54], [72, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="#b83a28"/>`).join('')}<path d="M56 30 l4 -4 4 4 M50 62 l4 -3 M70 46 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round" fill="none"/>`,
+    grill: `${plate}<path d="M36 52 q-4 -16 14 -20 q26 -6 34 8 q6 14 -10 20 q-26 8 -38 -8z" fill="${`hsl(${15 + (h % 12)} 50% 30%)`}"/><path d="M48 36 l12 20 M58 33 l12 20 M68 34 l10 16" stroke="#2a150c" stroke-width="3" stroke-linecap="round" opacity=".55"/><circle cx="78" cy="62" r="5" fill="${leaf}"/><circle cx="86" cy="58" r="3.5" fill="#d8402c"/>`,
+  }[c];
+  return `<svg viewBox="0 0 120 ${c === 'drinks' || c === 'desserts' ? 90 : 86}" aria-hidden="true"><rect width="120" height="90" fill="${bg}"/>${art}</svg>`;
+}
 const price = (n) => MENU.find((m) => m.n === n).p;
 const cat = (n) => MENU.find((m) => m.n === n).c;
 const O = (id, table, type, guest, items, status, time) => ({ id, table, type, guest, items: items.map(([n, q]) => ({ n, q, p: price(n) })), status, time });
@@ -452,8 +504,8 @@ function advance(id) {
 function ticket(o) {
   const w = wait(o), late = o.status !== 'ready' && w >= 12;
   const nx = NEXT[o.status];
-  return `<article class="ticket${late ? ' late' : ''}" data-order="${o.id}" style="cursor:pointer">
-    <div class="t-top"><b>${esc(o.table)} <span>${o.id}</span></b><span class="${late ? 'late' : ''}">${w} мин</span></div>
+  return `<article class="ticket${late ? ' late' : ''}${o.id === FRESH ? ' fresh' : ''}" data-order="${o.id}" style="cursor:pointer">
+    <div class="t-top"><span class="tt"><span class="thumb">${dishSVG(o.items[0].n, cat(o.items[0].n))}</span><b>${esc(o.table)} <span>${o.id}</span></b></span><span class="${late ? 'late' : ''}">${w} мин</span></div>
     <ul class="t-items">${o.items.slice(0, 3).map((i) => `<li><span>${esc(i.n)}${i.q > 1 ? ' × ' + i.q : ''}</span></li>`).join('')}${o.items.length > 3 ? `<li><span>и ещё ${o.items.length - 3}</span></li>` : ''}</ul>
     <div class="t-foot"><b>${tg(total(o))}</b><button class="btn sm ${o.status === 'new' ? 'primary' : ''}" data-adv="${o.id}">${nx[1]}</button></div></article>`;
 }
@@ -465,7 +517,7 @@ function dashboard() {
   const avg = revenueToday() / live().length;
   const finding = conflict ? `<div class="finding">${ic('alert')}<span>В заказе ${conflict.id} есть «${esc(conflict.items.find((i) => stop.includes(i.n)).n)}», а блюдо в стоп-листе. Позвоните гостю до отправки на кухню.</span><button class="btn sm" data-order="${conflict.id}">Открыть заказ</button></div>`
     : waiting && wait(waiting) >= 10 ? `<div class="finding">${ic('clock')}<span>${esc(waiting.table)} ждёт ${wait(waiting)} мин: заказ ${waiting.id} ещё не принят.</span><button class="btn sm primary" data-adv="${waiting.id}">Принять</button></div>` : '';
-  return head('Дашборд', `${TODAY} · на ${NOW}`, `<button class="btn primary" data-act="newOrder">${ic('plus')}Новый заказ</button>`) + finding +
+  return head('Дашборд', `${TODAY} · <span class="liveclock"><i></i>${NOW}, смена идёт</span>`, `<button class="btn primary" data-act="newOrder">${ic('plus')}Новый заказ</button>`) + finding +
     `<div class="kpis"><div class="kpi"><b>${fmt(revenueToday())}<small>₸</small></b><span>Выручка за день на ${NOW}</span></div>
       <div class="kpi"><b>${live().length}</b><span>Заказов, ${S.orders.length - live().length} отменён</span></div>
       <div class="kpi"><b>${fmt(avg)}<small>₸</small></b><span>Средний чек</span></div>
@@ -487,7 +539,7 @@ function orders() {
 function menu() {
   const stop = S.menu.filter((m) => !m.a).length;
   return head('Меню', `${S.menu.length} позиций · ${stop ? stop + ' в стоп-листе' : 'стоп-лист пуст'}`, `<button class="btn primary" data-act="newDish">${ic('plus')}Новое блюдо</button>`) +
-    Object.entries(CATS).map(([k, name]) => { const items = S.menu.map((m, i) => ({ ...m, i })).filter((m) => m.c === k); if (!items.length) return ''; return `<section class="card menu-grp"><h2>${name}</h2>${items.map((m) => `<div class="dish ${m.a ? '' : 'off'}"><b style="font-weight:500">${esc(m.n)}</b><span>${tg(m.p)}</span><button class="sw" role="switch" aria-pressed="${m.a}" aria-label="${esc(m.n)} в продаже" data-dish="${m.i}"></button></div>`).join('')}</section>`; }).join('');
+    Object.entries(CATS).map(([k, name]) => { const items = S.menu.map((m, i) => ({ ...m, i })).filter((m) => m.c === k); if (!items.length) return ''; return `<section class="menu-grp"><h2>${name}</h2><div class="dgrid">${items.map((m) => `<article class="dcard ${m.a ? '' : 'off'}"><span class="dart">${dishSVG(m.n, m.c)}</span><div class="dbody"><b>${esc(m.n)}</b><div class="dfoot"><span>${tg(m.p)}</span><button class="sw" data-dish="${m.i}" aria-pressed="${m.a}" aria-label="${esc(m.n)}: ${m.a ? 'в меню' : 'в стоп-листе'}"></button></div></div></article>`).join('')}</div></section>`; }).join('');
 }
 
 function guests() {
@@ -562,6 +614,25 @@ function openOrder(id) {
     <div class="trip" style="grid-template-columns:1fr auto;display:grid;border-top:1px solid var(--border);margin-top:6px;padding-top:12px"><b>Итого</b><b>${tg(total(o))}</b></div>
     <div class="modal-actions"><button class="btn" onclick="closeModal()">Закрыть</button>${nx ? `<button class="btn primary" id="adv">${nx[1]}</button>` : ''}${nx && o.status !== 'ready' ? '' : ''}</div>`, () => { const b = $('#adv'); if (b) b.onclick = () => { closeModal(); advance(id); }; });
 }
+/* ── live kitchen: the clock runs, orders keep arriving, the pass marks dishes ready ─ */
+let FRESH = null, beat = 0;
+const WHO = ['Айбек Т.', 'Мадина Р.', 'Тимур С.', 'Лейла К.', 'Ерлан Ж.', 'Асель Б.', 'Данияр М.', 'Сауле Н.'];
+const WHERE = ['Стол 1', 'Стол 3', 'Стол 6', 'Стол 2', 'Стол 4', 'Стол 8', 'Доставка'];
+const hm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+function spawn() {
+  const avail = S.menu.filter((m) => m.a), pick = () => avail[Math.floor(Math.random() * avail.length)].n, items = new Map();
+  for (let k = 0, n = 1 + Math.floor(Math.random() * 3); k < n; k++) items.set(pick(), 1 + Math.floor(Math.random() * 2));
+  const id = '#' + (Math.max(...S.orders.map((o) => +o.id.slice(1))) + 1), where = WHERE[Math.floor(Math.random() * WHERE.length)];
+  S.orders.unshift(O(id, where, where === 'Доставка' ? 'Доставка' : 'Зал', WHO[Math.floor(Math.random() * WHO.length)], [...items], 'new', NOW));
+  FRESH = id; toast(`Новый заказ ${id} · ${where}`);
+}
+setInterval(() => {
+  if (document.hidden) return;
+  beat++; NOW = hm(mins(NOW) + 1);
+  if (beat % 3 === 0) spawn();
+  else if (beat % 4 === 0) { const c = S.orders.find((o) => o.status === 'cooking'); if (c) { c.status = 'ready'; toast(`${c.id} готов к выдаче`); } }
+  if (['dashboard', 'orders', 'analytics', 'finance'].includes(page) && !$('#scrim')) { render(); FRESH = null; }
+}, 5000);
 render();
 </script>
 </body>
