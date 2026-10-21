@@ -187,6 +187,11 @@ body { font-size: 15px; }
 .head h1 { font-size: 28px; }
 .nav .count { background: var(--accent); color: var(--accent-ink); }
 
+.cvr { width: 72px; height: 72px; border-radius: 16px; overflow: hidden; flex: none; } .cvr svg { width: 100%; height: 100%; display: block; }
+.proj { grid-template-columns: 72px minmax(0, 1fr) 200px auto !important; }
+.vis { font: 800 22px var(--display); } .vis small { font: 500 13px var(--font); color: var(--muted); margin-left: 6px; }
+.livedot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--pos); margin-right: 6px; animation: pulse2 1.8s ease-in-out infinite; } @keyframes pulse2 { 50% { opacity: .3; } }
+@media (max-width: 899px) { .proj { grid-template-columns: 72px minmax(0, 1fr) !important; } .proj .prog, .proj > .btn { grid-column: 1 / -1; } }
 .checks li { list-style: none; }
 .task { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 44px; padding: 4px 0; }
 .task + .task { border-top: 1px solid var(--rule); }
@@ -391,6 +396,13 @@ const catOf = (id) => CH.find((c) => c.id === id);
 const reach = (plan) => plan.reduce((a, c) => [a[0] + catOf(c.id).lo, a[1] + catOf(c.id).hi], [0, 0]);
 const taskCount = (p) => p.plan.reduce((a, c) => a + c.tasks.length, 0), doneCount = (p) => p.plan.reduce((a, c) => a + c.tasks.filter((t) => t.done).length, 0);
 
+
+/* generated cover art: same project, same picture */
+function coverSVG(id) {
+  const pal = [['#ff7a45', '#ffd0b8', '#2a1a14'], ['#5fd39a', '#c8f2de', '#122219'], ['#7aa7ff', '#d3e1ff', '#121a2a'], ['#f0b95a', '#fbe6bf', '#2a2012']][id % 4], r = (n) => (id * 37 + n * 53) % 100;
+  return `<svg viewBox="0 0 72 72" aria-hidden="true"><rect width="72" height="72" fill="${pal[2]}"/><circle cx="${20 + r(1) % 30}" cy="${22 + r(2) % 20}" r="${14 + r(3) % 8}" fill="${pal[0]}"/><rect x="${28 + r(4) % 16}" y="${30 + r(5) % 14}" width="${24 + r(6) % 10}" height="${22 + r(7) % 10}" rx="${6 + r(8) % 8}" fill="${pal[1]}" opacity=".9"/><path d="M0 ${60 + r(9) % 8} Q${24 + r(10) % 20} ${44 + r(11) % 10} 72 ${58 + r(12) % 10} V72 H0z" fill="${pal[0]}" opacity=".55"/></svg>`;
+}
+const visits = (p) => p.vis ?? 0;
 const S = {
   plan: 'trial', used: 7, trialDays: 5,
   projects: [
@@ -399,7 +411,7 @@ const S = {
     { id: 3, name: 'GameApp Store', type: 'App', desc: 'Каталог мини-игр с покупкой одним нажатием.', aud: 'Игроки 18–30', market: 'asia', budget: '500' },
   ],
 };
-S.projects.forEach((p) => { p.plan = makePlan(p.market, p.budget); });
+S.projects.forEach((p, i) => { p.plan = makePlan(p.market, p.budget); p.vis = [214, 96, 41][i]; });
 { // seed some progress so the board has something to show
   const mark = (p, n) => { let k = 0; for (const c of p.plan) for (const t of c.tasks) if (k++ < n) t.done = true; };
   mark(S.projects[0], 4); mark(S.projects[1], 2); mark(S.projects[2], 0);
@@ -439,7 +451,7 @@ function dash() {
   const today = S.projects.flatMap((p) => p.plan.filter((c) => c.week === 1).flatMap((c) => c.tasks.map((t, ti) => ({ p, c, t, ti })))).filter((x) => !x.t.done).slice(0, 5);
   const finding = S.plan === 'trial' ? `<div class="finding">${ic('clock')}<span>До конца пробного периода ${S.trialDays} дн., осталось ${left()} ${left() === 1 ? 'генерация' : 'генерации'} из ${limit()}.</span><button class="btn sm primary" data-page="pricing">Выбрать тариф</button></div>` : '';
   return head('Доска запуска', 'Что сделать сегодня, чтобы ваши продукты дошли до первых клиентов', `<button class="btn primary" data-act="newProject">${ic('plus')}Новый проект</button>`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${S.projects.length}</b><span>Проекта в работе</span></div><div class="kpi"><b>${done}<small>из ${all}</small></b><span>Задач выполнено</span></div><div class="kpi"><b>${S.used}${S.plan === 'pro' ? '' : `<small>из ${limit()}</small>`}</b><span>Генераций использовано</span></div></div>
+    `<div class="kpis"><div class="kpi"><b>${S.projects.length}</b><span>Проекта в работе</span></div><div class="kpi"><b>${done}<small>из ${all}</small></b><span>Задач выполнено</span></div><div class="kpi"><b data-vis="all">${fmt(S.projects.reduce((a, p) => a + visits(p), 0))}</b><span><i class="livedot"></i>Визитов по ссылкам сегодня</span></div><div class="kpi"><b>${S.used}${S.plan === 'pro' ? '' : `<small>из ${limit()}</small>`}</b><span>Генераций использовано</span></div></div>
     <div class="grid"><section class="card c7"><div class="card-h"><h2>Сделать на первой неделе</h2><span>${today.length ? 'отметьте, когда готово' : 'всё сделано'}</span></div>${today.map((x) => `<div class="task"><span>${cb(false, `data-act="tick" data-p="${x.p.id}" data-c="${x.c.id}" data-i="${x.ti}" aria-label="Отметить: ${esc(x.t.t)}"`)}</span><div class="t">${esc(x.t.t)}<div class="w">${esc(x.p.name)} · ${catOf(x.c.id).n}</div></div></div>`).join('') || '<p class="empty">Задач на первую неделю нет.</p>'}</section>
     <section class="card c5"><div class="card-h"><h2>Прогресс по проектам</h2></div>${S.projects.map((p) => barRow(esc(p.name), taskCount(p) ? doneCount(p) / taskCount(p) * 100 : 0, `${doneCount(p)} из ${taskCount(p)}`)).join('')}</section></div>`;
 }
@@ -449,13 +461,13 @@ function projects() {
   const types = ['all', ...new Set(S.projects.map((p) => p.type))], list = S.projects.filter((p) => filter === 'all' || p.type === filter);
   return head('Проекты', `${S.projects.length} продукта. Откройте проект, чтобы увидеть план и отмечать задачи.`, `<button class="btn primary" data-act="newProject">${ic('plus')}Новый проект</button>`) +
     `<div class="tabs">${types.map((t) => `<button class="${filter === t ? 'on' : ''}" data-act="filter" data-v="${t}">${t === 'all' ? 'Все' : t}</button>`).join('')}</div>
-    <section class="card">${list.map((p) => { const t = taskCount(p), d = doneCount(p); return `<div class="proj" data-open="${p.id}"><div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="meta"><span class="pill">${p.type}</span><span class="pill">${MARKETS[p.market]}</span></div></div><div class="prog">${t ? `${d} из ${t} задач` : 'План ещё не собран'}<div class="bar"><i style="width:${t ? d / t * 100 : 0}%"></i></div></div><button class="btn sm" data-act="${t ? 'open' : 'planFor'}" data-id="${p.id}">${t ? 'Открыть' : 'Собрать план'}</button></div>`; }).join('') || '<p class="empty">Здесь пока ничего нет.</p>'}</section>`;
+    <section class="card">${list.map((p) => { const t = taskCount(p), d = doneCount(p); return `<div class="proj" data-open="${p.id}"><span class="cvr">${coverSVG(p.id)}</span><div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="meta"><span class="pill">${p.type}</span><span class="pill">${MARKETS[p.market]}</span></div></div><div class="prog">${t ? `${d} из ${t} задач` : 'План ещё не собран'}<div class="bar"><i style="width:${t ? d / t * 100 : 0}%"></i></div></div><button class="btn sm" data-act="${t ? 'open' : 'planFor'}" data-id="${p.id}">${t ? 'Открыть' : 'Собрать план'}</button></div>`; }).join('') || '<p class="empty">Здесь пока ничего нет.</p>'}</section>`;
 }
 function projectPage() {
   const p = proj(openId), t = taskCount(p), d = doneCount(p), r = reach(p.plan);
   const weeks = [1, 2, 3, 4].map((w) => ({ w, cs: p.plan.filter((c) => c.week === w) })).filter((x) => x.cs.length);
   return head(esc(p.name), `${esc(p.aud)} · ${MARKETS[p.market]} · ${BUDGETS.find((b) => b[0] === p.budget)[1].toLowerCase()}`, `<button class="btn" data-page="projects">${ic('arrow')}К проектам</button><button class="btn" data-act="planFor" data-id="${p.id}">Пересобрать план</button>`) +
-    `<div class="kpis"><div class="kpi"><b>${d}<small>из ${t}</small></b><span>Задач выполнено</span></div><div class="kpi"><b>${p.plan.length}</b><span>Каналов в плане</span></div><div class="kpi"><b>${t ? fmtReach(r) : '—'}</b><span>Охват за месяц, по оценке</span></div></div>
+    `<div class="kpis"><div class="kpi"><b>${d}<small>из ${t}</small></b><span>Задач выполнено</span></div><div class="kpi"><b data-vis="${p.id}">${fmt(visits(p))}</b><span><i class="livedot"></i>Визитов сегодня</span></div><div class="kpi"><b>${p.plan.length}</b><span>Каналов в плане</span></div><div class="kpi"><b>${t ? fmtReach(r) : '—'}</b><span>Охват за месяц, по оценке</span></div></div>
     <section class="card">${weeks.map(({ w, cs }) => `<div class="week"><div class="week-h"><b>Неделя ${w}</b></div>${cs.map((c) => `<div style="margin-top:12px"><b>${catOf(c.id).n}</b> <span class="muted">· ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · платный' : ''}</span>${c.tasks.map((tk, i) => `<div class="task ${tk.done ? 'done' : ''}"><span>${cb(tk.done, `data-act="tick" data-p="${p.id}" data-c="${c.id}" data-i="${i}" aria-label="${esc(tk.t)}"`)}</span><div class="t">${esc(tk.t)}</div></div>`).join('')}</div>`).join('')}</div>`).join('') || '<p class="empty">План ещё не собран. Нажмите «Пересобрать план».</p>'}</section>`;
 }
 
@@ -524,6 +536,13 @@ const ACT = {
     });
   },
 };
+/* live traffic: visits trickle in from the channels in each plan */
+setInterval(() => {
+  if (document.hidden) return;
+  const p = S.projects[Math.floor(Math.random() * S.projects.length)]; p.vis += 1 + Math.floor(Math.random() * 3);
+  const all = $('[data-vis="all"]'); if (all) all.textContent = fmt(S.projects.reduce((a, x) => a + visits(x), 0));
+  const one = $(`[data-vis="${p.id}"]`); if (one) one.textContent = fmt(visits(p));
+}, 1800);
 render();
 </script>
 </body>
