@@ -646,6 +646,24 @@ const ACT = {
     });
   },
 };
+/* ── live sales: buyers keep arriving, every number on every page follows ─ */
+let NOWM = 15 * 60 + 20;
+const NEWBUY = ['Алия Н.', 'Камила Е.', 'Зарина Т.', 'Лаура С.', 'Гульмира Д.', 'Аружан К.', 'Томирис А.', 'Диана Ф.'];
+setInterval(() => {
+  if (document.hidden || $('#scrim')) return;
+  NOWM++;
+  const live = S.bots.filter((b) => b.live && DAYS[b.id]); if (!live.length) return;
+  S.bots.forEach((b) => { if (b.live && Math.random() < .7) { b.starts += 1; if (Math.random() < .65) b.answered += 1; } });
+  S.bots.forEach((b) => { b.answered = Math.min(b.starts, b.answered); b.atPay = Math.min(b.answered, b.atPay); });
+  const b = live[Math.floor(Math.random() * live.length)];
+  if (Math.random() < .55) {
+    if (sold(b.id).length + 1 > b.atPay) { b.atPay = sold(b.id).length + 1; b.answered = Math.max(b.answered, b.atPay); b.starts = Math.max(b.starts, b.answered); }
+    const buyer = NEWBUY[Math.floor(Math.random() * NEWBUY.length)];
+    S.sales.unshift({ bot: b.id, ago: 0, buyer, amount: PRICE[b.id], min: NOWM });
+    toast(`Новая оплата ${rub(PRICE[b.id])} · ${b.name}`);
+  }
+  if (['dashboard', 'sales', 'buyers'].includes(page)) render();
+}, 7000);
 render();
 </script>
 </body>

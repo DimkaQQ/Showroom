@@ -188,6 +188,14 @@ svg { display: block; }
 .trip b { display: block; font-weight: 600; } .trip span { color: var(--muted); font-size: 13px; }
 .load { display: inline-flex; align-items: center; gap: 8px; }
 @media (max-width: 899px) { .trip { grid-template-columns: 36px 1fr; } .trip .btn { grid-column: 2; justify-self: start; } .tank-wrap { flex-direction: row; } }
+
+.feedl { margin-top: 18px; border-top: 1px solid var(--rule); padding-top: 10px; } .feedl li { display: grid; grid-template-columns: 48px 1fr; gap: 8px; padding: 6px 0; color: var(--muted); font-size: 13px; } .feedl li b { color: var(--faint); font-weight: 500; } .feedl li:first-child { color: var(--text); animation: pop .3s var(--ease) both; }
+.map { width: 100%; height: auto; display: block; margin: -4px 0 8px; }
+.map .rt { stroke: var(--border); stroke-width: 2; stroke-dasharray: 3 6; fill: none; } .map .rt.on { stroke: var(--accent); opacity: .55; }
+.map .site { fill: var(--raised); stroke: var(--faint); stroke-width: 2; } .map text { font: 12px var(--font); fill: var(--faint); }
+.map .hub { fill: var(--accent); } .map .mk { fill: var(--accent); stroke: var(--bg); stroke-width: 3; } .map .pulse { fill: var(--accent); opacity: .25; animation: mp 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes mp { from { transform: scale(.6); opacity: .45; } to { transform: scale(2.2); opacity: 0; } }
+.tp { height: 4px; border-radius: 2px; background: var(--raised); margin-top: 6px; overflow: hidden; } .tp i { display: block; height: 100%; background: var(--accent); transition: width 1.4s linear; }
 </style>
 </head>
 <body>
@@ -454,9 +462,10 @@ function dashboard() {
         <div class="tank-wrap">${tankSVG(level)}
           <div class="tank-list"><div><div class="big">${fmt(stock())}<small>куб</small></div><div class="muted" style="margin-top:6px">${pctOf(stock(), CAP)}% от ёмкости</div></div>
             <dl><dt>Принято в июне</dt><dd class="pos">${signed(receivedJun())}</dd><dt>Отгружено в июне</dt><dd>${signed(-S.shippedJun)}</dd><dt>Ждёт приёмки</dt><dd class="${pv ? 'warn' : 'muted'}">${pv ? fmt(pv) : '—'}</dd></dl></div></div>
+        <ul class="feedl" aria-label="События">${LOG.slice(0, 5).map(([h, x]) => `<li><b>${h}</b><span>${esc(x)}</span></li>`).join('')}</ul>
       </section>
       <section class="card c7"><div class="card-h"><h2>Рейсы в пути${trips.length ? ` · ${trips.length}` : ''}</h2><span>${fmt(transitVol())} куб на дороге</span></div>
-        ${trips.length ? trips.map((t) => `<div class="trip"><div class="trip-ic">${ic('truck')}</div><div><b>${esc(truck(t.truck).name)} → ${esc(t.site)}</b><span>${esc(truck(t.truck).driver)} · ${t.vol} куб · выехал ${t.date.slice(0, 5)}</span></div><button class="btn sm" data-act="deliver" data-id="${t.id}">${ic('check')}Доставлено</button></div>`).join('') : `<div class="empty">Все рейсы доставлены.<br><button class="btn sm" style="margin-top:10px" data-act="newTrip">Создать рейс</button></div>`}
+        ${mapSVG()}${trips.length ? trips.map((t) => `<div class="trip"><div class="trip-ic">${ic('truck')}</div><div><b>${esc(truck(t.truck).name)} → ${esc(t.site)}</b><span>${esc(truck(t.truck).driver)} · ${t.vol} куб · выехал ${t.date.slice(0, 5)}</span><div class="tp"><i data-tp="${t.id}" style="width:${Math.round((TP[t.id] || 0) * 100)}%"></i></div></div><button class="btn sm" data-act="deliver" data-id="${t.id}">${ic('check')}Доставлено</button></div>`).join('') : `<div class="empty">Все рейсы доставлены.<br><button class="btn sm" style="margin-top:10px" data-act="newTrip">Создать рейс</button></div>`}
       </section>
       <section class="card c7"><div class="card-h"><h2>Отгрузки по месяцам, куб</h2><span>июнь с учётом рейсов в пути</span></div><div id="ch-months"></div></section>
       <section class="card c5"><div class="card-h"><h2>Выполнение заказов</h2><span>доставлено из заказанного</span></div>
@@ -516,12 +525,33 @@ function mountCharts() {
 }
 
 /* ── actions ──────────────────────────────────────────── */
+/* ── live map: trucks drive along their routes; on arrival the trip closes by itself ─ */
+const SITES = { 'База Тында': [300, 150], 'Дипкун': [520, 60], 'Сковородино': [90, 50], 'Акурдан': [490, 235], 'Белая Гора': [90, 235], 'Чульман': [320, 275], 'Зейск': [230, 25] };
+let CLK = 14 * 60 + 36; const LOG = [['14:02', 'КамАЗ-6522 выехал в Дипкун'], ['13:40', 'Урал-4320 выехал на Акурдан'], ['12:15', 'Приёмка ТТН-2026-1901 ждёт подтверждения']];
+const clk = () => String(Math.floor(CLK / 60)).padStart(2, '0') + ':' + String(CLK % 60).padStart(2, '0');
+const TP = { 9: .55, 8: .3, 7: .78 };
+const pos = (site, p) => { const a = SITES['База Тында'], b = SITES[site] || [300, 40]; return [a[0] + (b[0] - a[0]) * p, a[1] + (b[1] - a[1]) * p]; };
+function mapSVG() {
+  const trips = transitTrips(), active = new Set(trips.map((t) => t.site));
+  return `<svg class="map" viewBox="0 0 600 300" role="img" aria-label="Рейсы на карте">${Object.entries(SITES).filter(([n]) => n !== 'База Тында').map(([n, [x, y]]) => `<line class="rt ${active.has(n) ? 'on' : ''}" x1="300" y1="150" x2="${x}" y2="${y}"/><circle class="site" cx="${x}" cy="${y}" r="7"/><text x="${x}" y="${y + (y > 150 ? 24 : -14)}" text-anchor="middle">${n}</text>`).join('')}
+    <circle class="hub" cx="300" cy="150" r="10"/><text x="300" y="130" text-anchor="middle" style="fill:var(--text);font-weight:600">База Тында</text>
+    ${trips.map((t) => { const [x, y] = pos(t.site, TP[t.id] || 0); return `<g data-mk="${t.id}" transform="translate(${x} ${y})"><circle class="pulse" r="9"/><circle class="mk" r="8"/></g>`; }).join('')}</svg>`;
+}
+setInterval(() => {
+  if (document.hidden || $('#scrim')) return;
+  CLK++; let arrived = null;
+  transitTrips().forEach((t) => { TP[t.id] = Math.min(1, (TP[t.id] || 0) + .012 + (t.id % 3) * .004); if (TP[t.id] >= 1 && !arrived) arrived = t; });
+  if (arrived) { ACT.deliver({ id: arrived.id }); return; }
+  if (page !== 'dashboard') return;
+  transitTrips().forEach((t) => { const g = $(`[data-mk="${t.id}"]`), [x, y] = pos(t.site, TP[t.id] || 0); if (g) g.setAttribute('transform', `translate(${x} ${y})`); const b = $(`[data-tp="${t.id}"]`); if (b) b.style.width = Math.round((TP[t.id] || 0) * 100) + '%'; });
+}, 1400);
+
 const ACT = {
   deliver({ id }) {
     const t = S.trips.find((x) => x.id === +id); t.status = 'done';
     const o = order(t.order); o.transit -= t.vol; o.delivered += t.vol;
     truck(t.truck).status = 'base'; truck(t.truck).last = t.site; truck(t.truck).trips += 1;
-    toast(`Доставлено: ${t.vol} куб в ${t.site}`); render();
+    LOG.unshift([clk(), `${truck(t.truck).name} доставил ${t.vol} куб в ${t.site}`]); toast(`Доставлено: ${t.vol} куб в ${t.site}`); render();
   },
   confirmRc({ id }) { const r = S.receipts.find((x) => x.id === +id); r.ok = true; toast(`Приёмка принята: +${r.vol} куб на базе`); render(); },
   newReceipt() {
