@@ -4,7 +4,7 @@ export const siteConfig = {
   description:
     "Full-stack developer specializing in web & mobile applications, scalable backends, and seamless user experiences.",
   domain: "dimkaprojects.xyz",
-  email: "altynbek.din@gmail.com",
+  email: "darian.mirelli@gmail.com",
   github: "https://github.com/DarQQ",
   telegram: "https://t.me/Dimka_Hum",
   available: true,
