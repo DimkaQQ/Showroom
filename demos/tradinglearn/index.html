@@ -1,909 +1,578 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TradingLearn — Demo Site</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TradingLearn — учёба и тренажёр трейдера (демо)</title>
+<meta name="description" content="Демо: учимся торговать на виртуальные $10 000. Живой график, ордера со стоп-лоссом, уроки с практикой, журнал сделок и рейтинг. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-.demo-bar{position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(25,194,129,.12);border-bottom:1px solid rgba(25,194,129,.25);color:#19c281;font-size:11px;font-weight:600;text-align:center;padding:5px;letter-spacing:.06em;text-transform:uppercase;backdrop-filter:blur(8px);font-family:'Inter',sans-serif}
-:root{--bg:#0d0e12;--bg1:#131419;--bg2:#1a1b22;--border:#1f2029;--bord2:#2a2b36;--text:#e6e8ec;--dim:rgba(230,232,236,.42);--up:#19c281;--down:#ff5d6c;--blue:#4c8bff;--rail-w:224px;--top-h:52px;--r:10px;--dbh:28px}
-*,*::before,*::after{box-sizing:border-box}
-html{font-size:14px}
-body{margin:0;padding-top:var(--dbh);font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-h1,h2,h3,h4{margin:0}p{margin:0}
-button{font-family:inherit;cursor:pointer}
-a{text-decoration:none;color:inherit}
-.app{display:flex;height:calc(100vh - var(--dbh));background:var(--bg);overflow:hidden}
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.content{flex:1;overflow-y:auto;padding:28px 32px}
-/* Rail */
-.rail{width:var(--rail-w);background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;padding:14px 10px;height:100%}
-.brand{display:flex;align-items:center;gap:10px;padding:8px 8px 18px;background:none;border:none;width:100%;text-align:left;color:var(--text)}
-.brand-ico{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#19c281,#0d7a4e);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.brand-tx b{font-size:14px;font-weight:700;display:block;line-height:1.2}
-.brand-tx span{font-size:9.5px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
-.nav-group{display:flex;flex-direction:column;gap:1px}
-.nav-sep{height:1px;background:var(--border);margin:8px 8px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;border:none;background:none;color:var(--dim);font-size:13.5px;cursor:pointer;transition:all .15s;text-align:left;width:100%}
-.nav-item:hover{color:var(--text);background:rgba(230,232,236,.05)}
-.nav-item.active{background:rgba(25,194,129,.12);color:var(--up)}
-.nav-ico{font-size:15px;width:18px;text-align:center;flex-shrink:0}
-.rail-foot{margin-top:auto;display:flex;align-items:center;gap:8px;padding:12px 8px 6px;border-top:1px solid var(--border)}
-.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#19c281,#0d7a4e);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.avatar.lg{width:48px;height:48px;font-size:20px}
-.avatar.sm{width:26px;height:26px;font-size:11px}
-.rail-user{flex:1;min-width:0}
-.rail-user b{display:block;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rail-user span{font-size:11px;color:var(--dim)}
-/* TopBar */
-.topbar{height:var(--top-h);background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;overflow:hidden;flex-shrink:0}
-.topbar-right{display:flex;align-items:center;gap:6px;padding:0 14px;flex-shrink:0}
-.bal{display:flex;flex-direction:column;align-items:flex-end;background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;transition:border-color .15s;gap:1px}
-.bal:hover{border-color:var(--up)}
-.eyebrow{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin:0}
-.bal b{font-size:14px;line-height:1}
-.icon-btn{background:none;border:none;cursor:pointer;color:var(--dim);font-size:18px;padding:6px;border-radius:7px;transition:color .15s}
-.icon-btn:hover{color:var(--text);background:rgba(230,232,236,.05)}
-/* Ticker */
-.ticker{flex:1;overflow:hidden}
-.ticker-track{display:flex;white-space:nowrap;animation:scroll-x 28s linear infinite;width:max-content}
-@keyframes scroll-x{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.tick{display:inline-flex;align-items:center;gap:6px;padding:0 16px;font-size:12px;color:var(--dim);border-right:1px solid var(--border)}
-.tick-sym{color:var(--text);font-weight:600;font-size:11.5px}
-.tick-px{color:var(--text);font-family:'JetBrains Mono',monospace}
-.tick-ch{font-size:11px}
-/* Buttons */
-.btn{border:none;cursor:pointer;border-radius:8px;font-size:13px;font-weight:600;padding:8px 16px;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
-.btn-primary{background:var(--up);color:#fff}.btn-primary:hover{background:#14a96e}
-.btn-ghost{background:transparent;border:1px solid var(--bord2);color:var(--dim)}.btn-ghost:hover{border-color:var(--text);color:var(--text)}
-.btn-soft{background:rgba(25,194,129,.1);color:var(--up)}.btn-soft:hover{background:rgba(25,194,129,.18)}
-.btn-long{background:var(--up);color:#fff}.btn-long:hover{background:#14a96e}
-.btn-short{background:var(--down);color:#fff}.btn-short:hover{background:#e04558}
-/* Panel */
-.panel{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r)}
-.panel-pad{padding:20px}
-.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-/* Typography */
-.mono{font-family:'JetBrains Mono','Fira Code','Consolas',monospace;font-variant-numeric:tabular-nums}
-.c-up{color:var(--up)}.c-down{color:var(--down)}.dim{color:var(--dim)}.sm{font-size:11px}
-/* Screens */
-.screen{display:none}
-.screen.active{display:block}
-.screen-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
-.screen-head.center{justify-content:center;text-align:center}
-.screen h1{font-size:24px;font-weight:700;color:var(--text)}
-.screen .sub{font-size:13px;color:var(--dim);margin-top:3px}
-/* Grid */
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:14px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.mt{margin-top:20px}
-/* Stat tiles */
-.stat-val{font-size:22px;font-weight:700;color:var(--text);margin:4px 0;line-height:1.2}
-.stat-sub{font-size:11px;color:var(--dim);margin-top:2px}
-/* Progress bar */
-.bar{height:4px;background:var(--bord2);border-radius:99px;overflow:hidden;margin:8px 0}
-.bar i{display:block;height:100%;background:var(--up);border-radius:99px;font-style:normal}
-/* Module list */
-.module-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
-.mod{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--bord2);flex-shrink:0}
-.dot.done{background:var(--up)}.dot.part{background:#f59e0b}
-/* Course row */
-.course-row{display:flex;align-items:flex-start;gap:20px}
-.big-num{font-size:48px;font-weight:800;color:var(--up);line-height:1;font-family:'JetBrains Mono',monospace}
-/* Movers */
-.movers{display:flex;flex-direction:column}
-.mover{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;transition:background .1s}
-.mover:last-child{border-bottom:none}
-.mover:hover{background:rgba(230,232,236,.04)}
-.mover-l{min-width:80px}
-.mover-l b{display:block;font-size:13.5px;color:var(--text)}
-.mover-l span{font-size:11px;color:var(--dim)}
-.mover-r{margin-left:auto;text-align:right}
-.mover-r b{display:block;font-size:13.5px}
-/* Achievements */
-.ach-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.ach{width:44px;height:44px;border-radius:10px;background:rgba(25,194,129,.1);border:1px solid rgba(25,194,129,.2);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:default;transition:transform .15s}
-.ach:hover{transform:scale(1.1)}
-.ach.locked{opacity:.25;filter:grayscale(1)}
-/* Sim */
-.sim-grid{display:grid;grid-template-columns:1fr 280px;gap:16px}
-.sim-main{display:flex;flex-direction:column;gap:10px}
-.sym-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.sym-bar-tools{margin-left:auto}
-.sb{padding:5px 11px;border-radius:6px;border:none;background:rgba(255,255,255,.04);font-size:12.5px;font-weight:600;color:var(--dim);cursor:pointer;transition:all .15s}
-.sb:hover{color:var(--text)}
-.sb.on{background:rgba(25,194,129,.15);color:var(--up)}
-.seg{display:flex;background:rgba(255,255,255,.04);border-radius:7px;padding:2px;gap:1px}
-.seg button{padding:5px 9px;border:none;background:none;border-radius:5px;font-size:12px;cursor:pointer;color:var(--dim);transition:all .15s}
-.seg button:hover{color:var(--text)}
-.seg button.on{background:var(--bg2);color:var(--text)}
-.seg-ind button.on-ind{background:rgba(76,139,255,.15);color:#7babff;border:1px solid rgba(76,139,255,.3)}
-/* Tabs */
-.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:12px}
-.tabs button{padding:10px 16px;border:none;background:none;font-size:13px;cursor:pointer;color:var(--dim);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-weight:500}
-.tabs button:hover{color:var(--text)}
-.tabs button.on{color:var(--up);border-bottom-color:var(--up)}
-/* Table */
-.table-wrap{overflow:hidden}
-.tbl{width:100%;border-collapse:collapse;font-size:13px}
-.tbl thead tr{border-bottom:1px solid var(--border)}
-.tbl th{padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
-.tbl td{padding:10px 16px;border-bottom:1px solid var(--border);color:var(--text)}
-.tbl tbody tr:last-child td{border-bottom:none}
-.tbl tbody tr:hover td{background:rgba(255,255,255,.02)}
-.tbl.board .me td{background:rgba(25,194,129,.05)}
-.close-x{background:none;border:none;cursor:pointer;color:var(--dim);font-size:12px;padding:3px 7px;border-radius:5px;transition:all .15s}
-.close-x:hover{color:var(--down);background:rgba(255,93,108,.1)}
-/* Order form */
-.dir-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.dt{padding:10px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.05);color:var(--dim);transition:all .15s}
-.dt.long.on{background:rgba(25,194,129,.15);color:var(--up)}
-.dt.short.on{background:rgba(255,93,108,.15);color:var(--down)}
-.inp-wrap{display:flex;align-items:center;background:var(--bg2);border:1px solid var(--bord2);border-radius:7px;padding:0 10px;color:var(--dim);transition:border-color .15s}
-.inp-wrap:focus-within{border-color:var(--up)}
-.inp-wrap span{font-size:14px;flex-shrink:0}
-.inp-wrap input{flex:1;background:none;border:none;outline:none;padding:9px 6px;font-size:14px;color:var(--text);font-family:inherit}
-.chips{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0 8px}
-.chips button{padding:4px 8px;border-radius:5px;font-size:11.5px;border:1px solid var(--bord2);background:none;color:var(--dim);cursor:pointer;transition:all .15s}
-.chips button:hover,.chips button.on{background:rgba(25,194,129,.1);color:var(--up);border-color:rgba(25,194,129,.3)}
-.order-stats{display:flex;flex-direction:column;gap:6px;background:var(--bg2);border-radius:8px;padding:12px;font-size:12.5px}
-.order-stats>div{display:flex;justify-content:space-between;color:var(--dim)}
-.order-stats b{color:var(--text)}
-.order-submit{width:100%;padding:12px;font-size:14px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-family:inherit;transition:all .15s}
-.dir{font-size:11.5px;font-weight:700;border-radius:4px;padding:2px 5px}
-.dir.long{color:var(--up);background:rgba(25,194,129,.1)}
-.dir.short{color:var(--down);background:rgba(255,93,108,.1)}
-/* Leaderboard */
-.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin:20px 0 30px}
-.pod{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 20px;background:var(--bg1);border:1px solid var(--border);border-radius:12px;min-width:120px}
-.pod.p1{padding-bottom:24px;border-color:rgba(234,197,60,.3);background:rgba(234,197,60,.05)}
-.pod.p2{border-color:rgba(192,192,192,.3)}
-.pod.p3{border-color:rgba(205,127,50,.3)}
-.pod-medal{font-size:28px}
-.pod b{font-size:14px;color:var(--text)}
-.pod-bal{font-size:16px;font-weight:700}
-.board-user{display:flex;align-items:center;gap:8px}
-.you{font-size:10px;background:rgba(25,194,129,.15);color:var(--up);border-radius:4px;padding:1px 5px;margin-left:4px}
-/* Empty state */
-.empty-state{text-align:center;padding:40px 32px;color:var(--dim);font-size:13px}
-.empty-ico{font-size:36px;margin-bottom:10px}
-/* Order msg */
-.order-msg{font-size:12px;padding:8px 12px;border-radius:7px;margin-bottom:8px}
-.order-msg.ok{background:rgba(25,194,129,.1);color:var(--up);border:1px solid rgba(25,194,129,.25)}
-.order-msg.err{background:rgba(255,93,108,.1);color:var(--down);border:1px solid rgba(255,93,108,.25)}
-/* Chart */
-.chart-wrap{width:100%;height:280px;background:var(--bg2);border-radius:8px;overflow:hidden;position:relative}
-.chart-wrap svg{width:100%;height:100%}
-/* Link btn */
-.link{background:none;border:none;cursor:pointer;color:var(--dim);font-size:12px;transition:color .15s;padding:0}
-.link:hover{color:var(--up)}
-/* Course card */
-.course-card{cursor:pointer;transition:border-color .15s}
-.course-card:hover{border-color:rgba(25,194,129,.4)}
-/* Spin */
-@keyframes spin{to{transform:rotate(360deg)}}
-/* Mobile */
-@media(max-width:900px){
-  .rail{display:none}
-  .sim-grid{grid-template-columns:1fr}
-  .grid-4{grid-template-columns:repeat(2,1fr)}
-  .grid-2-1{grid-template-columns:1fr}
-  .content{padding:16px}
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
+:root {
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  color-scheme: dark;
 }
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
+
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
+
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
+
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
+
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
+
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
+
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
+
+:root {
+  --bg: #080b10; --surface: #0f141b; --raised: #161c26; --hover: #1b2330; --border: #1f2833; --rule: #171e28;
+  --text: #ecf0f6; --muted: #9aa5b5; --faint: #7a8696;
+  --accent: #8b7bff; --accent-ink: #0c0a1f; --accent-bg: rgba(139,123,255,.14);
+  --pos: #25d195; --neg: #ff6b78;
+  --font: "Geologica", system-ui, sans-serif; --display: "Geologica", system-ui, sans-serif;
+}
+.brand-name, .head h1, .big, .kpi b { font-weight: 600; letter-spacing: -.02em; }
+.btn.long { background: var(--pos); color: #04150e; border-color: transparent; font-weight: 600; }
+.btn.short { background: var(--neg); color: #1c0508; border-color: transparent; font-weight: 600; }
+
+.dm { display: none; } .field label { display: flex; align-items: center; } .field input[type=checkbox] { height: auto; width: auto; margin-right: 8px; accent-color: var(--accent); }
+.coach { display: flex; align-items: center; gap: 14px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--accent-bg); }
+.coach .ic { color: var(--accent); } .coach span { flex: 1; min-width: 0; }
+.lvl { display: flex; align-items: center; gap: 12px; }
+.lvl .bar { width: 120px; }
+
+.term { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--gap); align-items: start; }
+.chart-h { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+.chart-h .px { font: 600 28px/1 var(--display); letter-spacing: -.02em; }
+.syms { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.syms button { height: 28px; padding: 0 11px; border-radius: 14px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.syms button:hover { color: var(--text); } .syms button.on { background: var(--raised); color: var(--text); border-color: var(--faint); }
+#chart svg { display: block; width: 100%; }
+#chart text { font: 11px var(--font); fill: var(--faint); }
+.dirs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+.dirs button { height: 38px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--muted); font-weight: 600; cursor: pointer; transition: background-color .15s, color .15s, border-color .15s; }
+.dirs button.on.l { background: var(--pos); color: #04150e; border-color: transparent; } .dirs button.on.s { background: var(--neg); color: #1c0508; border-color: transparent; }
+.quick { display: flex; gap: 6px; margin-top: 6px; } .quick button { flex: 1; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; font-size: 12px; } .quick button:hover { color: var(--text); background: var(--hover); }
+.risk { padding: 10px 12px; margin: 4px 0 14px; border-radius: 8px; background: var(--raised); color: var(--muted); font-size: 13px; } .risk b { color: var(--text); font-weight: 600; }
+.pos-row { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1fr auto; gap: 12px; align-items: center; padding: 10px 0; }
+.pos-row + .pos-row { border-top: 1px solid var(--rule); }
+.pos-row b { font-weight: 600; } .pos-row small { display: block; color: var(--muted); font-size: 12px; }
+
+.course { padding: 18px 0; } .course + .course { border-top: 1px solid var(--rule); }
+.course-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.course-h h3 { font-size: 16px; font-weight: 600; }
+.lesson { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 48px; padding: 6px 0; }
+.lesson .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); display: grid; place-items: center; }
+.lesson.done .dot { background: var(--pos); border-color: var(--pos); color: #04150e; } .lesson.done .dot .ic { width: 13px; height: 13px; stroke-width: 3; }
+.lesson.lock { opacity: .5; }
+.lesson b { font-weight: 500; display: block; } .lesson small { color: var(--muted); }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opts button { text-align: left; min-height: 42px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: none; cursor: pointer; transition: background-color .15s, border-color .15s; }
+.opts button:hover { background: var(--hover); border-color: var(--faint); }
+.me { background: var(--accent-bg); border-radius: 8px; }
+
+@media (max-width: 1099px) { .term { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 899px) { .dm { display: inline; } .syms { margin-left: 0; } .pos-row { grid-template-columns: 1fr 1fr auto; } .pos-row .hm { display: none; } .lvl .bar { width: 72px; } }
 </style>
 </head>
 <body>
-
-<div class="demo-bar">⚡ Demo Site — TradingLearn · Все данные симулированы</div>
-
+<div class="notice"><b>Демо</b> TradingLearn · учебный тренажёр, деньги виртуальные, данные вымышлены</div>
 <div class="app">
-  <!-- Rail -->
-  <nav class="rail">
+  <aside class="side">
     <div class="brand">
-      <div class="brand-ico">📈</div>
-      <div class="brand-tx"><b>TradingLearn</b><span>Trading Platform</span></div>
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 7-9M15 6h5v5"/></svg></div>
+      <div><div class="brand-name">TradingLearn</div><div class="brand-sub">Учись и практикуйся</div></div>
     </div>
-    <div class="nav-group">
-      <button class="nav-item active" onclick="navigate('dashboard')"><span class="nav-ico">🏠</span> Дашборд</button>
-      <button class="nav-item" onclick="navigate('simulator')"><span class="nav-ico">📊</span> Симулятор</button>
-      <button class="nav-item" onclick="navigate('courses')"><span class="nav-ico">📚</span> Курсы</button>
-      <button class="nav-item" onclick="navigate('market')"><span class="nav-ico">🌍</span> Рынок</button>
-      <button class="nav-item" onclick="navigate('leaderboard')"><span class="nav-ico">🏆</span> Рейтинг</button>
-      <button class="nav-item" onclick="navigate('achievements')"><span class="nav-ico">🏅</span> Достижения</button>
-    </div>
-    <div class="nav-sep"></div>
-    <div class="nav-group">
-      <button class="nav-item" onclick="navigate('stats')"><span class="nav-ico">📈</span> Статистика</button>
-      <button class="nav-item" onclick="navigate('alerts')"><span class="nav-ico">🔔</span> Алерты</button>
-    </div>
-    <div class="rail-foot">
-      <div class="avatar">D</div>
-      <div class="rail-user"><b>Darian</b><span>demo@tradinglearn.app</span></div>
-    </div>
-  </nav>
-
-  <!-- Main -->
-  <div class="main">
-    <!-- TopBar -->
-    <div class="topbar">
-      <div class="ticker"><div class="ticker-track" id="ticker-track"></div></div>
-      <div class="topbar-right">
-        <div class="bal" onclick="navigate('simulator')">
-          <div class="eyebrow">Баланс</div>
-          <b id="topbar-bal" class="mono c-up">$10,000</b>
-        </div>
-        <button class="icon-btn">🔔</button>
-      </div>
-    </div>
-
-    <!-- Content -->
-    <div class="content">
-
-      <!-- DASHBOARD -->
-      <div class="screen active" id="screen-dashboard">
-        <div class="screen-head">
-          <div><h1>Привет, Darian 👋</h1><p class="sub">Продолжай учиться — каждый урок приближает тебя к цели</p></div>
-          <button class="btn btn-ghost" onclick="navigate('courses')">К обучению →</button>
-        </div>
-        <div class="grid-4">
-          <div class="panel panel-pad">
-            <div class="eyebrow">Баланс симулятора</div>
-            <div class="stat-val mono c-up" id="dash-balance">$10,000</div>
-            <div class="stat-sub" id="dash-balance-sub">+$0.00 всего</div>
-          </div>
-          <div class="panel panel-pad">
-            <div class="eyebrow">Прогресс обучения</div>
-            <div class="stat-val mono">62%</div>
-            <div class="stat-sub">5 из 8 уроков</div>
-          </div>
-          <div class="panel panel-pad">
-            <div class="eyebrow">Достижения</div>
-            <div class="stat-val mono c-up" id="dash-ach-count">3</div>
-            <div class="stat-sub">из 8 открыто</div>
-          </div>
-          <div class="panel panel-pad">
-            <div class="eyebrow">Активов на рынке</div>
-            <div class="stat-val mono">8</div>
-            <div class="stat-sub">BTC, ETH, SOL и другие</div>
-          </div>
-        </div>
-
-        <div class="grid-2-1 mt">
-          <div class="panel panel-pad">
-            <div class="panel-head">
-              <span class="eyebrow">Курс · прогресс</span>
-              <span class="mono dim" style="font-size:12px">5/8</span>
-            </div>
-            <div class="course-row">
-              <div class="big-num">62%</div>
-              <div style="flex:1">
-                <h3 style="font-size:15px;color:var(--text);margin-bottom:8px">Основы трейдинга</h3>
-                <div class="bar"><i style="width:62%"></i></div>
-                <div class="module-list">
-                  <div class="mod"><span class="dot done"></span><span style="flex:1">Основы трейдинга</span><span class="mono dim">5/8</span></div>
-                  <div class="mod"><span class="dot part"></span><span style="flex:1">Технический анализ</span><span class="mono dim">2/6</span></div>
-                  <div class="mod"><span class="dot"></span><span style="flex:1">Риск-менеджмент</span><span class="mono dim">0/5</span></div>
-                  <div class="mod"><span class="dot"></span><span style="flex:1">Психология трейдинга</span><span class="mono dim">0/4</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="panel panel-pad" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center">
-            <div style="font-size:56px;line-height:1">🌍</div>
-            <div>
-              <div class="eyebrow">Глобальные рынки</div>
-              <p style="font-size:13px;color:var(--dim);margin:4px 0 12px">Открыто 24/7 · <b class="c-up">8 активов</b></p>
-              <button class="btn btn-soft" onclick="navigate('market')">Открыть рынок</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-2 mt">
-          <div class="panel panel-pad">
-            <div class="panel-head">
-              <span class="eyebrow">Движение рынка</span>
-              <button class="link" onclick="navigate('market')">Все →</button>
-            </div>
-            <div class="movers" id="dash-movers"></div>
-          </div>
-          <div class="panel panel-pad">
-            <div class="panel-head">
-              <span class="eyebrow">Достижения</span>
-              <button class="link" onclick="navigate('achievements')">Все →</button>
-            </div>
-            <div class="ach-grid">
-              <div class="ach" title="Первый шаг">🌱</div>
-              <div class="ach" title="Первая сделка" id="ach-trade">💰</div>
-              <div class="ach" title="Быстрый старт">⚡</div>
-              <div class="ach locked" title="В прибыли: Закрой 5 прибыльных сделок">🎯</div>
-              <div class="ach locked" title="Аналитик: Пройди технический анализ">📊</div>
-              <div class="ach locked" title="Мастер риска">🛡️</div>
-              <div class="ach locked" title="Трейдер месяца">🏅</div>
-              <div class="ach locked" title="Легенда: Удвой баланс">👑</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SIMULATOR -->
-      <div class="screen" id="screen-simulator">
-        <div class="screen-head">
-          <div><h1>Симулятор</h1><p class="sub">Виртуальные $10 000 · реальные цены · без риска</p></div>
-          <button class="btn btn-ghost" onclick="resetAccount()">↺ Сбросить счёт</button>
-        </div>
-        <div class="grid-4" style="margin-bottom:20px">
-          <div class="panel panel-pad">
-            <div class="eyebrow">Баланс</div>
-            <div class="stat-val mono" id="sim-balance">$10,000</div>
-            <div class="stat-sub">свободные средства</div>
-          </div>
-          <div class="panel panel-pad">
-            <div class="eyebrow">Реализ. P&amp;L</div>
-            <div class="stat-val mono" id="sim-realized">+$0.00</div>
-            <div class="stat-sub">закрытые сделки</div>
-          </div>
-          <div class="panel panel-pad">
-            <div class="eyebrow">Нереализ. P&amp;L</div>
-            <div class="stat-val mono" id="sim-unrealized">+$0.00</div>
-            <div class="stat-sub" id="sim-open-count">0 открытых позиций</div>
-          </div>
-          <div class="panel panel-pad">
-            <div class="eyebrow">Всего сделок</div>
-            <div class="stat-val mono" id="sim-total-trades">0</div>
-            <div class="stat-sub">в истории</div>
-          </div>
-        </div>
-
-        <div class="sim-grid">
-          <div class="sim-main">
-            <div class="sym-bar">
-              <button class="sb on" data-sym="BTCUSDT" onclick="selectSym(this)">BTC</button>
-              <button class="sb" data-sym="ETHUSDT" onclick="selectSym(this)">ETH</button>
-              <button class="sb" data-sym="BNBUSDT" onclick="selectSym(this)">BNB</button>
-              <button class="sb" data-sym="SOLUSDT" onclick="selectSym(this)">SOL</button>
-              <button class="sb" data-sym="ADAUSDT" onclick="selectSym(this)">ADA</button>
-              <button class="sb" data-sym="DOGEUSDT" onclick="selectSym(this)">DOGE</button>
-              <button class="sb" data-sym="XRPUSDT" onclick="selectSym(this)">XRP</button>
-              <button class="sb" data-sym="AVAXUSDT" onclick="selectSym(this)">AVAX</button>
-              <div class="sym-bar-tools" style="margin-left:auto">
-                <div style="display:flex;gap:6px">
-                  <div class="seg" id="iv-seg">
-                    <button data-iv="1m" onclick="selectIv(this)">1м</button>
-                    <button data-iv="5m" onclick="selectIv(this)">5м</button>
-                    <button data-iv="15m" onclick="selectIv(this)">15м</button>
-                    <button class="on" data-iv="1h" onclick="selectIv(this)">1ч</button>
-                    <button data-iv="4h" onclick="selectIv(this)">4ч</button>
-                    <button data-iv="1d" onclick="selectIv(this)">1д</button>
-                  </div>
-                  <div class="seg seg-ind">
-                    <button data-ind="bb" onclick="toggleInd(this)">BB</button>
-                    <button data-ind="rsi" onclick="toggleInd(this)">RSI</button>
-                    <button data-ind="macd" onclick="toggleInd(this)">MACD</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="panel panel-pad" style="padding:14px">
-              <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">
-                <span class="eyebrow" id="chart-sym">BTC/USDT</span>
-                <span class="mono" id="chart-price" style="font-size:20px;font-weight:700;color:var(--text)">$67,420</span>
-                <span class="mono c-up" id="chart-chg" style="font-size:12px">+1.24%</span>
-              </div>
-              <div class="chart-wrap" id="chart-wrap">
-                <svg id="chart-svg"></svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Order form -->
-          <div class="panel panel-pad" style="display:flex;flex-direction:column;gap:12px">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start">
-              <div>
-                <div class="eyebrow" id="order-sym">BTC/USDT</div>
-                <div class="mono" id="order-price" style="font-size:22px;font-weight:700;color:var(--text);margin-top:2px">$67,420</div>
-              </div>
-              <div style="text-align:right">
-                <div class="eyebrow">Доступно</div>
-                <div class="mono" id="order-avail" style="font-size:15px;font-weight:700">$10,000</div>
-              </div>
-            </div>
-            <div class="dir-toggle">
-              <button class="dt long on" id="btn-long" onclick="setDir('long')">▲ Лонг</button>
-              <button class="dt short" id="btn-short" onclick="setDir('short')">▼ Шорт</button>
-            </div>
-            <div>
-              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:6px">
-                <span>Размер позиции</span>
-                <span class="mono" id="order-max">макс $10,000</span>
-              </div>
-              <div class="inp-wrap">
-                <span style="font-size:15px">$</span>
-                <input type="number" id="order-size" value="500" min="10">
-              </div>
-            </div>
-            <div class="chips">
-              <button onclick="setSize(100)">$100</button>
-              <button onclick="setSize(250)">$250</button>
-              <button class="on" onclick="setSize(500)">$500</button>
-              <button onclick="setSize(1000)">$1,000</button>
-              <button onclick="setSizeHalf()">50%</button>
-            </div>
-            <div class="order-stats">
-              <div><span>Цена</span><b class="mono" id="os-price">$67,420</b></div>
-              <div><span>Объём</span><b class="mono" id="os-vol">0.0074 BTC</b></div>
-              <div><span>Маржа</span><b class="mono" id="os-margin">$500</b></div>
-            </div>
-            <div id="order-msg-area"></div>
-            <button class="btn-long order-submit" id="order-btn" onclick="placeOrder()">▲ Купить / Лонг</button>
-            <p style="font-size:11px;color:var(--dim);text-align:center;margin-top:auto">Без кредитного плеча · Симулятор</p>
-          </div>
-        </div>
-
-        <!-- Positions / History tabs -->
-        <div style="margin-top:24px">
-          <div class="tabs">
-            <button class="on" id="tab-pos" onclick="setTab('positions')">Открытые позиции (<span id="pos-count">0</span>)</button>
-            <button id="tab-hist" onclick="setTab('history')">История сделок (<span id="hist-count">0</span>)</button>
-          </div>
-          <div class="panel table-wrap" id="panel-pos">
-            <div class="empty-state"><div class="empty-ico">📭</div>Нет открытых позиций. Открой сделку выше.</div>
-          </div>
-          <div class="panel table-wrap" id="panel-hist" style="display:none">
-            <div class="empty-state"><div class="empty-ico">📋</div>История сделок пуста. Заверши первую позицию.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- COURSES -->
-      <div class="screen" id="screen-courses">
-        <div class="screen-head">
-          <div><h1>Курсы</h1><p class="sub">От нуля до профессионала</p></div>
-        </div>
-        <div class="grid-2" style="max-width:900px">
-          <div class="panel panel-pad course-card">
-            <div class="panel-head"><h3 style="font-size:15px;font-weight:700;color:var(--text);margin:0">Основы трейдинга</h3><span class="mono dim" style="font-size:12px">5/8</span></div>
-            <p style="font-size:13px;color:var(--dim);margin-bottom:14px;line-height:1.5">Узнай, что такое финансовые рынки, как читать ценовые графики и понимать базовые рыночные механизмы.</p>
-            <div class="bar"><i style="width:62%"></i></div>
-            <div style="display:flex;justify-content:space-between;margin-top:8px"><span style="font-size:11px;color:var(--dim)">62% пройдено</span><span style="font-size:11px;color:var(--up)">Продолжить →</span></div>
-          </div>
-          <div class="panel panel-pad course-card">
-            <div class="panel-head"><h3 style="font-size:15px;font-weight:700;color:var(--text);margin:0">Технический анализ</h3><span class="mono dim" style="font-size:12px">2/6</span></div>
-            <p style="font-size:13px;color:var(--dim);margin-bottom:14px;line-height:1.5">Изучи индикаторы, паттерны свечей, уровни поддержки и сопротивления, трендовый анализ.</p>
-            <div class="bar"><i style="width:33%"></i></div>
-            <div style="display:flex;justify-content:space-between;margin-top:8px"><span style="font-size:11px;color:var(--dim)">33% пройдено</span><span style="font-size:11px;color:var(--up)">Продолжить →</span></div>
-          </div>
-          <div class="panel panel-pad course-card">
-            <div class="panel-head"><h3 style="font-size:15px;font-weight:700;color:var(--text);margin:0">Риск-менеджмент</h3><span class="mono dim" style="font-size:12px">0/5</span></div>
-            <p style="font-size:13px;color:var(--dim);margin-bottom:14px;line-height:1.5">Научись защищать капитал: стоп-лоссы, размер позиций, диверсификация и управление просадкой.</p>
-            <div class="bar"><i style="width:0%"></i></div>
-            <div style="display:flex;justify-content:space-between;margin-top:8px"><span style="font-size:11px;color:var(--dim)">0% пройдено</span><span style="font-size:11px;color:var(--up)">Начать →</span></div>
-          </div>
-          <div class="panel panel-pad course-card">
-            <div class="panel-head"><h3 style="font-size:15px;font-weight:700;color:var(--text);margin:0">Психология трейдинга</h3><span class="mono dim" style="font-size:12px">0/4</span></div>
-            <p style="font-size:13px;color:var(--dim);margin-bottom:14px;line-height:1.5">Разберись с эмоциями: FOMO, жадность, страх и как выработать торговую дисциплину.</p>
-            <div class="bar"><i style="width:0%"></i></div>
-            <div style="display:flex;justify-content:space-between;margin-top:8px"><span style="font-size:11px;color:var(--dim)">0% пройдено</span><span style="font-size:11px;color:var(--up)">Начать →</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MARKET -->
-      <div class="screen" id="screen-market">
-        <div class="screen-head">
-          <div><h1>Рынок</h1><p class="sub">Котировки · 8 активов</p></div>
-          <button class="btn btn-primary" onclick="navigate('simulator')">Торговать →</button>
-        </div>
-        <div class="panel table-wrap">
-          <table class="tbl">
-            <thead><tr><th>Актив</th><th>Цена</th><th>Изм. 24ч</th><th>График</th><th></th></tr></thead>
-            <tbody id="market-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- LEADERBOARD -->
-      <div class="screen" id="screen-leaderboard">
-        <div class="screen-head center"><div><h1>🏆 Рейтинг трейдеров</h1><p class="sub">Виртуальный счёт · старт $10,000</p></div></div>
-        <div class="podium">
-          <div class="pod p2"><div class="pod-medal">🥈</div><div class="avatar">A</div><b>alex_t</b><div class="mono pod-bal c-up">$11,847</div><div class="mono sm c-up">+$1,847</div></div>
-          <div class="pod p1"><div class="pod-medal">🥇</div><div class="avatar lg">S</div><b>satoshi99</b><div class="mono pod-bal c-up">$13,240</div><div class="mono sm c-up">+$3,240</div></div>
-          <div class="pod p3" id="my-pod" style="border-color:rgba(25,194,129,.5);background:rgba(25,194,129,.07)">
-            <div class="pod-medal">🥉</div>
-            <div class="avatar">D</div>
-            <b style="color:var(--up)">Darian</b>
-            <div class="mono pod-bal c-up" id="lb-my-bal">$10,000</div>
-            <div class="mono sm c-up" id="lb-my-diff">+$0</div>
-          </div>
-        </div>
-        <div class="panel table-wrap">
-          <table class="tbl board">
-            <thead><tr><th>#</th><th>Трейдер</th><th>Сделок</th><th>P&amp;L</th><th>Баланс</th></tr></thead>
-            <tbody id="lb-tbody"></tbody>
-          </table>
-        </div>
-        <p style="text-align:center;color:var(--dim);font-size:11px;margin-top:20px" class="mono">Рейтинг по балансу · Обновляется в реальном времени</p>
-      </div>
-
-      <!-- ACHIEVEMENTS -->
-      <div class="screen" id="screen-achievements">
-        <div class="screen-head"><div><h1>Достижения</h1><p class="sub" id="ach-sub">3 из 8 открыто</p></div></div>
-        <div style="display:flex;flex-direction:column;gap:10px;max-width:600px">
-          <div class="panel panel-pad" style="display:flex;align-items:center;gap:14px"><div style="font-size:26px;width:48px;text-align:center">🌱</div><div><b style="font-size:14px;color:var(--text)">Первый шаг</b><p style="font-size:12px;color:var(--dim);margin-top:2px">Начни обучение</p></div><div style="margin-left:auto;color:var(--up);font-size:18px">✓</div></div>
-          <div class="panel panel-pad" id="ach-card-trade" style="display:flex;align-items:center;gap:14px"><div style="font-size:26px;width:48px;text-align:center">💰</div><div><b style="font-size:14px;color:var(--text)">Первая сделка</b><p style="font-size:12px;color:var(--dim);margin-top:2px">Открой первую позицию в симуляторе</p></div><div style="margin-left:auto;font-size:18px" id="ach-trade-chk">✓</div></div>
-          <div class="panel panel-pad" style="display:flex;align-items:center;gap:14px"><div style="font-size:26px;width:48px;text-align:center">⚡</div><div><b style="font-size:14px;color:var(--text)">Быстрый старт</b><p style="font-size:12px;color:var(--dim);margin-top:2px">Пройди 3 урока за одну неделю</p></div><div style="margin-left:auto;color:var(--up);font-size:18px">✓</div></div>
-          <div class="panel panel-pad" style="display:flex;align-items:center;gap:14px;opacity:.45"><div style="font-size:26px;width:48px;text-align:center">🎯</div><div><b style="font-size:14px;color:var(--text)">В прибыли</b><p style="font-size:12px;color:var(--dim);margin-top:2px">Закрой 5 прибыльных сделок</p></div><div style="margin-left:auto;color:var(--dim);font-size:18px">○</div></div>
-          <div class="panel panel-pad" style="display:flex;align-items:center;gap:14px;opacity:.45"><div style="font-size:26px;width:48px;text-align:center">📊</div><div><b style="font-size:14px;color:var(--text)">Аналитик</b><p style="font-size:12px;color:var(--dim);margin-top:2px">Пройди курс технического анализа</p></div><div style="margin-left:auto;color:var(--dim);font-size:18px">○</div></div>
-          <div class="panel panel-pad" style="display:flex;align-items:center;gap:14px;opacity:.45"><div style="font-size:26px;width:48px;text-align:center">🛡️</div><div><b style="font-size:14px;color:var(--text)">Мастер риска</b><p style="font-size:12px;color:var(--dim);margin-top:2px">Пройди курс риск-менеджмента</p></div><div style="margin-left:auto;color:var(--dim);font-size:18px">○</div></div>
-          <div class="panel panel-pad" style="display:flex;align-items:center;gap:14px;opacity:.45"><div style="font-size:26px;width:48px;text-align:center">🏅</div><div><b style="font-size:14px;color:var(--text)">Трейдер месяца</b><p style="font-size:12px;color:var(--dim);margin-top:2px">Войди в топ-3 рейтинга</p></div><div style="margin-left:auto;color:var(--dim);font-size:18px">○</div></div>
-          <div class="panel panel-pad" style="display:flex;align-items:center;gap:14px;opacity:.45"><div style="font-size:26px;width:48px;text-align:center">👑</div><div><b style="font-size:14px;color:var(--text)">Легенда</b><p style="font-size:12px;color:var(--dim);margin-top:2px">Удвой стартовый баланс</p></div><div style="margin-left:auto;color:var(--dim);font-size:18px">○</div></div>
-        </div>
-      </div>
-
-      <!-- STATS -->
-      <div class="screen" id="screen-stats">
-        <div class="screen-head"><div><h1>Статистика</h1><p class="sub">Анализ твоих сделок</p></div></div>
-        <div class="panel panel-pad" style="max-width:600px">
-          <div class="empty-state"><div class="empty-ico">📈</div>Пока нет закрытых сделок для анализа.<br><button class="btn btn-soft" style="margin-top:12px" onclick="navigate('simulator')">Открыть симулятор →</button></div>
-        </div>
-      </div>
-
-      <!-- ALERTS -->
-      <div class="screen" id="screen-alerts">
-        <div class="screen-head"><div><h1>Алерты</h1><p class="sub">Уведомления о движении цен</p></div></div>
-        <div class="panel panel-pad" style="max-width:600px">
-          <div class="empty-state"><div class="empty-ico">🔔</div>Нет активных алертов.<br><span style="font-size:12px;color:var(--dim)">Создай алерт на нужную цену актива</span></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">ДМ</div><div class="who"><b>Darian</b><span id="side-lvl"></span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
 </div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
 
 <script>
-/* ── Data ─── */
-const BASE = {BTCUSDT:67420,ETHUSDT:3521,BNBUSDT:412,SOLUSDT:183,ADAUSDT:0.452,DOGEUSDT:0.121,XRPUSDT:0.548,AVAXUSDT:36.4};
-const SYMS = Object.keys(BASE);
-const NAMES = {BTCUSDT:'BTC',ETHUSDT:'ETH',BNBUSDT:'BNB',SOLUSDT:'SOL',ADAUSDT:'ADA',DOGEUSDT:'DOGE',XRPUSDT:'XRP',AVAXUSDT:'AVAX'};
-let px = {...BASE};
-let ch = {};
-SYMS.forEach(s => ch[s] = (Math.random()-0.5)*3);
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('ru-RU');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
 
-let acct = {balance:10000, realizedPnl:0};
-let positions = [], history = [], nextId = 1;
-let curSym = 'BTCUSDT', curIv = '1h', curDir = 'long', curInds = [], curTab = 'positions', curScreen = 'dashboard';
-let firstTrade = false;
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
 
-/* ── Fmt ─── */
-function fp(n){return n>=1000?n.toLocaleString('en-US',{maximumFractionDigits:2}):n>=1?n.toFixed(3):n.toFixed(5)}
-function fmtB(n){return '$'+n.toLocaleString('en-US',{maximumFractionDigits:0})}
-function fmtP(n){return(n>=0?'+$':'−$')+Math.abs(n).toFixed(2)}
-
-/* ── Seeded RNG ─── */
-function srand(seed){let s=seed;return()=>{s=(s*1664525+1013904223)&0xffffffff;return(s>>>0)/0xffffffff}}
-
-/* ── Price tick ─── */
-function tick(){
-  SYMS.forEach(s=>{
-    const v = s==='BTCUSDT'?.0006:['ADAUSDT','DOGEUSDT'].includes(s)?.002:.001;
-    px[s]*=(1+(Math.random()-.497)*v);
-    ch[s]+=(Math.random()-.5)*.08;
-    ch[s]=Math.max(-9,Math.min(9,ch[s]));
-  });
-  let unrealPnl=0;
-  positions.forEach(p=>{
-    const cp=px[p.sym];
-    p.pnl=p.dir==='long'?(cp-p.entry)/p.entry*p.size:(p.entry-cp)/p.entry*p.size;
-    p.pct=p.pnl/p.size*100;
-    p.cur=cp;
-    unrealPnl+=p.pnl;
-  });
-  updateTopbar();
-  updateSimStats(unrealPnl);
-  updateChartHeader();
-  updateOrderForm();
-  buildTicker();
-  renderDashMovers();
-  renderMarketTable();
-  renderLeaderboard();
-  if(curTab==='positions') renderPositions();
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
-
-function updateTopbar(){
-  document.getElementById('topbar-bal').textContent=fmtB(acct.balance);
-  document.getElementById('dash-balance').textContent=fmtB(acct.balance);
-  const sub=document.getElementById('dash-balance-sub');
-  sub.textContent=fmtP(acct.realizedPnl)+' всего';
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
 }
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-function updateSimStats(u){
-  const b=document.getElementById('sim-balance');
-  b.textContent=fmtB(acct.balance);
-  const r=document.getElementById('sim-realized');
-  r.textContent=fmtP(acct.realizedPnl);
-  r.className='stat-val mono '+(acct.realizedPnl>=0?'c-up':'c-down');
-  const ur=document.getElementById('sim-unrealized');
-  ur.textContent=fmtP(u);
-  ur.className='stat-val mono '+(u>=0?'c-up':'c-down');
-  document.getElementById('sim-open-count').textContent=positions.length+' открытых позиций';
-  document.getElementById('sim-total-trades').textContent=history.length;
-  document.getElementById('order-avail').textContent=fmtB(acct.balance);
-  document.getElementById('order-max').textContent='макс '+fmtB(Math.floor(acct.balance));
-  const lbBal=document.getElementById('lb-my-bal');
-  if(lbBal){lbBal.textContent=fmtB(acct.balance);const d=acct.balance-10000;document.getElementById('lb-my-diff').textContent=(d>=0?'+$':'−$')+Math.abs(d).toFixed(0);document.getElementById('lb-my-diff').className='mono sm '+(d>=0?'c-up':'c-down')}
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
 }
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
 
-function updateChartHeader(){
-  const p=px[curSym],c=ch[curSym];
-  const pl=document.getElementById('chart-price');
-  if(pl){pl.textContent='$'+fp(p);const cl=document.getElementById('chart-chg');cl.textContent=(c>=0?'+':'')+c.toFixed(2)+'%';cl.className='mono '+(c>=0?'c-up':'c-down')}
-}
-
-function updateOrderForm(){
-  const p=px[curSym];
-  const op=document.getElementById('order-price');
-  if(op)op.textContent='$'+fp(p);
-  const osp=document.getElementById('os-price');
-  if(osp)osp.textContent='$'+fp(p);
-  const sz=parseFloat(document.getElementById('order-size')?.value||0);
-  const vol=document.getElementById('os-vol');
-  if(vol&&p>0&&sz>0){const v=sz/p;vol.textContent=(v<.001?v.toFixed(6):v.toFixed(4))+' '+NAMES[curSym]}
-}
-
-/* ── Ticker ─── */
-function buildTicker(){
-  const sl=SYMS.slice(0,6);
-  let h='';
-  [...sl,...sl].forEach(s=>{
-    const p=px[s],c=ch[s];
-    h+=`<div class="tick"><span class="tick-sym">${NAMES[s]}</span><span class="tick-px">$${fp(p)}</span><span class="tick-ch ${c>=0?'c-up':'c-down'}">${c>=0?'+':''}${c.toFixed(2)}%</span></div>`;
-  });
-  const el=document.getElementById('ticker-track');
-  if(el)el.innerHTML=h;
-}
-
-/* ── Dashboard movers ─── */
-function sparkSVG(data,up){
-  const w=54,h=22,mn=Math.min(...data),mx=Math.max(...data),r=mx-mn||1;
-  const pts=data.map((v,i)=>{const x=i/(data.length-1)*w;const y=h-((v-mn)/r*(h-4)+2);return`${x.toFixed(1)},${y.toFixed(1)}`}).join(' ');
-  const col=up?'#19c281':'#ff5d6c';
-  return`<svg width="${w}" height="${h}" style="display:block;flex-shrink:0"><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
-}
-function genSparkData(sym,n=8){const r=srand(sym.charCodeAt(0)+Date.now()%8000);const d=[px[sym]];for(let i=1;i<n;i++)d.push(d[i-1]*(1+(r()-.5)*.025));return d}
-
-function renderDashMovers(){
-  const el=document.getElementById('dash-movers');
-  if(!el)return;
-  el.innerHTML=SYMS.slice(0,4).map(s=>{
-    const p=px[s],c=ch[s],spk=genSparkData(s);
-    return`<div class="mover" onclick="navigate('market')"><div class="mover-l"><b>${NAMES[s]}</b><span>/USDT</span></div>${sparkSVG(spk,c>=0)}<div class="mover-r"><b class="mono">$${fp(p)}</b><span class="mono ${c>=0?'c-up':'c-down'}" style="font-size:11px">${c>=0?'+':''}${c.toFixed(2)}%</span></div></div>`;
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
   }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Динамика: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
 }
 
-/* ── Market table ─── */
-function renderMarketTable(){
-  const tb=document.getElementById('market-tbody');
-  if(!tb)return;
-  tb.innerHTML=SYMS.map(s=>{
-    const p=px[s],c=ch[s],spk=genSparkData(s,12);
-    return`<tr><td><b>${NAMES[s]}</b><span class="dim">/USDT</span></td><td><b class="mono">$${fp(p)}</b></td><td><span class="mono ${c>=0?'c-up':'c-down'}">${c>=0?'+':''}${c.toFixed(2)}%</span></td><td>${sparkSVG(spk,c>=0)}</td><td><button class="btn btn-soft" style="font-size:12px;padding:5px 12px" onclick="navigate('simulator')">Торговать</button></td></tr>`;
-  }).join('');
-}
+'use strict';
 
-/* ── Candlestick chart ─── */
-function genCandles(sym,n=70){
-  const r=srand(sym.charCodeAt(0)*31+sym.charCodeAt(1)*17);
-  let p=BASE[sym];
-  const cs=[];
-  for(let i=0;i<n;i++){
-    const chg=(r()-.492)*.025,o=p;
-    p=p*(1+chg);
-    const c=p,bh=Math.abs(c-o);
-    cs.push({o,h:Math.max(o,c)+r()*bh*1.5,l:Math.min(o,c)-r()*bh*1.5,c});
-  }
-  const last=cs[cs.length-1];
-  last.c=px[sym];last.h=Math.max(last.h,last.c);last.l=Math.min(last.l,last.c);
-  return cs;
-}
+/* ── market data: seeded candles, so the first screen is always the same ─ */
+const SYM = { BTC: { p: 67420, vol: .004 }, ETH: { p: 3521, vol: .005 }, SOL: { p: 183, vol: .008 }, BNB: { p: 412, vol: .004 }, XRP: { p: 0.548, vol: .006 } };
+const rng = (seed) => () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+const dec = (p) => p >= 1000 ? 0 : p >= 10 ? 2 : 4;
+const usd = (n, d = 2) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const px = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: dec(n), maximumFractionDigits: dec(n) });
+const pnlF = (n) => (n >= 0 ? '+' : '−') + usd(Math.abs(n));
+const MARKET = {};
+Object.entries(SYM).forEach(([k, s], idx) => {
+  const r = rng(11 + idx * 7919), c = []; let p = s.p * 0.93;
+  for (let i = 0; i < 120; i++) { const o = p, d = (r() - .47) * s.vol * 2.4; p = o * (1 + d); const h = Math.max(o, p) * (1 + r() * s.vol * .7), l = Math.min(o, p) * (1 - r() * s.vol * .7); c.push({ o, h, l, c: p }); }
+  const k2 = s.p / p; c.forEach((x) => { x.o *= k2; x.h *= k2; x.l *= k2; x.c *= k2; });   // end exactly on today's price
+  MARKET[k] = c;
+});
+const last = (k) => MARKET[k][MARKET[k].length - 1];
+const price = (k) => last(k).c;
 
-function drawChart(){
-  const wrap=document.getElementById('chart-wrap');
-  const svg=document.getElementById('chart-svg');
-  if(!svg||!wrap)return;
-  const W=wrap.clientWidth||600,H=280;
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  const cs=genCandles(curSym);
-  const allP=cs.flatMap(c=>[c.l,c.h]);
-  const mn=Math.min(...allP),mx=Math.max(...allP),rng=mx-mn||1;
-  const pL=8,pR=62,pT=10,pB=28;
-  const cW=(W-pL-pR)/cs.length;
-  const bW=Math.max(1,cW*.6);
-  const py=p=>pT+(1-(p-mn)/rng)*(H-pT-pB);
-  let h='';
-  // Grid
-  for(let i=0;i<=4;i++){
-    const p=mn+rng/4*i,y=py(p);
-    h+=`<line x1="${pL}" y1="${y.toFixed(1)}" x2="${W-pR+2}" y2="${y.toFixed(1)}" stroke="#1f2029" stroke-width="1"/>`;
-    h+=`<text x="${W-pR+6}" y="${(y+4).toFixed(1)}" fill="rgba(230,232,236,.35)" font-size="10" font-family="JetBrains Mono,monospace">$${fp(p)}</text>`;
-  }
-  // Candles
-  cs.forEach((c,i)=>{
-    const x=pL+i*cW,cx=x+cW/2;
-    const up=c.c>=c.o,col=up?'#19c281':'#ff5d6c';
-    const t=Math.min(py(c.o),py(c.c)),bh=Math.max(1,Math.abs(py(c.c)-py(c.o)));
-    h+=`<line x1="${cx.toFixed(1)}" y1="${py(c.h).toFixed(1)}" x2="${cx.toFixed(1)}" y2="${py(c.l).toFixed(1)}" stroke="${col}" stroke-width="1" opacity=".6"/>`;
-    h+=`<rect x="${(cx-bW/2).toFixed(1)}" y="${t.toFixed(1)}" width="${bW.toFixed(1)}" height="${bh.toFixed(1)}" fill="${col}" opacity="${up?.85:.75}"/>`;
-  });
-  // Current price line
-  const curY=py(px[curSym]);
-  h+=`<line x1="${pL}" y1="${curY.toFixed(1)}" x2="${W-pR+2}" y2="${curY.toFixed(1)}" stroke="#19c281" stroke-width="1" stroke-dasharray="3,3" opacity=".5"/>`;
-  svg.innerHTML=h;
-}
+/* ── account: balance is always derived from the journal ─ */
+const START = 10000;
+const J = [   // sym, dir, size $, entry, exit, hours ago, how closed
+  ['BTC', 'long', 1500, 64200, 66100, 150, 'тейк'], ['ETH', 'short', 1000, 3480, 3555, 128, 'стоп'], ['SOL', 'long', 800, 171, 178.5, 110, 'вручную'], ['BTC', 'long', 2000, 65800, 65100, 96, 'стоп'],
+  ['XRP', 'long', 600, 0.521, 0.538, 80, 'вручную'], ['ETH', 'long', 1200, 3390, 3490, 70, 'тейк'], ['BNB', 'short', 700, 421, 418, 54, 'вручную'], ['SOL', 'short', 900, 186, 189, 40, 'стоп'],
+  ['BTC', 'long', 1800, 66400, 67050, 30, 'вручную'], ['ETH', 'long', 1000, 3500, 3538, 20, 'вручную'], ['SOL', 'long', 800, 179, 183.5, 9, 'тейк'], ['XRP', 'short', 500, 0.552, 0.546, 4, 'вручную'],
+].map(([sym, dir, size, entry, exit, ago, how], i) => ({ id: i + 1, sym, dir, size, entry, exit, ago, how }));
+const pnlOf = (t) => (t.dir === 'long' ? t.exit / t.entry - 1 : 1 - t.exit / t.entry) * t.size;
+const realized = () => J.reduce((a, t) => a + pnlOf(t), 0);
+const balance = () => START + realized();
+let POS = [], nextPos = 1, nextJ = 13;
+const upnl = (p) => (p.dir === 'long' ? price(p.sym) / p.entry - 1 : 1 - price(p.sym) / p.entry) * p.size;
+const unreal = () => POS.reduce((a, p) => a + upnl(p), 0);
+const equity = () => balance() + unreal();
+const freeCash = () => balance() - POS.reduce((a, p) => a + p.size, 0);
 
-/* ── Navigation ─── */
-function navigate(s){
-  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
-  const sc=document.getElementById('screen-'+s);
-  if(sc)sc.classList.add('active');
-  // Match nav item by onclick content
-  document.querySelectorAll('.nav-item').forEach(el=>{if(el.getAttribute('onclick')==="navigate('"+s+"')")el.classList.add('active')});
-  curScreen=s;
-  if(s==='simulator')setTimeout(drawChart,50);
-}
-
-/* ── Symbol / Interval / Indicators ─── */
-function selectSym(btn){
-  document.querySelectorAll('.sb').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  curSym=btn.dataset.sym;
-  const n=NAMES[curSym];
-  ['chart-sym','order-sym'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=n+'/USDT'});
-  document.getElementById('chart-price').textContent='$'+fp(px[curSym]);
-  document.getElementById('order-price').textContent='$'+fp(px[curSym]);
-  drawChart();
-}
-
-function selectIv(btn){
-  document.querySelectorAll('#iv-seg button').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  curIv=btn.dataset.iv;
-  drawChart();
-}
-
-function toggleInd(btn){
-  const ind=btn.dataset.ind;
-  if(curInds.includes(ind)){curInds=curInds.filter(i=>i!==ind);btn.classList.remove('on-ind')}
-  else{curInds.push(ind);btn.classList.add('on-ind')}
-  drawChart();
-}
-
-/* ── Order form ─── */
-function setDir(d){
-  curDir=d;
-  document.getElementById('btn-long').classList.toggle('on',d==='long');
-  document.getElementById('btn-short').classList.toggle('on',d==='short');
-  const btn=document.getElementById('order-btn');
-  btn.className=d==='long'?'btn-long order-submit':'btn-short order-submit';
-  btn.textContent=d==='long'?'▲ Купить / Лонг':'▼ Продать / Шорт';
-}
-function setSize(v){
-  document.getElementById('order-size').value=v;
-  document.getElementById('os-margin').textContent='$'+v.toLocaleString();
-  document.querySelectorAll('.chips button').forEach(b=>b.classList.toggle('on',b.textContent==='$'+v||b.textContent==='$'+v.toLocaleString()));
-}
-function setSizeHalf(){setSize(Math.floor(acct.balance*.5))}
-function showMsg(txt,ok){
-  const a=document.getElementById('order-msg-area');
-  a.innerHTML=`<div class="order-msg ${ok?'ok':'err'}">${txt}</div>`;
-  setTimeout(()=>a.innerHTML='',3000);
-}
-
-function placeOrder(){
-  const sz=parseFloat(document.getElementById('order-size').value)||0;
-  if(sz<10){showMsg('Минимум $10',false);return}
-  if(sz>acct.balance){showMsg('Недостаточно средств',false);return}
-  const ep=px[curSym];
-  acct.balance-=sz;
-  positions.push({id:nextId++,sym:curSym,dir:curDir,size:sz,entry:ep,cur:ep,pnl:0,pct:0});
-  showMsg(`${curDir==='long'?'▲ Лонг':'▼ Шорт'} $${sz.toLocaleString()} открыт @ $${fp(ep)}`,true);
-  if(!firstTrade){firstTrade=true;unlockTradeAch()}
-  renderPositions();
-  updateSimStats(positions.reduce((s,p)=>s+p.pnl,0));
-  document.getElementById('topbar-bal').textContent=fmtB(acct.balance);
-}
-
-function unlockTradeAch(){
-  const c=document.getElementById('ach-trade');
-  if(c)c.classList.remove('locked');
-}
-
-function closePos(id){
-  const i=positions.findIndex(p=>p.id===id);
-  if(i<0)return;
-  const p=positions[i];
-  acct.balance+=p.size+p.pnl;
-  acct.realizedPnl+=p.pnl;
-  history.unshift({id:p.id,sym:p.sym,dir:p.dir,size:p.size,entry:p.entry,exit:p.cur,pnl:p.pnl,at:new Date().toISOString()});
-  positions.splice(i,1);
-  renderPositions();
-  renderHistory();
-  document.getElementById('hist-count').textContent=history.length;
-  updateSimStats(positions.reduce((s,p)=>s+p.pnl,0));
-}
-
-/* ── Tab ─── */
-function setTab(t){
-  curTab=t;
-  document.getElementById('tab-pos').classList.toggle('on',t==='positions');
-  document.getElementById('tab-hist').classList.toggle('on',t==='history');
-  document.getElementById('panel-pos').style.display=t==='positions'?'':'none';
-  document.getElementById('panel-hist').style.display=t==='history'?'':'none';
-}
-
-/* ── Render ─── */
-function renderPositions(){
-  document.getElementById('pos-count').textContent=positions.length;
-  const p=document.getElementById('panel-pos');
-  if(!positions.length){p.innerHTML='<div class="empty-state"><div class="empty-ico">📭</div>Нет открытых позиций. Открой сделку выше.</div>';return}
-  p.innerHTML=`<table class="tbl"><thead><tr><th>Символ</th><th>Направление</th><th>Размер</th><th>Вход</th><th>Текущая</th><th>P&L</th><th></th></tr></thead><tbody>`+
-    positions.map(pos=>`<tr><td><b>${NAMES[pos.sym]}</b><span class="dim">/USDT</span></td><td><span class="dir ${pos.dir}">${pos.dir==='long'?'▲ LONG':'▼ SHORT'}</span></td><td class="mono">$${pos.size.toFixed(0)}</td><td class="mono dim">$${fp(pos.entry)}</td><td class="mono">$${fp(pos.cur)}</td><td><span class="mono ${pos.pnl>=0?'c-up':'c-down'}">${fmtP(pos.pnl)}</span> <span class="mono sm ${pos.pnl>=0?'c-up':'c-down'}">${pos.pnl>=0?'+':'−'}${Math.abs(pos.pct).toFixed(2)}%</span></td><td><button class="close-x" onclick="closePos(${pos.id})">Закрыть</button></td></tr>`).join('')+
-  `</tbody></table>`;
-}
-
-function renderHistory(){
-  document.getElementById('hist-count').textContent=history.length;
-  const p=document.getElementById('panel-hist');
-  if(!history.length){p.innerHTML='<div class="empty-state"><div class="empty-ico">📋</div>История сделок пуста.</div>';return}
-  p.innerHTML=`<table class="tbl"><thead><tr><th>Символ</th><th>Направление</th><th>Размер</th><th>Вход</th><th>Выход</th><th>P&L</th><th>Дата</th></tr></thead><tbody>`+
-    history.map(t=>`<tr><td><b>${NAMES[t.sym]}</b></td><td><span class="dir ${t.dir}">${t.dir==='long'?'▲ LONG':'▼ SHORT'}</span></td><td class="mono">$${t.size.toFixed(0)}</td><td class="mono dim">$${fp(t.entry)}</td><td class="mono dim">$${fp(t.exit)}</td><td><span class="mono ${t.pnl>=0?'c-up':'c-down'}">${fmtP(t.pnl)}</span></td><td class="mono dim sm">${new Date(t.at).toLocaleDateString('ru-RU')}</td></tr>`).join('')+
-  `</tbody></table>`;
-}
-
-/* ── Leaderboard ─── */
-const DEMO_BOARD=[
-  {u:'satoshi99',bal:13240,trades:47,pnl:3240,me:false},
-  {u:'alex_t',bal:11847,trades:31,pnl:1847,me:false},
-  {u:'Darian',bal:10000,trades:0,pnl:0,me:true},
-  {u:'crypto_v',bal:9821,trades:18,pnl:-179,me:false},
-  {u:'nova_trade',bal:9340,trades:12,pnl:-660,me:false},
+/* ── learning ─ */
+const LES = [
+  { id: 1, c: 1, t: 'Что показывает свеча', q: 'Зелёная свеча на графике означает…', o: ['Цена закрытия выше цены открытия', 'Цена упала', 'Торги остановлены'], a: 0, done: true },
+  { id: 2, c: 1, t: 'Лонг и шорт', q: 'Когда вы открываете шорт?', o: ['Ждёте роста цены', 'Ждёте падения цены', 'Хотите закрыть сделку'], a: 1, done: true },
+  { id: 3, c: 1, t: 'Размер позиции', q: 'Что такое размер позиции?', o: ['Сумма, которую вы вкладываете в сделку', 'Сколько раз вы торговали', 'Цена входа'], a: 0, done: true },
+  { id: 4, c: 2, t: 'Стоп-лосс на практике', task: 'Откройте позицию на графике и задайте стоп-лосс', done: false },
+  { id: 5, c: 2, t: 'Риск к прибыли', q: 'Риск $50, цель $150. Какое соотношение?', o: ['1 к 3', '3 к 1', '1 к 1,5'], a: 0, done: true },
+  { id: 6, c: 2, t: 'Не больше 2% на сделку', q: 'Депозит $10 000. Сколько максимум рисковать в одной сделке по правилу 2%?', o: ['$20', '$200', '$2 000'], a: 1, done: false },
+  { id: 7, c: 3, t: 'Поддержка и сопротивление', q: 'Уровень поддержки это…', o: ['Зона, где цена часто отскакивает вверх', 'Максимум за год', 'Комиссия биржи'], a: 0, done: false },
+  { id: 8, c: 3, t: 'Как определить тренд', q: 'Восходящий тренд это…', o: ['Каждый минимум выше предыдущего', 'Цена стоит на месте', 'Свечи только красные'], a: 0, done: false },
+  { id: 9, c: 3, t: 'Объём торгов', q: 'Рост цены на малом объёме обычно…', o: ['Слабый сигнал', 'Самый сильный сигнал', 'Ничего не значит всегда'], a: 0, done: false },
 ];
-const MEDALS=['🥇','🥈','🥉'];
-function renderLeaderboard(){
-  const board=DEMO_BOARD.map(e=>({...e,bal:e.me?acct.balance:e.bal,pnl:e.me?acct.realizedPnl:e.pnl,trades:e.me?history.length:e.trades}));
-  board.sort((a,b)=>b.bal-a.bal);
-  const tb=document.getElementById('lb-tbody');
-  if(!tb)return;
-  tb.innerHTML=board.map((e,i)=>{const rank=i+1;return`<tr ${e.me?'class="me"':''}><td class="mono dim" style="width:48px">${rank<=3?MEDALS[rank-1]:'#'+rank}</td><td><div class="board-user"><div class="avatar sm">${e.u[0].toUpperCase()}</div><b style="color:${e.me?'var(--up)':'var(--text)'}">${e.u}</b>${e.me?'<span class="you">ты</span>':''}</div></td><td class="mono dim">${e.trades}</td><td><span class="mono ${e.pnl>=0?'c-up':'c-down'}">${e.pnl>=0?'+':'−'}$${Math.abs(e.pnl).toFixed(2)}</span></td><td class="mono">$${e.bal.toLocaleString('en-US',{maximumFractionDigits:0})}</td></tr>`}).join('');
-}
+const COURSES = { 1: 'Основы', 2: 'Управление риском', 3: 'Анализ графика' };
+const XP = 100, PER = 500;
+const xp = () => LES.filter((l) => l.done).length * XP, level = () => Math.floor(xp() / PER) + 1;
+const courseDone = (c) => LES.filter((l) => l.c === c).every((l) => l.done);
+const locked = (c) => c > 1 && !courseDone(c - 1);
+console.assert(xp() === 400 && level() === 1, 'xp');
 
-/* ── Reset ─── */
-function resetAccount(){
-  if(!confirm('Сбросить счёт до $10,000? Все позиции и история будут удалены.'))return;
-  acct={balance:10000,realizedPnl:0};positions=[];history=[];nextId=1;firstTrade=false;
-  renderPositions();renderHistory();updateSimStats(0);updateTopbar();
-}
+const RIVALS = [['Aibek_T', 12840], ['mila.k', 11975], ['Rustam', 11420], ['kolya_trade', 10310], ['Nastya V.', 9870], ['Zhan', 9560], ['Oleg_S', 9120], ['Dana', 8740]];
 
-/* ── Size input sync ─── */
-document.getElementById('order-size').addEventListener('input',function(){
-  const v=parseFloat(this.value)||0;
-  document.getElementById('os-margin').textContent='$'+v.toLocaleString();
-  const p=px[curSym];
-  if(p>0&&v>0){const vol=v/p;document.getElementById('os-vol').textContent=(vol<.001?vol.toFixed(6):vol.toFixed(4))+' '+NAMES[curSym]}
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { practice: ['Практика', 'chart'], learn: ['Курсы', 'graduation'], journal: ['Журнал', 'list'], rank: ['Рейтинг', 'star'] };
+let page = 'practice', sym = 'BTC', dir = 'long', sl = 2, tp = 4, useSl = true, useTp = true, size = 1000;
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+function chrome() {
+  $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
+  $('#tabbar').innerHTML = $('#nav').innerHTML;
+  $('#side-lvl').textContent = `Уровень ${level()} · ${xp()} XP`;
+  setNav(page);
+}
+function render() { chrome(); $('#main').innerHTML = ({ practice, learn, journal, rank })[page](); mount(); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('input', (e) => {
+  if (e.target.id === 'f-size') { size = Math.max(0, +e.target.value || 0); drawRisk(); }
+  if (e.target.id === 'f-sl') { sl = Math.max(0.1, +e.target.value || 0.1); drawRisk(); }
+  if (e.target.id === 'f-tp') { tp = Math.max(0.1, +e.target.value || 0.1); drawRisk(); }
+});
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'u-sl') { useSl = e.target.checked; drawRisk(); } if (e.target.id === 'u-tp') { useTp = e.target.checked; drawRisk(); }
 });
 
-/* ── Init ─── */
-buildTicker();
-renderDashMovers();
-renderMarketTable();
-renderLeaderboard();
-setTimeout(()=>{if(curScreen==='simulator')drawChart()},100);
-setInterval(tick,1500);
-setInterval(()=>{if(curScreen==='simulator')drawChart()},6000);
-window.addEventListener('resize',()=>{if(curScreen==='simulator')drawChart()});
+/* ── practice ─────────────────────────────────────────── */
+function candleSVG(w) {
+  const k = MARKET[sym], v = k.slice(-72), h = 330, L = 6, R = 64, T = 10, B = 22, pw = w - L - R, ph = h - T - B;
+  const lines = POS.filter((p) => p.sym === sym).flatMap((p) => [[p.entry, 'var(--text)', 'вход'], ...(p.sl ? [[p.sl, 'var(--neg)', 'стоп']] : []), ...(p.tp ? [[p.tp, 'var(--pos)', 'тейк']] : [])]);
+  let mn = Math.min(...v.map((x) => x.l), ...lines.map((x) => x[0])), mx = Math.max(...v.map((x) => x.h), ...lines.map((x) => x[0])); const pad = (mx - mn) * .06; mn -= pad; mx += pad;
+  const Y = (p) => T + ph - (p - mn) / (mx - mn) * ph, step = pw / v.length, bw = Math.max(2, step * .62);
+  let g = ''; for (let i = 0; i <= 4; i++) { const p = mn + (mx - mn) * i / 4, y = Y(p); g += `<line class="grid-l" x1="${L}" x2="${w - R + 4}" y1="${y}" y2="${y}"/><text x="${w - R + 10}" y="${y + 4}">${px(p).replace('$', '')}</text>`; }
+  const cs = v.map((x, i) => { const cx = L + step * i + step / 2, up = x.c >= x.o, col = up ? 'var(--pos)' : 'var(--neg)'; return `<line x1="${cx}" x2="${cx}" y1="${Y(x.h)}" y2="${Y(x.l)}" stroke="${col}" stroke-width="1.2"/><rect x="${cx - bw / 2}" y="${Y(Math.max(x.o, x.c))}" width="${bw}" height="${Math.max(1.5, Math.abs(Y(x.o) - Y(x.c)))}" fill="${col}" rx="1"/>`; }).join('');
+  const cur = price(sym), ly = Y(cur), up = last(sym).c >= last(sym).o;
+  const lv = lines.map(([p, c, n]) => `<line x1="${L}" x2="${w - R + 4}" y1="${Y(p)}" y2="${Y(p)}" stroke="${c}" stroke-width="1" stroke-dasharray="5 4" opacity=".9"/><text x="${L + 6}" y="${Y(p) - 4}" style="fill:${c}">${n} ${px(p)}</text>`).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" height="${h}" role="img" aria-label="Свечной график ${sym}, цена ${px(cur)}">${g}${cs}${lv}<line x1="${L}" x2="${w - R + 4}" y1="${ly}" y2="${ly}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 3"/><rect x="${w - R + 4}" y="${ly - 10}" width="${R - 4}" height="20" rx="4" fill="var(--accent)"/><text x="${w - R + 9}" y="${ly + 4}" style="fill:var(--accent-ink);font-weight:600">${px(cur).replace('$', '')}</text></svg>`;
+}
+function practice() {
+  const task = LES.find((l) => l.task && !l.done), quiz = LES.find((l) => l.q && !l.done && !locked(l.c));
+  const coach = task ? `<div class="coach">${ic('zap')}<span><b>Урок «${task.t}».</b> ${task.task}. Стоп ограничит убыток, если цена пойдёт против вас. За урок +${XP} XP.</span><button class="btn sm" data-act="goLearn">К урокам</button></div>`
+    : quiz ? `<div class="coach">${ic('graduation')}<span>Следующий урок: «${quiz.t}», 1 вопрос, +${XP} XP.</span><button class="btn sm primary" data-act="quiz" data-id="${quiz.id}">Пройти</button></div>` : '';
+  const c = last(sym), chg = (price(sym) / MARKET[sym][MARKET[sym].length - 25].c - 1) * 100;
+  return head('Практика', `Виртуальный депозит. Баланс ${usd(balance())}, свободно ${usd(freeCash())}`, `<div class="lvl"><span class="muted">Ур. ${level()}</span><div class="bar"><i style="width:${xp() % PER / PER * 100}%"></i></div><span class="muted">${xp()} XP</span></div>`) + coach +
+    `<div class="kpis"><div class="kpi"><b id="k-eq">${usd(equity())}</b><span>Капитал</span></div><div class="kpi"><b id="k-un" class="${unreal() >= 0 ? 'pos' : 'neg'}">${pnlF(unreal())}</b><span>Открытый результат</span></div><div class="kpi"><b>${pnlF(realized())}</b><span>Закрытый результат</span></div></div>
+    <div class="term"><div><section class="card"><div class="chart-h"><span class="px" id="c-px">${px(price(sym))}</span><span id="c-chg" class="${chg >= 0 ? 'pos' : 'neg'}">${chg >= 0 ? '+' : '−'}${Math.abs(chg).toFixed(2)}% за сутки</span><div class="syms">${Object.keys(SYM).map((k) => `<button class="${k === sym ? 'on' : ''}" data-act="sym" data-v="${k}">${k}</button>`).join('')}</div></div><div id="chart"></div></section>
+      <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2>Открытые позиции</h2><span>${POS.length}</span></div><div id="pos">${posHTML()}</div></section></div>
+      <aside class="card"><div class="card-h"><h2>Новая сделка</h2><span>${sym}/USDT</span></div>
+        <div class="dirs"><button class="l ${dir === 'long' ? 'on' : ''}" data-act="dir" data-v="long">Лонг</button><button class="s ${dir === 'short' ? 'on' : ''}" data-act="dir" data-v="short">Шорт</button></div>
+        <div class="field"><label for="f-size">Размер, $</label><input id="f-size" type="number" min="1" value="${size}"><div class="quick">${[10, 25, 50].map((p) => `<button data-act="pct" data-v="${p}">${p}%</button>`).join('')}</div></div>
+        <div class="field"><label><input type="checkbox" id="u-sl" ${useSl ? 'checked' : ''}> Стоп-лосс, %</label><input id="f-sl" type="number" step="0.1" min="0.1" value="${sl}" ${useSl ? '' : 'disabled'}></div>
+        <div class="field"><label><input type="checkbox" id="u-tp" ${useTp ? 'checked' : ''}> Тейк-профит, %</label><input id="f-tp" type="number" step="0.1" min="0.1" value="${tp}" ${useTp ? '' : 'disabled'}></div>
+        <div class="risk" id="risk"></div><button class="btn ${dir === 'long' ? 'long' : 'short'}" style="width:100%;height:42px" data-act="open">${dir === 'long' ? 'Купить' : 'Продать'} ${sym}</button></aside></div>`;
+}
+function posHTML() {
+  if (!POS.length) return '<p class="empty">Позиций нет. Откройте сделку справа.</p>';
+  return POS.map((p) => { const u = upnl(p); return `<div class="pos-row"><div><b>${p.sym} ${p.dir === 'long' ? 'лонг' : 'шорт'}</b><small>${usd(p.size, 0)} · вход ${px(p.entry)}</small></div><div class="hm"><small>Стоп</small>${p.sl ? px(p.sl) : '—'}</div><div class="hm"><small>Тейк</small>${p.tp ? px(p.tp) : '—'}</div><div><b class="${u >= 0 ? 'pos' : 'neg'}">${pnlF(u)}</b><small>${(u / p.size * 100).toFixed(2)}%</small></div><button class="btn sm" data-act="close" data-id="${p.id}">Закрыть</button></div>`; }).join('');
+}
+function drawRisk() {
+  const el = $('#risk'); if (!el) return;
+  const cash = freeCash(), risk = useSl ? size * sl / 100 : size, gain = useTp ? size * tp / 100 : null;
+  el.innerHTML = `${useSl ? `Если сработает стоп, потеряете <b>${usd(risk)}</b> (${fmtD(risk / balance() * 100)}% депозита).` : '<b>Без стопа</b> вы рискуете всей суммой сделки.'}${gain !== null ? ` Тейк принесёт <b>${usd(gain)}</b>${useSl ? `, это 1 к ${fmtD(gain / risk)}` : ''}.` : ''}${size > cash ? ` <b class="neg">Не хватает свободных средств: ${usd(cash)}.</b>` : ''}`;
+}
+function mount() {
+  if (page !== 'practice') return;
+  const c = $('#chart'); chart(c, (w) => candleSVG(w)); drawRisk();
+}
+
+/* live market: only the chart, price and open P&L repaint; the form is never touched */
+setInterval(() => {
+  if (!document.hidden) {
+    for (const [k, s] of Object.entries(SYM)) { const cd = last(k); cd.c *= 1 + (Math.random() - .495) * s.vol * .45; cd.h = Math.max(cd.h, cd.c); cd.l = Math.min(cd.l, cd.c); }
+    checkExits();
+    if (page === 'practice') {
+      const c = $('#chart'); if (c) c.innerHTML = candleSVG(Math.max(160, c.clientWidth));
+      const chg = (price(sym) / MARKET[sym][MARKET[sym].length - 25].c - 1) * 100;
+      $('#c-px').textContent = px(price(sym)); $('#c-chg').textContent = `${chg >= 0 ? '+' : '−'}${Math.abs(chg).toFixed(2)}% за сутки`; $('#c-chg').className = chg >= 0 ? 'pos' : 'neg';
+      $('#k-eq').textContent = usd(equity()); $('#k-un').textContent = pnlF(unreal()); $('#k-un').className = unreal() >= 0 ? 'pos' : 'neg'; $('#pos').innerHTML = posHTML();
+    }
+  }
+}, 1500);
+setInterval(() => { if (!document.hidden) for (const k of Object.keys(SYM)) { const cd = last(k); MARKET[k].push({ o: cd.c, h: cd.c, l: cd.c, c: cd.c }); MARKET[k].shift(); } }, 12000);
+
+function closePos(p, how, at) {
+  const exit = at ?? price(p.sym);
+  J.unshift({ id: nextJ++, sym: p.sym, dir: p.dir, size: p.size, entry: p.entry, exit, ago: 0, how }); POS = POS.filter((x) => x !== p);
+  const t = J[0], r = pnlOf(t); toast(`${p.sym} закрыта (${how}): ${pnlF(r)}`);
+}
+function checkExits() {
+  [...POS].forEach((p) => { const cur = price(p.sym), long = p.dir === 'long';
+    if (p.sl && (long ? cur <= p.sl : cur >= p.sl)) { closePos(p, 'стоп', p.sl); if (page === 'practice') render(); }
+    else if (p.tp && (long ? cur >= p.tp : cur <= p.tp)) { closePos(p, 'тейк', p.tp); if (page === 'practice') render(); } });
+}
+
+/* ── learn ────────────────────────────────────────────── */
+function learn() {
+  const body = [1, 2, 3].map((c) => { const ls = LES.filter((l) => l.c === c), d = ls.filter((l) => l.done).length, lk = locked(c);
+    return `<section class="course"><div class="course-h"><h3>${c}. ${COURSES[c]}</h3><span class="muted">${lk ? 'Откроется после курса ' + (c - 1) : `${d} из ${ls.length}`}</span></div><div class="bar" style="margin-bottom:8px"><i style="width:${d / ls.length * 100}%"></i></div>
+    ${ls.map((l) => `<div class="lesson ${l.done ? 'done' : ''} ${lk ? 'lock' : ''}"><span class="dot">${l.done ? ic('check') : ''}</span><div><b>${l.t}</b><small>${l.task ? 'Практика на графике' : 'Вопрос · 1 мин'}</small></div>${l.done ? '<span class="pill pos">+' + XP + ' XP</span>' : lk ? ic('lock') : l.task ? '<button class="btn sm primary" data-act="goPractice">Попробовать</button>' : `<button class="btn sm primary" data-act="quiz" data-id="${l.id}">Пройти</button>`}</div>`).join('')}</section>`; }).join('');
+  return head('Курсы', `${LES.filter((l) => l.done).length} из ${LES.length} уроков. Каждые ${PER} XP открывают новый уровень.`) + `<section class="card">${body}</section>`;
+}
+
+/* ── journal ──────────────────────────────────────────── */
+function journal() {
+  const ts = [...J].sort((a, b) => a.ago - b.ago), res = ts.map(pnlOf), wins = res.filter((r) => r > 0), loss = res.filter((r) => r < 0);
+  const sums = {}; J.forEach((t) => { sums[t.sym] = (sums[t.sym] || 0) + pnlOf(t); }); const mxs = Math.max(...Object.values(sums).map(Math.abs));
+  const bySym = Object.entries(sums).sort((a, b) => b[1] - a[1]).map(([k, v]) => barRow(k, Math.abs(v) / mxs * 100, `<span class="${v >= 0 ? 'pos' : 'neg'}">${pnlF(v)}</span>`, (n => n + ' ' + (n % 10 === 1 && n !== 11 ? 'сделка' : n % 10 > 1 && n % 10 < 5 && (n < 10 || n > 20) ? 'сделки' : 'сделок'))(J.filter((t) => t.sym === k).length))).join('');
+  const rows = ts.map((t) => { const r = pnlOf(t); return `<div class="tr" style="--cols:1fr .8fr 1fr 1fr 1fr .8fr;--colsm:1fr auto"><div class="cell-main"><b>${t.sym} ${t.dir === 'long' ? 'лонг' : 'шорт'}</b><span>${t.ago === 0 ? 'только что' : t.ago < 24 ? t.ago + ' ч назад' : Math.round(t.ago / 24) + ' дн назад'}<span class="dm"> · ${t.how}</span></span></div><span class="hm r">${usd(t.size, 0)}</span><span class="hm r">${px(t.entry)}</span><span class="hm r">${px(t.exit)}</span><span class="hm"><span class="pill ${t.how === 'стоп' ? 'neg' : ''}">${t.how}</span></span><b class="r ${r >= 0 ? 'pos' : 'neg'}">${pnlF(r)}</b></div>`; }).join('');
+  return head('Журнал сделок', `${J.length} закрытых сделок. Баланс ${usd(balance())} = ${usd(START, 0)} ${realized() >= 0 ? '+' : '−'} ${usd(Math.abs(realized()))}`) +
+    `<div class="kpis"><div class="kpi"><b>${Math.round(wins.length / res.length * 100)}<small>%</small></b><span>Прибыльных сделок</span></div><div class="kpi"><b class="pos">${pnlF(wins.reduce((a, b) => a + b, 0) / (wins.length || 1))}</b><span>Средняя прибыль</span></div><div class="kpi"><b class="neg">${pnlF(loss.reduce((a, b) => a + b, 0) / (loss.length || 1))}</b><span>Средний убыток</span></div><div class="kpi"><b class="${realized() >= 0 ? 'pos' : 'neg'}">${pnlF(realized())}</b><span>Итого</span></div></div>
+    <div class="grid"><section class="card c4"><div class="card-h"><h2>Результат по инструментам</h2></div>${bySym}</section><section class="card c8"><div class="card-h"><h2>Сделки</h2></div><div class="tbl"><div class="tr th" style="--cols:1fr .8fr 1fr 1fr 1fr .8fr;--colsm:1fr auto"><span>Сделка</span><span class="hm r">Размер</span><span class="hm r">Вход</span><span class="hm r">Выход</span><span class="hm">Закрыта</span><span class="r">Результат</span></div>${rows}</div></section></div>`
+;
+}
+/* ── rank ─────────────────────────────────────────────── */
+function rank() {
+  const me = ['Вы', Math.round(equity())], all = [...RIVALS, me].sort((a, b) => b[1] - a[1]), pos = all.findIndex((x) => x === me) + 1;
+  return head('Рейтинг', `Вы на ${pos}-м месте из ${all.length} по капиталу за месяц`) + `<section class="card"><div class="tbl">${all.map((x, i) => `<div class="tr ${x === me ? 'me' : ''}" style="--cols:48px 1fr auto"><b>${i + 1}</b><span>${x === me ? '<b>Вы</b>' : esc(x[0])}</span><b class="r">${usd(x[1], 0)}</b></div>`).join('')}</div></section>`;
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const levelBefore = () => level();
+function finishLesson(l) { const lv = levelBefore(); l.done = true; toast(level() > lv ? `Урок пройден! Новый уровень: ${level()}` : `Урок пройден: +${XP} XP`); }
+const ACT = {
+  sym(d) { sym = d.v; render(); }, dir(d) { dir = d.v; render(); }, goLearn() { go('learn'); }, goPractice() { go('practice'); },
+  pct(d) { size = Math.floor(freeCash() * +d.v / 100); $('#f-size').value = size; drawRisk(); },
+  open() {
+    if (!(size >= 1)) return toast('Укажите размер сделки');
+    if (size > freeCash()) return toast('Не хватает свободных средств');
+    const cur = price(sym), long = dir === 'long', f = (pc) => cur * (1 + (long ? 1 : -1) * pc / 100);
+    POS.push({ id: nextPos++, sym, dir, size, entry: cur, sl: useSl ? f(-sl) : null, tp: useTp ? f(tp) : null });
+    const task = LES.find((l) => l.task && !l.done); if (task && useSl) finishLesson(task); else toast(`${sym}: позиция открыта`);
+    render();
+  },
+  close(d) { closePos(POS.find((p) => p.id === +d.id), 'вручную'); render(); },
+  quiz(d) {
+    const l = LES.find((x) => x.id === +d.id);
+    modal(`<h2>${l.t}</h2><p>${l.q}</p><div class="opts">${l.o.map((o, i) => `<button data-act="ans" data-id="${l.id}" data-i="${i}">${o}</button>`).join('')}</div>`);
+  },
+  ans(d) { const l = LES.find((x) => x.id === +d.id); if (+d.i === l.a) { closeModal(); finishLesson(l); render(); } else toast('Не совсем. Подумайте ещё раз'); },
+};
+render();
 </script>
 </body>
 </html>
