@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shipter — план запуска продукта (демо)</title>
+<meta name="description" content="Демо: ИИ собирает план дистрибуции для цифрового продукта, а доска запуска ведёт по задачам. Тарифы с лимитом генераций. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/*@kit.css*/
+:root {
+  --bg: #0e0c0b; --surface: #151211; --raised: #1d1917; --hover: #241f1d; --border: #2a2422; --rule: #1f1a18;
+  --text: #f4efec; --muted: #b0a7a2; --faint: #8b827d;
+  --accent: #ff7a45; --accent-ink: #1d0a02; --accent-bg: rgba(255,122,69,.13);
+  --pos: #5fd39a; --neg: #ff6b6b; --warn: #f0b95a;
+  --font: "Sofia Sans", system-ui, sans-serif; --display: "Sofia Sans", system-ui, sans-serif;
+}
+body { font-size: 15px; }
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
+.head h1 { font-size: 28px; }
+.nav .count { background: var(--accent); color: var(--accent-ink); }
+
+.checks li { list-style: none; }
+.task { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 44px; padding: 4px 0; }
+.task + .task { border-top: 1px solid var(--rule); }
+.cb { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); background: none; cursor: pointer; display: grid; place-items: center; color: var(--accent-ink); transition: background-color .15s, border-color .15s; padding: 0; }
+.cb:hover { border-color: var(--accent); } .cb[aria-checked="true"] { background: var(--accent); border-color: var(--accent); } .cb .ic { width: 14px; height: 14px; stroke-width: 3; }
+.task.done .t { color: var(--faint); text-decoration: line-through; }
+.task .w { color: var(--muted); font-size: 13px; }
+.proj { display: grid; grid-template-columns: minmax(0, 1fr) 200px auto; gap: 20px; align-items: center; padding: 16px 0; cursor: pointer; }
+.proj + .proj { border-top: 1px solid var(--rule); }
+.proj h3 { font-size: 17px; font-weight: 700; } .proj p { color: var(--muted); margin-top: 2px; }
+.proj .meta { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.prog { font-size: 13px; color: var(--muted); } .prog .bar { margin-top: 6px; }
+.week { padding: 16px 0; } .week + .week { border-top: 1px solid var(--rule); }
+.week-h { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; } .week-h b { font-size: 16px; font-weight: 700; } .week-h span { color: var(--muted); font-size: 13px; }
+.gen { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: var(--gap); align-items: start; }
+.out-h { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.cursor::after { content: ""; display: inline-block; width: 8px; height: 1em; margin-left: 3px; vertical-align: -2px; background: var(--accent); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.reveal { animation: pop .3s var(--ease) both; }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
+.plan { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; }
+.plan.cur { border-color: var(--accent); }
+.plan h3 { font-size: 15px; color: var(--muted); font-weight: 600; } .plan .pr { font: 800 40px/1.1 var(--display); letter-spacing: -.02em; margin: 6px 0 2px; } .plan .pr small { font-size: 15px; color: var(--muted); font-weight: 500; }
+.plan ul { margin: 16px 0 20px; flex: 1; } .plan li { display: flex; gap: 8px; padding: 5px 0; } .plan li .ic { color: var(--accent); width: 16px; height: 16px; margin-top: 3px; stroke-width: 2.4; } .plan li.off { color: var(--faint); } .plan li.off .ic { color: var(--faint); }
+.meter { margin-bottom: var(--gap); }
+@media (max-width: 1099px) { .gen { grid-template-columns: minmax(0, 1fr); } .plans { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 899px) { .proj { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
+</style>
+</head>
+<body>
+<div class="notice"><b>Демо</b> Shipter · план собирается по шаблонам, данные вымышлены</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11a2.8 2.8 0 00-4-4L4 15zM13 6l5 5"/></svg></div>
+      <div><div class="brand-name">Shipter</div><div class="brand-sub" id="side-plan"></div></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">АЛ</div><div class="who"><b>Алекс Лебедев</b><span id="side-who"></span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+
+<script>
+/*@kit.js*/
+'use strict';
+
+/* ── catalog the planner picks from ───────────────────── */
+const CH = [
+  { id: 'tg',   n: 'Telegram-каналы вашей аудитории', m: ['cis'], paid: false, lo: 2, hi: 6, tasks: ['Соберите список из 15 каналов, где сидит ваша аудитория', 'Договоритесь о 3 обзорах или упоминаниях'] },
+  { id: 'vc',   n: 'vc.ru и Хабр', m: ['cis'], paid: false, lo: 3, hi: 9, tasks: ['Напишите разбор «как мы это сделали» на 6 000 знаков', 'Ответьте в комментариях в первые 2 часа после выхода'] },
+  { id: 'ph',   n: 'Product Hunt', m: ['global', 'eu', 'asia'], paid: false, lo: 2, hi: 8, tasks: ['Подготовьте страницу, 4 скриншота и короткое видео', 'Запланируйте запуск на вторник и позовите 20 знакомых поддержать'] },
+  { id: 'rd',   n: 'Reddit и тематические форумы', m: ['global', 'eu', 'asia'], paid: false, lo: 1, hi: 5, tasks: ['Найдите 5 сообществ, где обсуждают вашу задачу', 'Две недели помогайте в ответах, потом покажите продукт'] },
+  { id: 'dm',   n: 'Личные сообщения первым клиентам', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.1, hi: 0.4, tasks: ['Составьте список из 30 людей, у кого есть эта боль', 'Напишите каждому лично и предложите попробовать бесплатно'] },
+  { id: 'em',   n: 'Email-рассылка по базе', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.5, hi: 2, tasks: ['Соберите форму подписки на лендинге', 'Отправьте 3 письма: история, польза, предложение'] },
+  { id: 'inf',  n: 'Блогеры и партнёры', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 5, hi: 15, tasks: ['Выберите 5 блогеров с живой аудиторией по теме', 'Предложите процент с продаж вместо фиксированной оплаты'] },
+  { id: 'ads',  n: 'Реклама в Telegram Ads или Google', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 8, hi: 20, tasks: ['Запустите 3 объявления с разными заголовками на $5 в день', 'Через 4 дня оставьте то, что дало заявки дешевле'] },
+];
+const MARKETS = { cis: 'СНГ', global: 'Глобальный', eu: 'Европа', asia: 'Азия' };
+const BUDGETS = [['0', 'Нет бюджета'], ['100', '$100–500 в месяц'], ['500', '$500–2000 в месяц'], ['2000', '$2000+ в месяц']];
+const LIM = { trial: 10, starter: 200, pro: Infinity };
+const PLAN_N = { trial: 'Trial', starter: 'Starter', pro: 'Pro' };
+
+/* the planner: same inputs, same plan. Free channels first; paid ones only when there is a budget */
+function makePlan(market, budget) {
+  const pick = CH.filter((c) => c.m.includes(market) && (!c.paid || +budget >= 100)).sort((a, b) => (+a.paid - +b.paid) || b.hi - a.hi).slice(0, +budget >= 500 ? 6 : 5);
+  const ch = pick.map((c, i) => ({ id: c.id, week: Math.min(4, 1 + Math.floor(i * 4 / pick.length)), tasks: c.tasks.map((t) => ({ t, done: false })) }));
+  return ch;
+}
+const catOf = (id) => CH.find((c) => c.id === id);
+const reach = (plan) => plan.reduce((a, c) => [a[0] + catOf(c.id).lo, a[1] + catOf(c.id).hi], [0, 0]);
+const taskCount = (p) => p.plan.reduce((a, c) => a + c.tasks.length, 0), doneCount = (p) => p.plan.reduce((a, c) => a + c.tasks.filter((t) => t.done).length, 0);
+
+const S = {
+  plan: 'trial', used: 7, trialDays: 5,
+  projects: [
+    { id: 1, name: 'TelegramBot Pro', type: 'SaaS', desc: 'Платформа, где продавцы собирают Telegram-ботов с оплатой и аналитикой.', aud: 'Продавцы и эксперты в Telegram', market: 'cis', budget: '0' },
+    { id: 2, name: 'SaaS Landing Kit', type: 'Landing', desc: 'Набор готовых лендингов для SaaS-стартапов на английском.', aud: 'Основатели B2B SaaS', market: 'global', budget: '100' },
+    { id: 3, name: 'GameApp Store', type: 'App', desc: 'Каталог мини-игр с покупкой одним нажатием.', aud: 'Игроки 18–30', market: 'asia', budget: '500' },
+  ],
+};
+S.projects.forEach((p) => { p.plan = makePlan(p.market, p.budget); });
+{ // seed some progress so the board has something to show
+  const mark = (p, n) => { let k = 0; for (const c of p.plan) for (const t of c.tasks) if (k++ < n) t.done = true; };
+  mark(S.projects[0], 4); mark(S.projects[1], 2); mark(S.projects[2], 0);
+}
+console.assert(S.projects[0].plan.length === 4 && taskCount(S.projects[0]) === 8 && doneCount(S.projects[0]) === 4, 'plan');
+const limit = () => LIM[S.plan], left = () => limit() - S.used;
+const fmtReach = ([a, b]) => `${fmtD(a, a % 1 ? 1 : 0)}–${fmtD(b, b % 1 ? 1 : 0)} тыс.`;
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { dash: ['Запуск', 'home'], projects: ['Проекты', 'list'], gen: ['ИИ-план', 'zap'], pricing: ['Тарифы', 'coin'] };
+let page = 'dash', openId = null, filter = 'all', timers = [], genState = null;
+const proj = (id) => S.projects.find((p) => p.id === id);
+
+function chrome() {
+  $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
+  $('#tabbar').innerHTML = $('#nav').innerHTML;
+  $('#side-plan').textContent = S.plan === 'trial' ? `Trial · ${S.trialDays} дн.` : `Тариф ${PLAN_N[S.plan]}`;
+  $('#side-who').textContent = S.plan === 'pro' ? 'Генерации без лимита' : `Генераций: ${left()} из ${limit()}`;
+  setNav(page === 'project' ? 'projects' : page);
+}
+function render() { timers.forEach(clearTimeout); timers = []; chrome(); $('#main').innerHTML = ({ dash, projects, project: projectPage, gen, pricing })[page](); }
+function go(p, id) { page = p; if (id !== undefined) openId = id; render(); window.scrollTo(0, 0); }
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const o = e.target.closest('[data-open]'); if (o && !e.target.closest('button,input')) return go('project', +o.dataset.open);
+  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+
+const cb = (done, attrs) => `<button class="cb" role="checkbox" aria-checked="${done}" ${attrs}>${done ? ic('check') : ''}</button>`;
+
+/* ── dashboard ────────────────────────────────────────── */
+function dash() {
+  const all = S.projects.reduce((a, p) => a + taskCount(p), 0), done = S.projects.reduce((a, p) => a + doneCount(p), 0);
+  const today = S.projects.flatMap((p) => p.plan.filter((c) => c.week === 1).flatMap((c) => c.tasks.map((t, ti) => ({ p, c, t, ti })))).filter((x) => !x.t.done).slice(0, 5);
+  const finding = S.plan === 'trial' ? `<div class="finding">${ic('clock')}<span>До конца пробного периода ${S.trialDays} дн., осталось ${left()} ${left() === 1 ? 'генерация' : 'генерации'} из ${limit()}.</span><button class="btn sm primary" data-page="pricing">Выбрать тариф</button></div>` : '';
+  return head('Доска запуска', 'Что сделать сегодня, чтобы ваши продукты дошли до первых клиентов', `<button class="btn primary" data-act="newProject">${ic('plus')}Новый проект</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${S.projects.length}</b><span>Проекта в работе</span></div><div class="kpi"><b>${done}<small>из ${all}</small></b><span>Задач выполнено</span></div><div class="kpi"><b>${S.used}${S.plan === 'pro' ? '' : `<small>из ${limit()}</small>`}</b><span>Генераций использовано</span></div></div>
+    <div class="grid"><section class="card c7"><div class="card-h"><h2>Сделать на первой неделе</h2><span>${today.length ? 'отметьте, когда готово' : 'всё сделано'}</span></div>${today.map((x) => `<div class="task"><span>${cb(false, `data-act="tick" data-p="${x.p.id}" data-c="${x.c.id}" data-i="${x.ti}" aria-label="Отметить: ${esc(x.t.t)}"`)}</span><div class="t">${esc(x.t.t)}<div class="w">${esc(x.p.name)} · ${catOf(x.c.id).n}</div></div></div>`).join('') || '<p class="empty">Задач на первую неделю нет.</p>'}</section>
+    <section class="card c5"><div class="card-h"><h2>Прогресс по проектам</h2></div>${S.projects.map((p) => barRow(esc(p.name), taskCount(p) ? doneCount(p) / taskCount(p) * 100 : 0, `${doneCount(p)} из ${taskCount(p)}`)).join('')}</section></div>`;
+}
+
+/* ── projects ─────────────────────────────────────────── */
+function projects() {
+  const types = ['all', ...new Set(S.projects.map((p) => p.type))], list = S.projects.filter((p) => filter === 'all' || p.type === filter);
+  return head('Проекты', `${S.projects.length} продукта. Откройте проект, чтобы увидеть план и отмечать задачи.`, `<button class="btn primary" data-act="newProject">${ic('plus')}Новый проект</button>`) +
+    `<div class="tabs">${types.map((t) => `<button class="${filter === t ? 'on' : ''}" data-act="filter" data-v="${t}">${t === 'all' ? 'Все' : t}</button>`).join('')}</div>
+    <section class="card">${list.map((p) => { const t = taskCount(p), d = doneCount(p); return `<div class="proj" data-open="${p.id}"><div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="meta"><span class="pill">${p.type}</span><span class="pill">${MARKETS[p.market]}</span></div></div><div class="prog">${t ? `${d} из ${t} задач` : 'План ещё не собран'}<div class="bar"><i style="width:${t ? d / t * 100 : 0}%"></i></div></div><button class="btn sm" data-act="${t ? 'open' : 'planFor'}" data-id="${p.id}">${t ? 'Открыть' : 'Собрать план'}</button></div>`; }).join('') || '<p class="empty">Здесь пока ничего нет.</p>'}</section>`;
+}
+function projectPage() {
+  const p = proj(openId), t = taskCount(p), d = doneCount(p), r = reach(p.plan);
+  const weeks = [1, 2, 3, 4].map((w) => ({ w, cs: p.plan.filter((c) => c.week === w) })).filter((x) => x.cs.length);
+  return head(esc(p.name), `${esc(p.aud)} · ${MARKETS[p.market]} · ${BUDGETS.find((b) => b[0] === p.budget)[1].toLowerCase()}`, `<button class="btn" data-page="projects">${ic('arrow')}К проектам</button><button class="btn" data-act="planFor" data-id="${p.id}">Пересобрать план</button>`) +
+    `<div class="kpis"><div class="kpi"><b>${d}<small>из ${t}</small></b><span>Задач выполнено</span></div><div class="kpi"><b>${p.plan.length}</b><span>Каналов в плане</span></div><div class="kpi"><b>${t ? fmtReach(r) : '—'}</b><span>Охват за месяц, по оценке</span></div></div>
+    <section class="card">${weeks.map(({ w, cs }) => `<div class="week"><div class="week-h"><b>Неделя ${w}</b></div>${cs.map((c) => `<div style="margin-top:12px"><b>${catOf(c.id).n}</b> <span class="muted">· ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · платный' : ''}</span>${c.tasks.map((tk, i) => `<div class="task ${tk.done ? 'done' : ''}"><span>${cb(tk.done, `data-act="tick" data-p="${p.id}" data-c="${c.id}" data-i="${i}" aria-label="${esc(tk.t)}"`)}</span><div class="t">${esc(tk.t)}</div></div>`).join('')}</div>`).join('')}</div>`).join('') || '<p class="empty">План ещё не собран. Нажмите «Пересобрать план».</p>'}</section>`;
+}
+
+/* ── generator ────────────────────────────────────────── */
+function meterHTML() {
+  return S.plan === 'pro' ? '' : `<div class="meter"><div class="brow-t"><span>Генерации</span><b>${S.used} из ${limit()}</b></div><div class="bar thick"><i style="width:${S.used / limit() * 100}%"></i></div></div>`;
+}
+function gen() {
+  const g = genState || { pid: 1, aud: S.projects[0].aud, market: S.projects[0].market, budget: S.projects[0].budget, out: null };
+  genState = g;
+  return head('ИИ-план', 'Расскажите про продукт, и получите план каналов по неделям с задачами') + `<div class="gen"><section class="card">${meterHTML()}
+    <div class="field"><label for="g-p">Проект</label><select id="g-p" onchange="genState.pid=+this.value;const p=proj(genState.pid);genState.aud=p.aud;genState.market=p.market;genState.budget=p.budget;render()">${S.projects.map((p) => `<option value="${p.id}" ${g.pid === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
+    <div class="field"><label for="g-a">Целевая аудитория</label><input id="g-a" value="${esc(g.aud)}" oninput="genState.aud=this.value"></div>
+    <div class="field"><label for="g-m">Рынок</label><select id="g-m" onchange="genState.market=this.value">${Object.entries(MARKETS).map(([k, v]) => `<option value="${k}" ${g.market === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <div class="field"><label for="g-b">Бюджет на продвижение</label><select id="g-b" onchange="genState.budget=this.value">${BUDGETS.map(([k, v]) => `<option value="${k}" ${g.budget === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <button class="btn primary" style="width:100%;height:42px" data-act="run" id="g-run">${ic('zap')}Собрать план</button></section>
+    <section class="card" id="g-out" aria-live="polite">${g.out ? outHTML(g.out) : `<p class="empty" style="padding:60px 12px">Пока пусто. Заполните параметры слева и нажмите «Собрать план». Результат строится по шаблонам, это демо.</p>`}</section></div>`;
+}
+function outHTML(o) {
+  const r = reach(o.plan);
+  return `<div class="out-h"><div><h2 style="font-size:18px;font-weight:700">План на 4 недели для «${esc(proj(o.pid).name)}»</h2><p class="muted">${o.plan.length} каналов · охват по оценке ${fmtReach(r)} за месяц</p></div><button class="btn primary" data-act="save">Сохранить в проект</button></div>`
+    + o.plan.map((c) => `<div class="week reveal"><div class="week-h"><b>${catOf(c.id).n}</b><span>неделя ${c.week} · ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · платный' : ''}</span></div><ul class="checks">${c.tasks.map((t) => `<li class="muted" style="padding:3px 0">— ${esc(t.t)}</li>`).join('')}</ul></div>`).join('');
+}
+
+/* ── pricing ──────────────────────────────────────────── */
+function pricing() {
+  const P = [['trial', 'Trial', '$0', '7 дней бесплатно', ['До 3 проектов', '10 генераций', 'Базовый план каналов'], ['Несколько проектов', 'Приоритетная поддержка']],
+    ['starter', 'Starter', '$29', 'в месяц, отмена в любой момент', ['До 10 проектов', '200 генераций в месяц', 'Полный план с задачами', 'Поддержка по почте'], ['Доступ по API']],
+    ['pro', 'Pro', '$79', 'в месяц, отмена в любой момент', ['Проектов без ограничений', 'Генерации без лимита', 'Доступ по API', 'Поддержка 24/7'], []]];
+  return head('Тарифы', 'Лимит генераций меняется сразу после выбора. Оплата в демо не подключена.') +
+    `<div class="plans">${P.map(([k, n, pr, per, yes, no]) => `<article class="plan ${S.plan === k ? 'cur' : ''}"><h3>${n}${S.plan === k ? ' · ваш тариф' : ''}</h3><div class="pr">${pr}<small> ${k === 'trial' ? '' : '/ мес'}</small></div><p class="muted">${per}</p><ul>${yes.map((y) => `<li>${ic('check')}${y}</li>`).join('')}${no.map((y) => `<li class="off">${ic('x')}${y}</li>`).join('')}</ul><button class="btn ${S.plan === k ? '' : 'primary'}" data-act="plan" data-v="${k}" ${S.plan === k ? 'disabled' : ''}>${S.plan === k ? 'Текущий тариф' : 'Выбрать ' + n}</button></article>`).join('')}</div>`;
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const ACT = {
+  filter(d) { filter = d.v; render(); }, open(d) { go('project', +d.id); },
+  tick(d) { const c = proj(+d.p).plan.find((x) => x.id === d.c), t = c.tasks[+d.i]; t.done = !t.done; render(); if (t.done) toast('Готово'); },
+  plan(d) { S.plan = d.v; if (d.v !== 'trial') S.trialDays = 0; toast(`Тариф ${PLAN_N[d.v]}: лимит ${d.v === 'pro' ? 'снят' : LIM[d.v] + ' генераций'}`); render(); },
+  planFor(d) { genState = null; const p = proj(+d.id); genState = { pid: p.id, aud: p.aud, market: p.market, budget: p.budget, out: null }; go('gen'); },
+  run() {
+    if (left() <= 0) { toast('Лимит генераций исчерпан. Выберите тариф'); return go('pricing'); }
+    const g = genState; if (!g.aud.trim()) return toast('Опишите аудиторию');
+    S.used++; g.out = null; chrome();
+    const out = $('#g-out'), btn = $('#g-run'); btn.disabled = true;
+    out.innerHTML = `<p class="cursor" style="padding:40px 4px;color:var(--muted)">Анализирую аудиторию «${esc(g.aud)}» и рынок ${esc(MARKETS[g.market])}</p>`;
+    const plan = makePlan(g.market, g.budget); const res = { pid: g.pid, plan };
+    timers.push(setTimeout(() => {
+      plan.forEach((_, i) => timers.push(setTimeout(() => {
+        out.innerHTML = outHTML({ ...res, plan: plan.slice(0, i + 1) });
+        if (i === plan.length - 1) { g.out = res; $('#g-run').disabled = false; }
+      }, 380 * i)));
+    }, 900));
+    const m = $('.meter'); if (m) m.outerHTML = meterHTML();
+  },
+  save() { const g = genState, p = proj(g.pid); p.aud = g.aud; p.market = g.market; p.budget = g.budget; const was = new Set(p.plan.flatMap((c) => c.tasks.filter((t) => t.done).map((t) => t.t))); p.plan = g.out.plan.map((c) => ({ ...c, tasks: c.tasks.map((t) => ({ t: t.t, done: was.has(t.t) })) })); toast('План сохранён в проект'); go('project', p.id); },
+  newProject() {
+    modal(`<h2>Новый проект</h2><p>План соберёте на следующем шаге.</p><div class="field"><label for="n-n">Название</label><input id="n-n" placeholder="Например, Мой SaaS"></div>
+      <div class="field"><label for="n-t">Тип</label><select id="n-t"><option>SaaS</option><option>App</option><option>Game</option><option>Landing</option><option>Bot</option></select></div><div class="field"><label for="n-d">Описание</label><textarea id="n-d" placeholder="Что делает продукт"></textarea></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="n-ok">Создать</button></div>`, () => {
+      $('#n-ok').onclick = () => {
+        const n = $('#n-n').value.trim(); if (!n) return $('#n-n').focus();
+        if (S.projects.length >= { trial: 3, starter: 10, pro: 999 }[S.plan]) { closeModal(); toast('Достигнут лимит проектов на этом тарифе'); return go('pricing'); }
+        const id = Math.max(...S.projects.map((x) => x.id)) + 1; S.projects.push({ id, name: n, type: $('#n-t').value, desc: $('#n-d').value.trim() || 'Без описания', aud: 'Ваша аудитория', market: 'cis', budget: '0', plan: [] });
+        closeModal(); toast('Проект создан'); render();
+      };
+    });
+  },
+};
+render();
+</script>
+</body>
+</html>
