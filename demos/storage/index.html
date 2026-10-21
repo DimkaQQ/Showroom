@@ -184,6 +184,10 @@ svg { display: block; }
 }
 .brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
 .nav .count { background: var(--neg); color: #fff; }
+.pt { width: 40px; height: 40px; border-radius: 11px; flex: none; overflow: hidden; } .pt svg { width: 100%; height: 100%; display: block; }
+.cell-pt { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.line .pt { width: 28px; height: 28px; border-radius: 8px; } .line > span { display: flex; align-items: center; gap: 10px; }
+.flash { animation: flash 1.4s ease-out; } @keyframes flash { from { background: var(--accent-bg); } to { background: transparent; } }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--gap); }
 .chip { height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
 .chip:hover { color: var(--text); } .chip.on { background: var(--text); color: var(--surface); border-color: transparent; }
@@ -409,6 +413,21 @@ function drafts() {
 }
 console.assert(lowLines().length === 6 && drafts().length === 5 && drafts().reduce((a, d) => a + poTotal(d), 0) === 150540, 'drafts');
 
+
+/* product tiles: one flat illustration per category */
+function ptSVG(cat) {
+  const bg = { 'Мясо': '#f6dcd8', 'Молочные': '#e3eef8', 'Овощи': '#e1f0d8', 'Крупы': '#f4e8c8', 'Соусы': '#f8dfd0', 'Напитки': '#dff0ee' }[cat];
+  const a = {
+    'Мясо': '<path d="M9 24 q-2 -10 9 -12 q13 -2 16 6 q2 9 -8 12 q-13 3 -17 -6z" fill="#c0463d"/><path d="M16 17 q4 6 2 12 M23 16 q4 6 2 12" stroke="#f3c6c0" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="29" cy="20" r="3" fill="#f3c6c0"/>',
+    'Молочные': '<path d="M15 9 h10 l2 6 v16 q0 3 -3 3 h-8 q-3 0 -3 -3 v-16z" fill="#fff" stroke="#9fbfd9" stroke-width="2"/><rect x="15" y="19" width="10" height="8" fill="#5a9bd5"/><rect x="16" y="6" width="8" height="4" rx="1.5" fill="#5a9bd5"/>',
+    'Овощи': '<path d="M12 14 q8 -4 16 0 q2 14 -8 18 q-10 -4 -8 -18z" fill="#e9772f"/><path d="M20 12 q-3 -6 -7 -6 M20 12 q3 -6 7 -6 M20 12 q0 -7 0 -8" stroke="#4e9a3d" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M16 20 l5 1 M17 26 l5 1" stroke="#f6a463" stroke-width="2" stroke-linecap="round"/>',
+    'Крупы': '<path d="M11 14 q9 -5 18 0 l2 20 h-22z" fill="#d9a85a"/><path d="M11 14 q9 -5 18 0" stroke="#a97a2e" stroke-width="3" fill="none"/><rect x="15" y="20" width="10" height="8" rx="2" fill="#f4e5c0"/><path d="M12 11 l16 0" stroke="#a97a2e" stroke-width="3" stroke-linecap="round"/>',
+    'Соусы': '<rect x="12" y="14" width="16" height="20" rx="4" fill="#d8402c"/><rect x="14" y="8" width="12" height="7" rx="2" fill="#f6efe2"/><rect x="14" y="20" width="12" height="8" rx="2" fill="#f6efe2" opacity=".9"/>',
+    'Напитки': '<path d="M16 6 h8 v6 q5 3 5 8 v14 q0 2 -2 2 h-14 q-2 0 -2 -2 v-14 q0 -5 5 -8z" fill="#3fa9a0"/><rect x="15" y="22" width="10" height="9" rx="2" fill="#fff" opacity=".85"/><rect x="16" y="4" width="8" height="3" rx="1" fill="#2a6f69"/>',
+  }[cat];
+  return `<svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" fill="${bg}"/>${a}</svg>`;
+}
+
 /* ── shell ────────────────────────────────────────────── */
 const PAGES = { today: ['Сегодня', 'home'], stock: ['Склад', 'box'], orders: ['Закупки', 'bag'], sup: ['Поставщики', 'users'] };
 let page = 'today', venue = 'all', cat = 'Все', q = '';
@@ -435,7 +454,7 @@ document.addEventListener('input', (e) => { if (e.target.id === 'q') { q = e.tar
 
 /* ── today ────────────────────────────────────────────── */
 function draftCard(d, k) {
-  return `<article class="draft"><div class="draft-h"><b>${esc(sup(d.s).n)}</b><span>для «${VEN[d.v]}»</span></div>${d.lines.map(([i, qn]) => `<div class="line"><span>${esc(item(i).n)}</span><b>${qn} ${item(i).u} · ${tg(qn * item(i).px)}</b></div>`).join('')}
+  return `<article class="draft"><div class="draft-h"><b>${esc(sup(d.s).n)}</b><span>для «${VEN[d.v]}»</span></div>${d.lines.map(([i, qn]) => `<div class="line"><span><i class="pt">${ptSVG(item(i).cat)}</i>${esc(item(i).n)}</span><b>${qn} ${item(i).u} · ${tg(qn * item(i).px)}</b></div>`).join('')}
     <div class="draft-f"><b>${tg(poTotal(d))}</b><button class="btn primary sm" data-act="order" data-k="${k}">Заказать</button></div></article>`;
 }
 function today() {
@@ -451,7 +470,7 @@ function today() {
 /* ── stock ────────────────────────────────────────────── */
 function stock() {
   const list = ITEMS.filter((i) => stocked(i, venue) && (cat === 'Все' || i.cat === cat) && i.n.toLowerCase().includes(q));
-  const rows = list.map((i) => { const qn = qtyOf(i, venue), m = minOf(i, venue), st = state(i, venue), inc = venue === 'all' ? incomingAll(i.id) : incoming(i.id, venue); return `<div class="tr" data-item="${i.id}" tabindex="0" style="cursor:pointer;--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(i.n)}</b><span>${i.cat} · ${esc(sup(i.s).n)}${inc ? ` · едет ${inc} ${i.u}` : ''}</span></div>
+  const rows = list.map((i) => { const qn = qtyOf(i, venue), m = minOf(i, venue), st = state(i, venue), inc = venue === 'all' ? incomingAll(i.id) : incoming(i.id, venue); return `<div class="tr" data-item="${i.id}" tabindex="0" style="cursor:pointer;--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><div class="cell-pt"><span class="pt">${ptSVG(i.cat)}</span><div class="cell-main"><b>${esc(i.n)}</b><span>${i.cat} · ${esc(sup(i.s).n)}${inc ? ` · едет ${inc} ${i.u}` : ''}</span></div></div>
     <div class="level hm"><div class="bar"><i class="${st}" style="width:${Math.min(100, qn / (m * 2 || 1) * 100)}%"></i></div><b>${qn} ${i.u}</b></div><span class="hm r muted">мин. ${m}</span><span class="hm r">${tg(i.px)}</span>
     <div class="r"><span class="pill ${st === 'low' ? 'neg' : st === 'soon' ? 'warn' : 'pos'}"><i></i>${st === 'low' ? 'Мало' : st === 'soon' ? 'Скоро' : 'Норма'}</span><div class="dm muted" style="font-size:12px;margin-top:2px">${qn} ${i.u}</div></div></div>`; }).join('');
   return head('Склад', `${list.length} позиций · ${tg(list.reduce((a, i) => a + qtyOf(i, venue) * i.px, 0))}`) +
@@ -493,6 +512,16 @@ const ACT = {
   orderAll() { const ds = drafts(); ds.forEach((x) => PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines })); toast(`Отправлено заказов: ${ds.length}`); render(); },
   receive(d) { const o = PO.find((x) => x.id === +d.id); o.lines.forEach(([i, qn]) => { item(i).qty[o.v] = (item(i).qty[o.v] || 0) + qn; }); o.st = 'received'; toast(`Принято: заказ ${o.id}, остатки обновлены`); render(); },
 };
+/* ── live consumption: the kitchens use stock all day, so statuses and orders move on their own ─ */
+setInterval(() => {
+  if (document.hidden || $('#scrim')) return;
+  const pool = ITEMS.flatMap((i) => ['center', 'north'].filter((v) => i.qty[v] !== null && i.qty[v] > 0).map((v) => [i, v]));
+  const [i, v] = pool[Math.floor(Math.random() * pool.length)], before = i.qty[v] < i.min[v];
+  const used = i.u === 'шт' ? 1 + Math.floor(Math.random() * 3) : [0.5, 1, 1.5][Math.floor(Math.random() * 3)];
+  i.qty[v] = Math.max(0, Math.round((i.qty[v] - used) * 10) / 10);
+  if (!before && i.qty[v] < i.min[v]) toast(`${i.n} (${VEN[v]}): ниже минимума, ${i.qty[v]} ${i.u}`);
+  if (['today', 'stock'].includes(page) && document.activeElement?.id !== 'q') render();
+}, 4500);
 render();
 </script>
 </body>
