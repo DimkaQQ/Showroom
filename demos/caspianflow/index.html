@@ -198,7 +198,13 @@ svg { display: block; }
 .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
 .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); animation: pulse 2s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: .35; } }
-.dm { display: none; } .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--gap); }
+.dm { display: none; } 
+.cmap { width: 100%; height: auto; display: block; }
+.cmap .sea { fill: #0f2233; stroke: #1c3a52; stroke-width: 2; } .cmap .land { fill: var(--raised); }
+.cmap .rt { fill: none; stroke: var(--accent); stroke-width: 1.6; opacity: .28; stroke-linecap: round; } .cmap .rt.new { opacity: .9; stroke-width: 2.4; }
+.cmap .hub { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; } .cmap text { font: 12px var(--font); fill: var(--muted); } .cmap .ship { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
+.feed2 li { display: grid; grid-template-columns: 54px 1fr; gap: 8px; padding: 9px 0; font-size: 13.5px; color: var(--muted); } .feed2 li + li { border-top: 1px solid var(--rule); } .feed2 li b { color: var(--text); font-weight: 600; } .feed2 li:first-child { animation: pop .3s var(--ease) both; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--gap); }
 .chip { height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s, border-color .15s; }
 .chip:hover { color: var(--text); border-color: var(--faint); }
 .chip.on { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
@@ -420,6 +426,22 @@ const ROUTES = [
   { n: 'Almaty → Bishkek (truck)',  freight: 22, duty: 5 },
   { n: 'Aktau → Tbilisi (ferry + rail)', freight: 47, duty: 0 },
 ];
+
+const HUBS = { Atyrau: [330, 62], Aktau: [388, 150], Turkmenbashi: [376, 236], Baku: [262, 196], Almaty: [556, 74], Tashkent: [548, 196], Tbilisi: [118, 138] };
+const ROUTE_OF = { diesel: ['Atyrau', 'Tashkent'], ai95: ['Baku', 'Tbilisi'], jet: ['Aktau', 'Almaty'], mazut: ['Turkmenbashi', 'Aktau'] };
+const BUYERS = ['KazOil Trading', 'Silk Road Oil', 'Mangystau Power', 'Uzbek Agro Trade', 'Tien Shan Fuel', 'Absheron Fuels', 'SkyFuel Asia', 'Caucasus Air Supply'];
+TRADES.forEach((t) => { t[5] = ROUTE_OF[t[1]]; });
+const curve = (a, b) => { const [x1, y1] = HUBS[a], [x2, y2] = HUBS[b], mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - 38; return `M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}`; };
+function mapCard() {
+  return `<section class="card c8"><div class="card-h"><h2>Trade flows</h2><span class="live"><i></i>live</span></div><svg class="cmap" viewBox="0 0 620 290" role="img" aria-label="Map of Caspian trade routes">
+    <path class="sea" d="M300 30 Q360 20 400 70 Q430 120 405 160 Q420 200 390 250 Q340 275 300 255 Q250 240 255 190 Q290 150 275 110 Q270 60 300 30z"/>
+    ${TRADES.slice(0, 7).map((t, i) => `<path class="rt ${i === 0 && t[0] === 0 ? 'new' : ''}" d="${curve(t[5][0], t[5][1])}"/>`).join('')}
+    ${Object.entries(HUBS).map(([n, [x, y]]) => `<circle class="hub" cx="${x}" cy="${y}" r="6"/><text x="${x}" y="${y + (y > 160 ? 22 : -12)}" text-anchor="middle">${n}</text>`).join('')}
+    ${TRADES[0][0] === 0 ? `<circle class="ship" r="6"><animateMotion dur="4s" fill="freeze" path="${curve(TRADES[0][5][0], TRADES[0][5][1])}"/></circle>` : ''}</svg></section>`;
+}
+function feedCard() {
+  return `<section class="card c4"><div class="card-h"><h2>Latest deals</h2></div><ul class="feed2">${TRADES.slice(0, 6).map((t) => `<li><span>${t[0] === 0 ? 'now' : t[0] + ' h'}</span><span><b>${usd(t[2] * t[3])}</b> · ${num(t[2])} t ${FUELS[t[1]].short}<br>${esc(t[4])}</span></li>`).join('')}</ul></section>`;
+}
 const trades24 = () => TRADES.filter((t) => t[0] < 24);
 const vol24 = () => trades24().reduce((a, t) => a + t[2] * t[3], 0);
 console.assert(trades24().length === 6 && vol24() === 5000 * 685 + 1200 * 912 + 2000 * 711 + 6000 * 308 + 3000 * 683 + 700 * 908, '24h volume');
@@ -462,10 +484,11 @@ function market() {
   const best = sells.map((l) => ({ l, d: vsBench(l) })).sort((a, b) => a.d - b.d)[0];
   const f = FUELS[best.l.f];
   const finding = `<div class="finding">${ic('tag')}<span>${esc(best.l.co)} offers ${num(best.l.vol)} t of ${f.short} in ${esc(best.l.where)} at ${usd(best.l.px)}, ${usd(f.px - best.l.px)} under the benchmark (${pct(vsBench(best.l))}).</span><button class="btn sm primary" data-act="offer" data-id="${best.l.id}">Make an offer</button></div>`;
-  const rows = TRADES.slice(0, 7).map((t) => `<div class="tr" style="--cols:.9fr 1fr .9fr .8fr 1fr 1.3fr;--colsm:1fr auto"><span class="muted hm">${t[0] < 24 ? t[0] + ' h ago' : Math.round(t[0] / 24) + ' d ago'}</span><div class="cell-main"><b>${FUELS[t[1]].short}</b><span class="dm">${num(t[2])} t · ${t[0]} h ago</span></div><span class="hm r">${num(t[2])} t</span><span class="hm r">${usd(t[3])}</span><div class="r"><b>${usd(t[2] * t[3])}</b><div class="dm muted" style="font-size:12px">${esc(t[4])}</div></div><span class="hm">${esc(t[4])}</span></div>`).join('');
+  const rows = TRADES.slice(0, 7).map((t) => `<div class="tr" style="--cols:.9fr 1fr .9fr .8fr 1fr 1.3fr;--colsm:1fr auto"><span class="muted hm">${t[0] === 0 ? 'just now' : t[0] < 24 ? t[0] + ' h ago' : Math.round(t[0] / 24) + ' d ago'}</span><div class="cell-main"><b>${FUELS[t[1]].short}</b><span class="dm">${num(t[2])} t · ${t[0] === 0 ? 'just now' : t[0] + ' h ago'}</span></div><span class="hm r">${num(t[2])} t</span><span class="hm r">${usd(t[3])}</span><div class="r"><b>${usd(t[2] * t[3])}</b><div class="dm muted" style="font-size:12px">${esc(t[4])}</div></div><span class="hm">${esc(t[4])}</span></div>`).join('');
   return head('Market', `Prices in USD per tonne · Central Asia and the Caspian <span class="live" style="margin-left:8px"><i></i>live</span>`, `<button class="btn primary" data-act="newListing">${ic('plus')}New listing</button>`) + finding +
     `<div class="kpis"><div class="kpi"><b>${usd(vol24())}</b><span>Traded in 24 h</span></div><div class="kpi"><b>${trades24().length}</b><span>Deals in 24 h</span></div><div class="kpi"><b>${L.filter((l) => l.side === 'sell').length}</b><span>Open offers</span></div><div class="kpi"><b>${L.filter((l) => l.side === 'buy').length}</b><span>Open requests</span></div></div>
     <div class="board" id="board">${Object.keys(FUELS).map(pxCard).join('')}</div>
+    <div class="grid" style="margin-bottom:var(--gap)">${mapCard()}${feedCard()}</div>
     <section class="card"><div class="card-h"><h2>Recent trades</h2><span>last 3 days</span></div><div class="tbl"><div class="tr th" style="--cols:.9fr 1fr .9fr .8fr 1fr 1.3fr;--colsm:1fr auto"><span class="hm">When</span><span>Fuel</span><span class="hm r">Volume</span><span class="hm r">Price</span><span class="r">Total</span><span class="hm">Buyer</span></div>${rows}</div></section>`;
 }
 
@@ -535,6 +558,15 @@ function tick() {
   const el = $(`[data-fuel="${k}"]`); if (!el) return;
   el.outerHTML = pxCard(k); const n = $(`[data-fuel="${k}"] .px-v`); n.classList.add(step > 0 ? 'up' : 'dn'); setTimeout(() => n.classList.remove('up', 'dn'), 700);
 }
+
+
+setInterval(() => {
+  if (document.hidden || $('#scrim')) return;
+  const k = Object.keys(FUELS)[Math.floor(Math.random() * 4)], f = FUELS[k], vol = 500 * (1 + Math.floor(Math.random() * 8));
+  TRADES.unshift([0, k, vol, Math.round(f.px * (1 + (Math.random() - .5) * .012)), BUYERS[Math.floor(Math.random() * BUYERS.length)], ROUTE_OF[k]]);
+  toast(`Deal: ${num(vol)} t ${f.short} at ${usd(TRADES[0][3])}`);
+  if (page === 'market') render();
+}, 9000);
 
 /* ── actions ──────────────────────────────────────────── */
 const ACT = {
