@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DizelTrade ERP — демо</title>
+<meta name="description" content="Демо: учёт дизельного топлива, рейсов и заказов клиентов. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
+<style>
+/*@kit.css*/
+:root { --display: "Unbounded", "Onest", system-ui, sans-serif; --accent: #c8f03c; }
+.big, .kpi b { font-weight: 600; }
+.tank-wrap { display: flex; gap: 22px; align-items: stretch; }
+.tank { flex: none; }
+.tank-list { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-width: 0; }
+.tank-list dl { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; }
+.tank-list dt { color: var(--muted); } .tank-list dd { text-align: right; font-weight: 600; }
+.trip { display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; }
+.trip + .trip { border-top: 1px solid var(--rule); }
+.trip-ic { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: var(--raised); color: var(--accent); }
+.trip b { display: block; font-weight: 600; } .trip span { color: var(--muted); font-size: 13px; }
+.load { display: inline-flex; align-items: center; gap: 8px; }
+@media (max-width: 899px) { .trip { grid-template-columns: 36px 1fr; } .trip .btn { grid-column: 2; justify-self: start; } .tank-wrap { flex-direction: row; } }
+</style>
+</head>
+<body>
+<div class="notice"><b>Демо</b> DizelTrade ERP · данные вымышлены</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></svg></div>
+      <div><div class="brand-name">DizelTrade</div><div class="brand-sub">База Тында</div></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">СВ</div><div class="who"><b>Сперанский В. А.</b><span>Партнёр · полный доступ</span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+
+<script>
+/*@kit.js*/
+'use strict';
+
+/* ── data ─────────────────────────────────────────────── */
+const CAP = 2500;
+const TODAY = '10.06.2026';
+const S = {
+  stockJun1: 1267,            // 1 June: 1 267 + 120 received − 540 shipped = 847
+  shippedJun: 540,
+  orders: [
+    { id: 101, client: 'Мираж ДВ',       date: '05.06.2026', total: 400,  delivered: 370,  transit: 20, sites: ['Дипкун', 'Сковородино'],  price: 20900 },
+    { id: 102, client: 'Сах Транс',      date: '12.05.2026', total: 250,  delivered: 195,  transit: 12, sites: ['Акурдан'],                price: 19500 },
+    { id: 103, client: 'ГРК Белая Гора', date: '20.05.2026', total: 600,  delivered: 510,  transit: 18, sites: ['Белая Гора', 'Чульман'],  price: 22000 },
+    { id: 104, client: 'Аэропорт Тында', date: '01.06.2026', total: 180,  delivered: 155,  transit: 0,  sites: ['Тында · аэропорт'],       price: 18500 },
+    { id: 105, client: 'РЖД Тында',      date: '15.04.2026', total: 1200, delivered: 1150, transit: 0,  sites: ['Тында · депо', 'Зейск'],  price: 21100 },
+  ],
+  trucks: [
+    { id: 1, name: 'КамАЗ-6522',  plate: 'Е412УА28', owner: 'DTL',   tank: 20, driver: 'Иванов А. Е.',   status: 'transit', last: 'Дипкун',     trips: 14 },
+    { id: 2, name: 'МАЗ-5337',    plate: 'О185НА28', owner: 'DTL',   tank: 14, driver: 'Петров С. Н.',   status: 'base',    last: 'Акурдан',    trips: 11 },
+    { id: 3, name: 'КамАЗ-65115', plate: 'А741КР28', owner: 'DTL',   tank: 16, driver: 'Кузнецов Р. В.', status: 'free',    last: 'Белая Гора', trips: 9 },
+    { id: 4, name: 'КамАЗ-6520',  plate: 'М329ОА28', owner: 'Артём', tank: 18, driver: 'Иванов А. Е.',   status: 'transit', last: 'Чульман',    trips: 7 },
+    { id: 5, name: 'Урал-4320',   plate: 'В558КН28', owner: 'Артём', tank: 12, driver: 'Сидоров П. Л.',  status: 'transit', last: 'Акурдан',    trips: 6 },
+    { id: 6, name: 'КамАЗ-5350',  plate: 'Т770МЕ28', owner: 'Артём', tank: 16, driver: 'Романов Д. А.',  status: 'base',    last: 'Зейск',      trips: 8 },
+  ],
+  trips: [
+    { id: 9, truck: 1, order: 101, site: 'Дипкун',     vol: 20, date: '10.06.2026', status: 'transit' },
+    { id: 8, truck: 4, order: 103, site: 'Чульман',    vol: 18, date: '10.06.2026', status: 'transit' },
+    { id: 7, truck: 5, order: 102, site: 'Акурдан',    vol: 12, date: '09.06.2026', status: 'transit' },
+    { id: 6, truck: 1, order: 101, site: 'Дипкун',     vol: 20, date: '02.06.2026', status: 'done' },
+    { id: 5, truck: 2, order: 102, site: 'Акурдан',    vol: 14, date: '28.05.2026', status: 'done' },
+    { id: 4, truck: 3, order: 103, site: 'Белая Гора', vol: 16, date: '25.05.2026', status: 'done' },
+    { id: 3, truck: 4, order: 101, site: 'Сковородино', vol: 18, date: '20.05.2026', status: 'done' },
+  ],
+  receipts: [
+    { id: 4, src: 'Роснефть-Тында', vol: 150, ttn: 'ТТН-2026-1901', date: '08.06.2026', ok: false, jun: true },
+    { id: 1, src: 'Роснефть-Тында', vol: 120, ttn: 'ТТН-2026-1842', date: '03.06.2026', ok: true,  jun: true },
+    { id: 2, src: 'Газпромнефть',   vol: 200, ttn: 'ТТН-2026-1791', date: '27.05.2026', ok: true,  jun: false },
+    { id: 3, src: 'Камыш (частник)', vol: 80, ttn: 'ТТН-2026-1780', date: '20.05.2026', ok: true,  jun: false },
+  ],
+  months: [['Янв', 210], ['Фев', 260], ['Мар', 360], ['Апр', 450], ['Май', 610], ['Июн', 540]],  // shipped, куб (June includes 50 on the road)
+};
+const STATUS = { transit: ['В рейсе', 'warn'], base: ['На базе', ''], free: ['Свободна', 'pos'] };
+
+/* derived: every figure is computed from the rows */
+const receivedJun = () => S.receipts.filter((r) => r.ok && r.jun).reduce((s, r) => s + r.vol, 0);
+const pendingRc = () => S.receipts.filter((r) => !r.ok);
+const stock = () => S.stockJun1 + receivedJun() - S.shippedJun;
+const transitTrips = () => S.trips.filter((t) => t.status === 'transit');
+const transitVol = () => transitTrips().reduce((s, t) => s + t.vol, 0);
+const delivered = () => S.orders.reduce((s, o) => s + o.delivered, 0);
+const revenue = () => S.orders.reduce((s, o) => s + o.delivered * o.price, 0);
+const avgPrice = () => revenue() / delivered();
+const truck = (id) => S.trucks.find((t) => t.id === id);
+const order = (id) => S.orders.find((o) => o.id === id);
+const mln = (n) => fmtD(n / 1e6, 1);
+const pctOf = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+console.assert(stock() === 847 && transitVol() === 50 && delivered() === 2380, 'seed data must reconcile');
+
+/* ── tank gauge: the product's one thing ───────────────── */
+function tankSVG(level) {
+  const W = 84, H = 210, y0 = 6, ph = H - 12, fill = ph * level;
+  const ticks = [0.25, 0.5, 0.75].map((t) => `<line x1="10" x2="26" y1="${y0 + ph * (1 - t)}" y2="${y0 + ph * (1 - t)}" stroke="var(--border)" stroke-width="2"/>`).join('');
+  return `<svg class="tank" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Заполнено ${Math.round(level * 100)}% из ${fmt(CAP)} куб">
+    <rect x="1" y="${y0}" width="${W - 2}" height="${ph}" rx="14" fill="var(--raised)" stroke="var(--border)" stroke-width="2"/>
+    <clipPath id="tk"><rect x="1" y="${y0}" width="${W - 2}" height="${ph}" rx="14"/></clipPath>
+    <rect x="0" y="${y0 + ph - fill}" width="${W}" height="${fill}" fill="var(--accent)" clip-path="url(#tk)" style="transition:all .6s var(--ease)"/>
+    ${ticks}</svg>`;
+}
+
+/* ── pages ────────────────────────────────────────────── */
+const PAGES = {
+  dashboard: ['Дашборд', 'home'], base: ['База', 'drop'], orders: ['Заказы', 'box'], fleet: ['Автопарк', 'truck'], analytics: ['Аналитика', 'chart'],
+};
+let page = 'dashboard', baseTab = 'receipts';
+
+function chrome() {
+  const pend = pendingRc().length;
+  const item = (k, extra = '') => `<a data-page="${k}" role="link" tabindex="0">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${extra}</a>`;
+  $('#nav').innerHTML = item('dashboard') + `<div class="nav-label">База</div>` + item('base', pend ? `<span class="count" title="Ждёт подтверждения">${pend}</span>` : '') + item('orders') + `<div class="nav-label">Операции</div>` + item('fleet') + item('analytics');
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" role="link" tabindex="0">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'base' && pend ? `<b class="count">${pend}</b>` : ''}</a>`).join('');
+  setNav(page);
+}
+
+function render() {
+  chrome();
+  $('#main').innerHTML = ({ dashboard, base, orders, fleet, analytics })[page]();
+  mountCharts();
+  window.scrollTo(0, 0);
+}
+function go(p) { page = p; render(); }
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) { go(a.dataset.page); return; }
+  const act = e.target.closest('[data-act]'); if (act) { act.blur(); ACT[act.dataset.act](act.dataset); return; }
+  const row = e.target.closest('[data-open]'); if (row) openOrder(+row.dataset.open);
+  const tab = e.target.closest('[data-tab]'); if (tab) { baseTab = tab.dataset.tab; render(); }
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+
+const head = (title, sub, actions = '') => `<header class="head"><div><h1>${title}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+const mainActions = `<button class="btn" data-act="newTrip">${ic('truck')}Новый рейс</button><button class="btn primary" data-act="newReceipt">${ic('plus')}Принял топливо</button>`;
+
+function dashboard() {
+  const pend = pendingRc();
+  const pv = pend.reduce((s, r) => s + r.vol, 0);
+  const trips = transitTrips();
+  const level = stock() / CAP;
+  return head('Дашборд', `${TODAY} · база Тында`, mainActions) +
+    (pend.length ? `<div class="finding">${ic('alert')}<span>Приёмка ${esc(pend[0].ttn)} от ${esc(pend[0].src)}, ${pend[0].vol} куб, ждёт подтверждения. После неё на базе будет ${fmt(stock() + pv)} куб.</span><button class="btn sm" data-act="confirmRc" data-id="${pend[0].id}">Подтвердить</button></div>` : '') +
+    `<div class="kpis">
+      <div class="kpi"><b>${mln(revenue())}<small>млн ₽</small></b><span>Выручка по доставленному</span></div>
+      <div class="kpi"><b>${fmt(delivered())}<small>куб</small></b><span>Доставлено клиентам</span></div>
+      <div class="kpi"><b>${S.orders.length}</b><span>Активных заказов</span></div>
+    </div>
+    <div class="grid">
+      <section class="card c5"><div class="card-h"><h2>Остаток на базе</h2><span>ёмкость ${fmt(CAP)} куб</span></div>
+        <div class="tank-wrap">${tankSVG(level)}
+          <div class="tank-list"><div><div class="big">${fmt(stock())}<small>куб</small></div><div class="muted" style="margin-top:6px">${pctOf(stock(), CAP)}% от ёмкости</div></div>
+            <dl><dt>Принято в июне</dt><dd class="pos">${signed(receivedJun())}</dd><dt>Отгружено в июне</dt><dd>${signed(-S.shippedJun)}</dd><dt>Ждёт приёмки</dt><dd class="${pv ? 'warn' : 'muted'}">${pv ? fmt(pv) : '—'}</dd></dl></div></div>
+      </section>
+      <section class="card c7"><div class="card-h"><h2>Рейсы в пути${trips.length ? ` · ${trips.length}` : ''}</h2><span>${fmt(transitVol())} куб на дороге</span></div>
+        ${trips.length ? trips.map((t) => `<div class="trip"><div class="trip-ic">${ic('truck')}</div><div><b>${esc(truck(t.truck).name)} → ${esc(t.site)}</b><span>${esc(truck(t.truck).driver)} · ${t.vol} куб · выехал ${t.date.slice(0, 5)}</span></div><button class="btn sm" data-act="deliver" data-id="${t.id}">${ic('check')}Доставлено</button></div>`).join('') : `<div class="empty">Все рейсы доставлены.<br><button class="btn sm" style="margin-top:10px" data-act="newTrip">Создать рейс</button></div>`}
+      </section>
+      <section class="card c7"><div class="card-h"><h2>Отгрузки по месяцам, куб</h2><span>июнь с учётом рейсов в пути</span></div><div id="ch-months"></div></section>
+      <section class="card c5"><div class="card-h"><h2>Выполнение заказов</h2><span>доставлено из заказанного</span></div>
+        ${S.orders.map((o) => barRow(esc(o.client), pctOf(o.delivered, o.total), `${pctOf(o.delivered, o.total)}%`, `${fmt(o.delivered)} из ${fmt(o.total)} куб`)).join('')}
+      </section>
+    </div>`;
+}
+
+function base() {
+  const rc = `<div class="tbl" style="--cols:92px 1.4fr 1.2fr 80px 130px;--colsm:1.4fr 70px 110px">
+      <div class="tr th"><span class="hm">Дата</span><span>Поставщик</span><span class="hm">ТТН</span><span class="r">Куб</span><span class="r">Статус</span></div>
+      ${S.receipts.map((r) => `<div class="tr"><span class="hm muted">${r.date}</span><span class="cell-main"><b>${esc(r.src)}</b><span class="hm" style="display:none"></span></span><span class="hm muted">${esc(r.ttn)}</span><span class="r">${r.vol}</span><span class="r">${r.ok ? '<span class="pill pos"><i></i>Принято</span>' : `<button class="btn sm primary" data-act="confirmRc" data-id="${r.id}">Принять</button>`}</span></div>`).join('')}</div>`;
+  const tr = `<div class="tbl" style="--cols:92px 1.3fr 1.2fr 1fr 70px 110px;--colsm:1.2fr 1fr 60px">
+      <div class="tr th"><span class="hm">Дата</span><span>Машина</span><span class="hm">Водитель</span><span>Объект</span><span class="r">Куб</span><span class="r hm">Статус</span></div>
+      ${S.trips.map((t) => `<div class="tr"><span class="hm muted">${t.date}</span><span class="cell-main"><b>${esc(truck(t.truck).name)}</b></span><span class="hm muted">${esc(truck(t.truck).driver)}</span><span>${esc(t.site)}</span><span class="r">${t.vol}</span><span class="r hm">${t.status === 'transit' ? '<span class="pill warn"><i></i>В рейсе</span>' : '<span class="pill pos"><i></i>Доставлен</span>'}</span></div>`).join('')}</div>`;
+  return head('База', `Остаток ${fmt(stock())} куб из ${fmt(CAP)} · ${pctOf(stock(), CAP)}%`, mainActions) +
+    `<div class="card" style="margin-bottom:var(--gap)"><div class="bar thick"><i style="width:${pctOf(stock(), CAP)}%"></i></div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px" class="muted"><span>0</span><span>${fmt(CAP / 2)}</span><span>${fmt(CAP)} куб</span></div></div>
+    <div class="tabs" role="tablist"><button data-tab="receipts" class="${baseTab === 'receipts' ? 'on' : ''}">Приходы</button><button data-tab="trips" class="${baseTab === 'trips' ? 'on' : ''}">Рейсы</button></div>
+    <div class="card">${baseTab === 'receipts' ? rc : tr}</div>`;
+}
+
+function orders() {
+  return head('Заказы клиентов', `${S.orders.length} активных · ${fmt(S.orders.reduce((s, o) => s + o.total, 0))} куб заказано`, `<button class="btn primary" data-act="newTrip">${ic('truck')}Новый рейс</button>`) +
+    `<div class="card"><div class="tbl" style="--cols:1.4fr 100px 1.3fr 130px 130px;--colsm:1.3fr 110px">
+      <div class="tr th"><span>Клиент</span><span class="hm">Дата</span><span class="hm">Выполнение</span><span class="r">Доставлено</span><span class="r hm">Сумма, ₽</span></div>
+      ${S.orders.map((o) => `<div class="tr" data-open="${o.id}"><span class="cell-main"><b>${esc(o.client)}</b><span>${esc(o.sites.join(', '))}</span></span><span class="hm muted">${o.date}</span><span class="hm"><div class="bar"><i style="width:${pctOf(o.delivered, o.total)}%"></i></div></span><span class="r">${fmt(o.delivered)} <span class="muted">/ ${fmt(o.total)}</span></span><span class="r hm">${fmt(o.total * o.price)}</span></div>`).join('')}</div></div>`;
+}
+
+function fleet() {
+  const n = (s) => S.trucks.filter((t) => t.status === s).length;
+  return head('Автопарк', `${S.trucks.length} машин · ${n('transit')} в рейсе, ${n('base') + n('free')} можно назначить`, `<button class="btn primary" data-act="newTrip">${ic('plus')}Новый рейс</button>`) +
+    `<div class="card"><div class="tbl" style="--cols:1.3fr 90px 70px 1.2fr 1fr 80px 120px;--colsm:1.2fr 100px">
+      <div class="tr th"><span>Машина</span><span class="hm">Владелец</span><span class="hm r">Бак, куб</span><span class="hm">Водитель</span><span class="hm">Последний объект</span><span class="hm r">Рейсов</span><span class="r">Статус</span></div>
+      ${S.trucks.map((t) => `<div class="tr"><span class="cell-main"><b>${esc(t.name)}</b><span>${esc(t.plate)}</span></span><span class="hm muted">${esc(t.owner)}</span><span class="hm r">${t.tank}</span><span class="hm">${esc(t.driver)}</span><span class="hm muted">${esc(t.last)}</span><span class="hm r">${t.trips}</span><span class="r"><span class="pill ${STATUS[t.status][1]}"><i></i>${STATUS[t.status][0]}</span></span></div>`).join('')}</div></div>`;
+}
+
+function analytics() {
+  const best = S.months.reduce((a, b) => (b[1] > a[1] ? b : a));
+  const rows = S.months.map(([m, v], i) => ({ m, v, d: i ? v - S.months[i - 1][1] : null, rev: v * avgPrice() }));
+  return head('Аналитика', 'Отгрузки и выручка с начала года') +
+    `<div class="kpis"><div class="kpi"><b>${fmt(S.months.reduce((s, m) => s + m[1], 0))}<small>куб</small></b><span>Отгружено с января</span></div>
+      <div class="kpi"><b>${best[0]}<small>${best[1]} куб</small></b><span>Лучший месяц</span></div>
+      <div class="kpi"><b>${fmt(avgPrice())}<small>₽/куб</small></b><span>Средняя цена продажи</span></div></div>
+    <div class="grid"><section class="card c8"><div class="card-h"><h2>Отгрузки, куб в месяц</h2></div><div id="ch-line"></div></section>
+      <section class="card c4"><div class="card-h"><h2>Выручка по клиентам</h2><span>млн ₽</span></div>
+        ${[...S.orders].sort((a, b) => b.delivered * b.price - a.delivered * a.price).map((o) => barRow(esc(o.client), (o.delivered * o.price) / (Math.max(...S.orders.map((x) => x.delivered * x.price))) * 100, mln(o.delivered * o.price))).join('')}</section>
+      <section class="card c12"><div class="card-h"><h2>По месяцам</h2><span>выручка по средней цене</span></div>
+        <div class="tbl" style="--cols:1fr 1fr 1fr 1fr;--colsm:1fr 1fr 1fr"><div class="tr th"><span>Месяц</span><span class="r">Куб</span><span class="r">Выручка, млн ₽</span><span class="r hm">К прошлому месяцу</span></div>
+        ${rows.map((r) => `<div class="tr"><span>${r.m}${r.m === 'Июн' ? ' <span class="muted">(неполный)</span>' : ''}</span><span class="r">${r.v}</span><span class="r">${mln(r.rev)}</span><span class="r hm ${r.d > 0 ? 'pos' : r.d < 0 ? 'neg' : 'muted'}">${r.d == null ? '—' : signed(r.d) + ' куб'}</span></div>`).join('')}</div></section></div>`;
+}
+
+function mountCharts() {
+  const labels = S.months.map((m) => m[0]), values = S.months.map((m) => m[1]);
+  const a = $('#ch-months'); if (a) chart(a, (w) => barsSVG(w, { labels, values, unit: 'куб' }));
+  const b = $('#ch-line'); if (b) chart(b, (w) => lineSVG(w, { labels, values }));
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const ACT = {
+  deliver({ id }) {
+    const t = S.trips.find((x) => x.id === +id); t.status = 'done';
+    const o = order(t.order); o.transit -= t.vol; o.delivered += t.vol;
+    truck(t.truck).status = 'base'; truck(t.truck).last = t.site; truck(t.truck).trips += 1;
+    toast(`Доставлено: ${t.vol} куб в ${t.site}`); render();
+  },
+  confirmRc({ id }) { const r = S.receipts.find((x) => x.id === +id); r.ok = true; toast(`Приёмка принята: +${r.vol} куб на базе`); render(); },
+  newReceipt() {
+    modal(`<h2>Принял топливо</h2><p>Новая приёмка уйдёт на подтверждение.</p>
+      <div class="field"><label>Поставщик</label><select id="f-src"><option>Роснефть-Тында</option><option>Газпромнефть</option><option>Камыш (частник)</option></select></div>
+      <div class="field"><label>Объём, куб</label><input id="f-vol" type="number" min="1" max="500" value="100"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="f-ok">Записать</button></div>`, () => {
+      $('#f-ok').onclick = () => {
+        const vol = +$('#f-vol').value; if (!(vol > 0)) return;
+        S.receipts.unshift({ id: Date.now(), src: $('#f-src').value, vol, ttn: 'ТТН-2026-' + (1902 + S.receipts.length - 4), date: TODAY, ok: false, jun: true });
+        closeModal(); toast('Приёмка записана, ждёт подтверждения'); render();
+      };
+    });
+  },
+  newTrip(data = {}) {
+    const free = S.trucks.filter((t) => t.status !== 'transit');
+    if (!free.length) { toast('Все машины в рейсе'); return; }
+    modal(`<h2>Новый рейс</h2><p>Топливо спишется с базы сразу. Сейчас на базе ${fmt(stock())} куб.</p>
+      <div class="field"><label>Машина</label><select id="f-truck">${free.map((t) => `<option value="${t.id}">${esc(t.name)} · бак ${t.tank} куб</option>`).join('')}</select></div>
+      <div class="field"><label>Заказ</label><select id="f-order">${S.orders.map((o) => `<option value="${o.id}">${esc(o.client)} · осталось ${fmt(o.total - o.delivered - o.transit)} куб</option>`).join('')}</select></div>
+      <div class="field"><label>Объект</label><select id="f-site"></select></div>
+      <div class="field"><label>Объём, куб</label><input id="f-vol" type="number" min="1" value="12"><span id="f-err" class="neg" style="font-size:13px"></span></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="f-ok">Отправить в рейс</button></div>`, () => {
+      const sync = () => {
+        const o = order(+$('#f-order').value), t = truck(+$('#f-truck').value);
+        $('#f-site').innerHTML = o.sites.map((s) => `<option>${esc(s)}</option>`).join('');
+        $('#f-vol').max = t.tank; if (+$('#f-vol').value > t.tank) $('#f-vol').value = t.tank;
+      };
+      $('#f-order').onchange = sync; $('#f-truck').onchange = sync; sync();
+      $('#f-ok').onclick = () => {
+        const t = truck(+$('#f-truck').value), o = order(+$('#f-order').value), vol = +$('#f-vol').value, left = o.total - o.delivered - o.transit;
+        const err = !(vol > 0) ? 'Укажите объём' : vol > t.tank ? `В бак ${t.name} влезает ${t.tank} куб` : vol > stock() ? `На базе только ${fmt(stock())} куб` : vol > left ? `По заказу осталось ${left} куб` : '';
+        if (err) { $('#f-err').textContent = err; return; }
+        S.trips.unshift({ id: Date.now(), truck: t.id, order: o.id, site: $('#f-site').value, vol, date: TODAY, status: 'transit' });
+        t.status = 'transit'; o.transit += vol; S.shippedJun += vol;
+        closeModal(); toast(`${t.name} выехала: ${vol} куб`); render();
+      };
+    });
+  },
+};
+function openOrder(id) {
+  const o = order(id), trips = S.trips.filter((t) => t.order === id);
+  modal(`<h2>${esc(o.client)}</h2><p>Заказ от ${o.date} · ${fmt(o.price)} ₽/куб · ${fmt(o.total * o.price)} ₽</p>
+    <div class="brow-t"><span>Доставлено</span><b>${fmt(o.delivered)} из ${fmt(o.total)} куб</b></div><div class="bar thick" style="margin-bottom:6px"><i style="width:${pctOf(o.delivered, o.total)}%"></i></div>
+    <p class="muted" style="margin:0 0 14px">${o.transit ? `В пути ${o.transit} куб · ` : ''}осталось отгрузить ${fmt(o.total - o.delivered - o.transit)} куб</p>
+    ${trips.length ? trips.map((t) => `<div class="trip" style="grid-template-columns:1fr auto"><div><b>${esc(truck(t.truck).name)} → ${esc(t.site)}</b><span>${t.date} · ${t.vol} куб</span></div><span class="pill ${t.status === 'transit' ? 'warn' : 'pos'}"><i></i>${t.status === 'transit' ? 'В рейсе' : 'Доставлен'}</span></div>`).join('') : '<p class="muted">Рейсов пока нет.</p>'}
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Закрыть</button></div>`);
+}
+
+render();
+</script>
+</body>
+</html>
