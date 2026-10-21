@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CaspianFlow — fuel marketplace (demo)</title>
+<meta name="description" content="Demo: B2B fuel marketplace for Central Asia with a live price board, offers and requests, a landed-cost calculator and a deal desk. All data is invented.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap" rel="stylesheet">
+<style>
+/*@kit.css*/
+:root {
+  --bg: #0b0e13; --surface: #11151c; --raised: #181d26; --hover: #1d2430; --border: #222a36; --rule: #1a2029;
+  --text: #eef1f5; --muted: #a0a9b8; --faint: #7d8797;
+  --accent: #f0b33c; --accent-ink: #1a1203;
+  --pos: #3fcf8e; --neg: #f26d6d;
+  --font: "Hanken Grotesk", system-ui, sans-serif; --display: "Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+}
+.brand-name, .head h1, .big, .kpi b { font-family: var(--display); font-weight: 700; letter-spacing: -.02em; }
+.nav .count { background: var(--accent); color: var(--accent-ink); }
+
+/* price board */
+.board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap); margin-bottom: var(--gap); }
+.px { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 16px 12px; min-width: 0; }
+.px-t { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--muted); }
+.px-t b { color: var(--text); font-weight: 600; }
+.px-v { font: 700 34px/1.1 var(--display); letter-spacing: -.02em; margin: 6px 0 2px; transition: color .6s; }
+.px-v.up { color: var(--pos); transition: none; } .px-v.dn { color: var(--neg); transition: none; }
+.px-c { font-size: 13px; }
+.spark { margin-top: 8px; width: 100%; height: 44px; }
+.spark path { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.live i { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+.dm { display: none; } .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--gap); }
+.chip { height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s, border-color .15s; }
+.chip:hover { color: var(--text); border-color: var(--faint); }
+.chip.on { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.toolbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+
+/* calculator */
+.calc { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: var(--gap); align-items: start; }
+.stack { display: flex; height: 18px; border-radius: 9px; overflow: hidden; gap: 2px; margin: 14px 0 18px; }
+.stack i { display: block; height: 100%; min-width: 3px; }
+.lines div { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; }
+.lines div + div { border-top: 1px solid var(--rule); }
+.lines span { display: flex; align-items: center; gap: 8px; color: var(--muted); } .lines span i { width: 10px; height: 10px; border-radius: 3px; }
+.lines b { font-weight: 600; }
+.lines .sum { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 14px; } .lines .sum span { color: var(--text); font-weight: 600; } .lines .sum b { font: 700 20px var(--display); }
+.deal { padding: 14px 0; } .deal + .deal { border-top: 1px solid var(--rule); }
+.deal-h { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; margin-bottom: 8px; }
+.offer { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; padding: 10px 12px; margin-top: 6px; background: var(--raised); border-radius: 8px; }
+.offer .btn { margin-left: 4px; }
+@media (max-width: 1099px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .calc { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 899px) { .dm { display: block; } .px-v { font-size: 26px; } .px { padding: 12px; } }
+</style>
+</head>
+<body>
+<div class="notice"><b>Demo</b> CaspianFlow · all data is invented</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M3 9c3-3 6 3 9 0s6 3 9 0M3 15c3-3 6 3 9 0s6 3 9 0"/></svg></div>
+      <div><div class="brand-name">CaspianFlow</div><div class="brand-sub">Fuel marketplace</div></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">AK</div><div class="who"><b>Aslan Karimov</b><span>Karimov Trading · verified</span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+
+<script>
+/*@kit.js*/
+'use strict';
+
+/* ── data ─────────────────────────────────────────────── */
+const usd = (n) => '$' + Math.round(n).toLocaleString('en-US');
+const num = (n) => Math.round(n).toLocaleString('en-US');
+const pct = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n).toFixed(1) + '%';
+const FUELS = {
+  diesel: { n: 'Diesel EN590', short: 'Diesel', px: 685, hub: 'Almaty hub', seed: 1 },
+  ai95:   { n: 'AI-95 petrol', short: 'AI-95', px: 712, hub: 'Baku exchange', seed: 2 },
+  jet:    { n: 'Jet A-1', short: 'Jet A-1', px: 910, hub: 'Aktau terminal', seed: 3 },
+  mazut:  { n: 'Mazut M-100', short: 'Mazut', px: 310, hub: 'Turkmenbashi', seed: 4 },
+};
+/* 30-day series: deterministic wobble, forced to end on the current price */
+for (const f of Object.values(FUELS)) {
+  const raw = Array.from({ length: 30 }, (_, i) => 1 + 0.018 * Math.sin(i / (2.6 + f.seed * 0.7) + f.seed * 1.9) + 0.009 * Math.sin(i * 1.7 + f.seed * 2) + (i - 29) * 0.0011);
+  f.series = raw.map((r) => Math.round(f.px * r / raw[29]));
+  f.series[29] = f.px;
+}
+const dayChg = (f) => (f.series[29] / f.series[28] - 1) * 100;
+
+const L = [
+  { id: 1,  side: 'sell', f: 'diesel', vol: 5000,  px: 672, where: 'Aktau',        term: 'FCA', co: 'Caspian Energy Trade', win: 'Oct 24–31' },
+  { id: 2,  side: 'sell', f: 'diesel', vol: 2000,  px: 689, where: 'Almaty',       term: 'DAP', co: 'KazOil Trading',       win: 'Oct 20–25' },
+  { id: 3,  side: 'sell', f: 'diesel', vol: 8000,  px: 661, where: 'Atyrau',       term: 'FCA', co: 'Ural Petro',           win: 'Nov 1–10' },
+  { id: 14, side: 'sell', f: 'diesel', vol: 1500,  px: 678, where: 'Baku',         term: 'FCA', co: 'Absheron Fuels',       win: 'Oct 22–28' },
+  { id: 4,  side: 'sell', f: 'ai95',   vol: 1500,  px: 705, where: 'Baku',         term: 'DAP', co: 'Absheron Fuels',       win: 'Oct 21–30' },
+  { id: 5,  side: 'sell', f: 'ai95',   vol: 3000,  px: 718, where: 'Shymkent',     term: 'DAP', co: 'Silk Road Oil',        win: 'Oct 26–Nov 5' },
+  { id: 6,  side: 'sell', f: 'jet',    vol: 1200,  px: 905, where: 'Aktau',        term: 'FCA', co: 'Aktau Terminal LLC',   win: 'Oct 23–27' },
+  { id: 7,  side: 'sell', f: 'jet',    vol: 600,   px: 925, where: 'Almaty',       term: 'DAP', co: 'SkyFuel Asia',         win: 'Oct 20–24' },
+  { id: 8,  side: 'sell', f: 'mazut',  vol: 10000, px: 298, where: 'Turkmenbashi', term: 'FCA', co: 'Turkmen Refining',     win: 'Nov 1–15' },
+  { id: 9,  side: 'sell', f: 'mazut',  vol: 4000,  px: 315, where: 'Atyrau',       term: 'DAP', co: 'Ural Petro',           win: 'Oct 25–Nov 2' },
+  { id: 10, side: 'buy',  f: 'diesel', vol: 3000,  px: 680, where: 'Tashkent',     term: 'DAP', co: 'Uzbek Agro Trade',     win: 'Nov 1–8' },
+  { id: 11, side: 'buy',  f: 'ai95',   vol: 2000,  px: 710, where: 'Bishkek',      term: 'DAP', co: 'Tien Shan Fuel',       win: 'Oct 28–Nov 4' },
+  { id: 12, side: 'buy',  f: 'jet',    vol: 800,   px: 915, where: 'Tbilisi',      term: 'DAP', co: 'Caucasus Air Supply',  win: 'Oct 24–30' },
+  { id: 13, side: 'buy',  f: 'mazut',  vol: 5000,  px: 305, where: 'Aktau',        term: 'FCA', co: 'Mangystau Power',      win: 'Nov 3–12' },
+  { id: 15, side: 'sell', f: 'diesel', vol: 4000,  px: 684, where: 'Atyrau',       term: 'FCA', co: 'Karimov Trading',      win: 'Oct 28–Nov 6', mine: true },
+];
+const OFFERS = [   // offers received on my listing 15
+  { id: 1, from: 'Uzbek Agro Trade', vol: 1500, px: 679, st: 'new' },
+  { id: 2, from: 'Tien Shan Fuel',   vol: 1000, px: 682, st: 'new' },
+];
+const SENT = [{ to: 'Ural Petro', f: 'diesel', vol: 2000, px: 664, st: 'pending' }];
+const TRADES = [   // hours ago, fuel, volume t, price, buyer
+  [1, 'diesel', 5000, 685, 'KazOil Trading'], [3, 'jet', 1200, 912, 'SkyFuel Asia'], [5, 'ai95', 2000, 711, 'Silk Road Oil'], [9, 'mazut', 6000, 308, 'Mangystau Power'],
+  [14, 'diesel', 3000, 683, 'Uzbek Agro Trade'], [20, 'jet', 700, 908, 'Caucasus Air Supply'], [30, 'diesel', 4500, 687, 'Tien Shan Fuel'], [52, 'ai95', 1800, 714, 'Absheron Fuels'], [70, 'mazut', 3000, 311, 'Turkmen Refining'],
+];
+const ROUTES = [
+  { n: 'Aktau → Baku (ferry)',      freight: 18, duty: 0 },
+  { n: 'Atyrau → Tashkent (rail)',  freight: 41, duty: 5 },
+  { n: 'Almaty → Bishkek (truck)',  freight: 22, duty: 5 },
+  { n: 'Aktau → Tbilisi (ferry + rail)', freight: 47, duty: 0 },
+];
+const trades24 = () => TRADES.filter((t) => t[0] < 24);
+const vol24 = () => trades24().reduce((a, t) => a + t[2] * t[3], 0);
+console.assert(trades24().length === 6 && vol24() === 5000 * 685 + 1200 * 912 + 2000 * 711 + 6000 * 308 + 3000 * 683 + 700 * 908, '24h volume');
+const vsBench = (l) => (l.px / FUELS[l.f].px - 1) * 100;
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { market: ['Market', 'chart'], listings: ['Listings', 'list'], calc: ['Calculator', 'sliders'], deals: ['My deals', 'file'] };
+let page = 'market', side = 'sell', fuel = 'all', calc = { f: 'diesel', vol: 3000, px: 685, r: 0 };
+const newOffers = () => OFFERS.filter((o) => o.st === 'new').length;
+
+function chrome() {
+  const n = newOffers();
+  $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'deals' && n ? `<span class="count">${n}</span>` : ''}</a>`).join('');
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'deals' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
+  setNav(page);
+}
+function render() { chrome(); $('#main').innerHTML = ({ market, listings, calc: calcPage, deals })[page](); mount(); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
+  const row = e.target.closest('[data-l]'); if (row) return openListing(+row.dataset.l);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('input', (e) => { if (e.target.dataset.c) { calc[e.target.dataset.c] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; if (e.target.dataset.c === 'f') calc.px = FUELS[calc.f].px; if (e.target.dataset.c === 'r') calc.r = +e.target.value; drawCalc(e.target.dataset.c === 'f'); } });
+
+/* ── market ───────────────────────────────────────────── */
+function spark(f) {
+  const s = f.series, min = Math.min(...s), max = Math.max(...s), w = 200, h = 44;
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path d="${s.map((v, i) => `${i ? 'L' : 'M'}${(i / 29 * w).toFixed(1)},${(h - 4 - (v - min) / (max - min || 1) * (h - 8)).toFixed(1)}`).join(' ')}"/></svg>`;
+}
+function pxCard(k) {
+  const f = FUELS[k], c = dayChg(f);
+  return `<article class="px" data-fuel="${k}"><div class="px-t"><b>${f.n}</b><span>${f.hub}</span></div><div class="px-v">${usd(f.px)}</div><div class="px-c ${c >= 0 ? 'pos' : 'neg'}">${pct(c)} <span class="muted">today, $/t</span></div>${spark(f)}</article>`;
+}
+function market() {
+  const sells = L.filter((l) => l.side === 'sell' && !l.mine);
+  const best = sells.map((l) => ({ l, d: vsBench(l) })).sort((a, b) => a.d - b.d)[0];
+  const f = FUELS[best.l.f];
+  const finding = `<div class="finding">${ic('tag')}<span>${esc(best.l.co)} offers ${num(best.l.vol)} t of ${f.short} in ${esc(best.l.where)} at ${usd(best.l.px)}, ${usd(f.px - best.l.px)} under the benchmark (${pct(vsBench(best.l))}).</span><button class="btn sm primary" data-act="offer" data-id="${best.l.id}">Make an offer</button></div>`;
+  const rows = TRADES.slice(0, 7).map((t) => `<div class="tr" style="--cols:.9fr 1fr .9fr .8fr 1fr 1.3fr;--colsm:1fr auto"><span class="muted hm">${t[0] < 24 ? t[0] + ' h ago' : Math.round(t[0] / 24) + ' d ago'}</span><div class="cell-main"><b>${FUELS[t[1]].short}</b><span class="dm">${num(t[2])} t · ${t[0]} h ago</span></div><span class="hm r">${num(t[2])} t</span><span class="hm r">${usd(t[3])}</span><div class="r"><b>${usd(t[2] * t[3])}</b><div class="dm muted" style="font-size:12px">${esc(t[4])}</div></div><span class="hm">${esc(t[4])}</span></div>`).join('');
+  return head('Market', `Prices in USD per tonne · Central Asia and the Caspian <span class="live" style="margin-left:8px"><i></i>live</span>`, `<button class="btn primary" data-act="newListing">${ic('plus')}New listing</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${usd(vol24())}</b><span>Traded in 24 h</span></div><div class="kpi"><b>${trades24().length}</b><span>Deals in 24 h</span></div><div class="kpi"><b>${L.filter((l) => l.side === 'sell').length}</b><span>Open offers</span></div><div class="kpi"><b>${L.filter((l) => l.side === 'buy').length}</b><span>Open requests</span></div></div>
+    <div class="board" id="board">${Object.keys(FUELS).map(pxCard).join('')}</div>
+    <section class="card"><div class="card-h"><h2>Recent trades</h2><span>last 3 days</span></div><div class="tbl"><div class="tr th" style="--cols:.9fr 1fr .9fr .8fr 1fr 1.3fr;--colsm:1fr auto"><span class="hm">When</span><span>Fuel</span><span class="hm r">Volume</span><span class="hm r">Price</span><span class="r">Total</span><span class="hm">Buyer</span></div>${rows}</div></section>`;
+}
+
+/* ── listings ─────────────────────────────────────────── */
+function listings() {
+  const list = L.filter((l) => l.side === side && (fuel === 'all' || l.f === fuel)).sort((a, b) => (side === 'sell' ? a.px - b.px : b.px - a.px));
+  const rows = list.map((l) => { const d = vsBench(l), good = side === 'sell' ? d < 0 : d > 0; return `<div class="tr" data-l="${l.id}" tabindex="0" style="cursor:pointer;--cols:1fr .8fr .8fr .9fr 1.1fr 1.3fr;--colsm:1fr auto"><div class="cell-main"><b>${FUELS[l.f].short}${l.mine ? ' <span class="pill">yours</span>' : ''}</b><span>${num(l.vol)} t · ${esc(l.where)} · ${l.term}</span></div><span class="hm r">${num(l.vol)} t</span><span class="hm r"><b>${usd(l.px)}</b></span><span class="hm r"><span class="pill ${good ? 'pos' : ''}">${pct(d)}</span></span><span class="hm">${esc(l.where)} · ${l.term}</span><span class="hm">${esc(l.co)}</span><div class="r dm"><b>${usd(l.px)}</b><div class="muted" style="font-size:12px">${pct(d)} vs benchmark</div></div></div>`; }).join('');
+  return head('Listings', `${list.length} ${side === 'sell' ? 'offers' : 'requests'}${fuel === 'all' ? '' : ' for ' + FUELS[fuel].short} · benchmark = market price today`, `<button class="btn primary" data-act="newListing">${ic('plus')}New listing</button>`) +
+    `<div class="toolbar"><div class="tabs"><button class="${side === 'sell' ? 'on' : ''}" data-act="side" data-v="sell">Offers</button><button class="${side === 'buy' ? 'on' : ''}" data-act="side" data-v="buy">Requests</button></div>
+    <div class="chips">${['all', ...Object.keys(FUELS)].map((k) => `<button class="chip ${fuel === k ? 'on' : ''}" data-act="fuel" data-v="${k}">${k === 'all' ? 'All fuels' : FUELS[k].short}</button>`).join('')}</div></div>
+    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1fr .8fr .8fr .9fr 1.1fr 1.3fr;--colsm:1fr auto"><span>Fuel</span><span class="hm r">Volume</span><span class="hm r">Price/t</span><span class="hm r">vs benchmark</span><span class="hm">Where</span><span class="hm">Company</span></div>${rows || '<p class="empty">Nothing here yet.</p>'}</div></section>`;
+}
+function openListing(id) {
+  const l = L.find((x) => x.id === id), d = vsBench(l);
+  modal(`<h2>${FUELS[l.f].n}</h2><p>${esc(l.co)} · ${esc(l.where)}, ${l.term} · ${esc(l.win)}</p>
+    <div class="lines"><div><span>${l.side === 'sell' ? 'Offered' : 'Wanted'}</span><b>${num(l.vol)} t</b></div><div><span>Price</span><b>${usd(l.px)} / t</b></div><div><span>Against benchmark ${usd(FUELS[l.f].px)}</span><b class="${(l.side === 'sell' ? d < 0 : d > 0) ? 'pos' : ''}">${pct(d)}</b></div><div class="sum"><span>Deal value</span><b>${usd(l.vol * l.px)}</b></div></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button>${l.mine ? '' : `<button class="btn primary" data-act="offer" data-id="${l.id}">${l.side === 'sell' ? 'Make an offer' : 'Offer supply'}</button>`}</div>`);
+}
+
+/* ── calculator ───────────────────────────────────────── */
+function landed() {
+  const r = ROUTES[calc.r], value = calc.vol * calc.px, freight = calc.vol * r.freight, ins = value * 0.003, duty = (value + freight) * r.duty / 100;
+  const total = value + freight + ins + duty; return { value, freight, ins, duty, total, r };
+}
+function resultHTML() {
+  const x = landed(), parts = [['Fuel', x.value, 'var(--accent)'], ['Freight', x.freight, '#5aa9ff'], ['Insurance 0.3%', x.ins, '#a78bfa'], [`Import duty ${x.r.duty}%`, x.duty, '#f26d6d']];
+  const bench = calc.vol * (FUELS[calc.f].px - calc.px);
+  return `<div class="big">${usd(x.total)}</div><p class="muted">${usd(calc.vol ? x.total / calc.vol : 0)} per tonne delivered · ${num(calc.vol)} t</p>
+    <div class="stack">${parts.filter((p) => p[1] > 0).map(([, v, c]) => `<i style="flex:${Math.max(v, 0.0001)};background:${c}"></i>`).join('')}</div>
+    <div class="lines">${parts.map(([n, v, c]) => `<div><span><i style="background:${c}"></i>${n}</span><b>${usd(v)}</b></div>`).join('')}<div class="sum"><span>Landed cost</span><b>${usd(x.total)}</b></div></div>
+    <p class="${bench >= 0 ? 'pos' : 'neg'}" style="margin-top:14px">${bench === 0 ? 'Your price equals the benchmark.' : bench > 0 ? `You save ${usd(bench)} against the benchmark ${usd(FUELS[calc.f].px)}.` : `You pay ${usd(-bench)} more than the benchmark ${usd(FUELS[calc.f].px)}.`}</p>`;
+}
+function calcPage() {
+  return head('Calculator', 'Landed cost to your gate: fuel, freight, insurance and duty') +
+    `<div class="calc"><section class="card"><div class="field"><label for="c-f">Fuel</label><select id="c-f" data-c="f">${Object.entries(FUELS).map(([k, f]) => `<option value="${k}" ${calc.f === k ? 'selected' : ''}>${f.n}</option>`).join('')}</select></div>
+      <div class="field"><label for="c-v">Volume, tonnes</label><input id="c-v" data-c="vol" type="number" min="0" step="100" value="${calc.vol}"></div>
+      <div class="field"><label for="c-p">Price, $/t at origin</label><input id="c-p" data-c="px" type="number" min="0" value="${calc.px}"></div>
+      <div class="field"><label for="c-r">Route</label><select id="c-r" data-c="r">${ROUTES.map((r, i) => `<option value="${i}" ${calc.r === i ? 'selected' : ''}>${r.n}</option>`).join('')}</select></div></section>
+      <section class="card" id="c-out" aria-live="polite">${resultHTML()}</section></div>`;
+}
+function drawCalc(fuelChanged) { $('#c-out').innerHTML = resultHTML(); if (fuelChanged) $('#c-p').value = calc.px; }
+{ const x = (calc.vol = 1000, calc.px = 700, calc.r = 1, landed()); console.assert(x.total === 700000 + 41000 + 2100 + (741000) * .05, 'landed'); calc.vol = 3000; calc.px = 685; calc.r = 0; }
+
+/* ── deals ────────────────────────────────────────────── */
+function deals() {
+  const mine = L.find((l) => l.mine), sold = OFFERS.filter((o) => o.st === 'accepted').reduce((a, o) => a + o.vol, 0), left = mine.vol - sold;
+  const off = OFFERS.map((o, i) => `<div class="offer"><div><b>${esc(o.from)}</b><div class="muted">${num(o.vol)} t at ${usd(o.px)} · ${usd(o.vol * o.px)}</div></div><div>${o.st === 'new' ? `<button class="btn sm" data-act="decline" data-i="${i}">Decline</button><button class="btn sm primary" data-act="accept" data-i="${i}" ${o.vol > left ? 'disabled title="Not enough volume left"' : ''}>Accept</button>` : `<span class="pill ${o.st === 'accepted' ? 'pos' : ''}">${o.st === 'accepted' ? 'Accepted' : 'Declined'}</span>`}</div></div>`).join('');
+  const sent = SENT.map((s) => `<div class="offer"><div><b>${esc(s.to)}</b><div class="muted">${FUELS[s.f].short} · ${num(s.vol)} t at ${usd(s.px)}</div></div><span class="pill warn"><i></i>Waiting for reply</span></div>`).join('');
+  return head('My deals', 'Your listing, offers you received and offers you sent') +
+    `<div class="grid"><section class="card c7"><div class="card-h"><h2>Your offer · ${FUELS[mine.f].short}</h2><span>${esc(mine.where)} · ${mine.term}</span></div>
+      <div class="kpis" style="margin-bottom:14px"><div class="kpi"><b>${num(left)} t</b><span>Left of ${num(mine.vol)} t</span></div><div class="kpi"><b>${usd(mine.px)}</b><span>Your price per tonne</span></div></div>
+      <div class="bar thick"><i style="width:${sold / mine.vol * 100}%"></i></div><p class="muted" style="margin:8px 0 16px">${num(sold)} t sold${sold ? ' · ' + usd(OFFERS.filter((o) => o.st === 'accepted').reduce((a, o) => a + o.vol * o.px, 0)) + ' in deals' : ''}</p>
+      <h3 style="font-size:14px;margin-bottom:4px">Offers received</h3>${off}</section>
+      <section class="card c5"><div class="card-h"><h2>Offers you sent</h2></div>${sent}<button class="btn" style="margin-top:14px" data-act="goListings">Browse listings</button></section></div>`;
+}
+
+/* ── live board: small random walk, only the board repaints ─ */
+let tickT;
+function mount() {
+  clearInterval(tickT);
+  if (page === 'market') tickT = setInterval(tick, 3500);
+}
+function tick() {
+  const ks = Object.keys(FUELS), k = ks[Math.floor(Math.random() * ks.length)], f = FUELS[k];
+  const step = Math.max(1, Math.round(f.px * 0.0008)) * (Math.random() < 0.5 ? -1 : 1);
+  f.px = Math.max(1, f.px + step); f.series[29] = f.px;
+  const el = $(`[data-fuel="${k}"]`); if (!el) return;
+  el.outerHTML = pxCard(k); const n = $(`[data-fuel="${k}"] .px-v`); n.classList.add(step > 0 ? 'up' : 'dn'); setTimeout(() => n.classList.remove('up', 'dn'), 700);
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const ACT = {
+  side(d) { side = d.v; render(); }, fuel(d) { fuel = d.v; render(); }, goListings() { go('listings'); },
+  accept(d) { const o = OFFERS[+d.i]; o.st = 'accepted'; toast(`Deal with ${o.from}: ${usd(o.vol * o.px)}`); render(); },
+  decline(d) { OFFERS[+d.i].st = 'declined'; toast('Offer declined'); render(); },
+  offer(d) {
+    const l = L.find((x) => x.id === +d.id);
+    modal(`<h2>${l.side === 'sell' ? 'Make an offer' : 'Offer supply'}</h2><p>${FUELS[l.f].n} · ${esc(l.co)} · listed ${usd(l.px)} for ${num(l.vol)} t</p>
+      <div class="field"><label for="o-v">Volume, tonnes (up to ${num(l.vol)})</label><input id="o-v" type="number" min="1" max="${l.vol}" value="${Math.min(l.vol, 1000)}"></div>
+      <div class="field"><label for="o-p">Your price, $/t</label><input id="o-p" type="number" min="1" value="${l.px}"></div>
+      <p id="o-t" class="muted"></p><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="o-ok">Send offer</button></div>`, () => {
+      const upd = () => { const v = +$('#o-v').value || 0, p = +$('#o-p').value || 0; $('#o-t').textContent = `Total ${usd(v * p)}`; }; upd();
+      $('#o-v').oninput = upd; $('#o-p').oninput = upd;
+      $('#o-ok').onclick = () => {
+        const v = Math.round(+$('#o-v').value), p = Math.round(+$('#o-p').value);
+        if (!(v >= 1 && v <= l.vol)) { $('#o-v').focus(); return toast(`Volume must be 1 to ${num(l.vol)} t`); }
+        if (!(p > 0)) { $('#o-p').focus(); return; }
+        SENT.unshift({ to: l.co, f: l.f, vol: v, px: p, st: 'pending' }); closeModal(); toast('Offer sent to ' + l.co); if (page === 'deals') render();
+      };
+    });
+  },
+  newListing() {
+    modal(`<h2>New listing</h2><p>It goes live on the board at once.</p>
+      <div class="field"><label>Type</label><select id="n-s"><option value="sell">I sell</option><option value="buy">I need</option></select></div>
+      <div class="field"><label>Fuel</label><select id="n-f">${Object.entries(FUELS).map(([k, f]) => `<option value="${k}">${f.n}</option>`).join('')}</select></div>
+      <div class="field"><label>Volume, tonnes</label><input id="n-v" type="number" min="1" value="2000"></div><div class="field"><label>Price, $/t</label><input id="n-p" type="number" min="1" value="${FUELS.diesel.px}"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="n-ok">Publish</button></div>`, () => {
+      $('#n-f').onchange = () => { $('#n-p').value = FUELS[$('#n-f').value].px; };
+      $('#n-ok').onclick = () => {
+        const v = Math.round(+$('#n-v').value), p = Math.round(+$('#n-p').value); if (!(v >= 1 && p > 0)) return toast('Check volume and price');
+        L.push({ id: Math.max(...L.map((x) => x.id)) + 1, side: $('#n-s').value, f: $('#n-f').value, vol: v, px: p, where: 'Atyrau', term: 'FCA', co: 'Karimov Trading', win: 'Open', mine: true });
+        closeModal(); toast('Listing published'); side = $('#n-s').value; fuel = 'all'; go('listings');
+      };
+    });
+  },
+};
+render();
+</script>
+</body>
+</html>
