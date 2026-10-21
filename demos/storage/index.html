@@ -1,1167 +1,499 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Склад / Ресторан</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Склад — закупки для сети ресторанов (демо)</title>
+<meta name="description" content="Демо: остатки по точкам, автосбор заказов поставщикам по нехватке, приёмка и списание. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ─── Design tokens — dark-first ─── */
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
 :root {
-  --black: #080808;
-  --bg: #0d0d0d;
-  --card: #141414;
-  --card-hover: #1a1a1a;
-  --border: rgba(255,255,255,0.07);
-  --muted: rgba(255,255,255,0.4);
-  --white: #f5f5f7;
-  --gold: #c8a84b;
-  --gold-dim: rgba(200,168,75,0.12);
-  --red: #ff453a;
-  --green: #30d158;
-  --amber: #ffd60a;
-  --blue: #0a84ff;
-  --radius: 12px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
-  --sidebar-w: 240px;
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
   color-scheme: dark;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #f2f2f5;
-    --card: #ffffff;
-    --card-hover: #f8f8fa;
-    --border: rgba(0,0,0,0.08);
-    --muted: rgba(0,0,0,0.45);
-    --white: #1a1a1e;
-    --gold-dim: rgba(200,168,75,0.10);
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
-    color-scheme: light;
-  }
-}
 :root[data-theme="light"] {
-  --bg: #f2f2f5;
-  --card: #ffffff;
-  --card-hover: #f8f8fa;
-  --border: rgba(0,0,0,0.08);
-  --muted: rgba(0,0,0,0.45);
-  --white: #1a1a1e;
-  --gold-dim: rgba(200,168,75,0.10);
-  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
   color-scheme: light;
 }
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--white);
-  font-size: 14px;
-  line-height: 1.5;
-  overflow: hidden;
-}
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ─── Demo banner ─── */
-#demo-banner {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 1000;
-  background: #1a1200;
-  border-bottom: 1px solid rgba(200,168,75,0.25);
-  padding: 6px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 11px;
-  color: var(--gold);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-weight: 500;
-}
-#demo-banner span { color: var(--muted); text-transform: none; letter-spacing: 0; }
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
 
-/* ─── App shell ─── */
-#app {
-  display: flex;
-  height: 100%;
-  padding-top: 30px; /* banner height */
-}
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
 
-/* ─── Sidebar ─── */
-#sidebar {
-  width: var(--sidebar-w);
-  min-width: var(--sidebar-w);
-  background: var(--card);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  height: 100%;
-}
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid var(--border);
-}
-.logo-icon {
-  width: 36px; height: 36px;
-  background: var(--gold-dim);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--gold);
-  flex-shrink: 0;
-}
-.logo-text { display: flex; flex-direction: column; line-height: 1.2; }
-.logo-text strong { font-size: 15px; font-weight: 700; color: var(--white); }
-.logo-text small { font-size: 11px; color: var(--muted); }
-nav { padding: 12px 0; flex: 1; }
-.sidebar-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 13.5px;
-  font-weight: 500;
-  transition: color 0.15s, background 0.15s;
-  user-select: none;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-}
-.sidebar-link:hover { color: var(--white); background: rgba(255,255,255,0.03); }
-.sidebar-link.active {
-  color: var(--gold);
-  background: var(--gold-dim);
-  box-shadow: inset 3px 0 0 var(--gold);
-}
-.sidebar-link svg { flex-shrink: 0; opacity: 0.8; }
-.sidebar-link.active svg { opacity: 1; }
-.sidebar-footer {
-  padding: 14px 18px;
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--muted);
-  line-height: 1.4;
-}
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-/* ─── Main content ─── */
-#main {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-.screen { display: none; padding: 28px 32px 40px; min-height: 100%; }
-.screen.active { display: block; }
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
 
-/* ─── Page header ─── */
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.page-header h1 { font-size: 22px; font-weight: 700; color: var(--white); }
-.page-header .subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
-.header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
 
-/* ─── Buttons ─── */
-.btn-primary {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, var(--gold) 0%, #a8882e 100%);
-  color: #0d0c08;
-  font-weight: 600; font-size: 13px;
-  border: none; border-radius: 8px; cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-}
-.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-secondary {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 14px;
-  background: transparent;
-  color: var(--white);
-  font-weight: 500; font-size: 13px;
-  border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
-  transition: background 0.15s;
-}
-.btn-secondary:hover { background: rgba(255,255,255,0.05); }
-.btn-icon {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px;
-  border: none; border-radius: 6px; cursor: pointer;
-  font-size: 13px; transition: background 0.15s, color 0.15s;
-  background: transparent; color: var(--muted);
-}
-.btn-icon:hover { background: rgba(255,255,255,0.06); color: var(--white); }
-.btn-icon.del:hover { background: rgba(255,69,58,0.12); color: var(--red); }
-.btn-icon.inc:hover { background: rgba(48,209,88,0.12); color: var(--green); }
-.btn-icon.dec:hover { background: rgba(255,214,10,0.12); color: var(--amber); }
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
 
-/* ─── Cards ─── */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-.kpi-row { display: grid; gap: 14px; margin-bottom: 24px; }
-.kpi-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
-.kpi-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
-.kpi-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
-.kpi-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 18px 20px;
-}
-.kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 500; margin-bottom: 6px; }
-.kpi-value { font-size: 22px; font-weight: 700; color: var(--white); font-variant-numeric: tabular-nums; font-family: ui-monospace, 'Fira Code', monospace; line-height: 1; }
-.kpi-value.gold { color: var(--gold); }
-.kpi-value.red { color: var(--red); }
-.kpi-value.green { color: var(--green); }
-.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-/* ─── Badges ─── */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-.badge-ok { background: rgba(48,209,88,0.12); color: var(--green); }
-.badge-warning { background: rgba(255,214,10,0.12); color: var(--amber); }
-.badge-low { background: rgba(255,69,58,0.12); color: var(--red); }
-.badge-pending { background: rgba(255,214,10,0.12); color: var(--amber); }
-.badge-ordered { background: rgba(10,132,255,0.12); color: var(--blue); }
-.badge-received { background: rgba(48,209,88,0.12); color: var(--green); }
-.badge-cancelled { background: rgba(255,69,58,0.10); color: var(--red); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
 
-/* ─── Data table ─── */
-.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.data-table th {
-  background: rgba(255,255,255,0.02);
-  color: var(--muted);
-  font-size: 11px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.07em;
-  padding: 10px 14px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-.data-table td {
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--border);
-  color: var(--white);
-  vertical-align: middle;
-}
-.data-table tr:last-child td { border-bottom: none; }
-.data-table tbody tr { transition: background 0.1s; }
-.data-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
 
-/* ─── Filter chips ─── */
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-.chip {
-  padding: 5px 12px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 12px; font-weight: 500;
-  cursor: pointer; transition: all 0.15s;
-  white-space: nowrap;
-}
-.chip:hover { background: rgba(255,255,255,0.07); color: var(--white); }
-.chip.active {
-  background: var(--gold-dim);
-  border-color: rgba(200,168,75,0.3);
-  color: var(--gold);
-}
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
 
-/* ─── Status filter cards ─── */
-.status-cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
-.status-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-.status-card:hover { background: var(--card-hover); }
-.status-card.active { border-color: rgba(200,168,75,0.3); background: var(--gold-dim); }
-.status-card .sc-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-.status-card .sc-count { font-size: 20px; font-weight: 700; font-family: ui-monospace, monospace; color: var(--white); }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
 
-/* ─── Search input ─── */
-.search-row { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; }
-.input-wrap { position: relative; flex: 1; }
-.input-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
-.input {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px 8px 34px;
-  color: var(--white);
-  font-size: 13px;
-  font-family: inherit;
-  transition: border-color 0.15s;
-  outline: none;
-}
-.input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,168,75,0.1); }
-.input::placeholder { color: var(--muted); }
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
 
-/* ─── Stock bar ─── */
-.stock-bar {
-  width: 80px; height: 4px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px; overflow: hidden;
-  display: inline-block; vertical-align: middle;
-}
-.stock-bar-fill { height: 100%; border-radius: 2px; }
-.stock-bar-fill.ok { background: var(--green); }
-.stock-bar-fill.warning { background: var(--amber); }
-.stock-bar-fill.low { background: var(--red); }
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
 
-/* ─── Form panel ─── */
-.form-panel {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow);
-}
-.form-panel h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
-.label {
-  display: block;
-  font-size: 10px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--muted);
-  margin-bottom: 5px;
-}
-.field { margin-bottom: 14px; }
-.select {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
-  color: var(--white);
-  font-size: 13px;
-  font-family: inherit;
-  outline: none;
-  cursor: pointer;
-}
-.select:focus { border-color: var(--gold); }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
 
-/* ─── Two-col grid ─── */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-.card-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px 12px;
-  border-bottom: 1px solid var(--border);
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
 }
-.card-header h3 { font-size: 13px; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
 
-/* ─── Shortage list ─── */
-.shortage-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 18px;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
+:root[data-theme="light"] {
+  --bg: #ebecee; --surface: #ffffff; --raised: #f4f5f6; --hover: #eceef0; --border: #dcdfe3; --rule: #eceef0;
+  --text: #14171a; --muted: #565d66; --faint: #6a717b;
+  --accent: #a85f00; --accent-ink: #ffffff; --accent-bg: #fbeed7;
+  --pos: #1b7a4a; --neg: #b3302b; --warn: #8a5a0a;
+  --font: "Commissioner", system-ui, sans-serif; --display: "Commissioner", system-ui, sans-serif;
 }
-.shortage-item:last-child { border-bottom: none; }
-.shortage-name { font-weight: 500; }
-.shortage-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-
-/* ─── Purchase list ─── */
-.purchase-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 18px; border-bottom: 1px solid var(--border);
-  font-size: 13px; gap: 10px;
-}
-.purchase-item:last-child { border-bottom: none; }
-.purch-supplier { font-weight: 500; }
-.purch-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
-
-/* ─── Quick actions ─── */
-.quick-actions { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
-.qa-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 16px;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, transform 0.1s;
-  text-align: center;
-}
-.qa-card:hover { background: var(--card-hover); border-color: rgba(200,168,75,0.2); transform: translateY(-2px); }
-.qa-icon { width: 40px; height: 40px; background: var(--gold-dim); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: var(--gold); }
-.qa-label { font-size: 12px; font-weight: 600; color: var(--white); }
-
-/* ─── Venue selector ─── */
-.venue-row { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-.venue-select {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 7px 12px;
-  color: var(--white);
-  font-size: 13px; font-family: inherit;
-  cursor: pointer; outline: none;
-}
-.venue-select:focus { border-color: var(--gold); }
-
-/* ─── Analytics ─── */
-.chart-card { padding: 20px; }
-.chart-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: var(--white); }
-.bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 120px; }
-.bar-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
-.bar-rect { width: 100%; border-radius: 4px 4px 0 0; background: var(--gold); opacity: 0.9; min-height: 4px; transition: opacity 0.15s; }
-.bar-rect:hover { opacity: 1; }
-.bar-label { font-size: 10px; color: var(--muted); }
-.bar-val { font-size: 10px; color: var(--gold); font-variant-numeric: tabular-nums; }
-.cat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
-.cat-name { width: 90px; color: var(--muted); flex-shrink: 0; }
-.cat-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
-.cat-bar-fill { height: 100%; border-radius: 3px; background: var(--gold); }
-.cat-val { width: 55px; text-align: right; color: var(--white); font-variant-numeric: tabular-nums; font-size: 11px; flex-shrink: 0; }
-
-/* ─── Num class ─── */
-.num { font-family: ui-monospace, 'Fira Code', 'SF Mono', monospace; font-variant-numeric: tabular-nums; }
-
-/* ─── Modal ─── */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 900;
-  background: rgba(0,0,0,0.65);
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-  backdrop-filter: blur(4px);
-}
-.modal-overlay[hidden] { display: none !important; }
-.modal-box {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  width: 100%; max-width: 440px;
-  overflow: hidden;
-}
-.modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid var(--border);
-}
-.modal-header h3 { font-size: 15px; font-weight: 600; }
-.modal-close {
-  background: none; border: none; cursor: pointer;
-  color: var(--muted); font-size: 18px; line-height: 1;
-  padding: 2px 6px; border-radius: 6px;
-  transition: color 0.15s, background 0.15s;
-}
-.modal-close:hover { color: var(--white); background: rgba(255,255,255,0.06); }
-.modal-body { padding: 20px; }
-.modal-footer {
-  padding: 14px 20px;
-  border-top: 1px solid var(--border);
-  display: flex; justify-content: flex-end; gap: 8px;
-}
-
-/* ─── Suppliers ─── */
-.star { color: var(--gold); font-size: 11px; }
-.star.off { color: var(--border); }
-
-/* ─── Responsive ─── */
-@media (max-width: 900px) {
-  :root { --sidebar-w: 56px; }
-  .sidebar-logo { justify-content: center; padding: 14px; }
-  .logo-text { display: none; }
-  .sidebar-link span { display: none; }
-  .sidebar-link { justify-content: center; padding: 12px; }
-  .sidebar-link.active { box-shadow: inset 3px 0 0 var(--gold); }
-  .sidebar-footer { display: none; }
-  .kpi-row.cols-4 { grid-template-columns: repeat(2, 1fr); }
-  .two-col { grid-template-columns: 1fr; }
-  .quick-actions { grid-template-columns: repeat(2,1fr); }
-  .status-cards { grid-template-columns: repeat(2,1fr); }
-  .screen { padding: 20px 16px 32px; }
-}
-@media (max-width: 600px) {
-  .kpi-row.cols-3 { grid-template-columns: 1fr 1fr; }
-  .kpi-row.cols-4 { grid-template-columns: 1fr 1fr; }
-  .page-header { flex-direction: column; align-items: flex-start; }
-}
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
+.nav .count { background: var(--neg); color: #fff; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--gap); }
+.chip { height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.chip:hover { color: var(--text); } .chip.on { background: var(--text); color: var(--surface); border-color: transparent; }
+.row-tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: var(--gap); }
+.search { flex: 1; min-width: 180px; max-width: 340px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); padding: 0 12px; outline: none; } .search:focus { border-color: var(--accent); }
+.level { display: flex; align-items: center; gap: 10px; } .level .bar { flex: 1; height: 8px; min-width: 60px; }
+.level .bar i.low { background: var(--neg); } .level .bar i.soon { background: var(--warn); } .level .bar i.ok { background: var(--pos); }
+.level b { min-width: 64px; text-align: right; font-weight: 600; }
+.draft { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; animation: pop .25s var(--ease) both; }
+.drafts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+.draft-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; } .draft-h b { font-size: 16px; font-weight: 700; } .draft-h span { color: var(--muted); font-size: 13px; }
+.line { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; color: var(--muted); } .line b { color: var(--text); font-weight: 500; }
+.draft-f { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--rule); } .draft-f b { font-size: 18px; font-weight: 700; }
+.stars { color: var(--accent); letter-spacing: 1px; } .stars i { color: var(--border); font-style: normal; }
+@media (max-width: 899px) { .drafts { grid-template-columns: minmax(0, 1fr); } .level b { min-width: 0; } }
+.dm { display: none; } @media (max-width: 899px) { .dm { display: block; } }
 </style>
 </head>
 <body>
-
-<!-- Demo banner -->
-<div id="demo-banner">
-  Demo Site
-  <span>— данные вымышлены, бекенд не подключён</span>
-</div>
-
-<div id="app">
-  <!-- Sidebar -->
-  <aside id="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6z"/>
-          <line x1="6" y1="17" x2="18" y2="17"/>
-          <line x1="6" y1="21" x2="18" y2="21"/>
-        </svg>
-      </div>
-      <div class="logo-text"><strong>Склад</strong><small>Ресторан</small></div>
+<div class="notice"><b>Демо</b> Склад · данные вымышлены</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg></div>
+      <div><div class="brand-name">Склад</div><div class="brand-sub">Две точки, один учёт</div></div>
     </div>
-    <nav>
-      <button class="sidebar-link active" onclick="showScreen('dashboard',this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        <span>Дашборд</span>
-      </button>
-      <button class="sidebar-link" onclick="showScreen('inventory',this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-        <span>Склад</span>
-      </button>
-      <button class="sidebar-link" onclick="showScreen('purchases',this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <span>Закупки</span>
-      </button>
-      <button class="sidebar-link" onclick="showScreen('suppliers',this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        <span>Поставщики</span>
-      </button>
-      <button class="sidebar-link" onclick="showScreen('categories',this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-        <span>Категории</span>
-      </button>
-      <button class="sidebar-link" onclick="showScreen('analytics',this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        <span>Аналитика</span>
-      </button>
-    </nav>
-    <div class="sidebar-footer">v2.4.1 · 2026</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">МС</div><div class="who"><b>Марина Сеитова</b><span>Закупщик</span></div></div>
   </aside>
-
-  <!-- Main -->
-  <main id="main">
-
-    <!-- ══════════════ DASHBOARD ══════════════ -->
-    <section id="screen-dashboard" class="screen active">
-      <div class="page-header">
-        <div>
-          <h1>Дашборд</h1>
-          <div class="subtitle">Обзор всех точек продаж</div>
-        </div>
-        <div class="header-actions">
-          <select class="venue-select" id="venueSelect" onchange="updateDashboard()">
-            <option value="all">Все точки продаж</option>
-            <option value="center">Кофейня Центр</option>
-            <option value="north">Ресторан Север</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="kpi-row cols-4" id="dashKpis"></div>
-
-      <div class="two-col">
-        <div class="card">
-          <div class="card-header"><h3>Нехватка товаров</h3><span class="badge badge-low" id="shortageCount">3</span></div>
-          <div id="shortageList"></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h3>Последние закупки</h3></div>
-          <div id="recentPurchases"></div>
-        </div>
-      </div>
-
-      <div style="margin-top: 24px;">
-        <div style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; font-weight: 600;">Быстрый доступ</div>
-        <div class="quick-actions">
-          <div class="qa-card" onclick="showScreen('inventory',document.querySelector('[onclick*=inventory]'))">
-            <div class="qa-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/></svg></div>
-            <div class="qa-label">Склад</div>
-          </div>
-          <div class="qa-card" onclick="showScreen('purchases',document.querySelector('[onclick*=purchases]'))">
-            <div class="qa-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
-            <div class="qa-label">Закупки</div>
-          </div>
-          <div class="qa-card" onclick="showScreen('suppliers',document.querySelector('[onclick*=suppliers]'))">
-            <div class="qa-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
-            <div class="qa-label">Поставщики</div>
-          </div>
-          <div class="qa-card" onclick="showScreen('analytics',document.querySelector('[onclick*=analytics]'))">
-            <div class="qa-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-            <div class="qa-label">Аналитика</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════ INVENTORY ══════════════ -->
-    <section id="screen-inventory" class="screen">
-      <div class="page-header">
-        <div>
-          <h1>Склад</h1>
-          <div class="subtitle" id="invSubtitle">47 позиций · ₽284 500</div>
-        </div>
-        <div class="header-actions">
-          <button class="btn-primary" onclick="openModal('addItem')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Добавить
-          </button>
-        </div>
-      </div>
-
-      <div class="kpi-row cols-3">
-        <div class="kpi-card"><div class="kpi-label">Всего позиций</div><div class="kpi-value num">47</div></div>
-        <div class="kpi-card"><div class="kpi-label">Стоимость склада</div><div class="kpi-value gold num">₽284 500</div></div>
-        <div class="kpi-card"><div class="kpi-label">Нехватка товаров</div><div class="kpi-value red num">3</div></div>
-      </div>
-
-      <div class="search-row">
-        <div class="input-wrap">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="input" id="invSearch" placeholder="Поиск по наименованию…" oninput="renderInventory()">
-        </div>
-      </div>
-      <div class="chips" id="catChips"></div>
-
-      <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px; align-items:start;">
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr>
-              <th>Наименование</th>
-              <th>Остаток</th>
-              <th>Статус</th>
-              <th></th>
-            </tr></thead>
-            <tbody id="invTableBody"></tbody>
-          </table>
-        </div>
-        <div class="form-panel">
-          <h3>Добавить позицию</h3>
-          <div class="field"><label class="label">Наименование</label><input class="input" placeholder="Напр. Говядина" style="padding-left:12px"></div>
-          <div class="field"><label class="label">Категория</label>
-            <select class="select"><option>🥩 Мясо</option><option>🥛 Молочные</option><option>🧄 Овощи</option><option>🌾 Крупы</option><option>🧴 Соусы</option><option>🍷 Напитки</option></select>
-          </div>
-          <div class="row2">
-            <div class="field"><label class="label">Количество</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
-            <div class="field"><label class="label">Единица</label>
-              <select class="select"><option>кг</option><option>л</option><option>шт</option><option>г</option></select>
-            </div>
-          </div>
-          <div class="row2">
-            <div class="field"><label class="label">Цена за ед.</label><input class="input" type="number" placeholder="₽0" style="padding-left:12px"></div>
-            <div class="field"><label class="label">Мин. остаток</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
-          </div>
-          <button class="btn-primary" style="width:100%;justify-content:center">Добавить позицию</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════ PURCHASES ══════════════ -->
-    <section id="screen-purchases" class="screen">
-      <div class="page-header">
-        <div><h1>Закупки</h1><div class="subtitle">Управление заказами поставщикам</div></div>
-        <div class="header-actions">
-          <button class="btn-primary" onclick="openModal('addPurchase')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Создать закупку
-          </button>
-        </div>
-      </div>
-
-      <div class="status-cards" id="purchaseStatusCards"></div>
-
-      <div class="search-row">
-        <div class="input-wrap">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="input" id="purchSearch" placeholder="Поиск по поставщику…" oninput="renderPurchases()">
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr>
-            <th>Поставщик</th>
-            <th>Дата</th>
-            <th>Позиций</th>
-            <th>Сумма</th>
-            <th>Статус</th>
-            <th></th>
-          </tr></thead>
-          <tbody id="purchTableBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ══════════════ SUPPLIERS ══════════════ -->
-    <section id="screen-suppliers" class="screen">
-      <div class="page-header">
-        <div><h1>Поставщики</h1><div class="subtitle">8 активных партнёров</div></div>
-        <div class="header-actions">
-          <button class="btn-primary" onclick="openModal('addSupplier')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Добавить
-          </button>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr>
-            <th>Поставщик</th>
-            <th>Контакт</th>
-            <th>Телефон</th>
-            <th>Email</th>
-            <th>Рейтинг</th>
-            <th>Закупок</th>
-          </tr></thead>
-          <tbody id="suppTableBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ══════════════ CATEGORIES ══════════════ -->
-    <section id="screen-categories" class="screen">
-      <div class="page-header">
-        <div><h1>Категории</h1><div class="subtitle">6 категорий товаров</div></div>
-        <div class="header-actions"><button class="btn-primary">+ Добавить</button></div>
-      </div>
-      <div class="kpi-row cols-3">
-        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
-          <div style="font-size:22px;margin-bottom:8px">🥩</div>
-          <div class="kpi-label">Мясо</div>
-          <div class="kpi-value num">6</div>
-          <div class="kpi-sub">позиций · ₽96 200</div>
-        </div>
-        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
-          <div style="font-size:22px;margin-bottom:8px">🥛</div>
-          <div class="kpi-label">Молочные</div>
-          <div class="kpi-value num">8</div>
-          <div class="kpi-sub">позиций · ₽54 800</div>
-        </div>
-        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
-          <div style="font-size:22px;margin-bottom:8px">🧄</div>
-          <div class="kpi-label">Овощи</div>
-          <div class="kpi-value num">9</div>
-          <div class="kpi-sub">позиций · ₽38 500</div>
-        </div>
-        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
-          <div style="font-size:22px;margin-bottom:8px">🌾</div>
-          <div class="kpi-label">Крупы</div>
-          <div class="kpi-value num">7</div>
-          <div class="kpi-sub">позиций · ₽28 900</div>
-        </div>
-        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
-          <div style="font-size:22px;margin-bottom:8px">🧴</div>
-          <div class="kpi-label">Соусы</div>
-          <div class="kpi-value num">5</div>
-          <div class="kpi-sub">позиций · ₽24 100</div>
-        </div>
-        <div class="kpi-card" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='var(--card-hover)'" onmouseout="this.style.background=''">
-          <div style="font-size:22px;margin-bottom:8px">🍷</div>
-          <div class="kpi-label">Напитки</div>
-          <div class="kpi-value num">12</div>
-          <div class="kpi-sub">позиций · ₽42 000</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══════════════ ANALYTICS ══════════════ -->
-    <section id="screen-analytics" class="screen">
-      <div class="page-header">
-        <div><h1>Аналитика</h1><div class="subtitle">Закупки и расходы за 2026 год</div></div>
-      </div>
-      <div class="kpi-row cols-3">
-        <div class="kpi-card"><div class="kpi-label">Закупки за месяц</div><div class="kpi-value gold num">₽348 200</div><div class="kpi-sub">сентябрь 2026</div></div>
-        <div class="kpi-card"><div class="kpi-label">Средний чек</div><div class="kpi-value num">₽43 525</div><div class="kpi-sub">по 8 заказам</div></div>
-        <div class="kpi-card"><div class="kpi-label">Топ поставщик</div><div class="kpi-value" style="font-size:16px">ООО Мяском</div><div class="kpi-sub">₽127 400 · 3 заказа</div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
-        <div class="card chart-card">
-          <div class="chart-title">Расходы по месяцам, ₽</div>
-          <div id="barChart"></div>
-        </div>
-        <div class="card chart-card">
-          <div class="chart-title">Распределение по категориям</div>
-          <div id="catChart"></div>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>Поставщик</th><th>Кол-во заказов</th><th>Сумма</th><th>Доля</th></tr></thead>
-          <tbody>
-            <tr><td>ООО Мяском</td><td class="num">3</td><td class="num">₽127 400</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:37%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">37%</span></div></td></tr>
-            <tr><td>МолочныйДвор</td><td class="num">2</td><td class="num">₽84 300</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:24%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">24%</span></div></td></tr>
-            <tr><td>ФермаПоставки</td><td class="num">2</td><td class="num">₽67 500</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:19%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">19%</span></div></td></tr>
-            <tr><td>ОвощБаза</td><td class="num">1</td><td class="num">₽42 800</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:12%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">12%</span></div></td></tr>
-            <tr><td>РестоПоставки</td><td class="num">1</td><td class="num">₽26 200</td><td><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:rgba(255,255,255,0.07);border-radius:2px"><div style="width:8%;height:100%;background:var(--gold);border-radius:2px"></div></div><span class="num" style="font-size:11px;color:var(--muted)">8%</span></div></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-  </main>
+  <main class="main" id="main"></main>
 </div>
-
-<!-- Add Item Modal -->
-<div class="modal-overlay" id="modal-addItem" hidden>
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>Добавить позицию на склад</h3>
-      <button class="modal-close" onclick="closeModal('addItem')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="field"><label class="label">Наименование</label><input class="input" placeholder="Напр. Говядина мраморная" style="padding-left:12px"></div>
-      <div class="field"><label class="label">Категория</label>
-        <select class="select"><option>🥩 Мясо</option><option>🥛 Молочные</option><option>🧄 Овощи</option><option>🌾 Крупы</option><option>🧴 Соусы</option><option>🍷 Напитки</option></select>
-      </div>
-      <div class="row2">
-        <div class="field"><label class="label">Количество</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
-        <div class="field"><label class="label">Единица</label><select class="select"><option>кг</option><option>л</option><option>шт</option><option>г</option></select></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label class="label">Цена за единицу, ₽</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
-        <div class="field"><label class="label">Мин. остаток</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('addItem')">Отмена</button>
-      <button class="btn-primary" onclick="closeModal('addItem')">Сохранить</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Purchase Modal -->
-<div class="modal-overlay" id="modal-addPurchase" hidden>
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>Создать закупку</h3>
-      <button class="modal-close" onclick="closeModal('addPurchase')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="field"><label class="label">Поставщик</label>
-        <select class="select"><option>ООО Мяском</option><option>ФермаПоставки</option><option>МолочныйДвор</option><option>ОвощБаза</option><option>АгроПлюс</option><option>РестоПоставки</option><option>МегаФуд</option><option>СвежеСнабж</option></select>
-      </div>
-      <div class="row2">
-        <div class="field"><label class="label">Дата поставки</label><input class="input" type="date" style="padding-left:12px"></div>
-        <div class="field"><label class="label">Сумма, ₽</label><input class="input" type="number" placeholder="0" style="padding-left:12px"></div>
-      </div>
-      <div class="field"><label class="label">Комментарий</label><input class="input" placeholder="Необязательно" style="padding-left:12px"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('addPurchase')">Отмена</button>
-      <button class="btn-primary" onclick="closeModal('addPurchase')">Создать заказ</button>
-    </div>
-  </div>
-</div>
-
-<!-- Add Supplier Modal -->
-<div class="modal-overlay" id="modal-addSupplier" hidden>
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>Добавить поставщика</h3>
-      <button class="modal-close" onclick="closeModal('addSupplier')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="field"><label class="label">Название компании</label><input class="input" placeholder="ООО Название" style="padding-left:12px"></div>
-      <div class="field"><label class="label">Контактное лицо</label><input class="input" placeholder="Иванов Иван" style="padding-left:12px"></div>
-      <div class="row2">
-        <div class="field"><label class="label">Телефон</label><input class="input" placeholder="+7 (___) ___-__-__" style="padding-left:12px"></div>
-        <div class="field"><label class="label">Email</label><input class="input" type="email" placeholder="mail@example.com" style="padding-left:12px"></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('addSupplier')">Отмена</button>
-      <button class="btn-primary" onclick="closeModal('addSupplier')">Добавить</button>
-    </div>
-  </div>
-</div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
 
 <script>
-// ─── Data ───
-const INVENTORY = [
-  {id:1, name:'Говядина',       cat:'Мясо',     qty:12, unit:'кг', min:20, price:850,  status:'low'},
-  {id:2, name:'Молоко 3.2%',    cat:'Молочные', qty:45, unit:'л',  min:20, price:85,   status:'ok'},
-  {id:3, name:'Картофель',      cat:'Овощи',    qty:8,  unit:'кг', min:15, price:38,   status:'low'},
-  {id:4, name:'Сливки 33%',     cat:'Молочные', qty:6,  unit:'л',  min:10, price:240,  status:'low'},
-  {id:5, name:'Куриное филе',   cat:'Мясо',     qty:25, unit:'кг', min:10, price:420,  status:'ok'},
-  {id:6, name:'Масло сливочное',cat:'Молочные', qty:4,  unit:'кг', min:5,  price:680,  status:'warning'},
-  {id:7, name:'Лук репчатый',   cat:'Овощи',    qty:22, unit:'кг', min:10, price:28,   status:'ok'},
-  {id:8, name:'Морковь',        cat:'Овощи',    qty:18, unit:'кг', min:10, price:32,   status:'ok'},
-  {id:9, name:'Рис длиннозёрный',cat:'Крупы',   qty:30, unit:'кг', min:15, price:95,   status:'ok'},
-  {id:10,name:'Гречка',         cat:'Крупы',    qty:7,  unit:'кг', min:10, price:88,   status:'warning'},
-  {id:11,name:'Томатная паста', cat:'Соусы',    qty:24, unit:'шт', min:10, price:65,   status:'ok'},
-  {id:12,name:'Майонез',        cat:'Соусы',    qty:12, unit:'шт', min:8,  price:120,  status:'ok'},
-  {id:13,name:'Вода минеральная',cat:'Напитки', qty:120,unit:'шт', min:50, price:35,   status:'ok'},
-  {id:14,name:'Сок апельсин',   cat:'Напитки',  qty:18, unit:'л',  min:10, price:180,  status:'ok'},
-  {id:15,name:'Свинина шейная', cat:'Мясо',     qty:14, unit:'кг', min:12, price:560,  status:'ok'},
-];
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('ru-RU');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
 
-const PURCHASES = [
-  {id:1, supplier:'ООО Мяском',     date:'28.09.2026', items:6,  amount:85400, status:'received'},
-  {id:2, supplier:'МолочныйДвор',   date:'27.09.2026', items:4,  amount:42100, status:'received'},
-  {id:3, supplier:'ФермаПоставки',  date:'26.09.2026', items:8,  amount:67500, status:'ordered'},
-  {id:4, supplier:'ОвощБаза',       date:'25.09.2026', items:5,  amount:42800, status:'ordered'},
-  {id:5, supplier:'РестоПоставки',  date:'24.09.2026', items:3,  amount:26200, status:'pending'},
-  {id:6, supplier:'ООО Мяском',     date:'20.09.2026', items:7,  amount:71600, status:'received'},
-  {id:7, supplier:'МолочныйДвор',   date:'18.09.2026', items:3,  amount:32800, status:'received'},
-  {id:8, supplier:'АгроПлюс',       date:'15.09.2026', items:4,  amount:15000, status:'cancelled'},
-];
-
-const SUPPLIERS = [
-  {name:'ООО Мяском',      contact:'Петров А.В.',  phone:'+7 (495) 123-45-67', email:'petrov@myaskom.ru',    rating:5, orders:18},
-  {name:'ФермаПоставки',   contact:'Сидорова Е.Н.',phone:'+7 (812) 234-56-78', email:'info@fermapostavki.ru', rating:4, orders:12},
-  {name:'МолочныйДвор',    contact:'Кузнецов П.С.',phone:'+7 (495) 345-67-89', email:'kuzn@moldvor.ru',       rating:5, orders:21},
-  {name:'ОвощБаза',        contact:'Иванова М.И.', phone:'+7 (495) 456-78-90', email:'ivanova@ovoshbaza.ru',  rating:3, orders:7},
-  {name:'АгроПлюс',        contact:'Фёдоров Д.О.', phone:'+7 (391) 567-89-01', email:'fedorov@agroplus.ru',   rating:4, orders:9},
-  {name:'РестоПоставки',   contact:'Смирнова Л.Г.',phone:'+7 (499) 678-90-12', email:'smirn@restopost.ru',    rating:4, orders:14},
-  {name:'МегаФуд',         contact:'Орлов В.В.',   phone:'+7 (495) 789-01-23', email:'orlov@megafood.ru',     rating:3, orders:5},
-  {name:'СвежеСнабж',      contact:'Попова К.А.',  phone:'+7 (495) 890-12-34', email:'popova@svezhesnabzh.ru',rating:5, orders:16},
-];
-
-const DASH_DATA = {
-  all:    {items:47, cost:'₽284 500', orders:3, suppliers:8},
-  center: {items:28, cost:'₽162 300', orders:2, suppliers:5},
-  north:  {items:19, cost:'₽122 200', orders:1, suppliers:4},
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
 };
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
 
-const STATUS_LABEL = {ok:'Норма', warning:'Мало', low:'Критично'};
-const PURCH_STATUS = {
-  pending:   {label:'Ожидание',  cls:'badge-pending'},
-  ordered:   {label:'Заказано',  cls:'badge-ordered'},
-  received:  {label:'Получено',  cls:'badge-received'},
-  cancelled: {label:'Отменено',  cls:'badge-cancelled'},
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
+}
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
+}
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
+
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
+  }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Динамика: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
+}
+
+'use strict';
+
+/* ── data ─────────────────────────────────────────────── */
+const tg = (n) => fmt(n) + ' ₸';
+const TODAY = '28.09.2026';
+const VEN = { center: 'Кофейня Центр', north: 'Ресторан Север' };
+const SUP = [
+  { id: 1, n: 'ООО Мяском',    who: 'Петров А. В.',   tel: '+7 701 123 45 67', r: 5 },
+  { id: 2, n: 'МолочныйДвор',  who: 'Кузнецов П. С.', tel: '+7 702 345 67 89', r: 5 },
+  { id: 3, n: 'ОвощБаза',      who: 'Иванова М. И.',  tel: '+7 707 456 78 90', r: 3 },
+  { id: 4, n: 'АгроПлюс',      who: 'Фёдоров Д. О.',  tel: '+7 705 567 89 01', r: 4 },
+  { id: 5, n: 'РестоПоставки', who: 'Смирнова Л. Г.', tel: '+7 777 678 90 12', r: 4 },
+  { id: 6, n: 'СвежеСнабж',    who: 'Попова К. А.',   tel: '+7 700 890 12 34', r: 5 },
+];
+/* qty / min per venue; null = the venue does not stock the item */
+const ITEMS = [
+  { id: 1,  n: 'Говядина',         cat: 'Мясо',     u: 'кг', px: 3600, s: 1, qty: { center: null, north: 10 }, min: { center: null, north: 15 } },
+  { id: 2,  n: 'Молоко 3,2%',      cat: 'Молочные', u: 'л',  px: 450,  s: 2, qty: { center: 40, north: 22 },   min: { center: 30, north: 20 } },
+  { id: 3,  n: 'Картофель',        cat: 'Овощи',    u: 'кг', px: 220,  s: 3, qty: { center: null, north: 8 },  min: { center: null, north: 15 } },
+  { id: 4,  n: 'Сливки 33%',       cat: 'Молочные', u: 'л',  px: 1800, s: 2, qty: { center: 6, north: 5 },     min: { center: 8, north: 10 } },
+  { id: 5,  n: 'Куриное филе',     cat: 'Мясо',     u: 'кг', px: 2100, s: 1, qty: { center: 3, north: 22 },    min: { center: 3, north: 12 } },
+  { id: 6,  n: 'Масло сливочное',  cat: 'Молочные', u: 'кг', px: 4200, s: 2, qty: { center: 2, north: 3 },     min: { center: 2, north: 4 } },
+  { id: 7,  n: 'Лук репчатый',     cat: 'Овощи',    u: 'кг', px: 160,  s: 3, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 8,  n: 'Морковь',          cat: 'Овощи',    u: 'кг', px: 180,  s: 3, qty: { center: null, north: 15 }, min: { center: null, north: 10 } },
+  { id: 9,  n: 'Рис',              cat: 'Крупы',    u: 'кг', px: 650,  s: 4, qty: { center: null, north: 24 }, min: { center: null, north: 15 } },
+  { id: 10, n: 'Гречка',           cat: 'Крупы',    u: 'кг', px: 700,  s: 4, qty: { center: null, north: 5 },  min: { center: null, north: 8 } },
+  { id: 11, n: 'Томатная паста',   cat: 'Соусы',    u: 'шт', px: 420,  s: 5, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 12, n: 'Майонез',          cat: 'Соусы',    u: 'шт', px: 700,  s: 5, qty: { center: 4, north: 8 },     min: { center: 3, north: 6 } },
+  { id: 13, n: 'Вода минеральная', cat: 'Напитки',  u: 'шт', px: 150,  s: 6, qty: { center: 60, north: 60 },   min: { center: 40, north: 50 } },
+  { id: 14, n: 'Сок апельсиновый', cat: 'Напитки',  u: 'л',  px: 900,  s: 6, qty: { center: 8, north: 10 },    min: { center: 6, north: 10 } },
+  { id: 15, n: 'Свинина шейная',   cat: 'Мясо',     u: 'кг', px: 2800, s: 1, qty: { center: null, north: 14 }, min: { center: null, north: 12 } },
+];
+/* every order is lines; totals, "in transit" and supplier spend all derive from them */
+let PO = [
+  { id: 2038, s: 1, v: 'north',  date: '20.09.2026', st: 'received', lines: [[1, 20], [15, 14], [5, 10]] },
+  { id: 2039, s: 2, v: 'center', date: '22.09.2026', st: 'received', lines: [[2, 40], [4, 10], [6, 4]] },
+  { id: 2040, s: 6, v: 'north',  date: '24.09.2026', st: 'received', lines: [[13, 60], [14, 12]] },
+  { id: 2041, s: 3, v: 'north',  date: '27.09.2026', st: 'ordered',  lines: [[7, 20], [8, 10]] },
+  { id: 2042, s: 5, v: 'center', date: '27.09.2026', st: 'ordered',  lines: [[12, 6]] },
+  { id: 2037, s: 4, v: 'north',  date: '15.09.2026', st: 'cancelled', lines: [[9, 25]] },
+];
+const item = (id) => ITEMS.find((i) => i.id === id), sup = (id) => SUP.find((s) => s.id === id);
+const poTotal = (o) => o.lines.reduce((a, [i, q]) => a + item(i).px * q, 0);
+const stocked = (i, v) => (v === 'all' ? ['center', 'north'].some((x) => i.qty[x] !== null) : i.qty[v] !== null);
+const qtyOf = (i, v) => v === 'all' ? ['center', 'north'].reduce((a, x) => a + (i.qty[x] || 0), 0) : i.qty[v] || 0;
+const minOf = (i, v) => v === 'all' ? ['center', 'north'].reduce((a, x) => a + (i.min[x] || 0), 0) : i.min[v] || 0;
+const incoming = (id, v) => PO.filter((o) => o.st === 'ordered' && o.v === v).reduce((a, o) => a + o.lines.filter(([i]) => i === id).reduce((b, [, q]) => b + q, 0), 0);
+const incomingAll = (id) => incoming(id, 'center') + incoming(id, 'north');
+const state = (i, v) => { const q = qtyOf(i, v), m = minOf(i, v); return q < m ? 'low' : q < m * 1.3 ? 'soon' : 'ok'; };
+const value = (v) => ITEMS.filter((i) => stocked(i, v)).reduce((a, i) => a + qtyOf(i, v) * i.px, 0);
+const lowLines = () => ['center', 'north'].flatMap((v) => ITEMS.filter((i) => i.qty[v] !== null && i.qty[v] < i.min[v]).map((i) => ({ i, v })));
+/* what to buy: refill to twice the minimum, minus what is already on its way */
+const needQty = (i, v) => Math.max(0, i.min[v] * 2 - i.qty[v] - incoming(i.id, v));
+function drafts() {
+  const map = {};
+  lowLines().forEach(({ i, v }) => { const q = needQty(i, v); if (q > 0) (map[i.s + v] ||= { s: i.s, v, lines: [] }).lines.push([i.id, q]); });
+  return Object.values(map).sort((a, b) => a.s - b.s || a.v.localeCompare(b.v));
+}
+console.assert(lowLines().length === 6 && drafts().length === 5 && drafts().reduce((a, d) => a + poTotal(d), 0) === 150540, 'drafts');
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { today: ['Сегодня', 'home'], stock: ['Склад', 'box'], orders: ['Закупки', 'bag'], sup: ['Поставщики', 'users'] };
+let page = 'today', venue = 'all', cat = 'Все', q = '';
+const CATS = ['Все', ...new Set(ITEMS.map((i) => i.cat))];
+
+function chrome() {
+  const n = lowLines().length;
+  const item = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<span class="count" title="Ниже минимума">${n}</span>` : ''}</a>`;
+  $('#nav').innerHTML = Object.keys(PAGES).map(item).join('');
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
+  setNav(page);
+}
+function render() { chrome(); $('#main').innerHTML = ({ today, stock, orders, sup: suppliers })[page](); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const it = e.target.closest('[data-item]'); if (it) return openItem(+it.dataset.item);
+  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('input', (e) => { if (e.target.id === 'q') { q = e.target.value.toLowerCase(); const p = e.target.selectionStart; render(); const i = $('#q'); i.focus(); i.setSelectionRange(p, p); } });
+
+/* ── today ────────────────────────────────────────────── */
+function draftCard(d, k) {
+  return `<article class="draft"><div class="draft-h"><b>${esc(sup(d.s).n)}</b><span>для «${VEN[d.v]}»</span></div>${d.lines.map(([i, qn]) => `<div class="line"><span>${esc(item(i).n)}</span><b>${qn} ${item(i).u} · ${tg(qn * item(i).px)}</b></div>`).join('')}
+    <div class="draft-f"><b>${tg(poTotal(d))}</b><button class="btn primary sm" data-act="order" data-k="${k}">Заказать</button></div></article>`;
+}
+function today() {
+  const ds = drafts(), sum = ds.reduce((a, d) => a + poTotal(d), 0), low = lowLines().length;
+  const open = PO.filter((o) => o.st === 'ordered'), transit = open.reduce((a, o) => a + poTotal(o), 0);
+  const finding = ds.length ? `<div class="finding">${ic('alert')}<span>Ниже минимума ${low} ${low === 1 ? 'позиция' : 'позиций'}. Собрали ${ds.length} ${ds.length < 5 ? 'заказа' : 'заказов'} поставщикам на ${tg(sum)}. Проверьте и отправьте.</span><button class="btn sm primary" data-act="orderAll">Заказать всё</button></div>` : `<div class="finding" style="background:var(--pos-bg);color:var(--pos)">${ic('check')}<span>Всё выше минимума. Заказывать нечего.</span></div>`;
+  return head('Что докупить сегодня', `${TODAY} · остатки по двум точкам`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${ITEMS.length}</b><span>Позиций в учёте</span></div><div class="kpi"><b>${tg(value('all'))}</b><span>Стоимость склада</span></div><div class="kpi"><b>${low}</b><span>Ниже минимума</span></div><div class="kpi"><b>${tg(transit)}</b><span>В пути, ${open.length} ${open.length === 1 ? 'заказ' : 'заказа'}</span></div></div>
+    ${ds.length ? `<div class="drafts">${ds.map(draftCard).join('')}</div>` : ''}
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2>Ждём поставку</h2><span>${open.length}</span></div>${open.map((o) => `<div class="tr" style="--cols:1.3fr 1fr 1fr auto;--colsm:1fr auto"><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · заказ ${o.id} · ${o.date}</span></div><span class="hm">${o.lines.length} поз.</span><b class="hm">${tg(poTotal(o))}</b><button class="btn sm" data-act="receive" data-id="${o.id}">Принять</button></div>`).join('') || '<p class="empty">Ничего не ждём.</p>'}</section>`;
+}
+
+/* ── stock ────────────────────────────────────────────── */
+function stock() {
+  const list = ITEMS.filter((i) => stocked(i, venue) && (cat === 'Все' || i.cat === cat) && i.n.toLowerCase().includes(q));
+  const rows = list.map((i) => { const qn = qtyOf(i, venue), m = minOf(i, venue), st = state(i, venue), inc = venue === 'all' ? incomingAll(i.id) : incoming(i.id, venue); return `<div class="tr" data-item="${i.id}" tabindex="0" style="cursor:pointer;--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(i.n)}</b><span>${i.cat} · ${esc(sup(i.s).n)}${inc ? ` · едет ${inc} ${i.u}` : ''}</span></div>
+    <div class="level hm"><div class="bar"><i class="${st}" style="width:${Math.min(100, qn / (m * 2 || 1) * 100)}%"></i></div><b>${qn} ${i.u}</b></div><span class="hm r muted">мин. ${m}</span><span class="hm r">${tg(i.px)}</span>
+    <div class="r"><span class="pill ${st === 'low' ? 'neg' : st === 'soon' ? 'warn' : 'pos'}"><i></i>${st === 'low' ? 'Мало' : st === 'soon' ? 'Скоро' : 'Норма'}</span><div class="dm muted" style="font-size:12px;margin-top:2px">${qn} ${i.u}</div></div></div>`; }).join('');
+  return head('Склад', `${list.length} позиций · ${tg(list.reduce((a, i) => a + qtyOf(i, venue) * i.px, 0))}`) +
+    `<div class="chips">${['all', 'center', 'north'].map((v) => `<button class="chip ${venue === v ? 'on' : ''}" data-act="venue" data-v="${v}">${v === 'all' ? 'Все точки' : VEN[v]}</button>`).join('')}</div>
+    <div class="row-tools"><input class="search" id="q" value="${esc(q)}" placeholder="Поиск по названию" aria-label="Поиск"><div class="chips" style="margin:0">${CATS.map((c) => `<button class="chip ${cat === c ? 'on' : ''}" data-act="cat" data-v="${c}">${c}</button>`).join('')}</div></div>
+    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><span>Позиция</span><span class="hm">Остаток</span><span class="hm r">Минимум</span><span class="hm r">Цена</span><span class="r">Статус</span></div>${rows || '<p class="empty">Ничего не найдено.</p>'}</div></section>`;
+}
+function openItem(id) {
+  const i = item(id), vs = ['center', 'north'].filter((v) => i.qty[v] !== null);
+  modal(`<h2>${esc(i.n)}</h2><p>${i.cat} · ${esc(sup(i.s).n)} · ${tg(i.px)} за ${i.u}</p>
+    ${vs.map((v) => `<div class="line"><span>${VEN[v]}</span><b>${i.qty[v]} ${i.u} <span class="muted">(мин. ${i.min[v]})</span></b></div>`).join('')}
+    <div class="field" style="margin-top:14px"><label for="a-v">Точка</label><select id="a-v">${vs.map((v) => `<option value="${v}" ${venue === v ? 'selected' : ''}>${VEN[v]}</option>`).join('')}</select></div>
+    <div class="field"><label for="a-q">Количество, ${i.u}</label><input id="a-q" type="number" min="0.5" step="0.5" value="1"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Закрыть</button><button class="btn" id="a-out">Списать</button><button class="btn primary" id="a-in">Приход</button></div>`, () => {
+    const apply = (sign) => { const v = $('#a-v').value, n = +$('#a-q').value; if (!(n > 0)) return toast('Укажите количество'); if (sign < 0 && n > i.qty[v]) return toast(`На точке только ${i.qty[v]} ${i.u}`); i.qty[v] = Math.round((i.qty[v] + sign * n) * 10) / 10; closeModal(); toast(`${i.n}: ${sign > 0 ? 'приход' : 'списано'} ${n} ${i.u}`); render(); };
+    $('#a-out').onclick = () => apply(-1); $('#a-in').onclick = () => apply(1);
+  });
+}
+
+/* ── orders + suppliers ───────────────────────────────── */
+const ST = { ordered: ['В пути', 'warn'], received: ['Принят', 'pos'], cancelled: ['Отменён', ''] };
+function orders() {
+  const rows = [...PO].sort((a, b) => b.id - a.id).map((o) => `<div class="tr" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm muted">${o.id}</span><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · ${o.date}${' · ' + o.lines.length + ' поз.'}</span></div><span class="hm">${o.lines.map(([i, qn]) => esc(item(i).n.split(' ')[0]) + ' ' + qn).join(', ')}</span><b class="hm r">${tg(poTotal(o))}</b><span class="hm"><span class="pill ${ST[o.st][1]}"><i></i>${ST[o.st][0]}</span></span>
+    <span class="r">${o.st === 'ordered' ? `<button class="btn sm primary" data-act="receive" data-id="${o.id}">Принять</button>` : `<b>${tg(poTotal(o))}</b>`}</span></div>`).join('');
+  return head('Закупки', `${PO.length} заказов · принятые заказы сразу попадают в остатки`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm">№</span><span>Поставщик</span><span class="hm">Состав</span><span class="hm r">Сумма</span><span class="hm">Статус</span><span class="r"></span></div>${rows}</div></section>`;
+}
+function suppliers() {
+  const rows = SUP.map((s) => { const mine = PO.filter((o) => o.s === s.id && o.st !== 'cancelled'), spent = mine.reduce((a, o) => a + poTotal(o), 0); return `<div class="tr" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(s.n)}</b><span>${esc(s.who)} · ${s.tel}</span></div><span class="hm">${s.tel}</span><span class="hm stars">${'★'.repeat(s.r)}<i>${'★'.repeat(5 - s.r)}</i></span><span class="hm r">${mine.length}</span><b class="r">${tg(spent)}</b></div>`; }).join('');
+  return head('Поставщики', `${SUP.length} поставщиков · потрачено ${tg(PO.filter((o) => o.st !== 'cancelled').reduce((a, o) => a + poTotal(o), 0))} за последние 2 недели`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><span>Поставщик</span><span class="hm">Телефон</span><span class="hm">Рейтинг</span><span class="hm r">Заказов</span><span class="r">Сумма</span></div>${rows}</div></section>`;
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const nextPO = () => Math.max(...PO.map((o) => o.id)) + 1;
+const ACT = {
+  venue(d) { venue = d.v; render(); }, cat(d) { cat = d.v; render(); },
+  order(d) { const x = drafts()[+d.k]; PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines }); toast(`Заказ отправлен: ${sup(x.s).n}`); render(); },
+  orderAll() { const ds = drafts(); ds.forEach((x) => PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines })); toast(`Отправлено заказов: ${ds.length}`); render(); },
+  receive(d) { const o = PO.find((x) => x.id === +d.id); o.lines.forEach(([i, qn]) => { item(i).qty[o.v] = (item(i).qty[o.v] || 0) + qn; }); o.st = 'received'; toast(`Принято: заказ ${o.id}, остатки обновлены`); render(); },
 };
-
-let activeInvCat = 'Все';
-let activePurchStatus = 'all';
-
-// ─── Navigation ───
-function showScreen(id, btn) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
-  if (btn) btn.classList.add('active');
-}
-
-// ─── Modal ───
-function openModal(id) {
-  document.getElementById('modal-' + id).hidden = false;
-}
-function closeModal(id) {
-  document.getElementById('modal-' + id).hidden = true;
-}
-document.querySelectorAll('.modal-overlay').forEach(o => {
-  o.addEventListener('click', e => { if (e.target === o) o.hidden = true; });
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(o => o.hidden = true);
-});
-
-// ─── Dashboard ───
-function updateDashboard() {
-  const v = document.getElementById('venueSelect').value;
-  const d = DASH_DATA[v];
-  document.getElementById('dashKpis').innerHTML = `
-    <div class="kpi-card"><div class="kpi-label">Позиций на складе</div><div class="kpi-value num">${d.items}</div></div>
-    <div class="kpi-card"><div class="kpi-label">Стоимость склада</div><div class="kpi-value gold num">${d.cost}</div></div>
-    <div class="kpi-card"><div class="kpi-label">Активных заказов</div><div class="kpi-value num">${d.orders}</div></div>
-    <div class="kpi-card"><div class="kpi-label">Поставщиков</div><div class="kpi-value num">${d.suppliers}</div></div>
-  `;
-
-  const shortages = INVENTORY.filter(i => i.status !== 'ok');
-  document.getElementById('shortageCount').textContent = shortages.length;
-  document.getElementById('shortageList').innerHTML = shortages.map(i => `
-    <div class="shortage-item">
-      <div>
-        <div class="shortage-name">${i.name}</div>
-        <div class="shortage-sub">${i.qty} ${i.unit} · мин. ${i.min} ${i.unit}</div>
-      </div>
-      <span class="badge badge-${i.status}">${STATUS_LABEL[i.status]}</span>
-    </div>
-  `).join('');
-
-  document.getElementById('recentPurchases').innerHTML = PURCHASES.slice(0,5).map(p => {
-    const s = PURCH_STATUS[p.status];
-    return `<div class="purchase-item">
-      <div style="flex:1;min-width:0">
-        <div class="purch-supplier">${p.supplier}</div>
-        <div class="purch-meta">${p.date} · ${p.items} поз.</div>
-      </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div class="num" style="font-weight:600">₽${p.amount.toLocaleString('ru')}</div>
-        <span class="badge ${s.cls}" style="margin-top:3px">${s.label}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ─── Inventory ───
-function renderInventory() {
-  const q = document.getElementById('invSearch').value.toLowerCase();
-  const filtered = INVENTORY.filter(i =>
-    (activeInvCat === 'Все' || i.cat === activeInvCat) &&
-    (!q || i.name.toLowerCase().includes(q))
-  );
-  document.getElementById('invTableBody').innerHTML = filtered.map(i => {
-    const pct = Math.min(100, Math.round(i.qty / i.min * 100));
-    return `<tr>
-      <td>
-        <div style="font-weight:500">${i.name}</div>
-        <div style="font-size:11px;color:var(--muted)">${i.cat}</div>
-      </td>
-      <td>
-        <div class="num" style="font-weight:600">${i.qty} ${i.unit}</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
-          <div class="stock-bar"><div class="stock-bar-fill ${i.status}" style="width:${pct}%"></div></div>
-          <span style="font-size:10px;color:var(--muted)" class="num">мин ${i.min}</span>
-        </div>
-      </td>
-      <td><span class="badge badge-${i.status}">${STATUS_LABEL[i.status]}</span></td>
-      <td>
-        <div style="display:flex;gap:4px">
-          <button class="btn-icon inc" title="Приход">↓</button>
-          <button class="btn-icon dec" title="Списание">↑</button>
-          <button class="btn-icon del" title="Удалить">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-          </button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function buildCatChips() {
-  const cats = ['Все', ...new Set(INVENTORY.map(i => i.cat))];
-  const emojis = {Мясо:'🥩', Молочные:'🥛', Овощи:'🧄', Крупы:'🌾', Соусы:'🧴', Напитки:'🍷'};
-  document.getElementById('catChips').innerHTML = cats.map(c => `
-    <button class="chip ${c === activeInvCat ? 'active' : ''}" onclick="setInvCat('${c}')">
-      ${c === 'Все' ? c : (emojis[c] || '') + ' ' + c}
-    </button>
-  `).join('');
-}
-
-function setInvCat(cat) {
-  activeInvCat = cat;
-  buildCatChips();
-  renderInventory();
-}
-
-// ─── Purchases ───
-function buildPurchaseStatusCards() {
-  const counts = {all:0, pending:0, ordered:0, received:0, cancelled:0};
-  PURCHASES.forEach(p => { counts[p.status]++; counts.all++; });
-  const labels = {all:'Все', pending:'Ожидание', ordered:'Заказано', received:'Получено', cancelled:'Отменено'};
-  document.getElementById('purchaseStatusCards').innerHTML = ['pending','ordered','received','cancelled'].map(s => `
-    <div class="status-card ${activePurchStatus === s ? 'active' : ''}" onclick="setPurchStatus('${s}')">
-      <div class="sc-label">${labels[s]}</div>
-      <div class="sc-count">${counts[s]}</div>
-    </div>
-  `).join('');
-}
-
-function setPurchStatus(s) {
-  activePurchStatus = s;
-  buildPurchaseStatusCards();
-  renderPurchases();
-}
-
-function renderPurchases() {
-  const q = document.getElementById('purchSearch').value.toLowerCase();
-  const filtered = PURCHASES.filter(p =>
-    (activePurchStatus === 'all' || p.status === activePurchStatus) &&
-    (!q || p.supplier.toLowerCase().includes(q))
-  );
-  document.getElementById('purchTableBody').innerHTML = filtered.map(p => {
-    const s = PURCH_STATUS[p.status];
-    return `<tr>
-      <td style="font-weight:500">${p.supplier}</td>
-      <td class="num">${p.date}</td>
-      <td class="num">${p.items}</td>
-      <td class="num" style="font-weight:600">₽${p.amount.toLocaleString('ru')}</td>
-      <td><span class="badge ${s.cls}">${s.label}</span></td>
-      <td><button class="btn-icon" style="font-size:16px;color:var(--gold)">→</button></td>
-    </tr>`;
-  }).join('');
-}
-
-// ─── Suppliers ───
-function renderSuppliers() {
-  function stars(n) {
-    return [1,2,3,4,5].map(i => `<span class="${i<=n?'star':'star off'}">★</span>`).join('');
-  }
-  document.getElementById('suppTableBody').innerHTML = SUPPLIERS.map(s => `
-    <tr>
-      <td style="font-weight:600">${s.name}</td>
-      <td>${s.contact}</td>
-      <td class="num" style="white-space:nowrap">${s.phone}</td>
-      <td style="color:var(--muted);font-size:12px">${s.email}</td>
-      <td>${stars(s.rating)}</td>
-      <td class="num" style="font-weight:600">${s.orders}</td>
-    </tr>
-  `).join('');
-}
-
-// ─── Analytics ───
-function renderAnalytics() {
-  const months = ['Апр','Май','Июн','Июл','Авг','Сен'];
-  const vals =   [218000, 265000, 194000, 312000, 287000, 348200];
-  const max = Math.max(...vals);
-  const chartH = 110;
-
-  document.getElementById('barChart').innerHTML = `
-    <div style="display:flex;align-items:flex-end;gap:8px;height:${chartH}px;padding-bottom:0">
-      ${months.map((m,i) => {
-        const h = Math.round(vals[i]/max*(chartH-28));
-        return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
-          <div style="font-size:10px;color:var(--gold);font-family:ui-monospace,monospace">${(vals[i]/1000).toFixed(0)}k</div>
-          <div style="width:100%;height:${h}px;border-radius:4px 4px 0 0;background:var(--gold);opacity:${i===5?1:0.6};transition:opacity 0.15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=${i===5?1:0.6}"></div>
-          <div style="font-size:10px;color:var(--muted)">${m}</div>
-        </div>`;
-      }).join('')}
-    </div>
-  `;
-
-  const cats = [
-    {name:'Мясо',    pct:34, val:'₽118 388'},
-    {name:'Молочные',pct:19, val:'₽66 158'},
-    {name:'Напитки', pct:16, val:'₽55 712'},
-    {name:'Овощи',   pct:14, val:'₽48 748'},
-    {name:'Крупы',   pct:10, val:'₽34 820'},
-    {name:'Соусы',   pct:7,  val:'₽24 374'},
-  ];
-  document.getElementById('catChart').innerHTML = cats.map(c => `
-    <div class="cat-row">
-      <span class="cat-name">${c.name}</span>
-      <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${c.pct}%"></div></div>
-      <span class="cat-val num">${c.val}</span>
-    </div>
-  `).join('');
-}
-
-// ─── Init ───
-updateDashboard();
-buildCatChips();
-renderInventory();
-buildPurchaseStatusCards();
-renderPurchases();
-renderSuppliers();
-renderAnalytics();
+render();
 </script>
 </body>
 </html>

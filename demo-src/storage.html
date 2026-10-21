@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Склад — закупки для сети ресторанов (демо)</title>
+<meta name="description" content="Демо: остатки по точкам, автосбор заказов поставщикам по нехватке, приёмка и списание. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/*@kit.css*/
+:root[data-theme="light"] {
+  --bg: #ebecee; --surface: #ffffff; --raised: #f4f5f6; --hover: #eceef0; --border: #dcdfe3; --rule: #eceef0;
+  --text: #14171a; --muted: #565d66; --faint: #6a717b;
+  --accent: #a85f00; --accent-ink: #ffffff; --accent-bg: #fbeed7;
+  --pos: #1b7a4a; --neg: #b3302b; --warn: #8a5a0a;
+  --font: "Commissioner", system-ui, sans-serif; --display: "Commissioner", system-ui, sans-serif;
+}
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
+.nav .count { background: var(--neg); color: #fff; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--gap); }
+.chip { height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.chip:hover { color: var(--text); } .chip.on { background: var(--text); color: var(--surface); border-color: transparent; }
+.row-tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: var(--gap); }
+.search { flex: 1; min-width: 180px; max-width: 340px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); padding: 0 12px; outline: none; } .search:focus { border-color: var(--accent); }
+.level { display: flex; align-items: center; gap: 10px; } .level .bar { flex: 1; height: 8px; min-width: 60px; }
+.level .bar i.low { background: var(--neg); } .level .bar i.soon { background: var(--warn); } .level .bar i.ok { background: var(--pos); }
+.level b { min-width: 64px; text-align: right; font-weight: 600; }
+.draft { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; animation: pop .25s var(--ease) both; }
+.drafts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+.draft-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; } .draft-h b { font-size: 16px; font-weight: 700; } .draft-h span { color: var(--muted); font-size: 13px; }
+.line { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; color: var(--muted); } .line b { color: var(--text); font-weight: 500; }
+.draft-f { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--rule); } .draft-f b { font-size: 18px; font-weight: 700; }
+.stars { color: var(--accent); letter-spacing: 1px; } .stars i { color: var(--border); font-style: normal; }
+@media (max-width: 899px) { .drafts { grid-template-columns: minmax(0, 1fr); } .level b { min-width: 0; } }
+.dm { display: none; } @media (max-width: 899px) { .dm { display: block; } }
+</style>
+</head>
+<body>
+<div class="notice"><b>Демо</b> Склад · данные вымышлены</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg></div>
+      <div><div class="brand-name">Склад</div><div class="brand-sub">Две точки, один учёт</div></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">МС</div><div class="who"><b>Марина Сеитова</b><span>Закупщик</span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+
+<script>
+/*@kit.js*/
+'use strict';
+
+/* ── data ─────────────────────────────────────────────── */
+const tg = (n) => fmt(n) + ' ₸';
+const TODAY = '28.09.2026';
+const VEN = { center: 'Кофейня Центр', north: 'Ресторан Север' };
+const SUP = [
+  { id: 1, n: 'ООО Мяском',    who: 'Петров А. В.',   tel: '+7 701 123 45 67', r: 5 },
+  { id: 2, n: 'МолочныйДвор',  who: 'Кузнецов П. С.', tel: '+7 702 345 67 89', r: 5 },
+  { id: 3, n: 'ОвощБаза',      who: 'Иванова М. И.',  tel: '+7 707 456 78 90', r: 3 },
+  { id: 4, n: 'АгроПлюс',      who: 'Фёдоров Д. О.',  tel: '+7 705 567 89 01', r: 4 },
+  { id: 5, n: 'РестоПоставки', who: 'Смирнова Л. Г.', tel: '+7 777 678 90 12', r: 4 },
+  { id: 6, n: 'СвежеСнабж',    who: 'Попова К. А.',   tel: '+7 700 890 12 34', r: 5 },
+];
+/* qty / min per venue; null = the venue does not stock the item */
+const ITEMS = [
+  { id: 1,  n: 'Говядина',         cat: 'Мясо',     u: 'кг', px: 3600, s: 1, qty: { center: null, north: 10 }, min: { center: null, north: 15 } },
+  { id: 2,  n: 'Молоко 3,2%',      cat: 'Молочные', u: 'л',  px: 450,  s: 2, qty: { center: 40, north: 22 },   min: { center: 30, north: 20 } },
+  { id: 3,  n: 'Картофель',        cat: 'Овощи',    u: 'кг', px: 220,  s: 3, qty: { center: null, north: 8 },  min: { center: null, north: 15 } },
+  { id: 4,  n: 'Сливки 33%',       cat: 'Молочные', u: 'л',  px: 1800, s: 2, qty: { center: 6, north: 5 },     min: { center: 8, north: 10 } },
+  { id: 5,  n: 'Куриное филе',     cat: 'Мясо',     u: 'кг', px: 2100, s: 1, qty: { center: 3, north: 22 },    min: { center: 3, north: 12 } },
+  { id: 6,  n: 'Масло сливочное',  cat: 'Молочные', u: 'кг', px: 4200, s: 2, qty: { center: 2, north: 3 },     min: { center: 2, north: 4 } },
+  { id: 7,  n: 'Лук репчатый',     cat: 'Овощи',    u: 'кг', px: 160,  s: 3, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 8,  n: 'Морковь',          cat: 'Овощи',    u: 'кг', px: 180,  s: 3, qty: { center: null, north: 15 }, min: { center: null, north: 10 } },
+  { id: 9,  n: 'Рис',              cat: 'Крупы',    u: 'кг', px: 650,  s: 4, qty: { center: null, north: 24 }, min: { center: null, north: 15 } },
+  { id: 10, n: 'Гречка',           cat: 'Крупы',    u: 'кг', px: 700,  s: 4, qty: { center: null, north: 5 },  min: { center: null, north: 8 } },
+  { id: 11, n: 'Томатная паста',   cat: 'Соусы',    u: 'шт', px: 420,  s: 5, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 12, n: 'Майонез',          cat: 'Соусы',    u: 'шт', px: 700,  s: 5, qty: { center: 4, north: 8 },     min: { center: 3, north: 6 } },
+  { id: 13, n: 'Вода минеральная', cat: 'Напитки',  u: 'шт', px: 150,  s: 6, qty: { center: 60, north: 60 },   min: { center: 40, north: 50 } },
+  { id: 14, n: 'Сок апельсиновый', cat: 'Напитки',  u: 'л',  px: 900,  s: 6, qty: { center: 8, north: 10 },    min: { center: 6, north: 10 } },
+  { id: 15, n: 'Свинина шейная',   cat: 'Мясо',     u: 'кг', px: 2800, s: 1, qty: { center: null, north: 14 }, min: { center: null, north: 12 } },
+];
+/* every order is lines; totals, "in transit" and supplier spend all derive from them */
+let PO = [
+  { id: 2038, s: 1, v: 'north',  date: '20.09.2026', st: 'received', lines: [[1, 20], [15, 14], [5, 10]] },
+  { id: 2039, s: 2, v: 'center', date: '22.09.2026', st: 'received', lines: [[2, 40], [4, 10], [6, 4]] },
+  { id: 2040, s: 6, v: 'north',  date: '24.09.2026', st: 'received', lines: [[13, 60], [14, 12]] },
+  { id: 2041, s: 3, v: 'north',  date: '27.09.2026', st: 'ordered',  lines: [[7, 20], [8, 10]] },
+  { id: 2042, s: 5, v: 'center', date: '27.09.2026', st: 'ordered',  lines: [[12, 6]] },
+  { id: 2037, s: 4, v: 'north',  date: '15.09.2026', st: 'cancelled', lines: [[9, 25]] },
+];
+const item = (id) => ITEMS.find((i) => i.id === id), sup = (id) => SUP.find((s) => s.id === id);
+const poTotal = (o) => o.lines.reduce((a, [i, q]) => a + item(i).px * q, 0);
+const stocked = (i, v) => (v === 'all' ? ['center', 'north'].some((x) => i.qty[x] !== null) : i.qty[v] !== null);
+const qtyOf = (i, v) => v === 'all' ? ['center', 'north'].reduce((a, x) => a + (i.qty[x] || 0), 0) : i.qty[v] || 0;
+const minOf = (i, v) => v === 'all' ? ['center', 'north'].reduce((a, x) => a + (i.min[x] || 0), 0) : i.min[v] || 0;
+const incoming = (id, v) => PO.filter((o) => o.st === 'ordered' && o.v === v).reduce((a, o) => a + o.lines.filter(([i]) => i === id).reduce((b, [, q]) => b + q, 0), 0);
+const incomingAll = (id) => incoming(id, 'center') + incoming(id, 'north');
+const state = (i, v) => { const q = qtyOf(i, v), m = minOf(i, v); return q < m ? 'low' : q < m * 1.3 ? 'soon' : 'ok'; };
+const value = (v) => ITEMS.filter((i) => stocked(i, v)).reduce((a, i) => a + qtyOf(i, v) * i.px, 0);
+const lowLines = () => ['center', 'north'].flatMap((v) => ITEMS.filter((i) => i.qty[v] !== null && i.qty[v] < i.min[v]).map((i) => ({ i, v })));
+/* what to buy: refill to twice the minimum, minus what is already on its way */
+const needQty = (i, v) => Math.max(0, i.min[v] * 2 - i.qty[v] - incoming(i.id, v));
+function drafts() {
+  const map = {};
+  lowLines().forEach(({ i, v }) => { const q = needQty(i, v); if (q > 0) (map[i.s + v] ||= { s: i.s, v, lines: [] }).lines.push([i.id, q]); });
+  return Object.values(map).sort((a, b) => a.s - b.s || a.v.localeCompare(b.v));
+}
+console.assert(lowLines().length === 6 && drafts().length === 5 && drafts().reduce((a, d) => a + poTotal(d), 0) === 150540, 'drafts');
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { today: ['Сегодня', 'home'], stock: ['Склад', 'box'], orders: ['Закупки', 'bag'], sup: ['Поставщики', 'users'] };
+let page = 'today', venue = 'all', cat = 'Все', q = '';
+const CATS = ['Все', ...new Set(ITEMS.map((i) => i.cat))];
+
+function chrome() {
+  const n = lowLines().length;
+  const item = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<span class="count" title="Ниже минимума">${n}</span>` : ''}</a>`;
+  $('#nav').innerHTML = Object.keys(PAGES).map(item).join('');
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
+  setNav(page);
+}
+function render() { chrome(); $('#main').innerHTML = ({ today, stock, orders, sup: suppliers })[page](); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const it = e.target.closest('[data-item]'); if (it) return openItem(+it.dataset.item);
+  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('input', (e) => { if (e.target.id === 'q') { q = e.target.value.toLowerCase(); const p = e.target.selectionStart; render(); const i = $('#q'); i.focus(); i.setSelectionRange(p, p); } });
+
+/* ── today ────────────────────────────────────────────── */
+function draftCard(d, k) {
+  return `<article class="draft"><div class="draft-h"><b>${esc(sup(d.s).n)}</b><span>для «${VEN[d.v]}»</span></div>${d.lines.map(([i, qn]) => `<div class="line"><span>${esc(item(i).n)}</span><b>${qn} ${item(i).u} · ${tg(qn * item(i).px)}</b></div>`).join('')}
+    <div class="draft-f"><b>${tg(poTotal(d))}</b><button class="btn primary sm" data-act="order" data-k="${k}">Заказать</button></div></article>`;
+}
+function today() {
+  const ds = drafts(), sum = ds.reduce((a, d) => a + poTotal(d), 0), low = lowLines().length;
+  const open = PO.filter((o) => o.st === 'ordered'), transit = open.reduce((a, o) => a + poTotal(o), 0);
+  const finding = ds.length ? `<div class="finding">${ic('alert')}<span>Ниже минимума ${low} ${low === 1 ? 'позиция' : 'позиций'}. Собрали ${ds.length} ${ds.length < 5 ? 'заказа' : 'заказов'} поставщикам на ${tg(sum)}. Проверьте и отправьте.</span><button class="btn sm primary" data-act="orderAll">Заказать всё</button></div>` : `<div class="finding" style="background:var(--pos-bg);color:var(--pos)">${ic('check')}<span>Всё выше минимума. Заказывать нечего.</span></div>`;
+  return head('Что докупить сегодня', `${TODAY} · остатки по двум точкам`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${ITEMS.length}</b><span>Позиций в учёте</span></div><div class="kpi"><b>${tg(value('all'))}</b><span>Стоимость склада</span></div><div class="kpi"><b>${low}</b><span>Ниже минимума</span></div><div class="kpi"><b>${tg(transit)}</b><span>В пути, ${open.length} ${open.length === 1 ? 'заказ' : 'заказа'}</span></div></div>
+    ${ds.length ? `<div class="drafts">${ds.map(draftCard).join('')}</div>` : ''}
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2>Ждём поставку</h2><span>${open.length}</span></div>${open.map((o) => `<div class="tr" style="--cols:1.3fr 1fr 1fr auto;--colsm:1fr auto"><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · заказ ${o.id} · ${o.date}</span></div><span class="hm">${o.lines.length} поз.</span><b class="hm">${tg(poTotal(o))}</b><button class="btn sm" data-act="receive" data-id="${o.id}">Принять</button></div>`).join('') || '<p class="empty">Ничего не ждём.</p>'}</section>`;
+}
+
+/* ── stock ────────────────────────────────────────────── */
+function stock() {
+  const list = ITEMS.filter((i) => stocked(i, venue) && (cat === 'Все' || i.cat === cat) && i.n.toLowerCase().includes(q));
+  const rows = list.map((i) => { const qn = qtyOf(i, venue), m = minOf(i, venue), st = state(i, venue), inc = venue === 'all' ? incomingAll(i.id) : incoming(i.id, venue); return `<div class="tr" data-item="${i.id}" tabindex="0" style="cursor:pointer;--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(i.n)}</b><span>${i.cat} · ${esc(sup(i.s).n)}${inc ? ` · едет ${inc} ${i.u}` : ''}</span></div>
+    <div class="level hm"><div class="bar"><i class="${st}" style="width:${Math.min(100, qn / (m * 2 || 1) * 100)}%"></i></div><b>${qn} ${i.u}</b></div><span class="hm r muted">мин. ${m}</span><span class="hm r">${tg(i.px)}</span>
+    <div class="r"><span class="pill ${st === 'low' ? 'neg' : st === 'soon' ? 'warn' : 'pos'}"><i></i>${st === 'low' ? 'Мало' : st === 'soon' ? 'Скоро' : 'Норма'}</span><div class="dm muted" style="font-size:12px;margin-top:2px">${qn} ${i.u}</div></div></div>`; }).join('');
+  return head('Склад', `${list.length} позиций · ${tg(list.reduce((a, i) => a + qtyOf(i, venue) * i.px, 0))}`) +
+    `<div class="chips">${['all', 'center', 'north'].map((v) => `<button class="chip ${venue === v ? 'on' : ''}" data-act="venue" data-v="${v}">${v === 'all' ? 'Все точки' : VEN[v]}</button>`).join('')}</div>
+    <div class="row-tools"><input class="search" id="q" value="${esc(q)}" placeholder="Поиск по названию" aria-label="Поиск"><div class="chips" style="margin:0">${CATS.map((c) => `<button class="chip ${cat === c ? 'on' : ''}" data-act="cat" data-v="${c}">${c}</button>`).join('')}</div></div>
+    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><span>Позиция</span><span class="hm">Остаток</span><span class="hm r">Минимум</span><span class="hm r">Цена</span><span class="r">Статус</span></div>${rows || '<p class="empty">Ничего не найдено.</p>'}</div></section>`;
+}
+function openItem(id) {
+  const i = item(id), vs = ['center', 'north'].filter((v) => i.qty[v] !== null);
+  modal(`<h2>${esc(i.n)}</h2><p>${i.cat} · ${esc(sup(i.s).n)} · ${tg(i.px)} за ${i.u}</p>
+    ${vs.map((v) => `<div class="line"><span>${VEN[v]}</span><b>${i.qty[v]} ${i.u} <span class="muted">(мин. ${i.min[v]})</span></b></div>`).join('')}
+    <div class="field" style="margin-top:14px"><label for="a-v">Точка</label><select id="a-v">${vs.map((v) => `<option value="${v}" ${venue === v ? 'selected' : ''}>${VEN[v]}</option>`).join('')}</select></div>
+    <div class="field"><label for="a-q">Количество, ${i.u}</label><input id="a-q" type="number" min="0.5" step="0.5" value="1"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Закрыть</button><button class="btn" id="a-out">Списать</button><button class="btn primary" id="a-in">Приход</button></div>`, () => {
+    const apply = (sign) => { const v = $('#a-v').value, n = +$('#a-q').value; if (!(n > 0)) return toast('Укажите количество'); if (sign < 0 && n > i.qty[v]) return toast(`На точке только ${i.qty[v]} ${i.u}`); i.qty[v] = Math.round((i.qty[v] + sign * n) * 10) / 10; closeModal(); toast(`${i.n}: ${sign > 0 ? 'приход' : 'списано'} ${n} ${i.u}`); render(); };
+    $('#a-out').onclick = () => apply(-1); $('#a-in').onclick = () => apply(1);
+  });
+}
+
+/* ── orders + suppliers ───────────────────────────────── */
+const ST = { ordered: ['В пути', 'warn'], received: ['Принят', 'pos'], cancelled: ['Отменён', ''] };
+function orders() {
+  const rows = [...PO].sort((a, b) => b.id - a.id).map((o) => `<div class="tr" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm muted">${o.id}</span><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · ${o.date}${' · ' + o.lines.length + ' поз.'}</span></div><span class="hm">${o.lines.map(([i, qn]) => esc(item(i).n.split(' ')[0]) + ' ' + qn).join(', ')}</span><b class="hm r">${tg(poTotal(o))}</b><span class="hm"><span class="pill ${ST[o.st][1]}"><i></i>${ST[o.st][0]}</span></span>
+    <span class="r">${o.st === 'ordered' ? `<button class="btn sm primary" data-act="receive" data-id="${o.id}">Принять</button>` : `<b>${tg(poTotal(o))}</b>`}</span></div>`).join('');
+  return head('Закупки', `${PO.length} заказов · принятые заказы сразу попадают в остатки`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm">№</span><span>Поставщик</span><span class="hm">Состав</span><span class="hm r">Сумма</span><span class="hm">Статус</span><span class="r"></span></div>${rows}</div></section>`;
+}
+function suppliers() {
+  const rows = SUP.map((s) => { const mine = PO.filter((o) => o.s === s.id && o.st !== 'cancelled'), spent = mine.reduce((a, o) => a + poTotal(o), 0); return `<div class="tr" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(s.n)}</b><span>${esc(s.who)} · ${s.tel}</span></div><span class="hm">${s.tel}</span><span class="hm stars">${'★'.repeat(s.r)}<i>${'★'.repeat(5 - s.r)}</i></span><span class="hm r">${mine.length}</span><b class="r">${tg(spent)}</b></div>`; }).join('');
+  return head('Поставщики', `${SUP.length} поставщиков · потрачено ${tg(PO.filter((o) => o.st !== 'cancelled').reduce((a, o) => a + poTotal(o), 0))} за последние 2 недели`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><span>Поставщик</span><span class="hm">Телефон</span><span class="hm">Рейтинг</span><span class="hm r">Заказов</span><span class="r">Сумма</span></div>${rows}</div></section>`;
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const nextPO = () => Math.max(...PO.map((o) => o.id)) + 1;
+const ACT = {
+  venue(d) { venue = d.v; render(); }, cat(d) { cat = d.v; render(); },
+  order(d) { const x = drafts()[+d.k]; PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines }); toast(`Заказ отправлен: ${sup(x.s).n}`); render(); },
+  orderAll() { const ds = drafts(); ds.forEach((x) => PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines })); toast(`Отправлено заказов: ${ds.length}`); render(); },
+  receive(d) { const o = PO.find((x) => x.id === +d.id); o.lines.forEach(([i, qn]) => { item(i).qty[o.v] = (item(i).qty[o.v] || 0) + qn; }); o.st = 'received'; toast(`Принято: заказ ${o.id}, остатки обновлены`); render(); },
+};
+render();
+</script>
+</body>
+</html>
