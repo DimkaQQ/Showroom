@@ -1,1592 +1,554 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>RentoWorld — Аренда авто</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    /* ============================================================
-       DESIGN TOKENS — RentoWorld Demo
-       Layout: sticky header → demo banner → tab-based content area
-       ============================================================ */
-    :root {
-      --primary:        #2563eb;
-      --primary-dark:   #1d4ed8;
-      --primary-light:  #dbeafe;
-      --accent:         #f97316;
-      --accent-light:   #fed7aa;
-      --success:        #16a34a;
-      --success-light:  #dcfce7;
-      --warning:        #eab308;
-      --warning-light:  #fef9c3;
-      --danger:         #ef4444;
-      --text:           #0f172a;
-      --text-muted:     #64748b;
-      --text-light:     #94a3b8;
-      --border:         #e2e8f0;
-      --border-dark:    #cbd5e1;
-      --bg:             #f8fafc;
-      --bg-white:       #ffffff;
-      --bg-card:        #ffffff;
-      --shadow-sm:      0 1px 3px rgba(0,0,0,.06);
-      --shadow-md:      0 4px 16px rgba(0,0,0,.08);
-      --shadow-lg:      0 12px 40px rgba(0,0,0,.14);
-      --radius-sm:      6px;
-      --radius:         10px;
-      --radius-md:      14px;
-      --radius-lg:      20px;
-      --radius-full:    9999px;
-      --transition:     all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-      --font:           'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --container:      1200px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RentoWorld — аренда авто у владельцев (демо)</title>
+<meta name="description" content="Демо: каталог авто от владельцев, календарь занятости, расчёт цены по датам, мои поездки и кабинет владельца. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
+:root {
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --text:        #f1f5f9;
-        --text-muted:  #94a3b8;
-        --text-light:  #64748b;
-        --border:      #1e293b;
-        --border-dark: #334155;
-        --bg:          #0f172a;
-        --bg-white:    #1e293b;
-        --bg-card:     #1e293b;
-        --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
-        --shadow-md:   0 4px 16px rgba(0,0,0,.4);
-        --shadow-lg:   0 12px 40px rgba(0,0,0,.5);
-        --primary-light: rgba(37,99,235,.18);
-        --accent-light:  rgba(249,115,22,.18);
-        --success-light: rgba(22,163,74,.15);
-        color-scheme: dark;
-      }
-    }
-    :root[data-theme="dark"] {
-      --text:        #f1f5f9;
-      --text-muted:  #94a3b8;
-      --text-light:  #64748b;
-      --border:      #1e293b;
-      --border-dark: #334155;
-      --bg:          #0f172a;
-      --bg-white:    #1e293b;
-      --bg-card:     #1e293b;
-      --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
-      --shadow-md:   0 4px 16px rgba(0,0,0,.4);
-      --shadow-lg:   0 12px 40px rgba(0,0,0,.5);
-      --primary-light: rgba(37,99,235,.18);
-      --accent-light:  rgba(249,115,22,.18);
-      --success-light: rgba(22,163,74,.15);
-      color-scheme: dark;
-    }
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
 
-    /* ============================================================
-       RESET
-       ============================================================ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; font-size: 16px; }
-    body {
-      font-family: var(--font);
-      color: var(--text);
-      background: var(--bg);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-    a { text-decoration: none; color: inherit; }
-    ul, ol { list-style: none; }
-    img { max-width: 100%; height: auto; display: block; }
-    button { font-family: var(--font); cursor: pointer; border: none; background: none; }
-    input, select { font-family: var(--font); font-size: 1rem; }
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
 
-    /* ============================================================
-       ANIMATIONS
-       ============================================================ */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateX(100%) scale(.95); }
-      to   { opacity: 1; transform: translateX(0) scale(1); }
-    }
-    @keyframes toastOut {
-      from { opacity: 1; transform: translateX(0) scale(1); }
-      to   { opacity: 0; transform: translateX(100%) scale(.95); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-    }
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    /* ============================================================
-       LAYOUT HELPERS
-       ============================================================ */
-    .container {
-      max-width: var(--container);
-      margin: 0 auto;
-      padding-inline: 1rem;
-    }
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
 
-    /* ============================================================
-       DEMO BANNER
-       ============================================================ */
-    .demo-banner {
-      background: var(--success);
-      color: #fff;
-      text-align: center;
-      padding: .5rem 1rem;
-      font-size: .8125rem;
-      font-weight: 600;
-      letter-spacing: .02em;
-      position: relative;
-      z-index: 100;
-    }
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
 
-    /* ============================================================
-       HEADER
-       ============================================================ */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 90;
-      background: var(--bg-white);
-      border-bottom: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-    }
-    .navbar {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      height: 64px;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -.03em;
-      flex-shrink: 0;
-      text-decoration: none;
-    }
-    .logo-icon {
-      width: 34px; height: 34px;
-      background: var(--primary);
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-    .logo em { color: var(--primary); font-style: normal; }
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: .25rem;
-      flex: 1;
-    }
-    .nav-links a {
-      font-size: .9rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      padding: .375rem .75rem;
-      border-radius: var(--radius);
-      transition: var(--transition);
-    }
-    .nav-links a:hover { color: var(--text); background: var(--bg); }
-    .nav-links a.active { color: var(--primary); background: var(--primary-light); }
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      margin-left: auto;
-    }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
 
-    .btn {
-      display: inline-flex; align-items: center; gap: .375rem;
-      font-family: var(--font); font-size: .875rem; font-weight: 600;
-      padding: .5rem 1.125rem;
-      border-radius: var(--radius);
-      border: 1.5px solid transparent;
-      cursor: pointer; transition: var(--transition);
-      white-space: nowrap; text-decoration: none;
-    }
-    .btn-ghost {
-      color: var(--text-muted);
-      border-color: var(--border);
-      background: transparent;
-    }
-    .btn-ghost:hover { color: var(--text); border-color: var(--border-dark); background: var(--bg); }
-    .btn-primary {
-      background: var(--primary); color: #fff; border-color: var(--primary);
-    }
-    .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,.35); }
-    .btn-outline {
-      background: transparent; color: var(--primary); border-color: var(--primary);
-    }
-    .btn-outline:hover { background: var(--primary-light); }
-    .btn-lg { padding: .75rem 1.5rem; font-size: 1rem; }
-    .btn-sm { padding: .375rem .875rem; font-size: .8125rem; }
-    .btn-accent { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-accent:hover { background: #ea6c06; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,.3); }
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
 
-    /* Mobile menu toggle */
-    .mobile-toggle {
-      display: none;
-      width: 36px; height: 36px;
-      align-items: center; justify-content: center;
-      border-radius: var(--radius-sm);
-      color: var(--text-muted); font-size: 1.25rem;
-    }
-    .mobile-toggle:hover { background: var(--bg); color: var(--text); }
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
 
-    /* ============================================================
-       MAIN TABS
-       ============================================================ */
-    .tabs-bar {
-      background: var(--bg-white);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 64px;
-      z-index: 80;
-    }
-    .tabs-inner {
-      display: flex;
-      gap: 0;
-    }
-    .tab-btn {
-      flex: none;
-      padding: .875rem 1.25rem;
-      font-size: .9rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      background: none;
-      border: none;
-      border-bottom: 2.5px solid transparent;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .tab-btn:hover { color: var(--text); }
-    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
 
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; animation: fadeIn .25s ease; }
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
 
-    /* ============================================================
-       CATALOG TAB
-       ============================================================ */
-    .catalog-header {
-      background: var(--bg-white);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 0;
-    }
-    .filter-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .filter-chips {
-      display: flex;
-      gap: .375rem;
-      flex-wrap: wrap;
-    }
-    .chip {
-      padding: .375rem .875rem;
-      border-radius: var(--radius-full);
-      font-size: .8125rem; font-weight: 600;
-      border: 1.5px solid var(--border);
-      background: var(--bg-white);
-      color: var(--text-muted);
-      cursor: pointer; transition: var(--transition);
-    }
-    .chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-    .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
 
-    .sort-select {
-      appearance: none;
-      -webkit-appearance: none;
-      padding: .4rem .875rem .4rem .75rem;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--bg-white);
-      color: var(--text);
-      font-size: .8125rem; font-weight: 500;
-      cursor: pointer;
-      outline: none;
-    }
-    .sort-select:focus { border-color: var(--primary); }
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
 
-    .catalog-body { padding-block: 2rem; }
-    .cars-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-    }
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
 
-    /* Car Card */
-    .car-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .car-card:hover {
-      border-color: transparent;
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-4px);
-    }
-    .car-card:focus-visible {
-      outline: 2px solid var(--primary);
-      outline-offset: 2px;
-    }
-    .car-img {
-      width: 100%; aspect-ratio: 16/10;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 3.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .car-img .car-emoji { position: relative; z-index: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,.15)); }
-    .cat-pill {
-      position: absolute; top: .625rem; left: .625rem; z-index: 2;
-      background: rgba(255,255,255,.9);
-      backdrop-filter: blur(6px);
-      font-size: .7rem; font-weight: 700;
-      padding: .2rem .55rem;
-      border-radius: var(--radius-full);
-      color: var(--text);
-    }
-    .instant-pill {
-      position: absolute; top: .625rem; right: .625rem; z-index: 2;
-      background: var(--success); color: #fff;
-      font-size: .7rem; font-weight: 700;
-      padding: .2rem .55rem;
-      border-radius: var(--radius-full);
-    }
-    .car-body { padding: 1rem; }
-    .car-name {
-      font-size: 1rem; font-weight: 700; color: var(--text);
-      margin-bottom: .2rem; letter-spacing: -.015em;
-    }
-    .car-sub {
-      font-size: .8rem; color: var(--text-muted);
-      margin-bottom: .625rem;
-      display: flex; align-items: center; gap: .5rem;
-    }
-    .car-meta {
-      display: flex; align-items: center;
-      justify-content: space-between;
-      margin-bottom: .625rem;
-    }
-    .car-rating {
-      display: flex; align-items: center; gap: .25rem;
-      font-size: .8125rem; font-weight: 600; color: var(--text);
-    }
-    .star { color: var(--warning); font-size: .875rem; }
-    .review-count { color: var(--text-muted); font-weight: 400; }
-    .owner-row {
-      display: flex; align-items: center; gap: .5rem;
-      font-size: .8rem; color: var(--text-muted);
-    }
-    .avatar-sm {
-      width: 22px; height: 22px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .65rem; font-weight: 700; color: #fff;
-      flex-shrink: 0;
-    }
-    .car-price-row {
-      border-top: 1px solid var(--border);
-      padding-top: .625rem;
-      display: flex; align-items: baseline; gap: .25rem;
-    }
-    .car-price {
-      font-size: 1.2rem; font-weight: 800; color: var(--text);
-      letter-spacing: -.025em; font-variant-numeric: tabular-nums;
-    }
-    .price-unit { font-size: .8rem; font-weight: 500; color: var(--text-muted); }
+:root[data-theme="light"] {
+  --bg: #f6f5f1; --surface: #ffffff; --raised: #f2f1ec; --hover: #ecebe5; --border: #e3e1d9; --rule: #eeede7;
+  --text: #17181a; --muted: #5a5d62; --faint: #6d7076;
+  --accent: #0c8a5f; --accent-ink: #ffffff; --accent-bg: #dff3ea;
+  --font: "Rubik", system-ui, sans-serif; --display: "Rubik", system-ui, sans-serif;
+}
+.head h1, .big, .kpi b { font-weight: 600; letter-spacing: -.025em; }
 
-    .no-results {
-      grid-column: 1/-1; text-align: center;
-      padding: 3rem 1rem; color: var(--text-muted);
-    }
-    .no-results .no-icon { font-size: 3rem; margin-bottom: .75rem; }
-    .no-results p { font-size: .95rem; }
+/* top navigation instead of a sidebar: this one is a consumer product */
+.app { display: block; min-height: 0; } .side { display: none; }
+.top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 28px; height: 60px; padding: 0 var(--pad); background: var(--surface); border-bottom: 1px solid var(--border); }
+.top .brand { padding: 0; } .top .brand-name { font-weight: 700; }
+.top .nav { flex-direction: row; gap: 4px; } .top .nav a { height: 36px; }
+.top .who-top { margin-left: auto; display: flex; align-items: center; gap: 10px; } .top .who-top b { font-weight: 500; }
+.main { margin: 0 auto; max-width: 1240px; }
 
-    /* ============================================================
-       CAR DETAIL TAB
-       ============================================================ */
-    .detail-panel { background: var(--bg); min-height: 60vh; }
-    .back-bar {
-      padding: 1.25rem 0 0;
-    }
-    .back-btn {
-      display: inline-flex; align-items: center; gap: .4rem;
-      font-size: .875rem; font-weight: 600; color: var(--text-muted);
-      cursor: pointer; transition: var(--transition);
-      background: none; border: none; padding: .375rem .75rem .375rem .5rem;
-      border-radius: var(--radius);
-    }
-    .back-btn:hover { color: var(--primary); background: var(--primary-light); }
-    .back-arrow { font-size: 1rem; line-height: 1; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
+.chip { height: 34px; padding: 0 14px; border-radius: 17px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s, border-color .15s; }
+.chip:hover { color: var(--text); border-color: var(--faint); }
+.chip.on { background: var(--text); color: var(--bg); border-color: transparent; }
+.filters select { height: 34px; border-radius: 17px; border: 1px solid var(--border); background: var(--surface); padding: 0 12px; margin-left: auto; }
+.cars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
+.car { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; cursor: pointer; text-align: left; padding: 0; transition: border-color .15s, transform .2s var(--ease); animation: pop .3s var(--ease) both; }
+.car:hover { border-color: var(--faint); transform: translateY(-2px); }
+.car-art { display: block; padding: 14px 18px 4px; }
+.car-art svg { width: 100%; height: auto; }
+.car-b { padding: 14px 16px 16px; }
+.car-b h3 { font-size: 16px; font-weight: 600; }
+.car-b .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.car-f { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px; gap: 8px; }
+.car-f b { font-size: 20px; font-weight: 600; } .car-f small { color: var(--muted); font-size: 13px; }
+.free { font-size: 12px; color: var(--accent); font-weight: 500; }
+.free.busy { color: var(--faint); }
 
-    .detail-hero {
-      width: 100%; height: 360px;
-      border-radius: var(--radius-lg);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 8rem;
-      margin: 1rem 0 1.75rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .detail-hero-emoji { position: relative; z-index: 1; filter: drop-shadow(0 8px 24px rgba(0,0,0,.25)); }
+/* detail */
+.modal.wide { max-width: 860px; padding: 0; overflow: auto; }
+.det { display: grid; grid-template-columns: minmax(0, 1fr) 340px; }
+.det-l { padding: 24px; } .det-r { padding: 24px; border-left: 1px solid var(--border); background: var(--raised); }
+.det-art { border-radius: 12px; padding: 18px 28px 8px; margin-bottom: 18px; }
+.specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 22px; }
+.specs div b { display: block; font-weight: 600; } .specs div span { font-size: 12px; color: var(--muted); }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px; }
+.cal .dw { text-align: center; font-size: 12px; color: var(--faint); padding-bottom: 2px; }
+.day { height: 38px; border-radius: 8px; border: 0; background: var(--surface); color: var(--text); cursor: pointer; font-variant-numeric: tabular-nums; transition: background-color .12s; }
+.day:hover:not(:disabled) { background: var(--hover); }
+.day:disabled { background: transparent; color: var(--faint); cursor: not-allowed; text-decoration: line-through; opacity: .6; }
+.day.in { background: var(--accent-bg); border-radius: 0; } .day.edge, .day.edge:hover:not(:disabled) { background: var(--accent); color: #fff; border-radius: 8px; }
+.day.past { visibility: hidden; }
+.sum .lines div { display: flex; justify-content: space-between; padding: 7px 0; color: var(--muted); } .sum .lines b { color: var(--text); font-weight: 500; }
+.sum .tot { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 12px; }
+.sum .tot b { font-size: 26px; font-weight: 600; }
+.close-x { position: absolute; top: 12px; right: 12px; }
+.modal.wide { position: relative; }
 
-    .detail-layout {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 2rem;
-      align-items: start;
-      padding-bottom: 4rem;
-    }
+.trip-c { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; }
+.trip-c + .trip-c { border-top: 1px solid var(--rule); }
+.trip-c .thumb { border-radius: 10px; padding: 6px 8px 0; }
+.trip-c b { display: block; font-weight: 600; } .trip-c span.s { color: var(--muted); font-size: 13px; }
 
-    /* Detail info cards */
-    .dcard {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 1.5rem;
-      margin-bottom: 1.25rem;
-    }
-    .dcard:last-child { margin-bottom: 0; }
-    .dcard-title {
-      font-size: 1rem; font-weight: 700; color: var(--text);
-      margin-bottom: 1rem;
-      display: flex; align-items: center; gap: .5rem;
-    }
-    .dcard-icon { color: var(--primary); font-size: 1.1rem; }
-
-    .car-headline {
-      font-size: 1.75rem; font-weight: 800;
-      letter-spacing: -.03em; color: var(--text);
-      margin-bottom: .25rem;
-    }
-    .car-headline-sub {
-      font-size: .9rem; color: var(--text-muted);
-      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
-    }
-    .dot-sep { color: var(--border-dark); }
-    .rating-inline {
-      display: flex; align-items: center; gap: .3rem;
-      font-size: .9rem; font-weight: 600;
-    }
-
-    .specs-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: .875rem;
-    }
-    .spec-item {
-      display: flex; flex-direction: column; align-items: center;
-      gap: .3rem; text-align: center;
-      background: var(--bg);
-      border-radius: var(--radius);
-      padding: .75rem .5rem;
-    }
-    .spec-icon { font-size: 1.4rem; }
-    .spec-label { font-size: .7rem; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
-    .spec-value { font-size: .875rem; font-weight: 700; color: var(--text); }
-
-    /* Owner block */
-    .owner-block {
-      display: flex; align-items: center; gap: 1rem;
-    }
-    .avatar-lg {
-      width: 52px; height: 52px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.25rem; font-weight: 700; color: #fff;
-      flex-shrink: 0;
-    }
-    .owner-info h4 { font-size: 1rem; font-weight: 700; margin-bottom: .1rem; }
-    .owner-info p { font-size: .8rem; color: var(--text-muted); }
-
-    /* Reviews */
-    .reviews-list { display: flex; flex-direction: column; gap: 1rem; }
-    .review-item {
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .review-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .review-header {
-      display: flex; align-items: center; gap: .75rem;
-      margin-bottom: .5rem;
-    }
-    .review-stars { color: var(--warning); font-size: .85rem; }
-    .review-author { font-size: .875rem; font-weight: 600; }
-    .review-date { font-size: .78rem; color: var(--text-muted); margin-left: auto; }
-    .review-text { font-size: .875rem; color: var(--text-muted); line-height: 1.6; }
-
-    /* Booking widget */
-    .booking-widget {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 1.5rem;
-      position: sticky;
-      top: calc(64px + 49px + 1.5rem);
-      box-shadow: var(--shadow-md);
-    }
-    .bw-price-row {
-      margin-bottom: 1.25rem;
-    }
-    .bw-price {
-      font-size: 1.75rem; font-weight: 800; color: var(--text);
-      letter-spacing: -.04em; font-variant-numeric: tabular-nums;
-    }
-    .bw-price-unit { font-size: .9rem; font-weight: 500; color: var(--text-muted); }
-    .bw-rating { display: flex; align-items: center; gap: .25rem; font-size: .85rem; font-weight: 600; color: var(--text-muted); margin-top: .3rem; }
-
-    .date-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: .75rem;
-      margin-bottom: 1rem;
-    }
-    .date-field { display: flex; flex-direction: column; gap: .25rem; }
-    .date-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); }
-    .date-input {
-      width: 100%; padding: .625rem .75rem;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--bg);
-      color: var(--text);
-      font-size: .875rem; font-weight: 500;
-      outline: none; transition: var(--transition);
-    }
-    .date-input:focus { border-color: var(--primary); background: var(--bg-white); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-
-    .price-breakdown {
-      background: var(--bg);
-      border-radius: var(--radius);
-      padding: .875rem 1rem;
-      margin-bottom: 1rem;
-    }
-    .pb-row {
-      display: flex; justify-content: space-between;
-      font-size: .875rem; color: var(--text-muted);
-      margin-bottom: .375rem;
-    }
-    .pb-row:last-child { margin-bottom: 0; }
-    .pb-total {
-      border-top: 1px solid var(--border); padding-top: .5rem;
-      margin-top: .5rem;
-      font-weight: 700; color: var(--text); font-size: .95rem;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .book-btn {
-      width: 100%;
-      padding: .875rem;
-      background: var(--primary); color: #fff;
-      border-radius: var(--radius-md);
-      font-size: 1rem; font-weight: 700;
-      border: none; cursor: pointer;
-      transition: var(--transition);
-      display: flex; align-items: center; justify-content: center; gap: .5rem;
-    }
-    .book-btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,.35); }
-    .book-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-    .bw-note { text-align: center; font-size: .78rem; color: var(--text-muted); margin-top: .75rem; }
-
-    /* ============================================================
-       HOW IT WORKS TAB
-       ============================================================ */
-    .how-section { padding: 3rem 0 4rem; }
-    .section-header { text-align: center; margin-bottom: 3rem; }
-    .section-eyebrow {
-      display: inline-block;
-      font-size: .75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .1em;
-      color: var(--primary);
-      background: var(--primary-light);
-      padding: .25rem .75rem;
-      border-radius: var(--radius-full);
-      margin-bottom: .75rem;
-    }
-    .section-title {
-      font-size: clamp(1.5rem, 4vw, 2.25rem);
-      font-weight: 800; color: var(--text);
-      letter-spacing: -.04em; margin-bottom: .75rem;
-      text-wrap: balance;
-    }
-    .section-sub { font-size: 1.0625rem; color: var(--text-muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
-
-    .how-steps {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 2rem; position: relative;
-    }
-    .how-steps::before {
-      content: '';
-      position: absolute; top: 36px; left: calc(16.6% + 36px); right: calc(16.6% + 36px);
-      height: 2px;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      z-index: 0;
-    }
-    .how-step { text-align: center; position: relative; z-index: 1; }
-    .how-num {
-      width: 72px; height: 72px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: #fff; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2rem; margin: 0 auto 1.25rem;
-      box-shadow: 0 4px 20px rgba(37,99,235,.35);
-    }
-    .how-step h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; color: var(--text); }
-    .how-step p { font-size: .9rem; color: var(--text-muted); line-height: 1.65; max-width: 240px; margin: 0 auto; }
-
-    .why-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-      margin-top: 3rem;
-    }
-    .why-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius-md); padding: 1.5rem;
-      transition: var(--transition);
-    }
-    .why-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-    .why-icon {
-      font-size: 2rem; margin-bottom: 1rem;
-      width: 56px; height: 56px;
-      background: var(--primary-light);
-      border-radius: var(--radius);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .why-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; color: var(--text); }
-    .why-card p { font-size: .875rem; color: var(--text-muted); line-height: 1.6; }
-
-    /* ============================================================
-       BOOKING MODAL
-       ============================================================ */
-    .modal-backdrop {
-      position: fixed; inset: 0; z-index: 200;
-      background: rgba(15,23,42,.55);
-      backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 1rem;
-      animation: fadeIn .2s ease;
-    }
-    .modal-backdrop[hidden] { display: none; }
-    .modal-box {
-      background: var(--bg-card);
-      border-radius: var(--radius-lg);
-      padding: 2rem;
-      max-width: 480px; width: 100%;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp .25s ease;
-    }
-    .modal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.5rem;
-    }
-    .modal-title { font-size: 1.2rem; font-weight: 800; color: var(--text); letter-spacing: -.025em; }
-    .modal-close {
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; color: var(--text-muted); font-size: 1.1rem;
-      cursor: pointer; transition: var(--transition);
-    }
-    .modal-close:hover { background: var(--bg); color: var(--text); }
-
-    .modal-summary {
-      background: var(--bg);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-    .ms-car-name { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 1rem; }
-    .ms-row {
-      display: flex; justify-content: space-between;
-      font-size: .875rem; margin-bottom: .5rem;
-    }
-    .ms-label { color: var(--text-muted); }
-    .ms-value { font-weight: 600; color: var(--text); }
-    .ms-total {
-      border-top: 1px solid var(--border); padding-top: .75rem; margin-top: .75rem;
-      font-size: 1rem; font-weight: 800; color: var(--primary);
-      font-variant-numeric: tabular-nums;
-    }
-    .modal-actions { display: flex; gap: .75rem; }
-    .modal-actions .btn { flex: 1; justify-content: center; padding-block: .75rem; }
-
-    /* ============================================================
-       TOAST
-       ============================================================ */
-    .toast-container {
-      position: fixed; bottom: 1.5rem; right: 1.5rem;
-      z-index: 300; display: flex; flex-direction: column; gap: .625rem;
-      pointer-events: none;
-    }
-    .toast {
-      display: flex; align-items: flex-start; gap: .75rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: .875rem 1rem;
-      max-width: 340px;
-      box-shadow: var(--shadow-lg);
-      pointer-events: all;
-      animation: toastIn .3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-    }
-    .toast.removing { animation: toastOut .25s ease both; }
-    .toast-icon {
-      width: 32px; height: 32px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
-    }
-    .toast-success .toast-icon { background: var(--success-light); color: var(--success); }
-    .toast-info    .toast-icon { background: var(--primary-light); color: var(--primary); }
-    .toast-body { min-width: 0; }
-    .toast-title { font-size: .875rem; font-weight: 700; color: var(--text); margin-bottom: .1rem; }
-    .toast-message { font-size: .8125rem; color: var(--text-muted); }
-    .toast-close {
-      margin-left: auto; flex-shrink: 0;
-      width: 22px; height: 22px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-muted); font-size: .85rem; cursor: pointer;
-    }
-    .toast-close:hover { background: var(--bg); color: var(--text); }
-
-    /* ============================================================
-       RESPONSIVE
-       ============================================================ */
-    @media (max-width: 1024px) {
-      .detail-layout { grid-template-columns: 1fr 340px; }
-      .specs-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 860px) {
-      .cars-grid { grid-template-columns: repeat(2, 1fr); }
-      .how-steps { grid-template-columns: 1fr; }
-      .how-steps::before { display: none; }
-      .why-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 768px) {
-      .detail-layout { grid-template-columns: 1fr; }
-      .booking-widget { position: static; }
-      .nav-links { display: none; }
-      .nav-links.open { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; position: absolute; top: 64px; left: 0; right: 0; background: var(--bg-white); border-bottom: 1px solid var(--border); padding: .75rem 1rem; z-index: 80; box-shadow: var(--shadow-md); }
-      .nav-links.open a { width: 100%; padding: .625rem .75rem; }
-      .mobile-toggle { display: flex; }
-      .nav-actions .btn-ghost, .nav-actions .btn-primary { display: none; }
-      .nav-actions .btn-primary { display: inline-flex; }
-    }
-    @media (max-width: 600px) {
-      .cars-grid { grid-template-columns: 1fr; }
-      .why-grid { grid-template-columns: 1fr; }
-      .specs-grid { grid-template-columns: repeat(2, 1fr); }
-      .detail-hero { height: 220px; font-size: 5rem; }
-    }
-    @media (max-width: 480px) {
-      .filter-row { flex-direction: column; align-items: flex-start; }
-      .date-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+@media (max-width: 1099px) { .cars { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 899px) {
+  .top { height: 52px; gap: 12px; } .top .nav, .top .who-top { display: none; }
+  .cars { grid-template-columns: minmax(0, 1fr); } .filters select { margin-left: 0; }
+  .det { grid-template-columns: minmax(0, 1fr); } .det-r { border-left: 0; border-top: 1px solid var(--border); } .det-l, .det-r { padding: 18px; }
+  .specs { grid-template-columns: repeat(2, 1fr); }
+  .trip-c { grid-template-columns: 84px minmax(0, 1fr); } .trip-c .btn { grid-column: 2; justify-self: start; }
+  .modal.wide { max-height: 94svh; }
+}
+</style>
 </head>
 <body>
-
-<!-- ============================================================
-     DEMO BANNER
-     ============================================================ -->
-<div class="demo-banner">
-  ⚡ Demo Site — RentoWorld · Все данные для демонстрации
+<div class="notice"><b>Демо</b> RentoWorld · данные вымышлены</div>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V11l2-4h10l2 4v5M3 16h18M7.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM16.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></div><div class="brand-name">RentoWorld</div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="who-top"><b>Тимур</b><div class="avatar">ТЖ</div></div>
+  </header>
+  <main class="main" id="main"></main>
 </div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
 
-<!-- ============================================================
-     HEADER
-     ============================================================ -->
-<header class="header" id="siteHeader">
-  <div class="container navbar">
-    <a href="#" class="logo" onclick="showTab('catalog'); return false;">
-      <div class="logo-icon">🚗</div>
-      Rento<em>World</em>
-    </a>
-
-    <nav class="nav-links" id="navMenu">
-      <a href="#" class="active" id="navCatalog" onclick="switchNav('catalog'); return false;">Каталог</a>
-      <a href="#" id="navHow" onclick="switchNav('how'); return false;">Как это работает</a>
-      <a href="#" id="navList" onclick="return false;">Сдать авто</a>
-    </nav>
-
-    <div class="nav-actions">
-      <button class="btn btn-ghost" onclick="showToast('Войти', 'Функция входа в демо-версии недоступна.', 'info')">Войти</button>
-      <button class="btn btn-primary" onclick="showTab('catalog')">Арендовать</button>
-      <button class="mobile-toggle" id="mobileToggle" aria-label="Меню" onclick="document.getElementById('navMenu').classList.toggle('open')">☰</button>
-    </div>
-  </div>
-</header>
-
-<!-- ============================================================
-     MAIN TABS BAR
-     ============================================================ -->
-<div class="tabs-bar">
-  <div class="container tabs-inner">
-    <button class="tab-btn active" id="tab-catalog" onclick="showTab('catalog')">🔍 Каталог</button>
-    <button class="tab-btn" id="tab-detail" onclick="showTab('detail')" style="display:none" id="tab-detail-btn">🚘 Автомобиль</button>
-    <button class="tab-btn" id="tab-how" onclick="showTab('how')">💡 Как это работает</button>
-  </div>
-</div>
-
-<!-- ============================================================
-     CATALOG TAB
-     ============================================================ -->
-<div class="tab-panel active" id="panel-catalog">
-  <div class="catalog-header">
-    <div class="container">
-      <div class="filter-row">
-        <div class="filter-chips" id="filterChips">
-          <button class="chip active" data-cat="all" onclick="filterCars('all')">Все</button>
-          <button class="chip" data-cat="Седан" onclick="filterCars('Седан')">🚗 Седан</button>
-          <button class="chip" data-cat="Внедорожник" onclick="filterCars('Внедорожник')">🚙 Внедорожник</button>
-          <button class="chip" data-cat="Кроссовер" onclick="filterCars('Кроссовер')">🛻 Кроссовер</button>
-          <button class="chip" data-cat="Электро" onclick="filterCars('Электро')">⚡ Электро</button>
-        </div>
-        <select class="sort-select" id="sortSelect" onchange="sortCars(this.value)" aria-label="Сортировка">
-          <option value="rating">По рейтингу</option>
-          <option value="price_asc">По цене (↑)</option>
-          <option value="price_desc">По цене (↓)</option>
-          <option value="newest">Свежие</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="catalog-body">
-    <div class="container">
-      <div class="cars-grid" id="carsGrid"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     CAR DETAIL TAB
-     ============================================================ -->
-<div class="tab-panel" id="panel-detail">
-  <div class="detail-panel">
-    <div class="container">
-      <div class="back-bar">
-        <button class="back-btn" onclick="showTab('catalog')">
-          <span class="back-arrow">←</span> Назад к каталогу
-        </button>
-      </div>
-
-      <div class="detail-hero" id="detailHero">
-        <span class="detail-hero-emoji" id="detailEmoji">🚗</span>
-      </div>
-
-      <div class="detail-layout">
-        <!-- Left column: info -->
-        <div class="detail-left">
-          <!-- Title card -->
-          <div class="dcard" id="detailTitleCard">
-            <h1 class="car-headline" id="detailName">—</h1>
-            <div class="car-headline-sub">
-              <span id="detailYear">—</span>
-              <span class="dot-sep">·</span>
-              <span id="detailCat">—</span>
-              <span class="dot-sep">·</span>
-              <span id="detailLoc">—</span>
-              <span class="dot-sep">·</span>
-              <span class="rating-inline">
-                <span class="star">★</span>
-                <span id="detailRating">—</span>
-                <span class="review-count" id="detailRevCount"></span>
-              </span>
-            </div>
-          </div>
-
-          <!-- Specs -->
-          <div class="dcard">
-            <div class="dcard-title"><span class="dcard-icon">⚙️</span> Характеристики</div>
-            <div class="specs-grid" id="detailSpecs">
-              <div class="spec-item"><div class="spec-icon">👥</div><div class="spec-label">Мест</div><div class="spec-value" id="specSeats">5</div></div>
-              <div class="spec-item"><div class="spec-icon">📅</div><div class="spec-label">Год</div><div class="spec-value" id="specYear">—</div></div>
-              <div class="spec-item"><div class="spec-icon">⚙️</div><div class="spec-label">КПП</div><div class="spec-value" id="specTrans">Автомат</div></div>
-              <div class="spec-item"><div class="spec-icon">⛽</div><div class="spec-label">Топливо</div><div class="spec-value" id="specFuel">Бензин</div></div>
-            </div>
-          </div>
-
-          <!-- Owner -->
-          <div class="dcard">
-            <div class="dcard-title"><span class="dcard-icon">👤</span> Владелец</div>
-            <div class="owner-block">
-              <div class="avatar-lg" id="detailOwnerAvatar" style="background:#2563eb">АИ</div>
-              <div class="owner-info">
-                <h4 id="detailOwnerName">—</h4>
-                <p id="detailOwnerSub">Верифицированный хозяин · На сервисе с 2021</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Reviews -->
-          <div class="dcard">
-            <div class="dcard-title"><span class="dcard-icon">⭐</span> Отзывы</div>
-            <div class="reviews-list" id="detailReviews"></div>
-          </div>
-        </div>
-
-        <!-- Right column: booking widget -->
-        <div class="detail-right">
-          <div class="booking-widget">
-            <div class="bw-price-row">
-              <div>
-                <span class="bw-price" id="bwPrice">—</span>
-                <span class="bw-price-unit"> ₽/день</span>
-              </div>
-              <div class="bw-rating">
-                <span class="star" style="color:var(--warning)">★</span>
-                <span id="bwRating">—</span>
-                <span id="bwRevCount" style="color:var(--text-muted);font-weight:400"></span>
-              </div>
-            </div>
-
-            <div class="date-grid">
-              <div class="date-field">
-                <label class="date-label" for="dateStart">Дата начала</label>
-                <input type="date" id="dateStart" class="date-input" oninput="calcPrice()">
-              </div>
-              <div class="date-field">
-                <label class="date-label" for="dateEnd">Дата конца</label>
-                <input type="date" id="dateEnd" class="date-input" oninput="calcPrice()">
-              </div>
-            </div>
-
-            <div class="price-breakdown" id="priceBreakdown" hidden>
-              <div class="pb-row"><span class="pb-label" id="pbDaysLabel">—</span><span class="pb-value" id="pbSubtotal">—</span></div>
-              <div class="pb-row"><span class="pb-label">Сервисный сбор</span><span class="pb-value" id="pbFee">—</span></div>
-              <div class="pb-row pb-total"><span>Итого</span><span id="pbTotal">—</span></div>
-            </div>
-
-            <button class="book-btn" id="bookBtn" onclick="openModal()" disabled>
-              🔒 Выберите даты
-            </button>
-            <div class="bw-note">Бронирование без предоплаты · Отмена бесплатно</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     HOW IT WORKS TAB
-     ============================================================ -->
-<div class="tab-panel" id="panel-how">
-  <div class="how-section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-eyebrow">Простой процесс</span>
-        <h2 class="section-title">Как это работает</h2>
-        <p class="section-sub">Арендовать автомобиль у реального человека — быстро, безопасно и выгодно.</p>
-      </div>
-
-      <div class="how-steps">
-        <div class="how-step">
-          <div class="how-num">🔍</div>
-          <h3>Найди авто</h3>
-          <p>Выбери автомобиль из каталога — фильтруй по категории, цене или рейтингу. Все объявления от реальных владельцев.</p>
-        </div>
-        <div class="how-step">
-          <div class="how-num">📅</div>
-          <h3>Забронируй</h3>
-          <p>Укажи даты аренды, ознакомься с условиями и нажми «Забронировать». Никакой предоплаты — договор напрямую с хозяином.</p>
-        </div>
-        <div class="how-step">
-          <div class="how-num">🚗</div>
-          <h3>Поехали!</h3>
-          <p>Встреться с владельцем, получи ключи и отправляйся в путь. По завершении оставь отзыв.</p>
-        </div>
-      </div>
-
-      <div class="why-grid">
-        <div class="why-card">
-          <div class="why-icon">💰</div>
-          <h4>Без посредников</h4>
-          <p>Владельцы зарабатывают больше, арендаторы платят меньше. Честные цены напрямую.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-icon">🛡️</div>
-          <h4>Верифицированные профили</h4>
-          <p>Каждый владелец и арендатор проходит проверку. Рейтинги и отзывы после каждой сделки.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-icon">🔒</div>
-          <h4>Безопасное бронирование</h4>
-          <p>Прозрачный процесс с подтверждением, депозитом и политикой отмены.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-icon">🗺️</div>
-          <h4>По всей России</h4>
-          <p>Автомобили в Москве, Санкт-Петербурге, Казани и десятках других городов.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-icon">⚡</div>
-          <h4>Мгновенное подтверждение</h4>
-          <p>Большинство объявлений с мгновенным одобрением — ждать ответа не нужно.</p>
-        </div>
-        <div class="why-card">
-          <div class="why-icon">📱</div>
-          <h4>Удобно с телефона</h4>
-          <p>Найти и забронировать авто можно прямо со смартфона за несколько минут.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================
-     BOOKING MODAL
-     ============================================================ -->
-<div class="modal-backdrop" id="bookingModal" hidden>
-  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Подтверждение бронирования</div>
-      <button class="modal-close" onclick="closeModal()" aria-label="Закрыть">✕</button>
-    </div>
-    <div class="modal-summary">
-      <div class="ms-car-name" id="modalCarName">—</div>
-      <div class="ms-row"><span class="ms-label">Дата начала</span><span class="ms-value" id="modalDateStart">—</span></div>
-      <div class="ms-row"><span class="ms-label">Дата конца</span><span class="ms-value" id="modalDateEnd">—</span></div>
-      <div class="ms-row"><span class="ms-label">Количество дней</span><span class="ms-value" id="modalDays">—</span></div>
-      <div class="ms-row"><span class="ms-label">Стоимость аренды</span><span class="ms-value" id="modalSubtotal">—</span></div>
-      <div class="ms-row"><span class="ms-label">Сервисный сбор (5%)</span><span class="ms-value" id="modalFee">—</span></div>
-      <div class="ms-row ms-total"><span>Итого</span><span id="modalTotal">—</span></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Отмена</button>
-      <button class="btn btn-primary" onclick="confirmBooking()">✓ Подтвердить бронь</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST CONTAINER -->
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- ============================================================
-     JAVASCRIPT
-     ============================================================ -->
 <script>
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('ru-RU');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
+
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
+
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
+}
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
+}
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
+
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
+  }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Динамика: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
+}
+
 'use strict';
 
-/* ─── Car data ───────────────────────────────────────────────── */
+/* ── data ─────────────────────────────────────────────── */
+const tg = (n) => fmt(n) + ' ₸';
+const TODAY = new Date(2026, 8, 28);
+const addDays = (d) => new Date(TODAY.getTime() + d * 864e5);
+const dFmt = (d) => addDays(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }).replace('.', '');
+const plural = (n, a, b, c) => { const m = n % 100, k = n % 10; return m > 10 && m < 15 ? c : k === 1 ? a : k > 1 && k < 5 ? b : c; };
+const days = (n) => `${n} ${plural(n, 'день', 'дня', 'дней')}`;
+
 const CARS = [
-  {
-    id: 1,
-    name: 'Toyota Camry',
-    year: 2022,
-    cat: 'Седан',
-    price: 4500,
-    city: 'Москва',
-    rating: 4.9,
-    reviews: 47,
-    emoji: '🚗',
-    gradient: 'linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%)',
-    owner: 'Алексей И.',
-    ownerInitials: 'АИ',
-    ownerColor: '#2563eb',
-    seats: 5,
-    trans: 'Автомат',
-    fuel: 'Бензин',
-    instant: true,
-  },
-  {
-    id: 2,
-    name: 'BMW X5',
-    year: 2021,
-    cat: 'Внедорожник',
-    price: 8900,
-    city: 'Москва',
-    rating: 4.8,
-    reviews: 32,
-    emoji: '🚙',
-    gradient: 'linear-gradient(135deg,#ede9fe 0%,#ddd6fe 100%)',
-    owner: 'Михаил С.',
-    ownerInitials: 'МС',
-    ownerColor: '#7c3aed',
-    seats: 5,
-    trans: 'Автомат',
-    fuel: 'Бензин',
-    instant: false,
-  },
-  {
-    id: 3,
-    name: 'Hyundai Tucson',
-    year: 2023,
-    cat: 'Кроссовер',
-    price: 5200,
-    city: 'Санкт-Петербург',
-    rating: 4.7,
-    reviews: 28,
-    emoji: '🚘',
-    gradient: 'linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%)',
-    owner: 'Ольга В.',
-    ownerInitials: 'ОВ',
-    ownerColor: '#16a34a',
-    seats: 5,
-    trans: 'Автомат',
-    fuel: 'Бензин',
-    instant: true,
-  },
-  {
-    id: 4,
-    name: 'VW Tiguan',
-    year: 2022,
-    cat: 'Кроссовер',
-    price: 5800,
-    city: 'Москва',
-    rating: 4.8,
-    reviews: 41,
-    emoji: '🚗',
-    gradient: 'linear-gradient(135deg,#ffedd5 0%,#fed7aa 100%)',
-    owner: 'Дмитрий Н.',
-    ownerInitials: 'ДН',
-    ownerColor: '#ea580c',
-    seats: 5,
-    trans: 'Автомат',
-    fuel: 'Дизель',
-    instant: false,
-  },
-  {
-    id: 5,
-    name: 'Kia Rio',
-    year: 2021,
-    cat: 'Седан',
-    price: 2900,
-    city: 'Москва',
-    rating: 4.6,
-    reviews: 55,
-    emoji: '🚗',
-    gradient: 'linear-gradient(135deg,#e0f2fe 0%,#bae6fd 100%)',
-    owner: 'Елена К.',
-    ownerInitials: 'ЕК',
-    ownerColor: '#0284c7',
-    seats: 5,
-    trans: 'Механика',
-    fuel: 'Бензин',
-    instant: true,
-  },
-  {
-    id: 6,
-    name: 'Mercedes GLC',
-    year: 2023,
-    cat: 'Внедорожник',
-    price: 12000,
-    city: 'Москва',
-    rating: 5.0,
-    reviews: 19,
-    emoji: '🚙',
-    gradient: 'linear-gradient(135deg,#fef3c7 0%,#fde68a 100%)',
-    owner: 'Сергей Т.',
-    ownerInitials: 'СТ',
-    ownerColor: '#b45309',
-    seats: 5,
-    trans: 'Автомат',
-    fuel: 'Бензин',
-    instant: false,
-  },
-  {
-    id: 7,
-    name: 'Toyota RAV4',
-    year: 2022,
-    cat: 'Внедорожник',
-    price: 6700,
-    city: 'Казань',
-    rating: 4.9,
-    reviews: 38,
-    emoji: '🚙',
-    gradient: 'linear-gradient(135deg,#fee2e2 0%,#fecaca 100%)',
-    owner: 'Айдар М.',
-    ownerInitials: 'АМ',
-    ownerColor: '#dc2626',
-    seats: 5,
-    trans: 'Автомат',
-    fuel: 'Гибрид',
-    instant: true,
-  },
-  {
-    id: 8,
-    name: 'Skoda Octavia',
-    year: 2021,
-    cat: 'Седан',
-    price: 3800,
-    city: 'Санкт-Петербург',
-    rating: 4.5,
-    reviews: 62,
-    emoji: '🚗',
-    gradient: 'linear-gradient(135deg,#e0e7ff 0%,#c7d2fe 100%)',
-    owner: 'Игорь Ф.',
-    ownerInitials: 'ИФ',
-    ownerColor: '#4338ca',
-    seats: 5,
-    trans: 'Механика',
-    fuel: 'Бензин',
-    instant: false,
-  },
-  {
-    id: 9,
-    name: 'Tesla Model 3',
-    year: 2023,
-    cat: 'Электро',
-    price: 9500,
-    city: 'Москва',
-    rating: 4.9,
-    reviews: 23,
-    emoji: '⚡',
-    gradient: 'linear-gradient(135deg,#d1fae5 0%,#a7f3d0 100%)',
-    owner: 'Виктор Л.',
-    ownerInitials: 'ВЛ',
-    ownerColor: '#059669',
-    seats: 5,
-    trans: 'Автомат',
-    fuel: 'Электро',
-    instant: true,
-  },
+  { id: 1,  n: 'Toyota Camry',     y: 2022, t: 'sedan', c: '#c9ced6', px: 22000, seats: 5, tr: 'Автомат', fuel: 'Бензин', r: 4.9, trips: 63, own: 'Вы', where: 'Алматы', dep: 80000 },
+  { id: 2,  n: 'Kia Sportage',     y: 2023, t: 'suv',   c: '#2d5b8c', px: 28000, seats: 5, tr: 'Автомат', fuel: 'Бензин', r: 4.8, trips: 41, own: 'Вы', where: 'Алматы', dep: 100000 },
+  { id: 3,  n: 'Hyundai Solaris',  y: 2021, t: 'sedan', c: '#b8352f', px: 14000, seats: 5, tr: 'Автомат', fuel: 'Бензин', r: 4.7, trips: 118, own: 'Марат К.', where: 'Алматы', dep: 50000 },
+  { id: 4,  n: 'Chevrolet Tracker', y: 2022, t: 'suv',  c: '#e0b43a', px: 24000, seats: 5, tr: 'Автомат', fuel: 'Бензин', r: 4.6, trips: 37, own: 'Динара С.', where: 'Алматы', dep: 90000 },
+  { id: 5,  n: 'Volkswagen Polo',  y: 2020, t: 'hatch', c: '#3d4a57', px: 12000, seats: 5, tr: 'Механика', fuel: 'Бензин', r: 4.5, trips: 90, own: 'Ербол А.', where: 'Алматы', dep: 40000 },
+  { id: 6,  n: 'Skoda Octavia',    y: 2022, t: 'hatch', c: '#2f7d5b', px: 19000, seats: 5, tr: 'Автомат', fuel: 'Бензин', r: 4.9, trips: 52, own: 'Айгуль Т.', where: 'Алматы', dep: 70000 },
+  { id: 7,  n: 'Hyundai Staria',   y: 2023, t: 'van',   c: '#e8e4da', px: 45000, seats: 9, tr: 'Автомат', fuel: 'Дизель', r: 5.0, trips: 22, own: 'Нурлан Б.', where: 'Алматы', dep: 150000 },
+  { id: 8,  n: 'Toyota RAV4',      y: 2021, t: 'suv',   c: '#1f2a36', px: 30000, seats: 5, tr: 'Автомат', fuel: 'Гибрид', r: 4.8, trips: 74, own: 'Сауле М.', where: 'Алматы', dep: 110000 },
+  { id: 9,  n: 'Lada Vesta',       y: 2020, t: 'sedan', c: '#8a9aa8', px: 9000,  seats: 5, tr: 'Механика', fuel: 'Бензин', r: 4.3, trips: 130, own: 'Асхат Ж.', where: 'Алматы', dep: 30000 },
 ];
+const TYPE = { sedan: 'Седан', suv: 'Кроссовер', hatch: 'Хэтчбек', van: 'Минивэн' };
+/* every booking is one record; busy days, trips, occupancy and earnings all derive from it */
+const B = [
+  { id: 1, car: 1, who: 'Айдос Н.', from: -6, to: -3 }, { id: 2, car: 1, who: 'Анна Л.', from: 2, to: 5 }, { id: 3, car: 1, who: 'Серик Т.', from: 9, to: 14 }, { id: 4, car: 1, who: 'Мадина Р.', from: 19, to: 21 },
+  { id: 5, car: 2, who: 'Олег В.', from: -5, to: -2 }, { id: 19, car: 2, who: 'Асель Ф.', from: -12, to: -9 }, { id: 20, car: 1, who: 'Бахыт О.', from: -14, to: -11 }, { id: 6, car: 2, who: 'Дина К.', from: 6, to: 12 }, { id: 7, car: 2, who: 'Руслан Э.', from: 16, to: 20 },
+  { id: 8, car: 3, who: 'Вы', from: -9, to: -6 }, { id: 9, car: 3, who: 'Игорь М.', from: 1, to: 4 }, { id: 10, car: 3, who: 'Лейла Х.', from: 8, to: 10 },
+  { id: 11, car: 4, who: 'Вы', from: 12, to: 14 }, { id: 12, car: 4, who: 'Эльдар Б.', from: 0, to: 6 },
+  { id: 13, car: 5, who: 'Тоня Р.', from: 3, to: 9 }, { id: 14, car: 6, who: 'Данияр С.', from: 5, to: 7 }, { id: 15, car: 7, who: 'Компания «Тур-Ас»', from: 0, to: 10 }, { id: 16, car: 7, who: 'Мира Д.', from: 14, to: 18 },
+  { id: 17, car: 8, who: 'Влад П.', from: 2, to: 4 }, { id: 18, car: 9, who: 'Кирилл З.', from: 1, to: 2 },
+];
+const car = (id) => CARS.find((c) => c.id === id);
+const busy = (carId, d) => B.some((b) => b.car === carId && d >= b.from && d <= b.to);
+const freeNext7 = (id) => { let n = 0; for (let d = 0; d < 7; d++) if (!busy(id, d)) n++; return n; };
+const nextId = () => Math.max(...B.map((b) => b.id)) + 1;
+const price = (c, n) => { const base = c.px * n, off = n >= 14 ? .15 : n >= 7 ? .1 : 0, disc = Math.round(base * off), fee = Math.round((base - disc) * .07); return { base, off, disc, fee, total: base - disc + fee }; };
+/* totals reconcile: 3 days of the Solaris, no discount */
+console.assert(price(car(3), 3).total === 14000 * 3 + Math.round(14000 * 3 * .07) && price(car(1), 7).disc === 15400, 'price');
 
-const REVIEWS_BY_CAR = {
-  1: [
-    { author: 'Иван П.', rating: 5, date: 'Сентябрь 2026', text: 'Отличный автомобиль, чистый, ухоженный. Алексей — очень отзывчивый хозяин, всё объяснил.' },
-    { author: 'Марина О.', rating: 5, date: 'Август 2026', text: 'Брала на неделю, всё прошло без нареканий. Рекомендую!' },
-    { author: 'Денис Р.', rating: 4, date: 'Июль 2026', text: 'Хороший автомобиль, нашлась небольшая царапина о которой не предупредили, но в целом всё ок.' },
-  ],
-  2: [
-    { author: 'Светлана К.', rating: 5, date: 'Август 2026', text: 'BMW X5 в идеальном состоянии. Михаил — порядочный человек, сделка прошла гладко.' },
-    { author: 'Андрей Г.', rating: 5, date: 'Август 2026', text: 'Машина класс! Очень мощная и комфортная. Однозначно возьму снова.' },
-    { author: 'Татьяна В.', rating: 4, date: 'Июль 2026', text: 'Всё понравилось, хотя цена немного высоковата. Но за качество платить стоит.' },
-  ],
+function carSVG(t, c) {
+  const body = {
+    sedan: 'M10 72 L16 54 Q22 46 44 44 L72 28 Q88 22 118 22 Q146 22 162 34 L196 44 Q226 48 230 66 L230 72 Z',
+    suv:   'M10 72 L12 42 Q14 32 34 30 L54 12 Q62 6 100 6 L170 6 Q192 6 204 22 L218 34 Q234 38 234 58 L234 72 Z',
+    hatch: 'M12 72 L12 50 Q12 42 24 38 L52 22 Q64 16 100 16 L152 16 Q178 18 192 38 L214 46 Q230 50 230 62 L230 72 Z',
+    van:   'M10 72 L10 38 Q10 22 28 20 L168 20 Q190 20 204 38 L226 48 Q232 52 232 62 L232 72 Z',
+  }[t];
+  const glass = {
+    sedan: 'M60 44 L78 31 Q90 27 116 27 Q140 27 152 36 L172 44 Z',
+    suv:   'M48 30 L62 14 Q70 11 100 11 L166 11 Q184 11 192 23 L206 30 Z',
+    hatch: 'M32 38 L52 25 Q64 21 100 21 L148 21 Q170 23 182 38 Z',
+    van:   'M22 38 Q22 28 34 26 L166 26 Q184 26 194 38 Z',
+  }[t];
+  return `<svg viewBox="0 0 240 92" aria-hidden="true"><ellipse cx="121" cy="86" rx="104" ry="4" fill="#000" opacity=".08"/><path d="${body}" fill="${c}"/><path d="${glass}" fill="#fff" opacity=".6"/>
+    <path d="M10 72 H232" stroke="#000" stroke-opacity=".12" stroke-width="2"/>${[62, 182].map((x) => `<circle cx="${x}" cy="74" r="14" fill="#1b1d20"/><circle cx="${x}" cy="74" r="6" fill="#c8cbd0"/>`).join('')}</svg>`;
+}
+const tint = (c) => `color-mix(in srgb, ${c} 16%, #f6f5f1)`;
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { catalog: ['Каталог', 'search'], trips: ['Мои поездки', 'calendar'], host: ['Мои авто', 'wrench'] };
+let page = 'catalog', type = 'all', sort = 'price', sel = null;       // sel: { car, a, b }
+const myTrips = () => B.filter((b) => b.who === 'Вы').sort((a, b) => a.from - b.from);
+
+function chrome() {
+  $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
+  setNav(page);
+}
+function render() { chrome(); $('#main').innerHTML = ({ catalog, trips, host })[page](); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const c = e.target.closest('[data-car]'); if (c) return openCar(+c.dataset.car);
+  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('change', (e) => { if (e.target.id === 'sort') { sort = e.target.value; render(); } });
+
+/* ── catalog ──────────────────────────────────────────── */
+function catalog() {
+  const list = CARS.filter((c) => type === 'all' || c.t === type).sort((a, b) => sort === 'price' ? a.px - b.px : sort === 'rating' ? b.r - a.r : freeNext7(b.id) - freeNext7(a.id));
+  const cards = list.map((c) => { const f = freeNext7(c.id); return `<button class="car" data-car="${c.id}" aria-label="${esc(c.n)}, ${tg(c.px)} в сутки"><span class="car-art" style="background:${tint(c.c)}">${carSVG(c.t, c.c)}</span>
+    <span class="car-b" style="display:block"><h3>${esc(c.n)}</h3><div class="sub">${c.y} · ${TYPE[c.t]} · ${c.tr} · ${c.seats} мест</div>
+    <span class="car-f"><span><b>${tg(c.px)}</b> <small>/ сутки</small></span><span style="text-align:right"><span class="free ${f < 3 ? 'busy' : ''}" style="display:block">${f === 7 ? 'Свободна всю неделю' : f ? `Свободно ${f} из 7 дней` : 'На неделю занята'}</span><small>★ ${fmtD(c.r)} · ${c.trips} ${plural(c.trips, 'поездка', 'поездки', 'поездок')}</small></span></span></span></button>`; }).join('');
+  return head('Авто в Алматы', `${list.length} ${plural(list.length, 'машина', 'машины', 'машин')} от владельцев. Выберите даты внутри карточки, цена посчитается сама.`) +
+    `<div class="filters">${['all', 'sedan', 'suv', 'hatch', 'van'].map((k) => `<button class="chip ${type === k ? 'on' : ''}" data-act="type" data-v="${k}">${k === 'all' ? 'Все' : TYPE[k]}</button>`).join('')}
+    <select id="sort" aria-label="Сортировка"><option value="price" ${sort === 'price' ? 'selected' : ''}>Сначала дешёвые</option><option value="rating" ${sort === 'rating' ? 'selected' : ''}>По рейтингу</option><option value="free" ${sort === 'free' ? 'selected' : ''}>Больше свободных дней</option></select></div>
+    <div class="cars">${cards}</div>`;
+}
+
+/* ── car detail + dates ───────────────────────────────── */
+function openCar(id) {
+  sel = { car: id, a: null, b: null };
+  const c = car(id);
+  modal(`<div class="det"><div class="det-l"><div class="det-art" style="background:${tint(c.c)}">${carSVG(c.t, c.c)}</div>
+      <h2 style="font-size:22px">${esc(c.n)}, ${c.y}</h2><p class="muted">Владелец: ${esc(c.own)} · ${c.where} · ★ ${fmtD(c.r)}</p>
+      <div class="specs"><div><b>${c.seats}</b><span>мест</span></div><div><b>${c.tr}</b><span>коробка</span></div><div><b>${c.fuel}</b><span>топливо</span></div><div><b>${tg(c.dep)}</b><span>залог</span></div></div>
+      <h3 style="font-size:15px">Выберите даты</h3><p class="muted" style="font-size:13px">Серые дни заняты. Нажмите день начала, потом день конца.</p><div class="cal" id="cal"></div></div>
+    <div class="det-r sum" id="sum"></div></div><button class="btn sm close-x" onclick="closeModal()" aria-label="Закрыть">${ic('x')}</button>`, () => { $('.modal').classList.add('wide'); drawCal(); });
+}
+function drawCal() {
+  const c = car(sel.car), start = TODAY.getDay() === 0 ? 6 : TODAY.getDay() - 1;   // Monday-first offset
+  let h = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((d) => `<div class="dw">${d}</div>`).join('') + '<span></span>'.repeat(start);
+  for (let d = 0; d < 28; d++) {
+    const inn = sel.a !== null && d >= sel.a && d <= (sel.b ?? sel.a), edge = d === sel.a || d === sel.b;
+    h += `<button class="day ${inn ? 'in' : ''} ${edge ? 'edge' : ''}" data-act="day" data-d="${d}" ${busy(c.id, d) ? 'disabled' : ''} aria-label="${dFmt(d)}${busy(c.id, d) ? ', занято' : ''}">${addDays(d).getDate()}</button>`;
+  }
+  $('#cal').innerHTML = h; drawSum();
+}
+function drawSum() {
+  const c = car(sel.car), n = sel.a === null ? 0 : (sel.b ?? sel.a) - sel.a + 1;
+  if (!n) { $('#sum').innerHTML = `<div class="tot" style="border:0"><span class="muted">${tg(c.px)} за сутки</span></div><p class="muted" style="margin:10px 0 18px">От 7 суток скидка 10%, от 14 суток 15%.</p><button class="btn primary" style="width:100%" disabled>Выберите даты</button>`; return; }
+  const p = price(c, n);
+  $('#sum').innerHTML = `<h3 style="font-size:15px;margin-bottom:2px">${n > 1 ? dFmt(sel.a) + ' — ' + dFmt(sel.b ?? sel.a) : dFmt(sel.a)}</h3><p class="muted" style="margin-bottom:12px">${days(n)}</p>
+    <div class="lines"><div><span>${tg(c.px)} × ${n}</span><b>${tg(p.base)}</b></div>${p.disc ? `<div><span>Скидка ${p.off * 100}%</span><b class="pos">−${tg(p.disc)}</b></div>` : ''}<div><span>Сервисный сбор 7%</span><b>${tg(p.fee)}</b></div></div>
+    <div class="tot"><span>Итого</span><b>${tg(p.total)}</b></div><p class="muted" style="font-size:13px;margin:8px 0 16px">Залог ${tg(c.dep)} блокируется на карте и возвращается после поездки.</p>
+    <button class="btn primary" style="width:100%;height:42px" data-act="book">Забронировать</button>`;
+}
+
+/* ── trips ────────────────────────────────────────────── */
+function trips() {
+  const list = myTrips(), up = list.filter((b) => b.to >= 0);
+  const rows = list.map((b) => { const c = car(b.car), n = b.to - b.from + 1, p = price(c, n), past = b.to < 0; return `<div class="trip-c"><span class="thumb" style="background:${tint(c.c)}">${carSVG(c.t, c.c)}</span><div><b>${esc(c.n)}</b><span class="s">${dFmt(b.from)} — ${dFmt(b.to)} · ${days(n)} · ${tg(p.total)}</span></div>${past ? '<span class="pill">Завершена</span>' : `<span style="display:flex;gap:8px;align-items:center"><span class="pill pos"><i></i>Подтверждена</span><button class="btn sm" data-act="cancel" data-id="${b.id}">Отменить</button></span>`}</div>`; }).join('');
+  const spent = list.reduce((a, b) => a + price(car(b.car), b.to - b.from + 1).total, 0);
+  return head('Мои поездки', `${up.length ? `Ближайшая: ${esc(car(up[0].car).n)}, с ${dFmt(up[0].from)}` : 'Ближайших поездок нет'}`) +
+    `<div class="kpis"><div class="kpi"><b>${list.length}</b><span>Поездок всего</span></div><div class="kpi"><b>${tg(spent)}</b><span>Потрачено</span></div></div><section class="card">${rows || '<p class="empty">Пока пусто. Выберите машину в каталоге.</p>'}</section>`;
+}
+
+/* ── host cabinet ─────────────────────────────────────── */
+function host() {
+  const mine = CARS.filter((c) => c.own === 'Вы'), done = (b) => b.to < 0;
+  const earn = (c) => B.filter((b) => b.car === c.id && done(b)).reduce((a, b) => { const n = b.to - b.from + 1, p = price(c, n); return a + (p.base - p.disc) * .9; }, 0);
+  const occ = (c) => { let n = 0; for (let d = 0; d < 28; d++) if (busy(c.id, d)) n++; return n; };
+  const tot = mine.reduce((a, c) => a + earn(c), 0), occAll = mine.reduce((a, c) => a + occ(c), 0) / (mine.length * 28);
+  const cards = mine.map((c) => `<section class="card c6"><div class="card-h"><h2>${esc(c.n)}</h2><span>${tg(c.px)} / сутки</span></div>
+    <div class="kpis" style="margin-bottom:12px;gap:28px"><div class="kpi"><b>${occ(c)}</b><span>Занятых дней из 28</span></div><div class="kpi"><b>${tg(earn(c))}</b><span>Заработано</span></div></div>
+    <div style="display:grid;grid-template-columns:repeat(28,1fr);gap:2px" aria-label="Занятость на 28 дней">${Array.from({ length: 28 }, (_, d) => `<i title="${dFmt(d)}" style="height:22px;border-radius:3px;background:${busy(c.id, d) ? 'var(--accent)' : 'var(--raised)'}"></i>`).join('')}</div>
+    <p class="muted" style="font-size:12px;margin-top:6px">${dFmt(0)} — ${dFmt(27)}</p>
+    <h3 style="font-size:14px;margin:16px 0 4px">Ближайшие брони</h3>${B.filter((b) => b.car === c.id && b.to >= 0).sort((a, b) => a.from - b.from).slice(0, 3).map((b) => `<div class="trip-c" style="grid-template-columns:1fr auto;padding:8px 0"><div><b>${esc(b.who)}</b><span class="s">${dFmt(b.from)} — ${dFmt(b.to)}</span></div><b>${tg((price(c, b.to - b.from + 1).base - price(c, b.to - b.from + 1).disc) * .9)}</b></div>`).join('')}</section>`).join('');
+  return head('Мои авто', `${mine.length} ${plural(mine.length, 'машина', 'машины', 'машин')} сдаёте. Комиссия сервиса 10%.`) +
+    `<div class="kpis"><div class="kpi"><b>${tg(tot)}</b><span>Заработано за завершённые брони</span></div><div class="kpi"><b>${Math.round(occAll * 100)}<small>%</small></b><span>Загрузка на 28 дней</span></div></div><div class="grid">${cards}</div>`;
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const ACT = {
+  type(d) { type = d.v; render(); },
+  day(d) {
+    const x = +d.d, c = car(sel.car);
+    if (sel.a === null || sel.b !== null || x < sel.a) { sel.a = x; sel.b = null; }
+    else { for (let k = sel.a; k <= x; k++) if (busy(c.id, k)) { toast('В этом периоде есть занятые дни'); sel.a = x; sel.b = null; return drawCal(); } sel.b = x; }
+    drawCal();
+  },
+  book() {
+    const c = car(sel.car), a = sel.a, b = sel.b ?? sel.a;
+    B.push({ id: nextId(), car: c.id, who: 'Вы', from: a, to: b }); closeModal(); toast(`${c.n}: бронь ${dFmt(a)} — ${dFmt(b)} подтверждена`); go('trips');
+  },
+  cancel(d) { const i = B.findIndex((b) => b.id === +d.id); B.splice(i, 1); toast('Бронь отменена, залог вернётся на карту'); render(); },
 };
-// default reviews for all other cars
-const DEFAULT_REVIEWS = [
-  { author: 'Алексей В.', rating: 5, date: 'Сентябрь 2026', text: 'Отлично! Авто в хорошем состоянии, хозяин пунктуальный. Сделка прошла без проблем.' },
-  { author: 'Наталья С.', rating: 5, date: 'Август 2026', text: 'Всё чисто и вовремя. Буду рекомендовать знакомым.' },
-  { author: 'Роман Д.', rating: 4, date: 'Август 2026', text: 'Хорошая машина за адекватные деньги. Небольшие нюансы по салону, но некритично.' },
-];
-
-/* ─── State ─────────────────────────────────────────────────── */
-let currentFilter = 'all';
-let currentSort   = 'rating';
-let selectedCarId = null;
-
-/* ─── Tab switching ──────────────────────────────────────────── */
-function showTab(name) {
-  ['catalog','detail','how'].forEach(t => {
-    document.getElementById('panel-' + t).classList.toggle('active', t === name);
-    const btn = document.getElementById('tab-' + t);
-    if (btn) btn.classList.toggle('active', t === name);
-  });
-  // show/hide detail tab button
-  const detailTabBtn = document.getElementById('tab-detail');
-  if (detailTabBtn) detailTabBtn.style.display = (name === 'detail' || selectedCarId !== null) ? '' : 'none';
-
-  // update nav active
-  const map = { catalog: 'navCatalog', how: 'navHow' };
-  ['navCatalog','navHow','navList'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('active');
-  });
-  if (map[name]) {
-    const el = document.getElementById(map[name]);
-    if (el) el.classList.add('active');
-  }
-
-  // close mobile menu
-  document.getElementById('navMenu').classList.remove('open');
-}
-
-function switchNav(tab) {
-  showTab(tab);
-}
-
-/* ─── Render catalog ─────────────────────────────────────────── */
-function starsHtml(r) {
-  let html = '';
-  const full = Math.floor(r);
-  for (let i = 0; i < 5; i++) html += `<span class="star" style="color:${i < full ? 'var(--warning)' : 'var(--border-dark)'}">★</span>`;
-  return html;
-}
-
-function renderGrid() {
-  const grid = document.getElementById('carsGrid');
-  let cars = currentFilter === 'all' ? [...CARS] : CARS.filter(c => c.cat === currentFilter);
-
-  if (currentSort === 'price_asc')   cars.sort((a, b) => a.price - b.price);
-  else if (currentSort === 'price_desc') cars.sort((a, b) => b.price - a.price);
-  else if (currentSort === 'newest') cars.sort((a, b) => b.year - a.year);
-  else /* rating */                  cars.sort((a, b) => b.rating - a.rating);
-
-  if (cars.length === 0) {
-    grid.innerHTML = `<div class="no-results">
-      <div class="no-icon">🚘</div>
-      <p>По выбранному фильтру автомобилей не найдено.</p>
-    </div>`;
-    return;
-  }
-
-  grid.innerHTML = cars.map(car => `
-    <div class="car-card" role="button" tabindex="0"
-         onclick="openDetail(${car.id})"
-         onkeydown="if(event.key==='Enter'||event.key===' ')openDetail(${car.id})">
-      <div class="car-img" style="background:${car.gradient}">
-        <span class="cat-pill">${car.cat}</span>
-        ${car.instant ? '<span class="instant-pill">⚡ Мгновенно</span>' : ''}
-        <span class="car-emoji">${car.emoji}</span>
-      </div>
-      <div class="car-body">
-        <div class="car-name">${car.name} ${car.year}</div>
-        <div class="car-sub">
-          <span>📍 ${car.city}</span>
-        </div>
-        <div class="car-meta">
-          <div class="car-rating">
-            ${starsHtml(car.rating)}
-            <span style="margin-left:.25rem">${car.rating.toFixed(1)}</span>
-            <span class="review-count">(${car.reviews})</span>
-          </div>
-          <div class="owner-row">
-            <div class="avatar-sm" style="background:${car.ownerColor}">${car.ownerInitials}</div>
-            <span>${car.owner}</span>
-          </div>
-        </div>
-        <div class="car-price-row">
-          <span class="car-price">${car.price.toLocaleString('ru-RU')}</span>
-          <span class="price-unit">₽/день</span>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterCars(cat) {
-  currentFilter = cat;
-  document.querySelectorAll('.chip').forEach(c => {
-    c.classList.toggle('active', c.dataset.cat === cat);
-  });
-  renderGrid();
-}
-
-function sortCars(val) {
-  currentSort = val;
-  renderGrid();
-}
-
-/* ─── Car detail ─────────────────────────────────────────────── */
-function openDetail(id) {
-  const car = CARS.find(c => c.id === id);
-  if (!car) return;
-  selectedCarId = id;
-
-  // Hero
-  const hero = document.getElementById('detailHero');
-  hero.style.background = car.gradient;
-  document.getElementById('detailEmoji').textContent = car.emoji;
-
-  // Info
-  document.getElementById('detailName').textContent = car.name + ' ' + car.year;
-  document.getElementById('detailYear').textContent = car.year;
-  document.getElementById('detailCat').textContent = car.cat;
-  document.getElementById('detailLoc').textContent = '📍 ' + car.city;
-  document.getElementById('detailRating').textContent = car.rating.toFixed(1);
-  document.getElementById('detailRevCount').textContent = '(' + car.reviews + ' отз.)';
-
-  // Specs
-  document.getElementById('specSeats').textContent = car.seats;
-  document.getElementById('specYear').textContent = car.year;
-  document.getElementById('specTrans').textContent = car.trans;
-  document.getElementById('specFuel').textContent = car.fuel;
-
-  // Owner
-  document.getElementById('detailOwnerAvatar').textContent = car.ownerInitials;
-  document.getElementById('detailOwnerAvatar').style.background = car.ownerColor;
-  document.getElementById('detailOwnerName').textContent = car.owner;
-
-  // Booking widget
-  document.getElementById('bwPrice').textContent = car.price.toLocaleString('ru-RU');
-  document.getElementById('bwRating').textContent = car.rating.toFixed(1);
-  document.getElementById('bwRevCount').textContent = ' · ' + car.reviews + ' отз.';
-
-  // Reviews
-  const revs = REVIEWS_BY_CAR[id] || DEFAULT_REVIEWS;
-  document.getElementById('detailReviews').innerHTML = revs.map(r => `
-    <div class="review-item">
-      <div class="review-header">
-        <span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
-        <span class="review-author">${r.author}</span>
-        <span class="review-date">${r.date}</span>
-      </div>
-      <div class="review-text">${r.text}</div>
-    </div>
-  `).join('');
-
-  // Reset dates
-  document.getElementById('dateStart').value = '';
-  document.getElementById('dateEnd').value = '';
-  document.getElementById('priceBreakdown').hidden = true;
-  const bookBtn = document.getElementById('bookBtn');
-  bookBtn.disabled = true;
-  bookBtn.textContent = '🔒 Выберите даты';
-
-  // Set default dates (tomorrow + 3 days)
-  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-  const end = new Date(); end.setDate(end.getDate() + 4);
-  document.getElementById('dateStart').value = tomorrow.toISOString().split('T')[0];
-  document.getElementById('dateEnd').value = end.toISOString().split('T')[0];
-  calcPrice();
-
-  showTab('detail');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-/* ─── Price calculation ──────────────────────────────────────── */
-function calcPrice() {
-  const car = CARS.find(c => c.id === selectedCarId);
-  if (!car) return;
-
-  const startVal = document.getElementById('dateStart').value;
-  const endVal   = document.getElementById('dateEnd').value;
-  const bookBtn  = document.getElementById('bookBtn');
-
-  if (!startVal || !endVal) {
-    document.getElementById('priceBreakdown').hidden = true;
-    bookBtn.disabled = true;
-    bookBtn.textContent = '🔒 Выберите даты';
-    return;
-  }
-
-  const start = new Date(startVal);
-  const end   = new Date(endVal);
-  const days  = Math.round((end - start) / 86400000);
-
-  if (days <= 0) {
-    document.getElementById('priceBreakdown').hidden = true;
-    bookBtn.disabled = true;
-    bookBtn.textContent = '⚠ Проверьте даты';
-    return;
-  }
-
-  const subtotal = car.price * days;
-  const fee = Math.round(subtotal * 0.05);
-  const total = subtotal + fee;
-
-  document.getElementById('pbDaysLabel').textContent = `${car.price.toLocaleString('ru-RU')} ₽ × ${days} ${pluralDays(days)}`;
-  document.getElementById('pbSubtotal').textContent = subtotal.toLocaleString('ru-RU') + ' ₽';
-  document.getElementById('pbFee').textContent = fee.toLocaleString('ru-RU') + ' ₽';
-  document.getElementById('pbTotal').textContent = total.toLocaleString('ru-RU') + ' ₽';
-  document.getElementById('priceBreakdown').hidden = false;
-
-  bookBtn.disabled = false;
-  bookBtn.textContent = `Забронировать · ${total.toLocaleString('ru-RU')} ₽`;
-  bookBtn.innerHTML = `✓ Забронировать &nbsp;·&nbsp; ${total.toLocaleString('ru-RU')} ₽`;
-}
-
-function pluralDays(n) {
-  if (n % 10 === 1 && n % 100 !== 11) return 'день';
-  if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'дня';
-  return 'дней';
-}
-
-/* ─── Modal ──────────────────────────────────────────────────── */
-function openModal() {
-  const car = CARS.find(c => c.id === selectedCarId);
-  if (!car) return;
-
-  const startVal = document.getElementById('dateStart').value;
-  const endVal   = document.getElementById('dateEnd').value;
-  const start = new Date(startVal);
-  const end   = new Date(endVal);
-  const days  = Math.round((end - start) / 86400000);
-  const subtotal = car.price * days;
-  const fee = Math.round(subtotal * 0.05);
-  const total = subtotal + fee;
-
-  const fmtDate = d => new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-
-  document.getElementById('modalCarName').textContent = car.name + ' ' + car.year;
-  document.getElementById('modalDateStart').textContent = fmtDate(startVal);
-  document.getElementById('modalDateEnd').textContent = fmtDate(endVal);
-  document.getElementById('modalDays').textContent = days + ' ' + pluralDays(days);
-  document.getElementById('modalSubtotal').textContent = subtotal.toLocaleString('ru-RU') + ' ₽';
-  document.getElementById('modalFee').textContent = fee.toLocaleString('ru-RU') + ' ₽';
-  document.getElementById('modalTotal').textContent = total.toLocaleString('ru-RU') + ' ₽';
-
-  document.getElementById('bookingModal').hidden = false;
-}
-
-function closeModal() {
-  document.getElementById('bookingModal').hidden = true;
-}
-
-function confirmBooking() {
-  const car = CARS.find(c => c.id === selectedCarId);
-  closeModal();
-  showToast(
-    'Бронь подтверждена! 🎉',
-    `${car ? car.name + ' ' + car.year : 'Автомобиль'} успешно забронирован. Ожидайте контакта от хозяина.`,
-    'success'
-  );
-  // Reset booking widget
-  document.getElementById('dateStart').value = '';
-  document.getElementById('dateEnd').value = '';
-  document.getElementById('priceBreakdown').hidden = true;
-  const bookBtn = document.getElementById('bookBtn');
-  bookBtn.disabled = true;
-  bookBtn.textContent = '🔒 Выберите даты';
-}
-
-// Close modal on backdrop click
-document.getElementById('bookingModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-// Close on Escape
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-});
-
-/* ─── Toast ──────────────────────────────────────────────────── */
-function showToast(title, msg, type = 'info') {
-  const icons = { success: '✓', info: 'ℹ', warning: '⚠', danger: '✕' };
-  const el = document.createElement('div');
-  el.className = `toast toast-${type}`;
-  el.innerHTML = `
-    <div class="toast-icon">${icons[type] || icons.info}</div>
-    <div class="toast-body">
-      <div class="toast-title">${title}</div>
-      <div class="toast-message">${msg}</div>
-    </div>
-    <button class="toast-close" onclick="removeToast(this.closest('.toast'))" aria-label="Закрыть">✕</button>
-  `;
-  document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => removeToast(el), 5000);
-}
-
-function removeToast(el) {
-  if (!el || !el.parentNode) return;
-  el.classList.add('removing');
-  setTimeout(() => el.remove(), 260);
-}
-
-/* ─── Init ───────────────────────────────────────────────────── */
-renderGrid();
-// Hide detail tab initially
-const detailTabEl = document.getElementById('tab-detail');
-if (detailTabEl) detailTabEl.style.display = 'none';
+render();
 </script>
 </body>
 </html>
