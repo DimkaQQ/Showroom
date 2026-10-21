@@ -1,1158 +1,652 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BotFactory — Telegram Bot Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BotFactory — конструктор Telegram-ботов (демо)</title>
+<meta name="description" content="Демо: собираем Telegram-бота из блоков и сразу проверяем его в живом превью. Продажи, воронка и покупатели. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
 :root {
-  --tg-bg: #ffffff;
-  --tg-text: #1c1c1e;
-  --tg-hint: #8e8e93;
-  --tg-link: #2481cc;
-  --tg-button: #2481cc;
-  --tg-button-text: #ffffff;
-  --tg-secondary-bg: #f2f2f7;
-  --tg-card-bg: #ffffff;
-  --tg-border: #e5e5ea;
-  --tg-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 8px rgba(0,0,0,.04);
-  --tg-shadow-md: 0 4px 16px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06);
-  --tg-red: #ff3b30;
-  --tg-green: #34c759;
-  --tg-surface: #f9f9fb;
-  --radius: 14px;
-  --radius-sm: 10px;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --preview-bg: #e5ddd5;
-  --preview-bubble: #ffffff;
-  --preview-bubble-text: #1c1c1e;
-  --preview-header: #2481cc;
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  color-scheme: dark;
 }
-[data-theme="dark"] {
-  --tg-bg: #1c1c1e;
-  --tg-text: #ffffff;
-  --tg-hint: #8e8e93;
-  --tg-link: #5aadec;
-  --tg-button: #2481cc;
-  --tg-button-text: #ffffff;
-  --tg-secondary-bg: #2c2c2e;
-  --tg-card-bg: #2c2c2e;
-  --tg-border: #3a3a3c;
-  --tg-shadow: 0 1px 3px rgba(0,0,0,.3), 0 1px 8px rgba(0,0,0,.2);
-  --tg-shadow-md: 0 4px 16px rgba(0,0,0,.4), 0 1px 4px rgba(0,0,0,.2);
-  --tg-red: #ff453a;
-  --tg-green: #30d158;
-  --tg-surface: #1c1c1e;
-  --preview-bg: #1a1a2e;
-  --preview-bubble: #2c2c2e;
-  --preview-bubble-text: #ffffff;
-  --preview-header: #1d3557;
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
-body {
-  font-family: var(--font);
-  background: #e8ecf0;
-  color: var(--tg-text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  transition: background .25s, color .25s;
-}
-[data-theme="dark"] body { background: #111113; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
-/* Demo banner */
-.demo-banner {
-  width: 100%;
-  background: linear-gradient(135deg, #2481cc 0%, #1a6ab0 100%);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-  padding: 7px 16px;
-  letter-spacing: .3px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.demo-banner .badge {
-  background: rgba(255,255,255,.22);
-  border-radius: 20px;
-  padding: 2px 10px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .5px;
-  text-transform: uppercase;
-}
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
 
-/* Wrapper */
-.stage {
-  flex: 1;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 24px 16px 32px;
-  gap: 28px;
-}
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
 
-/* Phone mockup */
-.phone-wrap {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.phone {
-  width: 375px;
-  max-width: 100%;
-  background: var(--tg-bg);
-  border-radius: 36px;
-  box-shadow: 0 12px 48px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.1), inset 0 0 0 1px rgba(0,0,0,.08);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  min-height: 720px;
-  position: relative;
-  transition: background .25s;
-}
-.phone-notch {
-  width: 120px;
-  height: 22px;
-  background: #111;
-  border-radius: 0 0 18px 18px;
-  margin: 0 auto;
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-}
-.phone-inner {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding-top: 28px;
-  overflow: hidden;
-}
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-/* App header */
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px 10px;
-  background: var(--tg-bg);
-  border-bottom: 1px solid var(--tg-border);
-  flex-shrink: 0;
-  transition: background .25s, border-color .25s;
-}
-.header-left { display: flex; flex-direction: column; gap: 1px; }
-.app-title {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--tg-text);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  line-height: 1.2;
-}
-.header-greeting {
-  font-size: 12px;
-  color: var(--tg-hint);
-  font-weight: 400;
-}
-.header-actions { display: flex; gap: 8px; align-items: center; }
-.icon-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: var(--tg-hint);
-  transition: background .15s;
-}
-.icon-btn:hover { background: var(--tg-secondary-bg); }
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
 
-/* Scrollable content area */
-.app-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 14px 120px;
-  background: var(--tg-secondary-bg);
-  transition: background .25s;
-  scrollbar-width: thin;
-  scrollbar-color: var(--tg-border) transparent;
-}
-.app-content::-webkit-scrollbar { width: 4px; }
-.app-content::-webkit-scrollbar-track { background: transparent; }
-.app-content::-webkit-scrollbar-thumb { background: var(--tg-border); border-radius: 4px; }
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
 
-/* Published banner */
-.published-banner {
-  background: var(--tg-card-bg);
-  border: 1.5px solid var(--tg-green);
-  border-radius: var(--radius);
-  padding: 12px 16px;
-  margin-bottom: 14px;
-  display: none;
-  align-items: center;
-  gap: 10px;
-  box-shadow: var(--tg-shadow);
-  transition: background .25s;
-}
-.published-banner.show { display: flex; }
-.published-banner .pub-icon { font-size: 20px; flex-shrink: 0; }
-.published-banner .pub-info { flex: 1; }
-.published-banner .pub-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--tg-green);
-  line-height: 1.3;
-}
-.published-banner .pub-link {
-  font-size: 12px;
-  color: var(--tg-link);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-top: 2px;
-}
-.published-banner .pub-link:hover { text-decoration: underline; }
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
 
-/* Section label */
-.section-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--tg-hint);
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  margin: 0 4px 8px;
-}
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-/* Block cards */
-.blocks-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.block-card {
-  background: var(--tg-card-bg);
-  border-radius: var(--radius);
-  box-shadow: var(--tg-shadow);
-  overflow: hidden;
-  transition: background .25s, box-shadow .2s, transform .15s;
-  cursor: default;
-  border: 1.5px solid transparent;
-}
-.block-card.dragging {
-  opacity: .55;
-  transform: scale(.98);
-  box-shadow: var(--tg-shadow-md);
-  border-color: var(--tg-button);
-}
-.block-card.drag-over {
-  border-color: var(--tg-button);
-  box-shadow: 0 0 0 3px rgba(36,129,204,.18);
-}
-.block-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 13px 14px;
-  cursor: pointer;
-  user-select: none;
-  transition: background .15s;
-}
-.block-header:hover { background: var(--tg-secondary-bg); }
-.drag-handle {
-  color: var(--tg-hint);
-  font-size: 16px;
-  cursor: grab;
-  line-height: 1;
-  padding: 2px 2px;
-  flex-shrink: 0;
-  opacity: .55;
-}
-.drag-handle:active { cursor: grabbing; }
-.block-icon { font-size: 18px; flex-shrink: 0; }
-.block-meta { flex: 1; min-width: 0; }
-.block-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--tg-text);
-  line-height: 1.3;
-}
-.block-preview {
-  font-size: 12px;
-  color: var(--tg-hint);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-  margin-top: 1px;
-}
-.block-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-.block-chevron {
-  font-size: 12px;
-  color: var(--tg-hint);
-  transition: transform .22s;
-  display: inline-block;
-  margin-right: 2px;
-}
-.block-card.expanded .block-chevron { transform: rotate(90deg); }
-.delete-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  color: var(--tg-hint);
-  transition: background .15s, color .15s;
-  flex-shrink: 0;
-}
-.delete-btn:hover { background: rgba(255,59,48,.12); color: var(--tg-red); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
 
-/* Block editor */
-.block-editor {
-  display: none;
-  border-top: 1px solid var(--tg-border);
-  padding: 14px;
-  background: var(--tg-secondary-bg);
-  transition: background .25s, border-color .25s;
-}
-.block-card.expanded .block-editor { display: block; }
-.block-editor textarea {
-  width: 100%;
-  background: var(--tg-card-bg);
-  border: 1.5px solid var(--tg-border);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  font-family: var(--font);
-  font-size: 14px;
-  color: var(--tg-text);
-  resize: vertical;
-  min-height: 80px;
-  outline: none;
-  transition: border-color .18s, background .25s, color .25s;
-  line-height: 1.5;
-}
-.block-editor textarea:focus { border-color: var(--tg-button); }
-.editor-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--tg-hint);
-  margin-bottom: 7px;
-  display: block;
-}
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
 
-/* Buttons block editor */
-.btn-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
-.btn-item {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--tg-card-bg);
-  border: 1.5px solid var(--tg-border);
-  border-radius: var(--radius-sm);
-  padding: 7px 10px;
-  transition: border-color .18s, background .25s;
-}
-.btn-item:focus-within { border-color: var(--tg-button); }
-.btn-item input {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
-  font-family: var(--font);
-  font-size: 13px;
-  color: var(--tg-text);
-  font-weight: 500;
-}
-.btn-item .del-btn-item {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--tg-hint);
-  font-size: 14px;
-  padding: 2px 4px;
-  border-radius: 6px;
-  transition: color .15s, background .15s;
-}
-.btn-item .del-btn-item:hover { color: var(--tg-red); background: rgba(255,59,48,.1); }
-.add-btn-link {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font);
-  font-size: 13px;
-  color: var(--tg-link);
-  font-weight: 500;
-  padding: 4px 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  transition: opacity .15s;
-}
-.add-btn-link:hover { opacity: .75; }
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
 
-/* Add block button */
-.add-block-wrap { margin-top: 4px; }
-.add-block-btn {
-  width: 100%;
-  background: var(--tg-card-bg);
-  border: 1.5px dashed var(--tg-border);
-  border-radius: var(--radius);
-  color: var(--tg-link);
-  font-family: var(--font);
-  font-size: 14px;
-  font-weight: 600;
-  padding: 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  transition: background .15s, border-color .15s;
-}
-.add-block-btn:hover {
-  background: rgba(36,129,204,.06);
-  border-color: var(--tg-button);
-}
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
 
-/* Block type popup */
-.popup-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.35);
-  z-index: 50;
-  display: none;
-  align-items: flex-end;
-  border-radius: 36px;
-  overflow: hidden;
-}
-.popup-overlay.open { display: flex; }
-.popup-sheet {
-  width: 100%;
-  background: var(--tg-bg);
-  border-radius: 20px 20px 0 0;
-  padding: 8px 16px 28px;
-  box-shadow: 0 -4px 24px rgba(0,0,0,.15);
-  transition: background .25s;
-}
-.popup-handle {
-  width: 40px;
-  height: 4px;
-  background: var(--tg-border);
-  border-radius: 4px;
-  margin: 8px auto 16px;
-}
-.popup-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--tg-hint);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  margin-bottom: 12px;
-}
-.popup-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.popup-type-btn {
-  background: var(--tg-secondary-bg);
-  border: none;
-  border-radius: var(--radius);
-  padding: 16px 14px;
-  cursor: pointer;
-  font-family: var(--font);
-  text-align: left;
-  transition: background .15s, transform .1s;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.popup-type-btn:hover { background: rgba(36,129,204,.1); transform: scale(.98); }
-.popup-type-btn:active { transform: scale(.96); }
-.popup-type-btn .pt-icon { font-size: 22px; line-height: 1; }
-.popup-type-btn .pt-label { font-size: 13px; font-weight: 600; color: var(--tg-text); }
-.popup-type-btn .pt-desc { font-size: 11px; color: var(--tg-hint); }
-.popup-cancel {
-  width: 100%;
-  background: var(--tg-secondary-bg);
-  border: none;
-  border-radius: var(--radius);
-  padding: 14px;
-  margin-top: 10px;
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--tg-text);
-  cursor: pointer;
-  transition: background .15s;
-}
-.popup-cancel:hover { background: var(--tg-border); }
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
 
-/* Publish bar */
-.publish-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 12px 16px 24px;
-  background: var(--tg-bg);
-  border-top: 1px solid var(--tg-border);
-  z-index: 20;
-  transition: background .25s, border-color .25s;
-}
-.publish-btn {
-  width: 100%;
-  background: var(--tg-button);
-  color: var(--tg-button-text);
-  border: none;
-  border-radius: var(--radius);
-  padding: 15px;
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background .2s, opacity .2s, transform .1s;
-  letter-spacing: .1px;
-  position: relative;
-  overflow: hidden;
-}
-.publish-btn:hover { background: #1a6ab0; }
-.publish-btn:active { transform: scale(.98); }
-.publish-btn:disabled { opacity: .7; cursor: default; transform: none; }
-.publish-btn.success { background: var(--tg-green); }
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
 
-/* Spinner */
-.spinner {
-  width: 18px; height: 18px;
-  border: 2.5px solid rgba(255,255,255,.35);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
 
-/* Desktop preview panel */
-.preview-panel {
-  width: 340px;
-  flex-shrink: 0;
-  display: none;
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
 }
-@media (min-width: 820px) {
-  .preview-panel { display: block; }
-}
-.preview-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  margin-bottom: 12px;
-  text-align: center;
-}
-.tg-chat {
-  background: var(--preview-bg);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--tg-shadow-md);
-  min-height: 500px;
-  display: flex;
-  flex-direction: column;
-  transition: background .25s;
-}
-.tg-chat-header {
-  background: var(--preview-header);
-  color: #fff;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.bot-avatar {
-  width: 36px;
-  height: 36px;
-  background: rgba(255,255,255,.25);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.bot-info .bot-name { font-size: 14px; font-weight: 700; line-height: 1.2; }
-.bot-info .bot-status { font-size: 11px; opacity: .8; }
-.tg-messages {
-  flex: 1;
-  padding: 14px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0,0,0,.15) transparent;
-}
-.msg-bubble {
-  background: var(--preview-bubble);
-  color: var(--preview-bubble-text);
-  border-radius: 14px 14px 14px 4px;
-  padding: 9px 12px;
-  max-width: 90%;
-  font-size: 13px;
-  line-height: 1.5;
-  box-shadow: 0 1px 2px rgba(0,0,0,.12);
-  white-space: pre-wrap;
-  word-break: break-word;
-  transition: background .25s, color .25s;
-}
-.msg-empty {
-  text-align: center;
-  color: #aaa;
-  font-size: 13px;
-  padding: 32px 16px;
-  font-style: italic;
-}
-.preview-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
-  align-self: stretch;
-}
-.preview-btn-item {
-  background: var(--tg-button);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 9px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: center;
-  cursor: default;
-  font-family: var(--font);
-}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
 
-/* Dark mode toggle label */
-.dark-toggle-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #aaa;
-  margin-top: 14px;
-  justify-content: center;
+:root[data-theme="light"] {
+  --bg: #eef2f6; --surface: #ffffff; --raised: #f3f6f9; --hover: #eaf0f6; --border: #dde4ec; --rule: #eaeff4;
+  --text: #121a24; --muted: #53606f; --faint: #66737f;
+  --accent: #1b78c8; --accent-ink: #ffffff; --accent-bg: #e3f0fb;
+  --font: "Manrope", system-ui, sans-serif; --display: "Manrope", system-ui, sans-serif;
 }
-.toggle-switch {
-  position: relative;
-  width: 38px;
-  height: 22px;
-  cursor: pointer;
-}
-.toggle-switch input { display: none; }
-.toggle-track {
-  position: absolute;
-  inset: 0;
-  background: #ccc;
-  border-radius: 11px;
-  transition: background .2s;
-}
-.toggle-thumb {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 16px;
-  height: 16px;
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0,0,0,.2);
-  transition: transform .2s;
-}
-.toggle-switch input:checked ~ .toggle-track { background: var(--tg-button); }
-.toggle-switch input:checked ~ .toggle-thumb { transform: translateX(16px); }
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
+.nav .count { background: var(--accent); color: #fff; }
 
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: #1c1c1e;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 10px 20px;
-  border-radius: 20px;
-  opacity: 0;
-  transition: opacity .3s, transform .3s;
-  z-index: 9999;
-  pointer-events: none;
-  white-space: nowrap;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* builder */
+.build { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
+.flow { position: relative; display: flex; flex-direction: column; gap: 10px; padding-left: 28px; }
+.flow::before { content: ""; position: absolute; left: 11px; top: 18px; bottom: 54px; width: 2px; background: var(--border); border-radius: 1px; }
+.step { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); animation: pop .25s var(--ease) both; transition: border-color .15s; }
+.step::before { content: attr(data-n); position: absolute; left: -28px; top: 14px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--border); font-size: 12px; font-weight: 700; color: var(--muted); }
+.step.open { border-color: var(--accent); }
+.step.open::before { border-color: var(--accent); color: var(--accent); }
+.step-h { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 12px 14px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: var(--radius); }
+.step-ic { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-bg); color: var(--accent); }
+.step-h b { display: block; font-weight: 700; } .step-h span { display: block; color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.step-h .ic.chev { color: var(--faint); transition: transform .2s var(--ease); } .step.open .chev { transform: rotate(180deg); }
+.step-b { padding: 4px 14px 14px 60px; }
+.step-b .field { margin-bottom: 10px; }
+.step-b textarea { width: 100%; }
+.opt-row { display: flex; gap: 6px; margin-bottom: 6px; } .opt-row input { flex: 1; min-width: 0; }
+.step-tools { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.add-step { margin-top: 4px; justify-self: start; }
 
-/* Responsive adjustments */
-@media (max-width: 440px) {
-  .stage { padding: 0; }
-  .phone { border-radius: 0; min-height: 100svh; box-shadow: none; }
-  .phone-notch { display: none; }
-  .phone-inner { padding-top: 0; }
+/* phone */
+.phone { position: sticky; top: 16px; width: 340px; border: 1px solid var(--border); border-radius: 28px; background: var(--surface); overflow: hidden; display: flex; flex-direction: column; height: min(640px, calc(100svh - 70px)); }
+.tg-h { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.tg-av { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 800; }
+.tg-h b { display: block; font-size: 14px; } .tg-h span { font-size: 12px; color: var(--muted); }
+.tg-h .btn { margin-left: auto; }
+.chat { flex: 1; overflow: auto; padding: 14px 12px; background: #dfe8ef; display: flex; flex-direction: column; gap: 6px; }
+.m { max-width: 84%; padding: 8px 11px; border-radius: 14px; background: #fff; align-self: flex-start; border-bottom-left-radius: 4px; animation: pop .2s var(--ease) both; word-wrap: break-word; }
+.m.me { align-self: flex-end; background: #d4ecb8; border-radius: 14px; border-bottom-right-radius: 4px; }
+.m small { display: block; margin-top: 4px; font-size: 11px; color: #5f7a90; }
+.m.file { display: flex; align-items: center; gap: 8px; }
+.m.file .ic { color: var(--accent); }
+.inl { display: flex; flex-direction: column; gap: 4px; align-self: stretch; animation: pop .2s var(--ease) both; }
+.inl button { height: 34px; border: 0; border-radius: 10px; background: rgba(27,120,200,.88); color: #fff; font-weight: 600; cursor: pointer; transition: background-color .15s, transform .12s; }
+.inl button:hover { background: #1b78c8; } .inl button:active { transform: scale(.97); }
+.inl button.pay { background: #2f9e57; }
+.note { align-self: center; font-size: 12px; color: #54697b; background: rgba(255,255,255,.6); padding: 3px 10px; border-radius: 10px; }
+.tg-f { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--surface); }
+.tg-f input { flex: 1; min-width: 0; height: 36px; border: 1px solid var(--border); border-radius: 18px; padding: 0 14px; background: var(--bg); outline: none; }
+.tg-f input:focus { border-color: var(--accent); }
+.tg-f button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; cursor: pointer; display: grid; place-items: center; }
+.tg-f input:disabled, .tg-f button:disabled { opacity: .45; cursor: default; }
+.bmode { display: none; } .dm { display: none; }
+
+/* dashboard */
+.funnel { display: flex; flex-direction: column; gap: 14px; }
+.fn { display: grid; grid-template-columns: 150px minmax(0, 1fr) 64px; gap: 14px; align-items: center; }
+.fn .bar { height: 22px; border-radius: 6px; } .fn .bar i { border-radius: 6px; }
+.fn .bar i.lost { background: var(--neg); opacity: .8; }
+.fn b { text-align: right; font-weight: 700; }
+.fn-note { margin-top: 14px; color: var(--muted); }
+.botrow-n { display: flex; align-items: center; gap: 10px; }
+.botrow-n .step-ic { width: 32px; height: 32px; }
+
+@media (max-width: 1099px) { .build { grid-template-columns: minmax(0, 1fr); } .phone { position: relative; top: 0; width: 100%; max-width: 380px; margin: 0 auto; height: 560px; } }
+@media (max-width: 899px) {
+  .bmode { display: inline-flex; } .dm { display: block; }
+  .build[data-mode="flow"] .phone, .build[data-mode="chat"] .flow { display: none; }
+  .fn { grid-template-columns: 110px minmax(0, 1fr) 48px; gap: 10px; }
+  .step-b { padding-left: 14px; }
 }
 </style>
 </head>
 <body>
-
-<div class="demo-banner">
-  <span class="badge">Demo</span>
-  BotFactory — Telegram Bot Builder &nbsp;·&nbsp; Интерактивное демо
-</div>
-
-<div class="stage">
-  <!-- Phone mockup -->
-  <div class="phone-wrap">
-    <div class="phone" id="phone">
-      <div class="phone-notch"></div>
-      <div class="phone-inner">
-
-        <!-- Header -->
-        <div class="app-header">
-          <div class="header-left">
-            <div class="app-title">🤖 BotFactory</div>
-            <div class="header-greeting">Привет, Алекс 👋</div>
-          </div>
-          <div class="header-actions">
-            <button class="icon-btn" id="darkToggleBtn" title="Тема" aria-label="Переключить тему">🌙</button>
-          </div>
-        </div>
-
-        <!-- Scrollable content -->
-        <div class="app-content" id="appContent">
-
-          <!-- Published banner -->
-          <div class="published-banner" id="publishedBanner">
-            <div class="pub-icon">✅</div>
-            <div class="pub-info">
-              <div class="pub-title">Бот опубликован!</div>
-              <a href="#" class="pub-link" onclick="return false;">@mybot → Ссылка на бота 🔗</a>
-            </div>
-          </div>
-
-          <div class="section-label">Блоки бота</div>
-
-          <!-- Blocks list -->
-          <div class="blocks-list" id="blocksList"></div>
-
-          <!-- Add block button -->
-          <div class="add-block-wrap">
-            <button class="add-block-btn" id="addBlockBtn">
-              <span>＋</span> Добавить блок
-            </button>
-          </div>
-        </div>
-
-        <!-- Block type popup -->
-        <div class="popup-overlay" id="popupOverlay">
-          <div class="popup-sheet">
-            <div class="popup-handle"></div>
-            <div class="popup-title">Тип блока</div>
-            <div class="popup-grid" id="popupGrid"></div>
-            <button class="popup-cancel" id="popupCancel">Отмена</button>
-          </div>
-        </div>
-
-        <!-- Publish bar -->
-        <div class="publish-bar">
-          <button class="publish-btn" id="publishBtn">
-            <span id="publishBtnContent">🚀 Опубликовать бота</span>
-          </button>
-        </div>
-
-      </div><!-- /phone-inner -->
-    </div><!-- /phone -->
-
-    <!-- Dark mode toggle below phone -->
-    <div class="dark-toggle-wrap">
-      <span>☀️</span>
-      <label class="toggle-switch" title="Тёмная тема">
-        <input type="checkbox" id="darkModeCheck">
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-      </label>
-      <span>🌙</span>
-      <span style="margin-left:4px;">Тёмная тема</span>
+<div class="notice"><b>Демо</b> BotFactory · данные вымышлены</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3"/></svg></div>
+      <div><div class="brand-name">BotFactory</div><div class="brand-sub">Студия Лены</div></div>
     </div>
-  </div><!-- /phone-wrap -->
-
-  <!-- Desktop preview panel -->
-  <div class="preview-panel">
-    <div class="preview-label">📱 Превью бота</div>
-    <div class="tg-chat">
-      <div class="tg-chat-header">
-        <div class="bot-avatar">🤖</div>
-        <div class="bot-info">
-          <div class="bot-name">@mybot</div>
-          <div class="bot-status">бот · онлайн</div>
-        </div>
-      </div>
-      <div class="tg-messages" id="tgMessages">
-        <div class="msg-empty">Добавьте блоки, чтобы увидеть превью</div>
-      </div>
-    </div>
-  </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">ЕК</div><div class="who"><b>Елена Кравец</b><span>Тариф «Мастер»</span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
 </div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
 
 <script>
-// ─── Data model ───────────────────────────────────────────────────────────────
-let nextId = 10;
-const BLOCK_DEFS = {
-  greeting: { icon: '👋', name: 'Приветствие', desc: 'Первое сообщение', defaultText: 'Привет! Я твой умный помощник. Что хочешь узнать?' },
-  description: { icon: '📝', name: 'Описание', desc: 'О чём этот бот', defaultText: 'Помогу с заказами, расписанием и ответами на вопросы.' },
-  buttons: { icon: '🔘', name: 'Кнопки', desc: 'Быстрые действия', defaultButtons: ['📦 Мои заказы', '📅 Расписание', '❓ Помощь'] },
-  reward: { icon: '🎁', name: 'Выдача', desc: 'Финальный ответ', defaultText: 'Спасибо за обращение! Ваш запрос принят.' }
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('ru-RU');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
+
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
+
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
+}
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
+}
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
+
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
+  }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Динамика: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
+}
+
+'use strict';
+
+/* ── data ─────────────────────────────────────────────── */
+const rub = (n) => fmt(n) + ' ₽';
+const TODAY = new Date(2026, 9, 21, 15, 20);          // Wed 21 Oct 2026
+const WD = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+const dayOf = (ago) => new Date(TODAY.getTime() - ago * 864e5);
+const dLabel = (ago) => ago === 0 ? 'Сегодня' : ago === 1 ? 'Вчера' : dayOf(ago).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+
+const TPL = {
+  salon: { name: 'Запись к мастеру', icon: 'calendar', steps: () => [
+    { t: 'msg', text: 'Привет! Я Лена, мастер маникюра в Тынде. Запишу вас за минуту.' },
+    { t: 'buttons', text: 'Что хотите сделать?', opts: ['Маникюр · 2 500 ₽', 'Педикюр · 3 000 ₽', 'Снятие · 800 ₽'] },
+    { t: 'ask', text: 'Как вас зовут?' },
+    { t: 'pay', text: 'Чтобы закрепить время, нужна предоплата. Она вычтется из стоимости.', price: 500 },
+    { t: 'give', text: 'Записала вас! Адрес: Красная Пресня, 12, кабинет 4.', file: 'Памятка перед визитом.pdf' },
+  ] },
+  course: { name: 'Продажа курса', icon: 'graduation', steps: () => [
+    { t: 'msg', text: 'Здравствуйте! Это бот курса «Первый запуск»: 12 уроков, как выйти на первые продажи.' },
+    { t: 'buttons', text: 'С чего начнём?', opts: ['Что внутри курса', 'Хочу купить'] },
+    { t: 'pay', text: 'Курс с доступом навсегда. Оплата картой или через СБП.', price: 4900 },
+    { t: 'give', text: 'Оплата прошла, спасибо! Доступ к урокам уже открыт.', file: 'Открыть курс' },
+  ] },
+  channel: { name: 'Закрытый канал', icon: 'lock', steps: () => [
+    { t: 'msg', text: 'Привет! Здесь я каждый день разбираю заявки покупателей. Канал закрытый, вход по подписке.' },
+    { t: 'buttons', text: 'Хотите заглянуть внутрь?', opts: ['Показать пример разбора', 'Оформить подписку'] },
+    { t: 'pay', text: 'Подписка на 30 дней, продлевать не обязательно.', price: 990 },
+    { t: 'give', text: 'Добро пожаловать! Ссылка действует только для вас.', file: 'Войти в канал' },
+  ] },
+};
+const STEP = {
+  msg: ['Сообщение', 'chat'], ask: ['Вопрос', 'edit'], buttons: ['Кнопки', 'grid'], pay: ['Оплата', 'coin'], give: ['Выдача', 'file'], remind: ['Напоминание', 'clock'],
 };
 
-let blocks = [
-  { id: 1, type: 'greeting', text: 'Привет! Я твой умный помощник. Что хочешь узнать?' },
-  { id: 2, type: 'description', text: 'Помогу с заказами, расписанием и ответами на вопросы.' },
-  { id: 3, type: 'buttons', buttons: ['📦 Мои заказы', '📅 Расписание', '❓ Помощь'] },
-  { id: 4, type: 'reward', text: 'Спасибо за обращение! Ваш запрос принят.' }
-];
+const S = {
+  bots: [
+    { id: 1, name: 'Запись к Лене', user: '@lena_nails_bot', tpl: 'salon', live: true, steps: TPL.salon.steps(), starts: 96, answered: 71, atPay: 38 },
+    { id: 2, name: 'Курс «Первый запуск»', user: '@first_launch_bot', tpl: 'course', live: true, steps: TPL.course.steps(), starts: 180, answered: 120, atPay: 41 },
+    { id: 3, name: 'Закрытый канал', user: '@lena_club_bot', tpl: 'channel', live: true, steps: TPL.channel.steps(), starts: 64, answered: 52, atPay: 19 },
+  ],
+  sales: [],
+};
+/* sales are derived from days-ago lists, so every total on every page reconciles */
+const BUYERS = ['Анна Л.', 'Мария С.', 'Ольга К.', 'Ирина В.', 'Светлана П.', 'Дарья М.', 'Наталья Б.', 'Юлия Г.', 'Екатерина Т.', 'Алёна Р.', 'Полина Ж.', 'Виктория Н.', 'Кристина А.'];
+const DAYS = { 1: [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6], 2: [0, 1, 3, 4, 6, 6], 3: [0, 0, 1, 1, 2, 3, 3, 4, 5, 6, 6] };
+const PRICE = { 1: 500, 2: 4900, 3: 990 };
+(() => {
+  let k = 0;
+  for (const id of [1, 2, 3]) DAYS[id].forEach((ago, i) => { S.sales.push({ bot: id, ago, buyer: BUYERS[(k * 5 + i * 3 + id) % BUYERS.length], amount: PRICE[id], min: 540 + ((k * 137) % 780) }); k++; });
+  S.sales.sort((a, b) => a.ago - b.ago || b.min - a.min);
+})();
+const sold = (id) => S.sales.filter((s) => s.bot === id);
+const botPrice = (b) => (b.steps.find((s) => s.t === 'pay') || {}).price || 0;
+const hhmm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const stats = (b) => { const paid = sold(b.id).length, rev = paid * PRICE[b.id]; return { paid, rev, conv: b.starts ? paid / b.starts : 0 }; };
+const totals = () => { const r = S.bots.map(stats); return { rev: r.reduce((a, x) => a + x.rev, 0), paid: r.reduce((a, x) => a + x.paid, 0), starts: S.bots.reduce((a, b) => a + b.starts, 0) }; };
+console.assert(S.sales.length === 31 && totals().rev === 47290, 'sales reconcile');
+console.assert(S.bots.every((b) => b.starts >= b.answered && b.answered >= b.atPay && b.atPay >= sold(b.id).length), 'funnel narrows');
 
-let expandedId = null;
-let published = false;
-let dragSrcIdx = null;
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { dashboard: ['Боты', 'home'], builder: ['Конструктор', 'sliders'], sales: ['Продажи', 'coin'], buyers: ['Покупатели', 'users'] };
+let page = 'dashboard', cur = 1, openStep = 0, salesBot = 0, mode = 'flow', fbot = 2;
 
-// ─── Render ───────────────────────────────────────────────────────────────────
-function getPreview(block) {
-  const def = BLOCK_DEFS[block.type];
-  if (block.type === 'buttons') {
-    return block.buttons.length ? block.buttons.join(' · ') : 'Нет кнопок';
+function chrome() {
+  const item = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`;
+  $('#nav').innerHTML = item('dashboard') + item('builder') + `<div class="nav-label">Деньги и люди</div>` + item('sales') + item('buyers');
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
+  setNav(page);
+}
+function render() { chrome(); $('#main').innerHTML = ({ dashboard, builder, sales, buyers })[page](); mount(); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+const bot = () => S.bots.find((b) => b.id === cur);
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const o = e.target.closest('[data-openbot]'); if (o) { cur = +o.dataset.openbot; openStep = 0; resetRun(); return go('builder'); }
+  const act = e.target.closest('[data-act]'); if (act) ACT[act.dataset.act](act.dataset, act);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('input', (e) => {
+  const f = e.target.dataset.f; if (!f) return;
+  const s = bot().steps[+e.target.dataset.i];
+  if (f === 'text') s.text = e.target.value;
+  if (f === 'file') s.file = e.target.value;
+  if (f === 'price') s.price = Math.max(0, +e.target.value || 0);
+  if (f === 'opt') s.opts[+e.target.dataset.o] = e.target.value;
+  const sub = e.target.closest('.step')?.querySelector('.step-h span'); if (sub) sub.textContent = summary(s);
+  resetRun(); drawChat();
+});
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'bot-sel') { cur = +e.target.value; openStep = 0; resetRun(); render(); }
+});
+document.addEventListener('submit', (e) => { if (e.target.id === 'tg-form') { e.preventDefault(); answer(); } });
+
+/* ── dashboard ────────────────────────────────────────── */
+function dashboard() {
+  const t = totals(), conv = t.paid / t.starts;
+  const worst = S.bots.map((b) => ({ b, lost: b.atPay - sold(b.id).length })).filter((x) => !x.b.steps.some((s) => s.t === 'remind') && x.lost >= 30).sort((a, b) => b.lost - a.lost)[0];
+  const finding = worst ? `<div class="finding">${ic('alert')}<span>В боте «${esc(worst.b.name)}» ${worst.lost} из ${worst.b.atPay} человек дошли до оплаты и ушли. Напоминание через час обычно возвращает часть из них.</span><button class="btn sm primary" data-act="addRemind" data-bot="${worst.b.id}">Добавить напоминание</button></div>` : '';
+  const rows = S.bots.map((b) => { const s = stats(b); return `<div class="tr" data-openbot="${b.id}" tabindex="0" style="cursor:pointer;--cols:1.6fr .8fr .7fr .7fr .9fr;--colsm:1fr auto">
+    <div class="botrow-n"><span class="step-ic">${ic(TPL[b.tpl].icon)}</span><div class="cell-main"><b>${esc(b.name)}</b><span>${esc(b.user)}</span></div></div>
+    <div class="hm"><span class="pill ${b.live ? 'pos' : ''}"><i></i>${b.live ? 'Работает' : 'Черновик'}</span></div>
+    <div class="hm r">${fmt(b.starts)}</div><div class="hm r">${s.paid}</div><div class="r"><b>${rub(s.rev)}</b></div></div>`; }).join('');
+  const fb = S.bots.find((b) => b.id === fbot) || S.bots[0], paid = sold(fb.id).length;
+  const steps = [['Нажали «Старт»', fb.starts], ['Ответили боту', fb.answered], ['Дошли до оплаты', fb.atPay], ['Оплатили', paid]];
+  const fn = steps.map(([l, v], i) => `<div class="fn"><span>${l}</span><div class="bar"><i style="width:${fb.starts ? v / fb.starts * 100 : 0}%;${i === 3 ? '' : 'opacity:.4'}"></i></div><b>${fmt(v)}</b></div>`).join('');
+  const dropAt = fb.atPay - paid;
+  return head('Боты', `${WD[TODAY.getDay()]}, 21 октября · последние 7 дней`, `<button class="btn primary" data-act="newBot">${ic('plus')}Новый бот</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${rub(t.rev)}</b><span>Выручка за 7 дней</span></div><div class="kpi"><b>${t.paid}</b><span>Оплат</span></div><div class="kpi"><b>${fmt(t.starts)}</b><span>Запусков бота</span></div><div class="kpi"><b>${fmtD(conv * 100)}<small>%</small></b><span>Запусков закончились покупкой</span></div></div>
+    <div class="grid">
+      <section class="card c7"><div class="card-h"><h2>Выручка по дням</h2><span>₽</span></div><div id="ch-rev"></div></section>
+      <section class="card c5"><div class="card-h"><h2>Воронка</h2></div>
+        <div class="tabs" role="tablist">${S.bots.map((b) => `<button class="${b.id === fb.id ? 'on' : ''}" data-act="fbot" data-id="${b.id}">${esc(b.name.split(' ')[0])}</button>`).join('')}</div>
+        <div class="funnel">${fn}</div><p class="fn-note">${dropAt ? `Между оплатой и покупкой потеряно ${dropAt} из ${fb.atPay}.` : 'Все, кто дошёл до оплаты, заплатили.'}</p></section>
+      <section class="card c12"><div class="card-h"><h2>Ваши боты</h2><span>нажмите, чтобы открыть сценарий</span></div>
+        <div class="tbl"><div class="tr th" style="--cols:1.6fr .8fr .7fr .7fr .9fr;--colsm:1fr auto"><span>Бот</span><span class="hm">Статус</span><span class="hm r">Запусков</span><span class="hm r">Оплат</span><span class="r">Выручка</span></div>${rows}</div></section>
+    </div>`;
+}
+
+/* ── builder ──────────────────────────────────────────── */
+const summary = (s) => s.t === 'buttons' ? s.opts.join(' · ') || 'Нет кнопок' : s.t === 'pay' ? `${rub(s.price)} · ${s.text}` : s.t === 'give' ? `${s.file ? '📎 ' + s.file : ''}` || s.text : s.text;
+function stepEditor(s, i) {
+  const ta = `<div class="field"><label>Текст сообщения</label><textarea data-f="text" data-i="${i}">${esc(s.text)}</textarea></div>`;
+  let body = ta;
+  if (s.t === 'buttons') body += `<div class="field"><label>Кнопки</label>${s.opts.map((o, k) => `<div class="opt-row"><input data-f="opt" data-i="${i}" data-o="${k}" value="${esc(o)}"><button class="btn sm" data-act="delOpt" data-i="${i}" data-o="${k}" aria-label="Удалить кнопку">${ic('x')}</button></div>`).join('')}<button class="btn sm" data-act="addOpt" data-i="${i}" ${s.opts.length >= 5 ? 'disabled' : ''}>${ic('plus')}Кнопка</button></div>`;
+  if (s.t === 'pay') body += `<div class="field"><label>Цена, ₽</label><input data-f="price" data-i="${i}" type="number" min="0" value="${s.price}"></div>`;
+  if (s.t === 'give') body += `<div class="field"><label>Файл или ссылка</label><input data-f="file" data-i="${i}" value="${esc(s.file || '')}"></div>`;
+  return body + `<div class="step-tools"><button class="btn sm" data-act="mv" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''}>${ic('up')}Выше</button><button class="btn sm" data-act="mv" data-i="${i}" data-d="1" ${i === bot().steps.length - 1 ? 'disabled' : ''}>${ic('down')}Ниже</button><button class="btn sm" data-act="delStep" data-i="${i}">${ic('trash')}Удалить</button></div>`;
+}
+function builder() {
+  const b = bot(), p = botPrice(b);
+  const flow = b.steps.map((s, i) => `<article class="step${openStep === i ? ' open' : ''}" data-n="${i + 1}"><button class="step-h" data-act="toggle" data-i="${i}" aria-expanded="${openStep === i}"><span class="step-ic">${ic(STEP[s.t][1])}</span><div><b>${STEP[s.t][0]}</b><span>${esc(summary(s))}</span></div>${ic('down', 'chev')}</button>${openStep === i ? `<div class="step-b">${stepEditor(s, i)}</div>` : ''}</article>`).join('');
+  return head('Конструктор', `Сценарий бота ${esc(b.user)}. Справа он работает по-настоящему.`,
+    `<select id="bot-sel" class="btn" aria-label="Бот">${S.bots.map((x) => `<option value="${x.id}" ${x.id === cur ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><button class="btn primary" data-act="publish">${b.live ? 'Снять с публикации' : 'Опубликовать'}</button>`) +
+    `<div class="tabs bmode" role="tablist"><button class="${mode === 'flow' ? 'on' : ''}" data-act="mode" data-m="flow">Сценарий</button><button class="${mode === 'chat' ? 'on' : ''}" data-act="mode" data-m="chat">Превью</button></div>
+    <div class="build" data-mode="${mode}">
+      <div class="flow">${flow}<button class="btn add-step" data-act="addStep">${ic('plus')}Добавить блок</button></div>
+      <aside class="phone" aria-label="Превью бота"><div class="tg-h"><span class="tg-av">${esc(b.name[0])}</span><div><b>${esc(b.name)}</b><span>бот · ${b.live ? 'онлайн' : 'черновик'}${p ? ' · ' + rub(p) : ''}</span></div><button class="btn sm" data-act="restart">${ic('play')}Заново</button></div>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <form class="tg-f" id="tg-form"><input id="tg-in" placeholder="Сообщение" autocomplete="off" aria-label="Ответ боту"><button aria-label="Отправить" id="tg-send">${ic('arrow')}</button></form></aside>
+    </div>`;
+}
+
+/* preview engine: runs the real scenario; a step that needs the buyer pauses the run */
+let run = null;
+function resetRun() { run = null; }
+function startRun() { run = { i: 0, log: [], wait: null, done: false, name: '' }; step(); }
+function step() {
+  const steps = bot().steps;
+  while (run.i < steps.length) {
+    const s = steps[run.i];
+    if (s.t === 'msg') run.log.push({ k: 'bot', text: s.text });
+    else if (s.t === 'remind') run.log.push({ k: 'note', text: `Если не оплатят, через час бот напомнит: «${s.text}»` });
+    else if (s.t === 'give') { run.log.push({ k: 'bot', text: s.text }); if (s.file) run.log.push({ k: 'file', text: s.file }); }
+    else { run.log.push({ k: 'bot', text: (s.t === 'ask' ? s.text : s.text).replace('{имя}', run.name || 'друг') }); run.wait = s; break; }
+    run.i++;
   }
-  return block.text || def.defaultText || '';
+  if (run.i >= steps.length) run.done = true;
+}
+function drawChat() {
+  const c = $('#chat'); if (!c) return;
+  if (!run) startRun();
+  const last = run.log.map((m) => m.k).lastIndexOf('bot');
+  const lastBot = run.done ? run.log.length - 1 - [...run.log].reverse().findIndex((m) => m.k === 'bot' || m.k === 'file') : -1;
+  c.innerHTML = run.log.map((m, i) => m.k === 'me' ? `<div class="m me">${esc(m.text)}</div>`
+    : m.k === 'note' ? `<div class="note">${esc(m.text)}</div>`
+    : m.k === 'file' ? `<div class="m file">${ic('file')}<b>${esc(m.text)}</b>${run.done && i === lastBot ? '<small>Собрано в @DragDropBot</small>' : ''}</div>`
+    : `<div class="m">${esc(m.text)}${run.done && i === lastBot ? '<small>Собрано в @DragDropBot</small>' : ''}</div>`).join('') + waitUI();
+  c.scrollTop = c.scrollHeight;
+  const ask = run.wait && run.wait.t === 'ask';
+  $('#tg-in').disabled = !ask; $('#tg-send').disabled = !ask; $('#tg-in').placeholder = ask ? 'Ответьте боту…' : run.done ? 'Сценарий закончен' : 'Выберите кнопку';
+}
+function waitUI() {
+  const w = run.wait; if (!w || run.done) return run.done ? '' : '';
+  if (w.t === 'buttons') return `<div class="inl">${w.opts.map((o, k) => `<button data-act="pick" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
+  if (w.t === 'pay') return `<div class="inl"><button class="pay" data-act="pay">Оплатить ${rub(w.price)}</button></div>`;
+  return '';
+}
+function answer(text) {
+  if (!run.wait) return;
+  const inp = $('#tg-in'), v = (text ?? inp.value).trim(); if (!v) return;
+  if (run.wait.t === 'ask') run.name = v;
+  run.log.push({ k: 'me', text: v }); run.wait = null; run.i++; inp.value = ''; step(); drawChat();
 }
 
-function renderBlocks() {
-  const list = document.getElementById('blocksList');
-  list.innerHTML = '';
-  blocks.forEach((block, idx) => {
-    const def = BLOCK_DEFS[block.type];
-    const expanded = expandedId === block.id;
-    const card = document.createElement('div');
-    card.className = 'block-card' + (expanded ? ' expanded' : '');
-    card.setAttribute('draggable', 'true');
-    card.dataset.idx = idx;
+/* ── sales + buyers ───────────────────────────────────── */
+function sales() {
+  const list = S.sales.filter((s) => !salesBot || s.bot === salesBot), sum = list.reduce((a, s) => a + s.amount, 0);
+  const rows = list.map((s) => { const b = S.bots.find((x) => x.id === s.bot); return `<div class="tr" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><div class="cell-main hm"><b>${dLabel(s.ago)}</b><span>${hhmm(s.min)}</span></div><div class="cell-main dm"><b>${esc(s.buyer)}</b><span>${dLabel(s.ago)}, ${hhmm(s.min)} · ${esc(b.name)}</span></div><div class="hm">${esc(s.buyer)}</div><div class="hm">${esc(b.name)}</div><div class="r"><b>${rub(s.amount)}</b></div></div>`; }).join('');
+  return head('Продажи', `${list.length} оплат на ${rub(sum)} за 7 дней`) +
+    `<div class="tabs"><button class="${!salesBot ? 'on' : ''}" data-act="sbot" data-id="0">Все</button>${S.bots.map((b) => `<button class="${salesBot === b.id ? 'on' : ''}" data-act="sbot" data-id="${b.id}">${esc(b.name.split(' ')[0])}</button>`).join('')}</div>
+    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><span>Когда</span><span class="hm">Покупатель</span><span class="hm">Бот</span><span class="r">Сумма</span></div>${rows}</div></section>`;
+}
+function buyers() {
+  const map = {};
+  S.sales.forEach((s) => { const x = map[s.buyer] || (map[s.buyer] = { n: s.buyer, c: 0, sum: 0, ago: 99 }); x.c++; x.sum += s.amount; x.ago = Math.min(x.ago, s.ago); });
+  const list = Object.values(map).sort((a, b) => b.sum - a.sum);
+  const rows = list.map((x) => `<div class="tr" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(x.n)}</b><span class="muted">${x.c} ${x.c === 1 ? 'покупка' : x.c < 5 ? 'покупки' : 'покупок'} · ${dLabel(x.ago).toLowerCase()}</span></div><div class="hm r">${x.c}</div><div class="hm r">${dLabel(x.ago)}</div><div class="r"><b>${rub(x.sum)}</b></div></div>`).join('');
+  const rep = list.filter((x) => x.c > 1).length;
+  return head('Покупатели', `${list.length} человек, ${rep} купили больше одного раза`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><span>Покупатель</span><span class="hm r">Покупок</span><span class="hm r">Последняя</span><span class="r">Всего</span></div>${rows}</div></section>`;
+}
 
-    const preview = getPreview(block);
+function mount() {
+  const a = $('#ch-rev');
+  if (a) { const vals = [], labels = []; for (let ago = 6; ago >= 0; ago--) { vals.push(S.sales.filter((s) => s.ago === ago).reduce((x, s) => x + s.amount, 0) / 1000); labels.push(ago === 0 ? 'Ср' : WD[dayOf(ago).getDay()]); }
+    chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) + 'к' })); }
+  drawChat();
+}
 
-    let editorHtml = '';
-    if (block.type === 'buttons') {
-      const btnItems = block.buttons.map((b, bi) =>
-        `<div class="btn-item">
-          <input type="text" value="${escHtml(b)}" data-bi="${bi}" class="btn-text-input" placeholder="Текст кнопки…">
-          <button class="del-btn-item" data-bi="${bi}" title="Удалить">✕</button>
-        </div>`
-      ).join('');
-      editorHtml = `
-        <div class="block-editor">
-          <span class="editor-label">Кнопки</span>
-          <div class="btn-list" id="btnList-${block.id}">${btnItems}</div>
-          <button class="add-btn-link" id="addBtnLink-${block.id}">＋ Добавить кнопку</button>
-        </div>`;
-    } else {
-      editorHtml = `
-        <div class="block-editor">
-          <span class="editor-label">Текст блока</span>
-          <textarea rows="3" class="block-textarea" placeholder="Введите текст…">${escHtml(block.text || '')}</textarea>
-        </div>`;
-    }
-
-    card.innerHTML = `
-      <div class="block-header">
-        <span class="drag-handle" title="Перетащить">⠿</span>
-        <span class="block-icon">${def.icon}</span>
-        <div class="block-meta">
-          <div class="block-name">${def.name}</div>
-          <div class="block-preview">${escHtml(preview)}</div>
-        </div>
-        <div class="block-actions">
-          <span class="block-chevron">▶</span>
-          <button class="delete-btn" title="Удалить блок">🗑</button>
-        </div>
-      </div>
-      ${editorHtml}
-    `;
-
-    // Header click — expand/collapse
-    const header = card.querySelector('.block-header');
-    header.addEventListener('click', (e) => {
-      if (e.target.closest('.delete-btn') || e.target.closest('.drag-handle')) return;
-      expandedId = expanded ? null : block.id;
-      renderBlocks();
-      renderPreview();
+/* ── actions ──────────────────────────────────────────── */
+const ACT = {
+  fbot(d) { fbot = +d.id; render(); },
+  sbot(d) { salesBot = +d.id; render(); },
+  mode(d) { mode = d.m; render(); },
+  toggle(d) { openStep = openStep === +d.i ? -1 : +d.i; render(); },
+  restart() { resetRun(); drawChat(); },
+  pick(d) { const w = run.wait; run.log.push({ k: 'me', text: w.opts[+d.k] }); run.wait = null; run.i++; step(); drawChat(); },
+  pay() { const w = run.wait; run.log.push({ k: 'note', text: `Оплата ${rub(w.price)} прошла` }); run.wait = null; run.i++; step(); drawChat(); },
+  mv(d) { const s = bot().steps, i = +d.i, j = i + +d.d; [s[i], s[j]] = [s[j], s[i]]; openStep = j; resetRun(); render(); },
+  delStep(d) { bot().steps.splice(+d.i, 1); openStep = -1; resetRun(); render(); toast('Блок удалён'); },
+  addOpt(d) { bot().steps[+d.i].opts.push('Новая кнопка'); resetRun(); render(); },
+  delOpt(d) { bot().steps[+d.i].opts.splice(+d.o, 1); resetRun(); render(); },
+  publish() { const b = bot(); b.live = !b.live; toast(b.live ? 'Бот опубликован' : 'Бот снят с публикации'); render(); },
+  addRemind(d) {
+    const b = S.bots.find((x) => x.id === +d.bot), at = b.steps.findIndex((s) => s.t === 'pay');
+    b.steps.splice(at + 1, 0, { t: 'remind', text: 'Вы не закончили оплату. Курс ждёт вас, ссылка действует сутки.' });
+    cur = b.id; openStep = at + 1; resetRun(); toast('Напоминание добавлено в сценарий'); go('builder');
+  },
+  addStep() {
+    modal(`<h2>Новый блок</h2><p>Добавится в конец сценария.</p><div class="field"><label>Тип</label><select id="n-t">${Object.entries(STEP).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="n-ok">Добавить</button></div>`, () => {
+      $('#n-ok').onclick = () => {
+        const t = $('#n-t').value, def = { msg: { text: 'Новое сообщение' }, ask: { text: 'Как вас зовут?' }, buttons: { text: 'Выберите вариант', opts: ['Вариант 1', 'Вариант 2'] }, pay: { text: 'Оплата заказа', price: 1000 }, give: { text: 'Спасибо! Вот ваш доступ.', file: 'Ссылка' }, remind: { text: 'Напоминаю про ваш заказ' } }[t];
+        const s = bot().steps; s.push({ t, ...structuredClone(def) }); openStep = s.length - 1; closeModal(); resetRun(); render();
+      };
     });
-
-    // Delete
-    card.querySelector('.delete-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      blocks.splice(idx, 1);
-      if (expandedId === block.id) expandedId = null;
-      renderBlocks();
-      renderPreview();
-      showToast('Блок удалён');
+  },
+  newBot() {
+    modal(`<h2>Новый бот</h2><p>Выберите заготовку, потом поправите под себя.</p><div class="field"><label>Название</label><input id="b-n" placeholder="Например, Запись на массаж"></div>
+      <div class="field"><label>Заготовка</label><select id="b-t">${Object.entries(TPL).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('')}</select></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="b-ok">Создать</button></div>`, () => {
+      $('#b-ok').onclick = () => {
+        const n = $('#b-n').value.trim(); if (!n) { $('#b-n').focus(); return; }
+        const t = $('#b-t').value, id = Math.max(...S.bots.map((x) => x.id)) + 1;
+        S.bots.push({ id, name: n, user: '@' + ['new', 'bot', id].join('_'), tpl: t, live: false, steps: TPL[t].steps(), starts: 0, answered: 0, atPay: 0 });
+        PRICE[id] = botPrice(S.bots.at(-1)); DAYS[id] = [];
+        cur = id; openStep = 0; resetRun(); closeModal(); toast('Бот создан. Это черновик, поправьте сценарий'); go('builder');
+      };
     });
-
-    // Text editor
-    if (block.type !== 'buttons') {
-      const ta = card.querySelector('.block-textarea');
-      ta.addEventListener('input', () => {
-        block.text = ta.value;
-        // Update preview text in header without full re-render
-        card.querySelector('.block-preview').textContent = block.text;
-        renderPreview();
-      });
-    } else {
-      // Buttons editor
-      const btnList = card.querySelector(`#btnList-${block.id}`);
-      btnList.addEventListener('input', (e) => {
-        if (e.target.classList.contains('btn-text-input')) {
-          const bi = parseInt(e.target.dataset.bi);
-          block.buttons[bi] = e.target.value;
-          card.querySelector('.block-preview').textContent = getPreview(block);
-          renderPreview();
-        }
-      });
-      btnList.addEventListener('click', (e) => {
-        const delBtn = e.target.closest('.del-btn-item');
-        if (delBtn) {
-          const bi = parseInt(delBtn.dataset.bi);
-          block.buttons.splice(bi, 1);
-          renderBlocks();
-          renderPreview();
-        }
-      });
-      card.querySelector(`#addBtnLink-${block.id}`).addEventListener('click', () => {
-        block.buttons.push('');
-        renderBlocks();
-        // re-expand and focus last input
-        expandedId = block.id;
-        renderBlocks();
-        setTimeout(() => {
-          const inputs = document.querySelectorAll(`#btnList-${block.id} .btn-text-input`);
-          if (inputs.length) inputs[inputs.length - 1].focus();
-        }, 0);
-      });
-    }
-
-    // Drag & drop
-    card.addEventListener('dragstart', (e) => {
-      dragSrcIdx = idx;
-      setTimeout(() => card.classList.add('dragging'), 0);
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      document.querySelectorAll('.block-card').forEach(c => c.classList.remove('drag-over'));
-      dragSrcIdx = null;
-    });
-    card.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      document.querySelectorAll('.block-card').forEach(c => c.classList.remove('drag-over'));
-      if (dragSrcIdx !== null && dragSrcIdx !== idx) card.classList.add('drag-over');
-    });
-    card.addEventListener('drop', (e) => {
-      e.preventDefault();
-      card.classList.remove('drag-over');
-      if (dragSrcIdx === null || dragSrcIdx === idx) return;
-      const moved = blocks.splice(dragSrcIdx, 1)[0];
-      blocks.splice(idx, 0, moved);
-      dragSrcIdx = null;
-      renderBlocks();
-      renderPreview();
-    });
-
-    list.appendChild(card);
-  });
-}
-
-// ─── Preview ──────────────────────────────────────────────────────────────────
-function renderPreview() {
-  const container = document.getElementById('tgMessages');
-  if (!container) return;
-  if (!blocks.length) {
-    container.innerHTML = '<div class="msg-empty">Добавьте блоки, чтобы увидеть превью</div>';
-    return;
-  }
-  let html = '';
-  blocks.forEach(block => {
-    if (block.type === 'buttons') {
-      if (block.buttons.length) {
-        html += `<div class="preview-buttons">`;
-        block.buttons.forEach(b => {
-          html += `<div class="preview-btn-item">${escHtml(b || '…')}</div>`;
-        });
-        html += `</div>`;
-      }
-    } else {
-      const text = block.text || BLOCK_DEFS[block.type].defaultText || '';
-      if (text.trim()) html += `<div class="msg-bubble">${escHtml(text)}</div>`;
-    }
-  });
-  container.innerHTML = html || '<div class="msg-empty">Нет контента для отображения</div>';
-}
-
-// ─── Popup ────────────────────────────────────────────────────────────────────
-function buildPopup() {
-  const grid = document.getElementById('popupGrid');
-  grid.innerHTML = Object.entries(BLOCK_DEFS).map(([type, def]) => `
-    <button class="popup-type-btn" data-type="${type}">
-      <span class="pt-icon">${def.icon}</span>
-      <span class="pt-label">${def.name}</span>
-      <span class="pt-desc">${def.desc}</span>
-    </button>`
-  ).join('');
-  grid.querySelectorAll('.popup-type-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      addBlock(btn.dataset.type);
-      closePopup();
-    });
-  });
-}
-
-function openPopup() {
-  document.getElementById('popupOverlay').classList.add('open');
-}
-function closePopup() {
-  document.getElementById('popupOverlay').classList.remove('open');
-}
-
-// ─── Add block ────────────────────────────────────────────────────────────────
-function addBlock(type) {
-  const def = BLOCK_DEFS[type];
-  const newBlock = { id: ++nextId, type };
-  if (type === 'buttons') {
-    newBlock.buttons = def.defaultButtons ? [...def.defaultButtons] : [];
-  } else {
-    newBlock.text = def.defaultText || '';
-  }
-  blocks.push(newBlock);
-  expandedId = newBlock.id;
-  renderBlocks();
-  renderPreview();
-  showToast(`Блок "${def.name}" добавлен`);
-  // Scroll to bottom
-  setTimeout(() => {
-    const content = document.getElementById('appContent');
-    content.scrollTop = content.scrollHeight;
-  }, 50);
-}
-
-// ─── Publish ──────────────────────────────────────────────────────────────────
-function setupPublish() {
-  const btn = document.getElementById('publishBtn');
-  btn.addEventListener('click', () => {
-    if (btn.disabled) return;
-    btn.disabled = true;
-    document.getElementById('publishBtnContent').innerHTML =
-      '<div class="spinner"></div> Публикуем…';
-    setTimeout(() => {
-      published = true;
-      btn.classList.add('success');
-      document.getElementById('publishBtnContent').textContent = '✅ Бот активен!';
-      document.getElementById('publishedBanner').classList.add('show');
-      // Scroll to top to show banner
-      document.getElementById('appContent').scrollTop = 0;
-      showToast('🎉 Бот успешно опубликован!');
-      // Allow re-publish after 3s
-      setTimeout(() => {
-        btn.disabled = false;
-        btn.classList.remove('success');
-        document.getElementById('publishBtnContent').textContent = '🚀 Обновить бота';
-      }, 3000);
-    }, 1800);
-  });
-}
-
-// ─── Dark mode ────────────────────────────────────────────────────────────────
-function setupDarkMode() {
-  const check = document.getElementById('darkModeCheck');
-  const btn = document.getElementById('darkToggleBtn');
-
-  function applyTheme(dark) {
-    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-    btn.textContent = dark ? '☀️' : '🌙';
-    btn.title = dark ? 'Светлая тема' : 'Тёмная тема';
-    check.checked = dark;
-  }
-
-  check.addEventListener('change', () => applyTheme(check.checked));
-  btn.addEventListener('click', () => applyTheme(!check.checked));
-
-  // Check system preference
-  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    applyTheme(true);
-  }
-}
-
-// ─── Toast ────────────────────────────────────────────────────────────────────
-let toastTimer = null;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
-}
-
-// ─── Util ─────────────────────────────────────────────────────────────────────
-function escHtml(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
-function init() {
-  buildPopup();
-  renderBlocks();
-  renderPreview();
-  setupPublish();
-  setupDarkMode();
-
-  document.getElementById('addBlockBtn').addEventListener('click', openPopup);
-  document.getElementById('popupCancel').addEventListener('click', closePopup);
-  document.getElementById('popupOverlay').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('popupOverlay')) closePopup();
-  });
-}
-
-document.addEventListener('DOMContentLoaded', init);
+  },
+};
+render();
 </script>
 </body>
 </html>
