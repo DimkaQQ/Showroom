@@ -33,8 +33,10 @@
 .cars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
 .car { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; cursor: pointer; text-align: left; padding: 0; transition: border-color .15s, transform .2s var(--ease); animation: pop .3s var(--ease) both; }
 .car:hover { border-color: var(--faint); transform: translateY(-2px); }
-.car-art { display: block; padding: 14px 18px 4px; }
-.car-art svg { width: 100%; height: auto; }
+.car-art { display: block; position: relative; aspect-ratio: 8 / 5; overflow: hidden; }
+.car-art > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.car-art .carfg { position: absolute; left: 8%; right: 8%; bottom: 12%; } .car-art .carfg svg { width: 100%; height: auto; display: block; }
+.car-art .carfg svg { animation: drift 5s ease-in-out infinite alternate; } @keyframes drift { to { transform: translateX(6px); } }
 .car-b { padding: 14px 16px 16px; }
 .car-b h3 { font-size: 16px; font-weight: 600; }
 .car-b .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
@@ -47,7 +49,7 @@
 .modal.wide { max-width: 860px; padding: 0; overflow: auto; }
 .det { display: grid; grid-template-columns: minmax(0, 1fr) 340px; }
 .det-l { padding: 24px; } .det-r { padding: 24px; border-left: 1px solid var(--border); background: var(--raised); }
-.det-art { border-radius: 12px; padding: 18px 28px 8px; margin-bottom: 18px; }
+.det-art { border-radius: 12px; }
 .specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 22px; }
 .specs div b { display: block; font-weight: 600; } .specs div span { font-size: 12px; color: var(--muted); }
 .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px; }
@@ -148,6 +150,16 @@ function carSVG(t, c) {
   return `<svg viewBox="0 0 240 92" aria-hidden="true"><ellipse cx="121" cy="86" rx="104" ry="4" fill="#000" opacity=".08"/><path d="${body}" fill="${c}"/><path d="${glass}" fill="#fff" opacity=".6"/>
     <path d="M10 72 H232" stroke="#000" stroke-opacity=".12" stroke-width="2"/>${[62, 182].map((x) => `<circle cx="${x}" cy="74" r="14" fill="#1b1d20"/><circle cx="${x}" cy="74" r="6" fill="#c8cbd0"/>`).join('')}</svg>`;
 }
+
+/* scenery behind each car: sky, sun, hills and road, tinted by the car colour */
+function sceneSVG(c, seed) {
+  const sky = `color-mix(in srgb, ${c} 14%, #eef3f6)`, hill = `color-mix(in srgb, ${c} 28%, #cfd9cf)`, hill2 = `color-mix(in srgb, ${c} 20%, #b9c9bd)`, sx = 30 + (seed * 47) % 170;
+  return `<svg viewBox="0 0 240 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="240" height="150" fill="${sky}"/><circle cx="${sx}" cy="34" r="${14 + seed % 5}" fill="#fff" opacity=".85"/>
+    <path d="M0 98 Q40 66 90 90 T180 80 T240 92 V150 H0z" fill="${hill2}"/><path d="M0 108 Q60 84 120 104 T240 100 V150 H0z" fill="${hill}"/>
+    <rect y="112" width="240" height="38" fill="#4a4f57"/><path d="M0 131 H240" stroke="#f6f1d8" stroke-width="2" stroke-dasharray="14 12" opacity=".8"/></svg>`;
+}
+const carArt = (c, i) => `<span class="art">${sceneSVG(c.c, i)}<span class="carfg">${carSVG(c.t, c.c)}</span></span>`;
+
 const tint = (c) => `color-mix(in srgb, ${c} 16%, #f6f5f1)`;
 
 /* ── shell ────────────────────────────────────────────── */
@@ -175,7 +187,7 @@ document.addEventListener('change', (e) => { if (e.target.id === 'sort') { sort 
 /* ── catalog ──────────────────────────────────────────── */
 function catalog() {
   const list = CARS.filter((c) => type === 'all' || c.t === type).sort((a, b) => sort === 'price' ? a.px - b.px : sort === 'rating' ? b.r - a.r : freeNext7(b.id) - freeNext7(a.id));
-  const cards = list.map((c) => { const f = freeNext7(c.id); return `<button class="car" data-car="${c.id}" aria-label="${esc(c.n)}, ${tg(c.px)} в сутки"><span class="car-art" style="background:${tint(c.c)}">${carSVG(c.t, c.c)}</span>
+  const cards = list.map((c) => { const f = freeNext7(c.id); return `<button class="car" data-car="${c.id}" aria-label="${esc(c.n)}, ${tg(c.px)} в сутки"><span class="car-art">${sceneSVG(c.c, c.id)}<span class="carfg">${carSVG(c.t, c.c)}</span></span>
     <span class="car-b" style="display:block"><h3>${esc(c.n)}</h3><div class="sub">${c.y} · ${TYPE[c.t]} · ${c.tr} · ${c.seats} мест</div>
     <span class="car-f"><span><b>${tg(c.px)}</b> <small>/ сутки</small></span><span style="text-align:right"><span class="free ${f < 3 ? 'busy' : ''}" style="display:block">${f === 7 ? 'Свободна всю неделю' : f ? `Свободно ${f} из 7 дней` : 'На неделю занята'}</span><small>★ ${fmtD(c.r)} · ${c.trips} ${plural(c.trips, 'поездка', 'поездки', 'поездок')}</small></span></span></span></button>`; }).join('');
   return head('Авто в Алматы', `${list.length} ${plural(list.length, 'машина', 'машины', 'машин')} от владельцев. Выберите даты внутри карточки, цена посчитается сама.`) +
@@ -188,7 +200,7 @@ function catalog() {
 function openCar(id) {
   sel = { car: id, a: null, b: null };
   const c = car(id);
-  modal(`<div class="det"><div class="det-l"><div class="det-art" style="background:${tint(c.c)}">${carSVG(c.t, c.c)}</div>
+  modal(`<div class="det"><div class="det-l"><div class="det-art car-art" style="border-radius:12px;margin-bottom:18px">${sceneSVG(c.c, c.id)}<span class="carfg">${carSVG(c.t, c.c)}</span></div>
       <h2 style="font-size:22px">${esc(c.n)}, ${c.y}</h2><p class="muted">Владелец: ${esc(c.own)} · ${c.where} · ★ ${fmtD(c.r)}</p>
       <div class="specs"><div><b>${c.seats}</b><span>мест</span></div><div><b>${c.tr}</b><span>коробка</span></div><div><b>${c.fuel}</b><span>топливо</span></div><div><b>${tg(c.dep)}</b><span>залог</span></div></div>
       <h3 style="font-size:15px">Выберите даты</h3><p class="muted" style="font-size:13px">Серые дни заняты. Нажмите день начала, потом день конца.</p><div class="cal" id="cal"></div></div>
@@ -252,6 +264,16 @@ const ACT = {
   },
   cancel(d) { const i = B.findIndex((b) => b.id === +d.id); B.splice(i, 1); toast('Бронь отменена, залог вернётся на карту'); render(); },
 };
+/* ── live: other renters keep booking, so calendars and "free days" change under you ─ */
+const RENTERS = ['Айгерим Н.', 'Рустем К.', 'Алия Б.', 'Тимур Д.', 'Жанар С.', 'Ерлан М.', 'Дана Т.'];
+setInterval(() => {
+  if (document.hidden || $('#scrim')) return;
+  const c = CARS[Math.floor(Math.random() * CARS.length)], start = 1 + Math.floor(Math.random() * 20), len = 1 + Math.floor(Math.random() * 3);
+  for (let d = start; d <= start + len; d++) if (busy(c.id, d)) return;
+  B.push({ id: nextId(), car: c.id, who: RENTERS[Math.floor(Math.random() * RENTERS.length)], from: start, to: start + len });
+  toast(`${c.n}: кто-то только что забронировал ${dFmt(start)} — ${dFmt(start + len)}`);
+  if (page === 'catalog' || page === 'host') render();
+}, 8000);
 render();
 </script>
 </body>
