@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RestOS HR — онбординг персонала (демо)</title>
+<meta name="description" content="Демо: приложение для нового сотрудника ресторана с путём обучения, тестами, чатом с менеджером и чек-листами. Справа то, что видит менеджер. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/*@kit.css*/
+:root[data-theme="light"] {
+  --bg: #f3eef4; --surface: #ffffff; --raised: #f7f3f8; --hover: #efe8f1; --border: #e4dce7; --rule: #f0eaf2;
+  --text: #1f1722; --muted: #62566a; --faint: #75697d;
+  --accent: #b02a73; --accent-ink: #ffffff; --accent-bg: #f9e3ef;
+  --pos: #1b7a4a; --neg: #b3302b; --warn: #8a5a0a;
+  --font: "Nunito", system-ui, sans-serif; --display: "Nunito", system-ui, sans-serif;
+}
+body { font-size: 15px; font-weight: 500; }
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; }
+.wrap { display: grid; grid-template-columns: minmax(0, 360px) 420px; gap: 32px; justify-content: center; align-items: start; padding: 24px 16px 32px; }
+.phone { height: min(820px, calc(100svh - 80px)); min-height: 560px; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 34px; overflow: hidden; position: relative; }
+.scr { flex: 1; overflow: auto; padding: 20px 18px 24px; scroll-behavior: smooth; }
+.pnav { display: flex; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--surface); }
+.pnav button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; border: 0; background: none; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; position: relative; transition: color .15s; }
+.pnav button.on { color: var(--accent); } .pnav button .badge { position: absolute; top: 0; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; display: grid; place-items: center; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+.top h1 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; } .top p { color: var(--muted); font-size: 13px; }
+.xp { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--accent-bg); color: var(--accent); font-weight: 800; }
+.xp .ic { width: 15px; height: 15px; }
+
+/* the learning path */
+.path { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.node { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px 6px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: 16px; position: relative; transition: background-color .15s; }
+.node:hover:not(:disabled) { background: var(--raised); } .node:disabled { cursor: default; }
+.node:not(:last-child)::after { content: ""; position: absolute; left: 33px; top: 62px; width: 4px; height: 22px; border-radius: 2px; background: var(--border); }
+.node.done:not(:last-child)::after { background: var(--pos); }
+.dot { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--raised); color: var(--faint); border: 3px solid var(--border); }
+.dot .ic { width: 24px; height: 24px; stroke-width: 2.2; }
+.node.done .dot { background: var(--pos); border-color: var(--pos); color: #fff; }
+.node.cur .dot { background: var(--accent); border-color: var(--accent); color: #fff; animation: ring 2.2s ease-in-out infinite; }
+@keyframes ring { 0%,100% { box-shadow: 0 0 0 0 rgba(176,42,115,.35); } 50% { box-shadow: 0 0 0 8px rgba(176,42,115,0); } }
+.node b { display: block; font-size: 16px; font-weight: 800; } .node span { color: var(--muted); font-size: 13px; }
+.node.lock b { color: var(--faint); }
+.lead { font-size: 13px; color: var(--muted); margin: 18px 0 8px; font-weight: 700; }
+
+.learn h2 { font-size: 22px; font-weight: 800; line-height: 1.2; margin: 14px 0 10px; letter-spacing: -.01em; } .learn p.body { font-size: 16px; line-height: 1.6; color: var(--text); }
+.pbar { display: flex; gap: 4px; margin: 4px 0 6px; } .pbar i { flex: 1; height: 6px; border-radius: 3px; background: var(--border); } .pbar i.on { background: var(--accent); }
+.back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--muted); font-weight: 700; cursor: pointer; padding: 4px 0; }
+.cta { width: 100%; height: 50px; border-radius: 14px; font-size: 16px; font-weight: 800; margin-top: 22px; }
+.opt { display: block; width: 100%; text-align: left; min-height: 52px; padding: 12px 16px; margin-bottom: 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); font-weight: 700; cursor: pointer; transition: border-color .15s, background-color .15s; }
+.opt:hover:not(:disabled) { border-color: var(--faint); } .opt.ok { border-color: var(--pos); background: var(--pos-bg); } .opt.bad { border-color: var(--neg); background: var(--neg-bg); }
+.fb { min-height: 24px; margin-top: 8px; font-weight: 700; } .fb.ok { color: var(--pos); } .fb.bad { color: var(--neg); }
+.cert { margin: 16px 0; padding: 22px 18px; border: 2px solid var(--accent); border-radius: 18px; text-align: center; background: var(--accent-bg); }
+.cert small { color: var(--accent); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; } .cert h3 { font-size: 22px; font-weight: 800; margin: 8px 0 4px; } .cert p { color: var(--muted); }
+.big-xp { font: 900 54px/1 var(--display); color: var(--accent); text-align: center; margin: 10px 0 0; }
+
+/* chat */
+.msgs { display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+.m { max-width: 82%; padding: 10px 14px; border-radius: 18px; background: var(--raised); border-bottom-left-radius: 6px; animation: pop .2s var(--ease) both; line-height: 1.4; }
+.m.me { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-left-radius: 18px; border-bottom-right-radius: 6px; }
+.m small { display: block; font-size: 11px; opacity: .7; margin-top: 3px; }
+.typing { align-self: flex-start; color: var(--faint); font-size: 13px; padding: 2px 6px; }
+.quick { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; } .quick button { padding: 7px 12px; border-radius: 16px; border: 1.5px solid var(--border); background: none; font-weight: 700; color: var(--accent); cursor: pointer; } .quick button:hover { background: var(--accent-bg); }
+.cform { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); } .cform input { flex: 1; min-width: 0; height: 42px; border-radius: 21px; border: 1.5px solid var(--border); padding: 0 16px; outline: none; background: var(--bg); } .cform input:focus { border-color: var(--accent); }
+.cform button { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; display: grid; place-items: center; cursor: pointer; }
+
+/* checklists */
+.cl h3 { font-size: 16px; font-weight: 800; margin: 18px 0 4px; display: flex; justify-content: space-between; align-items: baseline; } .cl h3 span { font-size: 13px; color: var(--muted); font-weight: 700; }
+.ck { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 52px; padding: 4px 0; border-top: 1px solid var(--rule); width: 100%; background: none; border-left: 0; border-right: 0; border-bottom: 0; text-align: left; cursor: pointer; }
+.ck .bx { width: 26px; height: 26px; border-radius: 8px; border: 2.5px solid var(--border); display: grid; place-items: center; color: #fff; transition: background-color .15s, border-color .15s; } .ck .bx .ic { width: 16px; height: 16px; stroke-width: 3.2; }
+.ck.done .bx { background: var(--pos); border-color: var(--pos); } .ck.done b { color: var(--faint); text-decoration: line-through; } .ck b { font-weight: 700; } .ck small { color: var(--muted); }
+
+/* manager side */
+.mgr { position: sticky; top: 24px; }
+.mgr h2 { font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
+.mgr h1 { font-size: 24px; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; margin-bottom: 8px; } .mgr > p { color: var(--muted); margin-bottom: 18px; }
+.member { display: grid; grid-template-columns: 1fr 90px 34px; gap: 12px; align-items: center; padding: 9px 0; } .member + .member { border-top: 1px solid var(--rule); }
+.member.me { color: var(--accent); font-weight: 800; } .member b { text-align: right; font-weight: 800; }
+.feed li { padding: 7px 0; color: var(--muted); font-size: 13.5px; } .feed li + li { border-top: 1px solid var(--rule); } .feed li b { color: var(--text); font-weight: 700; } .feed li:first-child { animation: pop .3s var(--ease) both; }
+@media (max-width: 899px) { .wrap { display: block; padding: 0; } .mgr { display: none; } .phone { height: calc(100svh - 29px); border: 0; border-radius: 0; } }
+</style>
+</head>
+<body>
+<div class="notice"><b>Демо</b> RestOS HR · данные вымышлены</div>
+<div class="wrap">
+  <aside class="mgr" id="mgr"></aside>
+  <div class="phone"><div class="scr" id="scr"></div><div id="foot"></div><nav class="pnav" id="pnav" aria-label="Разделы"></nav></div>
+</div>
+
+<script>
+/*@kit.js*/
+'use strict';
+
+/* ── content ──────────────────────────────────────────── */
+const MODS = [
+  { t: 'Введение', sub: '4 шага', xp: 100, icon: 'star', steps: [
+    ['Добро пожаловать в RestOS', 'Добро пожаловать в команду! Здесь вы найдёте всё, чтобы быстро освоиться: обучение, чат с менеджером и чек-листы смены.'],
+    ['Структура команды', 'В ресторане работают управляющий, су-шефы, повара, официанты и хостес. Каждый знает свою роль, и это основа слаженной работы.'],
+    ['Рабочий график', 'Смены планируются каждую неделю. Расписание приходит за 5 дней, а замену смены согласуйте с менеджером минимум за сутки.'],
+    ['Первый рабочий день', 'Вас встретит менеджер смены, покажет зал и кухню и представит команде. Доступы и форма подготовлены заранее.'],
+  ], quiz: [] },
+  { t: 'Безопасность на кухне', sub: '5 шагов', xp: 140, icon: 'shield', steps: [
+    ['Личная гигиена', 'Чистая форма, руки вымыты перед каждым касанием продуктов. Украшения, часы и телефоны на кухне запрещены.'],
+    ['Температурный контроль', 'Холодные блюда хранятся при 0–4 °C, горячие не ниже 65 °C. Замер каждые 2 часа записывается в журнал.'],
+    ['Оборудование', 'Перед работой прочитайте инструкцию на приборе. Неисправное оборудование выводят из работы и вешают красный стикер.'],
+    ['Пожарная безопасность', 'Выходы всегда свободны. Огнетушитель у входа на кухню, план эвакуации у раздевалки.'],
+    ['Травмы и происшествия', 'Любой порез или ожог записывают в журнал сразу. Аптечка у поста менеджера, при серьёзной травме звоните 103.'],
+  ], quiz: [] },
+  { t: 'Работа с гостями', sub: '4 шага и тест', xp: 180, icon: 'heart', steps: [
+    ['Приветствие гостя', 'Встретьте гостя в течение 30 секунд. Улыбка, зрительный контакт и «Добро пожаловать!» задают тон всему вечеру. Если заняты, кивните и скажите «Одну минуту».'],
+    ['Приём заказа', 'Дайте 2–3 минуты на выбор. Уточните прожарку, аллергии и детали к напиткам. Повторите заказ вслух.'],
+    ['Обслуживание за столом', 'Блюда подают слева, напитки справа. Называйте блюдо при подаче и через 2 минуты спросите: «Всё в порядке?».'],
+    ['Жалобы', 'Выслушайте не перебивая и извинитесь, даже если вины нет. Предложите решение: замену, скидку или комплимент. О каждой жалобе скажите менеджеру.'],
+  ], quiz: [
+    { q: 'Как быстро нужно встретить гостя?', o: ['Когда освободитесь', 'В течение 30 секунд', 'В течение 2 минут', 'Когда он сядет'], a: 1, why: 'Первые 30 секунд задают впечатление.' },
+    { q: 'Что делать, если гость жалуется?', o: ['Объяснить, что вы не виноваты', 'Позвать менеджера и уйти', 'Выслушать и предложить решение', 'Дать скидку без слов'], a: 2, why: 'Сначала выслушать, потом решать.' },
+    { q: 'С какой стороны подают напитки?', o: ['Слева', 'Справа', 'С любой', 'Только с торца'], a: 1, why: 'Блюда слева, напитки справа.' },
+  ] },
+  { t: 'Меню и аллергены', sub: '3 шага и тест', xp: 120, icon: 'utensils', steps: [
+    ['14 основных аллергенов', 'Глютен, молоко, яйца, орехи, арахис, рыба, моллюски, соя, сельдерей, горчица, кунжут, люпин и другие. Полный список лежит у выдачи.'],
+    ['Как отвечать на вопросы о составе', 'Не угадывайте. Если не уверены, скажите: «Уточню у шефа» и вернитесь с точным ответом. Об аллергии сразу сообщите на кухню.'],
+    ['Стоп-лист', 'Если блюдо закончилось, оно появляется в стоп-листе. Проверяйте его перед тем, как предлагать блюдо гостю.'],
+  ], quiz: [
+    { q: 'Вы не уверены, есть ли в блюде орехи. Что сказать гостю?', o: ['Скорее всего нет', 'Уточню у шефа и вернусь', 'Спросите у соседнего стола', 'Лучше не заказывайте'], a: 1, why: 'Угадывать при аллергии опасно.' },
+    { q: 'Когда проверять стоп-лист?', o: ['Раз в неделю', 'Перед тем как предложить блюдо', 'Только на открытии', 'Не нужно'], a: 1, why: 'Блюдо могло закончиться минуту назад.' },
+  ] },
+  { t: 'Касса и расчёты', sub: 'Скоро', xp: 150, icon: 'coin', steps: [], quiz: [] },
+];
+const CHECK = [
+  ['Перед сменой', [['Надеть чистую форму и бейдж', '09:45'], ['Проверить стоп-лист у выдачи', '09:50'], ['Протереть и накрыть закреплённые столы', '10:00'], ['Пройти брифинг с менеджером', '10:15']]],
+  ['После смены', [['Сдать чаевые и закрыть счета', '22:30'], ['Убрать станцию и вынести мусор', '22:45'], ['Записать замечания в журнал', '22:55']]],
+];
+const TEAM = [['Мадина К.', 4], ['Тимур Б.', 3], ['Алия С.', 3], ['Данияр Н.', 1]];
+const REPLY = [
+  [/график|смен/i, 'График на неделю уже опубликован. Если нужна замена, напиши мне минимум за сутки.'],
+  [/форм|одежд/i, 'Чёрные брюки и фартук выдаём у администратора, рубашку берёшь свою, белую.'],
+  [/зарплат|выплат|аванс/i, 'Аванс 10 числа, остальное 25-го. Ставка и чаевые есть в договоре.'],
+  [/спасибо|ок|понял/i, 'Отлично! Если что, пиши.'],
+];
+
+/* ── state ────────────────────────────────────────────── */
+const S = { done: new Set([0, 1]), tab: 'path', view: 'path', mod: 2, step: 0, qi: 0, picked: null, ticks: new Set(['0-0']), unread: 3, feed: ['<b>Руслан</b> назначил Айдан наставника на первую неделю'],
+  chat: [{ me: false, t: 'Привет, Айдан! Я Руслан, управляющий. Рад, что ты с нами.', ts: '09:12' }, { me: false, t: 'Пройди обучение до пятницы, а вопросы задавай здесь.', ts: '09:13' }, { me: false, t: 'Твой первый рабочий день в понедельник, приходи к 9:45.', ts: '09:13' }] };
+const xp = () => [...S.done].reduce((a, i) => a + MODS[i].xp, 0);
+const cur = () => { for (let i = 0; i < MODS.length; i++) if (!S.done.has(i)) return i; return -1; };
+const playable = (i) => MODS[i].steps.length > 0 && (i === 0 || S.done.has(i - 1));
+console.assert(xp() === 240, 'xp 100+140');
+const ckTotal = () => CHECK.reduce((a, [, l]) => a + l.length, 0);
+
+/* ── render ───────────────────────────────────────────── */
+const nav = () => {
+  const T = { path: ['Путь', 'map'], chat: ['Чат', 'chat'], list: ['Чек-листы', 'check'], me: ['Профиль', 'users'] };
+  $('#pnav').innerHTML = Object.entries(T).map(([k, v]) => `<button data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${ic(v[1])}${v[0]}${k === 'chat' && S.unread ? `<b class="badge">${S.unread}</b>` : ''}</button>`).join('');
+};
+function render() {
+  nav(); $('#foot').innerHTML = '';
+  const html = ({ path: pathScreen, chat: chatScreen, list: listScreen, me: meScreen })[S.tab]();
+  $('#scr').innerHTML = html; if (S.tab === 'chat') chatMount();
+  mgr();
+}
+function pathScreen() {
+  if (S.view === 'learn') return learnScreen();
+  if (S.view === 'quiz') return quizScreen();
+  if (S.view === 'done') return doneScreen();
+  const c = cur();
+  return `<div class="top"><div><h1>Привет, Айдан!</h1><p>${c === -1 ? 'Весь путь пройден' : `Дальше: ${MODS[c].t}`}</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+    <div class="path">${MODS.map((m, i) => { const d = S.done.has(i), cu = i === c, lock = !playable(i) && !d; return `<button class="node ${d ? 'done' : ''} ${cu && !lock ? 'cur' : ''} ${lock ? 'lock' : ''}" data-act="open" data-i="${i}" ${lock ? 'disabled' : ''}><span class="dot">${ic(d ? 'check' : lock ? 'lock' : m.icon)}</span><div><b>${m.t}</b><span>${d ? `Пройдено · +${m.xp} XP` : lock ? (m.steps.length ? 'Откроется после предыдущего модуля' : 'Скоро') : `${m.sub} · +${m.xp} XP`}</span></div></button>`; }).join('')}</div>`;
+}
+function learnScreen() {
+  const m = MODS[S.mod], st = m.steps[S.step], last = S.step === m.steps.length - 1, review = S.done.has(S.mod);
+  return `<button class="back" data-act="exit">← К пути</button><div class="learn"><div class="pbar">${m.steps.map((_, i) => `<i class="${i <= S.step ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">${m.t} · шаг ${S.step + 1} из ${m.steps.length}</span><h2>${st[0]}</h2><p class="body">${st[1]}</p>
+    <button class="btn primary cta" data-act="next">${last ? (m.quiz.length && !review ? 'Пройти тест' : review ? 'Готово' : `Завершить модуль`) : 'Дальше'}</button></div>`;
+}
+function quizScreen() {
+  const m = MODS[S.mod], q = m.quiz[S.qi];
+  return `<button class="back" data-act="exit">← К пути</button><div class="learn"><div class="pbar">${m.quiz.map((_, i) => `<i class="${i <= S.qi ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">Вопрос ${S.qi + 1} из ${m.quiz.length}</span><h2>${q.q}</h2>
+    ${q.o.map((o, i) => `<button class="opt ${S.picked === i ? (i === q.a ? 'ok' : 'bad') : ''}" data-act="pick" data-i="${i}" ${S.picked === q.a ? 'disabled' : ''}>${o}</button>`).join('')}
+    <div class="fb ${S.picked === null ? '' : S.picked === q.a ? 'ok' : 'bad'}" role="status">${S.picked === null ? '' : S.picked === q.a ? 'Верно. ' + q.why : 'Не совсем, попробуйте ещё раз'}</div>
+    ${S.picked === q.a ? `<button class="btn primary cta" data-act="qnext">${S.qi === m.quiz.length - 1 ? 'Закончить' : 'Следующий вопрос'}</button>` : ''}</div>`;
+}
+function doneScreen() {
+  const m = MODS[S.mod], nx = S.mod + 1 < MODS.length && playable(S.mod + 1);
+  return `<div class="learn" style="text-align:center;padding-top:20px"><div class="big-xp">+${m.xp}</div><p class="muted" style="font-weight:800">XP за модуль</p><div class="cert"><small>Сертификат</small><h3>${m.t}</h3><p>Айдан Кержанова · 28.09.2026</p></div>
+    <p class="muted">Всего ${xp()} XP, пройдено ${S.done.size} из ${MODS.length}</p><button class="btn primary cta" data-act="exit">${nx ? 'К следующему модулю' : 'К пути'}</button></div>`;
+}
+function chatScreen() {
+  return `<div class="top"><div><h1>Руслан</h1><p>Управляющий · обычно отвечает за 5 минут</p></div></div><div class="msgs" id="msgs">${S.chat.map((m) => `<div class="m ${m.me ? 'me' : ''}">${esc(m.t)}<small>${m.ts}</small></div>`).join('')}</div><div class="quick">${['Когда мой график?', 'Какая форма?', 'Как заменить смену?'].map((q) => `<button data-act="say" data-t="${q}">${q}</button>`).join('')}</div>`;
+}
+function chatMount() {
+  S.unread = 0; nav();
+  $('#foot').innerHTML = `<form class="cform" id="cf"><input id="ci" placeholder="Сообщение" autocomplete="off" aria-label="Сообщение"><button aria-label="Отправить">${ic('arrow')}</button></form>`;
+  $('#cf').onsubmit = (e) => { e.preventDefault(); const v = $('#ci').value.trim(); if (v) say(v); };
+  const s = $('#scr'); s.scrollTop = s.scrollHeight;
+}
+function say(text) {
+  const t = new Date(2026, 8, 28, 14, 20 + S.chat.length % 30), ts = '14:' + String(20 + S.chat.length % 30).padStart(2, '0');
+  S.chat.push({ me: true, t: text, ts }); render();
+  const m = $('#msgs'); m.insertAdjacentHTML('beforeend', '<div class="typing" id="typing">Руслан печатает…</div>'); $('#scr').scrollTop = 1e6;
+  setTimeout(() => { const r = REPLY.find(([re]) => re.test(text)); S.chat.push({ me: false, t: r ? r[1] : 'Принял, отвечу в течение часа.', ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); } }, 1100);
+}
+function listScreen() {
+  const n = S.ticks.size;
+  return `<div class="top"><div><h1>Чек-листы</h1><p>${n} из ${ckTotal()} выполнено сегодня</p></div></div><div class="pbar" style="margin-bottom:6px">${Array.from({ length: ckTotal() }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div><div class="cl">${CHECK.map(([t, l], li) => `<h3>${t}<span>${l.filter((_, i) => S.ticks.has(li + '-' + i)).length} из ${l.length}</span></h3>${l.map(([x, tm], i) => { const k = li + '-' + i, d = S.ticks.has(k); return `<button class="ck ${d ? 'done' : ''}" data-act="tick" data-k="${k}" role="checkbox" aria-checked="${d}"><span class="bx">${d ? ic('check') : ''}</span><b>${x}</b><small>${tm}</small></button>`; }).join('')}`).join('')}</div>`;
+}
+function meScreen() {
+  return `<div class="top"><div><h1>Айдан Кержанова</h1><p>Официант · на испытательном сроке</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+    <p class="lead">Сертификаты</p>${[...S.done].sort().map((i) => `<div class="cert" style="margin:0 0 10px;text-align:left"><small>Сертификат</small><h3 style="font-size:17px">${MODS[i].t}</h3><p>Выдан 28.09.2026 · +${MODS[i].xp} XP</p></div>`).join('')}
+    <p class="lead">Серия</p><p style="font-size:15px">6 дней подряд. Ещё один день, и серия станет неделей.</p>`;
+}
+function mgr() {
+  const me = ['Айдан К.', S.done.size], all = [...TEAM, me].sort((a, b) => b[1] - a[1]);
+  $('#mgr').innerHTML = `<h2>Что видит менеджер</h2><h1>Обучение команды</h1><p>Справа приложение сотрудника. Проходите модули, и здесь всё обновится само.</p>
+    <section class="card"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Модули пройдены</h2><span>из ${MODS.length}</span></div>${all.map((x) => `<div class="member ${x === me ? 'me' : ''}"><span>${x[0]}</span><div class="bar"><i style="width:${x[1] / MODS.length * 100}%"></i></div><b>${x[1]}</b></div>`).join('')}</section>
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Чек-листы сегодня</h2><span>Айдан</span></div><div class="kpi"><b>${S.ticks.size}<small>из ${ckTotal()}</small></b><span>Отметок за смену</span></div></section>
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">События</h2></div><ul class="feed">${S.feed.slice(0, 5).map((f) => `<li>${f}</li>`).join('')}</ul></section>`;
+}
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tab]'); if (t) { S.tab = t.dataset.tab; return render(); }
+  const a = e.target.closest('[data-act]'); if (a) ACT[a.dataset.act](a.dataset);
+});
+const ACT = {
+  open(d) { const i = +d.i; S.mod = i; S.step = 0; S.qi = 0; S.picked = null; S.view = 'learn'; render(); },
+  exit() { S.view = 'path'; render(); },
+  next() {
+    const m = MODS[S.mod];
+    if (S.step < m.steps.length - 1) { S.step++; return render(); }
+    if (m.quiz.length && !S.done.has(S.mod)) { S.view = 'quiz'; S.qi = 0; S.picked = null; return render(); }
+    if (S.done.has(S.mod)) { S.view = 'path'; return render(); }
+    finish();
+  },
+  pick(d) { S.picked = +d.i; render(); },
+  qnext() { const m = MODS[S.mod]; if (S.qi < m.quiz.length - 1) { S.qi++; S.picked = null; return render(); } finish(); },
+  tick(d) { S.ticks.has(d.k) ? S.ticks.delete(d.k) : S.ticks.add(d.k); if (S.ticks.size === ckTotal()) { S.feed.unshift('<b>Айдан</b> закрыла все чек-листы смены'); toast('Все чек-листы закрыты'); } render(); },
+  say(d) { say(d.t); },
+};
+function finish() { S.done.add(S.mod); S.feed.unshift(`<b>Айдан</b> прошла модуль «${MODS[S.mod].t}», +${MODS[S.mod].xp} XP`); S.view = 'done'; render(); }
+render();
+</script>
+</body>
+</html>

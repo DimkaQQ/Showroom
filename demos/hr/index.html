@@ -1,695 +1,538 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RestOS HR</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RestOS HR — онбординг персонала (демо)</title>
+<meta name="description" content="Демо: приложение для нового сотрудника ресторана с путём обучения, тестами, чатом с менеджером и чек-листами. Справа то, что видит менеджер. Данные вымышлены.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-/* dark-first single-theme: deliberate iOS dark */
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
 :root {
-  --bg: #161616;
-  --card: #1E1E1E;
-  --card2: #272727;
-  --gold: #0A84FF;
-  --gold-dim: rgba(10,132,255,0.12);
-  --border: rgba(255,255,255,0.07);
-  --white: #F5F5F5;
-  --muted: rgba(245,245,245,0.45);
-  --danger: #FF453A;
-  --success: #30D158;
-  --warning: #FFD60A;
-  --radius: 8px;
-  --radius-lg: 12px;
-  --shadow: 0 8px 32px rgba(0,0,0,0.6);
-  --sidebar: 240px;
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
   color-scheme: dark;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--white);font-size:14px;line-height:1.5}
-
-/* Demo banner */
-#demo-banner{background:var(--gold);color:#fff;text-align:center;padding:6px 16px;font-size:12px;font-weight:600;letter-spacing:.04em;position:fixed;top:0;left:0;right:0;z-index:100}
-#app{display:flex;height:100%;padding-top:30px}
-
-/* Sidebar */
-#sidebar{width:var(--sidebar);min-width:var(--sidebar);background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100%;overflow:hidden;flex-shrink:0}
-.sidebar-brand{padding:20px 16px 12px;border-bottom:1px solid var(--border)}
-.sidebar-brand h1{font-size:18px;font-weight:700;color:var(--white);letter-spacing:-.02em}
-.sidebar-brand p{font-size:11px;color:var(--muted);margin-top:2px}
-nav{flex:1;padding:8px 0;overflow-y:auto}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;border-radius:0;transition:background .15s;position:relative;font-size:13px;font-weight:500;color:var(--muted)}
-.nav-item:hover{background:var(--card2);color:var(--white)}
-.nav-item.active{color:var(--gold);background:var(--gold-dim)}
-.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
-.nav-badge{margin-left:auto;background:var(--danger);color:#fff;border-radius:9px;font-size:10px;font-weight:700;padding:1px 6px;min-width:18px;text-align:center}
-.sidebar-user{padding:12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
-.user-info{flex:1;min-width:0}
-.user-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.user-role{font-size:11px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;display:inline-block;margin-top:2px}
-.btn-logout{padding:5px 10px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);cursor:pointer;font-size:11px;font-family:inherit;transition:all .15s;white-space:nowrap}
-.btn-logout:hover{border-color:var(--danger);color:var(--danger)}
-
-/* Main content */
-#main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0}
-.screen{display:none;flex:1;flex-direction:column;padding:24px;gap:16px;animation:fadeIn .2s ease}
-.screen.active{display:flex}
-@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.screen-title{font-size:20px;font-weight:700;letter-spacing:-.02em}
-
-/* Stats strip */
-.stats-strip{display:flex;gap:12px;flex-wrap:wrap}
-.stat-pill{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:8px 16px;display:flex;align-items:center;gap:8px;font-size:13px}
-.stat-pill span:first-child{font-size:16px}
-.stat-val{font-weight:700;color:var(--white)}
-.stat-lbl{color:var(--muted)}
-
-/* Skill path */
-.skill-path-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
-.skill-path-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
-.skill-path{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px}
-.module-node{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
-.module-node-circle{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .15s;border:2px solid transparent}
-.module-node-circle.done{background:#30D15820;border-color:var(--success)}
-.module-node-circle.current{background:var(--gold-dim);border-color:var(--gold)}
-.module-node-circle.locked{background:var(--card2);border-color:var(--border);opacity:.5}
-.module-node:hover .module-node-circle:not(.locked){transform:scale(1.08)}
-.module-node-label{font-size:11px;font-weight:500;color:var(--muted);text-align:center;max-width:72px;line-height:1.3}
-.module-node-label.active-lbl{color:var(--gold)}
-.path-line{flex:1;height:2px;background:var(--border);min-width:20px;max-width:48px;flex-shrink:0;margin-top:-20px}
-.path-line.done-line{background:var(--success)}
-
-/* Module cards */
-.module-cards{display:flex;flex-direction:column;gap:8px}
-.module-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s,background .15s}
-.module-card:hover:not(.locked-card){border-color:var(--gold);background:var(--card2)}
-.module-card.locked-card{opacity:.5;cursor:default}
-.module-card.active-card{border-color:var(--gold);background:var(--gold-dim)}
-.mc-icon{font-size:22px;width:36px;text-align:center;flex-shrink:0}
-.mc-body{flex:1;min-width:0}
-.mc-title{font-size:14px;font-weight:600}
-.mc-meta{font-size:12px;color:var(--muted);margin-top:2px}
-.mc-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap}
-.badge-done{background:#30D15820;color:var(--success)}
-.badge-active{background:var(--gold-dim);color:var(--gold)}
-.badge-locked{background:var(--card2);color:var(--muted)}
-
-/* Step viewer */
-.step-viewer{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;gap:14px}
-.step-header{display:flex;align-items:center;gap:10px}
-.btn-back{background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s}
-.btn-back:hover{border-color:var(--white);color:var(--white)}
-.step-prog{font-size:12px;color:var(--muted);margin-left:auto}
-.step-title{font-size:17px;font-weight:700}
-.step-content{color:rgba(245,245,245,.8);line-height:1.65;font-size:14px}
-.step-bar{background:var(--card2);border-radius:4px;height:4px;overflow:hidden}
-.step-bar-fill{height:4px;background:var(--gold);border-radius:4px;transition:width .3s ease}
-.btn-primary{background:var(--gold);color:#fff;border:none;border-radius:var(--radius);padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;align-self:flex-start}
-.btn-primary:hover{opacity:.85}
-
-/* Quiz */
-.quiz-wrap{display:flex;flex-direction:column;gap:16px}
-.quiz-q{font-size:14px;font-weight:600;margin-bottom:8px}
-.quiz-opts{display:flex;flex-direction:column;gap:6px}
-.quiz-opt{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;cursor:pointer;transition:border-color .15s}
-.quiz-opt:hover{border-color:var(--gold)}
-.quiz-opt input{accent-color:var(--gold)}
-.quiz-opt label{cursor:pointer;font-size:13px}
-
-/* Certificate */
-.cert-wrap{background:linear-gradient(135deg,#1a2640,#111827);border:1px solid var(--gold);border-radius:var(--radius-lg);padding:32px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
-.cert-icon{font-size:48px;margin-bottom:4px}
-.cert-title{font-size:20px;font-weight:700;color:var(--gold)}
-.cert-sub{color:var(--muted);font-size:13px}
-.cert-xp{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold);border-radius:20px;padding:6px 18px;font-weight:700;font-size:14px;margin-top:4px}
-
-/* Chat */
-.chat-layout{display:flex;gap:0;flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;min-height:500px}
-.chat-rooms{width:180px;min-width:180px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.chat-rooms-header{padding:14px 14px 10px;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)}
-.room-item{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--muted);border-left:2px solid transparent;transition:all .15s}
-.room-item:hover{background:var(--card2);color:var(--white)}
-.room-item.active{color:var(--gold);background:var(--gold-dim);border-left-color:var(--gold)}
-.chat-main{flex:1;display:flex;flex-direction:column;min-width:0}
-.chat-topbar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.chat-topbar-name{font-weight:600;font-size:14px}
-.chat-topbar-count{font-size:12px;color:var(--muted)}
-.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
-.msg{display:flex;gap:10px;align-items:flex-start}
-.msg-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
-.msg-body{flex:1;min-width:0}
-.msg-meta{display:flex;align-items:baseline;gap:6px;margin-bottom:3px}
-.msg-name{font-size:13px;font-weight:600}
-.msg-role-tag{font-size:10px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:3px;padding:1px 5px}
-.msg-time{font-size:11px;color:var(--muted)}
-.msg-text{font-size:13px;color:rgba(245,245,245,.85);line-height:1.55}
-.chat-input-wrap{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
-.chat-input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;color:var(--white);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
-.chat-input:focus{border-color:var(--gold)}
-.btn-send{background:var(--gold);color:#fff;border:none;border-radius:var(--radius);padding:9px 16px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:opacity .15s;white-space:nowrap}
-.btn-send:hover{opacity:.85}
-
-/* Checklists */
-.date-tabs{display:flex;gap:6px}
-.date-tab{padding:7px 16px;border-radius:20px;background:var(--card);border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .15s}
-.date-tab:hover{border-color:var(--white);color:var(--white)}
-.date-tab.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
-.progress-header{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;display:flex;align-items:center;gap:20px}
-.ring-wrap{position:relative;width:72px;height:72px;flex-shrink:0}
-.ring-wrap svg{transform:rotate(-90deg)}
-.ring-bg{fill:none;stroke:var(--border);stroke-width:7}
-.ring-fg{fill:none;stroke:var(--gold);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .4s ease}
-.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
-.prog-info{flex:1}
-.prog-title{font-size:16px;font-weight:700}
-.prog-sub{font-size:13px;color:var(--muted);margin-top:3px}
-.btn-hist{margin-left:auto;background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:7px 14px;color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;white-space:nowrap}
-.btn-hist:hover{border-color:var(--white);color:var(--white)}
-.cl-sections{display:flex;flex-direction:column;gap:8px}
-.cl-section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
-.cl-section-header{padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .15s}
-.cl-section-header:hover{background:var(--card2)}
-.cl-section-icon{font-size:16px}
-.cl-section-title{font-size:14px;font-weight:600;flex:1}
-.cl-section-count{font-size:12px;color:var(--muted)}
-.cl-chevron{color:var(--muted);transition:transform .2s;font-size:11px}
-.cl-section.open .cl-chevron{transform:rotate(90deg)}
-.cl-tasks{padding:0 16px 12px;display:flex;flex-direction:column;gap:4px;display:none}
-.cl-section.open .cl-tasks{display:flex}
-.cl-task{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
-.cl-task:last-child{border-bottom:none}
-.cl-task input[type=checkbox]{width:17px;height:17px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
-.cl-task-label{font-size:13px;cursor:pointer;transition:color .15s}
-.cl-task-label.done{color:var(--muted);text-decoration:line-through}
-
-/* History table */
-.hist-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
-.hist-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.hist-table th{padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border)}
-.hist-table td{padding:10px 16px;font-size:13px;border-bottom:1px solid var(--border)}
-.hist-table tr:last-child td{border-bottom:none}
-.hist-bar-cell{width:140px}
-.hist-bar{background:var(--card2);border-radius:3px;height:8px;overflow:hidden}
-.hist-bar-fill{height:8px;border-radius:3px;background:var(--gold)}
-
-/* Responsive */
-@media(max-width:640px){
-  :root{--sidebar:0px}
-  #sidebar{display:none}
-  .screen{padding:16px}
-  .chat-rooms{display:none}
-  .skill-path-wrap{overflow-x:hidden}
-  .stats-strip{flex-direction:column}
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
 }
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
+
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
+
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
+
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
+
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
+
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
+
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
+
+:root[data-theme="light"] {
+  --bg: #f3eef4; --surface: #ffffff; --raised: #f7f3f8; --hover: #efe8f1; --border: #e4dce7; --rule: #f0eaf2;
+  --text: #1f1722; --muted: #62566a; --faint: #75697d;
+  --accent: #b02a73; --accent-ink: #ffffff; --accent-bg: #f9e3ef;
+  --pos: #1b7a4a; --neg: #b3302b; --warn: #8a5a0a;
+  --font: "Nunito", system-ui, sans-serif; --display: "Nunito", system-ui, sans-serif;
+}
+body { font-size: 15px; font-weight: 500; }
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; }
+.wrap { display: grid; grid-template-columns: minmax(0, 360px) 420px; gap: 32px; justify-content: center; align-items: start; padding: 24px 16px 32px; }
+.phone { height: min(820px, calc(100svh - 80px)); min-height: 560px; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 34px; overflow: hidden; position: relative; }
+.scr { flex: 1; overflow: auto; padding: 20px 18px 24px; scroll-behavior: smooth; }
+.pnav { display: flex; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--surface); }
+.pnav button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; border: 0; background: none; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; position: relative; transition: color .15s; }
+.pnav button.on { color: var(--accent); } .pnav button .badge { position: absolute; top: 0; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; display: grid; place-items: center; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+.top h1 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; } .top p { color: var(--muted); font-size: 13px; }
+.xp { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--accent-bg); color: var(--accent); font-weight: 800; }
+.xp .ic { width: 15px; height: 15px; }
+
+/* the learning path */
+.path { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.node { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px 6px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: 16px; position: relative; transition: background-color .15s; }
+.node:hover:not(:disabled) { background: var(--raised); } .node:disabled { cursor: default; }
+.node:not(:last-child)::after { content: ""; position: absolute; left: 33px; top: 62px; width: 4px; height: 22px; border-radius: 2px; background: var(--border); }
+.node.done:not(:last-child)::after { background: var(--pos); }
+.dot { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--raised); color: var(--faint); border: 3px solid var(--border); }
+.dot .ic { width: 24px; height: 24px; stroke-width: 2.2; }
+.node.done .dot { background: var(--pos); border-color: var(--pos); color: #fff; }
+.node.cur .dot { background: var(--accent); border-color: var(--accent); color: #fff; animation: ring 2.2s ease-in-out infinite; }
+@keyframes ring { 0%,100% { box-shadow: 0 0 0 0 rgba(176,42,115,.35); } 50% { box-shadow: 0 0 0 8px rgba(176,42,115,0); } }
+.node b { display: block; font-size: 16px; font-weight: 800; } .node span { color: var(--muted); font-size: 13px; }
+.node.lock b { color: var(--faint); }
+.lead { font-size: 13px; color: var(--muted); margin: 18px 0 8px; font-weight: 700; }
+
+.learn h2 { font-size: 22px; font-weight: 800; line-height: 1.2; margin: 14px 0 10px; letter-spacing: -.01em; } .learn p.body { font-size: 16px; line-height: 1.6; color: var(--text); }
+.pbar { display: flex; gap: 4px; margin: 4px 0 6px; } .pbar i { flex: 1; height: 6px; border-radius: 3px; background: var(--border); } .pbar i.on { background: var(--accent); }
+.back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--muted); font-weight: 700; cursor: pointer; padding: 4px 0; }
+.cta { width: 100%; height: 50px; border-radius: 14px; font-size: 16px; font-weight: 800; margin-top: 22px; }
+.opt { display: block; width: 100%; text-align: left; min-height: 52px; padding: 12px 16px; margin-bottom: 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); font-weight: 700; cursor: pointer; transition: border-color .15s, background-color .15s; }
+.opt:hover:not(:disabled) { border-color: var(--faint); } .opt.ok { border-color: var(--pos); background: var(--pos-bg); } .opt.bad { border-color: var(--neg); background: var(--neg-bg); }
+.fb { min-height: 24px; margin-top: 8px; font-weight: 700; } .fb.ok { color: var(--pos); } .fb.bad { color: var(--neg); }
+.cert { margin: 16px 0; padding: 22px 18px; border: 2px solid var(--accent); border-radius: 18px; text-align: center; background: var(--accent-bg); }
+.cert small { color: var(--accent); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; } .cert h3 { font-size: 22px; font-weight: 800; margin: 8px 0 4px; } .cert p { color: var(--muted); }
+.big-xp { font: 900 54px/1 var(--display); color: var(--accent); text-align: center; margin: 10px 0 0; }
+
+/* chat */
+.msgs { display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+.m { max-width: 82%; padding: 10px 14px; border-radius: 18px; background: var(--raised); border-bottom-left-radius: 6px; animation: pop .2s var(--ease) both; line-height: 1.4; }
+.m.me { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-left-radius: 18px; border-bottom-right-radius: 6px; }
+.m small { display: block; font-size: 11px; opacity: .7; margin-top: 3px; }
+.typing { align-self: flex-start; color: var(--faint); font-size: 13px; padding: 2px 6px; }
+.quick { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; } .quick button { padding: 7px 12px; border-radius: 16px; border: 1.5px solid var(--border); background: none; font-weight: 700; color: var(--accent); cursor: pointer; } .quick button:hover { background: var(--accent-bg); }
+.cform { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); } .cform input { flex: 1; min-width: 0; height: 42px; border-radius: 21px; border: 1.5px solid var(--border); padding: 0 16px; outline: none; background: var(--bg); } .cform input:focus { border-color: var(--accent); }
+.cform button { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; display: grid; place-items: center; cursor: pointer; }
+
+/* checklists */
+.cl h3 { font-size: 16px; font-weight: 800; margin: 18px 0 4px; display: flex; justify-content: space-between; align-items: baseline; } .cl h3 span { font-size: 13px; color: var(--muted); font-weight: 700; }
+.ck { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 52px; padding: 4px 0; border-top: 1px solid var(--rule); width: 100%; background: none; border-left: 0; border-right: 0; border-bottom: 0; text-align: left; cursor: pointer; }
+.ck .bx { width: 26px; height: 26px; border-radius: 8px; border: 2.5px solid var(--border); display: grid; place-items: center; color: #fff; transition: background-color .15s, border-color .15s; } .ck .bx .ic { width: 16px; height: 16px; stroke-width: 3.2; }
+.ck.done .bx { background: var(--pos); border-color: var(--pos); } .ck.done b { color: var(--faint); text-decoration: line-through; } .ck b { font-weight: 700; } .ck small { color: var(--muted); }
+
+/* manager side */
+.mgr { position: sticky; top: 24px; }
+.mgr h2 { font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
+.mgr h1 { font-size: 24px; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; margin-bottom: 8px; } .mgr > p { color: var(--muted); margin-bottom: 18px; }
+.member { display: grid; grid-template-columns: 1fr 90px 34px; gap: 12px; align-items: center; padding: 9px 0; } .member + .member { border-top: 1px solid var(--rule); }
+.member.me { color: var(--accent); font-weight: 800; } .member b { text-align: right; font-weight: 800; }
+.feed li { padding: 7px 0; color: var(--muted); font-size: 13.5px; } .feed li + li { border-top: 1px solid var(--rule); } .feed li b { color: var(--text); font-weight: 700; } .feed li:first-child { animation: pop .3s var(--ease) both; }
+@media (max-width: 899px) { .wrap { display: block; padding: 0; } .mgr { display: none; } .phone { height: calc(100svh - 29px); border: 0; border-radius: 0; } }
 </style>
 </head>
 <body>
-
-<!-- Demo banner -->
-<div id="demo-banner">🚀 Demo Site — RestOS HR Platform</div>
-
-<div id="app">
-  <!-- Sidebar -->
-  <aside id="sidebar">
-    <div class="sidebar-brand">
-      <h1>RestOS</h1>
-      <p>Demo Platform</p>
-    </div>
-    <nav>
-      <div class="nav-item active" data-screen="onboard" onclick="switchScreen('onboard',this)">
-        <span class="nav-icon">🎓</span> Онбординг
-      </div>
-      <div class="nav-item" data-screen="chat" onclick="switchScreen('chat',this)">
-        <span class="nav-icon">💬</span> Чат
-        <span class="nav-badge" id="chat-badge">3</span>
-      </div>
-      <div class="nav-item" data-screen="checklist" onclick="switchScreen('checklist',this)">
-        <span class="nav-icon">✅</span> Чек-листы
-      </div>
-    </nav>
-    <div class="sidebar-user">
-      <div class="avatar" style="background:#5E5CE6">АК</div>
-      <div class="user-info">
-        <div class="user-name">Айдан Кержанова</div>
-        <div class="user-role">Сотрудник</div>
-      </div>
-      <button class="btn-logout">Выйти</button>
-    </div>
-  </aside>
-
-  <!-- ONBOARDING SCREEN -->
-  <div id="screen-onboard" class="screen active">
-    <div class="screen-title">Онбординг</div>
-
-    <div class="stats-strip">
-      <div class="stat-pill"><span>⚡</span><span class="stat-lbl">XP заработано:</span><span class="stat-val">240</span></div>
-      <div class="stat-pill"><span>🏆</span><span class="stat-lbl">Пройдено модулей:</span><span class="stat-val">2 / 5</span></div>
-    </div>
-
-    <div class="skill-path-wrap">
-      <div class="skill-path-title">Путь обучения</div>
-      <div class="skill-path">
-        <div class="module-node" onclick="openModule(0)">
-          <div class="module-node-circle done">✅</div>
-          <div class="module-node-label">Введение</div>
-        </div>
-        <div class="path-line done-line"></div>
-        <div class="module-node" onclick="openModule(1)">
-          <div class="module-node-circle done">✅</div>
-          <div class="module-node-label">Безопасность</div>
-        </div>
-        <div class="path-line done-line"></div>
-        <div class="module-node" onclick="openModule(2)">
-          <div class="module-node-circle current">📖</div>
-          <div class="module-node-label active-lbl">Работа с гостями</div>
-        </div>
-        <div class="path-line"></div>
-        <div class="module-node">
-          <div class="module-node-circle locked">🔒</div>
-          <div class="module-node-label">Касса</div>
-        </div>
-        <div class="path-line"></div>
-        <div class="module-node">
-          <div class="module-node-circle locked">🔒</div>
-          <div class="module-node-label">Склад</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Module list -->
-    <div id="module-list" class="module-cards">
-      <div class="module-card" onclick="openModule(0)">
-        <div class="mc-icon">✅</div>
-        <div class="mc-body">
-          <div class="mc-title">1. Введение</div>
-          <div class="mc-meta">4 шага · 40 XP</div>
-        </div>
-        <span class="mc-badge badge-done">Завершено</span>
-      </div>
-      <div class="module-card" onclick="openModule(1)">
-        <div class="mc-icon">✅</div>
-        <div class="mc-body">
-          <div class="mc-title">2. Безопасность на кухне</div>
-          <div class="mc-meta">5 шагов · 60 XP</div>
-        </div>
-        <span class="mc-badge badge-done">Завершено</span>
-      </div>
-      <div class="module-card active-card" onclick="openModule(2)">
-        <div class="mc-icon">📖</div>
-        <div class="mc-body">
-          <div class="mc-title">3. Работа с гостями</div>
-          <div class="mc-meta">4 шага · 80 XP</div>
-        </div>
-        <span class="mc-badge badge-active">В процессе</span>
-      </div>
-      <div class="module-card locked-card">
-        <div class="mc-icon">🔒</div>
-        <div class="mc-body">
-          <div class="mc-title">4. Кассовое оборудование</div>
-          <div class="mc-meta">6 шагов · 100 XP</div>
-        </div>
-        <span class="mc-badge badge-locked">Заблокировано</span>
-      </div>
-      <div class="module-card locked-card">
-        <div class="mc-icon">🔒</div>
-        <div class="mc-body">
-          <div class="mc-title">5. Работа со складом</div>
-          <div class="mc-meta">5 шагов · 90 XP</div>
-        </div>
-        <span class="mc-badge badge-locked">Заблокировано</span>
-      </div>
-    </div>
-
-    <!-- Step viewer (hidden) -->
-    <div id="step-viewer" class="step-viewer" style="display:none">
-      <div class="step-header">
-        <button class="btn-back" onclick="closeModule()">← Назад</button>
-        <div class="step-prog" id="step-prog-label">Шаг 1 из 4</div>
-      </div>
-      <div class="step-bar"><div class="step-bar-fill" id="step-bar-fill" style="width:25%"></div></div>
-      <div class="step-title" id="step-title"></div>
-      <div class="step-content" id="step-content"></div>
-      <button class="btn-primary" id="step-btn" onclick="nextStep()">Следующий шаг →</button>
-    </div>
-
-    <!-- Quiz (hidden) -->
-    <div id="quiz-wrap" class="step-viewer" style="display:none">
-      <div class="step-header">
-        <button class="btn-back" onclick="closeModule()">← Назад</button>
-        <div class="step-prog">Финальный тест</div>
-      </div>
-      <div class="step-title">Проверка знаний: Работа с гостями</div>
-      <div class="quiz-wrap" id="quiz-body"></div>
-      <button class="btn-primary" onclick="submitQuiz()">Проверить ответы</button>
-    </div>
-
-    <!-- Certificate (hidden) -->
-    <div id="cert-wrap" class="step-viewer" style="display:none">
-      <div class="cert-wrap">
-        <div class="cert-icon">🏆</div>
-        <div class="cert-title">Модуль завершён!</div>
-        <div style="font-size:17px;font-weight:700;margin-top:4px">Работа с гостями</div>
-        <div class="cert-sub">Айдан Кержанова успешно прошла модуль<br>28 сентября 2026 г.</div>
-        <div class="cert-xp">+80 XP заработано</div>
-        <button class="btn-primary" style="margin-top:8px;align-self:center" onclick="closeModule()">Вернуться к программе</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CHAT SCREEN -->
-  <div id="screen-chat" class="screen">
-    <div class="screen-title">Чат</div>
-    <div class="chat-layout">
-      <div class="chat-rooms">
-        <div class="chat-rooms-header">Каналы</div>
-        <div class="room-item active" onclick="switchRoom('general',this)">💬 Общий чат</div>
-        <div class="room-item" onclick="switchRoom('kitchen',this)">🍳 Кухня</div>
-        <div class="room-item" onclick="switchRoom('stock',this)">🛒 Склад</div>
-      </div>
-      <div class="chat-main">
-        <div class="chat-topbar">
-          <span style="font-size:18px" id="room-icon">💬</span>
-          <span class="chat-topbar-name" id="room-name">Общий чат</span>
-          <span class="chat-topbar-count" id="room-count">3 участника</span>
-        </div>
-        <div class="chat-messages" id="chat-messages"></div>
-        <div class="chat-input-wrap">
-          <input class="chat-input" id="chat-input" placeholder="Написать сообщение..." autocomplete="off" onkeydown="if(event.key==='Enter')sendMessage()">
-          <button class="btn-send" onclick="sendMessage()">Отправить</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CHECKLIST SCREEN -->
-  <div id="screen-checklist" class="screen">
-    <div class="screen-title">Чек-листы</div>
-    <div class="date-tabs">
-      <div class="date-tab active" onclick="switchDate(0,this)">Сегодня 🔥</div>
-      <div class="date-tab" onclick="switchDate(1,this)">Вчера</div>
-      <div class="date-tab" onclick="switchDate(2,this)" id="tab-day2"></div>
-    </div>
-    <div class="progress-header">
-      <div class="ring-wrap">
-        <svg width="72" height="72" viewBox="0 0 72 72">
-          <circle class="ring-bg" cx="36" cy="36" r="30"/>
-          <circle class="ring-fg" id="ring-fg" cx="36" cy="36" r="30" stroke-dasharray="188.5" stroke-dashoffset="60"/>
-        </svg>
-        <div class="ring-pct" id="ring-pct">68%</div>
-      </div>
-      <div class="prog-info">
-        <div class="prog-title" id="prog-title">Прогресс смены</div>
-        <div class="prog-sub" id="prog-sub">13 из 19 задач</div>
-      </div>
-      <button class="btn-hist" onclick="toggleHistory()">История</button>
-    </div>
-
-    <!-- History (hidden) -->
-    <div id="hist-panel" style="display:none" class="hist-table-wrap">
-      <table class="hist-table">
-        <thead><tr><th>Дата</th><th>Выполнено</th><th>Всего</th><th class="hist-bar-cell">Прогресс</th></tr></thead>
-        <tbody id="hist-body"></tbody>
-      </table>
-    </div>
-
-    <div class="cl-sections" id="cl-sections"></div>
-  </div>
+<div class="notice"><b>Демо</b> RestOS HR · данные вымышлены</div>
+<div class="wrap">
+  <aside class="mgr" id="mgr"></aside>
+  <div class="phone"><div class="scr" id="scr"></div><div id="foot"></div><nav class="pnav" id="pnav" aria-label="Разделы"></nav></div>
 </div>
 
 <script>
-// ── Onboarding ───────────────────────────────────────────────────────────────
-const modules = [
-  {title:'Введение',steps:[
-    {t:'Добро пожаловать в RestOS',c:'Добро пожаловать в команду нашего ресторана! RestOS — платформа, которая помогает новым сотрудникам быстро освоиться. Вы найдёте здесь всё необходимое для успешного старта.'},
-    {t:'Структура команды',c:'Наш ресторан работает по чётко выстроенной иерархии: управляющий, су-шефы, повара, официанты и хостес. Каждый знает свою роль и ответственность — это залог слаженной работы.'},
-    {t:'Рабочий график',c:'Смены планируются еженедельно в системе RestOS. Вы получаете уведомление о расписании за 5 дней. Замена смены согласовывается с менеджером не позднее чем за 24 часа.'},
-    {t:'Первый рабочий день',c:'В первый день вас встретит менеджер смены, проведёт экскурсию и представит команде. Все рабочие инструменты и доступы будут настроены заранее.'}
-  ]},
-  {title:'Безопасность на кухне',steps:[
-    {t:'Правила личной гигиены',c:'Обязательны чистая спецодежда, вымытые руки перед каждым касанием продуктов и после работы с сырьём. Украшения, часы и телефоны на кухне запрещены.'},
-    {t:'Температурный контроль',c:'Холодные блюда хранятся при 0–4°C, горячие — не ниже 65°C. Каждые 2 часа проводится контрольный замер и фиксируется в журнале ХАССП.'},
-    {t:'Работа с оборудованием',c:'Перед использованием любого прибора прочтите инструкцию, закреплённую на нём. Неисправное оборудование немедленно выводится из эксплуатации и помечается красным стикером.'},
-    {t:'Пожарная безопасность',c:'Эвакуационные выходы должны быть свободны в любое время. Огнетушитель находится у входа на кухню. Ознакомьтесь с планом эвакуации, размещённым у раздевалки.'},
-    {t:'Инциденты и травмы',c:'Любой порез, ожог или падение фиксируется в журнале происшествий немедленно. Оказание первой помощи — аптечка у поста менеджера. При серьёзной травме вызывайте 103.'}
-  ]},
-  {title:'Работа с гостями',steps:[
-    {t:'Приветствие гостя',c:'Гость должен быть встречен в течение 30 секунд после входа. Улыбка, зрительный контакт и искреннее «Добро пожаловать!» — основа первого впечатления. Если вы заняты, кивок и короткое «Одну минуту» лучше, чем игнорирование.'},
-    {t:'Принятие заказа',c:'Предложите меню, дайте 2–3 минуты на выбор, затем подойдите. Уточняйте предпочтения: степень прожарки, аллергии, детали к напиткам. Повторите заказ вслух для подтверждения и улыбнитесь.'},
-    {t:'Обслуживание за столом',c:'Блюда подаются слева, напитки — справа. При принесении блюда называйте его название. Проверяйте удовлетворённость гостя через 2 минуты после подачи — одна фраза «Всё в порядке?» создаёт доверие.'},
-    {t:'Работа с жалобами',c:'Выслушайте гостя, не перебивая. Принесите извинения, даже если вины нет — это разряжает напряжение. Предложите решение: замену блюда, скидку или комплимент. Сообщите менеджеру о любой жалобе.'}
-  ]}
-];
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('ru-RU');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('ru-RU', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
 
-const quiz = [
-  {q:'Как быстро нужно встретить гостя?',opts:['Когда освободитесь','В течение 30 секунд','В течение 2 минут','После того как он сядет'],ans:1},
-  {q:'Что делать, если гость жалуется?',opts:['Объяснить, что вы не виноваты','Позвать менеджера и уйти','Выслушать и предложить решение','Предложить скидку без извинений'],ans:2},
-  {q:'С какой стороны подают напитки?',opts:['Слева','Справа','С любой','Только с торца'],ans:1}
-];
-
-let currentModule = null, currentStep = 0;
-
-function openModule(idx) {
-  if (idx > 2) return;
-  currentModule = idx;
-  currentStep = 0;
-  document.getElementById('module-list').style.display = 'none';
-  document.querySelectorAll('.skill-path-wrap,.stats-strip').forEach(e=>e.style.display='none');
-  showStep();
-}
-
-function showStep() {
-  const mod = modules[currentModule];
-  const sv = document.getElementById('step-viewer');
-  document.getElementById('quiz-wrap').style.display = 'none';
-  document.getElementById('cert-wrap').style.display = 'none';
-  sv.style.display = 'flex';
-  const total = mod.steps.length;
-  document.getElementById('step-prog-label').textContent = `Шаг ${currentStep+1} из ${total}`;
-  document.getElementById('step-bar-fill').style.width = ((currentStep+1)/total*100)+'%';
-  document.getElementById('step-title').textContent = mod.steps[currentStep].t;
-  document.getElementById('step-content').textContent = mod.steps[currentStep].c;
-  document.getElementById('step-btn').textContent = currentStep < total-1 ? 'Следующий шаг →' : 'Начать тест ✏️';
-}
-
-function nextStep() {
-  const mod = modules[currentModule];
-  if (currentStep < mod.steps.length - 1) { currentStep++; showStep(); return; }
-  if (currentModule !== 2) { showCert(); return; }
-  document.getElementById('step-viewer').style.display = 'none';
-  const qb = document.getElementById('quiz-body');
-  qb.innerHTML = quiz.map((q,i)=>`
-    <div><div class="quiz-q">${i+1}. ${q.q}</div>
-    <div class="quiz-opts">${q.opts.map((o,j)=>`
-      <div class="quiz-opt"><input type="radio" name="q${i}" id="q${i}o${j}" value="${j}"><label for="q${i}o${j}">${o}</label>
-      </div>`).join('')}</div></div>`).join('');
-  document.getElementById('quiz-wrap').style.display = 'flex';
-}
-
-function submitQuiz() {
-  let ok = true;
-  quiz.forEach((q,i)=>{ const r = document.querySelector(`input[name=q${i}]:checked`); if(!r||+r.value!==q.ans) ok=false; });
-  if (!ok) { alert('Не все ответы верны. Попробуйте ещё раз!'); return; }
-  showCert();
-}
-
-function showCert() {
-  document.getElementById('step-viewer').style.display = 'none';
-  document.getElementById('quiz-wrap').style.display = 'none';
-  document.getElementById('cert-wrap').style.display = 'flex';
-}
-
-function closeModule() {
-  currentModule = null;
-  ['step-viewer','quiz-wrap','cert-wrap'].forEach(id=>document.getElementById(id).style.display='none');
-  document.getElementById('module-list').style.display='flex';
-  document.querySelectorAll('.skill-path-wrap,.stats-strip').forEach(e=>e.style.display='');
-}
-
-// ── Chat ─────────────────────────────────────────────────────────────────────
-const rooms = {
-  general:{icon:'💬',name:'Общий чат',count:'3 участника',msgs:[
-    {av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:'09:14',text:'Всем привет! Готова к смене 🙌'},
-    {av:'ДМ',color:'#30D158',name:'Диас Мухамедов',role:'Менеджер',time:'09:17',text:'Привет! Сегодня ожидаем большой поток — банкет на 30 человек в 19:00.'},
-    {av:'ЗН',color:'#FF9F0A',name:'Зарина Нурова',role:'Сотрудник',time:'09:22',text:'Поняла, подготовлю зал заранее.'},
-    {av:'ДМ',color:'#30D158',name:'Диас Мухамедов',role:'Менеджер',time:'09:25',text:'Форма — чистая, причёска убрана. Инструктаж в 10:00 у входа.'},
-    {av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:'09:28',text:'Буду вовремя ✅'}
-  ]},
-  kitchen:{icon:'🍳',name:'Кухня',count:'2 участника',msgs:[
-    {av:'ИС',color:'#FF453A',name:'Иван Соколов',role:'Су-шеф',time:'08:45',text:'Доставка продуктов задерживается на 30 минут.'},
-    {av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:'08:48',text:'Понял, успеем подготовить заготовки.'},
-    {av:'ИС',color:'#FF453A',name:'Иван Соколов',role:'Су-шеф',time:'08:52',text:'Проверьте запасы лосося — вчера использовали много.'},
-    {av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:'08:55',text:'Остаток 2.4 кг, должно хватить до доставки.'},
-    {av:'ИС',color:'#FF453A',name:'Иван Соколов',role:'Су-шеф',time:'09:00',text:'Отлично. Начинаем подготовку соусов.'}
-  ]},
-  stock:{icon:'🛒',name:'Склад',count:'2 участника',msgs:[
-    {av:'БА',color:'#0A84FF',name:'Болат Ахметов',role:'Менеджер',time:'07:30',text:'Сделал инвентаризацию: недостача сыра моцарелла 800г.'},
-    {av:'ЗН',color:'#FF9F0A',name:'Зарина Нурова',role:'Сотрудник',time:'07:45',text:'Вчера брали под банкет, всё в накладной.'},
-    {av:'БА',color:'#0A84FF',name:'Болат Ахметов',role:'Менеджер',time:'07:50',text:'Нашёл накладную, всё сходится. ОК.'},
-    {av:'ЗН',color:'#FF9F0A',name:'Зарина Нурова',role:'Сотрудник',time:'08:15',text:'Дозаказ на пятницу уже сформирован.'},
-    {av:'БА',color:'#0A84FF',name:'Болат Ахметов',role:'Менеджер',time:'08:20',text:'Подтверждаю. Накладную отправь в бухгалтерию.'}
-  ]}
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
 };
-let activeRoom = 'general';
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
 
-function switchRoom(key,el) {
-  activeRoom = key;
-  document.querySelectorAll('.room-item').forEach(r=>r.classList.remove('active'));
-  el.classList.add('active');
-  const r = rooms[key];
-  document.getElementById('room-icon').textContent = r.icon;
-  document.getElementById('room-name').textContent = r.name;
-  document.getElementById('room-count').textContent = r.count;
-  renderMessages();
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
+}
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
+}
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
+
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
+  }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Динамика: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
 }
 
-function renderMessages() {
-  const wrap = document.getElementById('chat-messages');
-  wrap.innerHTML = rooms[activeRoom].msgs.map(m=>`
-    <div class="msg">
-      <div class="msg-av" style="background:${m.color}">${m.av}</div>
-      <div class="msg-body">
-        <div class="msg-meta">
-          <span class="msg-name">${m.name}</span>
-          <span class="msg-role-tag">${m.role}</span>
-          <span class="msg-time">${m.time}</span>
-        </div>
-        <div class="msg-text">${m.text}</div>
-      </div>
-    </div>`).join('');
-  wrap.scrollTop = wrap.scrollHeight;
-}
+'use strict';
 
-function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text) return;
-  const now = new Date();
-  const t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  rooms[activeRoom].msgs.push({av:'АК',color:'#5E5CE6',name:'Айдан Кержанова',role:'Сотрудник',time:t,text});
-  input.value = '';
-  renderMessages();
-  const badge = document.getElementById('chat-badge');
-  if (badge) badge.style.display='none';
-}
-
-// ── Checklist ────────────────────────────────────────────────────────────────
-const checklistData = [
-  [
-    {section:'🌅 Открытие смены',tasks:['Надеть форму и пройти осмотр','Проверить чистоту рабочей зоны','Принять товар по накладной','Проверить температуры холодильников','Подготовить кассу к работе'],done:[true,true,true,true,false]},
-    {section:'🍽 Обслуживание',tasks:['Расставить меню на столы','Подготовить комплименты','Проверить наличие специй','Заполнить журнал уборки','Подготовить детские стулья','Проверить чистоту туалетов','Пополнить салфетницы','Зарядить терминалы оплаты'],done:[true,true,true,false,false,false,false,false]},
-    {section:'🌙 Закрытие смены',tasks:['Пересчитать выручку кассы','Убрать зал','Вымыть кухонное оборудование','Заполнить журнал ХАССП','Сдать ключи менеджеру','Отчёт по ингредиентам'],done:[false,false,false,false,false,false]}
-  ],
-  [
-    {section:'🌅 Открытие смены',tasks:['Надеть форму и пройти осмотр','Проверить чистоту рабочей зоны','Принять товар по накладной','Проверить температуры холодильников','Подготовить кассу к работе'],done:[true,true,true,true,true]},
-    {section:'🍽 Обслуживание',tasks:['Расставить меню на столы','Подготовить комплименты','Проверить наличие специй','Заполнить журнал уборки','Подготовить детские стулья','Проверить чистоту туалетов','Пополнить салфетницы','Зарядить терминалы оплаты'],done:[true,true,true,true,true,true,false,true]},
-    {section:'🌙 Закрытие смены',tasks:['Пересчитать выручку кассы','Убрать зал','Вымыть кухонное оборудование','Заполнить журнал ХАССП','Сдать ключи менеджеру','Отчёт по ингредиентам'],done:[true,true,true,true,true,true]}
-  ],
-  [
-    {section:'🌅 Открытие смены',tasks:['Надеть форму и пройти осмотр','Проверить чистоту рабочей зоны','Принять товар по накладной','Проверить температуры холодильников','Подготовить кассу к работе'],done:[true,true,true,false,false]},
-    {section:'🍽 Обслуживание',tasks:['Расставить меню на столы','Подготовить комплименты','Проверить наличие специй','Заполнить журнал уборки','Подготовить детские стулья','Проверить чистоту туалетов','Пополнить салфетницы','Зарядить терминалы оплаты'],done:[true,true,false,false,false,false,false,false]},
-    {section:'🌙 Закрытие смены',tasks:['Пересчитать выручку кассы','Убрать зал','Вымыть кухонное оборудование','Заполнить журнал ХАССП','Сдать ключи менеджеру','Отчёт по ингредиентам'],done:[false,false,false,false,false,false]}
-  ]
+/* ── content ──────────────────────────────────────────── */
+const MODS = [
+  { t: 'Введение', sub: '4 шага', xp: 100, icon: 'star', steps: [
+    ['Добро пожаловать в RestOS', 'Добро пожаловать в команду! Здесь вы найдёте всё, чтобы быстро освоиться: обучение, чат с менеджером и чек-листы смены.'],
+    ['Структура команды', 'В ресторане работают управляющий, су-шефы, повара, официанты и хостес. Каждый знает свою роль, и это основа слаженной работы.'],
+    ['Рабочий график', 'Смены планируются каждую неделю. Расписание приходит за 5 дней, а замену смены согласуйте с менеджером минимум за сутки.'],
+    ['Первый рабочий день', 'Вас встретит менеджер смены, покажет зал и кухню и представит команде. Доступы и форма подготовлены заранее.'],
+  ], quiz: [] },
+  { t: 'Безопасность на кухне', sub: '5 шагов', xp: 140, icon: 'shield', steps: [
+    ['Личная гигиена', 'Чистая форма, руки вымыты перед каждым касанием продуктов. Украшения, часы и телефоны на кухне запрещены.'],
+    ['Температурный контроль', 'Холодные блюда хранятся при 0–4 °C, горячие не ниже 65 °C. Замер каждые 2 часа записывается в журнал.'],
+    ['Оборудование', 'Перед работой прочитайте инструкцию на приборе. Неисправное оборудование выводят из работы и вешают красный стикер.'],
+    ['Пожарная безопасность', 'Выходы всегда свободны. Огнетушитель у входа на кухню, план эвакуации у раздевалки.'],
+    ['Травмы и происшествия', 'Любой порез или ожог записывают в журнал сразу. Аптечка у поста менеджера, при серьёзной травме звоните 103.'],
+  ], quiz: [] },
+  { t: 'Работа с гостями', sub: '4 шага и тест', xp: 180, icon: 'heart', steps: [
+    ['Приветствие гостя', 'Встретьте гостя в течение 30 секунд. Улыбка, зрительный контакт и «Добро пожаловать!» задают тон всему вечеру. Если заняты, кивните и скажите «Одну минуту».'],
+    ['Приём заказа', 'Дайте 2–3 минуты на выбор. Уточните прожарку, аллергии и детали к напиткам. Повторите заказ вслух.'],
+    ['Обслуживание за столом', 'Блюда подают слева, напитки справа. Называйте блюдо при подаче и через 2 минуты спросите: «Всё в порядке?».'],
+    ['Жалобы', 'Выслушайте не перебивая и извинитесь, даже если вины нет. Предложите решение: замену, скидку или комплимент. О каждой жалобе скажите менеджеру.'],
+  ], quiz: [
+    { q: 'Как быстро нужно встретить гостя?', o: ['Когда освободитесь', 'В течение 30 секунд', 'В течение 2 минут', 'Когда он сядет'], a: 1, why: 'Первые 30 секунд задают впечатление.' },
+    { q: 'Что делать, если гость жалуется?', o: ['Объяснить, что вы не виноваты', 'Позвать менеджера и уйти', 'Выслушать и предложить решение', 'Дать скидку без слов'], a: 2, why: 'Сначала выслушать, потом решать.' },
+    { q: 'С какой стороны подают напитки?', o: ['Слева', 'Справа', 'С любой', 'Только с торца'], a: 1, why: 'Блюда слева, напитки справа.' },
+  ] },
+  { t: 'Меню и аллергены', sub: '3 шага и тест', xp: 120, icon: 'utensils', steps: [
+    ['14 основных аллергенов', 'Глютен, молоко, яйца, орехи, арахис, рыба, моллюски, соя, сельдерей, горчица, кунжут, люпин и другие. Полный список лежит у выдачи.'],
+    ['Как отвечать на вопросы о составе', 'Не угадывайте. Если не уверены, скажите: «Уточню у шефа» и вернитесь с точным ответом. Об аллергии сразу сообщите на кухню.'],
+    ['Стоп-лист', 'Если блюдо закончилось, оно появляется в стоп-листе. Проверяйте его перед тем, как предлагать блюдо гостю.'],
+  ], quiz: [
+    { q: 'Вы не уверены, есть ли в блюде орехи. Что сказать гостю?', o: ['Скорее всего нет', 'Уточню у шефа и вернусь', 'Спросите у соседнего стола', 'Лучше не заказывайте'], a: 1, why: 'Угадывать при аллергии опасно.' },
+    { q: 'Когда проверять стоп-лист?', o: ['Раз в неделю', 'Перед тем как предложить блюдо', 'Только на открытии', 'Не нужно'], a: 1, why: 'Блюдо могло закончиться минуту назад.' },
+  ] },
+  { t: 'Касса и расчёты', sub: 'Скоро', xp: 150, icon: 'coin', steps: [], quiz: [] },
+];
+const CHECK = [
+  ['Перед сменой', [['Надеть чистую форму и бейдж', '09:45'], ['Проверить стоп-лист у выдачи', '09:50'], ['Протереть и накрыть закреплённые столы', '10:00'], ['Пройти брифинг с менеджером', '10:15']]],
+  ['После смены', [['Сдать чаевые и закрыть счета', '22:30'], ['Убрать станцию и вынести мусор', '22:45'], ['Записать замечания в журнал', '22:55']]],
+];
+const TEAM = [['Мадина К.', 4], ['Тимур Б.', 3], ['Алия С.', 3], ['Данияр Н.', 1]];
+const REPLY = [
+  [/график|смен/i, 'График на неделю уже опубликован. Если нужна замена, напиши мне минимум за сутки.'],
+  [/форм|одежд/i, 'Чёрные брюки и фартук выдаём у администратора, рубашку берёшь свою, белую.'],
+  [/зарплат|выплат|аванс/i, 'Аванс 10 числа, остальное 25-го. Ставка и чаевые есть в договоре.'],
+  [/спасибо|ок|понял/i, 'Отлично! Если что, пиши.'],
 ];
 
-let currentDay = 0;
-const histData = [
-  {date:'28.09',done:13,total:19},{date:'27.09',done:19,total:19},{date:'26.09',done:11,total:19},
-  {date:'25.09',done:17,total:19},{date:'24.09',done:19,total:19},{date:'23.09',done:14,total:19},{date:'22.09',done:18,total:19}
-];
+/* ── state ────────────────────────────────────────────── */
+const S = { done: new Set([0, 1]), tab: 'path', view: 'path', mod: 2, step: 0, qi: 0, picked: null, ticks: new Set(['0-0']), unread: 3, feed: ['<b>Руслан</b> назначил Айдан наставника на первую неделю'],
+  chat: [{ me: false, t: 'Привет, Айдан! Я Руслан, управляющий. Рад, что ты с нами.', ts: '09:12' }, { me: false, t: 'Пройди обучение до пятницы, а вопросы задавай здесь.', ts: '09:13' }, { me: false, t: 'Твой первый рабочий день в понедельник, приходи к 9:45.', ts: '09:13' }] };
+const xp = () => [...S.done].reduce((a, i) => a + MODS[i].xp, 0);
+const cur = () => { for (let i = 0; i < MODS.length; i++) if (!S.done.has(i)) return i; return -1; };
+const playable = (i) => MODS[i].steps.length > 0 && (i === 0 || S.done.has(i - 1));
+console.assert(xp() === 240, 'xp 100+140');
+const ckTotal = () => CHECK.reduce((a, [, l]) => a + l.length, 0);
 
-function getDateLabel(offset) {
-  const d = new Date(); d.setDate(d.getDate()-offset);
-  return d.getDate().toString().padStart(2,'0')+'.'+(d.getMonth()+1).toString().padStart(2,'0');
+/* ── render ───────────────────────────────────────────── */
+const nav = () => {
+  const T = { path: ['Путь', 'map'], chat: ['Чат', 'chat'], list: ['Чек-листы', 'check'], me: ['Профиль', 'users'] };
+  $('#pnav').innerHTML = Object.entries(T).map(([k, v]) => `<button data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${ic(v[1])}${v[0]}${k === 'chat' && S.unread ? `<b class="badge">${S.unread}</b>` : ''}</button>`).join('');
+};
+function render() {
+  nav(); $('#foot').innerHTML = '';
+  const html = ({ path: pathScreen, chat: chatScreen, list: listScreen, me: meScreen })[S.tab]();
+  $('#scr').innerHTML = html; if (S.tab === 'chat') chatMount();
+  mgr();
+}
+function pathScreen() {
+  if (S.view === 'learn') return learnScreen();
+  if (S.view === 'quiz') return quizScreen();
+  if (S.view === 'done') return doneScreen();
+  const c = cur();
+  return `<div class="top"><div><h1>Привет, Айдан!</h1><p>${c === -1 ? 'Весь путь пройден' : `Дальше: ${MODS[c].t}`}</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+    <div class="path">${MODS.map((m, i) => { const d = S.done.has(i), cu = i === c, lock = !playable(i) && !d; return `<button class="node ${d ? 'done' : ''} ${cu && !lock ? 'cur' : ''} ${lock ? 'lock' : ''}" data-act="open" data-i="${i}" ${lock ? 'disabled' : ''}><span class="dot">${ic(d ? 'check' : lock ? 'lock' : m.icon)}</span><div><b>${m.t}</b><span>${d ? `Пройдено · +${m.xp} XP` : lock ? (m.steps.length ? 'Откроется после предыдущего модуля' : 'Скоро') : `${m.sub} · +${m.xp} XP`}</span></div></button>`; }).join('')}</div>`;
+}
+function learnScreen() {
+  const m = MODS[S.mod], st = m.steps[S.step], last = S.step === m.steps.length - 1, review = S.done.has(S.mod);
+  return `<button class="back" data-act="exit">← К пути</button><div class="learn"><div class="pbar">${m.steps.map((_, i) => `<i class="${i <= S.step ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">${m.t} · шаг ${S.step + 1} из ${m.steps.length}</span><h2>${st[0]}</h2><p class="body">${st[1]}</p>
+    <button class="btn primary cta" data-act="next">${last ? (m.quiz.length && !review ? 'Пройти тест' : review ? 'Готово' : `Завершить модуль`) : 'Дальше'}</button></div>`;
+}
+function quizScreen() {
+  const m = MODS[S.mod], q = m.quiz[S.qi];
+  return `<button class="back" data-act="exit">← К пути</button><div class="learn"><div class="pbar">${m.quiz.map((_, i) => `<i class="${i <= S.qi ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">Вопрос ${S.qi + 1} из ${m.quiz.length}</span><h2>${q.q}</h2>
+    ${q.o.map((o, i) => `<button class="opt ${S.picked === i ? (i === q.a ? 'ok' : 'bad') : ''}" data-act="pick" data-i="${i}" ${S.picked === q.a ? 'disabled' : ''}>${o}</button>`).join('')}
+    <div class="fb ${S.picked === null ? '' : S.picked === q.a ? 'ok' : 'bad'}" role="status">${S.picked === null ? '' : S.picked === q.a ? 'Верно. ' + q.why : 'Не совсем, попробуйте ещё раз'}</div>
+    ${S.picked === q.a ? `<button class="btn primary cta" data-act="qnext">${S.qi === m.quiz.length - 1 ? 'Закончить' : 'Следующий вопрос'}</button>` : ''}</div>`;
+}
+function doneScreen() {
+  const m = MODS[S.mod], nx = S.mod + 1 < MODS.length && playable(S.mod + 1);
+  return `<div class="learn" style="text-align:center;padding-top:20px"><div class="big-xp">+${m.xp}</div><p class="muted" style="font-weight:800">XP за модуль</p><div class="cert"><small>Сертификат</small><h3>${m.t}</h3><p>Айдан Кержанова · 28.09.2026</p></div>
+    <p class="muted">Всего ${xp()} XP, пройдено ${S.done.size} из ${MODS.length}</p><button class="btn primary cta" data-act="exit">${nx ? 'К следующему модулю' : 'К пути'}</button></div>`;
+}
+function chatScreen() {
+  return `<div class="top"><div><h1>Руслан</h1><p>Управляющий · обычно отвечает за 5 минут</p></div></div><div class="msgs" id="msgs">${S.chat.map((m) => `<div class="m ${m.me ? 'me' : ''}">${esc(m.t)}<small>${m.ts}</small></div>`).join('')}</div><div class="quick">${['Когда мой график?', 'Какая форма?', 'Как заменить смену?'].map((q) => `<button data-act="say" data-t="${q}">${q}</button>`).join('')}</div>`;
+}
+function chatMount() {
+  S.unread = 0; nav();
+  $('#foot').innerHTML = `<form class="cform" id="cf"><input id="ci" placeholder="Сообщение" autocomplete="off" aria-label="Сообщение"><button aria-label="Отправить">${ic('arrow')}</button></form>`;
+  $('#cf').onsubmit = (e) => { e.preventDefault(); const v = $('#ci').value.trim(); if (v) say(v); };
+  const s = $('#scr'); s.scrollTop = s.scrollHeight;
+}
+function say(text) {
+  const t = new Date(2026, 8, 28, 14, 20 + S.chat.length % 30), ts = '14:' + String(20 + S.chat.length % 30).padStart(2, '0');
+  S.chat.push({ me: true, t: text, ts }); render();
+  const m = $('#msgs'); m.insertAdjacentHTML('beforeend', '<div class="typing" id="typing">Руслан печатает…</div>'); $('#scr').scrollTop = 1e6;
+  setTimeout(() => { const r = REPLY.find(([re]) => re.test(text)); S.chat.push({ me: false, t: r ? r[1] : 'Принял, отвечу в течение часа.', ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); } }, 1100);
+}
+function listScreen() {
+  const n = S.ticks.size;
+  return `<div class="top"><div><h1>Чек-листы</h1><p>${n} из ${ckTotal()} выполнено сегодня</p></div></div><div class="pbar" style="margin-bottom:6px">${Array.from({ length: ckTotal() }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div><div class="cl">${CHECK.map(([t, l], li) => `<h3>${t}<span>${l.filter((_, i) => S.ticks.has(li + '-' + i)).length} из ${l.length}</span></h3>${l.map(([x, tm], i) => { const k = li + '-' + i, d = S.ticks.has(k); return `<button class="ck ${d ? 'done' : ''}" data-act="tick" data-k="${k}" role="checkbox" aria-checked="${d}"><span class="bx">${d ? ic('check') : ''}</span><b>${x}</b><small>${tm}</small></button>`; }).join('')}`).join('')}</div>`;
+}
+function meScreen() {
+  return `<div class="top"><div><h1>Айдан Кержанова</h1><p>Официант · на испытательном сроке</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+    <p class="lead">Сертификаты</p>${[...S.done].sort().map((i) => `<div class="cert" style="margin:0 0 10px;text-align:left"><small>Сертификат</small><h3 style="font-size:17px">${MODS[i].t}</h3><p>Выдан 28.09.2026 · +${MODS[i].xp} XP</p></div>`).join('')}
+    <p class="lead">Серия</p><p style="font-size:15px">6 дней подряд. Ещё один день, и серия станет неделей.</p>`;
+}
+function mgr() {
+  const me = ['Айдан К.', S.done.size], all = [...TEAM, me].sort((a, b) => b[1] - a[1]);
+  $('#mgr').innerHTML = `<h2>Что видит менеджер</h2><h1>Обучение команды</h1><p>Справа приложение сотрудника. Проходите модули, и здесь всё обновится само.</p>
+    <section class="card"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Модули пройдены</h2><span>из ${MODS.length}</span></div>${all.map((x) => `<div class="member ${x === me ? 'me' : ''}"><span>${x[0]}</span><div class="bar"><i style="width:${x[1] / MODS.length * 100}%"></i></div><b>${x[1]}</b></div>`).join('')}</section>
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Чек-листы сегодня</h2><span>Айдан</span></div><div class="kpi"><b>${S.ticks.size}<small>из ${ckTotal()}</small></b><span>Отметок за смену</span></div></section>
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">События</h2></div><ul class="feed">${S.feed.slice(0, 5).map((f) => `<li>${f}</li>`).join('')}</ul></section>`;
 }
 
-function countProgress(dayIdx) {
-  const day = checklistData[dayIdx];
-  let done=0,total=0;
-  day.forEach(s=>{ total+=s.tasks.length; done+=s.done.filter(Boolean).length; });
-  return {done,total};
-}
-
-function updateRing(dayIdx) {
-  const {done,total} = countProgress(dayIdx);
-  const pct = total ? Math.round(done/total*100) : 0;
-  const circ = 188.5;
-  const offset = circ - (circ * pct / 100);
-  document.getElementById('ring-fg').style.strokeDashoffset = offset;
-  document.getElementById('ring-pct').textContent = pct+'%';
-  document.getElementById('prog-sub').textContent = `${done} из ${total} задач`;
-}
-
-function renderChecklist(dayIdx) {
-  const day = checklistData[dayIdx];
-  const wrap = document.getElementById('cl-sections');
-  wrap.innerHTML = day.map((sec,si)=>`
-    <div class="cl-section ${si===0?'open':''}" id="sec-${si}">
-      <div class="cl-section-header" onclick="toggleSection(${si})">
-        <span class="cl-section-icon">${sec.section.split(' ')[0]}</span>
-        <span class="cl-section-title">${sec.section.split(' ').slice(1).join(' ')}</span>
-        <span class="cl-section-count" id="sec-count-${si}">${sec.done.filter(Boolean).length}/${sec.tasks.length}</span>
-        <span class="cl-chevron">▶</span>
-      </div>
-      <div class="cl-tasks">
-        ${sec.tasks.map((t,ti)=>`
-          <div class="cl-task">
-            <input type="checkbox" id="t-${si}-${ti}" ${sec.done[ti]?'checked':''} onchange="toggleTask(${si},${ti},this)">
-            <label class="cl-task-label${sec.done[ti]?' done':''}" for="t-${si}-${ti}">${t}</label>
-          </div>`).join('')}
-      </div>
-    </div>`).join('');
-  updateRing(dayIdx);
-}
-
-function toggleSection(si) {
-  document.getElementById('sec-'+si).classList.toggle('open');
-}
-
-function toggleTask(si, ti, cb) {
-  checklistData[currentDay][si].done[ti] = cb.checked;
-  const lbl = cb.nextElementSibling;
-  lbl.classList.toggle('done', cb.checked);
-  const sec = checklistData[currentDay][si];
-  document.getElementById('sec-count-'+si).textContent = sec.done.filter(Boolean).length+'/'+sec.tasks.length;
-  updateRing(currentDay);
-}
-
-function switchDate(idx, el) {
-  currentDay = idx;
-  document.querySelectorAll('.date-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('hist-panel').style.display='none';
-  renderChecklist(idx);
-}
-
-function toggleHistory() {
-  const hp = document.getElementById('hist-panel');
-  if (hp.style.display==='none'||!hp.style.display) {
-    const tbody = document.getElementById('hist-body');
-    tbody.innerHTML = histData.map(d=>{
-      const pct = Math.round(d.done/d.total*100);
-      return `<tr><td>${d.date}</td><td>${d.done}</td><td>${d.total}</td><td class="hist-bar-cell"><div class="hist-bar"><div class="hist-bar-fill" style="width:${pct}%"></div></div></td></tr>`;
-    }).join('');
-    hp.style.display='block';
-  } else { hp.style.display='none'; }
-}
-
-// ── Navigation ───────────────────────────────────────────────────────────────
-function switchScreen(key, el) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('screen-'+key).classList.add('active');
-  el.classList.add('active');
-  if (key==='chat') { renderMessages(); document.getElementById('chat-badge').style.display='none'; }
-}
-
-// ── Init ─────────────────────────────────────────────────────────────────────
-(function init(){
-  const d = new Date(); d.setDate(d.getDate()-2);
-  document.getElementById('tab-day2').textContent = d.getDate().toString().padStart(2,'0')+'.'+(d.getMonth()+1).toString().padStart(2,'0');
-  renderChecklist(0);
-})();
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tab]'); if (t) { S.tab = t.dataset.tab; return render(); }
+  const a = e.target.closest('[data-act]'); if (a) ACT[a.dataset.act](a.dataset);
+});
+const ACT = {
+  open(d) { const i = +d.i; S.mod = i; S.step = 0; S.qi = 0; S.picked = null; S.view = 'learn'; render(); },
+  exit() { S.view = 'path'; render(); },
+  next() {
+    const m = MODS[S.mod];
+    if (S.step < m.steps.length - 1) { S.step++; return render(); }
+    if (m.quiz.length && !S.done.has(S.mod)) { S.view = 'quiz'; S.qi = 0; S.picked = null; return render(); }
+    if (S.done.has(S.mod)) { S.view = 'path'; return render(); }
+    finish();
+  },
+  pick(d) { S.picked = +d.i; render(); },
+  qnext() { const m = MODS[S.mod]; if (S.qi < m.quiz.length - 1) { S.qi++; S.picked = null; return render(); } finish(); },
+  tick(d) { S.ticks.has(d.k) ? S.ticks.delete(d.k) : S.ticks.add(d.k); if (S.ticks.size === ckTotal()) { S.feed.unshift('<b>Айдан</b> закрыла все чек-листы смены'); toast('Все чек-листы закрыты'); } render(); },
+  say(d) { say(d.t); },
+};
+function finish() { S.done.add(S.mod); S.feed.unshift(`<b>Айдан</b> прошла модуль «${MODS[S.mod].t}», +${MODS[S.mod].xp} XP`); S.view = 'done'; render(); }
+render();
 </script>
 </body>
 </html>
