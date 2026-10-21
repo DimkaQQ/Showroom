@@ -68,7 +68,6 @@ function Hero() {
 
       <h1 className="wordmark rise rise-3">
         <span>Darian</span> <span>Mirelli</span>
-        <span className="sr-only"> — Full-Stack Developer</span>
       </h1>
     </header>
   );
@@ -111,10 +110,10 @@ function Work() {
                   <img src={`/shots/${p.id}.jpg`} width={1440} height={900} alt="" loading="lazy" />
                 </a>
                 <div className="project-text">
+                  <h3>{p.name}</h3>
                   <p className="tagline">
                     <L ru={ru.showroom.projects[i].tagline} en={en.showroom.projects[i].tagline} />, {p.year}
                   </p>
-                  <h3>{p.name}</h3>
                   <p className="desc"><L ru={ru.showroom.projects[i].description} en={en.showroom.projects[i].description} /></p>
                   <p className="tags">{p.tags.join(", ")}</p>
                   <a className="btn btn-light" href={href} target="_blank" rel="noopener noreferrer">
