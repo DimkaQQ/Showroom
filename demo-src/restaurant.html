@@ -49,11 +49,11 @@
 .dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
 .dcard { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: transform .25s var(--ease), border-color .15s; }
 .dcard:hover { transform: translateY(-3px); border-color: var(--faint); }
-.dcard.off { opacity: .6; } .dcard.off .dart svg { filter: grayscale(1); }
-.dart { display: block; padding: 8px 10px 0; } .dart svg { width: 100%; height: auto; display: block; }
+.dcard.off { opacity: .6; } .dcard.off .dart svg, .dcard.off .dart img { filter: grayscale(1); }
+.dart { display: block; padding: 8px 10px 0; } .dart svg { width: 100%; height: auto; display: block; } .dart img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; display: block; }
 .dbody { padding: 10px 14px 14px; } .dbody b { display: block; font-weight: 600; line-height: 1.25; min-height: 2.5em; }
 .dfoot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; } .dfoot span { font: 600 17px var(--display); }
-.thumb { width: 44px; height: 44px; border-radius: 12px; flex: none; overflow: hidden; } .thumb svg { width: 100%; height: 100%; display: block; }
+.thumb { width: 44px; height: 44px; border-radius: 12px; flex: none; overflow: hidden; } .thumb svg, .thumb img { width: 100%; height: 100%; display: block; } .thumb img { object-fit: cover; }
 .t-top .tt { display: flex; align-items: center; gap: 10px; }
 .ticket.fresh { animation: fresh 1.6s var(--ease) both; }
 @keyframes fresh { 0% { transform: translateY(-14px) scale(.97); opacity: 0; box-shadow: 0 0 0 0 rgba(217,70,31,.5); } 30% { transform: none; opacity: 1; box-shadow: 0 0 0 10px rgba(217,70,31,0); } 100% { box-shadow: 0 0 0 0 transparent; } }
@@ -92,7 +92,11 @@ const MENU = [
 /* ── dish illustrations: flat vector, one per category, tinted per dish ─ */
 const hue = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
 const drink = (c, ice) => `<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 34 h34 l-3.4 40 h-27.2 z" fill="${c}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="${ice}" opacity=".5" transform="rotate(12 54 46)"/><rect x="62" y="56" width="9" height="9" rx="2" fill="${ice}" opacity=".4"/><path d="M68 8 l-7 38" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`;
-function dishSVG(name, c, size = 'card') {
+/* real photos (CC0, see demos/CREDITS.md) where we have a matching one; the rest fall back to the flat vector below */
+const PHOTO = { 'Салат Цезарь': 'caesar', 'Пицца': 'pizza', 'Яичница': 'eggs', 'Стейк': 'steak', 'Шашлык': 'kebab', 'Чай чёрный': 'tea', 'Морс': 'cocktail', 'Торт': 'cake' };
+function dishArt(name, c, size = 'card') {
+  const pk = Object.keys(PHOTO).find((k) => name.startsWith(k));
+  if (pk) return `<img src="img/${PHOTO[pk]}.jpg" alt="${esc(name)}" loading="lazy" decoding="async">`;
   const h = hue(name), bg = { hot: '#f7e3d6', cold: '#e2efd9', drinks: '#dcebf2', desserts: '#f6dfe6', breakfast: '#f8ecc9', pizza: '#f6e2cc', grill: '#ead9d0' }[c];
   const warm = `hsl(${(h % 40) + 5} 70% 48%)`, leaf = `hsl(${95 + (h % 30)} 45% 42%)`, liq = `hsl(${[28, 12, 200, 340, 45][h % 5]} 75% 55%)`;
   const plate = '<ellipse cx="60" cy="74" rx="46" ry="6" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#fff"/><circle cx="60" cy="48" r="27" fill="#f4f1ec"/>';
@@ -209,7 +213,7 @@ function ticket(o) {
   const w = wait(o), late = o.status !== 'ready' && w >= 12;
   const nx = NEXT[o.status];
   return `<article class="ticket${late ? ' late' : ''}${o.id === FRESH ? ' fresh' : ''}" data-order="${o.id}" style="cursor:pointer">
-    <div class="t-top"><span class="tt"><span class="thumb">${dishSVG(o.items[0].n, cat(o.items[0].n))}</span><b>${esc(o.table)} <span>${o.id}</span></b></span><span class="${late ? 'late' : ''}">${w} мин</span></div>
+    <div class="t-top"><span class="tt"><span class="thumb">${dishArt(o.items[0].n, cat(o.items[0].n))}</span><b>${esc(o.table)} <span>${o.id}</span></b></span><span class="${late ? 'late' : ''}">${w} мин</span></div>
     <ul class="t-items">${o.items.slice(0, 3).map((i) => `<li><span>${esc(i.n)}${i.q > 1 ? ' × ' + i.q : ''}</span></li>`).join('')}${o.items.length > 3 ? `<li><span>и ещё ${o.items.length - 3}</span></li>` : ''}</ul>
     <div class="t-foot"><b>${tg(total(o))}</b><button class="btn sm ${o.status === 'new' ? 'primary' : ''}" data-adv="${o.id}">${nx[1]}</button></div></article>`;
 }
@@ -243,7 +247,7 @@ function orders() {
 function menu() {
   const stop = S.menu.filter((m) => !m.a).length;
   return head('Меню', `${S.menu.length} позиций · ${stop ? stop + ' в стоп-листе' : 'стоп-лист пуст'}`, `<button class="btn primary" data-act="newDish">${ic('plus')}Новое блюдо</button>`) +
-    Object.entries(CATS).map(([k, name]) => { const items = S.menu.map((m, i) => ({ ...m, i })).filter((m) => m.c === k); if (!items.length) return ''; return `<section class="menu-grp"><h2>${name}</h2><div class="dgrid">${items.map((m) => `<article class="dcard ${m.a ? '' : 'off'}"><span class="dart">${dishSVG(m.n, m.c)}</span><div class="dbody"><b>${esc(m.n)}</b><div class="dfoot"><span>${tg(m.p)}</span><button class="sw" data-dish="${m.i}" aria-pressed="${m.a}" aria-label="${esc(m.n)}: ${m.a ? 'в меню' : 'в стоп-листе'}"></button></div></div></article>`).join('')}</div></section>`; }).join('');
+    Object.entries(CATS).map(([k, name]) => { const items = S.menu.map((m, i) => ({ ...m, i })).filter((m) => m.c === k); if (!items.length) return ''; return `<section class="menu-grp"><h2>${name}</h2><div class="dgrid">${items.map((m) => `<article class="dcard ${m.a ? '' : 'off'}"><span class="dart">${dishArt(m.n, m.c)}</span><div class="dbody"><b>${esc(m.n)}</b><div class="dfoot"><span>${tg(m.p)}</span><button class="sw" data-dish="${m.i}" aria-pressed="${m.a}" aria-label="${esc(m.n)}: ${m.a ? 'в меню' : 'в стоп-листе'}"></button></div></div></article>`).join('')}</div></section>`; }).join('');
 }
 
 function guests() {

@@ -21,7 +21,7 @@
 .btn.short { background: var(--neg); color: #1c0508; border-color: transparent; font-weight: 600; }
 
 .dm { display: none; } .field label { display: flex; align-items: center; } .field input[type=checkbox] { height: auto; width: auto; margin-right: 8px; accent-color: var(--accent); }
-.cover { width: 64px; height: 64px; border-radius: 16px; flex: none; overflow: hidden; } .cover svg { width: 100%; height: 100%; display: block; }
+.cover { width: 64px; height: 64px; border-radius: 16px; flex: none; overflow: hidden; } .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .course-h .ch { display: flex; align-items: center; gap: 14px; }
 .cheer { display: inline-flex; gap: 6px; align-items: center; } .delta { font-size: 12px; margin-left: 8px; }
 .coach { display: flex; align-items: center; gap: 14px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--accent-bg); }
@@ -135,16 +135,8 @@ const locked = (c) => c > 1 && !courseDone(c - 1);
 console.assert(xp() === 400 && level() === 1, 'xp');
 
 
-/* course covers: small generated art, one motif per course */
-function coverSVG(c) {
-  const bg = { 1: '#2a2150', 2: '#14323a', 3: '#3a1d2c' }[c], a = { 1: '#8b7bff', 2: '#25d195', 3: '#ff6b78' }[c];
-  const art = {
-    1: [[14, 40, 10], [28, 30, 20], [42, 36, 14], [56, 20, 30]].map(([x, y, h], i) => `<line x1="${x}" x2="${x}" y1="${y - 6}" y2="${y + h + 6}" stroke="${a}" stroke-width="2"/><rect x="${x - 5}" y="${y}" width="10" height="${h}" rx="2" fill="${i % 2 ? '#ff6b78' : a}"/>`).join(''),
-    2: `<path d="M32 10 l22 8 v16 q0 18 -22 26 q-22 -8 -22 -26 v-16z" fill="none" stroke="${a}" stroke-width="3.5" stroke-linejoin="round"/><path d="M22 34 l7 7 13 -14" stroke="${a}" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
-    3: `<path d="M8 50 L22 34 L32 42 L48 18 L58 26" stroke="${a}" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="48" cy="18" r="4.5" fill="#fff"/><path d="M8 56 H58" stroke="${a}" stroke-width="2" opacity=".5"/>`,
-  }[c];
-  return `<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="${bg}"/>${art}</svg>`;
-}
+/* course covers: photos (CC0, see demos/CREDITS.md), one per course */
+const coverImg = (c) => `<img src="img/cover-${c}.jpg" alt="" loading="lazy" decoding="async">`;
 let RIVALS = [['Aibek_T', 12840], ['mila.k', 11975], ['Rustam', 11420], ['kolya_trade', 10310], ['Nastya V.', 9870], ['Zhan', 9560], ['Oleg_S', 9120], ['Dana', 8740]];
 
 /* ── shell ────────────────────────────────────────────── */
@@ -247,7 +239,7 @@ function checkExits() {
 /* ── learn ────────────────────────────────────────────── */
 function learn() {
   const body = [1, 2, 3].map((c) => { const ls = LES.filter((l) => l.c === c), d = ls.filter((l) => l.done).length, lk = locked(c);
-    return `<section class="course"><div class="course-h"><span class="ch"><span class="cover">${coverSVG(c)}</span><h3>${c}. ${COURSES[c]}</h3></span><span class="muted">${lk ? 'Откроется после курса ' + (c - 1) : `${d} из ${ls.length}`}</span></div><div class="bar" style="margin-bottom:8px"><i style="width:${d / ls.length * 100}%"></i></div>
+    return `<section class="course"><div class="course-h"><span class="ch"><span class="cover">${coverImg(c)}</span><h3>${c}. ${COURSES[c]}</h3></span><span class="muted">${lk ? 'Откроется после курса ' + (c - 1) : `${d} из ${ls.length}`}</span></div><div class="bar" style="margin-bottom:8px"><i style="width:${d / ls.length * 100}%"></i></div>
     ${ls.map((l) => `<div class="lesson ${l.done ? 'done' : ''} ${lk ? 'lock' : ''}"><span class="dot">${l.done ? ic('check') : ''}</span><div><b>${l.t}</b><small>${l.task ? 'Практика на графике' : 'Вопрос · 1 мин'}</small></div>${l.done ? '<span class="pill pos">+' + XP + ' XP</span>' : lk ? ic('lock') : l.task ? '<button class="btn sm primary" data-act="goPractice">Попробовать</button>' : `<button class="btn sm primary" data-act="quiz" data-id="${l.id}">Пройти</button>`}</div>`).join('')}</section>`; }).join('');
   return head('Курсы', `${LES.filter((l) => l.done).length} из ${LES.length} уроков. Каждые ${PER} XP открывают новый уровень.`) + `<section class="card">${body}</section>`;
 }

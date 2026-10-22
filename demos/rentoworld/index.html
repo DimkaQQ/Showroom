@@ -200,9 +200,7 @@ svg { display: block; }
 .car { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; cursor: pointer; text-align: left; padding: 0; transition: border-color .15s, transform .2s var(--ease); animation: pop .3s var(--ease) both; }
 .car:hover { border-color: var(--faint); transform: translateY(-2px); }
 .car-art { display: block; position: relative; aspect-ratio: 8 / 5; overflow: hidden; }
-.car-art > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.car-art .carfg { position: absolute; left: 8%; right: 8%; bottom: 12%; } .car-art .carfg svg { width: 100%; height: auto; display: block; }
-.car-art .carfg svg { animation: drift 5s ease-in-out infinite alternate; } @keyframes drift { to { transform: translateX(6px); } }
+.car-art > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .car-b { padding: 14px 16px 16px; }
 .car-b h3 { font-size: 16px; font-weight: 600; }
 .car-b .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
@@ -233,7 +231,7 @@ svg { display: block; }
 
 .trip-c { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; }
 .trip-c + .trip-c { border-top: 1px solid var(--rule); }
-.trip-c .thumb { border-radius: 10px; padding: 6px 8px 0; }
+.trip-c .thumb { border-radius: 10px; overflow: hidden; aspect-ratio: 8 / 5; } .trip-c .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .trip-c b { display: block; font-weight: 600; } .trip-c span.s { color: var(--muted); font-size: 13px; }
 
 @media (max-width: 1099px) { .cars { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -430,31 +428,7 @@ const price = (c, n) => { const base = c.px * n, off = n >= 14 ? .15 : n >= 7 ? 
 /* totals reconcile: 3 days of the Solaris, no discount */
 console.assert(price(car(3), 3).total === 14000 * 3 + Math.round(14000 * 3 * .07) && price(car(1), 7).disc === 15400, 'price');
 
-function carSVG(t, c) {
-  const body = {
-    sedan: 'M10 72 L16 54 Q22 46 44 44 L72 28 Q88 22 118 22 Q146 22 162 34 L196 44 Q226 48 230 66 L230 72 Z',
-    suv:   'M10 72 L12 42 Q14 32 34 30 L54 12 Q62 6 100 6 L170 6 Q192 6 204 22 L218 34 Q234 38 234 58 L234 72 Z',
-    hatch: 'M12 72 L12 50 Q12 42 24 38 L52 22 Q64 16 100 16 L152 16 Q178 18 192 38 L214 46 Q230 50 230 62 L230 72 Z',
-    van:   'M10 72 L10 38 Q10 22 28 20 L168 20 Q190 20 204 38 L226 48 Q232 52 232 62 L232 72 Z',
-  }[t];
-  const glass = {
-    sedan: 'M60 44 L78 31 Q90 27 116 27 Q140 27 152 36 L172 44 Z',
-    suv:   'M48 30 L62 14 Q70 11 100 11 L166 11 Q184 11 192 23 L206 30 Z',
-    hatch: 'M32 38 L52 25 Q64 21 100 21 L148 21 Q170 23 182 38 Z',
-    van:   'M22 38 Q22 28 34 26 L166 26 Q184 26 194 38 Z',
-  }[t];
-  return `<svg viewBox="0 0 240 92" aria-hidden="true"><ellipse cx="121" cy="86" rx="104" ry="4" fill="#000" opacity=".08"/><path d="${body}" fill="${c}"/><path d="${glass}" fill="#fff" opacity=".6"/>
-    <path d="M10 72 H232" stroke="#000" stroke-opacity=".12" stroke-width="2"/>${[62, 182].map((x) => `<circle cx="${x}" cy="74" r="14" fill="#1b1d20"/><circle cx="${x}" cy="74" r="6" fill="#c8cbd0"/>`).join('')}</svg>`;
-}
-
-/* scenery behind each car: sky, sun, hills and road, tinted by the car colour */
-function sceneSVG(c, seed) {
-  const sky = `color-mix(in srgb, ${c} 14%, #eef3f6)`, hill = `color-mix(in srgb, ${c} 28%, #cfd9cf)`, hill2 = `color-mix(in srgb, ${c} 20%, #b9c9bd)`, sx = 30 + (seed * 47) % 170;
-  return `<svg viewBox="0 0 240 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect width="240" height="150" fill="${sky}"/><circle cx="${sx}" cy="34" r="${14 + seed % 5}" fill="#fff" opacity=".85"/>
-    <path d="M0 98 Q40 66 90 90 T180 80 T240 92 V150 H0z" fill="${hill2}"/><path d="M0 108 Q60 84 120 104 T240 100 V150 H0z" fill="${hill}"/>
-    <rect y="112" width="240" height="38" fill="#4a4f57"/><path d="M0 131 H240" stroke="#f6f1d8" stroke-width="2" stroke-dasharray="14 12" opacity=".8"/></svg>`;
-}
-const carArt = (c, i) => `<span class="art">${sceneSVG(c.c, i)}<span class="carfg">${carSVG(c.t, c.c)}</span></span>`;
+const carPhoto = (c) => `<img src="img/car-${c.id}.jpg" alt="${esc(c.n)}" loading="lazy" decoding="async">`;
 
 const tint = (c) => `color-mix(in srgb, ${c} 16%, #f6f5f1)`;
 
@@ -483,7 +457,7 @@ document.addEventListener('change', (e) => { if (e.target.id === 'sort') { sort 
 /* ── catalog ──────────────────────────────────────────── */
 function catalog() {
   const list = CARS.filter((c) => type === 'all' || c.t === type).sort((a, b) => sort === 'price' ? a.px - b.px : sort === 'rating' ? b.r - a.r : freeNext7(b.id) - freeNext7(a.id));
-  const cards = list.map((c) => { const f = freeNext7(c.id); return `<button class="car" data-car="${c.id}" aria-label="${esc(c.n)}, ${tg(c.px)} в сутки"><span class="car-art">${sceneSVG(c.c, c.id)}<span class="carfg">${carSVG(c.t, c.c)}</span></span>
+  const cards = list.map((c) => { const f = freeNext7(c.id); return `<button class="car" data-car="${c.id}" aria-label="${esc(c.n)}, ${tg(c.px)} в сутки"><span class="car-art">${carPhoto(c)}</span>
     <span class="car-b" style="display:block"><h3>${esc(c.n)}</h3><div class="sub">${c.y} · ${TYPE[c.t]} · ${c.tr} · ${c.seats} мест</div>
     <span class="car-f"><span><b>${tg(c.px)}</b> <small>/ сутки</small></span><span style="text-align:right"><span class="free ${f < 3 ? 'busy' : ''}" style="display:block">${f === 7 ? 'Свободна всю неделю' : f ? `Свободно ${f} из 7 дней` : 'На неделю занята'}</span><small>★ ${fmtD(c.r)} · ${c.trips} ${plural(c.trips, 'поездка', 'поездки', 'поездок')}</small></span></span></span></button>`; }).join('');
   return head('Авто в Алматы', `${list.length} ${plural(list.length, 'машина', 'машины', 'машин')} от владельцев. Выберите даты внутри карточки, цена посчитается сама.`) +
@@ -496,7 +470,7 @@ function catalog() {
 function openCar(id) {
   sel = { car: id, a: null, b: null };
   const c = car(id);
-  modal(`<div class="det"><div class="det-l"><div class="det-art car-art" style="border-radius:12px;margin-bottom:18px">${sceneSVG(c.c, c.id)}<span class="carfg">${carSVG(c.t, c.c)}</span></div>
+  modal(`<div class="det"><div class="det-l"><div class="det-art car-art" style="border-radius:12px;margin-bottom:18px">${carPhoto(c)}</div>
       <h2 style="font-size:22px">${esc(c.n)}, ${c.y}</h2><p class="muted">Владелец: ${esc(c.own)} · ${c.where} · ★ ${fmtD(c.r)}</p>
       <div class="specs"><div><b>${c.seats}</b><span>мест</span></div><div><b>${c.tr}</b><span>коробка</span></div><div><b>${c.fuel}</b><span>топливо</span></div><div><b>${tg(c.dep)}</b><span>залог</span></div></div>
       <h3 style="font-size:15px">Выберите даты</h3><p class="muted" style="font-size:13px">Серые дни заняты. Нажмите день начала, потом день конца.</p><div class="cal" id="cal"></div></div>
@@ -524,7 +498,7 @@ function drawSum() {
 /* ── trips ────────────────────────────────────────────── */
 function trips() {
   const list = myTrips(), up = list.filter((b) => b.to >= 0);
-  const rows = list.map((b) => { const c = car(b.car), n = b.to - b.from + 1, p = price(c, n), past = b.to < 0; return `<div class="trip-c"><span class="thumb" style="background:${tint(c.c)}">${carSVG(c.t, c.c)}</span><div><b>${esc(c.n)}</b><span class="s">${dFmt(b.from)} — ${dFmt(b.to)} · ${days(n)} · ${tg(p.total)}</span></div>${past ? '<span class="pill">Завершена</span>' : `<span style="display:flex;gap:8px;align-items:center"><span class="pill pos"><i></i>Подтверждена</span><button class="btn sm" data-act="cancel" data-id="${b.id}">Отменить</button></span>`}</div>`; }).join('');
+  const rows = list.map((b) => { const c = car(b.car), n = b.to - b.from + 1, p = price(c, n), past = b.to < 0; return `<div class="trip-c"><span class="thumb">${carPhoto(c)}</span><div><b>${esc(c.n)}</b><span class="s">${dFmt(b.from)} — ${dFmt(b.to)} · ${days(n)} · ${tg(p.total)}</span></div>${past ? '<span class="pill">Завершена</span>' : `<span style="display:flex;gap:8px;align-items:center"><span class="pill pos"><i></i>Подтверждена</span><button class="btn sm" data-act="cancel" data-id="${b.id}">Отменить</button></span>`}</div>`; }).join('');
   const spent = list.reduce((a, b) => a + price(car(b.car), b.to - b.from + 1).total, 0);
   return head('Мои поездки', `${up.length ? `Ближайшая: ${esc(car(up[0].car).n)}, с ${dFmt(up[0].from)}` : 'Ближайших поездок нет'}`) +
     `<div class="kpis"><div class="kpi"><b>${list.length}</b><span>Поездок всего</span></div><div class="kpi"><b>${tg(spent)}</b><span>Потрачено</span></div></div><section class="card">${rows || '<p class="empty">Пока пусто. Выберите машину в каталоге.</p>'}</section>`;
