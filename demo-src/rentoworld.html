@@ -85,7 +85,7 @@
   <header class="top">
     <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V11l2-4h10l2 4v5M3 16h18M7.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM16.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></div><div class="brand-name">RentoWorld</div></div>
     <nav class="nav" id="nav"></nav>
-    <div class="who-top"><b>Timur</b><div class="avatar">TZ</div></div>
+    <div class="who-top"><b>Tomás</b><div class="avatar">TF</div></div>
   </header>
   <main class="main" id="main"></main>
 </div>
@@ -96,7 +96,7 @@
 'use strict';
 
 /* ── data ─────────────────────────────────────────────── */
-const tg = (n) => fmt(n) + ' ₸';
+const tg = (n) => '€' + fmt(n);
 const TODAY = new Date(2026, 8, 28);
 const addDays = (d) => new Date(TODAY.getTime() + d * 864e5);
 const dFmt = (d) => addDays(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).replace('.', '');
@@ -104,25 +104,25 @@ const plural = (n, a, b, c) => n === 1 ? a : c;
 const days = (n) => `${n} ${plural(n, 'day', 'days', 'days')}`;
 
 const CARS = [
-  { id: 1,  n: 'Toyota Camry',     y: 2022, t: 'sedan', c: '#c9ced6', px: 22000, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.9, trips: 63, own: 'You', where: 'Almaty', dep: 80000 },
-  { id: 2,  n: 'Kia Sportage',     y: 2023, t: 'suv',   c: '#2d5b8c', px: 28000, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.8, trips: 41, own: 'You', where: 'Almaty', dep: 100000 },
-  { id: 3,  n: 'Hyundai Solaris',  y: 2021, t: 'sedan', c: '#b8352f', px: 14000, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.7, trips: 118, own: 'Marat K.', where: 'Almaty', dep: 50000 },
-  { id: 4,  n: 'Chevrolet Tracker', y: 2022, t: 'suv',  c: '#e0b43a', px: 24000, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.6, trips: 37, own: 'Dinara S.', where: 'Almaty', dep: 90000 },
-  { id: 5,  n: 'Volkswagen Polo',  y: 2020, t: 'hatch', c: '#3d4a57', px: 12000, seats: 5, tr: 'Manual', fuel: 'Petrol', r: 4.5, trips: 90, own: 'Yerbol A.', where: 'Almaty', dep: 40000 },
-  { id: 6,  n: 'Skoda Octavia',    y: 2022, t: 'hatch', c: '#2f7d5b', px: 19000, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.9, trips: 52, own: 'Aigul T.', where: 'Almaty', dep: 70000 },
-  { id: 7,  n: 'Hyundai Staria',   y: 2023, t: 'van',   c: '#e8e4da', px: 45000, seats: 9, tr: 'Automatic', fuel: 'Diesel', r: 5.0, trips: 22, own: 'Nurlan B.', where: 'Almaty', dep: 150000 },
-  { id: 8,  n: 'Toyota RAV4',      y: 2021, t: 'suv',   c: '#1f2a36', px: 30000, seats: 5, tr: 'Automatic', fuel: 'Hybrid', r: 4.8, trips: 74, own: 'Saule M.', where: 'Almaty', dep: 110000 },
-  { id: 9,  n: 'Lada Vesta',       y: 2020, t: 'sedan', c: '#8a9aa8', px: 9000,  seats: 5, tr: 'Manual', fuel: 'Petrol', r: 4.3, trips: 130, own: 'Askhat Zh.', where: 'Almaty', dep: 30000 },
+  { id: 1,  n: 'Toyota Camry',     y: 2016, t: 'sedan', c: '#c9ced6', px: 38, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.9, trips: 63, own: 'You', where: 'Lisbon', dep: 500 },
+  { id: 2,  n: 'Kia Sportage',     y: 2009, t: 'suv',   c: '#2d5b8c', px: 32, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.8, trips: 41, own: 'You', where: 'Lisbon', dep: 400 },
+  { id: 3,  n: 'Hyundai Solaris',  y: 2021, t: 'sedan', c: '#b8352f', px: 25, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.7, trips: 118, own: 'Jakub K.', where: 'Prague', dep: 300 },
+  { id: 4,  n: 'Chevrolet Tracker', y: 2022, t: 'suv',  c: '#e0b43a', px: 34, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.6, trips: 37, own: 'Marta S.', where: 'Barcelona', dep: 450 },
+  { id: 5,  n: 'Volkswagen Polo',  y: 2016, t: 'hatch', c: '#3d4a57', px: 27, seats: 5, tr: 'Manual', fuel: 'Petrol', r: 4.5, trips: 90, own: 'Stefan A.', where: 'Munich', dep: 300 },
+  { id: 6,  n: 'Skoda Octavia RS Combi',    y: 2015, t: 'hatch', c: '#2f7d5b', px: 42, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.9, trips: 52, own: 'Petra T.', where: 'Prague', dep: 600 },
+  { id: 7,  n: 'Hyundai Staria',   y: 2023, t: 'van',   c: '#e8e4da', px: 90, seats: 9, tr: 'Automatic', fuel: 'Diesel', r: 5.0, trips: 22, own: 'Joost B.', where: 'Amsterdam', dep: 1000 },
+  { id: 8,  n: 'Toyota RAV4 Plug-in Hybrid',      y: 2022, t: 'suv',   c: '#1f2a36', px: 65, seats: 5, tr: 'Automatic', fuel: 'Plug-in hybrid', r: 4.8, trips: 74, own: 'Camille M.', where: 'Lyon', dep: 800 },
+  { id: 9,  n: 'Lada Vesta',       y: 2020, t: 'sedan', c: '#8a9aa8', px: 22,  seats: 5, tr: 'Manual', fuel: 'Petrol', r: 4.3, trips: 130, own: 'Ines Z.', where: 'Barcelona', dep: 250 },
 ];
 const TYPE = { sedan: 'Sedan', suv: 'Crossover', hatch: 'Hatchback', van: 'Minivan' };
 /* every booking is one record; busy days, trips, occupancy and earnings all derive from it */
 const B = [
-  { id: 1, car: 1, who: 'Aidos N.', from: -6, to: -3 }, { id: 2, car: 1, who: 'Anna L.', from: 2, to: 5 }, { id: 3, car: 1, who: 'Serik T.', from: 9, to: 14 }, { id: 4, car: 1, who: 'Madina R.', from: 19, to: 21 },
-  { id: 5, car: 2, who: 'Oleg V.', from: -5, to: -2 }, { id: 19, car: 2, who: 'Assel F.', from: -12, to: -9 }, { id: 20, car: 1, who: 'Bakhyt O.', from: -14, to: -11 }, { id: 6, car: 2, who: 'Dina K.', from: 6, to: 12 }, { id: 7, car: 2, who: 'Ruslan E.', from: 16, to: 20 },
-  { id: 8, car: 3, who: 'You', from: -9, to: -6 }, { id: 9, car: 3, who: 'Igor M.', from: 1, to: 4 }, { id: 10, car: 3, who: 'Leila Kh.', from: 8, to: 10 },
-  { id: 11, car: 4, who: 'You', from: 12, to: 14 }, { id: 12, car: 4, who: 'Eldar B.', from: 0, to: 6 },
-  { id: 13, car: 5, who: 'Tonya R.', from: 3, to: 9 }, { id: 14, car: 6, who: 'Daniyar S.', from: 5, to: 7 }, { id: 15, car: 7, who: 'Tour-As Company', from: 0, to: 10 }, { id: 16, car: 7, who: 'Mira D.', from: 14, to: 18 },
-  { id: 17, car: 8, who: 'Vlad P.', from: 2, to: 4 }, { id: 18, car: 9, who: 'Kirill Z.', from: 1, to: 2 },
+  { id: 1, car: 1, who: 'Lukas N.', from: -6, to: -3 }, { id: 2, car: 1, who: 'Anna L.', from: 2, to: 5 }, { id: 3, car: 1, who: 'Marco T.', from: 9, to: 14 }, { id: 4, car: 1, who: 'Camille R.', from: 19, to: 21 },
+  { id: 5, car: 2, who: 'Jonas V.', from: -5, to: -2 }, { id: 19, car: 2, who: 'Elena F.', from: -12, to: -9 }, { id: 20, car: 1, who: 'Pieter O.', from: -14, to: -11 }, { id: 6, car: 2, who: 'Sofia K.', from: 6, to: 12 }, { id: 7, car: 2, who: 'Hugo E.', from: 16, to: 20 },
+  { id: 8, car: 3, who: 'You', from: -9, to: -6 }, { id: 9, car: 3, who: 'Matteo M.', from: 1, to: 4 }, { id: 10, car: 3, who: 'Leila H.', from: 8, to: 10 },
+  { id: 11, car: 4, who: 'You', from: 12, to: 14 }, { id: 12, car: 4, who: 'Daan B.', from: 0, to: 6 },
+  { id: 13, car: 5, who: 'Nora R.', from: 3, to: 9 }, { id: 14, car: 6, who: 'Felix S.', from: 5, to: 7 }, { id: 15, car: 7, who: 'Lusa Tours Lda', from: 0, to: 10 }, { id: 16, car: 7, who: 'Mira D.', from: 14, to: 18 },
+  { id: 17, car: 8, who: 'Pavel P.', from: 2, to: 4 }, { id: 18, car: 9, who: 'Tomáš Z.', from: 1, to: 2 },
 ];
 const car = (id) => CARS.find((c) => c.id === id);
 const busy = (carId, d) => B.some((b) => b.car === carId && d >= b.from && d <= b.to);
@@ -130,7 +130,7 @@ const freeNext7 = (id) => { let n = 0; for (let d = 0; d < 7; d++) if (!busy(id,
 const nextId = () => Math.max(...B.map((b) => b.id)) + 1;
 const price = (c, n) => { const base = c.px * n, off = n >= 14 ? .15 : n >= 7 ? .1 : 0, disc = Math.round(base * off), fee = Math.round((base - disc) * .07); return { base, off, disc, fee, total: base - disc + fee }; };
 /* totals reconcile: 3 days of the Solaris, no discount */
-console.assert(price(car(3), 3).total === 14000 * 3 + Math.round(14000 * 3 * .07) && price(car(1), 7).disc === 15400, 'price');
+console.assert(price(car(3), 3).total === 25 * 3 + Math.round(25 * 3 * .07) && price(car(1), 7).disc === 27, 'price');
 
 const carPhoto = (c) => `<img src="img/car-${c.id}.jpg" alt="${esc(c.n)}" loading="lazy" decoding="async">`;
 
@@ -164,7 +164,7 @@ function catalog() {
   const cards = list.map((c) => { const f = freeNext7(c.id); return `<button class="car" data-car="${c.id}" aria-label="${esc(c.n)}, ${tg(c.px)} per day"><span class="car-art">${carPhoto(c)}</span>
     <span class="car-b" style="display:block"><h3>${esc(c.n)}</h3><div class="sub">${c.y} · ${TYPE[c.t]} · ${c.tr} · ${c.seats} seats</div>
     <span class="car-f"><span><b>${tg(c.px)}</b> <small>/ day</small></span><span style="text-align:right"><span class="free ${f < 3 ? 'busy' : ''}" style="display:block">${f === 7 ? 'Free all week' : f ? `Free ${f} of 7 days` : 'Booked all week'}</span><small>★ ${fmtD(c.r)} · ${c.trips} ${plural(c.trips, 'trip', 'trips', 'trips')}</small></span></span></span></button>`; }).join('');
-  return head('Cars in Almaty', `${list.length} ${plural(list.length, 'car', 'cars', 'cars')} from owners. Pick your dates inside a listing and the price is calculated for you.`) +
+  return head('Cars across Europe', `${list.length} ${plural(list.length, 'car', 'cars', 'cars')} from owners. Pick your dates inside a listing and the price is calculated for you.`) +
     `<div class="filters">${['all', 'sedan', 'suv', 'hatch', 'van'].map((k) => `<button class="chip ${type === k ? 'on' : ''}" data-act="type" data-v="${k}">${k === 'all' ? 'All' : TYPE[k]}</button>`).join('')}
     <select id="sort" aria-label="Sort"><option value="price" ${sort === 'price' ? 'selected' : ''}>Cheapest first</option><option value="rating" ${sort === 'rating' ? 'selected' : ''}>By rating</option><option value="free" ${sort === 'free' ? 'selected' : ''}>Most free days</option></select></div>
     <div class="cars">${cards}</div>`;
@@ -239,7 +239,7 @@ const ACT = {
   cancel(d) { const i = B.findIndex((b) => b.id === +d.id); B.splice(i, 1); toast('Booking cancelled, the deposit will be released to your card'); render(); },
 };
 /* ── live: other renters keep booking, so calendars and "free days" change under you ─ */
-const RENTERS = ['Aigerim N.', 'Rustem K.', 'Aliya B.', 'Timur D.', 'Zhanar S.', 'Yerlan M.', 'Dana T.'];
+const RENTERS = ['Ana N.', 'Lars K.', 'Julie B.', 'Tim D.', 'Greta S.', 'Marek M.', 'Dana T.'];
 setInterval(() => {
   if (document.hidden || $('#scrim')) return;
   const c = CARS[Math.floor(Math.random() * CARS.length)], start = 1 + Math.floor(Math.random() * 20), len = 1 + Math.floor(Math.random() * 3);

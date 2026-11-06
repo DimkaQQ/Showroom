@@ -64,7 +64,7 @@ body { font-size: 15px; }
       <div><div class="brand-name">Shipter</div><div class="brand-sub" id="side-plan"></div></div>
     </div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">AL</div><div class="who"><b>Alex Lebedev</b><span id="side-who"></span></div></div>
+    <div class="side-foot"><div class="avatar">EM</div><div class="who"><b>Elena Marchetti</b><span id="side-who"></span></div></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
@@ -76,17 +76,17 @@ body { font-size: 15px; }
 
 /* ── catalog the planner picks from ───────────────────── */
 const CH = [
-  { id: 'tg',   n: 'Telegram channels your audience follows', m: ['cis'], paid: false, lo: 2, hi: 6, tasks: ['List 15 channels where your audience hangs out', 'Secure 3 reviews or mentions'] },
-  { id: 'vc',   n: 'vc.ru and Habr', m: ['cis'], paid: false, lo: 3, hi: 9, tasks: ['Write a 1,000-word "how we built it" breakdown', 'Reply to comments within the first 2 hours of publishing'] },
-  { id: 'ph',   n: 'Product Hunt', m: ['global', 'eu', 'asia'], paid: false, lo: 2, hi: 8, tasks: ['Prepare the page, 4 screenshots and a short video', 'Schedule the launch for a Tuesday and ask 20 friends to support it'] },
-  { id: 'rd',   n: 'Reddit and niche forums', m: ['global', 'eu', 'asia'], paid: false, lo: 1, hi: 5, tasks: ['Find 5 communities that discuss your problem', 'Help in replies for two weeks, then show your product'] },
-  { id: 'dm',   n: 'Direct messages to first customers', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.1, hi: 0.4, tasks: ['List 30 people who have this pain', 'Message each one personally and offer a free trial'] },
-  { id: 'em',   n: 'Email campaign to your list', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.5, hi: 2, tasks: ['Add a signup form to your landing page', 'Send 3 emails: story, value, offer'] },
-  { id: 'inf',  n: 'Creators and partners', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 5, hi: 15, tasks: ['Pick 5 creators with an engaged audience in your niche', 'Offer a sales commission instead of a flat fee'] },
-  { id: 'ads',  n: 'Telegram Ads or Google ads', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 8, hi: 20, tasks: ['Run 3 ads with different headlines at $5 a day', 'After 4 days, keep the one that brought leads at the lowest cost'] },
+  { id: 'nl',   n: 'Newsletters and Slack communities your audience follows', m: ['dach'], paid: false, lo: 2, hi: 6, tasks: ['List 15 newsletters and communities where your audience hangs out', 'Secure 3 reviews or mentions'] },
+  { id: 'pr',   n: 'Heise, Sifted and dev.to', m: ['dach'], paid: false, lo: 3, hi: 9, tasks: ['Write a 1,000-word "how we built it" breakdown', 'Reply to comments within the first 2 hours of publishing'] },
+  { id: 'ph',   n: 'Product Hunt', m: ['global', 'eu', 'uk'], paid: false, lo: 2, hi: 8, tasks: ['Prepare the page, 4 screenshots and a short video', 'Schedule the launch for a Tuesday and ask 20 friends to support it'] },
+  { id: 'rd',   n: 'Reddit, Hacker News and Indie Hackers', m: ['global', 'eu', 'uk'], paid: false, lo: 1, hi: 5, tasks: ['Find 5 communities that discuss your problem', 'Help in replies for two weeks, then show your product'] },
+  { id: 'dm',   n: 'Direct messages to first customers', m: ['dach', 'global', 'eu', 'uk'], paid: false, lo: 0.1, hi: 0.4, tasks: ['List 30 people who have this pain', 'Message each one personally and offer a free trial'] },
+  { id: 'em',   n: 'Email campaign to your list', m: ['dach', 'global', 'eu', 'uk'], paid: false, lo: 0.5, hi: 2, tasks: ['Add a signup form to your landing page', 'Send 3 emails: story, value, offer'] },
+  { id: 'inf',  n: 'Creators and partners', m: ['dach', 'global', 'eu', 'uk'], paid: true, lo: 5, hi: 15, tasks: ['Pick 5 creators with an engaged audience in your niche', 'Offer a sales commission instead of a flat fee'] },
+  { id: 'ads',  n: 'LinkedIn Ads or Google Ads', m: ['dach', 'global', 'eu', 'uk'], paid: true, lo: 8, hi: 20, tasks: ['Run 3 ads with different headlines at €5 a day', 'After 4 days, keep the one that brought leads at the lowest cost'] },
 ];
-const MARKETS = { cis: 'CIS', global: 'Global', eu: 'Europe', asia: 'Asia' };
-const BUDGETS = [['0', 'No budget'], ['100', '$100–500 per month'], ['500', '$500–2000 per month'], ['2000', '$2000+ per month']];
+const MARKETS = { dach: 'DACH', global: 'Global', eu: 'Europe', uk: 'UK & Ireland' };
+const BUDGETS = [['0', 'No budget'], ['100', '€100–500 per month'], ['500', '€500–2000 per month'], ['2000', '€2000+ per month']];
 const LIM = { trial: 10, starter: 200, pro: Infinity };
 const PLAN_N = { trial: 'Trial', starter: 'Starter', pro: 'Pro' };
 
@@ -107,9 +107,9 @@ const visits = (p) => p.vis ?? 0;
 const S = {
   plan: 'trial', used: 7, trialDays: 5,
   projects: [
-    { id: 1, name: 'TelegramBot Pro', type: 'SaaS', desc: 'A platform where sellers build Telegram bots with payments and analytics.', aud: 'Sellers and experts on Telegram', market: 'cis', budget: '0' },
+    { id: 1, name: 'Invoicely Pro', type: 'SaaS', desc: 'A platform where freelancers send invoices, collect SEPA and card payments, and track cash flow.', aud: 'Freelancers and consultants in Germany, Austria and Switzerland', market: 'dach', budget: '0' },
     { id: 2, name: 'SaaS Landing Kit', type: 'Landing', desc: 'A set of ready-made landing pages for SaaS startups.', aud: 'B2B SaaS founders', market: 'global', budget: '100' },
-    { id: 3, name: 'GameApp Store', type: 'App', desc: 'A mini-game catalogue with one-tap purchase.', aud: 'Players aged 18–30', market: 'asia', budget: '500' },
+    { id: 3, name: 'GameApp Store', type: 'App', desc: 'A mini-game catalogue with one-tap purchase.', aud: 'Players aged 18–30', market: 'uk', budget: '500' },
   ],
 };
 S.projects.forEach((p, i) => { p.plan = makePlan(p.market, p.budget); p.vis = [214, 96, 41][i]; });
@@ -195,10 +195,10 @@ function outHTML(o) {
 
 /* ── pricing ──────────────────────────────────────────── */
 function pricing() {
-  const P = [['trial', 'Trial', '$0', '7 days free', ['Up to 3 projects', '10 generations', 'Basic channel plan'], ['Multiple projects', 'Priority support']],
-    ['starter', 'Starter', '$29', 'per month, cancel anytime', ['Up to 10 projects', '200 generations per month', 'Full plan with tasks', 'Email support'], ['API access']],
-    ['pro', 'Pro', '$79', 'per month, cancel anytime', ['Unlimited projects', 'Unlimited generations', 'API access', '24/7 support'], []]];
-  return head('Pricing', 'The generation limit changes as soon as you pick a plan. Payments are not connected in this demo.') +
+  const P = [['trial', 'Trial', '€0', '7 days free', ['Up to 3 projects', '10 generations', 'Basic channel plan'], ['Multiple projects', 'Priority support']],
+    ['starter', 'Starter', '€9', 'per month, cancel anytime', ['Up to 10 projects', '200 generations per month', 'Full plan with tasks', 'Email support'], ['API access']],
+    ['pro', 'Pro', '€29', 'per month, cancel anytime', ['Unlimited projects', 'Unlimited generations', 'API access', '24/7 support'], []]];
+  return head('Pricing', 'The generation limit changes as soon as you pick a plan. Payments (Stripe, SEPA, PayPal) are not connected in this demo.') +
     `<div class="plans">${P.map(([k, n, pr, per, yes, no]) => `<article class="plan ${S.plan === k ? 'cur' : ''}"><h3>${n}${S.plan === k ? ' · your plan' : ''}</h3><div class="pr">${pr}<small> ${k === 'trial' ? '' : '/ mo'}</small></div><p class="muted">${per}</p><ul>${yes.map((y) => `<li>${ic('check')}${y}</li>`).join('')}${no.map((y) => `<li class="off">${ic('x')}${y}</li>`).join('')}</ul><button class="btn ${S.plan === k ? '' : 'primary'}" data-act="plan" data-v="${k}" ${S.plan === k ? 'disabled' : ''}>${S.plan === k ? 'Current plan' : 'Choose ' + n}</button></article>`).join('')}</div>`;
 }
 
@@ -231,7 +231,7 @@ const ACT = {
       $('#n-ok').onclick = () => {
         const n = $('#n-n').value.trim(); if (!n) return $('#n-n').focus();
         if (S.projects.length >= { trial: 3, starter: 10, pro: 999 }[S.plan]) { closeModal(); toast('Project limit reached on this plan'); return go('pricing'); }
-        const id = Math.max(...S.projects.map((x) => x.id)) + 1; S.projects.push({ id, name: n, type: $('#n-t').value, desc: $('#n-d').value.trim() || 'No description', aud: 'Your audience', market: 'cis', budget: '0', plan: [] });
+        const id = Math.max(...S.projects.map((x) => x.id)) + 1; S.projects.push({ id, name: n, type: $('#n-t').value, desc: $('#n-d').value.trim() || 'No description', aud: 'Your audience', market: 'dach', budget: '0', plan: [] });
         closeModal(); toast('Project created'); render();
       };
     });

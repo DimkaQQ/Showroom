@@ -86,7 +86,7 @@
   <aside class="side">
     <div class="brand">
       <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3"/></svg></div>
-      <div><div class="brand-name">BotFactory</div><div class="brand-sub">Lena's Studio</div></div>
+      <div><div class="brand-name">BotFactory</div><div class="brand-sub">Marta's Studio</div></div>
     </div>
     <nav class="nav" id="nav"></nav>
     <div class="side-foot"><div class="avatar">EK</div><div class="who"><b>Elena Kravets</b><span>Master plan</span></div></div>
@@ -100,7 +100,7 @@
 'use strict';
 
 /* ── data ─────────────────────────────────────────────── */
-const rub = (n) => fmt(n) + ' ₽';
+const eur = (n) => '€' + fmt(n);
 const TODAY = new Date(2026, 9, 21, 15, 20);          // Wed 21 Oct 2026
 const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const dayOf = (ago) => new Date(TODAY.getTime() - ago * 864e5);
@@ -108,22 +108,22 @@ const dLabel = (ago) => ago === 0 ? 'Today' : ago === 1 ? 'Yesterday' : dayOf(ag
 
 const TPL = {
   salon: { name: 'Appointment booking', icon: 'calendar', steps: () => [
-    { t: 'msg', text: "Hi! I'm Lena, a nail artist in Tynda. I'll book you in a minute." },
-    { t: 'buttons', text: 'What would you like to do?', opts: ['Manicure · 2,500 ₽', 'Pedicure · 3,000 ₽', 'Removal · 800 ₽'] },
+    { t: 'msg', text: "Hi! I'm Marta, a nail artist in Amsterdam. I'll book you in a minute." },
+    { t: 'buttons', text: 'What would you like to do?', opts: ['Manicure · €45', 'Pedicure · €55', 'Removal · €15'] },
     { t: 'ask', text: 'What is your name?' },
-    { t: 'pay', text: 'A prepayment secures your slot. It is deducted from the price.', price: 500 },
-    { t: 'give', text: 'You are booked! Address: 12 Krasnaya Presnya St, room 4.', file: 'Before your visit.pdf' },
+    { t: 'pay', text: 'A prepayment secures your slot. It is deducted from the price.', price: 25 },
+    { t: 'give', text: 'You are booked! Address: 12 Prinsengracht, room 4.', file: 'Before your visit.pdf' },
   ] },
   course: { name: 'Course sales', icon: 'graduation', steps: () => [
     { t: 'msg', text: 'Hello! This is the bot for the "First Launch" course: 12 lessons on getting your first sales.' },
     { t: 'buttons', text: 'Where shall we start?', opts: ['What is inside the course', 'I want to buy'] },
-    { t: 'pay', text: 'Lifetime access to the course. Pay by card or instant bank transfer.', price: 4900 },
+    { t: 'pay', text: 'Lifetime access to the course. Pay by card, PayPal, Klarna or SEPA transfer.', price: 79 },
     { t: 'give', text: 'Payment received, thank you! Your lessons are now unlocked.', file: 'Open course' },
   ] },
-  channel: { name: 'Private channel', icon: 'lock', steps: () => [
+  channel: { name: 'Private members channel', icon: 'lock', steps: () => [
     { t: 'msg', text: 'Hi! Every day I review buyer requests here. The channel is private, access by subscription.' },
     { t: 'buttons', text: 'Want a peek inside?', opts: ['Show a sample review', 'Subscribe'] },
-    { t: 'pay', text: '30-day subscription, no auto-renewal.', price: 990 },
+    { t: 'pay', text: '30-day subscription via Stripe, no auto-renewal.', price: 19 },
     { t: 'give', text: 'Welcome! This link works only for you.', file: 'Join channel' },
   ] },
 };
@@ -133,16 +133,16 @@ const STEP = {
 
 const S = {
   bots: [
-    { id: 1, name: 'Booking with Lena', user: '@lena_nails_bot', tpl: 'salon', live: true, steps: TPL.salon.steps(), starts: 96, answered: 71, atPay: 38 },
+    { id: 1, name: 'Booking Nail Studio', user: '@marta_nails_bot', tpl: 'salon', live: true, steps: TPL.salon.steps(), starts: 96, answered: 71, atPay: 38 },
     { id: 2, name: 'Course "First Launch"', user: '@first_launch_bot', tpl: 'course', live: true, steps: TPL.course.steps(), starts: 180, answered: 120, atPay: 41 },
-    { id: 3, name: 'Private channel', user: '@lena_club_bot', tpl: 'channel', live: true, steps: TPL.channel.steps(), starts: 64, answered: 52, atPay: 19 },
+    { id: 3, name: 'Members channel', user: '@marta_club_bot', tpl: 'channel', live: true, steps: TPL.channel.steps(), starts: 64, answered: 52, atPay: 19 },
   ],
   sales: [],
 };
 /* sales are derived from days-ago lists, so every total on every page reconciles */
-const BUYERS = ['Anna L.', 'Maria S.', 'Olga K.', 'Irina V.', 'Svetlana P.', 'Daria M.', 'Natalia B.', 'Yulia G.', 'Ekaterina T.', 'Alyona R.', 'Polina Zh.', 'Viktoria N.', 'Kristina A.'];
+const BUYERS = ['Anna L.', 'Sofia R.', 'Lukas M.', 'Camille D.', 'Elena P.', 'Jonas B.', 'Giulia F.', 'Mateo G.', 'Katarzyna W.', 'Pieter V.', 'Ingrid S.', 'Hugo N.', 'Aoife K.'];
 const DAYS = { 1: [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6], 2: [0, 1, 3, 4, 6, 6], 3: [0, 0, 1, 1, 2, 3, 3, 4, 5, 6, 6] };
-const PRICE = { 1: 500, 2: 4900, 3: 990 };
+const PRICE = { 1: 25, 2: 79, 3: 19 };
 (() => {
   let k = 0;
   for (const id of [1, 2, 3]) DAYS[id].forEach((ago, i) => { S.sales.push({ bot: id, ago, buyer: BUYERS[(k * 5 + i * 3 + id) % BUYERS.length], amount: PRICE[id], min: 540 + ((k * 137) % 780) }); k++; });
@@ -153,7 +153,7 @@ const botPrice = (b) => (b.steps.find((s) => s.t === 'pay') || {}).price || 0;
 const hhmm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 const stats = (b) => { const paid = sold(b.id).length, rev = paid * PRICE[b.id]; return { paid, rev, conv: b.starts ? paid / b.starts : 0 }; };
 const totals = () => { const r = S.bots.map(stats); return { rev: r.reduce((a, x) => a + x.rev, 0), paid: r.reduce((a, x) => a + x.paid, 0), starts: S.bots.reduce((a, b) => a + b.starts, 0) }; };
-console.assert(S.sales.length === 31 && totals().rev === 47290, 'sales reconcile');
+console.assert(S.sales.length === 31 && totals().rev === 1033, 'sales reconcile');
 console.assert(S.bots.every((b) => b.starts >= b.answered && b.answered >= b.atPay && b.atPay >= sold(b.id).length), 'funnel narrows');
 
 /* ── shell ────────────────────────────────────────────── */
@@ -200,15 +200,15 @@ function dashboard() {
   const rows = S.bots.map((b) => { const s = stats(b); return `<div class="tr" data-openbot="${b.id}" tabindex="0" style="cursor:pointer;--cols:1.6fr .8fr .7fr .7fr .9fr;--colsm:1fr auto">
     <div class="botrow-n"><span class="step-ic">${ic(TPL[b.tpl].icon)}</span><div class="cell-main"><b>${esc(b.name)}</b><span>${esc(b.user)}</span></div></div>
     <div class="hm"><span class="pill ${b.live ? 'pos' : ''}"><i></i>${b.live ? 'Live' : 'Draft'}</span></div>
-    <div class="hm r">${fmt(b.starts)}</div><div class="hm r">${s.paid}</div><div class="r"><b>${rub(s.rev)}</b></div></div>`; }).join('');
+    <div class="hm r">${fmt(b.starts)}</div><div class="hm r">${s.paid}</div><div class="r"><b>${eur(s.rev)}</b></div></div>`; }).join('');
   const fb = S.bots.find((b) => b.id === fbot) || S.bots[0], paid = sold(fb.id).length;
   const steps = [['Pressed "Start"', fb.starts], ['Replied to bot', fb.answered], ['Reached payment', fb.atPay], ['Paid', paid]];
   const fn = steps.map(([l, v], i) => `<div class="fn"><span>${l}</span><div class="bar"><i style="width:${fb.starts ? v / fb.starts * 100 : 0}%;${i === 3 ? '' : 'opacity:.4'}"></i></div><b>${fmt(v)}</b></div>`).join('');
   const dropAt = fb.atPay - paid;
   return head('Bots', `${WD[TODAY.getDay()]}, 21 October · last 7 days`, `<button class="btn primary" data-act="newBot">${ic('plus')}New bot</button>`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${rub(t.rev)}</b><span>Revenue, 7 days</span></div><div class="kpi"><b>${t.paid}</b><span>Payments</span></div><div class="kpi"><b>${fmt(t.starts)}</b><span>Bot starts</span></div><div class="kpi"><b>${fmtD(conv * 100)}<small>%</small></b><span>Starts that ended in a purchase</span></div></div>
+    `<div class="kpis"><div class="kpi"><b>${eur(t.rev)}</b><span>Revenue, 7 days</span></div><div class="kpi"><b>${t.paid}</b><span>Payments</span></div><div class="kpi"><b>${fmt(t.starts)}</b><span>Bot starts</span></div><div class="kpi"><b>${fmtD(conv * 100)}<small>%</small></b><span>Starts that ended in a purchase</span></div></div>
     <div class="grid">
-      <section class="card c7"><div class="card-h"><h2>Revenue by day</h2><span>₽</span></div><div id="ch-rev"></div></section>
+      <section class="card c7"><div class="card-h"><h2>Revenue by day</h2><span>€</span></div><div id="ch-rev"></div></section>
       <section class="card c5"><div class="card-h"><h2>Funnel</h2></div>
         <div class="tabs" role="tablist">${S.bots.map((b) => `<button class="${b.id === fb.id ? 'on' : ''}" data-act="fbot" data-id="${b.id}">${esc(b.name.split(' ')[0])}</button>`).join('')}</div>
         <div class="funnel">${fn}</div><p class="fn-note">${dropAt ? `Lost between payment and purchase: ${dropAt} of ${fb.atPay}.` : 'Everyone who reached payment paid.'}</p></section>
@@ -218,12 +218,12 @@ function dashboard() {
 }
 
 /* ── builder ──────────────────────────────────────────── */
-const summary = (s) => s.t === 'buttons' ? s.opts.join(' · ') || 'No buttons' : s.t === 'pay' ? `${rub(s.price)} · ${s.text}` : s.t === 'give' ? `${s.file ? '📎 ' + s.file : ''}` || s.text : s.text;
+const summary = (s) => s.t === 'buttons' ? s.opts.join(' · ') || 'No buttons' : s.t === 'pay' ? `${eur(s.price)} · ${s.text}` : s.t === 'give' ? `${s.file ? '📎 ' + s.file : ''}` || s.text : s.text;
 function stepEditor(s, i) {
   const ta = `<div class="field"><label>Message text</label><textarea data-f="text" data-i="${i}">${esc(s.text)}</textarea></div>`;
   let body = ta;
   if (s.t === 'buttons') body += `<div class="field"><label>Buttons</label>${s.opts.map((o, k) => `<div class="opt-row"><input data-f="opt" data-i="${i}" data-o="${k}" value="${esc(o)}"><button class="btn sm" data-act="delOpt" data-i="${i}" data-o="${k}" aria-label="Delete button">${ic('x')}</button></div>`).join('')}<button class="btn sm" data-act="addOpt" data-i="${i}" ${s.opts.length >= 5 ? 'disabled' : ''}>${ic('plus')}Button</button></div>`;
-  if (s.t === 'pay') body += `<div class="field"><label>Price, ₽</label><input data-f="price" data-i="${i}" type="number" min="0" value="${s.price}"></div>`;
+  if (s.t === 'pay') body += `<div class="field"><label>Price, €</label><input data-f="price" data-i="${i}" type="number" min="0" value="${s.price}"></div>`;
   if (s.t === 'give') body += `<div class="field"><label>File or link</label><input data-f="file" data-i="${i}" value="${esc(s.file || '')}"></div>`;
   return body + `<div class="step-tools"><button class="btn sm" data-act="mv" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''}>${ic('up')}Up</button><button class="btn sm" data-act="mv" data-i="${i}" data-d="1" ${i === bot().steps.length - 1 ? 'disabled' : ''}>${ic('down')}Down</button><button class="btn sm" data-act="delStep" data-i="${i}">${ic('trash')}Delete</button></div>`;
 }
@@ -235,7 +235,7 @@ function builder() {
     `<div class="tabs bmode" role="tablist"><button class="${mode === 'flow' ? 'on' : ''}" data-act="mode" data-m="flow">Flow</button><button class="${mode === 'chat' ? 'on' : ''}" data-act="mode" data-m="chat">Preview</button></div>
     <div class="build" data-mode="${mode}">
       <div class="flow">${flow}<button class="btn add-step" data-act="addStep">${ic('plus')}Add block</button></div>
-      <aside class="phone" aria-label="Bot preview"><div class="tg-h"><span class="tg-av">${esc(b.name[0])}</span><div><b>${esc(b.name)}</b><span>bot · ${b.live ? 'online' : 'draft'}${p ? ' · ' + rub(p) : ''}</span></div><button class="btn sm" data-act="restart">${ic('play')}Restart</button></div>
+      <aside class="phone" aria-label="Bot preview"><div class="tg-h"><span class="tg-av">${esc(b.name[0])}</span><div><b>${esc(b.name)}</b><span>bot · ${b.live ? 'online' : 'draft'}${p ? ' · ' + eur(p) : ''}</span></div><button class="btn sm" data-act="restart">${ic('play')}Restart</button></div>
         <div class="chat" id="chat" aria-live="polite"></div>
         <form class="tg-f" id="tg-form"><input id="tg-in" placeholder="Message" autocomplete="off" aria-label="Reply to bot"><button aria-label="Send" id="tg-send">${ic('arrow')}</button></form></aside>
     </div>`;
@@ -273,7 +273,7 @@ function drawChat() {
 function waitUI() {
   const w = run.wait; if (!w || run.done) return run.done ? '' : '';
   if (w.t === 'buttons') return `<div class="inl">${w.opts.map((o, k) => `<button data-act="pick" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
-  if (w.t === 'pay') return `<div class="inl"><button class="pay" data-act="pay">Pay ${rub(w.price)}</button></div>`;
+  if (w.t === 'pay') return `<div class="inl"><button class="pay" data-act="pay">Pay ${eur(w.price)}</button></div>`;
   return '';
 }
 function answer(text) {
@@ -286,8 +286,8 @@ function answer(text) {
 /* ── sales + buyers ───────────────────────────────────── */
 function sales() {
   const list = S.sales.filter((s) => !salesBot || s.bot === salesBot), sum = list.reduce((a, s) => a + s.amount, 0);
-  const rows = list.map((s) => { const b = S.bots.find((x) => x.id === s.bot); return `<div class="tr" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><div class="cell-main hm"><b>${dLabel(s.ago)}</b><span>${hhmm(s.min)}</span></div><div class="cell-main dm"><b>${esc(s.buyer)}</b><span>${dLabel(s.ago)}, ${hhmm(s.min)} · ${esc(b.name)}</span></div><div class="hm">${esc(s.buyer)}</div><div class="hm">${esc(b.name)}</div><div class="r"><b>${rub(s.amount)}</b></div></div>`; }).join('');
-  return head('Sales', `${list.length} ${list.length === 1 ? 'payment' : 'payments'} totalling ${rub(sum)} in 7 days`) +
+  const rows = list.map((s) => { const b = S.bots.find((x) => x.id === s.bot); return `<div class="tr" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><div class="cell-main hm"><b>${dLabel(s.ago)}</b><span>${hhmm(s.min)}</span></div><div class="cell-main dm"><b>${esc(s.buyer)}</b><span>${dLabel(s.ago)}, ${hhmm(s.min)} · ${esc(b.name)}</span></div><div class="hm">${esc(s.buyer)}</div><div class="hm">${esc(b.name)}</div><div class="r"><b>${eur(s.amount)}</b></div></div>`; }).join('');
+  return head('Sales', `${list.length} ${list.length === 1 ? 'payment' : 'payments'} totalling ${eur(sum)} in 7 days`) +
     `<div class="tabs"><button class="${!salesBot ? 'on' : ''}" data-act="sbot" data-id="0">All</button>${S.bots.map((b) => `<button class="${salesBot === b.id ? 'on' : ''}" data-act="sbot" data-id="${b.id}">${esc(b.name.split(' ')[0])}</button>`).join('')}</div>
     <section class="card"><div class="tbl"><div class="tr th" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><span>When</span><span class="hm">Buyer</span><span class="hm">Bot</span><span class="r">Amount</span></div>${rows}</div></section>`;
 }
@@ -295,7 +295,7 @@ function buyers() {
   const map = {};
   S.sales.forEach((s) => { const x = map[s.buyer] || (map[s.buyer] = { n: s.buyer, c: 0, sum: 0, ago: 99 }); x.c++; x.sum += s.amount; x.ago = Math.min(x.ago, s.ago); });
   const list = Object.values(map).sort((a, b) => b.sum - a.sum);
-  const rows = list.map((x) => `<div class="tr" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(x.n)}</b><span class="muted">${x.c} ${x.c === 1 ? 'purchase' : 'purchases'} · ${dLabel(x.ago).toLowerCase()}</span></div><div class="hm r">${x.c}</div><div class="hm r">${dLabel(x.ago)}</div><div class="r"><b>${rub(x.sum)}</b></div></div>`).join('');
+  const rows = list.map((x) => `<div class="tr" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(x.n)}</b><span class="muted">${x.c} ${x.c === 1 ? 'purchase' : 'purchases'} · ${dLabel(x.ago).toLowerCase()}</span></div><div class="hm r">${x.c}</div><div class="hm r">${dLabel(x.ago)}</div><div class="r"><b>${eur(x.sum)}</b></div></div>`).join('');
   const rep = list.filter((x) => x.c > 1).length;
   return head('Buyers', `${list.length} ${list.length === 1 ? 'person' : 'people'}, ${rep} bought more than once`) +
     `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><span>Buyer</span><span class="hm r">Purchases</span><span class="hm r">Last</span><span class="r">Total</span></div>${rows}</div></section>`;
@@ -303,8 +303,8 @@ function buyers() {
 
 function mount() {
   const a = $('#ch-rev');
-  if (a) { const vals = [], labels = []; for (let ago = 6; ago >= 0; ago--) { vals.push(S.sales.filter((s) => s.ago === ago).reduce((x, s) => x + s.amount, 0) / 1000); labels.push(ago === 0 ? 'Wed' : WD[dayOf(ago).getDay()]); }
-    chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) + 'k' })); }
+  if (a) { const vals = [], labels = []; for (let ago = 6; ago >= 0; ago--) { vals.push(S.sales.filter((s) => s.ago === ago).reduce((x, s) => x + s.amount, 0)); labels.push(ago === 0 ? 'Wed' : WD[dayOf(ago).getDay()]); }
+    chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (x) => '€' + fmt(x) })); }
   drawChat();
 }
 
@@ -316,7 +316,7 @@ const ACT = {
   toggle(d) { openStep = openStep === +d.i ? -1 : +d.i; render(); },
   restart() { resetRun(); drawChat(); },
   pick(d) { const w = run.wait; run.log.push({ k: 'me', text: w.opts[+d.k] }); run.wait = null; run.i++; step(); drawChat(); },
-  pay() { const w = run.wait; run.log.push({ k: 'note', text: `Payment of ${rub(w.price)} received` }); run.wait = null; run.i++; step(); drawChat(); },
+  pay() { const w = run.wait; run.log.push({ k: 'note', text: `Payment of ${eur(w.price)} received` }); run.wait = null; run.i++; step(); drawChat(); },
   mv(d) { const s = bot().steps, i = +d.i, j = i + +d.d; [s[i], s[j]] = [s[j], s[i]]; openStep = j; resetRun(); render(); },
   delStep(d) { bot().steps.splice(+d.i, 1); openStep = -1; resetRun(); render(); toast('Block deleted'); },
   addOpt(d) { bot().steps[+d.i].opts.push('New button'); resetRun(); render(); },
@@ -331,7 +331,7 @@ const ACT = {
     modal(`<h2>New block</h2><p>It will be added to the end of the flow.</p><div class="field"><label>Type</label><select id="n-t">${Object.entries(STEP).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select></div>
       <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="n-ok">Add</button></div>`, () => {
       $('#n-ok').onclick = () => {
-        const t = $('#n-t').value, def = { msg: { text: 'New message' }, ask: { text: 'What is your name?' }, buttons: { text: 'Choose an option', opts: ['Option 1', 'Option 2'] }, pay: { text: 'Order payment', price: 1000 }, give: { text: 'Thank you! Here is your access.', file: 'Link' }, remind: { text: 'A reminder about your order' } }[t];
+        const t = $('#n-t').value, def = { msg: { text: 'New message' }, ask: { text: 'What is your name?' }, buttons: { text: 'Choose an option', opts: ['Option 1', 'Option 2'] }, pay: { text: 'Order payment', price: 10 }, give: { text: 'Thank you! Here is your access.', file: 'Link' }, remind: { text: 'A reminder about your order' } }[t];
         const s = bot().steps; s.push({ t, ...structuredClone(def) }); openStep = s.length - 1; closeModal(); resetRun(); render();
       };
     });
@@ -364,7 +364,7 @@ setInterval(() => {
     if (sold(b.id).length + 1 > b.atPay) { b.atPay = sold(b.id).length + 1; b.answered = Math.max(b.answered, b.atPay); b.starts = Math.max(b.starts, b.answered); }
     const buyer = NEWBUY[Math.floor(Math.random() * NEWBUY.length)];
     S.sales.unshift({ bot: b.id, ago: 0, buyer, amount: PRICE[b.id], min: NOWM });
-    toast(`New payment ${rub(PRICE[b.id])} · ${b.name}`);
+    toast(`New payment ${eur(PRICE[b.id])} · ${b.name}`);
   }
   if (['dashboard', 'sales', 'buyers'].includes(page)) render();
 }, 7000);
