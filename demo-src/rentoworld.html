@@ -106,31 +106,28 @@ const days = (n) => `${n} ${plural(n, 'day', 'days', 'days')}`;
 const CARS = [
   { id: 1,  n: 'Toyota Camry',     y: 2016, t: 'sedan', c: '#c9ced6', px: 38, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.9, trips: 63, own: 'You', where: 'Lisbon', dep: 500 },
   { id: 2,  n: 'Kia Sportage',     y: 2009, t: 'suv',   c: '#2d5b8c', px: 32, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.8, trips: 41, own: 'You', where: 'Lisbon', dep: 400 },
-  { id: 3,  n: 'Hyundai Solaris',  y: 2021, t: 'sedan', c: '#b8352f', px: 25, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.7, trips: 118, own: 'Jakub K.', where: 'Prague', dep: 300 },
-  { id: 4,  n: 'Chevrolet Tracker', y: 2022, t: 'suv',  c: '#e0b43a', px: 34, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.6, trips: 37, own: 'Marta S.', where: 'Barcelona', dep: 450 },
   { id: 5,  n: 'Volkswagen Polo',  y: 2016, t: 'hatch', c: '#3d4a57', px: 27, seats: 5, tr: 'Manual', fuel: 'Petrol', r: 4.5, trips: 90, own: 'Stefan A.', where: 'Munich', dep: 300 },
   { id: 6,  n: 'Skoda Octavia RS Combi',    y: 2015, t: 'hatch', c: '#2f7d5b', px: 42, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.9, trips: 52, own: 'Petra T.', where: 'Prague', dep: 600 },
   { id: 7,  n: 'Hyundai Staria',   y: 2023, t: 'van',   c: '#e8e4da', px: 90, seats: 9, tr: 'Automatic', fuel: 'Diesel', r: 5.0, trips: 22, own: 'Joost B.', where: 'Amsterdam', dep: 1000 },
   { id: 8,  n: 'Toyota RAV4 Plug-in Hybrid',      y: 2022, t: 'suv',   c: '#1f2a36', px: 65, seats: 5, tr: 'Automatic', fuel: 'Plug-in hybrid', r: 4.8, trips: 74, own: 'Camille M.', where: 'Lyon', dep: 800 },
-  { id: 9,  n: 'Lada Vesta',       y: 2020, t: 'sedan', c: '#8a9aa8', px: 22,  seats: 5, tr: 'Manual', fuel: 'Petrol', r: 4.3, trips: 130, own: 'Ines Z.', where: 'Barcelona', dep: 250 },
 ];
 const TYPE = { sedan: 'Sedan', suv: 'Crossover', hatch: 'Hatchback', van: 'Minivan' };
 /* every booking is one record; busy days, trips, occupancy and earnings all derive from it */
 const B = [
   { id: 1, car: 1, who: 'Lukas N.', from: -6, to: -3 }, { id: 2, car: 1, who: 'Anna L.', from: 2, to: 5 }, { id: 3, car: 1, who: 'Marco T.', from: 9, to: 14 }, { id: 4, car: 1, who: 'Camille R.', from: 19, to: 21 },
   { id: 5, car: 2, who: 'Jonas V.', from: -5, to: -2 }, { id: 19, car: 2, who: 'Elena F.', from: -12, to: -9 }, { id: 20, car: 1, who: 'Pieter O.', from: -14, to: -11 }, { id: 6, car: 2, who: 'Sofia K.', from: 6, to: 12 }, { id: 7, car: 2, who: 'Hugo E.', from: 16, to: 20 },
-  { id: 8, car: 3, who: 'You', from: -9, to: -6 }, { id: 9, car: 3, who: 'Matteo M.', from: 1, to: 4 }, { id: 10, car: 3, who: 'Leila H.', from: 8, to: 10 },
-  { id: 11, car: 4, who: 'You', from: 12, to: 14 }, { id: 12, car: 4, who: 'Daan B.', from: 0, to: 6 },
+  { id: 8, car: 6, who: 'You', from: -9, to: -6 }, 
+  { id: 11, car: 5, who: 'You', from: 12, to: 14 }, 
   { id: 13, car: 5, who: 'Nora R.', from: 3, to: 9 }, { id: 14, car: 6, who: 'Felix S.', from: 5, to: 7 }, { id: 15, car: 7, who: 'Lusa Tours Lda', from: 0, to: 10 }, { id: 16, car: 7, who: 'Mira D.', from: 14, to: 18 },
-  { id: 17, car: 8, who: 'Pavel P.', from: 2, to: 4 }, { id: 18, car: 9, who: 'Tomáš Z.', from: 1, to: 2 },
+  { id: 17, car: 8, who: 'Pavel P.', from: 2, to: 4 }, 
 ];
 const car = (id) => CARS.find((c) => c.id === id);
 const busy = (carId, d) => B.some((b) => b.car === carId && d >= b.from && d <= b.to);
 const freeNext7 = (id) => { let n = 0; for (let d = 0; d < 7; d++) if (!busy(id, d)) n++; return n; };
 const nextId = () => Math.max(...B.map((b) => b.id)) + 1;
 const price = (c, n) => { const base = c.px * n, off = n >= 14 ? .15 : n >= 7 ? .1 : 0, disc = Math.round(base * off), fee = Math.round((base - disc) * .07); return { base, off, disc, fee, total: base - disc + fee }; };
-/* totals reconcile: 3 days of the Solaris, no discount */
-console.assert(price(car(3), 3).total === 25 * 3 + Math.round(25 * 3 * .07) && price(car(1), 7).disc === 27, 'price');
+/* totals reconcile: 3 days of the Polo, no discount */
+console.assert(price(car(5), 3).total === 27 * 3 + Math.round(27 * 3 * .07) && price(car(1), 7).disc === 27, 'price');
 
 const carPhoto = (c) => `<img src="img/car-${c.id}.jpg" alt="${esc(c.n)}" loading="lazy" decoding="async">`;
 
