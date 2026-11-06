@@ -230,9 +230,9 @@ svg { display: block; }
 <div class="notice"><b>Demo</b> RestOS · data is fictional</div>
 <div class="app">
   <aside class="side">
-    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/></svg></div><div><div class="brand-name">RestOS</div><div class="brand-sub">North Restaurant</div></div></div>
+    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/></svg></div><div><div class="brand-name">RestOS</div><div class="brand-sub">Nordlicht · Vienna</div></div></div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">AS</div><div class="who"><b>Ainur Seitkaliyeva</b><span>Administrator</span></div></div>
+    <div class="side-foot"><div class="avatar">KH</div><div class="who"><b>Katharina Huber</b><span>Administrator</span></div></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
@@ -376,20 +376,20 @@ function setNav(page) {
 let NOW = '14:35'; const TODAY = '28.09.2026';
 const CATS = { hot: 'Hot dishes', cold: 'Cold dishes', drinks: 'Drinks', desserts: 'Desserts', breakfast: 'Breakfast', pizza: 'Pizza & pasta', grill: 'Grill' };
 const MENU = [
-  ['Borscht', 'hot', 1800], ['Beef Stroganoff', 'hot', 2400], ['Uzbek Plov', 'hot', 2200], ['Lagman', 'hot', 1900, false], ['Kharcho', 'hot', 1700], ['Manti', 'hot', 200],
-  ['Caesar Salad', 'cold', 1600], ['Olivier Salad', 'cold', 900], ['California Rolls', 'cold', 2100],
-  ['Green Tea', 'drinks', 500], ['Black Tea', 'drinks', 400], ['Orange Juice', 'drinks', 600], ['Berry Mors', 'drinks', 400], ['Cola', 'drinks', 400], ['Red Wine', 'drinks', 1800], ['Bread', 'cold', 200],
-  ['Honey Cake', 'desserts', 1200], ['Tiramisu', 'desserts', 1400, false],
-  ['Fried Eggs with Bacon', 'breakfast', 1100], ['Oatmeal', 'breakfast', 700],
-  ['Pizza Margherita', 'pizza', 1800], ['Pasta Carbonara', 'pizza', 1900],
-  ['Beef Steak', 'grill', 4500], ['Chicken Shashlik', 'grill', 2600],
+  ['Goulash Soup', 'hot', 8.5], ['Wiener Schnitzel', 'hot', 19.5], ['Mushroom Risotto', 'hot', 16.5], ['Spaghetti Bolognese', 'hot', 14.5, false], ['Tomato Soup', 'hot', 7.5], ['Bitterballen', 'hot', 1],
+  ['Caesar Salad', 'cold', 11.5], ['Caprese Salad', 'cold', 10.5], ['Burrata', 'cold', 13.5],
+  ['Green Tea', 'drinks', 3.5], ['Tea with Milk', 'drinks', 3.5], ['Orange Juice', 'drinks', 4.5], ['Strawberry Daiquiri', 'drinks', 9.5], ['Cola', 'drinks', 3.5], ['Red Wine', 'drinks', 7.5], ['Bread', 'cold', 3.5],
+  ['Chocolate Cake', 'desserts', 6.5], ['Tiramisu', 'desserts', 7.5, false],
+  ['Fried Eggs with Potatoes', 'breakfast', 10.5], ['Oatmeal', 'breakfast', 6.5],
+  ['Pizza Bianca', 'pizza', 13.5], ['Pasta Carbonara', 'pizza', 14.5],
+  ['Beef Steak', 'grill', 28.5], ['Tomahawk Steak', 'grill', 32],
 ].map(([n, c, p, a = true]) => ({ n, c, p, a }));
 
 /* ── dish illustrations: flat vector, one per category, tinted per dish ─ */
 const hue = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
 const drink = (c, ice) => `<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 34 h34 l-3.4 40 h-27.2 z" fill="${c}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="${ice}" opacity=".5" transform="rotate(12 54 46)"/><rect x="62" y="56" width="9" height="9" rx="2" fill="${ice}" opacity=".4"/><path d="M68 8 l-7 38" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`;
 /* real photos (CC0, see demos/CREDITS.md) where we have a matching one; the rest fall back to the flat vector below */
-const PHOTO = { 'Caesar Salad': 'caesar', 'Pizza': 'pizza', 'Fried Eggs': 'eggs', 'Beef Steak': 'steak', 'Chicken Shashlik': 'kebab', 'Black Tea': 'tea', 'Berry Mors': 'cocktail', 'Honey Cake': 'cake' };
+const PHOTO = { 'Caesar Salad': 'caesar', 'Pizza': 'pizza', 'Fried Eggs': 'eggs', 'Beef Steak': 'steak', 'Tomahawk Steak': 'kebab', 'Tea with Milk': 'tea', 'Strawberry Daiquiri': 'cocktail', 'Chocolate Cake': 'cake' };
 function dishArt(name, c, size = 'card') {
   const pk = Object.keys(PHOTO).find((k) => name.startsWith(k));
   if (pk) return `<img src="img/${PHOTO[pk]}.jpg" alt="${esc(name)}" loading="lazy" decoding="async">`;
@@ -398,19 +398,19 @@ function dishArt(name, c, size = 'card') {
   const plate = '<ellipse cx="60" cy="74" rx="46" ry="6" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#fff"/><circle cx="60" cy="48" r="27" fill="#f4f1ec"/>';
 
   const mk = {
-    'Borscht': `${plate}<circle cx="60" cy="48" r="22" fill="#a3201f"/><circle cx="60" cy="48" r="16" fill="#b92a26"/><circle cx="60" cy="47" r="6" fill="#fff6e8"/><path d="M52 56 q6 4 12 0" stroke="#7a1516" stroke-width="2.5" fill="none"/><path d="M70 36 l4 -3 M48 38 l-3 -3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
-    'Kharcho': `${plate}<circle cx="60" cy="48" r="22" fill="#d9731f"/><circle cx="52" cy="44" r="5" fill="#8a3b14"/><circle cx="68" cy="52" r="5" fill="#8a3b14"/><circle cx="66" cy="40" r="3" fill="#f4e2a4"/><circle cx="50" cy="56" r="3" fill="#f4e2a4"/><path d="M58 34 l4 -5 M64 60 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
-    'Lagman': `${plate}<circle cx="60" cy="48" r="22" fill="#c4521f"/><path d="M42 46 q9 -10 18 0 t18 0 M44 54 q8 -8 16 0 t16 0 M48 40 q6 -6 12 0 t14 0" stroke="#f4dba0" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="68" cy="58" r="3.5" fill="#3f7a3a"/>`,
-    'Uzbek Plov': `${plate}<path d="M32 56 q4 -30 28 -30 q24 0 28 30 q-28 10 -56 0z" fill="#e6b44a"/><path d="M44 42 l6 5 M62 36 l7 3 M54 52 l8 2 M72 48 l5 6" stroke="#d9741a" stroke-width="3.5" stroke-linecap="round"/><circle cx="58" cy="32" r="3" fill="#7a4a21"/><circle cx="68" cy="30" r="2.5" fill="#fff3d0"/>`,
-    'Manti': `${plate}${[[48, 56], [64, 58], [56, 44], [72, 46]].map(([x, y]) => `<path d="M${x - 10} ${y + 4} q10 -18 20 0 q-10 4 -20 0z" fill="#f6e4c2" stroke="#e0c89a" stroke-width="2"/><path d="M${x - 4} ${y - 4} l8 0" stroke="#e0c89a" stroke-width="2" stroke-linecap="round"/>`).join('')}<circle cx="84" cy="62" r="4" fill="#fff"/>`,
-    'Beef Stroganoff': `${plate}<path d="M36 52 q-2 -18 22 -20 q22 -2 26 14 q-4 16 -26 14 q-18 0 -22 -8z" fill="#8a4a24"/><path d="M42 46 l10 -4 M56 50 l10 -4 M62 40 l9 3" stroke="#c98a55" stroke-width="3.5" stroke-linecap="round"/><circle cx="82" cy="58" r="6" fill="#f2d78a"/><circle cx="74" cy="64" r="5" fill="#f2d78a"/><path d="M48 58 l4 3 M52 36 l3 -4" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
+    'Goulash Soup': `${plate}<circle cx="60" cy="48" r="22" fill="#a3201f"/><circle cx="60" cy="48" r="16" fill="#b92a26"/><circle cx="60" cy="47" r="6" fill="#fff6e8"/><path d="M52 56 q6 4 12 0" stroke="#7a1516" stroke-width="2.5" fill="none"/><path d="M70 36 l4 -3 M48 38 l-3 -3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
+    'Tomato Soup': `${plate}<circle cx="60" cy="48" r="22" fill="#d9731f"/><circle cx="52" cy="44" r="5" fill="#8a3b14"/><circle cx="68" cy="52" r="5" fill="#8a3b14"/><circle cx="66" cy="40" r="3" fill="#f4e2a4"/><circle cx="50" cy="56" r="3" fill="#f4e2a4"/><path d="M58 34 l4 -5 M64 60 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
+    'Spaghetti Bolognese': `${plate}<circle cx="60" cy="48" r="22" fill="#c4521f"/><path d="M42 46 q9 -10 18 0 t18 0 M44 54 q8 -8 16 0 t16 0 M48 40 q6 -6 12 0 t14 0" stroke="#f4dba0" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="68" cy="58" r="3.5" fill="#3f7a3a"/>`,
+    'Mushroom Risotto': `${plate}<path d="M32 56 q4 -30 28 -30 q24 0 28 30 q-28 10 -56 0z" fill="#e6b44a"/><path d="M44 42 l6 5 M62 36 l7 3 M54 52 l8 2 M72 48 l5 6" stroke="#d9741a" stroke-width="3.5" stroke-linecap="round"/><circle cx="58" cy="32" r="3" fill="#7a4a21"/><circle cx="68" cy="30" r="2.5" fill="#fff3d0"/>`,
+    'Bitterballen': `${plate}${[[48, 56], [64, 58], [56, 44], [72, 46]].map(([x, y]) => `<path d="M${x - 10} ${y + 4} q10 -18 20 0 q-10 4 -20 0z" fill="#f6e4c2" stroke="#e0c89a" stroke-width="2"/><path d="M${x - 4} ${y - 4} l8 0" stroke="#e0c89a" stroke-width="2" stroke-linecap="round"/>`).join('')}<circle cx="84" cy="62" r="4" fill="#fff"/>`,
+    'Wiener Schnitzel': `${plate}<path d="M36 52 q-2 -18 22 -20 q22 -2 26 14 q-4 16 -26 14 q-18 0 -22 -8z" fill="#8a4a24"/><path d="M42 46 l10 -4 M56 50 l10 -4 M62 40 l9 3" stroke="#c98a55" stroke-width="3.5" stroke-linecap="round"/><circle cx="82" cy="58" r="6" fill="#f2d78a"/><circle cx="74" cy="64" r="5" fill="#f2d78a"/><path d="M48 58 l4 3 M52 36 l3 -4" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
     'Caesar Salad': `${plate}${[0, 70, 140, 210, 280].map((r) => `<ellipse cx="60" cy="38" rx="8" ry="13" fill="#7fbf4f" transform="rotate(${r} 60 48)"/>`).join('')}${[[52, 46], [68, 50], [60, 40], [48, 54]].map(([x, y]) => `<rect x="${x - 4}" y="${y - 4}" width="8" height="8" rx="2" fill="#e8b563" transform="rotate(${x * 3} ${x} ${y})"/>`).join('')}<path d="M62 54 l5 -3 M54 38 l4 -2" stroke="#f5efdc" stroke-width="3" stroke-linecap="round"/>`,
-    'Olivier Salad': `${plate}<path d="M36 54 q2 -26 24 -26 q22 0 24 26 q-24 8 -48 0z" fill="#f2e6c0"/>${[[48, 46], [60, 40], [70, 48], [56, 54], [66, 56]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="3" fill="${i % 2 ? '#e9753a' : '#6fae4a'}"/>`).join('')}`,
-    'California Rolls': `${plate}${[[44, 50], [62, 40], [76, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="10" fill="#1f2a24"/><circle cx="${x}" cy="${y}" r="8" fill="#f8f4ea"/><circle cx="${x}" cy="${y}" r="3.5" fill="#ee6f3c"/>`).join('')}<path d="M80 36 h6" stroke="#6fae4a" stroke-width="3" stroke-linecap="round"/>`,
+    'Caprese Salad': `${plate}<path d="M36 54 q2 -26 24 -26 q22 0 24 26 q-24 8 -48 0z" fill="#f2e6c0"/>${[[48, 46], [60, 40], [70, 48], [56, 54], [66, 56]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="3" fill="${i % 2 ? '#e9753a' : '#6fae4a'}"/>`).join('')}`,
+    'Burrata': `${plate}${[[44, 50], [62, 40], [76, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="10" fill="#1f2a24"/><circle cx="${x}" cy="${y}" r="8" fill="#f8f4ea"/><circle cx="${x}" cy="${y}" r="3.5" fill="#ee6f3c"/>`).join('')}<path d="M80 36 h6" stroke="#6fae4a" stroke-width="3" stroke-linecap="round"/>`,
     'Bread': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M24 62 q0 -30 36 -30 q36 0 36 30 q-36 8 -72 0z" fill="#d9a24f"/><path d="M42 44 l6 12 M58 40 l6 14 M74 44 l5 11" stroke="#b9772a" stroke-width="4" stroke-linecap="round"/>`,
-    'Green Tea': drink('#9bc24a', '#e8f4d0'), 'Black Tea': drink('#9a4a1b', '#fff'), 'Orange Juice': drink('#f09a22', '#fff'), 'Berry Mors': drink('#c4263a', '#fff'), 'Cola': drink('#3a2418', '#fff'),
+    'Green Tea': drink('#9bc24a', '#e8f4d0'), 'Tea with Milk': drink('#9a4a1b', '#fff'), 'Orange Juice': drink('#f09a22', '#fff'), 'Strawberry Daiquiri': drink('#c4263a', '#fff'), 'Cola': drink('#3a2418', '#fff'),
     'Red Wine': `<ellipse cx="60" cy="78" rx="22" ry="4" fill="#000" opacity=".1"/><path d="M44 14 h32 q4 28 -16 36 q-20 -8 -16 -36z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M47 28 h26 q0 16 -13 22 q-13 -6 -13 -22z" fill="#7a1a3a"/><path d="M60 50 v22 M48 74 h24" stroke="#c9d6dc" stroke-width="3" stroke-linecap="round"/>`,
-    'Honey Cake': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 64 L26 36 q34 -12 68 0 L94 64 Z" fill="#e2b072"/><path d="M26 44 h68 M26 54 h68" stroke="#fff1d6" stroke-width="5"/><path d="M26 36 q34 -12 68 0" stroke="#c98a45" stroke-width="3" fill="none"/><circle cx="48" cy="26" r="4" fill="#f4c542"/><circle cx="62" cy="22" r="4" fill="#f4c542"/><circle cx="76" cy="27" r="4" fill="#f4c542"/>`,
+    'Chocolate Cake': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 64 L26 36 q34 -12 68 0 L94 64 Z" fill="#e2b072"/><path d="M26 44 h68 M26 54 h68" stroke="#fff1d6" stroke-width="5"/><path d="M26 36 q34 -12 68 0" stroke="#c98a45" stroke-width="3" fill="none"/><circle cx="48" cy="26" r="4" fill="#f4c542"/><circle cx="62" cy="22" r="4" fill="#f4c542"/><circle cx="76" cy="27" r="4" fill="#f4c542"/>`,
     'Tiramisu': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><rect x="28" y="30" width="64" height="34" rx="4" fill="#f4e6cd"/><rect x="28" y="40" width="64" height="6" fill="#6b3a1c"/><rect x="28" y="54" width="64" height="6" fill="#6b3a1c"/><path d="M28 30 h64 v6 h-64z" fill="#4a2814"/>`,
     'Fried Eggs': `${plate}<path d="M38 52 q-6 -16 10 -22 q16 -8 28 4 q10 12 -2 22 q-14 12 -36 -4z" fill="#fffdf8" stroke="#eee4d0" stroke-width="2"/><circle cx="58" cy="44" r="10" fill="#f4b81f"/><circle cx="55" cy="41" r="3" fill="#fff" opacity=".6"/><path d="M70 62 q8 -10 14 -2 t-2 12" stroke="#b9432c" stroke-width="5" fill="none" stroke-linecap="round"/>`,
   };
@@ -432,31 +432,31 @@ const cat = (n) => MENU.find((m) => m.n === n).c;
 const O = (id, table, type, guest, items, status, time) => ({ id, table, type, guest, items: items.map(([n, q]) => ({ n, q, p: price(n) })), status, time });
 const S = {
   orders: [
-    O('#1042', 'Table 5', 'Dine-in', 'Almas K.', [['Borscht', 1], ['Bread', 2], ['Green Tea', 1]], 'new', '14:23'),
-    O('#1041', 'Table 2', 'Dine-in', 'Dina M.', [['Beef Stroganoff', 2], ['Orange Juice', 2]], 'cooking', '14:18'),
-    O('#1040', 'Delivery', 'Delivery', 'Serik N.', [['Uzbek Plov', 1], ['Lagman', 1], ['Berry Mors', 2]], 'confirm', '14:10'),
-    O('#1039', 'Table 8', 'Dine-in', 'Aigul T.', [['Caesar Salad', 1], ['Beef Steak', 1], ['Red Wine', 1]], 'ready', '13:55'),
-    O('#1038', 'Table 1', 'Dine-in', 'Ruslan A.', [['Pizza Margherita', 2], ['Cola', 2]], 'done', '13:40'),
-    O('#1037', 'Delivery', 'Delivery', 'Karina B.', [['California Rolls', 2]], 'done', '13:20'),
-    O('#1036', 'Table 4', 'Dine-in', 'Nurlan Zh.', [['Kharcho', 1], ['Manti', 10], ['Black Tea', 2]], 'cooking', '13:15'),
-    O('#1035', 'Table 7', 'Dine-in', 'Zarina S.', [['Pasta Carbonara', 2]], 'confirm', '13:05'),
-    O('#1034', 'Table 3', 'Dine-in', 'Adil K.', [['Olivier Salad', 1], ['Chicken Shashlik', 1]], 'done', '12:50'),
-    O('#1033', 'Table 6', 'Dine-in', 'Meruert O.', [['Honey Cake', 1]], 'cancel', '12:30'),
+    O('#1042', 'Table 5', 'Dine-in', 'Sophie M.', [['Goulash Soup', 1], ['Bread', 2], ['Green Tea', 1]], 'new', '14:23'),
+    O('#1041', 'Table 2', 'Dine-in', 'Elena R.', [['Wiener Schnitzel', 2], ['Orange Juice', 2]], 'cooking', '14:18'),
+    O('#1040', 'Delivery', 'Delivery', 'Jan v. D.', [['Mushroom Risotto', 1], ['Spaghetti Bolognese', 1], ['Strawberry Daiquiri', 2]], 'confirm', '14:10'),
+    O('#1039', 'Table 8', 'Dine-in', 'Anna B.', [['Caesar Salad', 1], ['Beef Steak', 1], ['Red Wine', 1]], 'ready', '13:55'),
+    O('#1038', 'Table 1', 'Dine-in', 'Lukas G.', [['Pizza Bianca', 2], ['Cola', 2]], 'done', '13:40'),
+    O('#1037', 'Delivery', 'Delivery', 'Katarzyna N.', [['Burrata', 2]], 'done', '13:20'),
+    O('#1036', 'Table 4', 'Dine-in', 'Matthias W.', [['Tomato Soup', 1], ['Bitterballen', 10], ['Tea with Milk', 2]], 'cooking', '13:15'),
+    O('#1035', 'Table 7', 'Dine-in', 'Pieter V.', [['Pasta Carbonara', 2]], 'confirm', '13:05'),
+    O('#1034', 'Table 3', 'Dine-in', 'Tomas H.', [['Caprese Salad', 1], ['Tomahawk Steak', 1]], 'done', '12:50'),
+    O('#1033', 'Table 6', 'Dine-in', 'Ingrid O.', [['Chocolate Cake', 1]], 'cancel', '12:30'),
   ],
   menu: MENU,
   guests: [
-    ['Ruslan Asanov', '+7 708 678-90-12', 42, 320000, '26.09.2026', 'vip'], ['Almas Kozhabekov', '+7 701 234-56-78', 28, 145000, '25.09.2026', 'vip'],
-    ['Zarina Seitkali', '+7 702 901-23-45', 18, 98000, '24.09.2026', 'regular'], ['Dina Mussayeva', '+7 702 345-67-89', 15, 72000, '27.09.2026', 'regular'],
-    ['Karina Baizhanova', '+7 700 789-01-23', 9, 43000, '22.09.2026', 'regular'], ['Serik Nurlanov', '+7 705 456-78-90', 6, 28000, '28.09.2026', 'regular'],
-    ['Aigul Tokova', '+7 707 567-89-01', 2, 8900, '28.09.2026', 'new'], ['Nurlan Zhaksybekov', '+7 701 890-12-34', 1, 4100, '28.09.2026', 'new'],
+    ['Lukas Gruber', '+43 664 123 4567', 42, 2480, '26.09.2026', 'vip'], ['Sophie Müller', '+49 151 234 5678', 28, 1190, '25.09.2026', 'vip'],
+    ['Pieter de Vries', '+31 6 1234 5678', 18, 840, '24.09.2026', 'regular'], ['Elena Rossi', '+43 660 987 6543', 15, 610, '27.09.2026', 'regular'],
+    ['Katarzyna Nowak', '+49 170 345 6789', 9, 370, '22.09.2026', 'regular'], ['Jan van Dijk', '+31 6 2345 6789', 6, 240, '28.09.2026', 'regular'],
+    ['Anna Berger', '+43 676 456 7890', 2, 95, '28.09.2026', 'new'], ['Matthias Weber', '+49 160 567 8901', 1, 48, '28.09.2026', 'new'],
   ].map(([name, phone, visits, spent, last, lvl]) => ({ name, phone, visits, spent, last, lvl })),
   staff: [
-    ['Ainur Seitkaliyeva', 'Administrator', true, 4.8, 22], ['Bolat Dyussenov', 'Cook', true, 4.9, 20], ['Gulnara Ablayeva', 'Waiter', false, 4.5, 17],
-    ['Daniyar Kassymov', 'Waiter', true, 4.6, 19], ['Elena Petrova', 'Bartender', false, 4.7, 15], ['Zhassulan Nurmagambetov', 'Cashier', true, 4.3, 21],
+    ['Katharina Huber', 'Administrator', true, 4.8, 22], ['Marco Bianchi', 'Cook', true, 4.9, 20], ['Lena Hoffmann', 'Waiter', false, 4.5, 17],
+    ['Thomas Bakker', 'Waiter', true, 4.6, 19], ['Sofia Lindqvist', 'Bartender', false, 4.7, 15], ['Johan Vermeulen', 'Cashier', true, 4.3, 21],
   ].map(([name, role, on, rating, shifts]) => ({ name, role, on, rating, shifts })),
-  days: [['Tue', '22.09', 72000], ['Wed', '23.09', 58000], ['Thu', '24.09', 84500], ['Fri', '25.09', 91000], ['Sat', '26.09', 95000], ['Sun', '27.09', 78000]],
-  expenses: [['28.09.2026', 'Groceries', 32000], ['27.09.2026', 'Payroll', 45000], ['26.09.2026', 'Write-offs', 8200], ['25.09.2026', 'Rent', 150000], ['24.09.2026', 'Groceries', 41000], ['23.09.2026', 'Utilities', 38000]],
-  month30: [49, 53, 57, 52, 60, 63, 68, 61, 66, 70, 74, 69, 77, 81, 86, 72, 79, 83, 88, 76, 84, 89, 93, 80, 72, 58, 84.5, 91, 95, 78],
+  days: [['Tue', '22.09', 620], ['Wed', '23.09', 500], ['Thu', '24.09', 730], ['Fri', '25.09', 790], ['Sat', '26.09', 820], ['Sun', '27.09', 670]],
+  expenses: [['28.09.2026', 'Groceries', 275], ['27.09.2026', 'Payroll', 390], ['26.09.2026', 'Write-offs', 70], ['25.09.2026', 'Rent', 1290], ['24.09.2026', 'Groceries', 350], ['23.09.2026', 'Utilities', 330]],
+  month30: [420, 460, 490, 450, 520, 540, 590, 520, 570, 600, 640, 590, 660, 700, 740, 620, 680, 710, 760, 650, 720, 770, 800, 690, 620, 500, 730, 790, 820, 670],
 };
 const SM = { new: ['New', ''], confirm: ['Accepted', ''], cooking: ['Cooking', 'warn'], ready: ['Ready', 'pos'], done: ['Served', ''], cancel: ['Cancelled', 'neg'] };
 const NEXT = { new: ['confirm', 'Accept'], confirm: ['cooking', 'To kitchen'], cooking: ['ready', 'Ready'], ready: ['done', 'Serve'] };
@@ -465,9 +465,9 @@ const live = () => S.orders.filter((o) => o.status !== 'cancel');
 const revenueToday = () => live().reduce((s, o) => s + total(o), 0);
 const mins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
 const wait = (o) => mins(NOW) - mins(o.time);
-const tg = (n) => fmt(n) + ' ₸';
+const tg = (n) => '€' + fmtD(n, 2);
 const week = () => S.days.reduce((s, d) => s + d[2], 0) + revenueToday();
-console.assert(revenueToday() === 41900 && S.orders.length === 10, 'orders total'); // 4 700 − 4 100: Kharcho + 10 manti + 2 teas = 4 500
+console.assert(revenueToday() === 321.5 && S.orders.length === 10, 'orders total'); // 19 + 48 + 50 + 47.5 + 34 + 27 + 24.5 + 29 + 42.5 = 321.5 (cancelled #1033 excluded)
 
 /* ── shell ────────────────────────────────────────────── */
 const PAGES = { dashboard: ['Dashboard', 'home'], orders: ['Orders', 'bag'], menu: ['Menu', 'utensils'], guests: ['Guests', 'users'], staff: ['Staff', 'calendar'], finance: ['Finance', 'coin'], analytics: ['Analytics', 'chart'] };
@@ -522,9 +522,9 @@ function dashboard() {
   const finding = conflict ? `<div class="finding">${ic('alert')}<span>Order ${conflict.id} includes “${esc(conflict.items.find((i) => stop.includes(i.n)).n)}”, which is on the stop-list. Call the guest before sending it to the kitchen.</span><button class="btn sm" data-order="${conflict.id}">Open order</button></div>`
     : waiting && wait(waiting) >= 10 ? `<div class="finding">${ic('clock')}<span>${esc(waiting.table)} has waited ${wait(waiting)} min: order ${waiting.id} is not accepted yet.</span><button class="btn sm primary" data-adv="${waiting.id}">Accept</button></div>` : '';
   return head('Dashboard', `${TODAY} · <span class="liveclock"><i></i>${NOW}, shift in progress</span>`, `<button class="btn primary" data-act="newOrder">${ic('plus')}New order</button>`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${fmt(revenueToday())}<small>₸</small></b><span>Revenue today as of ${NOW}</span></div>
+    `<div class="kpis"><div class="kpi"><b>€${fmt(revenueToday())}</b><span>Revenue today as of ${NOW}</span></div>
       <div class="kpi"><b>${live().length}</b><span>Orders, ${S.orders.length - live().length} cancelled</span></div>
-      <div class="kpi"><b>${fmt(avg)}<small>₸</small></b><span>Average check</span></div>
+      <div class="kpi"><b>€${fmt(avg)}</b><span>Average check</span></div>
       <div class="kpi"><b>${S.orders.filter((o) => o.status === 'done').length}</b><span>Served to guests</span></div></div>
     <div class="board">${col('New', ['new', 'confirm'])}${col('In the kitchen', ['cooking'])}${col('Ready to serve', ['ready'])}</div>`;
 }
@@ -549,10 +549,10 @@ function menu() {
 function guests() {
   const l = S.guests.filter((g) => (!guestQ || g.name.toLowerCase().includes(guestQ) || g.phone.includes(guestQ)) && (guestL === 'all' || g.lvl === guestL));
   const LV = { vip: ['VIP', 'warn'], regular: ['Regular', ''], new: ['New', 'pos'] };
-  return head('Guests', `${S.guests.length} in database · points: 1 per 100 ₸`) +
+  return head('Guests', `${S.guests.length} in database · points: 1 per €1`) +
     `<div class="filters"><input id="g-q" type="search" placeholder="Name or phone" value="${esc(guestQ)}" aria-label="Search"><select id="g-l" aria-label="Level"><option value="all">All levels</option>${Object.entries(LV).map(([k, v]) => `<option value="${k}" ${guestL === k ? 'selected' : ''}>${v[0]}</option>`).join('')}</select></div>
     <div class="card">${l.length ? `<div class="tbl" style="--cols:1.4fr 150px 70px 110px 80px 110px;--colsm:1.4fr 90px"><div class="tr th"><span>Guest</span><span class="hm">Phone</span><span class="hm r">Visits</span><span class="hm r">Spent</span><span class="hm r">Points</span><span class="r">Level</span></div>
-      ${l.map((g) => `<div class="tr"><span class="cell-main"><b>${esc(g.name)}</b><span>last visit ${g.last}</span></span><span class="hm muted">${esc(g.phone)}</span><span class="hm r">${g.visits}</span><span class="hm r">${tg(g.spent)}</span><span class="hm r">${fmt(g.spent / 100)}</span><span class="r"><span class="pill ${LV[g.lvl][1]}">${LV[g.lvl][0]}</span></span></div>`).join('')}</div>` : '<div class="empty">No guests found. Try a different name.</div>'}</div>`;
+      ${l.map((g) => `<div class="tr"><span class="cell-main"><b>${esc(g.name)}</b><span>last visit ${g.last}</span></span><span class="hm muted">${esc(g.phone)}</span><span class="hm r">${g.visits}</span><span class="hm r">${tg(g.spent)}</span><span class="hm r">${fmt(g.spent)}</span><span class="r"><span class="pill ${LV[g.lvl][1]}">${LV[g.lvl][0]}</span></span></div>`).join('')}</div>` : '<div class="empty">No guests found. Try a different name.</div>'}</div>`;
 }
 
 function staff() {
@@ -566,10 +566,10 @@ function finance() {
   const exp = S.expenses.reduce((s, e) => s + e[2], 0), rev = week();
   const rows = [...S.days.map((d) => [d[1] + '.2026', 'Revenue', 'Dine-in & delivery', d[2]]), [TODAY, 'Revenue', `Dine-in & delivery (as of ${NOW})`, revenueToday()], ...S.expenses.map((e) => [e[0], 'Expense', e[1], -e[2]])]
     .sort((a, b) => b[0].split('.').reverse().join('').localeCompare(a[0].split('.').reverse().join('')));
-  return head('Finance', '22–28 September 2026') +
-    `<div class="kpis"><div class="kpi"><b>${fmt(rev)}<small>₸</small></b><span>Revenue, 7 days</span></div><div class="kpi"><b>${fmt(exp)}<small>₸</small></b><span>Expenses</span></div><div class="kpi"><b class="${rev - exp >= 0 ? 'pos' : 'neg'}">${signed(rev - exp)}<small>₸</small></b><span>Net result (${Math.round(((rev - exp) / rev) * 100)}% of revenue)</span></div></div>
+  return head('Finance', '22–28 September 2026 · prices include VAT') +
+    `<div class="kpis"><div class="kpi"><b>€${fmt(rev)}</b><span>Revenue, 7 days</span></div><div class="kpi"><b>€${fmt(exp)}</b><span>Expenses</span></div><div class="kpi"><b class="${rev - exp >= 0 ? 'pos' : 'neg'}">€${signed(rev - exp)}</b><span>Net result (${Math.round(((rev - exp) / rev) * 100)}% of revenue)</span></div></div>
     <div class="card"><div class="tbl" style="--cols:110px 1fr 1.2fr 140px;--colsm:90px 1fr 100px"><div class="tr th"><span>Date</span><span>Type</span><span class="hm">Category</span><span class="r">Total</span></div>
-    ${rows.map((r) => `<div class="tr"><span class="muted">${r[0].slice(0, 5)}</span><span>${r[1]}</span><span class="hm muted">${esc(r[2])}</span><span class="r ${r[3] > 0 ? 'pos' : ''}">${signed(r[3], (v) => fmt(v) + ' ₸')}</span></div>`).join('')}</div></div>`;
+    ${rows.map((r) => `<div class="tr"><span class="muted">${r[0].slice(0, 5)}</span><span>${r[1]}</span><span class="hm muted">${esc(r[2])}</span><span class="r ${r[3] > 0 ? 'pos' : ''}">${signed(r[3], (v) => '€' + fmtD(v, 2))}</span></div>`).join('')}</div></div>`;
 }
 
 function analytics() {
@@ -577,13 +577,13 @@ function analytics() {
   const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]), t = rows.reduce((s, r) => s + r[1], 0);
   const best = S.days.reduce((a, b) => (b[2] > a[2] ? b : a));
   return head('Analytics', 'Revenue and sales mix') +
-    `<div class="kpis"><div class="kpi"><b>${fmt(best[2] / 1000)}<small>k ₸</small></b><span>Best day of the week: ${best[0]}, ${best[1]}</span></div><div class="kpi"><b>${fmt(rows.length ? t / live().length : 0)}<small>₸</small></b><span>Average check today</span></div></div>
-    <div class="grid"><section class="card c7"><div class="card-h"><h2>Daily revenue, ₸ thousand</h2><span>today — as of ${NOW}</span></div><div id="ch-days"></div></section>
+    `<div class="kpis"><div class="kpi"><b>€${fmt(best[2])}</b><span>Best day of the week: ${best[0]}, ${best[1]}</span></div><div class="kpi"><b>€${fmt(rows.length ? t / live().length : 0)}</b><span>Average check today</span></div></div>
+    <div class="grid"><section class="card c7"><div class="card-h"><h2>Daily revenue, €</h2><span>today — as of ${NOW}</span></div><div id="ch-days"></div></section>
     <section class="card c5"><div class="card-h"><h2>Sales mix today</h2><span>share of revenue</span></div>${rows.map(([k, v]) => barRow(CATS[k], (v / t) * 100, Math.round((v / t) * 100) + '%', tg(v))).join('')}</section>
-    <section class="card c12"><div class="card-h"><h2>30-day revenue, ₸ thousand</h2></div><div id="ch-30"></div></section></div>`;
+    <section class="card c12"><div class="card-h"><h2>30-day revenue, €</h2></div><div id="ch-30"></div></section></div>`;
 }
 function mount() {
-  const a = $('#ch-days'); if (a) { const labels = [...S.days.map((d) => d[0]), 'Mon'], vals = [...S.days.map((d) => d[2] / 1000), revenueToday() / 1000]; chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (v) => fmtD(v, v % 1 ? 1 : 0), unit: 'k ₸' })); }
+  const a = $('#ch-days'); if (a) { const labels = [...S.days.map((d) => d[0]), 'Mon'], vals = [...S.days.map((d) => d[2]), revenueToday()]; chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (v) => fmtD(v, v % 1 ? 1 : 0), unit: '€' })); }
   const b = $('#ch-30'); if (b) { const v = S.month30, labels = v.map((_, i) => i + 1 + ''); chart(b, (w) => lineSVG(w, { labels, values: v, xAt: [0, 7, 14, 21, 29], fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) })); }
 }
 
@@ -593,7 +593,7 @@ const ACT = {
     const avail = S.menu.filter((m) => m.a);
     modal(`<h2>New order</h2><p>It will appear in the “New” column.</p>
       <div class="field"><label>Table</label><select id="o-t">${[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `<option>Table ${n}</option>`).join('')}<option>Delivery</option></select></div>
-      <div class="field"><label>Dish</label><select id="o-d">${avail.map((m) => `<option>${esc(m.n)} · ${fmt(m.p)} ₸</option>`).join('')}</select></div>
+      <div class="field"><label>Dish</label><select id="o-d">${avail.map((m) => `<option>${esc(m.n)} · ${tg(m.p)}</option>`).join('')}</select></div>
       <div class="field"><label>Quantity</label><input id="o-q" type="number" min="1" max="20" value="1"></div>
       <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="o-ok">Create</button></div>`, () => {
       $('#o-ok').onclick = () => {
@@ -604,8 +604,8 @@ const ACT = {
     });
   },
   newDish() {
-    modal(`<h2>New dish</h2><p>It will appear on the menu right away.</p><div class="field"><label>Name</label><input id="d-n" placeholder="E.g. Baursak"></div>
-      <div class="field"><label>Category</label><select id="d-c">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div><div class="field"><label>Price, ₸</label><input id="d-p" type="number" min="0" value="1000"></div>
+    modal(`<h2>New dish</h2><p>It will appear on the menu right away.</p><div class="field"><label>Name</label><input id="d-n" placeholder="E.g. Apple Strudel"></div>
+      <div class="field"><label>Category</label><select id="d-c">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div><div class="field"><label>Price, €</label><input id="d-p" type="number" min="0" step="0.5" value="10"></div>
       <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="d-ok">Add</button></div>`, () => {
       $('#d-ok').onclick = () => { const n = $('#d-n').value.trim(); if (!n) { $('#d-n').focus(); return; } S.menu.push({ n, c: $('#d-c').value, p: +$('#d-p').value || 0, a: true }); closeModal(); toast(`${n} added to the menu`); render(); };
     });
@@ -620,7 +620,7 @@ function openOrder(id) {
 }
 /* ── live kitchen: the clock runs, orders keep arriving, the pass marks dishes ready ─ */
 let FRESH = null, beat = 0;
-const WHO = ['Aibek T.', 'Madina R.', 'Timur S.', 'Leila K.', 'Yerlan Zh.', 'Assel B.', 'Daniyar M.', 'Saule N.'];
+const WHO = ['Felix T.', 'Marie R.', 'Tim S.', 'Laura K.', 'Daan Z.', 'Eva B.', 'David M.', 'Nina N.'];
 const WHERE = ['Table 1', 'Table 3', 'Table 6', 'Table 2', 'Table 4', 'Table 8', 'Delivery'];
 const hm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 function spawn() {

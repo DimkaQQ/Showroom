@@ -64,9 +64,6 @@ hr.dimkaprojects.xyz {
 botfactory.dimkaprojects.xyz {
 	import demo botfactory
 }
-cv.dimkaprojects.xyz {
-	import demo cv
-}
 
 bot.dimkaprojects.xyz {
 	import common

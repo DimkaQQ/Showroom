@@ -395,14 +395,14 @@ const MODS = [
     ['Welcome to RestOS', 'Welcome to the team! Here you will find everything you need to get up to speed: training, a chat with your manager and shift checklists.'],
     ['Team structure', 'The restaurant is run by a general manager, sous chefs, cooks, servers and hosts. Everyone knows their role, and that is the foundation of smooth teamwork.'],
     ['Work schedule', 'Shifts are planned every week. The schedule arrives 5 days ahead, and any shift swap must be agreed with your manager at least a day in advance.'],
-    ['Your first day', 'The shift manager will greet you, show you the dining room and kitchen, and introduce you to the team. Your access and uniform are prepared in advance.'],
+    ['Your first day', 'The shift manager will greet you, show you the dining room and kitchen, and introduce you to the team. Your access and uniform are prepared in advance; bring your food hygiene certificate.'],
   ], quiz: [] },
   { t: 'Kitchen safety', sub: '5 steps', xp: 140, icon: 'shield', steps: [
     ['Personal hygiene', 'Wear a clean uniform and wash your hands before touching any food. Jewellery, watches and phones are not allowed in the kitchen.'],
-    ['Temperature control', 'Cold dishes are stored at 0–4 °C, hot dishes at 65 °C or above. A reading is taken every 2 hours and recorded in the log.'],
+    ['Temperature control', 'Cold dishes are stored at 0–4 °C, hot dishes at 65 °C or above. A reading is taken every 2 hours and recorded in the HACCP log.'],
     ['Equipment', 'Read the instructions on each appliance before use. Faulty equipment is taken out of service and tagged with a red sticker.'],
     ['Fire safety', 'Keep exits clear at all times. The fire extinguisher is by the kitchen entrance and the evacuation plan is by the changing room.'],
-    ['Injuries and incidents', 'Record any cut or burn in the log immediately. The first-aid kit is at the manager station; for a serious injury call 103.'],
+    ['Injuries and incidents', 'Record any cut or burn in the accident log immediately. The first-aid kit is at the manager station; for a serious injury call 112.'],
   ], quiz: [] },
   { t: 'Guest service', sub: '4 steps and a quiz', xp: 180, icon: 'heart', steps: [
     ['Greeting guests', 'Greet every guest within 30 seconds. A smile, eye contact and a "Welcome!" set the tone for the whole evening. If you are busy, nod and say "I will be right with you."'],
@@ -415,7 +415,7 @@ const MODS = [
     { q: 'Which side do you serve drinks from?', o: ['Left', 'Right', 'Either side', 'Only from the end of the table'], a: 1, why: 'Dishes from the left, drinks from the right.' },
   ] },
   { t: 'Menu and allergens', sub: '3 steps and a quiz', xp: 120, icon: 'utensils', steps: [
-    ['The 14 main allergens', 'Gluten, milk, eggs, tree nuts, peanuts, fish, molluscs, soya, celery, mustard, sesame, lupin and more. The full list is kept at the pass.'],
+    ['The 14 main allergens', 'Gluten, milk, eggs, tree nuts, peanuts, fish, molluscs, soya, celery, mustard, sesame, lupin and more. This follows the EU allergen regulation. The full list is kept at the pass.'],
     ['Answering questions about ingredients', 'Never guess. If you are not sure, say "I will check with the chef" and come back with an exact answer. Tell the kitchen about any allergy straight away.'],
     ['86 list', 'When a dish runs out, it appears on the 86 list. Check it before recommending a dish to a guest.'],
   ], quiz: [
@@ -428,11 +428,11 @@ const CHECK = [
   ['Before the shift', [['Put on a clean uniform and name badge', '09:45'], ['Check the 86 list at the pass', '09:50'], ['Wipe and set your assigned tables', '10:00'], ['Attend the briefing with the manager', '10:15']]],
   ['After the shift', [['Hand in tips and close out checks', '22:30'], ['Clean your station and take out the trash', '22:45'], ['Write your notes in the log', '22:55']]],
 ];
-const TEAM = [['Madina K.', 4], ['Timur B.', 3], ['Aliya S.', 3], ['Daniyar N.', 1]];
+const TEAM = [['Lena K.', 4], ['Jonas B.', 3], ['Elena S.', 3], ['Matteo N.', 1]];
 const REPLY = [
   [/schedule|shift|swap/i, 'The weekly schedule is already published. If you need a swap, message me at least a day ahead.'],
   [/uniform|dress|wear/i, 'Black trousers and an apron are issued by the host desk; bring your own white shirt.'],
-  [/salary|pay|advance/i, 'Advance on the 10th, the rest on the 25th. Your rate and tips are in your contract.'],
+  [/salary|pay|advance/i, 'Pay is transferred on the last working day of the month. Your rate and tips are in your contract.'],
   [/thanks|thank you|\bok\b|got it/i, 'Great! Message me if you need anything.'],
 ];
 
@@ -441,8 +441,8 @@ const REPLY = [
 const heroImg = () => `<img src="img/hero.jpg" alt="" decoding="async">`;
 
 /* ── state ────────────────────────────────────────────── */
-const S = { done: new Set([0, 1]), tab: 'path', view: 'path', mod: 2, step: 0, qi: 0, picked: null, ticks: new Set(['0-0']), unread: 3, feed: ['<b>Ruslan</b> assigned Aidan a mentor for the first week'],
-  chat: [{ me: false, t: 'Hi Aidan! I am Ruslan, the general manager. Glad to have you with us.', ts: '09:12' }, { me: false, t: 'Finish the training by Friday and ask any questions here.', ts: '09:13' }, { me: false, t: 'Your first day is Monday, please arrive by 9:45.', ts: '09:13' }] };
+const S = { done: new Set([0, 1]), tab: 'path', view: 'path', mod: 2, step: 0, qi: 0, picked: null, ticks: new Set(['0-0']), unread: 3, feed: ['<b>Marek</b> assigned Sofia a mentor for the first week'],
+  chat: [{ me: false, t: 'Hi Sofia! I am Marek, the general manager. Glad to have you with us.', ts: '09:12' }, { me: false, t: 'Finish the training by Friday and ask any questions here.', ts: '09:13' }, { me: false, t: 'Your first day is Monday, please arrive by 9:45.', ts: '09:13' }] };
 const xp = () => [...S.done].reduce((a, i) => a + MODS[i].xp, 0);
 const cur = () => { for (let i = 0; i < MODS.length; i++) if (!S.done.has(i)) return i; return -1; };
 const playable = (i) => MODS[i].steps.length > 0 && (i === 0 || S.done.has(i - 1));
@@ -465,7 +465,7 @@ function pathScreen() {
   if (S.view === 'quiz') return quizScreen();
   if (S.view === 'done') return doneScreen();
   const c = cur();
-  return `<div class="hero">${heroImg()}</div><div class="top"><div><h1>Hi, Aidan!</h1><p>${c === -1 ? 'Path completed' : `Up next: ${MODS[c].t}`}</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+  return `<div class="hero">${heroImg()}</div><div class="top"><div><h1>Hi, Sofia!</h1><p>${c === -1 ? 'Path completed' : `Up next: ${MODS[c].t}`}</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
     <div class="path">${MODS.map((m, i) => { const d = S.done.has(i), cu = i === c, lock = !playable(i) && !d; return `<button class="node ${d ? 'done' : ''} ${cu && !lock ? 'cur' : ''} ${lock ? 'lock' : ''}" data-act="open" data-i="${i}" ${lock ? 'disabled' : ''}><span class="dot">${ic(d ? 'check' : lock ? 'lock' : m.icon)}</span><div><b>${m.t}</b><span>${d ? `Completed · +${m.xp} XP` : lock ? (m.steps.length ? 'Unlocks after the previous module' : 'Coming soon') : `${m.sub} · +${m.xp} XP`}</span></div></button>`; }).join('')}</div>`;
 }
 function learnScreen() {
@@ -482,11 +482,11 @@ function quizScreen() {
 }
 function doneScreen() {
   const m = MODS[S.mod], nx = S.mod + 1 < MODS.length && playable(S.mod + 1);
-  return `<div class="learn" style="text-align:center;padding-top:20px"><div class="big-xp">+${m.xp}</div><p class="muted" style="font-weight:800">XP for this module</p><div class="cert"><small>Certificate</small><h3>${m.t}</h3><p>Aidan Kerzhanova · 28/09/2026</p></div>
+  return `<div class="learn" style="text-align:center;padding-top:20px"><div class="big-xp">+${m.xp}</div><p class="muted" style="font-weight:800">XP for this module</p><div class="cert"><small>Certificate</small><h3>${m.t}</h3><p>Sofia Weber · 28/09/2026</p></div>
     <p class="muted">${xp()} XP in total, ${S.done.size} of ${MODS.length} modules completed</p><button class="btn primary cta" data-act="exit">${nx ? 'Go to next module' : 'Back to path'}</button></div>`;
 }
 function chatScreen() {
-  return `<div class="top"><div><h1>Ruslan</h1><p>General manager · usually replies within 5 minutes</p></div></div><div class="msgs" id="msgs">${S.chat.map((m) => `<div class="m ${m.me ? 'me' : ''}">${esc(m.t)}<small>${m.ts}</small></div>`).join('')}</div><div class="quick">${['When is my schedule?', 'What is the uniform?', 'How do I swap a shift?'].map((q) => `<button data-act="say" data-t="${q}">${q}</button>`).join('')}</div>`;
+  return `<div class="top"><div><h1>Marek</h1><p>General manager · usually replies within 5 minutes</p></div></div><div class="msgs" id="msgs">${S.chat.map((m) => `<div class="m ${m.me ? 'me' : ''}">${esc(m.t)}<small>${m.ts}</small></div>`).join('')}</div><div class="quick">${['When is my schedule?', 'What is the uniform?', 'How do I swap a shift?'].map((q) => `<button data-act="say" data-t="${q}">${q}</button>`).join('')}</div>`;
 }
 function chatMount() {
   S.unread = 0; nav();
@@ -497,7 +497,7 @@ function chatMount() {
 function say(text) {
   const t = new Date(2026, 8, 28, 14, 20 + S.chat.length % 30), ts = '14:' + String(20 + S.chat.length % 30).padStart(2, '0');
   S.chat.push({ me: true, t: text, ts }); render();
-  const m = $('#msgs'); m.insertAdjacentHTML('beforeend', '<div class="typing" id="typing">Ruslan is typing…</div>'); $('#scr').scrollTop = 1e6;
+  const m = $('#msgs'); m.insertAdjacentHTML('beforeend', '<div class="typing" id="typing">Marek is typing…</div>'); $('#scr').scrollTop = 1e6;
   setTimeout(() => { const r = REPLY.find(([re]) => re.test(text)); S.chat.push({ me: false, t: r ? r[1] : 'Got it, I will reply within the hour.', ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); } }, 1100);
 }
 function listScreen() {
@@ -505,15 +505,15 @@ function listScreen() {
   return `<div class="top"><div><h1>Checklists</h1><p>${n} of ${ckTotal()} done today</p></div></div><div class="pbar" style="margin-bottom:6px">${Array.from({ length: ckTotal() }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div><div class="cl">${CHECK.map(([t, l], li) => `<h3>${t}<span>${l.filter((_, i) => S.ticks.has(li + '-' + i)).length} of ${l.length}</span></h3>${l.map(([x, tm], i) => { const k = li + '-' + i, d = S.ticks.has(k); return `<button class="ck ${d ? 'done' : ''}" data-act="tick" data-k="${k}" role="checkbox" aria-checked="${d}"><span class="bx">${d ? ic('check') : ''}</span><b>${x}</b><small>${tm}</small></button>`; }).join('')}`).join('')}</div>`;
 }
 function meScreen() {
-  return `<div class="top"><div><h1>Aidan Kerzhanova</h1><p>Server · on probation</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+  return `<div class="top"><div><h1>Sofia Weber</h1><p>Server · on probation</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
     <p class="lead">Certificates</p>${[...S.done].sort().map((i) => `<div class="cert" style="margin:0 0 10px;text-align:left"><small>Certificate</small><h3 style="font-size:17px">${MODS[i].t}</h3><p>Issued 28/09/2026 · +${MODS[i].xp} XP</p></div>`).join('')}
     <p class="lead">Streak</p><p style="font-size:15px">6 days in a row. One more day and your streak becomes a week.</p>`;
 }
 function mgr() {
-  const me = ['Aidan K.', S.done.size], all = [...TEAM, me].sort((a, b) => b[1] - a[1]);
+  const me = ['Sofia W.', S.done.size], all = [...TEAM, me].sort((a, b) => b[1] - a[1]);
   $('#mgr').innerHTML = `<h2>What the manager sees</h2><h1>Team training</h1><p>The employee app is on the right. Complete modules and this view updates on its own.</p>
     <section class="card"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Modules completed</h2><span>of ${MODS.length}</span></div>${all.map((x) => `<div class="member ${x === me ? 'me' : ''}"><span>${x[0]}</span><div class="bar"><i style="width:${x[1] / MODS.length * 100}%"></i></div><b>${x[1]}</b></div>`).join('')}</section>
-    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Checklists today</h2><span>Aidan</span></div><div class="kpi"><b>${S.ticks.size}<small>of ${ckTotal()}</small></b><span>Items ticked this shift</span></div></section>
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Checklists today</h2><span>Sofia</span></div><div class="kpi"><b>${S.ticks.size}<small>of ${ckTotal()}</small></b><span>Items ticked this shift</span></div></section>
     <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Activity</h2></div><ul class="feed">${S.feed.slice(0, 5).map((f) => `<li>${f}</li>`).join('')}</ul></section>`;
 }
 
@@ -533,19 +533,19 @@ const ACT = {
   },
   pick(d) { S.picked = +d.i; render(); },
   qnext() { const m = MODS[S.mod]; if (S.qi < m.quiz.length - 1) { S.qi++; S.picked = null; return render(); } finish(); },
-  tick(d) { S.ticks.has(d.k) ? S.ticks.delete(d.k) : S.ticks.add(d.k); if (S.ticks.size === ckTotal()) { S.feed.unshift('<b>Aidan</b> completed all shift checklists'); toast('All checklists completed'); } render(); },
+  tick(d) { S.ticks.has(d.k) ? S.ticks.delete(d.k) : S.ticks.add(d.k); if (S.ticks.size === ckTotal()) { S.feed.unshift('<b>Sofia</b> completed all shift checklists'); toast('All checklists completed'); } render(); },
   say(d) { say(d.t); },
 };
-function finish() { S.done.add(S.mod); S.feed.unshift(`<b>Aidan</b> completed the module "${MODS[S.mod].t}", +${MODS[S.mod].xp} XP`); S.view = 'done'; render(); }
+function finish() { S.done.add(S.mod); S.feed.unshift(`<b>Sofia</b> completed the module "${MODS[S.mod].t}", +${MODS[S.mod].xp} XP`); S.view = 'done'; render(); }
 /* ── live: the manager writes, colleagues move through modules, the feed fills up ─ */
 const PINGS = ['Don\'t forget the briefing at 9:45', 'Has anyone seen the new aprons? They are at the host desk', 'Menu quiz again tomorrow, review the allergens', 'Great work yesterday, guests were praising you'];
-const NAMES_T = ['Daniyar N.', 'Aliya S.', 'Timur B.'];
+const NAMES_T = ['Matteo N.', 'Elena S.', 'Jonas B.'];
 let beatHR = 0;
 setInterval(() => {
   if (document.hidden) return;
   beatHR++;
   if (beatHR % 3 === 0) { const w = TEAM.find((x) => x[0] === NAMES_T[beatHR % 3 === 0 ? (beatHR / 3) % 3 : 0]) || TEAM[3]; if (w[1] < 4) { w[1]++; S.feed.unshift(`<b>${w[0]}</b> completed a module, now ${w[1]} of ${MODS.length}`); mgr(); } }
-  if (beatHR % 5 === 0 && S.chat.length < 14) { const ts = '14:' + String(30 + (beatHR % 25)).padStart(2, '0'); S.chat.push({ me: false, t: PINGS[(beatHR / 5) % PINGS.length | 0], ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); toast('Ruslan sent you a message'); } }
+  if (beatHR % 5 === 0 && S.chat.length < 14) { const ts = '14:' + String(30 + (beatHR % 25)).padStart(2, '0'); S.chat.push({ me: false, t: PINGS[(beatHR / 5) % PINGS.length | 0], ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); toast('Marek sent you a message'); } }
 }, 6000);
 render();
 </script>
