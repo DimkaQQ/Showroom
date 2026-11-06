@@ -3,7 +3,7 @@ export const siteConfig = {
   domain: "dimkaprojects.xyz",
   url: "https://dimkaprojects.xyz",
   email: "darian.mirelli@gmail.com",
-  github: "https://github.com/DarQQ",
+  github: "https://github.com/DimkaQQ",
   telegram: "https://t.me/Dimka_Hum",
   founded: "2023",
 };
@@ -53,7 +53,7 @@ export const projects = [
   },
   {
     id: "storage",
-    name: "Multi-Entity Procurement",
+    name: "Stockroom",
     tags: ["React", "TypeScript", "Tailwind", "Vite"],
     subdomain: "storage",
     stage: "#e6d9a8",

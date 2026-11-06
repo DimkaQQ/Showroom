@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-fx="banner">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -140,6 +140,23 @@ svg { display: block; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+.snack { position: fixed; left: 20px; bottom: 20px; display: flex; align-items: center; gap: 14px; max-width: min(380px, calc(100vw - 32px)); padding: 12px 8px 12px 16px; border-radius: 6px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; opacity: 0; transform: translateY(12px); transition: opacity .2s, transform .25s var(--ease); pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+.snack.show { opacity: 1; transform: none; pointer-events: auto; }
+.snack button { flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: transparent; color: inherit; opacity: .65; cursor: pointer; font: inherit; } .snack button:hover { opacity: 1; }
+.fxbar { position: fixed; top: 0; left: 0; right: 0; z-index: 70; padding: 9px 16px; text-align: center; font-weight: 600; font-size: 13px; background: var(--accent); color: var(--accent-ink); transform: translateY(-100%); transition: transform .25s var(--ease); pointer-events: none; }
+.fxbar.show { transform: none; }
+.corner { position: fixed; top: 52px; right: 16px; width: min(340px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 8px; z-index: 60; pointer-events: none; }
+.cn { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--surface); color: var(--text); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,.28); opacity: 0; transform: translateX(24px); transition: opacity .22s, transform .26s var(--ease); }
+.cn.show { opacity: 1; transform: none; }
+.cn i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); } .cn small { color: var(--faint, var(--muted)); font-size: 11px; }
+.flash { position: fixed; z-index: 70; transform: translate(-50%, calc(-100% + 6px)); padding: 7px 12px; border-radius: 8px; background: var(--text); color: var(--bg); font-size: 13px; font-weight: 600; opacity: 0; transition: opacity .15s, transform .2s var(--ease); pointer-events: none; text-align: center; }
+.flash::after { content: ''; position: absolute; left: 50%; bottom: -4px; width: 8px; height: 8px; background: inherit; transform: translateX(-50%) rotate(45deg); }
+.flash.show { opacity: 1; transform: translate(-50%, -100%); }
+.push { position: fixed; top: 10px; left: 50%; width: min(380px, calc(100vw - 20px)); z-index: 70; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 11px; align-items: center; padding: 11px 14px; border-radius: 18px; background: color-mix(in srgb, var(--surface) 86%, transparent); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); color: var(--text); border: 1px solid var(--border); box-shadow: 0 12px 32px rgba(0,0,0,.28); transform: translate(-50%, -140%); transition: transform .35s var(--ease); pointer-events: none; }
+.push.show { transform: translate(-50%, 0); }
+.push i { width: 36px; height: 36px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-style: normal; font-weight: 800; }
+.push b { display: block; font-size: 13px; } .push span { display: block; font-size: 13px; color: var(--muted); } .push small { align-self: start; color: var(--faint, var(--muted)); font-size: 11px; }
+@media (max-width: 899px) { .snack { bottom: 76px; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
 
@@ -272,12 +289,59 @@ const ICONS = {
 };
 const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
 
-let toastTimer;
+/* Feedback messages. Each demo picks a style with <html data-fx="…">:
+   pill (bottom centre) · snack (bottom-left, dismissible) · banner (top bar) · corner (stacked cards)
+   flash (bubble at the pointer) · push (phone-style notification) · none (silent, warnings only) */
+let lastPt = { x: innerWidth / 2, y: innerHeight * .6 };
+addEventListener('pointerdown', (e) => { lastPt = { x: e.clientX, y: e.clientY }; }, true);
+const WARN = /^(enter|check|not |only |describe|volume must|this period|generation limit|project limit)/i;
+const fxHost = (cls, tag = 'div') => { let el = $('.' + cls); if (!el) { el = document.createElement(tag); el.className = cls; document.body.appendChild(el); } return el; };
+const fxTimers = {};
+const fxLater = (key, fn, ms) => { clearTimeout(fxTimers[key]); fxTimers[key] = setTimeout(fn, ms); };
+const FX = {
+  pill(msg) {
+    const t = fxHost('toast'); t.setAttribute('role', 'status'); t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+    fxLater('pill', () => t.classList.remove('show'), 2600);
+  },
+  snack(msg) {
+    const t = fxHost('snack'); t.setAttribute('role', 'status');
+    t.innerHTML = `<span></span><button type="button" aria-label="Dismiss">✕</button>`; t.firstChild.textContent = msg;
+    t.lastChild.onclick = () => t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+    fxLater('snack', () => t.classList.remove('show'), 4200);
+  },
+  banner(msg) {
+    const t = fxHost('fxbar'); t.setAttribute('role', 'status'); t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+    fxLater('banner', () => t.classList.remove('show'), 3000);
+  },
+  corner(msg) {
+    const host = fxHost('corner'); host.setAttribute('role', 'status');
+    const c = document.createElement('div'); c.className = 'cn'; c.innerHTML = `<i></i><span></span><small>now</small>`; c.children[1].textContent = msg;
+    host.prepend(c); while (host.children.length > 3) host.lastChild.remove();
+    requestAnimationFrame(() => c.classList.add('show'));
+    setTimeout(() => { c.classList.remove('show'); setTimeout(() => c.remove(), 260); }, 4200);
+  },
+  flash(msg) {
+    const t = fxHost('flash'); t.setAttribute('role', 'status'); t.textContent = msg; t.classList.remove('show'); void t.offsetWidth;
+    const w = Math.min(280, innerWidth - 24);
+    t.style.maxWidth = w + 'px';
+    t.style.left = Math.max(12 + w / 2, Math.min(innerWidth - 12 - w / 2, lastPt.x)) + 'px';
+    t.style.top = Math.max(48, lastPt.y - 18) + 'px';
+    t.classList.add('show'); fxLater('flash', () => t.classList.remove('show'), 2200);
+  },
+  push(msg) {
+    const brand = ($('.brand-name') || {}).textContent || document.title.split(/[—·-]/)[0].trim();
+    const t = fxHost('push'); t.setAttribute('role', 'status');
+    t.innerHTML = `<i></i><div><b></b><span></span></div><small>now</small>`;
+    t.querySelector('i').textContent = (brand || 'A')[0]; t.querySelector('b').textContent = brand; t.querySelector('span').textContent = msg;
+    t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+    fxLater('push', () => t.classList.remove('show'), 4200);
+  },
+};
 function toast(msg) {
-  let t = $('.toast');
-  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
-  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  const fx = document.documentElement.dataset.fx || 'pill';
+  const warn = WARN.test(msg);
+  if (fx === 'none' && !warn) return;
+  (FX[fx === 'none' ? 'flash' : fx] || FX.pill)(msg);
 }
 function modal(html, onMount) {
   closeModal();

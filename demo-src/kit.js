@@ -56,12 +56,59 @@ const ICONS = {
 };
 const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
 
-let toastTimer;
+/* Feedback messages. Each demo picks a style with <html data-fx="…">:
+   pill (bottom centre) · snack (bottom-left, dismissible) · banner (top bar) · corner (stacked cards)
+   flash (bubble at the pointer) · push (phone-style notification) · none (silent, warnings only) */
+let lastPt = { x: innerWidth / 2, y: innerHeight * .6 };
+addEventListener('pointerdown', (e) => { lastPt = { x: e.clientX, y: e.clientY }; }, true);
+const WARN = /^(enter|check|not |only |describe|volume must|this period|generation limit|project limit)/i;
+const fxHost = (cls, tag = 'div') => { let el = $('.' + cls); if (!el) { el = document.createElement(tag); el.className = cls; document.body.appendChild(el); } return el; };
+const fxTimers = {};
+const fxLater = (key, fn, ms) => { clearTimeout(fxTimers[key]); fxTimers[key] = setTimeout(fn, ms); };
+const FX = {
+  pill(msg) {
+    const t = fxHost('toast'); t.setAttribute('role', 'status'); t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+    fxLater('pill', () => t.classList.remove('show'), 2600);
+  },
+  snack(msg) {
+    const t = fxHost('snack'); t.setAttribute('role', 'status');
+    t.innerHTML = `<span></span><button type="button" aria-label="Dismiss">✕</button>`; t.firstChild.textContent = msg;
+    t.lastChild.onclick = () => t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+    fxLater('snack', () => t.classList.remove('show'), 4200);
+  },
+  banner(msg) {
+    const t = fxHost('fxbar'); t.setAttribute('role', 'status'); t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+    fxLater('banner', () => t.classList.remove('show'), 3000);
+  },
+  corner(msg) {
+    const host = fxHost('corner'); host.setAttribute('role', 'status');
+    const c = document.createElement('div'); c.className = 'cn'; c.innerHTML = `<i></i><span></span><small>now</small>`; c.children[1].textContent = msg;
+    host.prepend(c); while (host.children.length > 3) host.lastChild.remove();
+    requestAnimationFrame(() => c.classList.add('show'));
+    setTimeout(() => { c.classList.remove('show'); setTimeout(() => c.remove(), 260); }, 4200);
+  },
+  flash(msg) {
+    const t = fxHost('flash'); t.setAttribute('role', 'status'); t.textContent = msg; t.classList.remove('show'); void t.offsetWidth;
+    const w = Math.min(280, innerWidth - 24);
+    t.style.maxWidth = w + 'px';
+    t.style.left = Math.max(12 + w / 2, Math.min(innerWidth - 12 - w / 2, lastPt.x)) + 'px';
+    t.style.top = Math.max(48, lastPt.y - 18) + 'px';
+    t.classList.add('show'); fxLater('flash', () => t.classList.remove('show'), 2200);
+  },
+  push(msg) {
+    const brand = ($('.brand-name') || {}).textContent || document.title.split(/[—·-]/)[0].trim();
+    const t = fxHost('push'); t.setAttribute('role', 'status');
+    t.innerHTML = `<i></i><div><b></b><span></span></div><small>now</small>`;
+    t.querySelector('i').textContent = (brand || 'A')[0]; t.querySelector('b').textContent = brand; t.querySelector('span').textContent = msg;
+    t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+    fxLater('push', () => t.classList.remove('show'), 4200);
+  },
+};
 function toast(msg) {
-  let t = $('.toast');
-  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
-  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  const fx = document.documentElement.dataset.fx || 'pill';
+  const warn = WARN.test(msg);
+  if (fx === 'none' && !warn) return;
+  (FX[fx === 'none' ? 'flash' : fx] || FX.pill)(msg);
 }
 function modal(html, onMount) {
   closeModal();

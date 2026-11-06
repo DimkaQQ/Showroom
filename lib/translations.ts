@@ -47,9 +47,9 @@ const en = {
           "Interactive platform to learn trading from scratch. Structured courses, quizzes and a live simulator where users practise with virtual capital.",
       },
       {
-        tagline: "Shipping & logistics",
+        tagline: "Launch planning for indie products",
         description:
-          "Web application for shipments and logistics operations. Track orders, assign couriers, generate reports and follow delivery statuses in real time.",
+          "AI-assisted launch planner for indie founders. Describe your audience, get a week-by-week distribution plan across Product Hunt, Reddit, LinkedIn and newsletters, and tick tasks off on a launch board.",
       },
       {
         tagline: "Procurement & price control",
@@ -202,9 +202,9 @@ const ru: Translations = {
           "Интерактивная платформа для изучения трейдинга с нуля. Курсы, тесты и живой симулятор для практики на виртуальном капитале.",
       },
       {
-        tagline: "Доставка и логистика",
+        tagline: "Планирование запуска продукта",
         description:
-          "Веб-приложение для управления доставками и логистикой. Отслеживание заказов, назначение курьеров, отчёты и статусы доставок в реальном времени.",
+          "ИИ-планировщик запуска для независимых основателей: опишите аудиторию, получите план продвижения по неделям (Product Hunt, Reddit, LinkedIn, рассылки) и отмечайте задачи на доске запуска.",
       },
       {
         tagline: "Закупки и контроль цен",

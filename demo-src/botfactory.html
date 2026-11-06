@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" data-fx="flash">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,7 +28,7 @@
 .step.open::before { border-color: var(--accent); color: var(--accent); }
 .step-h { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 12px 14px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: var(--radius); }
 .step-ic { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-bg); color: var(--accent); }
-.step-h b { display: block; font-weight: 700; } .step-h span { display: block; color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.step-h b { display: block; font-weight: 700; } .step-h span:not(.step-ic) { display: block; color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .step-h .ic.chev { color: var(--faint); transition: transform .2s var(--ease); } .step.open .chev { transform: rotate(180deg); }
 .step-b { padding: 4px 14px 14px 60px; }
 .step-b .field { margin-bottom: 10px; }
