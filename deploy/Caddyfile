@@ -1,0 +1,74 @@
+# Single public entry point for the VPS: serves the site, every demo subdomain and BotFactory.
+# Install: sudo cp deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
+{
+	email darian.mirelli@gmail.com
+}
+
+(common) {
+	encode zstd gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	@assets path *.jpg *.jpeg *.png *.svg *.webp *.woff2 /_next/static/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+}
+
+(demo) {
+	import common
+	root * /opt/docker/showroom/demos/{args[0]}
+	header Content-Security-Policy "frame-ancestors 'self' https://dimkaprojects.xyz"
+	file_server
+}
+
+dimkaprojects.xyz {
+	import common
+	root * /opt/docker/showroom/out
+	file_server
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}
+
+www.dimkaprojects.xyz {
+	redir https://dimkaprojects.xyz{uri} permanent
+}
+
+dizeltrade.dimkaprojects.xyz {
+	import demo dizeltrade
+}
+rentoworld.dimkaprojects.xyz {
+	import demo rentoworld
+}
+tradinglearn.dimkaprojects.xyz {
+	import demo tradinglearn
+}
+shipter.dimkaprojects.xyz {
+	import demo shipter
+}
+storage.dimkaprojects.xyz {
+	import demo storage
+}
+caspianflow.dimkaprojects.xyz {
+	import demo caspianflow
+}
+restaurant.dimkaprojects.xyz {
+	import demo restaurant
+}
+hr.dimkaprojects.xyz {
+	import demo hr
+}
+botfactory.dimkaprojects.xyz {
+	import demo botfactory
+}
+cv.dimkaprojects.xyz {
+	import demo cv
+}
+
+bot.dimkaprojects.xyz {
+	import common
+	reverse_proxy 127.0.0.1:8010
+}

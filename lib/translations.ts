@@ -59,7 +59,7 @@ const en = {
       {
         tagline: "Energy marketplace",
         description:
-          "B2B fuel trading platform for Central Asia and the Caspian region. Real-time price reference, P2P marketplace for diesel, gasoline and jet fuel, calculator and Stripe payments.",
+          "B2B fuel trading platform for European terminals from Rotterdam to Trieste. Live price reference, P2P marketplace for diesel, gasoline and jet fuel, delivery-cost calculator and Stripe payments.",
       },
       {
         tagline: "Restaurant operations",
@@ -214,7 +214,7 @@ const ru: Translations = {
       {
         tagline: "Энергетический маркетплейс",
         description:
-          "B2B-платформа торговли топливом для Центральной Азии и Каспийского региона. Котировки в реальном времени, P2P-маркетплейс, калькулятор и оплата через Stripe.",
+          "B2B-платформа торговли топливом для европейских терминалов от Роттердама до Триеста. Котировки в реальном времени, P2P-маркетплейс дизеля, бензина и авиатоплива, калькулятор доставки и оплата через Stripe.",
       },
       {
         tagline: "Операции ресторана",
