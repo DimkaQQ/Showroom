@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BotFactory — конструктор Telegram-ботов (демо)</title>
-<meta name="description" content="Демо: собираем Telegram-бота из блоков и сразу проверяем его в живом превью. Продажи, воронка и покупатели. Данные вымышлены.">
+<title>BotFactory — Telegram Bot Builder (demo)</title>
+<meta name="description" content="Demo: build a Telegram bot from blocks and test it instantly in a live preview. Sales, funnel and buyers. All data is fictional.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -81,19 +81,19 @@
 </style>
 </head>
 <body>
-<div class="notice"><b>Демо</b> BotFactory · данные вымышлены</div>
+<div class="notice"><b>Demo</b> BotFactory · data is fictional</div>
 <div class="app">
   <aside class="side">
     <div class="brand">
       <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3"/></svg></div>
-      <div><div class="brand-name">BotFactory</div><div class="brand-sub">Студия Лены</div></div>
+      <div><div class="brand-name">BotFactory</div><div class="brand-sub">Lena's Studio</div></div>
     </div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">ЕК</div><div class="who"><b>Елена Кравец</b><span>Тариф «Мастер»</span></div></div>
+    <div class="side-foot"><div class="avatar">EK</div><div class="who"><b>Elena Kravets</b><span>Master plan</span></div></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
-<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
 /*@kit.js*/
@@ -102,45 +102,45 @@
 /* ── data ─────────────────────────────────────────────── */
 const rub = (n) => fmt(n) + ' ₽';
 const TODAY = new Date(2026, 9, 21, 15, 20);          // Wed 21 Oct 2026
-const WD = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const dayOf = (ago) => new Date(TODAY.getTime() - ago * 864e5);
-const dLabel = (ago) => ago === 0 ? 'Сегодня' : ago === 1 ? 'Вчера' : dayOf(ago).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+const dLabel = (ago) => ago === 0 ? 'Today' : ago === 1 ? 'Yesterday' : dayOf(ago).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
 
 const TPL = {
-  salon: { name: 'Запись к мастеру', icon: 'calendar', steps: () => [
-    { t: 'msg', text: 'Привет! Я Лена, мастер маникюра в Тынде. Запишу вас за минуту.' },
-    { t: 'buttons', text: 'Что хотите сделать?', opts: ['Маникюр · 2 500 ₽', 'Педикюр · 3 000 ₽', 'Снятие · 800 ₽'] },
-    { t: 'ask', text: 'Как вас зовут?' },
-    { t: 'pay', text: 'Чтобы закрепить время, нужна предоплата. Она вычтется из стоимости.', price: 500 },
-    { t: 'give', text: 'Записала вас! Адрес: Красная Пресня, 12, кабинет 4.', file: 'Памятка перед визитом.pdf' },
+  salon: { name: 'Appointment booking', icon: 'calendar', steps: () => [
+    { t: 'msg', text: "Hi! I'm Lena, a nail artist in Tynda. I'll book you in a minute." },
+    { t: 'buttons', text: 'What would you like to do?', opts: ['Manicure · 2,500 ₽', 'Pedicure · 3,000 ₽', 'Removal · 800 ₽'] },
+    { t: 'ask', text: 'What is your name?' },
+    { t: 'pay', text: 'A prepayment secures your slot. It is deducted from the price.', price: 500 },
+    { t: 'give', text: 'You are booked! Address: 12 Krasnaya Presnya St, room 4.', file: 'Before your visit.pdf' },
   ] },
-  course: { name: 'Продажа курса', icon: 'graduation', steps: () => [
-    { t: 'msg', text: 'Здравствуйте! Это бот курса «Первый запуск»: 12 уроков, как выйти на первые продажи.' },
-    { t: 'buttons', text: 'С чего начнём?', opts: ['Что внутри курса', 'Хочу купить'] },
-    { t: 'pay', text: 'Курс с доступом навсегда. Оплата картой или через СБП.', price: 4900 },
-    { t: 'give', text: 'Оплата прошла, спасибо! Доступ к урокам уже открыт.', file: 'Открыть курс' },
+  course: { name: 'Course sales', icon: 'graduation', steps: () => [
+    { t: 'msg', text: 'Hello! This is the bot for the "First Launch" course: 12 lessons on getting your first sales.' },
+    { t: 'buttons', text: 'Where shall we start?', opts: ['What is inside the course', 'I want to buy'] },
+    { t: 'pay', text: 'Lifetime access to the course. Pay by card or instant bank transfer.', price: 4900 },
+    { t: 'give', text: 'Payment received, thank you! Your lessons are now unlocked.', file: 'Open course' },
   ] },
-  channel: { name: 'Закрытый канал', icon: 'lock', steps: () => [
-    { t: 'msg', text: 'Привет! Здесь я каждый день разбираю заявки покупателей. Канал закрытый, вход по подписке.' },
-    { t: 'buttons', text: 'Хотите заглянуть внутрь?', opts: ['Показать пример разбора', 'Оформить подписку'] },
-    { t: 'pay', text: 'Подписка на 30 дней, продлевать не обязательно.', price: 990 },
-    { t: 'give', text: 'Добро пожаловать! Ссылка действует только для вас.', file: 'Войти в канал' },
+  channel: { name: 'Private channel', icon: 'lock', steps: () => [
+    { t: 'msg', text: 'Hi! Every day I review buyer requests here. The channel is private, access by subscription.' },
+    { t: 'buttons', text: 'Want a peek inside?', opts: ['Show a sample review', 'Subscribe'] },
+    { t: 'pay', text: '30-day subscription, no auto-renewal.', price: 990 },
+    { t: 'give', text: 'Welcome! This link works only for you.', file: 'Join channel' },
   ] },
 };
 const STEP = {
-  msg: ['Сообщение', 'chat'], ask: ['Вопрос', 'edit'], buttons: ['Кнопки', 'grid'], pay: ['Оплата', 'coin'], give: ['Выдача', 'file'], remind: ['Напоминание', 'clock'],
+  msg: ['Message', 'chat'], ask: ['Question', 'edit'], buttons: ['Buttons', 'grid'], pay: ['Payment', 'coin'], give: ['Delivery', 'file'], remind: ['Reminder', 'clock'],
 };
 
 const S = {
   bots: [
-    { id: 1, name: 'Запись к Лене', user: '@lena_nails_bot', tpl: 'salon', live: true, steps: TPL.salon.steps(), starts: 96, answered: 71, atPay: 38 },
-    { id: 2, name: 'Курс «Первый запуск»', user: '@first_launch_bot', tpl: 'course', live: true, steps: TPL.course.steps(), starts: 180, answered: 120, atPay: 41 },
-    { id: 3, name: 'Закрытый канал', user: '@lena_club_bot', tpl: 'channel', live: true, steps: TPL.channel.steps(), starts: 64, answered: 52, atPay: 19 },
+    { id: 1, name: 'Booking with Lena', user: '@lena_nails_bot', tpl: 'salon', live: true, steps: TPL.salon.steps(), starts: 96, answered: 71, atPay: 38 },
+    { id: 2, name: 'Course "First Launch"', user: '@first_launch_bot', tpl: 'course', live: true, steps: TPL.course.steps(), starts: 180, answered: 120, atPay: 41 },
+    { id: 3, name: 'Private channel', user: '@lena_club_bot', tpl: 'channel', live: true, steps: TPL.channel.steps(), starts: 64, answered: 52, atPay: 19 },
   ],
   sales: [],
 };
 /* sales are derived from days-ago lists, so every total on every page reconciles */
-const BUYERS = ['Анна Л.', 'Мария С.', 'Ольга К.', 'Ирина В.', 'Светлана П.', 'Дарья М.', 'Наталья Б.', 'Юлия Г.', 'Екатерина Т.', 'Алёна Р.', 'Полина Ж.', 'Виктория Н.', 'Кристина А.'];
+const BUYERS = ['Anna L.', 'Maria S.', 'Olga K.', 'Irina V.', 'Svetlana P.', 'Daria M.', 'Natalia B.', 'Yulia G.', 'Ekaterina T.', 'Alyona R.', 'Polina Zh.', 'Viktoria N.', 'Kristina A.'];
 const DAYS = { 1: [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6], 2: [0, 1, 3, 4, 6, 6], 3: [0, 0, 1, 1, 2, 3, 3, 4, 5, 6, 6] };
 const PRICE = { 1: 500, 2: 4900, 3: 990 };
 (() => {
@@ -157,12 +157,12 @@ console.assert(S.sales.length === 31 && totals().rev === 47290, 'sales reconcile
 console.assert(S.bots.every((b) => b.starts >= b.answered && b.answered >= b.atPay && b.atPay >= sold(b.id).length), 'funnel narrows');
 
 /* ── shell ────────────────────────────────────────────── */
-const PAGES = { dashboard: ['Боты', 'home'], builder: ['Конструктор', 'sliders'], sales: ['Продажи', 'coin'], buyers: ['Покупатели', 'users'] };
+const PAGES = { dashboard: ['Bots', 'home'], builder: ['Builder', 'sliders'], sales: ['Sales', 'coin'], buyers: ['Buyers', 'users'] };
 let page = 'dashboard', cur = 1, openStep = 0, salesBot = 0, mode = 'flow', fbot = 2;
 
 function chrome() {
   const item = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`;
-  $('#nav').innerHTML = item('dashboard') + item('builder') + `<div class="nav-label">Деньги и люди</div>` + item('sales') + item('buyers');
+  $('#nav').innerHTML = item('dashboard') + item('builder') + `<div class="nav-label">Money and people</div>` + item('sales') + item('buyers');
   $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
   setNav(page);
 }
@@ -196,48 +196,48 @@ document.addEventListener('submit', (e) => { if (e.target.id === 'tg-form') { e.
 function dashboard() {
   const t = totals(), conv = t.paid / t.starts;
   const worst = S.bots.map((b) => ({ b, lost: b.atPay - sold(b.id).length })).filter((x) => !x.b.steps.some((s) => s.t === 'remind') && x.lost >= 30).sort((a, b) => b.lost - a.lost)[0];
-  const finding = worst ? `<div class="finding">${ic('alert')}<span>В боте «${esc(worst.b.name)}» ${worst.lost} из ${worst.b.atPay} человек дошли до оплаты и ушли. Напоминание через час обычно возвращает часть из них.</span><button class="btn sm primary" data-act="addRemind" data-bot="${worst.b.id}">Добавить напоминание</button></div>` : '';
+  const finding = worst ? `<div class="finding">${ic('alert')}<span>In "${esc(worst.b.name)}", ${worst.lost} of ${worst.b.atPay} people reached payment and left. A reminder an hour later usually wins some of them back.</span><button class="btn sm primary" data-act="addRemind" data-bot="${worst.b.id}">Add reminder</button></div>` : '';
   const rows = S.bots.map((b) => { const s = stats(b); return `<div class="tr" data-openbot="${b.id}" tabindex="0" style="cursor:pointer;--cols:1.6fr .8fr .7fr .7fr .9fr;--colsm:1fr auto">
     <div class="botrow-n"><span class="step-ic">${ic(TPL[b.tpl].icon)}</span><div class="cell-main"><b>${esc(b.name)}</b><span>${esc(b.user)}</span></div></div>
-    <div class="hm"><span class="pill ${b.live ? 'pos' : ''}"><i></i>${b.live ? 'Работает' : 'Черновик'}</span></div>
+    <div class="hm"><span class="pill ${b.live ? 'pos' : ''}"><i></i>${b.live ? 'Live' : 'Draft'}</span></div>
     <div class="hm r">${fmt(b.starts)}</div><div class="hm r">${s.paid}</div><div class="r"><b>${rub(s.rev)}</b></div></div>`; }).join('');
   const fb = S.bots.find((b) => b.id === fbot) || S.bots[0], paid = sold(fb.id).length;
-  const steps = [['Нажали «Старт»', fb.starts], ['Ответили боту', fb.answered], ['Дошли до оплаты', fb.atPay], ['Оплатили', paid]];
+  const steps = [['Pressed "Start"', fb.starts], ['Replied to bot', fb.answered], ['Reached payment', fb.atPay], ['Paid', paid]];
   const fn = steps.map(([l, v], i) => `<div class="fn"><span>${l}</span><div class="bar"><i style="width:${fb.starts ? v / fb.starts * 100 : 0}%;${i === 3 ? '' : 'opacity:.4'}"></i></div><b>${fmt(v)}</b></div>`).join('');
   const dropAt = fb.atPay - paid;
-  return head('Боты', `${WD[TODAY.getDay()]}, 21 октября · последние 7 дней`, `<button class="btn primary" data-act="newBot">${ic('plus')}Новый бот</button>`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${rub(t.rev)}</b><span>Выручка за 7 дней</span></div><div class="kpi"><b>${t.paid}</b><span>Оплат</span></div><div class="kpi"><b>${fmt(t.starts)}</b><span>Запусков бота</span></div><div class="kpi"><b>${fmtD(conv * 100)}<small>%</small></b><span>Запусков закончились покупкой</span></div></div>
+  return head('Bots', `${WD[TODAY.getDay()]}, 21 October · last 7 days`, `<button class="btn primary" data-act="newBot">${ic('plus')}New bot</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${rub(t.rev)}</b><span>Revenue, 7 days</span></div><div class="kpi"><b>${t.paid}</b><span>Payments</span></div><div class="kpi"><b>${fmt(t.starts)}</b><span>Bot starts</span></div><div class="kpi"><b>${fmtD(conv * 100)}<small>%</small></b><span>Starts that ended in a purchase</span></div></div>
     <div class="grid">
-      <section class="card c7"><div class="card-h"><h2>Выручка по дням</h2><span>₽</span></div><div id="ch-rev"></div></section>
-      <section class="card c5"><div class="card-h"><h2>Воронка</h2></div>
+      <section class="card c7"><div class="card-h"><h2>Revenue by day</h2><span>₽</span></div><div id="ch-rev"></div></section>
+      <section class="card c5"><div class="card-h"><h2>Funnel</h2></div>
         <div class="tabs" role="tablist">${S.bots.map((b) => `<button class="${b.id === fb.id ? 'on' : ''}" data-act="fbot" data-id="${b.id}">${esc(b.name.split(' ')[0])}</button>`).join('')}</div>
-        <div class="funnel">${fn}</div><p class="fn-note">${dropAt ? `Между оплатой и покупкой потеряно ${dropAt} из ${fb.atPay}.` : 'Все, кто дошёл до оплаты, заплатили.'}</p></section>
-      <section class="card c12"><div class="card-h"><h2>Ваши боты</h2><span>нажмите, чтобы открыть сценарий</span></div>
-        <div class="tbl"><div class="tr th" style="--cols:1.6fr .8fr .7fr .7fr .9fr;--colsm:1fr auto"><span>Бот</span><span class="hm">Статус</span><span class="hm r">Запусков</span><span class="hm r">Оплат</span><span class="r">Выручка</span></div>${rows}</div></section>
+        <div class="funnel">${fn}</div><p class="fn-note">${dropAt ? `Lost between payment and purchase: ${dropAt} of ${fb.atPay}.` : 'Everyone who reached payment paid.'}</p></section>
+      <section class="card c12"><div class="card-h"><h2>Your bots</h2><span>click to open the flow</span></div>
+        <div class="tbl"><div class="tr th" style="--cols:1.6fr .8fr .7fr .7fr .9fr;--colsm:1fr auto"><span>Bot</span><span class="hm">Status</span><span class="hm r">Starts</span><span class="hm r">Payments</span><span class="r">Revenue</span></div>${rows}</div></section>
     </div>`;
 }
 
 /* ── builder ──────────────────────────────────────────── */
-const summary = (s) => s.t === 'buttons' ? s.opts.join(' · ') || 'Нет кнопок' : s.t === 'pay' ? `${rub(s.price)} · ${s.text}` : s.t === 'give' ? `${s.file ? '📎 ' + s.file : ''}` || s.text : s.text;
+const summary = (s) => s.t === 'buttons' ? s.opts.join(' · ') || 'No buttons' : s.t === 'pay' ? `${rub(s.price)} · ${s.text}` : s.t === 'give' ? `${s.file ? '📎 ' + s.file : ''}` || s.text : s.text;
 function stepEditor(s, i) {
-  const ta = `<div class="field"><label>Текст сообщения</label><textarea data-f="text" data-i="${i}">${esc(s.text)}</textarea></div>`;
+  const ta = `<div class="field"><label>Message text</label><textarea data-f="text" data-i="${i}">${esc(s.text)}</textarea></div>`;
   let body = ta;
-  if (s.t === 'buttons') body += `<div class="field"><label>Кнопки</label>${s.opts.map((o, k) => `<div class="opt-row"><input data-f="opt" data-i="${i}" data-o="${k}" value="${esc(o)}"><button class="btn sm" data-act="delOpt" data-i="${i}" data-o="${k}" aria-label="Удалить кнопку">${ic('x')}</button></div>`).join('')}<button class="btn sm" data-act="addOpt" data-i="${i}" ${s.opts.length >= 5 ? 'disabled' : ''}>${ic('plus')}Кнопка</button></div>`;
-  if (s.t === 'pay') body += `<div class="field"><label>Цена, ₽</label><input data-f="price" data-i="${i}" type="number" min="0" value="${s.price}"></div>`;
-  if (s.t === 'give') body += `<div class="field"><label>Файл или ссылка</label><input data-f="file" data-i="${i}" value="${esc(s.file || '')}"></div>`;
-  return body + `<div class="step-tools"><button class="btn sm" data-act="mv" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''}>${ic('up')}Выше</button><button class="btn sm" data-act="mv" data-i="${i}" data-d="1" ${i === bot().steps.length - 1 ? 'disabled' : ''}>${ic('down')}Ниже</button><button class="btn sm" data-act="delStep" data-i="${i}">${ic('trash')}Удалить</button></div>`;
+  if (s.t === 'buttons') body += `<div class="field"><label>Buttons</label>${s.opts.map((o, k) => `<div class="opt-row"><input data-f="opt" data-i="${i}" data-o="${k}" value="${esc(o)}"><button class="btn sm" data-act="delOpt" data-i="${i}" data-o="${k}" aria-label="Delete button">${ic('x')}</button></div>`).join('')}<button class="btn sm" data-act="addOpt" data-i="${i}" ${s.opts.length >= 5 ? 'disabled' : ''}>${ic('plus')}Button</button></div>`;
+  if (s.t === 'pay') body += `<div class="field"><label>Price, ₽</label><input data-f="price" data-i="${i}" type="number" min="0" value="${s.price}"></div>`;
+  if (s.t === 'give') body += `<div class="field"><label>File or link</label><input data-f="file" data-i="${i}" value="${esc(s.file || '')}"></div>`;
+  return body + `<div class="step-tools"><button class="btn sm" data-act="mv" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''}>${ic('up')}Up</button><button class="btn sm" data-act="mv" data-i="${i}" data-d="1" ${i === bot().steps.length - 1 ? 'disabled' : ''}>${ic('down')}Down</button><button class="btn sm" data-act="delStep" data-i="${i}">${ic('trash')}Delete</button></div>`;
 }
 function builder() {
   const b = bot(), p = botPrice(b);
   const flow = b.steps.map((s, i) => `<article class="step${openStep === i ? ' open' : ''}" data-n="${i + 1}"><button class="step-h" data-act="toggle" data-i="${i}" aria-expanded="${openStep === i}"><span class="step-ic">${ic(STEP[s.t][1])}</span><div><b>${STEP[s.t][0]}</b><span>${esc(summary(s))}</span></div>${ic('down', 'chev')}</button>${openStep === i ? `<div class="step-b">${stepEditor(s, i)}</div>` : ''}</article>`).join('');
-  return head('Конструктор', `Сценарий бота ${esc(b.user)}. Справа он работает по-настоящему.`,
-    `<select id="bot-sel" class="btn" aria-label="Бот">${S.bots.map((x) => `<option value="${x.id}" ${x.id === cur ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><button class="btn primary" data-act="publish">${b.live ? 'Снять с публикации' : 'Опубликовать'}</button>`) +
-    `<div class="tabs bmode" role="tablist"><button class="${mode === 'flow' ? 'on' : ''}" data-act="mode" data-m="flow">Сценарий</button><button class="${mode === 'chat' ? 'on' : ''}" data-act="mode" data-m="chat">Превью</button></div>
+  return head('Builder', `Flow for ${esc(b.user)}. It runs for real on the right.`,
+    `<select id="bot-sel" class="btn" aria-label="Bot">${S.bots.map((x) => `<option value="${x.id}" ${x.id === cur ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><button class="btn primary" data-act="publish">${b.live ? 'Unpublish' : 'Publish'}</button>`) +
+    `<div class="tabs bmode" role="tablist"><button class="${mode === 'flow' ? 'on' : ''}" data-act="mode" data-m="flow">Flow</button><button class="${mode === 'chat' ? 'on' : ''}" data-act="mode" data-m="chat">Preview</button></div>
     <div class="build" data-mode="${mode}">
-      <div class="flow">${flow}<button class="btn add-step" data-act="addStep">${ic('plus')}Добавить блок</button></div>
-      <aside class="phone" aria-label="Превью бота"><div class="tg-h"><span class="tg-av">${esc(b.name[0])}</span><div><b>${esc(b.name)}</b><span>бот · ${b.live ? 'онлайн' : 'черновик'}${p ? ' · ' + rub(p) : ''}</span></div><button class="btn sm" data-act="restart">${ic('play')}Заново</button></div>
+      <div class="flow">${flow}<button class="btn add-step" data-act="addStep">${ic('plus')}Add block</button></div>
+      <aside class="phone" aria-label="Bot preview"><div class="tg-h"><span class="tg-av">${esc(b.name[0])}</span><div><b>${esc(b.name)}</b><span>bot · ${b.live ? 'online' : 'draft'}${p ? ' · ' + rub(p) : ''}</span></div><button class="btn sm" data-act="restart">${ic('play')}Restart</button></div>
         <div class="chat" id="chat" aria-live="polite"></div>
-        <form class="tg-f" id="tg-form"><input id="tg-in" placeholder="Сообщение" autocomplete="off" aria-label="Ответ боту"><button aria-label="Отправить" id="tg-send">${ic('arrow')}</button></form></aside>
+        <form class="tg-f" id="tg-form"><input id="tg-in" placeholder="Message" autocomplete="off" aria-label="Reply to bot"><button aria-label="Send" id="tg-send">${ic('arrow')}</button></form></aside>
     </div>`;
 }
 
@@ -250,9 +250,9 @@ function step() {
   while (run.i < steps.length) {
     const s = steps[run.i];
     if (s.t === 'msg') run.log.push({ k: 'bot', text: s.text });
-    else if (s.t === 'remind') run.log.push({ k: 'note', text: `Если не оплатят, через час бот напомнит: «${s.text}»` });
+    else if (s.t === 'remind') run.log.push({ k: 'note', text: `If they do not pay, the bot will remind them in an hour: "${s.text}"` });
     else if (s.t === 'give') { run.log.push({ k: 'bot', text: s.text }); if (s.file) run.log.push({ k: 'file', text: s.file }); }
-    else { run.log.push({ k: 'bot', text: (s.t === 'ask' ? s.text : s.text).replace('{имя}', run.name || 'друг') }); run.wait = s; break; }
+    else { run.log.push({ k: 'bot', text: (s.t === 'ask' ? s.text : s.text).replace('{name}', run.name || 'friend') }); run.wait = s; break; }
     run.i++;
   }
   if (run.i >= steps.length) run.done = true;
@@ -264,16 +264,16 @@ function drawChat() {
   const lastBot = run.done ? run.log.length - 1 - [...run.log].reverse().findIndex((m) => m.k === 'bot' || m.k === 'file') : -1;
   c.innerHTML = run.log.map((m, i) => m.k === 'me' ? `<div class="m me">${esc(m.text)}</div>`
     : m.k === 'note' ? `<div class="note">${esc(m.text)}</div>`
-    : m.k === 'file' ? `<div class="m file">${ic('file')}<b>${esc(m.text)}</b>${run.done && i === lastBot ? '<small>Собрано в @DragDropBot</small>' : ''}</div>`
-    : `<div class="m">${esc(m.text)}${run.done && i === lastBot ? '<small>Собрано в @DragDropBot</small>' : ''}</div>`).join('') + waitUI();
+    : m.k === 'file' ? `<div class="m file">${ic('file')}<b>${esc(m.text)}</b>${run.done && i === lastBot ? '<small>Made with @DragDropBot</small>' : ''}</div>`
+    : `<div class="m">${esc(m.text)}${run.done && i === lastBot ? '<small>Made with @DragDropBot</small>' : ''}</div>`).join('') + waitUI();
   c.scrollTop = c.scrollHeight;
   const ask = run.wait && run.wait.t === 'ask';
-  $('#tg-in').disabled = !ask; $('#tg-send').disabled = !ask; $('#tg-in').placeholder = ask ? 'Ответьте боту…' : run.done ? 'Сценарий закончен' : 'Выберите кнопку';
+  $('#tg-in').disabled = !ask; $('#tg-send').disabled = !ask; $('#tg-in').placeholder = ask ? 'Reply to the bot…' : run.done ? 'Flow finished' : 'Choose a button';
 }
 function waitUI() {
   const w = run.wait; if (!w || run.done) return run.done ? '' : '';
   if (w.t === 'buttons') return `<div class="inl">${w.opts.map((o, k) => `<button data-act="pick" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
-  if (w.t === 'pay') return `<div class="inl"><button class="pay" data-act="pay">Оплатить ${rub(w.price)}</button></div>`;
+  if (w.t === 'pay') return `<div class="inl"><button class="pay" data-act="pay">Pay ${rub(w.price)}</button></div>`;
   return '';
 }
 function answer(text) {
@@ -287,24 +287,24 @@ function answer(text) {
 function sales() {
   const list = S.sales.filter((s) => !salesBot || s.bot === salesBot), sum = list.reduce((a, s) => a + s.amount, 0);
   const rows = list.map((s) => { const b = S.bots.find((x) => x.id === s.bot); return `<div class="tr" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><div class="cell-main hm"><b>${dLabel(s.ago)}</b><span>${hhmm(s.min)}</span></div><div class="cell-main dm"><b>${esc(s.buyer)}</b><span>${dLabel(s.ago)}, ${hhmm(s.min)} · ${esc(b.name)}</span></div><div class="hm">${esc(s.buyer)}</div><div class="hm">${esc(b.name)}</div><div class="r"><b>${rub(s.amount)}</b></div></div>`; }).join('');
-  return head('Продажи', `${list.length} оплат на ${rub(sum)} за 7 дней`) +
-    `<div class="tabs"><button class="${!salesBot ? 'on' : ''}" data-act="sbot" data-id="0">Все</button>${S.bots.map((b) => `<button class="${salesBot === b.id ? 'on' : ''}" data-act="sbot" data-id="${b.id}">${esc(b.name.split(' ')[0])}</button>`).join('')}</div>
-    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><span>Когда</span><span class="hm">Покупатель</span><span class="hm">Бот</span><span class="r">Сумма</span></div>${rows}</div></section>`;
+  return head('Sales', `${list.length} ${list.length === 1 ? 'payment' : 'payments'} totalling ${rub(sum)} in 7 days`) +
+    `<div class="tabs"><button class="${!salesBot ? 'on' : ''}" data-act="sbot" data-id="0">All</button>${S.bots.map((b) => `<button class="${salesBot === b.id ? 'on' : ''}" data-act="sbot" data-id="${b.id}">${esc(b.name.split(' ')[0])}</button>`).join('')}</div>
+    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><span>When</span><span class="hm">Buyer</span><span class="hm">Bot</span><span class="r">Amount</span></div>${rows}</div></section>`;
 }
 function buyers() {
   const map = {};
   S.sales.forEach((s) => { const x = map[s.buyer] || (map[s.buyer] = { n: s.buyer, c: 0, sum: 0, ago: 99 }); x.c++; x.sum += s.amount; x.ago = Math.min(x.ago, s.ago); });
   const list = Object.values(map).sort((a, b) => b.sum - a.sum);
-  const rows = list.map((x) => `<div class="tr" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(x.n)}</b><span class="muted">${x.c} ${x.c === 1 ? 'покупка' : x.c < 5 ? 'покупки' : 'покупок'} · ${dLabel(x.ago).toLowerCase()}</span></div><div class="hm r">${x.c}</div><div class="hm r">${dLabel(x.ago)}</div><div class="r"><b>${rub(x.sum)}</b></div></div>`).join('');
+  const rows = list.map((x) => `<div class="tr" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(x.n)}</b><span class="muted">${x.c} ${x.c === 1 ? 'purchase' : 'purchases'} · ${dLabel(x.ago).toLowerCase()}</span></div><div class="hm r">${x.c}</div><div class="hm r">${dLabel(x.ago)}</div><div class="r"><b>${rub(x.sum)}</b></div></div>`).join('');
   const rep = list.filter((x) => x.c > 1).length;
-  return head('Покупатели', `${list.length} человек, ${rep} купили больше одного раза`) +
-    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><span>Покупатель</span><span class="hm r">Покупок</span><span class="hm r">Последняя</span><span class="r">Всего</span></div>${rows}</div></section>`;
+  return head('Buyers', `${list.length} ${list.length === 1 ? 'person' : 'people'}, ${rep} bought more than once`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><span>Buyer</span><span class="hm r">Purchases</span><span class="hm r">Last</span><span class="r">Total</span></div>${rows}</div></section>`;
 }
 
 function mount() {
   const a = $('#ch-rev');
-  if (a) { const vals = [], labels = []; for (let ago = 6; ago >= 0; ago--) { vals.push(S.sales.filter((s) => s.ago === ago).reduce((x, s) => x + s.amount, 0) / 1000); labels.push(ago === 0 ? 'Ср' : WD[dayOf(ago).getDay()]); }
-    chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) + 'к' })); }
+  if (a) { const vals = [], labels = []; for (let ago = 6; ago >= 0; ago--) { vals.push(S.sales.filter((s) => s.ago === ago).reduce((x, s) => x + s.amount, 0) / 1000); labels.push(ago === 0 ? 'Wed' : WD[dayOf(ago).getDay()]); }
+    chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) + 'k' })); }
   drawChat();
 }
 
@@ -316,43 +316,43 @@ const ACT = {
   toggle(d) { openStep = openStep === +d.i ? -1 : +d.i; render(); },
   restart() { resetRun(); drawChat(); },
   pick(d) { const w = run.wait; run.log.push({ k: 'me', text: w.opts[+d.k] }); run.wait = null; run.i++; step(); drawChat(); },
-  pay() { const w = run.wait; run.log.push({ k: 'note', text: `Оплата ${rub(w.price)} прошла` }); run.wait = null; run.i++; step(); drawChat(); },
+  pay() { const w = run.wait; run.log.push({ k: 'note', text: `Payment of ${rub(w.price)} received` }); run.wait = null; run.i++; step(); drawChat(); },
   mv(d) { const s = bot().steps, i = +d.i, j = i + +d.d; [s[i], s[j]] = [s[j], s[i]]; openStep = j; resetRun(); render(); },
-  delStep(d) { bot().steps.splice(+d.i, 1); openStep = -1; resetRun(); render(); toast('Блок удалён'); },
-  addOpt(d) { bot().steps[+d.i].opts.push('Новая кнопка'); resetRun(); render(); },
+  delStep(d) { bot().steps.splice(+d.i, 1); openStep = -1; resetRun(); render(); toast('Block deleted'); },
+  addOpt(d) { bot().steps[+d.i].opts.push('New button'); resetRun(); render(); },
   delOpt(d) { bot().steps[+d.i].opts.splice(+d.o, 1); resetRun(); render(); },
-  publish() { const b = bot(); b.live = !b.live; toast(b.live ? 'Бот опубликован' : 'Бот снят с публикации'); render(); },
+  publish() { const b = bot(); b.live = !b.live; toast(b.live ? 'Bot published' : 'Bot unpublished'); render(); },
   addRemind(d) {
     const b = S.bots.find((x) => x.id === +d.bot), at = b.steps.findIndex((s) => s.t === 'pay');
-    b.steps.splice(at + 1, 0, { t: 'remind', text: 'Вы не закончили оплату. Курс ждёт вас, ссылка действует сутки.' });
-    cur = b.id; openStep = at + 1; resetRun(); toast('Напоминание добавлено в сценарий'); go('builder');
+    b.steps.splice(at + 1, 0, { t: 'remind', text: 'You have not finished your payment. The course is waiting, and the link is valid for 24 hours.' });
+    cur = b.id; openStep = at + 1; resetRun(); toast('Reminder added to the flow'); go('builder');
   },
   addStep() {
-    modal(`<h2>Новый блок</h2><p>Добавится в конец сценария.</p><div class="field"><label>Тип</label><select id="n-t">${Object.entries(STEP).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="n-ok">Добавить</button></div>`, () => {
+    modal(`<h2>New block</h2><p>It will be added to the end of the flow.</p><div class="field"><label>Type</label><select id="n-t">${Object.entries(STEP).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="n-ok">Add</button></div>`, () => {
       $('#n-ok').onclick = () => {
-        const t = $('#n-t').value, def = { msg: { text: 'Новое сообщение' }, ask: { text: 'Как вас зовут?' }, buttons: { text: 'Выберите вариант', opts: ['Вариант 1', 'Вариант 2'] }, pay: { text: 'Оплата заказа', price: 1000 }, give: { text: 'Спасибо! Вот ваш доступ.', file: 'Ссылка' }, remind: { text: 'Напоминаю про ваш заказ' } }[t];
+        const t = $('#n-t').value, def = { msg: { text: 'New message' }, ask: { text: 'What is your name?' }, buttons: { text: 'Choose an option', opts: ['Option 1', 'Option 2'] }, pay: { text: 'Order payment', price: 1000 }, give: { text: 'Thank you! Here is your access.', file: 'Link' }, remind: { text: 'A reminder about your order' } }[t];
         const s = bot().steps; s.push({ t, ...structuredClone(def) }); openStep = s.length - 1; closeModal(); resetRun(); render();
       };
     });
   },
   newBot() {
-    modal(`<h2>Новый бот</h2><p>Выберите заготовку, потом поправите под себя.</p><div class="field"><label>Название</label><input id="b-n" placeholder="Например, Запись на массаж"></div>
-      <div class="field"><label>Заготовка</label><select id="b-t">${Object.entries(TPL).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('')}</select></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="b-ok">Создать</button></div>`, () => {
+    modal(`<h2>New bot</h2><p>Pick a template, then adjust it to your needs.</p><div class="field"><label>Name</label><input id="b-n" placeholder="E.g. Massage booking"></div>
+      <div class="field"><label>Template</label><select id="b-t">${Object.entries(TPL).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('')}</select></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="b-ok">Create</button></div>`, () => {
       $('#b-ok').onclick = () => {
         const n = $('#b-n').value.trim(); if (!n) { $('#b-n').focus(); return; }
         const t = $('#b-t').value, id = Math.max(...S.bots.map((x) => x.id)) + 1;
         S.bots.push({ id, name: n, user: '@' + ['new', 'bot', id].join('_'), tpl: t, live: false, steps: TPL[t].steps(), starts: 0, answered: 0, atPay: 0 });
         PRICE[id] = botPrice(S.bots.at(-1)); DAYS[id] = [];
-        cur = id; openStep = 0; resetRun(); closeModal(); toast('Бот создан. Это черновик, поправьте сценарий'); go('builder');
+        cur = id; openStep = 0; resetRun(); closeModal(); toast('Bot created. It is a draft, so adjust the flow'); go('builder');
       };
     });
   },
 };
 /* ── live sales: buyers keep arriving, every number on every page follows ─ */
 let NOWM = 15 * 60 + 20;
-const NEWBUY = ['Алия Н.', 'Камила Е.', 'Зарина Т.', 'Лаура С.', 'Гульмира Д.', 'Аружан К.', 'Томирис А.', 'Диана Ф.'];
+const NEWBUY = ['Aliya N.', 'Kamila E.', 'Zarina T.', 'Laura S.', 'Gulmira D.', 'Aruzhan K.', 'Tomiris A.', 'Diana F.'];
 setInterval(() => {
   if (document.hidden || $('#scrim')) return;
   NOWM++;
@@ -364,7 +364,7 @@ setInterval(() => {
     if (sold(b.id).length + 1 > b.atPay) { b.atPay = sold(b.id).length + 1; b.answered = Math.max(b.answered, b.atPay); b.starts = Math.max(b.starts, b.answered); }
     const buyer = NEWBUY[Math.floor(Math.random() * NEWBUY.length)];
     S.sales.unshift({ bot: b.id, ago: 0, buyer, amount: PRICE[b.id], min: NOWM });
-    toast(`Новая оплата ${rub(PRICE[b.id])} · ${b.name}`);
+    toast(`New payment ${rub(PRICE[b.id])} · ${b.name}`);
   }
   if (['dashboard', 'sales', 'buyers'].includes(page)) render();
 }, 7000);

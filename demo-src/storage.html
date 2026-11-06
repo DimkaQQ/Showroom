@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Склад — закупки для сети ресторанов (демо)</title>
-<meta name="description" content="Демо: остатки по точкам, автосбор заказов поставщикам по нехватке, приёмка и списание. Данные вымышлены.">
+<title>Stockroom: purchasing for restaurant groups (demo)</title>
+<meta name="description" content="Demo: stock levels by venue, auto-drafted supplier orders for shortfalls, receiving and write-offs. Data is fictional.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -41,19 +41,19 @@
 </style>
 </head>
 <body>
-<div class="notice"><b>Демо</b> Склад · данные вымышлены</div>
+<div class="notice"><b>Demo</b> Stockroom · data is fictional</div>
 <div class="app">
   <aside class="side">
     <div class="brand">
       <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg></div>
-      <div><div class="brand-name">Склад</div><div class="brand-sub">Две точки, один учёт</div></div>
+      <div><div class="brand-name">Stockroom</div><div class="brand-sub">Two venues, one ledger</div></div>
     </div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">МС</div><div class="who"><b>Марина Сеитова</b><span>Закупщик</span></div></div>
+    <div class="side-foot"><div class="avatar">MS</div><div class="who"><b>Marina Seitova</b><span>Buyer</span></div></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
-<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
 /*@kit.js*/
@@ -62,32 +62,32 @@
 /* ── data ─────────────────────────────────────────────── */
 const tg = (n) => fmt(n) + ' ₸';
 const TODAY = '28.09.2026';
-const VEN = { center: 'Кофейня Центр', north: 'Ресторан Север' };
+const VEN = { center: 'Central Café', north: 'North Restaurant' };
 const SUP = [
-  { id: 1, n: 'ООО Мяском',    who: 'Петров А. В.',   tel: '+7 701 123 45 67', r: 5 },
-  { id: 2, n: 'МолочныйДвор',  who: 'Кузнецов П. С.', tel: '+7 702 345 67 89', r: 5 },
-  { id: 3, n: 'ОвощБаза',      who: 'Иванова М. И.',  tel: '+7 707 456 78 90', r: 3 },
-  { id: 4, n: 'АгроПлюс',      who: 'Фёдоров Д. О.',  tel: '+7 705 567 89 01', r: 4 },
-  { id: 5, n: 'РестоПоставки', who: 'Смирнова Л. Г.', tel: '+7 777 678 90 12', r: 4 },
-  { id: 6, n: 'СвежеСнабж',    who: 'Попова К. А.',   tel: '+7 700 890 12 34', r: 5 },
+  { id: 1, n: 'Myaskom LLC',    who: 'Petrov A. V.',   tel: '+7 701 123 45 67', r: 5 },
+  { id: 2, n: 'Molochny Dvor',  who: 'Kuznetsov P. S.', tel: '+7 702 345 67 89', r: 5 },
+  { id: 3, n: 'OvoshBaza',      who: 'Ivanova M. I.',  tel: '+7 707 456 78 90', r: 3 },
+  { id: 4, n: 'AgroPlus',      who: 'Fedorov D. O.',  tel: '+7 705 567 89 01', r: 4 },
+  { id: 5, n: 'RestoSupply', who: 'Smirnova L. G.', tel: '+7 777 678 90 12', r: 4 },
+  { id: 6, n: 'SvezheSnabzh',    who: 'Popova K. A.',   tel: '+7 700 890 12 34', r: 5 },
 ];
 /* qty / min per venue; null = the venue does not stock the item */
 const ITEMS = [
-  { id: 1,  n: 'Говядина',         cat: 'Мясо',     u: 'кг', px: 3600, s: 1, qty: { center: null, north: 10 }, min: { center: null, north: 15 } },
-  { id: 2,  n: 'Молоко 3,2%',      cat: 'Молочные', u: 'л',  px: 450,  s: 2, qty: { center: 40, north: 22 },   min: { center: 30, north: 20 } },
-  { id: 3,  n: 'Картофель',        cat: 'Овощи',    u: 'кг', px: 220,  s: 3, qty: { center: null, north: 8 },  min: { center: null, north: 15 } },
-  { id: 4,  n: 'Сливки 33%',       cat: 'Молочные', u: 'л',  px: 1800, s: 2, qty: { center: 6, north: 5 },     min: { center: 8, north: 10 } },
-  { id: 5,  n: 'Куриное филе',     cat: 'Мясо',     u: 'кг', px: 2100, s: 1, qty: { center: 3, north: 22 },    min: { center: 3, north: 12 } },
-  { id: 6,  n: 'Масло сливочное',  cat: 'Молочные', u: 'кг', px: 4200, s: 2, qty: { center: 2, north: 3 },     min: { center: 2, north: 4 } },
-  { id: 7,  n: 'Лук репчатый',     cat: 'Овощи',    u: 'кг', px: 160,  s: 3, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
-  { id: 8,  n: 'Морковь',          cat: 'Овощи',    u: 'кг', px: 180,  s: 3, qty: { center: null, north: 15 }, min: { center: null, north: 10 } },
-  { id: 9,  n: 'Рис',              cat: 'Крупы',    u: 'кг', px: 650,  s: 4, qty: { center: null, north: 24 }, min: { center: null, north: 15 } },
-  { id: 10, n: 'Гречка',           cat: 'Крупы',    u: 'кг', px: 700,  s: 4, qty: { center: null, north: 5 },  min: { center: null, north: 8 } },
-  { id: 11, n: 'Томатная паста',   cat: 'Соусы',    u: 'шт', px: 420,  s: 5, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
-  { id: 12, n: 'Майонез',          cat: 'Соусы',    u: 'шт', px: 700,  s: 5, qty: { center: 4, north: 8 },     min: { center: 3, north: 6 } },
-  { id: 13, n: 'Вода минеральная', cat: 'Напитки',  u: 'шт', px: 150,  s: 6, qty: { center: 60, north: 60 },   min: { center: 40, north: 50 } },
-  { id: 14, n: 'Сок апельсиновый', cat: 'Напитки',  u: 'л',  px: 900,  s: 6, qty: { center: 8, north: 10 },    min: { center: 6, north: 10 } },
-  { id: 15, n: 'Свинина шейная',   cat: 'Мясо',     u: 'кг', px: 2800, s: 1, qty: { center: null, north: 14 }, min: { center: null, north: 12 } },
+  { id: 1,  n: 'Beef',         cat: 'Meat',     u: 'kg', px: 3600, s: 1, qty: { center: null, north: 10 }, min: { center: null, north: 15 } },
+  { id: 2,  n: 'Whole milk 3.2%',      cat: 'Dairy', u: 'L',  px: 450,  s: 2, qty: { center: 40, north: 22 },   min: { center: 30, north: 20 } },
+  { id: 3,  n: 'Potatoes',        cat: 'Vegetables',    u: 'kg', px: 220,  s: 3, qty: { center: null, north: 8 },  min: { center: null, north: 15 } },
+  { id: 4,  n: 'Cream 33%',       cat: 'Dairy', u: 'L',  px: 1800, s: 2, qty: { center: 6, north: 5 },     min: { center: 8, north: 10 } },
+  { id: 5,  n: 'Chicken fillet',     cat: 'Meat',     u: 'kg', px: 2100, s: 1, qty: { center: 3, north: 22 },    min: { center: 3, north: 12 } },
+  { id: 6,  n: 'Butter',  cat: 'Dairy', u: 'kg', px: 4200, s: 2, qty: { center: 2, north: 3 },     min: { center: 2, north: 4 } },
+  { id: 7,  n: 'Onions',     cat: 'Vegetables',    u: 'kg', px: 160,  s: 3, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 8,  n: 'Carrots',          cat: 'Vegetables',    u: 'kg', px: 180,  s: 3, qty: { center: null, north: 15 }, min: { center: null, north: 10 } },
+  { id: 9,  n: 'Rice',              cat: 'Grains',    u: 'kg', px: 650,  s: 4, qty: { center: null, north: 24 }, min: { center: null, north: 15 } },
+  { id: 10, n: 'Buckwheat',           cat: 'Grains',    u: 'kg', px: 700,  s: 4, qty: { center: null, north: 5 },  min: { center: null, north: 8 } },
+  { id: 11, n: 'Tomato paste',   cat: 'Sauces',    u: 'pcs', px: 420,  s: 5, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 12, n: 'Mayonnaise',          cat: 'Sauces',    u: 'pcs', px: 700,  s: 5, qty: { center: 4, north: 8 },     min: { center: 3, north: 6 } },
+  { id: 13, n: 'Mineral water', cat: 'Drinks',  u: 'pcs', px: 150,  s: 6, qty: { center: 60, north: 60 },   min: { center: 40, north: 50 } },
+  { id: 14, n: 'Orange juice', cat: 'Drinks',  u: 'L',  px: 900,  s: 6, qty: { center: 8, north: 10 },    min: { center: 6, north: 10 } },
+  { id: 15, n: 'Pork neck',   cat: 'Meat',     u: 'kg', px: 2800, s: 1, qty: { center: null, north: 14 }, min: { center: null, north: 12 } },
 ];
 /* every order is lines; totals, "in transit" and supplier spend all derive from them */
 let PO = [
@@ -119,17 +119,17 @@ console.assert(lowLines().length === 6 && drafts().length === 5 && drafts().redu
 
 
 /* product photos (CC0, see demos/CREDITS.md), one per category */
-const PT = { 'Мясо': 'meat', 'Молочные': 'dairy', 'Овощи': 'veg', 'Крупы': 'grain', 'Соусы': 'sauce', 'Напитки': 'drink' };
+const PT = { 'Meat': 'meat', 'Dairy': 'dairy', 'Vegetables': 'veg', 'Grains': 'grain', 'Sauces': 'sauce', 'Drinks': 'drink' };
 const ptImg = (cat) => `<img src="img/pt-${PT[cat]}.jpg" alt="" loading="lazy" decoding="async">`;
 
 /* ── shell ────────────────────────────────────────────── */
-const PAGES = { today: ['Сегодня', 'home'], stock: ['Склад', 'box'], orders: ['Закупки', 'bag'], sup: ['Поставщики', 'users'] };
-let page = 'today', venue = 'all', cat = 'Все', q = '';
-const CATS = ['Все', ...new Set(ITEMS.map((i) => i.cat))];
+const PAGES = { today: ['Today', 'home'], stock: ['Stock', 'box'], orders: ['Purchasing', 'bag'], sup: ['Suppliers', 'users'] };
+let page = 'today', venue = 'all', cat = 'All', q = '';
+const CATS = ['All', ...new Set(ITEMS.map((i) => i.cat))];
 
 function chrome() {
   const n = lowLines().length;
-  const item = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<span class="count" title="Ниже минимума">${n}</span>` : ''}</a>`;
+  const item = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<span class="count" title="Below minimum">${n}</span>` : ''}</a>`;
   $('#nav').innerHTML = Object.keys(PAGES).map(item).join('');
   $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
   setNav(page);
@@ -148,72 +148,72 @@ document.addEventListener('input', (e) => { if (e.target.id === 'q') { q = e.tar
 
 /* ── today ────────────────────────────────────────────── */
 function draftCard(d, k) {
-  return `<article class="draft"><div class="draft-h"><b>${esc(sup(d.s).n)}</b><span>для «${VEN[d.v]}»</span></div>${d.lines.map(([i, qn]) => `<div class="line"><span><i class="pt">${ptImg(item(i).cat)}</i>${esc(item(i).n)}</span><b>${qn} ${item(i).u} · ${tg(qn * item(i).px)}</b></div>`).join('')}
-    <div class="draft-f"><b>${tg(poTotal(d))}</b><button class="btn primary sm" data-act="order" data-k="${k}">Заказать</button></div></article>`;
+  return `<article class="draft"><div class="draft-h"><b>${esc(sup(d.s).n)}</b><span>for ${VEN[d.v]}</span></div>${d.lines.map(([i, qn]) => `<div class="line"><span><i class="pt">${ptImg(item(i).cat)}</i>${esc(item(i).n)}</span><b>${qn} ${item(i).u} · ${tg(qn * item(i).px)}</b></div>`).join('')}
+    <div class="draft-f"><b>${tg(poTotal(d))}</b><button class="btn primary sm" data-act="order" data-k="${k}">Order</button></div></article>`;
 }
 function today() {
   const ds = drafts(), sum = ds.reduce((a, d) => a + poTotal(d), 0), low = lowLines().length;
   const open = PO.filter((o) => o.st === 'ordered'), transit = open.reduce((a, o) => a + poTotal(o), 0);
-  const finding = ds.length ? `<div class="finding">${ic('alert')}<span>Ниже минимума ${low} ${low === 1 ? 'позиция' : 'позиций'}. Собрали ${ds.length} ${ds.length < 5 ? 'заказа' : 'заказов'} поставщикам на ${tg(sum)}. Проверьте и отправьте.</span><button class="btn sm primary" data-act="orderAll">Заказать всё</button></div>` : `<div class="finding" style="background:var(--pos-bg);color:var(--pos)">${ic('check')}<span>Всё выше минимума. Заказывать нечего.</span></div>`;
-  return head('Что докупить сегодня', `${TODAY} · остатки по двум точкам`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${ITEMS.length}</b><span>Позиций в учёте</span></div><div class="kpi"><b>${tg(value('all'))}</b><span>Стоимость склада</span></div><div class="kpi"><b>${low}</b><span>Ниже минимума</span></div><div class="kpi"><b>${tg(transit)}</b><span>В пути, ${open.length} ${open.length === 1 ? 'заказ' : 'заказа'}</span></div></div>
+  const finding = ds.length ? `<div class="finding">${ic('alert')}<span>${low} ${low === 1 ? 'item is' : 'items are'} below minimum. ${ds.length} supplier ${ds.length === 1 ? 'order' : 'orders'} drafted, ${tg(sum)} in total. Review and send.</span><button class="btn sm primary" data-act="orderAll">Order all</button></div>` : `<div class="finding" style="background:var(--pos-bg);color:var(--pos)">${ic('check')}<span>Everything is above minimum. Nothing to order.</span></div>`;
+  return head('What to restock today', `${TODAY} · stock across both venues`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${ITEMS.length}</b><span>Items tracked</span></div><div class="kpi"><b>${tg(value('all'))}</b><span>Stock value</span></div><div class="kpi"><b>${low}</b><span>Below minimum</span></div><div class="kpi"><b>${tg(transit)}</b><span>In transit, ${open.length} ${open.length === 1 ? 'order' : 'orders'}</span></div></div>
     ${ds.length ? `<div class="drafts">${ds.map(draftCard).join('')}</div>` : ''}
-    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2>Ждём поставку</h2><span>${open.length}</span></div>${open.map((o) => `<div class="tr" style="--cols:1.3fr 1fr 1fr auto;--colsm:1fr auto"><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · заказ ${o.id} · ${o.date}</span></div><span class="hm">${o.lines.length} поз.</span><b class="hm">${tg(poTotal(o))}</b><button class="btn sm" data-act="receive" data-id="${o.id}">Принять</button></div>`).join('') || '<p class="empty">Ничего не ждём.</p>'}</section>`;
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2>Awaiting delivery</h2><span>${open.length}</span></div>${open.map((o) => `<div class="tr" style="--cols:1.3fr 1fr 1fr auto;--colsm:1fr auto"><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · order ${o.id} · ${o.date}</span></div><span class="hm">${o.lines.length} ${o.lines.length === 1 ? 'item' : 'items'}</span><b class="hm">${tg(poTotal(o))}</b><button class="btn sm" data-act="receive" data-id="${o.id}">Receive</button></div>`).join('') || '<p class="empty">Nothing pending.</p>'}</section>`;
 }
 
 /* ── stock ────────────────────────────────────────────── */
 function stock() {
-  const list = ITEMS.filter((i) => stocked(i, venue) && (cat === 'Все' || i.cat === cat) && i.n.toLowerCase().includes(q));
-  const rows = list.map((i) => { const qn = qtyOf(i, venue), m = minOf(i, venue), st = state(i, venue), inc = venue === 'all' ? incomingAll(i.id) : incoming(i.id, venue); return `<div class="tr" data-item="${i.id}" tabindex="0" style="cursor:pointer;--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><div class="cell-pt"><span class="pt">${ptImg(i.cat)}</span><div class="cell-main"><b>${esc(i.n)}</b><span>${i.cat} · ${esc(sup(i.s).n)}${inc ? ` · едет ${inc} ${i.u}` : ''}</span></div></div>
-    <div class="level hm"><div class="bar"><i class="${st}" style="width:${Math.min(100, qn / (m * 2 || 1) * 100)}%"></i></div><b>${qn} ${i.u}</b></div><span class="hm r muted">мин. ${m}</span><span class="hm r">${tg(i.px)}</span>
-    <div class="r"><span class="pill ${st === 'low' ? 'neg' : st === 'soon' ? 'warn' : 'pos'}"><i></i>${st === 'low' ? 'Мало' : st === 'soon' ? 'Скоро' : 'Норма'}</span><div class="dm muted" style="font-size:12px;margin-top:2px">${qn} ${i.u}</div></div></div>`; }).join('');
-  return head('Склад', `${list.length} позиций · ${tg(list.reduce((a, i) => a + qtyOf(i, venue) * i.px, 0))}`) +
-    `<div class="chips">${['all', 'center', 'north'].map((v) => `<button class="chip ${venue === v ? 'on' : ''}" data-act="venue" data-v="${v}">${v === 'all' ? 'Все точки' : VEN[v]}</button>`).join('')}</div>
-    <div class="row-tools"><input class="search" id="q" value="${esc(q)}" placeholder="Поиск по названию" aria-label="Поиск"><div class="chips" style="margin:0">${CATS.map((c) => `<button class="chip ${cat === c ? 'on' : ''}" data-act="cat" data-v="${c}">${c}</button>`).join('')}</div></div>
-    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><span>Позиция</span><span class="hm">Остаток</span><span class="hm r">Минимум</span><span class="hm r">Цена</span><span class="r">Статус</span></div>${rows || '<p class="empty">Ничего не найдено.</p>'}</div></section>`;
+  const list = ITEMS.filter((i) => stocked(i, venue) && (cat === 'All' || i.cat === cat) && i.n.toLowerCase().includes(q));
+  const rows = list.map((i) => { const qn = qtyOf(i, venue), m = minOf(i, venue), st = state(i, venue), inc = venue === 'all' ? incomingAll(i.id) : incoming(i.id, venue); return `<div class="tr" data-item="${i.id}" tabindex="0" style="cursor:pointer;--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><div class="cell-pt"><span class="pt">${ptImg(i.cat)}</span><div class="cell-main"><b>${esc(i.n)}</b><span>${i.cat} · ${esc(sup(i.s).n)}${inc ? ` · ${inc} ${i.u} on the way` : ''}</span></div></div>
+    <div class="level hm"><div class="bar"><i class="${st}" style="width:${Math.min(100, qn / (m * 2 || 1) * 100)}%"></i></div><b>${qn} ${i.u}</b></div><span class="hm r muted">min ${m}</span><span class="hm r">${tg(i.px)}</span>
+    <div class="r"><span class="pill ${st === 'low' ? 'neg' : st === 'soon' ? 'warn' : 'pos'}"><i></i>${st === 'low' ? 'Low' : st === 'soon' ? 'Soon' : 'OK'}</span><div class="dm muted" style="font-size:12px;margin-top:2px">${qn} ${i.u}</div></div></div>`; }).join('');
+  return head('Stock', `${list.length} ${list.length === 1 ? 'item' : 'items'} · ${tg(list.reduce((a, i) => a + qtyOf(i, venue) * i.px, 0))}`) +
+    `<div class="chips">${['all', 'center', 'north'].map((v) => `<button class="chip ${venue === v ? 'on' : ''}" data-act="venue" data-v="${v}">${v === 'all' ? 'All venues' : VEN[v]}</button>`).join('')}</div>
+    <div class="row-tools"><input class="search" id="q" value="${esc(q)}" placeholder="Search by name" aria-label="Search"><div class="chips" style="margin:0">${CATS.map((c) => `<button class="chip ${cat === c ? 'on' : ''}" data-act="cat" data-v="${c}">${c}</button>`).join('')}</div></div>
+    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><span>Item</span><span class="hm">In stock</span><span class="hm r">Minimum</span><span class="hm r">Price</span><span class="r">Status</span></div>${rows || '<p class="empty">Nothing found.</p>'}</div></section>`;
 }
 function openItem(id) {
   const i = item(id), vs = ['center', 'north'].filter((v) => i.qty[v] !== null);
-  modal(`<h2>${esc(i.n)}</h2><p>${i.cat} · ${esc(sup(i.s).n)} · ${tg(i.px)} за ${i.u}</p>
-    ${vs.map((v) => `<div class="line"><span>${VEN[v]}</span><b>${i.qty[v]} ${i.u} <span class="muted">(мин. ${i.min[v]})</span></b></div>`).join('')}
-    <div class="field" style="margin-top:14px"><label for="a-v">Точка</label><select id="a-v">${vs.map((v) => `<option value="${v}" ${venue === v ? 'selected' : ''}>${VEN[v]}</option>`).join('')}</select></div>
-    <div class="field"><label for="a-q">Количество, ${i.u}</label><input id="a-q" type="number" min="0.5" step="0.5" value="1"></div>
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">Закрыть</button><button class="btn" id="a-out">Списать</button><button class="btn primary" id="a-in">Приход</button></div>`, () => {
-    const apply = (sign) => { const v = $('#a-v').value, n = +$('#a-q').value; if (!(n > 0)) return toast('Укажите количество'); if (sign < 0 && n > i.qty[v]) return toast(`На точке только ${i.qty[v]} ${i.u}`); i.qty[v] = Math.round((i.qty[v] + sign * n) * 10) / 10; closeModal(); toast(`${i.n}: ${sign > 0 ? 'приход' : 'списано'} ${n} ${i.u}`); render(); };
+  modal(`<h2>${esc(i.n)}</h2><p>${i.cat} · ${esc(sup(i.s).n)} · ${tg(i.px)} per ${i.u}</p>
+    ${vs.map((v) => `<div class="line"><span>${VEN[v]}</span><b>${i.qty[v]} ${i.u} <span class="muted">(min ${i.min[v]})</span></b></div>`).join('')}
+    <div class="field" style="margin-top:14px"><label for="a-v">Venue</label><select id="a-v">${vs.map((v) => `<option value="${v}" ${venue === v ? 'selected' : ''}>${VEN[v]}</option>`).join('')}</select></div>
+    <div class="field"><label for="a-q">Quantity, ${i.u}</label><input id="a-q" type="number" min="0.5" step="0.5" value="1"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button><button class="btn" id="a-out">Write off</button><button class="btn primary" id="a-in">Receive stock</button></div>`, () => {
+    const apply = (sign) => { const v = $('#a-v').value, n = +$('#a-q').value; if (!(n > 0)) return toast('Enter a quantity'); if (sign < 0 && n > i.qty[v]) return toast(`Only ${i.qty[v]} ${i.u} at this venue`); i.qty[v] = Math.round((i.qty[v] + sign * n) * 10) / 10; closeModal(); toast(`${i.n}: ${sign > 0 ? 'received' : 'written off'} ${n} ${i.u}`); render(); };
     $('#a-out').onclick = () => apply(-1); $('#a-in').onclick = () => apply(1);
   });
 }
 
 /* ── orders + suppliers ───────────────────────────────── */
-const ST = { ordered: ['В пути', 'warn'], received: ['Принят', 'pos'], cancelled: ['Отменён', ''] };
+const ST = { ordered: ['In transit', 'warn'], received: ['Received', 'pos'], cancelled: ['Cancelled', ''] };
 function orders() {
-  const rows = [...PO].sort((a, b) => b.id - a.id).map((o) => `<div class="tr" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm muted">${o.id}</span><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · ${o.date}${' · ' + o.lines.length + ' поз.'}</span></div><span class="hm">${o.lines.map(([i, qn]) => esc(item(i).n.split(' ')[0]) + ' ' + qn).join(', ')}</span><b class="hm r">${tg(poTotal(o))}</b><span class="hm"><span class="pill ${ST[o.st][1]}"><i></i>${ST[o.st][0]}</span></span>
-    <span class="r">${o.st === 'ordered' ? `<button class="btn sm primary" data-act="receive" data-id="${o.id}">Принять</button>` : `<b>${tg(poTotal(o))}</b>`}</span></div>`).join('');
-  return head('Закупки', `${PO.length} заказов · принятые заказы сразу попадают в остатки`) +
-    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm">№</span><span>Поставщик</span><span class="hm">Состав</span><span class="hm r">Сумма</span><span class="hm">Статус</span><span class="r"></span></div>${rows}</div></section>`;
+  const rows = [...PO].sort((a, b) => b.id - a.id).map((o) => `<div class="tr" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm muted">${o.id}</span><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · ${o.date}${' · ' + o.lines.length + (o.lines.length === 1 ? ' item' : ' items')}</span></div><span class="hm">${o.lines.map(([i, qn]) => esc(item(i).n.split(' ')[0]) + ' ' + qn).join(', ')}</span><b class="hm r">${tg(poTotal(o))}</b><span class="hm"><span class="pill ${ST[o.st][1]}"><i></i>${ST[o.st][0]}</span></span>
+    <span class="r">${o.st === 'ordered' ? `<button class="btn sm primary" data-act="receive" data-id="${o.id}">Receive</button>` : `<b>${tg(poTotal(o))}</b>`}</span></div>`).join('');
+  return head('Purchasing', `${PO.length} orders · received orders go straight into stock`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm">No.</span><span>Supplier</span><span class="hm">Contents</span><span class="hm r">Total</span><span class="hm">Status</span><span class="r"></span></div>${rows}</div></section>`;
 }
 function suppliers() {
   const rows = SUP.map((s) => { const mine = PO.filter((o) => o.s === s.id && o.st !== 'cancelled'), spent = mine.reduce((a, o) => a + poTotal(o), 0); return `<div class="tr" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(s.n)}</b><span>${esc(s.who)} · ${s.tel}</span></div><span class="hm">${s.tel}</span><span class="hm stars">${'★'.repeat(s.r)}<i>${'★'.repeat(5 - s.r)}</i></span><span class="hm r">${mine.length}</span><b class="r">${tg(spent)}</b></div>`; }).join('');
-  return head('Поставщики', `${SUP.length} поставщиков · потрачено ${tg(PO.filter((o) => o.st !== 'cancelled').reduce((a, o) => a + poTotal(o), 0))} за последние 2 недели`) +
-    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><span>Поставщик</span><span class="hm">Телефон</span><span class="hm">Рейтинг</span><span class="hm r">Заказов</span><span class="r">Сумма</span></div>${rows}</div></section>`;
+  return head('Suppliers', `${SUP.length} suppliers · ${tg(PO.filter((o) => o.st !== 'cancelled').reduce((a, o) => a + poTotal(o), 0))} spent in the last 2 weeks`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><span>Supplier</span><span class="hm">Phone</span><span class="hm">Rating</span><span class="hm r">Orders</span><span class="r">Total</span></div>${rows}</div></section>`;
 }
 
 /* ── actions ──────────────────────────────────────────── */
 const nextPO = () => Math.max(...PO.map((o) => o.id)) + 1;
 const ACT = {
   venue(d) { venue = d.v; render(); }, cat(d) { cat = d.v; render(); },
-  order(d) { const x = drafts()[+d.k]; PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines }); toast(`Заказ отправлен: ${sup(x.s).n}`); render(); },
-  orderAll() { const ds = drafts(); ds.forEach((x) => PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines })); toast(`Отправлено заказов: ${ds.length}`); render(); },
-  receive(d) { const o = PO.find((x) => x.id === +d.id); o.lines.forEach(([i, qn]) => { item(i).qty[o.v] = (item(i).qty[o.v] || 0) + qn; }); o.st = 'received'; toast(`Принято: заказ ${o.id}, остатки обновлены`); render(); },
+  order(d) { const x = drafts()[+d.k]; PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines }); toast(`Order sent: ${sup(x.s).n}`); render(); },
+  orderAll() { const ds = drafts(); ds.forEach((x) => PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines })); toast(`Orders sent: ${ds.length}`); render(); },
+  receive(d) { const o = PO.find((x) => x.id === +d.id); o.lines.forEach(([i, qn]) => { item(i).qty[o.v] = (item(i).qty[o.v] || 0) + qn; }); o.st = 'received'; toast(`Received: order ${o.id}, stock updated`); render(); },
 };
 /* ── live consumption: the kitchens use stock all day, so statuses and orders move on their own ─ */
 setInterval(() => {
   if (document.hidden || $('#scrim')) return;
   const pool = ITEMS.flatMap((i) => ['center', 'north'].filter((v) => i.qty[v] !== null && i.qty[v] > 0).map((v) => [i, v]));
   const [i, v] = pool[Math.floor(Math.random() * pool.length)], before = i.qty[v] < i.min[v];
-  const used = i.u === 'шт' ? 1 + Math.floor(Math.random() * 3) : [0.5, 1, 1.5][Math.floor(Math.random() * 3)];
+  const used = i.u === 'pcs' ? 1 + Math.floor(Math.random() * 3) : [0.5, 1, 1.5][Math.floor(Math.random() * 3)];
   i.qty[v] = Math.max(0, Math.round((i.qty[v] - used) * 10) / 10);
-  if (!before && i.qty[v] < i.min[v]) toast(`${i.n} (${VEN[v]}): ниже минимума, ${i.qty[v]} ${i.u}`);
+  if (!before && i.qty[v] < i.min[v]) toast(`${i.n} (${VEN[v]}): below minimum, ${i.qty[v]} ${i.u}`);
   if (['today', 'stock'].includes(page) && document.activeElement?.id !== 'q') render();
 }, 4500);
 render();
