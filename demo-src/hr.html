@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RestOS HR — онбординг персонала (демо)</title>
-<meta name="description" content="Демо: приложение для нового сотрудника ресторана с путём обучения, тестами, чатом с менеджером и чек-листами. Справа то, что видит менеджер. Данные вымышлены.">
+<title>RestOS HR — staff onboarding (demo)</title>
+<meta name="description" content="Demo: a new-hire app for restaurant staff with a learning path, quizzes, manager chat and checklists. The manager view is on the right. All data is fictional.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -83,10 +83,10 @@ body { font-size: 15px; font-weight: 500; }
 </style>
 </head>
 <body>
-<div class="notice"><b>Демо</b> RestOS HR · данные вымышлены</div>
+<div class="notice"><b>Demo</b> RestOS HR · data is fictional</div>
 <div class="wrap">
   <aside class="mgr" id="mgr"></aside>
-  <div class="phone"><div class="scr" id="scr"></div><div id="foot"></div><nav class="pnav" id="pnav" aria-label="Разделы"></nav></div>
+  <div class="phone"><div class="scr" id="scr"></div><div id="foot"></div><nav class="pnav" id="pnav" aria-label="Sections"></nav></div>
 </div>
 
 <script>
@@ -95,49 +95,49 @@ body { font-size: 15px; font-weight: 500; }
 
 /* ── content ──────────────────────────────────────────── */
 const MODS = [
-  { t: 'Введение', sub: '4 шага', xp: 100, icon: 'star', steps: [
-    ['Добро пожаловать в RestOS', 'Добро пожаловать в команду! Здесь вы найдёте всё, чтобы быстро освоиться: обучение, чат с менеджером и чек-листы смены.'],
-    ['Структура команды', 'В ресторане работают управляющий, су-шефы, повара, официанты и хостес. Каждый знает свою роль, и это основа слаженной работы.'],
-    ['Рабочий график', 'Смены планируются каждую неделю. Расписание приходит за 5 дней, а замену смены согласуйте с менеджером минимум за сутки.'],
-    ['Первый рабочий день', 'Вас встретит менеджер смены, покажет зал и кухню и представит команде. Доступы и форма подготовлены заранее.'],
+  { t: 'Introduction', sub: '4 steps', xp: 100, icon: 'star', steps: [
+    ['Welcome to RestOS', 'Welcome to the team! Here you will find everything you need to get up to speed: training, a chat with your manager and shift checklists.'],
+    ['Team structure', 'The restaurant is run by a general manager, sous chefs, cooks, servers and hosts. Everyone knows their role, and that is the foundation of smooth teamwork.'],
+    ['Work schedule', 'Shifts are planned every week. The schedule arrives 5 days ahead, and any shift swap must be agreed with your manager at least a day in advance.'],
+    ['Your first day', 'The shift manager will greet you, show you the dining room and kitchen, and introduce you to the team. Your access and uniform are prepared in advance.'],
   ], quiz: [] },
-  { t: 'Безопасность на кухне', sub: '5 шагов', xp: 140, icon: 'shield', steps: [
-    ['Личная гигиена', 'Чистая форма, руки вымыты перед каждым касанием продуктов. Украшения, часы и телефоны на кухне запрещены.'],
-    ['Температурный контроль', 'Холодные блюда хранятся при 0–4 °C, горячие не ниже 65 °C. Замер каждые 2 часа записывается в журнал.'],
-    ['Оборудование', 'Перед работой прочитайте инструкцию на приборе. Неисправное оборудование выводят из работы и вешают красный стикер.'],
-    ['Пожарная безопасность', 'Выходы всегда свободны. Огнетушитель у входа на кухню, план эвакуации у раздевалки.'],
-    ['Травмы и происшествия', 'Любой порез или ожог записывают в журнал сразу. Аптечка у поста менеджера, при серьёзной травме звоните 103.'],
+  { t: 'Kitchen safety', sub: '5 steps', xp: 140, icon: 'shield', steps: [
+    ['Personal hygiene', 'Wear a clean uniform and wash your hands before touching any food. Jewellery, watches and phones are not allowed in the kitchen.'],
+    ['Temperature control', 'Cold dishes are stored at 0–4 °C, hot dishes at 65 °C or above. A reading is taken every 2 hours and recorded in the log.'],
+    ['Equipment', 'Read the instructions on each appliance before use. Faulty equipment is taken out of service and tagged with a red sticker.'],
+    ['Fire safety', 'Keep exits clear at all times. The fire extinguisher is by the kitchen entrance and the evacuation plan is by the changing room.'],
+    ['Injuries and incidents', 'Record any cut or burn in the log immediately. The first-aid kit is at the manager station; for a serious injury call 103.'],
   ], quiz: [] },
-  { t: 'Работа с гостями', sub: '4 шага и тест', xp: 180, icon: 'heart', steps: [
-    ['Приветствие гостя', 'Встретьте гостя в течение 30 секунд. Улыбка, зрительный контакт и «Добро пожаловать!» задают тон всему вечеру. Если заняты, кивните и скажите «Одну минуту».'],
-    ['Приём заказа', 'Дайте 2–3 минуты на выбор. Уточните прожарку, аллергии и детали к напиткам. Повторите заказ вслух.'],
-    ['Обслуживание за столом', 'Блюда подают слева, напитки справа. Называйте блюдо при подаче и через 2 минуты спросите: «Всё в порядке?».'],
-    ['Жалобы', 'Выслушайте не перебивая и извинитесь, даже если вины нет. Предложите решение: замену, скидку или комплимент. О каждой жалобе скажите менеджеру.'],
+  { t: 'Guest service', sub: '4 steps and a quiz', xp: 180, icon: 'heart', steps: [
+    ['Greeting guests', 'Greet every guest within 30 seconds. A smile, eye contact and a "Welcome!" set the tone for the whole evening. If you are busy, nod and say "I will be right with you."'],
+    ['Taking the order', 'Give guests 2–3 minutes to decide. Confirm how the dish should be cooked, any allergies and drink details. Repeat the order back aloud.'],
+    ['Table service', 'Serve dishes from the left and drinks from the right. Name each dish as you serve it and, after 2 minutes, ask: "Is everything alright?"'],
+    ['Complaints', 'Listen without interrupting and apologise, even if it is not your fault. Offer a solution: a replacement, a discount or a complimentary item. Tell the manager about every complaint.'],
   ], quiz: [
-    { q: 'Как быстро нужно встретить гостя?', o: ['Когда освободитесь', 'В течение 30 секунд', 'В течение 2 минут', 'Когда он сядет'], a: 1, why: 'Первые 30 секунд задают впечатление.' },
-    { q: 'Что делать, если гость жалуется?', o: ['Объяснить, что вы не виноваты', 'Позвать менеджера и уйти', 'Выслушать и предложить решение', 'Дать скидку без слов'], a: 2, why: 'Сначала выслушать, потом решать.' },
-    { q: 'С какой стороны подают напитки?', o: ['Слева', 'Справа', 'С любой', 'Только с торца'], a: 1, why: 'Блюда слева, напитки справа.' },
+    { q: 'How quickly should you greet a guest?', o: ['When you are free', 'Within 30 seconds', 'Within 2 minutes', 'Once they sit down'], a: 1, why: 'The first 30 seconds shape the impression.' },
+    { q: 'What should you do when a guest complains?', o: ['Explain that it is not your fault', 'Call the manager and walk away', 'Listen and offer a solution', 'Give a discount without a word'], a: 2, why: 'Listen first, then resolve.' },
+    { q: 'Which side do you serve drinks from?', o: ['Left', 'Right', 'Either side', 'Only from the end of the table'], a: 1, why: 'Dishes from the left, drinks from the right.' },
   ] },
-  { t: 'Меню и аллергены', sub: '3 шага и тест', xp: 120, icon: 'utensils', steps: [
-    ['14 основных аллергенов', 'Глютен, молоко, яйца, орехи, арахис, рыба, моллюски, соя, сельдерей, горчица, кунжут, люпин и другие. Полный список лежит у выдачи.'],
-    ['Как отвечать на вопросы о составе', 'Не угадывайте. Если не уверены, скажите: «Уточню у шефа» и вернитесь с точным ответом. Об аллергии сразу сообщите на кухню.'],
-    ['Стоп-лист', 'Если блюдо закончилось, оно появляется в стоп-листе. Проверяйте его перед тем, как предлагать блюдо гостю.'],
+  { t: 'Menu and allergens', sub: '3 steps and a quiz', xp: 120, icon: 'utensils', steps: [
+    ['The 14 main allergens', 'Gluten, milk, eggs, tree nuts, peanuts, fish, molluscs, soya, celery, mustard, sesame, lupin and more. The full list is kept at the pass.'],
+    ['Answering questions about ingredients', 'Never guess. If you are not sure, say "I will check with the chef" and come back with an exact answer. Tell the kitchen about any allergy straight away.'],
+    ['86 list', 'When a dish runs out, it appears on the 86 list. Check it before recommending a dish to a guest.'],
   ], quiz: [
-    { q: 'Вы не уверены, есть ли в блюде орехи. Что сказать гостю?', o: ['Скорее всего нет', 'Уточню у шефа и вернусь', 'Спросите у соседнего стола', 'Лучше не заказывайте'], a: 1, why: 'Угадывать при аллергии опасно.' },
-    { q: 'Когда проверять стоп-лист?', o: ['Раз в неделю', 'Перед тем как предложить блюдо', 'Только на открытии', 'Не нужно'], a: 1, why: 'Блюдо могло закончиться минуту назад.' },
+    { q: 'You are not sure whether a dish contains nuts. What do you tell the guest?', o: ['Probably not', 'I will check with the chef and come back', 'Ask the next table', 'Better not to order it'], a: 1, why: 'Guessing is dangerous with allergies.' },
+    { q: 'When should you check the 86 list?', o: ['Once a week', 'Before recommending a dish', 'Only at opening', 'No need'], a: 1, why: 'The dish may have run out a minute ago.' },
   ] },
-  { t: 'Касса и расчёты', sub: 'Скоро', xp: 150, icon: 'coin', steps: [], quiz: [] },
+  { t: 'Till and payments', sub: 'Coming soon', xp: 150, icon: 'coin', steps: [], quiz: [] },
 ];
 const CHECK = [
-  ['Перед сменой', [['Надеть чистую форму и бейдж', '09:45'], ['Проверить стоп-лист у выдачи', '09:50'], ['Протереть и накрыть закреплённые столы', '10:00'], ['Пройти брифинг с менеджером', '10:15']]],
-  ['После смены', [['Сдать чаевые и закрыть счета', '22:30'], ['Убрать станцию и вынести мусор', '22:45'], ['Записать замечания в журнал', '22:55']]],
+  ['Before the shift', [['Put on a clean uniform and name badge', '09:45'], ['Check the 86 list at the pass', '09:50'], ['Wipe and set your assigned tables', '10:00'], ['Attend the briefing with the manager', '10:15']]],
+  ['After the shift', [['Hand in tips and close out checks', '22:30'], ['Clean your station and take out the trash', '22:45'], ['Write your notes in the log', '22:55']]],
 ];
-const TEAM = [['Мадина К.', 4], ['Тимур Б.', 3], ['Алия С.', 3], ['Данияр Н.', 1]];
+const TEAM = [['Madina K.', 4], ['Timur B.', 3], ['Aliya S.', 3], ['Daniyar N.', 1]];
 const REPLY = [
-  [/график|смен/i, 'График на неделю уже опубликован. Если нужна замена, напиши мне минимум за сутки.'],
-  [/форм|одежд/i, 'Чёрные брюки и фартук выдаём у администратора, рубашку берёшь свою, белую.'],
-  [/зарплат|выплат|аванс/i, 'Аванс 10 числа, остальное 25-го. Ставка и чаевые есть в договоре.'],
-  [/спасибо|ок|понял/i, 'Отлично! Если что, пиши.'],
+  [/schedule|shift|swap/i, 'The weekly schedule is already published. If you need a swap, message me at least a day ahead.'],
+  [/uniform|dress|wear/i, 'Black trousers and an apron are issued by the host desk; bring your own white shirt.'],
+  [/salary|pay|advance/i, 'Advance on the 10th, the rest on the 25th. Your rate and tips are in your contract.'],
+  [/thanks|thank you|\bok\b|got it/i, 'Great! Message me if you need anything.'],
 ];
 
 
@@ -145,8 +145,8 @@ const REPLY = [
 const heroImg = () => `<img src="img/hero.jpg" alt="" decoding="async">`;
 
 /* ── state ────────────────────────────────────────────── */
-const S = { done: new Set([0, 1]), tab: 'path', view: 'path', mod: 2, step: 0, qi: 0, picked: null, ticks: new Set(['0-0']), unread: 3, feed: ['<b>Руслан</b> назначил Айдан наставника на первую неделю'],
-  chat: [{ me: false, t: 'Привет, Айдан! Я Руслан, управляющий. Рад, что ты с нами.', ts: '09:12' }, { me: false, t: 'Пройди обучение до пятницы, а вопросы задавай здесь.', ts: '09:13' }, { me: false, t: 'Твой первый рабочий день в понедельник, приходи к 9:45.', ts: '09:13' }] };
+const S = { done: new Set([0, 1]), tab: 'path', view: 'path', mod: 2, step: 0, qi: 0, picked: null, ticks: new Set(['0-0']), unread: 3, feed: ['<b>Ruslan</b> assigned Aidan a mentor for the first week'],
+  chat: [{ me: false, t: 'Hi Aidan! I am Ruslan, the general manager. Glad to have you with us.', ts: '09:12' }, { me: false, t: 'Finish the training by Friday and ask any questions here.', ts: '09:13' }, { me: false, t: 'Your first day is Monday, please arrive by 9:45.', ts: '09:13' }] };
 const xp = () => [...S.done].reduce((a, i) => a + MODS[i].xp, 0);
 const cur = () => { for (let i = 0; i < MODS.length; i++) if (!S.done.has(i)) return i; return -1; };
 const playable = (i) => MODS[i].steps.length > 0 && (i === 0 || S.done.has(i - 1));
@@ -155,7 +155,7 @@ const ckTotal = () => CHECK.reduce((a, [, l]) => a + l.length, 0);
 
 /* ── render ───────────────────────────────────────────── */
 const nav = () => {
-  const T = { path: ['Путь', 'map'], chat: ['Чат', 'chat'], list: ['Чек-листы', 'check'], me: ['Профиль', 'users'] };
+  const T = { path: ['Path', 'map'], chat: ['Chat', 'chat'], list: ['Checklists', 'check'], me: ['Profile', 'users'] };
   $('#pnav').innerHTML = Object.entries(T).map(([k, v]) => `<button data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${ic(v[1])}${v[0]}${k === 'chat' && S.unread ? `<b class="badge">${S.unread}</b>` : ''}</button>`).join('');
 };
 function render() {
@@ -169,56 +169,56 @@ function pathScreen() {
   if (S.view === 'quiz') return quizScreen();
   if (S.view === 'done') return doneScreen();
   const c = cur();
-  return `<div class="hero">${heroImg()}</div><div class="top"><div><h1>Привет, Айдан!</h1><p>${c === -1 ? 'Весь путь пройден' : `Дальше: ${MODS[c].t}`}</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
-    <div class="path">${MODS.map((m, i) => { const d = S.done.has(i), cu = i === c, lock = !playable(i) && !d; return `<button class="node ${d ? 'done' : ''} ${cu && !lock ? 'cur' : ''} ${lock ? 'lock' : ''}" data-act="open" data-i="${i}" ${lock ? 'disabled' : ''}><span class="dot">${ic(d ? 'check' : lock ? 'lock' : m.icon)}</span><div><b>${m.t}</b><span>${d ? `Пройдено · +${m.xp} XP` : lock ? (m.steps.length ? 'Откроется после предыдущего модуля' : 'Скоро') : `${m.sub} · +${m.xp} XP`}</span></div></button>`; }).join('')}</div>`;
+  return `<div class="hero">${heroImg()}</div><div class="top"><div><h1>Hi, Aidan!</h1><p>${c === -1 ? 'Path completed' : `Up next: ${MODS[c].t}`}</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+    <div class="path">${MODS.map((m, i) => { const d = S.done.has(i), cu = i === c, lock = !playable(i) && !d; return `<button class="node ${d ? 'done' : ''} ${cu && !lock ? 'cur' : ''} ${lock ? 'lock' : ''}" data-act="open" data-i="${i}" ${lock ? 'disabled' : ''}><span class="dot">${ic(d ? 'check' : lock ? 'lock' : m.icon)}</span><div><b>${m.t}</b><span>${d ? `Completed · +${m.xp} XP` : lock ? (m.steps.length ? 'Unlocks after the previous module' : 'Coming soon') : `${m.sub} · +${m.xp} XP`}</span></div></button>`; }).join('')}</div>`;
 }
 function learnScreen() {
   const m = MODS[S.mod], st = m.steps[S.step], last = S.step === m.steps.length - 1, review = S.done.has(S.mod);
-  return `<button class="back" data-act="exit">← К пути</button><div class="learn"><div class="pbar">${m.steps.map((_, i) => `<i class="${i <= S.step ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">${m.t} · шаг ${S.step + 1} из ${m.steps.length}</span><h2>${st[0]}</h2><p class="body">${st[1]}</p>
-    <button class="btn primary cta" data-act="next">${last ? (m.quiz.length && !review ? 'Пройти тест' : review ? 'Готово' : `Завершить модуль`) : 'Дальше'}</button></div>`;
+  return `<button class="back" data-act="exit">← Back to path</button><div class="learn"><div class="pbar">${m.steps.map((_, i) => `<i class="${i <= S.step ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">${m.t} · step ${S.step + 1} of ${m.steps.length}</span><h2>${st[0]}</h2><p class="body">${st[1]}</p>
+    <button class="btn primary cta" data-act="next">${last ? (m.quiz.length && !review ? 'Take the quiz' : review ? 'Done' : `Complete module`) : 'Next'}</button></div>`;
 }
 function quizScreen() {
   const m = MODS[S.mod], q = m.quiz[S.qi];
-  return `<button class="back" data-act="exit">← К пути</button><div class="learn"><div class="pbar">${m.quiz.map((_, i) => `<i class="${i <= S.qi ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">Вопрос ${S.qi + 1} из ${m.quiz.length}</span><h2>${q.q}</h2>
+  return `<button class="back" data-act="exit">← Back to path</button><div class="learn"><div class="pbar">${m.quiz.map((_, i) => `<i class="${i <= S.qi ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">Question ${S.qi + 1} of ${m.quiz.length}</span><h2>${q.q}</h2>
     ${q.o.map((o, i) => `<button class="opt ${S.picked === i ? (i === q.a ? 'ok' : 'bad') : ''}" data-act="pick" data-i="${i}" ${S.picked === q.a ? 'disabled' : ''}>${o}</button>`).join('')}
-    <div class="fb ${S.picked === null ? '' : S.picked === q.a ? 'ok' : 'bad'}" role="status">${S.picked === null ? '' : S.picked === q.a ? 'Верно. ' + q.why : 'Не совсем, попробуйте ещё раз'}</div>
-    ${S.picked === q.a ? `<button class="btn primary cta" data-act="qnext">${S.qi === m.quiz.length - 1 ? 'Закончить' : 'Следующий вопрос'}</button>` : ''}</div>`;
+    <div class="fb ${S.picked === null ? '' : S.picked === q.a ? 'ok' : 'bad'}" role="status">${S.picked === null ? '' : S.picked === q.a ? 'Correct. ' + q.why : 'Not quite, try again'}</div>
+    ${S.picked === q.a ? `<button class="btn primary cta" data-act="qnext">${S.qi === m.quiz.length - 1 ? 'Finish' : 'Next question'}</button>` : ''}</div>`;
 }
 function doneScreen() {
   const m = MODS[S.mod], nx = S.mod + 1 < MODS.length && playable(S.mod + 1);
-  return `<div class="learn" style="text-align:center;padding-top:20px"><div class="big-xp">+${m.xp}</div><p class="muted" style="font-weight:800">XP за модуль</p><div class="cert"><small>Сертификат</small><h3>${m.t}</h3><p>Айдан Кержанова · 28.09.2026</p></div>
-    <p class="muted">Всего ${xp()} XP, пройдено ${S.done.size} из ${MODS.length}</p><button class="btn primary cta" data-act="exit">${nx ? 'К следующему модулю' : 'К пути'}</button></div>`;
+  return `<div class="learn" style="text-align:center;padding-top:20px"><div class="big-xp">+${m.xp}</div><p class="muted" style="font-weight:800">XP for this module</p><div class="cert"><small>Certificate</small><h3>${m.t}</h3><p>Aidan Kerzhanova · 28/09/2026</p></div>
+    <p class="muted">${xp()} XP in total, ${S.done.size} of ${MODS.length} modules completed</p><button class="btn primary cta" data-act="exit">${nx ? 'Go to next module' : 'Back to path'}</button></div>`;
 }
 function chatScreen() {
-  return `<div class="top"><div><h1>Руслан</h1><p>Управляющий · обычно отвечает за 5 минут</p></div></div><div class="msgs" id="msgs">${S.chat.map((m) => `<div class="m ${m.me ? 'me' : ''}">${esc(m.t)}<small>${m.ts}</small></div>`).join('')}</div><div class="quick">${['Когда мой график?', 'Какая форма?', 'Как заменить смену?'].map((q) => `<button data-act="say" data-t="${q}">${q}</button>`).join('')}</div>`;
+  return `<div class="top"><div><h1>Ruslan</h1><p>General manager · usually replies within 5 minutes</p></div></div><div class="msgs" id="msgs">${S.chat.map((m) => `<div class="m ${m.me ? 'me' : ''}">${esc(m.t)}<small>${m.ts}</small></div>`).join('')}</div><div class="quick">${['When is my schedule?', 'What is the uniform?', 'How do I swap a shift?'].map((q) => `<button data-act="say" data-t="${q}">${q}</button>`).join('')}</div>`;
 }
 function chatMount() {
   S.unread = 0; nav();
-  $('#foot').innerHTML = `<form class="cform" id="cf"><input id="ci" placeholder="Сообщение" autocomplete="off" aria-label="Сообщение"><button aria-label="Отправить">${ic('arrow')}</button></form>`;
+  $('#foot').innerHTML = `<form class="cform" id="cf"><input id="ci" placeholder="Message" autocomplete="off" aria-label="Message"><button aria-label="Send">${ic('arrow')}</button></form>`;
   $('#cf').onsubmit = (e) => { e.preventDefault(); const v = $('#ci').value.trim(); if (v) say(v); };
   const s = $('#scr'); s.scrollTop = s.scrollHeight;
 }
 function say(text) {
   const t = new Date(2026, 8, 28, 14, 20 + S.chat.length % 30), ts = '14:' + String(20 + S.chat.length % 30).padStart(2, '0');
   S.chat.push({ me: true, t: text, ts }); render();
-  const m = $('#msgs'); m.insertAdjacentHTML('beforeend', '<div class="typing" id="typing">Руслан печатает…</div>'); $('#scr').scrollTop = 1e6;
-  setTimeout(() => { const r = REPLY.find(([re]) => re.test(text)); S.chat.push({ me: false, t: r ? r[1] : 'Принял, отвечу в течение часа.', ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); } }, 1100);
+  const m = $('#msgs'); m.insertAdjacentHTML('beforeend', '<div class="typing" id="typing">Ruslan is typing…</div>'); $('#scr').scrollTop = 1e6;
+  setTimeout(() => { const r = REPLY.find(([re]) => re.test(text)); S.chat.push({ me: false, t: r ? r[1] : 'Got it, I will reply within the hour.', ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); } }, 1100);
 }
 function listScreen() {
   const n = S.ticks.size;
-  return `<div class="top"><div><h1>Чек-листы</h1><p>${n} из ${ckTotal()} выполнено сегодня</p></div></div><div class="pbar" style="margin-bottom:6px">${Array.from({ length: ckTotal() }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div><div class="cl">${CHECK.map(([t, l], li) => `<h3>${t}<span>${l.filter((_, i) => S.ticks.has(li + '-' + i)).length} из ${l.length}</span></h3>${l.map(([x, tm], i) => { const k = li + '-' + i, d = S.ticks.has(k); return `<button class="ck ${d ? 'done' : ''}" data-act="tick" data-k="${k}" role="checkbox" aria-checked="${d}"><span class="bx">${d ? ic('check') : ''}</span><b>${x}</b><small>${tm}</small></button>`; }).join('')}`).join('')}</div>`;
+  return `<div class="top"><div><h1>Checklists</h1><p>${n} of ${ckTotal()} done today</p></div></div><div class="pbar" style="margin-bottom:6px">${Array.from({ length: ckTotal() }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div><div class="cl">${CHECK.map(([t, l], li) => `<h3>${t}<span>${l.filter((_, i) => S.ticks.has(li + '-' + i)).length} of ${l.length}</span></h3>${l.map(([x, tm], i) => { const k = li + '-' + i, d = S.ticks.has(k); return `<button class="ck ${d ? 'done' : ''}" data-act="tick" data-k="${k}" role="checkbox" aria-checked="${d}"><span class="bx">${d ? ic('check') : ''}</span><b>${x}</b><small>${tm}</small></button>`; }).join('')}`).join('')}</div>`;
 }
 function meScreen() {
-  return `<div class="top"><div><h1>Айдан Кержанова</h1><p>Официант · на испытательном сроке</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
-    <p class="lead">Сертификаты</p>${[...S.done].sort().map((i) => `<div class="cert" style="margin:0 0 10px;text-align:left"><small>Сертификат</small><h3 style="font-size:17px">${MODS[i].t}</h3><p>Выдан 28.09.2026 · +${MODS[i].xp} XP</p></div>`).join('')}
-    <p class="lead">Серия</p><p style="font-size:15px">6 дней подряд. Ещё один день, и серия станет неделей.</p>`;
+  return `<div class="top"><div><h1>Aidan Kerzhanova</h1><p>Server · on probation</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+    <p class="lead">Certificates</p>${[...S.done].sort().map((i) => `<div class="cert" style="margin:0 0 10px;text-align:left"><small>Certificate</small><h3 style="font-size:17px">${MODS[i].t}</h3><p>Issued 28/09/2026 · +${MODS[i].xp} XP</p></div>`).join('')}
+    <p class="lead">Streak</p><p style="font-size:15px">6 days in a row. One more day and your streak becomes a week.</p>`;
 }
 function mgr() {
-  const me = ['Айдан К.', S.done.size], all = [...TEAM, me].sort((a, b) => b[1] - a[1]);
-  $('#mgr').innerHTML = `<h2>Что видит менеджер</h2><h1>Обучение команды</h1><p>Справа приложение сотрудника. Проходите модули, и здесь всё обновится само.</p>
-    <section class="card"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Модули пройдены</h2><span>из ${MODS.length}</span></div>${all.map((x) => `<div class="member ${x === me ? 'me' : ''}"><span>${x[0]}</span><div class="bar"><i style="width:${x[1] / MODS.length * 100}%"></i></div><b>${x[1]}</b></div>`).join('')}</section>
-    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Чек-листы сегодня</h2><span>Айдан</span></div><div class="kpi"><b>${S.ticks.size}<small>из ${ckTotal()}</small></b><span>Отметок за смену</span></div></section>
-    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">События</h2></div><ul class="feed">${S.feed.slice(0, 5).map((f) => `<li>${f}</li>`).join('')}</ul></section>`;
+  const me = ['Aidan K.', S.done.size], all = [...TEAM, me].sort((a, b) => b[1] - a[1]);
+  $('#mgr').innerHTML = `<h2>What the manager sees</h2><h1>Team training</h1><p>The employee app is on the right. Complete modules and this view updates on its own.</p>
+    <section class="card"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Modules completed</h2><span>of ${MODS.length}</span></div>${all.map((x) => `<div class="member ${x === me ? 'me' : ''}"><span>${x[0]}</span><div class="bar"><i style="width:${x[1] / MODS.length * 100}%"></i></div><b>${x[1]}</b></div>`).join('')}</section>
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Checklists today</h2><span>Aidan</span></div><div class="kpi"><b>${S.ticks.size}<small>of ${ckTotal()}</small></b><span>Items ticked this shift</span></div></section>
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Activity</h2></div><ul class="feed">${S.feed.slice(0, 5).map((f) => `<li>${f}</li>`).join('')}</ul></section>`;
 }
 
 document.addEventListener('click', (e) => {
@@ -237,19 +237,19 @@ const ACT = {
   },
   pick(d) { S.picked = +d.i; render(); },
   qnext() { const m = MODS[S.mod]; if (S.qi < m.quiz.length - 1) { S.qi++; S.picked = null; return render(); } finish(); },
-  tick(d) { S.ticks.has(d.k) ? S.ticks.delete(d.k) : S.ticks.add(d.k); if (S.ticks.size === ckTotal()) { S.feed.unshift('<b>Айдан</b> закрыла все чек-листы смены'); toast('Все чек-листы закрыты'); } render(); },
+  tick(d) { S.ticks.has(d.k) ? S.ticks.delete(d.k) : S.ticks.add(d.k); if (S.ticks.size === ckTotal()) { S.feed.unshift('<b>Aidan</b> completed all shift checklists'); toast('All checklists completed'); } render(); },
   say(d) { say(d.t); },
 };
-function finish() { S.done.add(S.mod); S.feed.unshift(`<b>Айдан</b> прошла модуль «${MODS[S.mod].t}», +${MODS[S.mod].xp} XP`); S.view = 'done'; render(); }
+function finish() { S.done.add(S.mod); S.feed.unshift(`<b>Aidan</b> completed the module "${MODS[S.mod].t}", +${MODS[S.mod].xp} XP`); S.view = 'done'; render(); }
 /* ── live: the manager writes, colleagues move through modules, the feed fills up ─ */
-const PINGS = ['Не забудь про брифинг в 9:45', 'Кто-нибудь видел новые фартуки? Они у администратора', 'Завтра снова тест по меню, повтори аллергены', 'Хорошая работа вчера, гости хвалили'];
-const NAMES_T = ['Данияр Н.', 'Алия С.', 'Тимур Б.'];
+const PINGS = ['Don\'t forget the briefing at 9:45', 'Has anyone seen the new aprons? They are at the host desk', 'Menu quiz again tomorrow, review the allergens', 'Great work yesterday, guests were praising you'];
+const NAMES_T = ['Daniyar N.', 'Aliya S.', 'Timur B.'];
 let beatHR = 0;
 setInterval(() => {
   if (document.hidden) return;
   beatHR++;
-  if (beatHR % 3 === 0) { const w = TEAM.find((x) => x[0] === NAMES_T[beatHR % 3 === 0 ? (beatHR / 3) % 3 : 0]) || TEAM[3]; if (w[1] < 4) { w[1]++; S.feed.unshift(`<b>${w[0]}</b> прошёл(ла) модуль, теперь ${w[1]} из ${MODS.length}`); mgr(); } }
-  if (beatHR % 5 === 0 && S.chat.length < 14) { const ts = '14:' + String(30 + (beatHR % 25)).padStart(2, '0'); S.chat.push({ me: false, t: PINGS[(beatHR / 5) % PINGS.length | 0], ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); toast('Руслан написал вам в чат'); } }
+  if (beatHR % 3 === 0) { const w = TEAM.find((x) => x[0] === NAMES_T[beatHR % 3 === 0 ? (beatHR / 3) % 3 : 0]) || TEAM[3]; if (w[1] < 4) { w[1]++; S.feed.unshift(`<b>${w[0]}</b> completed a module, now ${w[1]} of ${MODS.length}`); mgr(); } }
+  if (beatHR % 5 === 0 && S.chat.length < 14) { const ts = '14:' + String(30 + (beatHR % 25)).padStart(2, '0'); S.chat.push({ me: false, t: PINGS[(beatHR / 5) % PINGS.length | 0], ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); toast('Ruslan sent you a message'); } }
 }, 6000);
 render();
 </script>
