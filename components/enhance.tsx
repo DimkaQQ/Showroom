@@ -5,19 +5,6 @@ import { useEffect } from "react";
 // Progressive enhancement only: the page is complete without this.
 export function Enhance() {
   useEffect(() => {
-    const root = document.documentElement;
-
-    const setLang = (l: string) => {
-      root.setAttribute("data-lang", l);
-      root.setAttribute("lang", l);
-      try { localStorage.setItem("lang", l); } catch {}
-    };
-    setLang(root.getAttribute("data-lang") === "en" ? "en" : "ru");
-
-    const toggle = document.querySelector<HTMLButtonElement>("[data-lang-toggle]");
-    const onToggle = () => setLang(root.getAttribute("data-lang") === "en" ? "ru" : "en");
-    toggle?.addEventListener("click", onToggle);
-
     // Scene: the pinned screen follows the project being read.
     const items = Array.from(document.querySelectorAll<HTMLElement>("[data-project]"));
     const frames = Array.from(document.querySelectorAll<HTMLElement>("[data-frame]"));
@@ -67,7 +54,6 @@ export function Enhance() {
     document.addEventListener("click", onTry);
 
     return () => {
-      toggle?.removeEventListener("click", onToggle);
       io.disconnect();
       ro.disconnect();
       document.removeEventListener("click", onTry);

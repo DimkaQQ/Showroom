@@ -1,34 +1,21 @@
 export const siteConfig = {
-  name: "Darian Mirelli",
-  title: "Full-Stack Developer",
-  description:
-    "Full-stack developer specializing in web & mobile applications, scalable backends, and seamless user experiences.",
+  name: "Mirelli Studio",
   domain: "dimkaprojects.xyz",
+  url: "https://dimkaprojects.xyz",
   email: "darian.mirelli@gmail.com",
   github: "https://github.com/DarQQ",
   telegram: "https://t.me/Dimka_Hum",
-  available: true,
+  founded: "2023",
 };
 
+// Order matches `services.items` in lib/translations.ts.
 export const services = [
-  {
-    tags: ["React", "Next.js", "TypeScript"],
-  },
-  {
-    tags: ["React Native", "Expo"],
-  },
-  {
-    tags: ["Node.js", "Go", "GraphQL"],
-  },
-  {
-    tags: ["PostgreSQL", "MongoDB", "Redis"],
-  },
-  {
-    tags: ["Figma", "Tailwind", "A11y"],
-  },
-  {
-    tags: ["Docker", "AWS", "Vercel"],
-  },
+  { tags: ["Next.js", "React", "TypeScript"] },
+  { tags: ["FastAPI", "PostgreSQL", "HTMX"] },
+  { tags: ["Python", "Node.js", "Stripe"] },
+  { tags: ["Telegram", "Mini Apps", "FastAPI"] },
+  { tags: ["Docker", "Linux", "CI/CD"] },
+  { tags: ["Design systems", "WCAG", "Prototyping"] },
 ];
 
 export const projects = [

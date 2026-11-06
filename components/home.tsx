@@ -1,24 +1,27 @@
 import { projects, services, siteConfig } from "@/lib/data";
 import { translations } from "@/lib/translations";
-import { L } from "@/components/l";
+import { locales, pathFor, langName, type Lang } from "@/lib/i18n";
 import { Enhance } from "@/components/enhance";
 
-const en = translations.en;
-const ru = translations.ru;
-
-export default function Home() {
+export function Home({ lang }: { lang: Lang }) {
+  const t = translations[lang];
   return (
     <>
-      <Hero />
-      <Work />
-      <Services />
+      <Hero lang={lang} t={t} />
+      <main>
+        <Work t={t} />
+        <Services t={t} />
+        <Process t={t} />
+      </main>
       <Stack />
-      <Contact />
-      <Footer />
+      <Contact t={t} />
+      <Footer t={t} />
       <Enhance />
     </>
   );
 }
+
+type T = (typeof translations)[Lang];
 
 function Letters({ word, from }: { word: string; from: number }) {
   return (
@@ -30,20 +33,33 @@ function Letters({ word, from }: { word: string; from: number }) {
   );
 }
 
-function Hero() {
+function LangSwitch({ lang, t }: { lang: Lang; t: T }) {
+  return (
+    <ul className="langs" aria-label={t.nav.langLabel}>
+      {locales.map((l) => (
+        <li key={l}>
+          <a href={pathFor(l)} hrefLang={l} lang={l} title={langName[l]} aria-current={l === lang ? "true" : undefined}>
+            {l.toUpperCase()}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Hero({ lang, t }: { lang: Lang; t: T }) {
+  const [first, second] = siteConfig.name.split(" ");
   return (
     <header className="hero" id="top">
-      <nav className="bar">
+      <nav className="bar" aria-label="Primary">
         <ul>
-          <li><a href="#work"><L ru={ru.nav.work} en={en.nav.work} /></a></li>
-          <li><a href="#services"><L ru={ru.nav.services} en={en.nav.services} /></a></li>
-          <li><a href="#contact"><L ru={ru.nav.contact} en={en.nav.contact} /></a></li>
+          <li><a href="#work">{t.nav.work}</a></li>
+          <li><a href="#services">{t.nav.services}</a></li>
+          <li><a href="#process">{t.nav.process}</a></li>
+          <li><a href="#contact">{t.nav.contact}</a></li>
         </ul>
         <div className="bar-end">
-          <button type="button" className="lang" data-lang-toggle aria-label="Language / Язык">
-            <span data-l="ru">EN</span>
-            <span data-l="en">RU</span>
-          </button>
+          <LangSwitch lang={lang} t={t} />
           <a href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
           <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
@@ -62,58 +78,44 @@ function Hero() {
 
       <div className="hero-mid">
         <div className="hero-copy rise rise-1">
-          <p className="lead">
-            <L
-              ru="Full-stack разработчик. Делаю рабочие системы для бизнеса: ERP, маркетплейсы, ботов. Девять проектов ниже живые, откройте любой."
-              en="Full-stack developer building working systems for business: ERP, marketplaces, bots. All nine projects below are live. Open any of them."
-            />
-          </p>
-          <a className="btn" href="#work"><L ru={ru.hero.viewWork} en={en.hero.viewWork} /></a>
+          <p className="lead">{t.hero.lead}</p>
+          <a className="btn" href="#work">{t.hero.viewWork}</a>
         </div>
         <dl className="hero-stats rise rise-2">
-          <div><dt><L ru={ru.hero.statProjects} en={en.hero.statProjects} /></dt><dd>9</dd></div>
-          <div><dt><L ru={ru.hero.statYears} en={en.hero.statYears} /></dt><dd>3+</dd></div>
-          <div><dt><L ru={ru.hero.statTech} en={en.hero.statTech} /></dt><dd>15+</dd></div>
+          <div><dt>{t.hero.statProjects}</dt><dd>9</dd></div>
+          <div><dt>{t.hero.statYears}</dt><dd>3+</dd></div>
+          <div><dt>{t.hero.statTech}</dt><dd>15+</dd></div>
         </dl>
       </div>
 
-      <h1 className="wordmark" aria-label="Darian Mirelli">
-        <Letters word="Darian" from={0} /> <Letters word="Mirelli" from={6} />
+      <h1 className="wordmark">
+        <Letters word={first} from={0} /> <Letters word={second} from={first.length} />
+        <span className="sr-only">{siteConfig.name} — {t.hero.descriptor}</span>
       </h1>
     </header>
   );
 }
 
-function Work() {
+function Work({ t }: { t: T }) {
   return (
     <section className="work" id="work" aria-labelledby="work-h">
       <div className="work-head">
-        <h2 id="work-h" className="reveal"><L ru={ru.showroom.title} en={en.showroom.title} /></h2>
-        <p className="reveal"><L ru={ru.showroom.subtitle} en={en.showroom.subtitle} /></p>
+        <h2 id="work-h" className="reveal">{t.showroom.title}</h2>
+        <p className="reveal">{t.showroom.subtitle}</p>
       </div>
 
       <div className="scene">
         <div className="stage">
           {projects.map((p, i) => (
-            <div
-              key={p.id}
-              className={`frame${i === 0 ? " is-active" : ""}`}
-              data-frame={p.id}
-              style={{ background: p.stage }}
-            >
+            <div key={p.id} className={`frame${i === 0 ? " is-active" : ""}`} data-frame={p.id} style={{ background: p.stage }}>
               <div className="win" data-win>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/shots/${p.id}.jpg`} width={1440} height={900} alt={p.name} loading={i < 2 ? "eager" : "lazy"} />
-                <iframe
-                  title={p.name}
-                  data-src={`https://${p.subdomain}.${siteConfig.domain}`}
-                  tabIndex={-1}
-                  allow="fullscreen"
-                />
+                <img src={`/shots/${p.id}.jpg`} width={1440} height={900} alt={`${p.name} — ${t.showroom.projects[i].tagline}`} loading={i < 2 ? "eager" : "lazy"} />
+                <iframe title={p.name} data-src={`https://${p.subdomain}.${siteConfig.domain}`} tabIndex={-1} allow="fullscreen" />
               </div>
               <button type="button" className="try" data-try aria-pressed="false">
-                <span className="try-off"><L ru="Потрогать демо" en="Try the demo" /></span>
-                <span className="try-on"><L ru="Вернуть прокрутку" en="Back to scrolling" /></span>
+                <span className="try-off">{t.showroom.tryOff}</span>
+                <span className="try-on">{t.showroom.tryOn}</span>
               </button>
             </div>
           ))}
@@ -130,14 +132,12 @@ function Work() {
                 </a>
                 <div className="project-text">
                   <h3>{p.name}</h3>
-                  <p className="tagline">
-                    <L ru={ru.showroom.projects[i].tagline} en={en.showroom.projects[i].tagline} />, {p.year}
-                  </p>
-                  <p className="desc"><L ru={ru.showroom.projects[i].description} en={en.showroom.projects[i].description} /></p>
+                  <p className="tagline">{t.showroom.projects[i].tagline}, {p.year}</p>
+                  <p className="desc">{t.showroom.projects[i].description}</p>
                   <p className="tags">{p.tags.join(", ")}</p>
                   <a className="btn btn-light" href={href} target="_blank" rel="noopener noreferrer">
-                    <L ru={ru.showroom.explore} en={en.showroom.explore} />
-                    <span className="sr-only"> {p.name}</span> →
+                    {t.showroom.explore}
+                    <span className="sr-only"> — {p.name}</span> →
                   </a>
                 </div>
               </li>
@@ -149,19 +149,19 @@ function Work() {
   );
 }
 
-function Services() {
+function Services({ t }: { t: T }) {
   return (
     <section className="services" id="services" aria-labelledby="services-h">
       <div className="services-head">
-        <h2 id="services-h" className="reveal"><L ru={ru.services.title} en={en.services.title} /></h2>
-        <p className="reveal"><L ru={ru.services.subtitle} en={en.services.subtitle} /></p>
+        <h2 id="services-h" className="reveal">{t.services.title}</h2>
+        <p className="reveal">{t.services.subtitle}</p>
       </div>
       <ul className="service-list">
         {services.map((s, i) => (
           <li key={i} className="service reveal">
-            <h3><L ru={ru.services.items[i].title} en={en.services.items[i].title} /></h3>
+            <h3>{t.services.items[i].title}</h3>
             <div>
-              <p><L ru={ru.services.items[i].description} en={en.services.items[i].description} /></p>
+              <p>{t.services.items[i].description}</p>
               <p className="tags">{s.tags.join(", ")}</p>
             </div>
           </li>
@@ -171,29 +171,47 @@ function Services() {
   );
 }
 
-const STACK = ["TypeScript", "React", "Next.js", "Node.js", "Go", "PostgreSQL", "Redis", "Docker", "GraphQL", "React Native", "FastAPI", "Python"];
+function Process({ t }: { t: T }) {
+  return (
+    <section className="process" id="process" aria-labelledby="process-h">
+      <div className="process-head">
+        <h2 id="process-h" className="reveal">{t.process.title}</h2>
+        <p className="reveal">{t.process.subtitle}</p>
+      </div>
+      <ol className="steps">
+        {t.process.steps.map((s, i) => (
+          <li key={i} className="step reveal">
+            <span className="step-n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+            <h3>{s.title}</h3>
+            <p>{s.description}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+const STACK = ["TypeScript", "React", "Next.js", "Node.js", "Python", "FastAPI", "PostgreSQL", "Redis", "Docker", "Stripe", "Telegram", "Tailwind"];
 
 function Stack() {
   return (
     <section className="stack" aria-label="Stack">
       <p className="sr-only">{STACK.join(", ")}</p>
       <div className="stack-track" aria-hidden="true">
-        {[...STACK, ...STACK].map((t, i) => (
-          <span key={i}>{t}</span>
+        {[...STACK, ...STACK].map((s, i) => (
+          <span key={i}>{s}</span>
         ))}
       </div>
     </section>
   );
 }
 
-function Contact() {
+function Contact({ t }: { t: T }) {
   return (
     <section className="contact" id="contact" aria-labelledby="contact-h">
-      <h2 id="contact-h" className="reveal">
-        <L ru={`${ru.contact.title1} ${ru.contact.title2}`} en={`${en.contact.title1} ${en.contact.title2}`} />
-      </h2>
+      <h2 id="contact-h" className="reveal">{t.contact.title}</h2>
       <div className="contact-body">
-        <p className="reveal"><L ru={ru.contact.description} en={en.contact.description} /></p>
+        <p className="reveal">{t.contact.description}</p>
         <div className="contact-links reveal">
           <a className="mail" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
           <a href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
@@ -204,12 +222,15 @@ function Contact() {
   );
 }
 
-function Footer() {
+function Footer({ t }: { t: T }) {
+  const [first, second] = siteConfig.name.split(" ");
   return (
     <footer className="foot">
-      <p className="foot-note">© 2026 {siteConfig.name}</p>
+      <p className="foot-note">
+        © {new Date().getFullYear()} {siteConfig.name}. {t.footer.rights} {t.footer.built}.
+      </p>
       <p className="wordmark wordmark-foot" aria-hidden="true">
-        <span>Darian</span> <span>Mirelli</span>
+        <span>{first}</span> <span>{second}</span>
       </p>
     </footer>
   );
