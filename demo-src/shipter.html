@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shipter — план запуска продукта (демо)</title>
-<meta name="description" content="Демо: ИИ собирает план дистрибуции для цифрового продукта, а доска запуска ведёт по задачам. Тарифы с лимитом генераций. Данные вымышлены.">
+<title>Shipter — product launch planner (demo)</title>
+<meta name="description" content="Demo: AI builds a distribution plan for a digital product, and the launch board walks you through the tasks. Plans with generation limits. Data is fictional.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -56,7 +56,7 @@ body { font-size: 15px; }
 </style>
 </head>
 <body>
-<div class="notice"><b>Демо</b> Shipter · план собирается по шаблонам, данные вымышлены</div>
+<div class="notice"><b>Demo</b> Shipter · plans are built from templates, data is fictional</div>
 <div class="app">
   <aside class="side">
     <div class="brand">
@@ -64,11 +64,11 @@ body { font-size: 15px; }
       <div><div class="brand-name">Shipter</div><div class="brand-sub" id="side-plan"></div></div>
     </div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">АЛ</div><div class="who"><b>Алекс Лебедев</b><span id="side-who"></span></div></div>
+    <div class="side-foot"><div class="avatar">AL</div><div class="who"><b>Alex Lebedev</b><span id="side-who"></span></div></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
-<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
 /*@kit.js*/
@@ -76,17 +76,17 @@ body { font-size: 15px; }
 
 /* ── catalog the planner picks from ───────────────────── */
 const CH = [
-  { id: 'tg',   n: 'Telegram-каналы вашей аудитории', m: ['cis'], paid: false, lo: 2, hi: 6, tasks: ['Соберите список из 15 каналов, где сидит ваша аудитория', 'Договоритесь о 3 обзорах или упоминаниях'] },
-  { id: 'vc',   n: 'vc.ru и Хабр', m: ['cis'], paid: false, lo: 3, hi: 9, tasks: ['Напишите разбор «как мы это сделали» на 6 000 знаков', 'Ответьте в комментариях в первые 2 часа после выхода'] },
-  { id: 'ph',   n: 'Product Hunt', m: ['global', 'eu', 'asia'], paid: false, lo: 2, hi: 8, tasks: ['Подготовьте страницу, 4 скриншота и короткое видео', 'Запланируйте запуск на вторник и позовите 20 знакомых поддержать'] },
-  { id: 'rd',   n: 'Reddit и тематические форумы', m: ['global', 'eu', 'asia'], paid: false, lo: 1, hi: 5, tasks: ['Найдите 5 сообществ, где обсуждают вашу задачу', 'Две недели помогайте в ответах, потом покажите продукт'] },
-  { id: 'dm',   n: 'Личные сообщения первым клиентам', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.1, hi: 0.4, tasks: ['Составьте список из 30 людей, у кого есть эта боль', 'Напишите каждому лично и предложите попробовать бесплатно'] },
-  { id: 'em',   n: 'Email-рассылка по базе', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.5, hi: 2, tasks: ['Соберите форму подписки на лендинге', 'Отправьте 3 письма: история, польза, предложение'] },
-  { id: 'inf',  n: 'Блогеры и партнёры', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 5, hi: 15, tasks: ['Выберите 5 блогеров с живой аудиторией по теме', 'Предложите процент с продаж вместо фиксированной оплаты'] },
-  { id: 'ads',  n: 'Реклама в Telegram Ads или Google', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 8, hi: 20, tasks: ['Запустите 3 объявления с разными заголовками на $5 в день', 'Через 4 дня оставьте то, что дало заявки дешевле'] },
+  { id: 'tg',   n: 'Telegram channels your audience follows', m: ['cis'], paid: false, lo: 2, hi: 6, tasks: ['List 15 channels where your audience hangs out', 'Secure 3 reviews or mentions'] },
+  { id: 'vc',   n: 'vc.ru and Habr', m: ['cis'], paid: false, lo: 3, hi: 9, tasks: ['Write a 1,000-word "how we built it" breakdown', 'Reply to comments within the first 2 hours of publishing'] },
+  { id: 'ph',   n: 'Product Hunt', m: ['global', 'eu', 'asia'], paid: false, lo: 2, hi: 8, tasks: ['Prepare the page, 4 screenshots and a short video', 'Schedule the launch for a Tuesday and ask 20 friends to support it'] },
+  { id: 'rd',   n: 'Reddit and niche forums', m: ['global', 'eu', 'asia'], paid: false, lo: 1, hi: 5, tasks: ['Find 5 communities that discuss your problem', 'Help in replies for two weeks, then show your product'] },
+  { id: 'dm',   n: 'Direct messages to first customers', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.1, hi: 0.4, tasks: ['List 30 people who have this pain', 'Message each one personally and offer a free trial'] },
+  { id: 'em',   n: 'Email campaign to your list', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.5, hi: 2, tasks: ['Add a signup form to your landing page', 'Send 3 emails: story, value, offer'] },
+  { id: 'inf',  n: 'Creators and partners', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 5, hi: 15, tasks: ['Pick 5 creators with an engaged audience in your niche', 'Offer a sales commission instead of a flat fee'] },
+  { id: 'ads',  n: 'Telegram Ads or Google ads', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 8, hi: 20, tasks: ['Run 3 ads with different headlines at $5 a day', 'After 4 days, keep the one that brought leads at the lowest cost'] },
 ];
-const MARKETS = { cis: 'СНГ', global: 'Глобальный', eu: 'Европа', asia: 'Азия' };
-const BUDGETS = [['0', 'Нет бюджета'], ['100', '$100–500 в месяц'], ['500', '$500–2000 в месяц'], ['2000', '$2000+ в месяц']];
+const MARKETS = { cis: 'CIS', global: 'Global', eu: 'Europe', asia: 'Asia' };
+const BUDGETS = [['0', 'No budget'], ['100', '$100–500 per month'], ['500', '$500–2000 per month'], ['2000', '$2000+ per month']];
 const LIM = { trial: 10, starter: 200, pro: Infinity };
 const PLAN_N = { trial: 'Trial', starter: 'Starter', pro: 'Pro' };
 
@@ -107,9 +107,9 @@ const visits = (p) => p.vis ?? 0;
 const S = {
   plan: 'trial', used: 7, trialDays: 5,
   projects: [
-    { id: 1, name: 'TelegramBot Pro', type: 'SaaS', desc: 'Платформа, где продавцы собирают Telegram-ботов с оплатой и аналитикой.', aud: 'Продавцы и эксперты в Telegram', market: 'cis', budget: '0' },
-    { id: 2, name: 'SaaS Landing Kit', type: 'Landing', desc: 'Набор готовых лендингов для SaaS-стартапов на английском.', aud: 'Основатели B2B SaaS', market: 'global', budget: '100' },
-    { id: 3, name: 'GameApp Store', type: 'App', desc: 'Каталог мини-игр с покупкой одним нажатием.', aud: 'Игроки 18–30', market: 'asia', budget: '500' },
+    { id: 1, name: 'TelegramBot Pro', type: 'SaaS', desc: 'A platform where sellers build Telegram bots with payments and analytics.', aud: 'Sellers and experts on Telegram', market: 'cis', budget: '0' },
+    { id: 2, name: 'SaaS Landing Kit', type: 'Landing', desc: 'A set of ready-made landing pages for SaaS startups.', aud: 'B2B SaaS founders', market: 'global', budget: '100' },
+    { id: 3, name: 'GameApp Store', type: 'App', desc: 'A mini-game catalogue with one-tap purchase.', aud: 'Players aged 18–30', market: 'asia', budget: '500' },
   ],
 };
 S.projects.forEach((p, i) => { p.plan = makePlan(p.market, p.budget); p.vis = [214, 96, 41][i]; });
@@ -119,18 +119,18 @@ S.projects.forEach((p, i) => { p.plan = makePlan(p.market, p.budget); p.vis = [2
 }
 console.assert(S.projects[0].plan.length === 4 && taskCount(S.projects[0]) === 8 && doneCount(S.projects[0]) === 4, 'plan');
 const limit = () => LIM[S.plan], left = () => limit() - S.used;
-const fmtReach = ([a, b]) => `${fmtD(a, a % 1 ? 1 : 0)}–${fmtD(b, b % 1 ? 1 : 0)} тыс.`;
+const fmtReach = ([a, b]) => `${fmtD(a, a % 1 ? 1 : 0)}–${fmtD(b, b % 1 ? 1 : 0)} k`;
 
 /* ── shell ────────────────────────────────────────────── */
-const PAGES = { dash: ['Запуск', 'home'], projects: ['Проекты', 'list'], gen: ['ИИ-план', 'zap'], pricing: ['Тарифы', 'coin'] };
+const PAGES = { dash: ['Launch', 'home'], projects: ['Projects', 'list'], gen: ['AI plan', 'zap'], pricing: ['Pricing', 'coin'] };
 let page = 'dash', openId = null, filter = 'all', timers = [], genState = null;
 const proj = (id) => S.projects.find((p) => p.id === id);
 
 function chrome() {
   $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
   $('#tabbar').innerHTML = $('#nav').innerHTML;
-  $('#side-plan').textContent = S.plan === 'trial' ? `Trial · ${S.trialDays} дн.` : `Тариф ${PLAN_N[S.plan]}`;
-  $('#side-who').textContent = S.plan === 'pro' ? 'Генерации без лимита' : `Генераций: ${left()} из ${limit()}`;
+  $('#side-plan').textContent = S.plan === 'trial' ? `Trial · ${S.trialDays} days` : `${PLAN_N[S.plan]} plan`;
+  $('#side-who').textContent = S.plan === 'pro' ? 'Unlimited generations' : `Generations: ${left()} of ${limit()}`;
   setNav(page === 'project' ? 'projects' : page);
 }
 function render() { timers.forEach(clearTimeout); timers = []; chrome(); $('#main').innerHTML = ({ dash, projects, project: projectPage, gen, pricing })[page](); }
@@ -150,70 +150,70 @@ const cb = (done, attrs) => `<button class="cb" role="checkbox" aria-checked="${
 function dash() {
   const all = S.projects.reduce((a, p) => a + taskCount(p), 0), done = S.projects.reduce((a, p) => a + doneCount(p), 0);
   const today = S.projects.flatMap((p) => p.plan.filter((c) => c.week === 1).flatMap((c) => c.tasks.map((t, ti) => ({ p, c, t, ti })))).filter((x) => !x.t.done).slice(0, 5);
-  const finding = S.plan === 'trial' ? `<div class="finding">${ic('clock')}<span>До конца пробного периода ${S.trialDays} дн., осталось ${left()} ${left() === 1 ? 'генерация' : 'генерации'} из ${limit()}.</span><button class="btn sm primary" data-page="pricing">Выбрать тариф</button></div>` : '';
-  return head('Доска запуска', 'Что сделать сегодня, чтобы ваши продукты дошли до первых клиентов', `<button class="btn primary" data-act="newProject">${ic('plus')}Новый проект</button>`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${S.projects.length}</b><span>Проекта в работе</span></div><div class="kpi"><b>${done}<small>из ${all}</small></b><span>Задач выполнено</span></div><div class="kpi"><b data-vis="all">${fmt(S.projects.reduce((a, p) => a + visits(p), 0))}</b><span><i class="livedot"></i>Визитов по ссылкам сегодня</span></div><div class="kpi"><b>${S.used}${S.plan === 'pro' ? '' : `<small>из ${limit()}</small>`}</b><span>Генераций использовано</span></div></div>
-    <div class="grid"><section class="card c7"><div class="card-h"><h2>Сделать на первой неделе</h2><span>${today.length ? 'отметьте, когда готово' : 'всё сделано'}</span></div>${today.map((x) => `<div class="task"><span>${cb(false, `data-act="tick" data-p="${x.p.id}" data-c="${x.c.id}" data-i="${x.ti}" aria-label="Отметить: ${esc(x.t.t)}"`)}</span><div class="t">${esc(x.t.t)}<div class="w">${esc(x.p.name)} · ${catOf(x.c.id).n}</div></div></div>`).join('') || '<p class="empty">Задач на первую неделю нет.</p>'}</section>
-    <section class="card c5"><div class="card-h"><h2>Прогресс по проектам</h2></div>${S.projects.map((p) => barRow(esc(p.name), taskCount(p) ? doneCount(p) / taskCount(p) * 100 : 0, `${doneCount(p)} из ${taskCount(p)}`)).join('')}</section></div>`;
+  const finding = S.plan === 'trial' ? `<div class="finding">${ic('clock')}<span>Trial ends in ${S.trialDays} days, ${left()} of ${limit()} ${left() === 1 ? 'generation' : 'generations'} left.</span><button class="btn sm primary" data-page="pricing">Choose a plan</button></div>` : '';
+  return head('Launch board', 'What to do today to get your products in front of first customers', `<button class="btn primary" data-act="newProject">${ic('plus')}New project</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${S.projects.length}</b><span>Active projects</span></div><div class="kpi"><b>${done}<small>of ${all}</small></b><span>Tasks done</span></div><div class="kpi"><b data-vis="all">${fmt(S.projects.reduce((a, p) => a + visits(p), 0))}</b><span><i class="livedot"></i>Link visits today</span></div><div class="kpi"><b>${S.used}${S.plan === 'pro' ? '' : `<small>of ${limit()}</small>`}</b><span>Generations used</span></div></div>
+    <div class="grid"><section class="card c7"><div class="card-h"><h2>Do in week one</h2><span>${today.length ? 'tick when done' : 'all done'}</span></div>${today.map((x) => `<div class="task"><span>${cb(false, `data-act="tick" data-p="${x.p.id}" data-c="${x.c.id}" data-i="${x.ti}" aria-label="Mark done: ${esc(x.t.t)}"`)}</span><div class="t">${esc(x.t.t)}<div class="w">${esc(x.p.name)} · ${catOf(x.c.id).n}</div></div></div>`).join('') || '<p class="empty">No tasks for week one.</p>'}</section>
+    <section class="card c5"><div class="card-h"><h2>Progress by project</h2></div>${S.projects.map((p) => barRow(esc(p.name), taskCount(p) ? doneCount(p) / taskCount(p) * 100 : 0, `${doneCount(p)} of ${taskCount(p)}`)).join('')}</section></div>`;
 }
 
 /* ── projects ─────────────────────────────────────────── */
 function projects() {
   const types = ['all', ...new Set(S.projects.map((p) => p.type))], list = S.projects.filter((p) => filter === 'all' || p.type === filter);
-  return head('Проекты', `${S.projects.length} продукта. Откройте проект, чтобы увидеть план и отмечать задачи.`, `<button class="btn primary" data-act="newProject">${ic('plus')}Новый проект</button>`) +
-    `<div class="tabs">${types.map((t) => `<button class="${filter === t ? 'on' : ''}" data-act="filter" data-v="${t}">${t === 'all' ? 'Все' : t}</button>`).join('')}</div>
-    <section class="card">${list.map((p) => { const t = taskCount(p), d = doneCount(p); return `<div class="proj" data-open="${p.id}"><span class="cvr">${coverImg(p.id)}</span><div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="meta"><span class="pill">${p.type}</span><span class="pill">${MARKETS[p.market]}</span></div></div><div class="prog">${t ? `${d} из ${t} задач` : 'План ещё не собран'}<div class="bar"><i style="width:${t ? d / t * 100 : 0}%"></i></div></div><button class="btn sm" data-act="${t ? 'open' : 'planFor'}" data-id="${p.id}">${t ? 'Открыть' : 'Собрать план'}</button></div>`; }).join('') || '<p class="empty">Здесь пока ничего нет.</p>'}</section>`;
+  return head('Projects', `${S.projects.length} ${S.projects.length === 1 ? 'product' : 'products'}. Open a project to see its plan and tick off tasks.`, `<button class="btn primary" data-act="newProject">${ic('plus')}New project</button>`) +
+    `<div class="tabs">${types.map((t) => `<button class="${filter === t ? 'on' : ''}" data-act="filter" data-v="${t}">${t === 'all' ? 'All' : t}</button>`).join('')}</div>
+    <section class="card">${list.map((p) => { const t = taskCount(p), d = doneCount(p); return `<div class="proj" data-open="${p.id}"><span class="cvr">${coverImg(p.id)}</span><div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="meta"><span class="pill">${p.type}</span><span class="pill">${MARKETS[p.market]}</span></div></div><div class="prog">${t ? `${d} of ${t} tasks` : 'No plan yet'}<div class="bar"><i style="width:${t ? d / t * 100 : 0}%"></i></div></div><button class="btn sm" data-act="${t ? 'open' : 'planFor'}" data-id="${p.id}">${t ? 'Open' : 'Build plan'}</button></div>`; }).join('') || '<p class="empty">Nothing here yet.</p>'}</section>`;
 }
 function projectPage() {
   const p = proj(openId), t = taskCount(p), d = doneCount(p), r = reach(p.plan);
   const weeks = [1, 2, 3, 4].map((w) => ({ w, cs: p.plan.filter((c) => c.week === w) })).filter((x) => x.cs.length);
-  return head(esc(p.name), `${esc(p.aud)} · ${MARKETS[p.market]} · ${BUDGETS.find((b) => b[0] === p.budget)[1].toLowerCase()}`, `<button class="btn" data-page="projects">${ic('arrow')}К проектам</button><button class="btn" data-act="planFor" data-id="${p.id}">Пересобрать план</button>`) +
-    `<div class="kpis"><div class="kpi"><b>${d}<small>из ${t}</small></b><span>Задач выполнено</span></div><div class="kpi"><b data-vis="${p.id}">${fmt(visits(p))}</b><span><i class="livedot"></i>Визитов сегодня</span></div><div class="kpi"><b>${p.plan.length}</b><span>Каналов в плане</span></div><div class="kpi"><b>${t ? fmtReach(r) : '—'}</b><span>Охват за месяц, по оценке</span></div></div>
-    <section class="card">${weeks.map(({ w, cs }) => `<div class="week"><div class="week-h"><b>Неделя ${w}</b></div>${cs.map((c) => `<div style="margin-top:12px"><b>${catOf(c.id).n}</b> <span class="muted">· ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · платный' : ''}</span>${c.tasks.map((tk, i) => `<div class="task ${tk.done ? 'done' : ''}"><span>${cb(tk.done, `data-act="tick" data-p="${p.id}" data-c="${c.id}" data-i="${i}" aria-label="${esc(tk.t)}"`)}</span><div class="t">${esc(tk.t)}</div></div>`).join('')}</div>`).join('')}</div>`).join('') || '<p class="empty">План ещё не собран. Нажмите «Пересобрать план».</p>'}</section>`;
+  return head(esc(p.name), `${esc(p.aud)} · ${MARKETS[p.market]} · ${BUDGETS.find((b) => b[0] === p.budget)[1].toLowerCase()}`, `<button class="btn" data-page="projects">${ic('arrow')}Back to projects</button><button class="btn" data-act="planFor" data-id="${p.id}">Rebuild plan</button>`) +
+    `<div class="kpis"><div class="kpi"><b>${d}<small>of ${t}</small></b><span>Tasks done</span></div><div class="kpi"><b data-vis="${p.id}">${fmt(visits(p))}</b><span><i class="livedot"></i>Visits today</span></div><div class="kpi"><b>${p.plan.length}</b><span>Channels in plan</span></div><div class="kpi"><b>${t ? fmtReach(r) : '—'}</b><span>Estimated monthly reach</span></div></div>
+    <section class="card">${weeks.map(({ w, cs }) => `<div class="week"><div class="week-h"><b>Week ${w}</b></div>${cs.map((c) => `<div style="margin-top:12px"><b>${catOf(c.id).n}</b> <span class="muted">· ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · paid' : ''}</span>${c.tasks.map((tk, i) => `<div class="task ${tk.done ? 'done' : ''}"><span>${cb(tk.done, `data-act="tick" data-p="${p.id}" data-c="${c.id}" data-i="${i}" aria-label="${esc(tk.t)}"`)}</span><div class="t">${esc(tk.t)}</div></div>`).join('')}</div>`).join('')}</div>`).join('') || '<p class="empty">No plan yet. Click “Rebuild plan”.</p>'}</section>`;
 }
 
 /* ── generator ────────────────────────────────────────── */
 function meterHTML() {
-  return S.plan === 'pro' ? '' : `<div class="meter"><div class="brow-t"><span>Генерации</span><b>${S.used} из ${limit()}</b></div><div class="bar thick"><i style="width:${S.used / limit() * 100}%"></i></div></div>`;
+  return S.plan === 'pro' ? '' : `<div class="meter"><div class="brow-t"><span>Generations</span><b>${S.used} of ${limit()}</b></div><div class="bar thick"><i style="width:${S.used / limit() * 100}%"></i></div></div>`;
 }
 function gen() {
   const g = genState || { pid: 1, aud: S.projects[0].aud, market: S.projects[0].market, budget: S.projects[0].budget, out: null };
   genState = g;
-  return head('ИИ-план', 'Расскажите про продукт, и получите план каналов по неделям с задачами') + `<div class="gen"><section class="card">${meterHTML()}
-    <div class="field"><label for="g-p">Проект</label><select id="g-p" onchange="genState.pid=+this.value;const p=proj(genState.pid);genState.aud=p.aud;genState.market=p.market;genState.budget=p.budget;render()">${S.projects.map((p) => `<option value="${p.id}" ${g.pid === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
-    <div class="field"><label for="g-a">Целевая аудитория</label><input id="g-a" value="${esc(g.aud)}" oninput="genState.aud=this.value"></div>
-    <div class="field"><label for="g-m">Рынок</label><select id="g-m" onchange="genState.market=this.value">${Object.entries(MARKETS).map(([k, v]) => `<option value="${k}" ${g.market === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
-    <div class="field"><label for="g-b">Бюджет на продвижение</label><select id="g-b" onchange="genState.budget=this.value">${BUDGETS.map(([k, v]) => `<option value="${k}" ${g.budget === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
-    <button class="btn primary" style="width:100%;height:42px" data-act="run" id="g-run">${ic('zap')}Собрать план</button></section>
-    <section class="card" id="g-out" aria-live="polite">${g.out ? outHTML(g.out) : `<p class="empty" style="padding:60px 12px">Пока пусто. Заполните параметры слева и нажмите «Собрать план». Результат строится по шаблонам, это демо.</p>`}</section></div>`;
+  return head('AI plan', 'Tell us about your product and get a week-by-week channel plan with tasks') + `<div class="gen"><section class="card">${meterHTML()}
+    <div class="field"><label for="g-p">Project</label><select id="g-p" onchange="genState.pid=+this.value;const p=proj(genState.pid);genState.aud=p.aud;genState.market=p.market;genState.budget=p.budget;render()">${S.projects.map((p) => `<option value="${p.id}" ${g.pid === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
+    <div class="field"><label for="g-a">Target audience</label><input id="g-a" value="${esc(g.aud)}" oninput="genState.aud=this.value"></div>
+    <div class="field"><label for="g-m">Market</label><select id="g-m" onchange="genState.market=this.value">${Object.entries(MARKETS).map(([k, v]) => `<option value="${k}" ${g.market === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <div class="field"><label for="g-b">Promotion budget</label><select id="g-b" onchange="genState.budget=this.value">${BUDGETS.map(([k, v]) => `<option value="${k}" ${g.budget === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <button class="btn primary" style="width:100%;height:42px" data-act="run" id="g-run">${ic('zap')}Build plan</button></section>
+    <section class="card" id="g-out" aria-live="polite">${g.out ? outHTML(g.out) : `<p class="empty" style="padding:60px 12px">Nothing yet. Fill in the settings on the left and click “Build plan”. Results are built from templates; this is a demo.</p>`}</section></div>`;
 }
 function outHTML(o) {
   const r = reach(o.plan);
-  return `<div class="out-h"><div><h2 style="font-size:18px;font-weight:700">План на 4 недели для «${esc(proj(o.pid).name)}»</h2><p class="muted">${o.plan.length} каналов · охват по оценке ${fmtReach(r)} за месяц</p></div><button class="btn primary" data-act="save">Сохранить в проект</button></div>`
-    + o.plan.map((c) => `<div class="week reveal"><div class="week-h"><b>${catOf(c.id).n}</b><span>неделя ${c.week} · ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · платный' : ''}</span></div><ul class="checks">${c.tasks.map((t) => `<li class="muted" style="padding:3px 0">— ${esc(t.t)}</li>`).join('')}</ul></div>`).join('');
+  return `<div class="out-h"><div><h2 style="font-size:18px;font-weight:700">4-week plan for “${esc(proj(o.pid).name)}”</h2><p class="muted">${o.plan.length} ${o.plan.length === 1 ? 'channel' : 'channels'} · estimated reach ${fmtReach(r)} per month</p></div><button class="btn primary" data-act="save">Save to project</button></div>`
+    + o.plan.map((c) => `<div class="week reveal"><div class="week-h"><b>${catOf(c.id).n}</b><span>week ${c.week} · ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · paid' : ''}</span></div><ul class="checks">${c.tasks.map((t) => `<li class="muted" style="padding:3px 0">— ${esc(t.t)}</li>`).join('')}</ul></div>`).join('');
 }
 
 /* ── pricing ──────────────────────────────────────────── */
 function pricing() {
-  const P = [['trial', 'Trial', '$0', '7 дней бесплатно', ['До 3 проектов', '10 генераций', 'Базовый план каналов'], ['Несколько проектов', 'Приоритетная поддержка']],
-    ['starter', 'Starter', '$29', 'в месяц, отмена в любой момент', ['До 10 проектов', '200 генераций в месяц', 'Полный план с задачами', 'Поддержка по почте'], ['Доступ по API']],
-    ['pro', 'Pro', '$79', 'в месяц, отмена в любой момент', ['Проектов без ограничений', 'Генерации без лимита', 'Доступ по API', 'Поддержка 24/7'], []]];
-  return head('Тарифы', 'Лимит генераций меняется сразу после выбора. Оплата в демо не подключена.') +
-    `<div class="plans">${P.map(([k, n, pr, per, yes, no]) => `<article class="plan ${S.plan === k ? 'cur' : ''}"><h3>${n}${S.plan === k ? ' · ваш тариф' : ''}</h3><div class="pr">${pr}<small> ${k === 'trial' ? '' : '/ мес'}</small></div><p class="muted">${per}</p><ul>${yes.map((y) => `<li>${ic('check')}${y}</li>`).join('')}${no.map((y) => `<li class="off">${ic('x')}${y}</li>`).join('')}</ul><button class="btn ${S.plan === k ? '' : 'primary'}" data-act="plan" data-v="${k}" ${S.plan === k ? 'disabled' : ''}>${S.plan === k ? 'Текущий тариф' : 'Выбрать ' + n}</button></article>`).join('')}</div>`;
+  const P = [['trial', 'Trial', '$0', '7 days free', ['Up to 3 projects', '10 generations', 'Basic channel plan'], ['Multiple projects', 'Priority support']],
+    ['starter', 'Starter', '$29', 'per month, cancel anytime', ['Up to 10 projects', '200 generations per month', 'Full plan with tasks', 'Email support'], ['API access']],
+    ['pro', 'Pro', '$79', 'per month, cancel anytime', ['Unlimited projects', 'Unlimited generations', 'API access', '24/7 support'], []]];
+  return head('Pricing', 'The generation limit changes as soon as you pick a plan. Payments are not connected in this demo.') +
+    `<div class="plans">${P.map(([k, n, pr, per, yes, no]) => `<article class="plan ${S.plan === k ? 'cur' : ''}"><h3>${n}${S.plan === k ? ' · your plan' : ''}</h3><div class="pr">${pr}<small> ${k === 'trial' ? '' : '/ mo'}</small></div><p class="muted">${per}</p><ul>${yes.map((y) => `<li>${ic('check')}${y}</li>`).join('')}${no.map((y) => `<li class="off">${ic('x')}${y}</li>`).join('')}</ul><button class="btn ${S.plan === k ? '' : 'primary'}" data-act="plan" data-v="${k}" ${S.plan === k ? 'disabled' : ''}>${S.plan === k ? 'Current plan' : 'Choose ' + n}</button></article>`).join('')}</div>`;
 }
 
 /* ── actions ──────────────────────────────────────────── */
 const ACT = {
   filter(d) { filter = d.v; render(); }, open(d) { go('project', +d.id); },
-  tick(d) { const c = proj(+d.p).plan.find((x) => x.id === d.c), t = c.tasks[+d.i]; t.done = !t.done; render(); if (t.done) toast('Готово'); },
-  plan(d) { S.plan = d.v; if (d.v !== 'trial') S.trialDays = 0; toast(`Тариф ${PLAN_N[d.v]}: лимит ${d.v === 'pro' ? 'снят' : LIM[d.v] + ' генераций'}`); render(); },
+  tick(d) { const c = proj(+d.p).plan.find((x) => x.id === d.c), t = c.tasks[+d.i]; t.done = !t.done; render(); if (t.done) toast('Done'); },
+  plan(d) { S.plan = d.v; if (d.v !== 'trial') S.trialDays = 0; toast(`${PLAN_N[d.v]} plan: ${d.v === 'pro' ? 'no limit' : 'limit ' + LIM[d.v] + ' generations'}`); render(); },
   planFor(d) { genState = null; const p = proj(+d.id); genState = { pid: p.id, aud: p.aud, market: p.market, budget: p.budget, out: null }; go('gen'); },
   run() {
-    if (left() <= 0) { toast('Лимит генераций исчерпан. Выберите тариф'); return go('pricing'); }
-    const g = genState; if (!g.aud.trim()) return toast('Опишите аудиторию');
+    if (left() <= 0) { toast('Generation limit reached. Choose a plan'); return go('pricing'); }
+    const g = genState; if (!g.aud.trim()) return toast('Describe your audience');
     S.used++; g.out = null; chrome();
     const out = $('#g-out'), btn = $('#g-run'); btn.disabled = true;
-    out.innerHTML = `<p class="cursor" style="padding:40px 4px;color:var(--muted)">Анализирую аудиторию «${esc(g.aud)}» и рынок ${esc(MARKETS[g.market])}</p>`;
+    out.innerHTML = `<p class="cursor" style="padding:40px 4px;color:var(--muted)">Analysing audience “${esc(g.aud)}” and the ${esc(MARKETS[g.market])} market</p>`;
     const plan = makePlan(g.market, g.budget); const res = { pid: g.pid, plan };
     timers.push(setTimeout(() => {
       plan.forEach((_, i) => timers.push(setTimeout(() => {
@@ -223,16 +223,16 @@ const ACT = {
     }, 900));
     const m = $('.meter'); if (m) m.outerHTML = meterHTML();
   },
-  save() { const g = genState, p = proj(g.pid); p.aud = g.aud; p.market = g.market; p.budget = g.budget; const was = new Set(p.plan.flatMap((c) => c.tasks.filter((t) => t.done).map((t) => t.t))); p.plan = g.out.plan.map((c) => ({ ...c, tasks: c.tasks.map((t) => ({ t: t.t, done: was.has(t.t) })) })); toast('План сохранён в проект'); go('project', p.id); },
+  save() { const g = genState, p = proj(g.pid); p.aud = g.aud; p.market = g.market; p.budget = g.budget; const was = new Set(p.plan.flatMap((c) => c.tasks.filter((t) => t.done).map((t) => t.t))); p.plan = g.out.plan.map((c) => ({ ...c, tasks: c.tasks.map((t) => ({ t: t.t, done: was.has(t.t) })) })); toast('Plan saved to project'); go('project', p.id); },
   newProject() {
-    modal(`<h2>Новый проект</h2><p>План соберёте на следующем шаге.</p><div class="field"><label for="n-n">Название</label><input id="n-n" placeholder="Например, Мой SaaS"></div>
-      <div class="field"><label for="n-t">Тип</label><select id="n-t"><option>SaaS</option><option>App</option><option>Game</option><option>Landing</option><option>Bot</option></select></div><div class="field"><label for="n-d">Описание</label><textarea id="n-d" placeholder="Что делает продукт"></textarea></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="n-ok">Создать</button></div>`, () => {
+    modal(`<h2>New project</h2><p>You will build the plan in the next step.</p><div class="field"><label for="n-n">Name</label><input id="n-n" placeholder="e.g. My SaaS"></div>
+      <div class="field"><label for="n-t">Type</label><select id="n-t"><option>SaaS</option><option>App</option><option>Game</option><option>Landing</option><option>Bot</option></select></div><div class="field"><label for="n-d">Description</label><textarea id="n-d" placeholder="What the product does"></textarea></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="n-ok">Create</button></div>`, () => {
       $('#n-ok').onclick = () => {
         const n = $('#n-n').value.trim(); if (!n) return $('#n-n').focus();
-        if (S.projects.length >= { trial: 3, starter: 10, pro: 999 }[S.plan]) { closeModal(); toast('Достигнут лимит проектов на этом тарифе'); return go('pricing'); }
-        const id = Math.max(...S.projects.map((x) => x.id)) + 1; S.projects.push({ id, name: n, type: $('#n-t').value, desc: $('#n-d').value.trim() || 'Без описания', aud: 'Ваша аудитория', market: 'cis', budget: '0', plan: [] });
-        closeModal(); toast('Проект создан'); render();
+        if (S.projects.length >= { trial: 3, starter: 10, pro: 999 }[S.plan]) { closeModal(); toast('Project limit reached on this plan'); return go('pricing'); }
+        const id = Math.max(...S.projects.map((x) => x.id)) + 1; S.projects.push({ id, name: n, type: $('#n-t').value, desc: $('#n-d').value.trim() || 'No description', aud: 'Your audience', market: 'cis', budget: '0', plan: [] });
+        closeModal(); toast('Project created'); render();
       };
     });
   },
