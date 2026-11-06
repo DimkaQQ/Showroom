@@ -49,7 +49,7 @@
       <div><div class="brand-name">Stockroom</div><div class="brand-sub">Two venues, one ledger</div></div>
     </div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">MS</div><div class="who"><b>Marina Seitova</b><span>Buyer</span></div></div>
+    <div class="side-foot"><div class="avatar">LH</div><div class="who"><b>Lena Hofmann</b><span>Buyer</span></div></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
@@ -60,34 +60,34 @@
 'use strict';
 
 /* ── data ─────────────────────────────────────────────── */
-const tg = (n) => fmt(n) + ' ₸';
+const tg = (n) => '€' + fmtD(n, 2);
 const TODAY = '28.09.2026';
-const VEN = { center: 'Central Café', north: 'North Restaurant' };
+const VEN = { center: 'Café Central Wien', north: 'Bistro Isar' };
 const SUP = [
-  { id: 1, n: 'Myaskom LLC',    who: 'Petrov A. V.',   tel: '+7 701 123 45 67', r: 5 },
-  { id: 2, n: 'Molochny Dvor',  who: 'Kuznetsov P. S.', tel: '+7 702 345 67 89', r: 5 },
-  { id: 3, n: 'OvoshBaza',      who: 'Ivanova M. I.',  tel: '+7 707 456 78 90', r: 3 },
-  { id: 4, n: 'AgroPlus',      who: 'Fedorov D. O.',  tel: '+7 705 567 89 01', r: 4 },
-  { id: 5, n: 'RestoSupply', who: 'Smirnova L. G.', tel: '+7 777 678 90 12', r: 4 },
-  { id: 6, n: 'SvezheSnabzh',    who: 'Popova K. A.',   tel: '+7 700 890 12 34', r: 5 },
+  { id: 1, n: 'Alpenfleisch GmbH', who: 'Huber K.', tel: '+43 1 512 34 56', r: 5 },
+  { id: 2, n: 'Molkerei Isartal GmbH', who: 'Bauer P.', tel: '+49 89 234 56 78', r: 5 },
+  { id: 3, n: 'Gemüsehof Marchfeld GmbH', who: 'Wagner M.', tel: '+43 2282 456 78', r: 3 },
+  { id: 4, n: 'Getreide Süd GmbH', who: 'Fischer D.', tel: '+49 89 567 89 01', r: 4 },
+  { id: 5, n: 'GastroBedarf Wien GmbH', who: 'Moser L.', tel: '+43 1 678 90 12', r: 4 },
+  { id: 6, n: 'Getränke Bayern GmbH', who: 'Schmid K.', tel: '+49 89 890 12 34', r: 5 },
 ];
 /* qty / min per venue; null = the venue does not stock the item */
 const ITEMS = [
-  { id: 1,  n: 'Beef',         cat: 'Meat',     u: 'kg', px: 3600, s: 1, qty: { center: null, north: 10 }, min: { center: null, north: 15 } },
-  { id: 2,  n: 'Whole milk 3.2%',      cat: 'Dairy', u: 'L',  px: 450,  s: 2, qty: { center: 40, north: 22 },   min: { center: 30, north: 20 } },
-  { id: 3,  n: 'Potatoes',        cat: 'Vegetables',    u: 'kg', px: 220,  s: 3, qty: { center: null, north: 8 },  min: { center: null, north: 15 } },
-  { id: 4,  n: 'Cream 33%',       cat: 'Dairy', u: 'L',  px: 1800, s: 2, qty: { center: 6, north: 5 },     min: { center: 8, north: 10 } },
-  { id: 5,  n: 'Chicken fillet',     cat: 'Meat',     u: 'kg', px: 2100, s: 1, qty: { center: 3, north: 22 },    min: { center: 3, north: 12 } },
-  { id: 6,  n: 'Butter',  cat: 'Dairy', u: 'kg', px: 4200, s: 2, qty: { center: 2, north: 3 },     min: { center: 2, north: 4 } },
-  { id: 7,  n: 'Onions',     cat: 'Vegetables',    u: 'kg', px: 160,  s: 3, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
-  { id: 8,  n: 'Carrots',          cat: 'Vegetables',    u: 'kg', px: 180,  s: 3, qty: { center: null, north: 15 }, min: { center: null, north: 10 } },
-  { id: 9,  n: 'Rice',              cat: 'Grains',    u: 'kg', px: 650,  s: 4, qty: { center: null, north: 24 }, min: { center: null, north: 15 } },
-  { id: 10, n: 'Buckwheat',           cat: 'Grains',    u: 'kg', px: 700,  s: 4, qty: { center: null, north: 5 },  min: { center: null, north: 8 } },
-  { id: 11, n: 'Tomato paste',   cat: 'Sauces',    u: 'pcs', px: 420,  s: 5, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
-  { id: 12, n: 'Mayonnaise',          cat: 'Sauces',    u: 'pcs', px: 700,  s: 5, qty: { center: 4, north: 8 },     min: { center: 3, north: 6 } },
-  { id: 13, n: 'Mineral water', cat: 'Drinks',  u: 'pcs', px: 150,  s: 6, qty: { center: 60, north: 60 },   min: { center: 40, north: 50 } },
-  { id: 14, n: 'Orange juice', cat: 'Drinks',  u: 'L',  px: 900,  s: 6, qty: { center: 8, north: 10 },    min: { center: 6, north: 10 } },
-  { id: 15, n: 'Pork neck',   cat: 'Meat',     u: 'kg', px: 2800, s: 1, qty: { center: null, north: 14 }, min: { center: null, north: 12 } },
+  { id: 1,  n: 'Beef',         cat: 'Meat',     u: 'kg', px: 14.5, s: 1, qty: { center: null, north: 10 }, min: { center: null, north: 15 } },
+  { id: 2,  n: 'Whole milk 3.5%',      cat: 'Dairy', u: 'L',  px: 0.95,  s: 2, qty: { center: 40, north: 22 },   min: { center: 30, north: 20 } },
+  { id: 3,  n: 'Potatoes',        cat: 'Vegetables',    u: 'kg', px: 0.8,  s: 3, qty: { center: null, north: 8 },  min: { center: null, north: 15 } },
+  { id: 4,  n: 'Cream 33%',       cat: 'Dairy', u: 'L',  px: 4.2, s: 2, qty: { center: 6, north: 5 },     min: { center: 8, north: 10 } },
+  { id: 5,  n: 'Chicken fillet',     cat: 'Meat',     u: 'kg', px: 7.9, s: 1, qty: { center: 3, north: 22 },    min: { center: 3, north: 12 } },
+  { id: 6,  n: 'Butter',  cat: 'Dairy', u: 'kg', px: 8.4, s: 2, qty: { center: 2, north: 3 },     min: { center: 2, north: 4 } },
+  { id: 7,  n: 'Onions',     cat: 'Vegetables',    u: 'kg', px: 0.9,  s: 3, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 8,  n: 'Carrots',          cat: 'Vegetables',    u: 'kg', px: 0.95,  s: 3, qty: { center: null, north: 15 }, min: { center: null, north: 10 } },
+  { id: 9,  n: 'Long-grain rice', cat: 'Grains',    u: 'kg', px: 2.6,  s: 4, qty: { center: null, north: 24 }, min: { center: null, north: 15 } },
+  { id: 10, n: 'Pearl barley', cat: 'Grains',    u: 'kg', px: 1.9,  s: 4, qty: { center: null, north: 5 },  min: { center: null, north: 8 } },
+  { id: 11, n: 'Tomato ketchup', cat: 'Sauces',    u: 'pcs', px: 2.4,  s: 5, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 12, n: 'Barbecue sauce', cat: 'Sauces',    u: 'pcs', px: 3.1,  s: 5, qty: { center: 4, north: 8 },     min: { center: 3, north: 6 } },
+  { id: 13, n: 'Mineral water', cat: 'Drinks',  u: 'pcs', px: 0.35,  s: 6, qty: { center: 60, north: 60 },   min: { center: 40, north: 50 } },
+  { id: 14, n: 'Still water', cat: 'Drinks',  u: 'L',  px: 0.8,  s: 6, qty: { center: 8, north: 10 },    min: { center: 6, north: 10 } },
+  { id: 15, n: 'Pork neck',   cat: 'Meat',     u: 'kg', px: 8.6, s: 1, qty: { center: null, north: 14 }, min: { center: null, north: 12 } },
 ];
 /* every order is lines; totals, "in transit" and supplier spend all derive from them */
 let PO = [
@@ -115,7 +115,7 @@ function drafts() {
   lowLines().forEach(({ i, v }) => { const q = needQty(i, v); if (q > 0) (map[i.s + v] ||= { s: i.s, v, lines: [] }).lines.push([i.id, q]); });
   return Object.values(map).sort((a, b) => a.s - b.s || a.v.localeCompare(b.v));
 }
-console.assert(lowLines().length === 6 && drafts().length === 5 && drafts().reduce((a, d) => a + poTotal(d), 0) === 150540, 'drafts');
+console.assert(lowLines().length === 6 && drafts().length === 5 && Math.abs(drafts().reduce((a, d) => a + poTotal(d), 0) - 475.5) < 0.01, 'drafts');
 
 
 /* product photos (CC0, see demos/CREDITS.md), one per category */

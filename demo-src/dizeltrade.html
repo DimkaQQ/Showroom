@@ -38,10 +38,10 @@
   <aside class="side">
     <div class="brand">
       <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></svg></div>
-      <div><div class="brand-name">DizelTrade</div><div class="brand-sub">Tynda Base</div></div>
+      <div><div class="brand-name">DizelTrade</div><div class="brand-sub">Leipzig Base</div></div>
     </div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">VS</div><div class="who"><b>V. A. Speransky</b><span>Partner · full access</span></div></div>
+    <div class="side-foot"><div class="avatar">KB</div><div class="who"><b>K. Brandt</b><span>Partner · full access</span></div></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
@@ -58,34 +58,34 @@ const S = {
   stockJun1: 1267,            // 1 June: 1 267 + 120 received − 540 shipped = 847
   shippedJun: 540,
   orders: [
-    { id: 101, client: 'Mirage DV',       date: '05.06.2026', total: 400,  delivered: 370,  transit: 20, sites: ['Dipkun', 'Skovorodino'],  price: 20900 },
-    { id: 102, client: 'Sakh Trans',      date: '12.05.2026', total: 250,  delivered: 195,  transit: 12, sites: ['Akurdan'],                price: 19500 },
-    { id: 103, client: 'Belaya Gora Mining', date: '20.05.2026', total: 600,  delivered: 510,  transit: 18, sites: ['Belaya Gora', 'Chulman'],  price: 22000 },
-    { id: 104, client: 'Tynda Airport', date: '01.06.2026', total: 180,  delivered: 155,  transit: 0,  sites: ['Tynda · airport'],       price: 18500 },
-    { id: 105, client: 'Russian Railways Tynda',      date: '15.04.2026', total: 1200, delivered: 1150, transit: 0,  sites: ['Tynda · depot', 'Zeysk'],  price: 21100 },
+    { id: 101, client: 'Baumann Bau GmbH',       date: '05.06.2026', total: 400,  delivered: 370,  transit: 20, sites: ['Wrocław', 'Hanover'],  price: 1640 },
+    { id: 102, client: 'Kowalski Trans Sp. z o.o.',      date: '12.05.2026', total: 250,  delivered: 195,  transit: 12, sites: ['Prague'],                price: 1590 },
+    { id: 103, client: 'Rheinkies Steinbruch GmbH', date: '20.05.2026', total: 600,  delivered: 510,  transit: 18, sites: ['Frankfurt', 'Nuremberg'],  price: 1580 },
+    { id: 104, client: 'Leipzig Airport Services GmbH', date: '01.06.2026', total: 180,  delivered: 155,  transit: 0,  sites: ['Leipzig · airport'],       price: 1720 },
+    { id: 105, client: 'Agrar Vlček s.r.o.',      date: '15.04.2026', total: 1200, delivered: 1150, transit: 0,  sites: ['Leipzig · depot', 'Berlin'],  price: 1550 },
   ],
   trucks: [
-    { id: 1, name: 'KamAZ-6522',  plate: 'E412UA28', owner: 'DTL',   tank: 20, driver: 'Ivanov A. E.',   status: 'transit', last: 'Dipkun',     trips: 14 },
-    { id: 2, name: 'MAZ-5337',    plate: 'O185HA28', owner: 'DTL',   tank: 14, driver: 'Petrov S. N.',   status: 'base',    last: 'Akurdan',    trips: 11 },
-    { id: 3, name: 'KamAZ-65115', plate: 'A741KP28', owner: 'DTL',   tank: 16, driver: 'Kuznetsov R. V.', status: 'free',    last: 'Belaya Gora', trips: 9 },
-    { id: 4, name: 'KamAZ-6520',  plate: 'M329OA28', owner: 'Artem', tank: 18, driver: 'Ivanov A. E.',   status: 'transit', last: 'Chulman',    trips: 7 },
-    { id: 5, name: 'Ural-4320',   plate: 'B558KH28', owner: 'Artem', tank: 12, driver: 'Sidorov P. L.',  status: 'transit', last: 'Akurdan',    trips: 6 },
-    { id: 6, name: 'KamAZ-5350',  plate: 'T770ME28', owner: 'Artem', tank: 16, driver: 'Romanov D. A.',  status: 'base',    last: 'Zeysk',      trips: 8 },
+    { id: 1, name: 'MAN TGS 26.470',  plate: 'L-DT 412', owner: 'DTL',   tank: 20, driver: 'Schneider A. M.',   status: 'transit', last: 'Wrocław',     trips: 14 },
+    { id: 2, name: 'Volvo FH 460',    plate: 'DD-FT 185', owner: 'DTL',   tank: 14, driver: 'Nowak S. P.',   status: 'base',    last: 'Prague',    trips: 11 },
+    { id: 3, name: 'Scania R 450', plate: 'BA 741 KP', owner: 'DTL',   tank: 16, driver: 'De Vries R. J.', status: 'free',    last: 'Frankfurt', trips: 9 },
+    { id: 4, name: 'DAF XF 480',  plate: 'WRO 329M', owner: 'Hoffmann', tank: 18, driver: 'Schneider A. M.',   status: 'transit', last: 'Nuremberg',    trips: 7 },
+    { id: 5, name: 'Mercedes Actros 2545',   plate: 'PZ 558KH', owner: 'Hoffmann', tank: 12, driver: 'Moreau P. L.',  status: 'transit', last: 'Prague',    trips: 6 },
+    { id: 6, name: 'Iveco S-Way 460',  plate: 'L-DT 770', owner: 'Hoffmann', tank: 16, driver: 'Rossi D. A.',  status: 'base',    last: 'Berlin',      trips: 8 },
   ],
   trips: [
-    { id: 9, truck: 1, order: 101, site: 'Dipkun',     vol: 20, date: '10.06.2026', status: 'transit' },
-    { id: 8, truck: 4, order: 103, site: 'Chulman',    vol: 18, date: '10.06.2026', status: 'transit' },
-    { id: 7, truck: 5, order: 102, site: 'Akurdan',    vol: 12, date: '09.06.2026', status: 'transit' },
-    { id: 6, truck: 1, order: 101, site: 'Dipkun',     vol: 20, date: '02.06.2026', status: 'done' },
-    { id: 5, truck: 2, order: 102, site: 'Akurdan',    vol: 14, date: '28.05.2026', status: 'done' },
-    { id: 4, truck: 3, order: 103, site: 'Belaya Gora', vol: 16, date: '25.05.2026', status: 'done' },
-    { id: 3, truck: 4, order: 101, site: 'Skovorodino', vol: 18, date: '20.05.2026', status: 'done' },
+    { id: 9, truck: 1, order: 101, site: 'Wrocław',     vol: 20, date: '10.06.2026', status: 'transit' },
+    { id: 8, truck: 4, order: 103, site: 'Nuremberg',    vol: 18, date: '10.06.2026', status: 'transit' },
+    { id: 7, truck: 5, order: 102, site: 'Prague',    vol: 12, date: '09.06.2026', status: 'transit' },
+    { id: 6, truck: 1, order: 101, site: 'Wrocław',     vol: 20, date: '02.06.2026', status: 'done' },
+    { id: 5, truck: 2, order: 102, site: 'Prague',    vol: 14, date: '28.05.2026', status: 'done' },
+    { id: 4, truck: 3, order: 103, site: 'Frankfurt', vol: 16, date: '25.05.2026', status: 'done' },
+    { id: 3, truck: 4, order: 101, site: 'Hanover', vol: 18, date: '20.05.2026', status: 'done' },
   ],
   receipts: [
-    { id: 4, src: 'Rosneft Tynda', vol: 150, ttn: 'BOL-2026-1901', date: '08.06.2026', ok: false, jun: true },
-    { id: 1, src: 'Rosneft Tynda', vol: 120, ttn: 'BOL-2026-1842', date: '03.06.2026', ok: true,  jun: true },
-    { id: 2, src: 'Gazpromneft',   vol: 200, ttn: 'BOL-2026-1791', date: '27.05.2026', ok: true,  jun: false },
-    { id: 3, src: 'Kamysh (private)', vol: 80, ttn: 'BOL-2026-1780', date: '20.05.2026', ok: true,  jun: false },
+    { id: 4, src: 'Nordfuel Leipzig', vol: 150, ttn: 'BOL-2026-1901', date: '08.06.2026', ok: false, jun: true },
+    { id: 1, src: 'Nordfuel Leipzig', vol: 120, ttn: 'BOL-2026-1842', date: '03.06.2026', ok: true,  jun: true },
+    { id: 2, src: 'EuroDiesel Supply',   vol: 200, ttn: 'BOL-2026-1791', date: '27.05.2026', ok: true,  jun: false },
+    { id: 3, src: 'Brenner Mineralöl (private)', vol: 80, ttn: 'BOL-2026-1780', date: '20.05.2026', ok: true,  jun: false },
   ],
   months: [['Jan', 210], ['Feb', 260], ['Mar', 360], ['Apr', 450], ['May', 610], ['Jun', 540]],  // shipped, m³ (June includes 50 on the road)
 };
@@ -154,10 +154,10 @@ function dashboard() {
   const pv = pend.reduce((s, r) => s + r.vol, 0);
   const trips = transitTrips();
   const level = stock() / CAP;
-  return head('Dashboard', `${TODAY} · Tynda base`, mainActions) +
+  return head('Dashboard', `${TODAY} · Leipzig base`, mainActions) +
     (pend.length ? `<div class="finding">${ic('alert')}<span>Receipt ${esc(pend[0].ttn)} from ${esc(pend[0].src)}, ${pend[0].vol} m³, awaiting confirmation. Base stock will then be ${fmt(stock() + pv)} m³.</span><button class="btn sm" data-act="confirmRc" data-id="${pend[0].id}">Confirm</button></div>` : '') +
     `<div class="kpis">
-      <div class="kpi"><b>${mln(revenue())}<small>M ₽</small></b><span>Revenue on delivered fuel</span></div>
+      <div class="kpi"><b>€${mln(revenue())}<small>M</small></b><span>Revenue on delivered fuel</span></div>
       <div class="kpi"><b>${fmt(delivered())}<small>m³</small></b><span>Delivered to customers</span></div>
       <div class="kpi"><b>${S.orders.length}</b><span>Active orders</span></div>
     </div>
@@ -195,8 +195,8 @@ function base() {
 function orders() {
   return head('Customer orders', `${S.orders.length} active · ${fmt(S.orders.reduce((s, o) => s + o.total, 0))} m³ ordered`, `<button class="btn primary" data-act="newTrip">${ic('truck')}New trip</button>`) +
     `<div class="card"><div class="tbl" style="--cols:1.4fr 100px 1.3fr 130px 130px;--colsm:1.3fr 110px">
-      <div class="tr th"><span>Customer</span><span class="hm">Date</span><span class="hm">Fulfilment</span><span class="r">Delivered</span><span class="r hm">Amount, ₽</span></div>
-      ${S.orders.map((o) => `<div class="tr" data-open="${o.id}"><span class="cell-main"><b>${esc(o.client)}</b><span>${esc(o.sites.join(', '))}</span></span><span class="hm muted">${o.date}</span><span class="hm"><div class="bar"><i style="width:${pctOf(o.delivered, o.total)}%"></i></div></span><span class="r">${fmt(o.delivered)} <span class="muted">/ ${fmt(o.total)}</span></span><span class="r hm">${fmt(o.total * o.price)}</span></div>`).join('')}</div></div>`;
+      <div class="tr th"><span>Customer</span><span class="hm">Date</span><span class="hm">Fulfilment</span><span class="r">Delivered</span><span class="r hm">Amount, €</span></div>
+      ${S.orders.map((o) => `<div class="tr" data-open="${o.id}"><span class="cell-main"><b>${esc(o.client)}</b><span>${esc(o.sites.join(', '))}</span></span><span class="hm muted">${o.date}</span><span class="hm"><div class="bar"><i style="width:${pctOf(o.delivered, o.total)}%"></i></div></span><span class="r">${fmt(o.delivered)} <span class="muted">/ ${fmt(o.total)}</span></span><span class="r hm">€${fmt(o.total * o.price)}</span></div>`).join('')}</div></div>`;
 }
 
 function fleet() {
@@ -213,13 +213,13 @@ function analytics() {
   return head('Analytics', 'Shipments and revenue year to date') +
     `<div class="kpis"><div class="kpi"><b>${fmt(S.months.reduce((s, m) => s + m[1], 0))}<small>m³</small></b><span>Shipped since January</span></div>
       <div class="kpi"><b>${best[0]}<small>${best[1]} m³</small></b><span>Best month</span></div>
-      <div class="kpi"><b>${fmt(avgPrice())}<small>₽/m³</small></b><span>Average sale price</span></div></div>
+      <div class="kpi"><b>€${fmt(avgPrice())}<small>/m³</small></b><span>Average sale price</span></div></div>
     <div class="grid"><section class="card c8"><div class="card-h"><h2>Shipments, m³ per month</h2></div><div id="ch-line"></div></section>
-      <section class="card c4"><div class="card-h"><h2>Revenue by customer</h2><span>M ₽</span></div>
-        ${[...S.orders].sort((a, b) => b.delivered * b.price - a.delivered * a.price).map((o) => barRow(esc(o.client), (o.delivered * o.price) / (Math.max(...S.orders.map((x) => x.delivered * x.price))) * 100, mln(o.delivered * o.price))).join('')}</section>
+      <section class="card c4"><div class="card-h"><h2>Revenue by customer</h2><span>€ M</span></div>
+        ${[...S.orders].sort((a, b) => b.delivered * b.price - a.delivered * a.price).map((o) => barRow(esc(o.client), (o.delivered * o.price) / (Math.max(...S.orders.map((x) => x.delivered * x.price))) * 100, '€' + mln(o.delivered * o.price))).join('')}</section>
       <section class="card c12"><div class="card-h"><h2>By month</h2><span>revenue at average price</span></div>
-        <div class="tbl" style="--cols:1fr 1fr 1fr 1fr;--colsm:1fr 1fr 1fr"><div class="tr th"><span>Month</span><span class="r">m³</span><span class="r">Revenue, M ₽</span><span class="r hm">vs. previous month</span></div>
-        ${rows.map((r) => `<div class="tr"><span>${r.m}${r.m === 'Jun' ? ' <span class="muted">(incomplete)</span>' : ''}</span><span class="r">${r.v}</span><span class="r">${mln(r.rev)}</span><span class="r hm ${r.d > 0 ? 'pos' : r.d < 0 ? 'neg' : 'muted'}">${r.d == null ? '—' : signed(r.d) + ' m³'}</span></div>`).join('')}</div></section></div>`;
+        <div class="tbl" style="--cols:1fr 1fr 1fr 1fr;--colsm:1fr 1fr 1fr"><div class="tr th"><span>Month</span><span class="r">m³</span><span class="r">Revenue, € M</span><span class="r hm">vs. previous month</span></div>
+        ${rows.map((r) => `<div class="tr"><span>${r.m}${r.m === 'Jun' ? ' <span class="muted">(incomplete)</span>' : ''}</span><span class="r">${r.v}</span><span class="r">€${mln(r.rev)}</span><span class="r hm ${r.d > 0 ? 'pos' : r.d < 0 ? 'neg' : 'muted'}">${r.d == null ? '—' : signed(r.d) + ' m³'}</span></div>`).join('')}</div></section></div>`;
 }
 
 function mountCharts() {
@@ -230,15 +230,15 @@ function mountCharts() {
 
 /* ── actions ──────────────────────────────────────────── */
 /* ── live map: trucks drive along their routes; on arrival the trip closes by itself ─ */
-const SITES = { 'Tynda Base': [300, 150], 'Dipkun': [520, 60], 'Skovorodino': [90, 50], 'Akurdan': [490, 235], 'Belaya Gora': [90, 235], 'Chulman': [320, 275], 'Zeysk': [230, 25] };
-let CLK = 14 * 60 + 36; const LOG = [['14:02', 'KamAZ-6522 left for Dipkun'], ['13:40', 'Ural-4320 left for Akurdan'], ['12:15', 'Receipt BOL-2026-1901 awaiting confirmation']];
+const SITES = { 'Leipzig Base': [300, 150], 'Wrocław': [520, 60], 'Hanover': [90, 50], 'Prague': [490, 235], 'Frankfurt': [90, 235], 'Nuremberg': [320, 275], 'Berlin': [230, 25] };
+let CLK = 14 * 60 + 36; const LOG = [['14:02', 'MAN TGS 26.470 left for Wrocław'], ['13:40', 'Mercedes Actros 2545 left for Prague'], ['12:15', 'Receipt BOL-2026-1901 awaiting confirmation']];
 const clk = () => String(Math.floor(CLK / 60)).padStart(2, '0') + ':' + String(CLK % 60).padStart(2, '0');
 const TP = { 9: .55, 8: .3, 7: .78 };
-const pos = (site, p) => { const a = SITES['Tynda Base'], b = SITES[site] || [300, 40]; return [a[0] + (b[0] - a[0]) * p, a[1] + (b[1] - a[1]) * p]; };
+const pos = (site, p) => { const a = SITES['Leipzig Base'], b = SITES[site] || [300, 40]; return [a[0] + (b[0] - a[0]) * p, a[1] + (b[1] - a[1]) * p]; };
 function mapSVG() {
   const trips = transitTrips(), active = new Set(trips.map((t) => t.site));
-  return `<svg class="map" viewBox="0 0 600 300" role="img" aria-label="Trips on the map">${Object.entries(SITES).filter(([n]) => n !== 'Tynda Base').map(([n, [x, y]]) => `<line class="rt ${active.has(n) ? 'on' : ''}" x1="300" y1="150" x2="${x}" y2="${y}"/><circle class="site" cx="${x}" cy="${y}" r="7"/><text x="${x}" y="${y + (y > 150 ? 24 : -14)}" text-anchor="middle">${n}</text>`).join('')}
-    <circle class="hub" cx="300" cy="150" r="10"/><text x="300" y="130" text-anchor="middle" style="fill:var(--text);font-weight:600">Tynda Base</text>
+  return `<svg class="map" viewBox="0 0 600 300" role="img" aria-label="Trips on the map">${Object.entries(SITES).filter(([n]) => n !== 'Leipzig Base').map(([n, [x, y]]) => `<line class="rt ${active.has(n) ? 'on' : ''}" x1="300" y1="150" x2="${x}" y2="${y}"/><circle class="site" cx="${x}" cy="${y}" r="7"/><text x="${x}" y="${y + (y > 150 ? 24 : -14)}" text-anchor="middle">${n}</text>`).join('')}
+    <circle class="hub" cx="300" cy="150" r="10"/><text x="300" y="130" text-anchor="middle" style="fill:var(--text);font-weight:600">Leipzig Base</text>
     ${trips.map((t) => { const [x, y] = pos(t.site, TP[t.id] || 0); return `<g data-mk="${t.id}" transform="translate(${x} ${y})"><circle class="pulse" r="9"/><circle class="mk" r="8"/></g>`; }).join('')}</svg>`;
 }
 setInterval(() => {
@@ -260,7 +260,7 @@ const ACT = {
   confirmRc({ id }) { const r = S.receipts.find((x) => x.id === +id); r.ok = true; toast(`Receipt confirmed: +${r.vol} m³ at base`); render(); },
   newReceipt() {
     modal(`<h2>Log fuel receipt</h2><p>The new receipt will be sent for confirmation.</p>
-      <div class="field"><label>Supplier</label><select id="f-src"><option>Rosneft Tynda</option><option>Gazpromneft</option><option>Kamysh (private)</option></select></div>
+      <div class="field"><label>Supplier</label><select id="f-src"><option>Nordfuel Leipzig</option><option>EuroDiesel Supply</option><option>Brenner Mineralöl (private)</option></select></div>
       <div class="field"><label>Volume, m³</label><input id="f-vol" type="number" min="1" max="500" value="100"></div>
       <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="f-ok">Save</button></div>`, () => {
       $('#f-ok').onclick = () => {
@@ -298,7 +298,7 @@ const ACT = {
 };
 function openOrder(id) {
   const o = order(id), trips = S.trips.filter((t) => t.order === id);
-  modal(`<h2>${esc(o.client)}</h2><p>Order of ${o.date} · ${fmt(o.price)} ₽/m³ · ${fmt(o.total * o.price)} ₽</p>
+  modal(`<h2>${esc(o.client)}</h2><p>Order of ${o.date} · €${fmt(o.price)}/m³ · €${fmt(o.total * o.price)}</p>
     <div class="brow-t"><span>Delivered</span><b>${fmt(o.delivered)} of ${fmt(o.total)} m³</b></div><div class="bar thick" style="margin-bottom:6px"><i style="width:${pctOf(o.delivered, o.total)}%"></i></div>
     <p class="muted" style="margin:0 0 14px">${o.transit ? `${o.transit} m³ on the road · ` : ''}${fmt(o.total - o.delivered - o.transit)} m³ left to ship</p>
     ${trips.length ? trips.map((t) => `<div class="trip" style="grid-template-columns:1fr auto"><div><b>${esc(truck(t.truck).name)} → ${esc(t.site)}</b><span>${t.date} · ${t.vol} m³</span></div><span class="pill ${t.status === 'transit' ? 'warn' : 'pos'}"><i></i>${t.status === 'transit' ? 'In transit' : 'Delivered'}</span></div>`).join('') : '<p class="muted">No trips yet.</p>'}
