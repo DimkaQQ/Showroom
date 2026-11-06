@@ -18,7 +18,15 @@ export function metadataFor(lang: Lang): Metadata {
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
     alternates: { canonical: abs(pathFor(lang)), languages },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
-    icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+    icons: {
+      icon: [
+        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/icon-32.png", sizes: "32x32", type: "image/png" },
+      ],
+      shortcut: "/favicon.ico",
+      apple: "/apple-touch-icon.png",
+    },
+    manifest: "/site.webmanifest",
     openGraph: {
       type: "website",
       url: abs(pathFor(lang)),
