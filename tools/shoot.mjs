@@ -1,10 +1,11 @@
 // Re-shoots public/shots/<id>.jpg (1440x900) from demos/<id>/index.html. Run after tools/build-demos.mjs.
-import { chromium } from "playwright";
+import { createRequire } from "node:module";
 import { createServer } from "node:http";
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join, extname, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+const { chromium } = createRequire(import.meta.url)("playwright");
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const types = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".webp": "image/webp" };
 const server = createServer((req, res) => {

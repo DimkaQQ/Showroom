@@ -1,1044 +1,607 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DizelTrade — Demo</title>
+<title>DizelTrade ERP — demo</title>
+<meta name="description" content="Demo: diesel fuel, trip and customer order management. Data is fictional.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0a0a0a;
-  --bg2:#111;
-  --card:#1c1c1e;
-  --card2:#242426;
-  --card3:#2c2c2e;
-  --accent:#c8ff00;
-  --accent-dim:rgba(200,255,0,.12);
-  --text:#fff;
-  --muted:#8e8e93;
-  --dim:#48484a;
-  --border:#2c2c2e;
-  --border2:#3a3a3c;
-  --red:#ff453a;
-  --green:#32d74b;
-  --orange:#ff9f0a;
-  --blue:#0a84ff;
-  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
+:root {
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  color-scheme: dark;
 }
-html{font-size:16px;-webkit-text-size-adjust:100%}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--font);
-  min-height:100vh;
-  padding-top:32px;
-  -webkit-font-smoothing:antialiased;
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
 }
-.demo-banner{
-  position:fixed;top:0;left:0;right:0;z-index:9999;
-  background:#c8ff00;color:#000;text-align:center;
-  padding:5px 0;font-size:11px;font-weight:700;
-  letter-spacing:.1em;font-family:inherit;
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
+
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
+
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
+
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
+
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
+
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
+
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
 }
-/* ── Layout ────────────────────────────────────────────── */
-.app{display:flex;height:calc(100vh - 32px);overflow:hidden}
-.sidebar{
-  width:220px;min-width:220px;
-  background:var(--bg2);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
-  overflow:hidden;
-}
-.sidebar-logo{
-  padding:20px 16px 12px;
-  border-bottom:1px solid var(--border);
-}
-.logo-mark{
-  display:flex;align-items:center;gap:10px;
-}
-.logo-icon{
-  width:36px;height:36px;
-  background:var(--accent);
-  border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;
-}
-.logo-text{font-size:17px;font-weight:700;letter-spacing:-.3px}
-.logo-sub{font-size:11px;color:var(--muted);margin-top:1px}
-.sidebar-nav{flex:1;padding:8px 0;overflow-y:auto}
-.nav-item{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 16px;
-  cursor:pointer;
-  border-left:3px solid transparent;
-  transition:all .2s cubic-bezier(.16,1,.3,1);
-  font-size:14px;color:var(--muted);
-  user-select:none;
-}
-.nav-item .nav-icon{font-size:16px;width:20px;text-align:center}
-.nav-item:hover{background:var(--card);color:var(--text)}
-.nav-item.active{
-  border-left-color:var(--accent);
-  background:var(--accent-dim);
-  color:var(--accent);
-}
-.sidebar-footer{
-  padding:12px 16px;
-  border-top:1px solid var(--border);
-  font-size:11px;color:var(--dim);
-}
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-/* ── Top bar ────────────────────────────────────────────── */
-.topbar{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 20px;
-  background:var(--bg2);
-  border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
-.topbar-title{font-size:15px;font-weight:600;flex:1}
-.chip{
-  display:flex;align-items:center;gap:5px;
-  padding:4px 10px;
-  background:var(--card);
-  border-radius:20px;
-  font-size:12px;
-  border:1px solid var(--border2);
-}
-.chip-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
-.chip-dot.orange{background:var(--orange)}
-.content{flex:1;overflow-y:auto;padding:20px}
-/* ── Screens ─────────────────────────────────────────────── */
-.screen{display:none}
-.screen.active{display:block}
-/* ── KPI Grid ─────────────────────────────────────────────── */
-.kpi-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-  margin-bottom:20px;
-}
-.kpi-tile{
-  background:var(--card);
-  border-radius:14px;
-  padding:16px;
-  border:1px solid var(--border);
-  transition:all .2s cubic-bezier(.16,1,.3,1);
-}
-.kpi-tile:hover{background:var(--card2);border-color:var(--border2)}
-.kpi-val{
-  font-size:28px;font-weight:700;
-  font-variant-numeric:tabular-nums;
-  color:var(--accent);
-  line-height:1;
-  margin-bottom:4px;
-}
-.kpi-val.white{color:var(--text)}
-.kpi-label{font-size:12px;color:var(--muted)}
-/* ── Section headers ─────────────────────────────────────── */
-.section-hdr{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;margin-top:4px;
-}
-.section-hdr h3{font-size:14px;font-weight:600;color:var(--text)}
-.section-hdr span{font-size:12px;color:var(--muted)}
-/* ── Lists ───────────────────────────────────────────────── */
-.card-list{
-  background:var(--card);
-  border-radius:14px;
-  border:1px solid var(--border);
-  overflow:hidden;
-  margin-bottom:20px;
-}
-.list-row{
-  display:flex;align-items:center;
-  padding:12px 16px;
-  border-bottom:1px solid var(--border);
-  transition:background .15s;
-  cursor:pointer;
-}
-.list-row:last-child{border-bottom:none}
-.list-row:hover{background:var(--card2)}
-.list-row-icon{
-  width:34px;height:34px;
-  border-radius:9px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;
-  margin-right:12px;
-  flex-shrink:0;
-}
-.list-row-info{flex:1}
-.list-row-title{font-size:14px;font-weight:500}
-.list-row-sub{font-size:12px;color:var(--muted);margin-top:2px}
-.list-row-right{text-align:right}
-.list-row-val{font-size:14px;font-weight:600}
-.list-row-time{font-size:11px;color:var(--dim);margin-top:2px}
-/* ── Badges ──────────────────────────────────────────────── */
-.badge{
-  display:inline-flex;align-items:center;
-  padding:3px 9px;border-radius:20px;
-  font-size:11px;font-weight:600;letter-spacing:.02em;
-  white-space:nowrap;
-}
-.badge-orange{background:rgba(255,159,10,.18);color:var(--orange)}
-.badge-green{background:rgba(50,215,75,.15);color:var(--green)}
-.badge-red{background:rgba(255,69,58,.15);color:var(--red)}
-.badge-accent{background:var(--accent-dim);color:var(--accent)}
-.badge-blue{background:rgba(10,132,255,.15);color:var(--blue)}
-.badge-muted{background:rgba(142,142,147,.12);color:var(--muted)}
-/* ── Sub-tabs ─────────────────────────────────────────────── */
-.subtabs{
-  display:flex;gap:2px;
-  background:var(--card);
-  border-radius:10px;
-  padding:3px;
-  margin-bottom:16px;
-  width:fit-content;
-  border:1px solid var(--border);
-}
-.subtab{
-  padding:6px 18px;
-  border-radius:8px;
-  font-size:13px;font-weight:500;
-  cursor:pointer;
-  color:var(--muted);
-  transition:all .18s cubic-bezier(.16,1,.3,1);
-  user-select:none;
-}
-.subtab.active{background:var(--card3);color:var(--text)}
-.subtab:hover:not(.active){color:var(--text)}
-/* ── Table ───────────────────────────────────────────────── */
-.tbl-wrap{
-  background:var(--card);
-  border-radius:14px;
-  border:1px solid var(--border);
-  overflow:auto;
-}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{
-  padding:10px 14px;
-  text-align:left;
-  font-size:11px;
-  font-weight:600;
-  color:var(--muted);
-  letter-spacing:.05em;
-  text-transform:uppercase;
-  background:var(--card2);
-  border-bottom:1px solid var(--border);
-  white-space:nowrap;
-}
-td{
-  padding:11px 14px;
-  border-bottom:1px solid var(--border);
-  vertical-align:middle;
-  white-space:nowrap;
-}
-tr:last-child td{border-bottom:none}
-tbody tr{transition:background .15s;cursor:pointer}
-tbody tr:hover td{background:var(--card2)}
-.num{font-variant-numeric:tabular-nums}
-/* ── Order cards ─────────────────────────────────────────── */
-.orders-grid{display:flex;flex-direction:column;gap:12px}
-.order-card{
-  background:var(--card);
-  border-radius:14px;
-  border:1px solid var(--border);
-  padding:16px;
-  cursor:pointer;
-  transition:all .2s cubic-bezier(.16,1,.3,1);
-}
-.order-card:hover{background:var(--card2);border-color:var(--border2)}
-.order-card.expanded{border-color:var(--border2)}
-.order-hdr{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
-.order-client{flex:1}
-.order-client-name{font-size:15px;font-weight:600}
-.order-num{font-size:12px;color:var(--muted);margin-top:2px}
-.progress-bar{
-  height:8px;border-radius:4px;
-  background:var(--card3);
-  overflow:hidden;
-  display:flex;
-  margin-bottom:8px;
-}
-.pb-seg{height:100%;transition:width .4s cubic-bezier(.16,1,.3,1)}
-.pb-green{background:var(--green)}
-.pb-orange{background:var(--orange)}
-.pb-grey{background:var(--dim)}
-.order-meta{
-  display:flex;justify-content:space-between;
-  font-size:12px;color:var(--muted);
-}
-.order-detail{
-  display:none;
-  margin-top:14px;padding-top:14px;
-  border-top:1px solid var(--border);
-}
-.order-card.expanded .order-detail{display:block}
-.detail-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
-.detail-item{}
-.detail-label{font-size:11px;color:var(--muted);margin-bottom:3px}
-.detail-val{font-size:13px;font-weight:500}
-/* ── Автопарк ─────────────────────────────────────────────── */
-.fleet-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:12px;
-}
-.fleet-card{
-  background:var(--card);
-  border-radius:14px;
-  border:1px solid var(--border);
-  padding:16px;
-  transition:all .2s cubic-bezier(.16,1,.3,1);
-}
-.fleet-card:hover{background:var(--card2)}
-.fleet-icon{font-size:28px;margin-bottom:8px}
-.fleet-name{font-size:15px;font-weight:600;margin-bottom:2px}
-.fleet-vol{font-size:12px;color:var(--muted);margin-bottom:10px}
-.fleet-driver{
-  display:flex;align-items:center;gap:8px;
-  padding:8px;background:var(--card3);
-  border-radius:8px;font-size:12px;
-}
-.fleet-driver-icon{
-  width:24px;height:24px;border-radius:50%;
-  background:var(--dim);
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;
-}
-.fleet-stat{
-  display:flex;justify-content:space-between;
-  margin-top:10px;font-size:12px;
-}
-.fleet-stat span:first-child{color:var(--muted)}
-/* ── Mobile top bar / bottom nav ─────────────────────────── */
-.mob-topbar{
-  display:none;
-  align-items:center;
-  padding:10px 16px;
-  background:var(--bg2);
-  border-bottom:1px solid var(--border);
-  gap:10px;
-}
-.mob-logo{font-size:15px;font-weight:700;flex:1}
-.bottom-nav{
-  display:none;
-  position:fixed;bottom:0;left:0;right:0;
-  background:rgba(17,17,17,.92);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border-top:1px solid var(--border);
-  z-index:100;
-  padding-bottom:env(safe-area-inset-bottom,0);
-}
-.bottom-tabs{
-  display:flex;
-  padding:6px 0 2px;
-}
-.btab{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  gap:3px;padding:6px 4px;cursor:pointer;
-  font-size:10px;color:var(--dim);
-  transition:color .15s;
-  user-select:none;
-}
-.btab-icon{font-size:22px;line-height:1}
-.btab.active{color:var(--accent)}
-@media(max-width:700px){
-  .sidebar{display:none}
-  .mob-topbar{display:flex}
-  .topbar{display:none}
-  .bottom-nav{display:block}
-  .content{padding:14px 14px 80px}
-  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}
-  .kpi-val{font-size:22px}
-  .detail-grid{grid-template-columns:repeat(2,1fr)}
-  .fleet-grid{grid-template-columns:1fr 1fr}
-  .tbl-wrap{overflow-x:auto}
-  table{font-size:12px}
-  th,td{padding:8px 10px}
-}
-/* ── Scrollbar ───────────────────────────────────────────── */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
+
+:root { --display: "Unbounded", "Onest", system-ui, sans-serif; --accent: #c8f03c; }
+.big, .kpi b { font-weight: 600; }
+.tank-wrap { display: flex; gap: 22px; align-items: stretch; }
+.tank { flex: none; }
+.tank-list { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-width: 0; }
+.tank-list dl { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; }
+.tank-list dt { color: var(--muted); } .tank-list dd { text-align: right; font-weight: 600; }
+.trip { display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; }
+.trip + .trip { border-top: 1px solid var(--rule); }
+.trip-ic { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: var(--raised); color: var(--accent); }
+.trip b { display: block; font-weight: 600; } .trip span { color: var(--muted); font-size: 13px; }
+.load { display: inline-flex; align-items: center; gap: 8px; }
+@media (max-width: 899px) { .trip { grid-template-columns: 36px 1fr; } .trip .btn { grid-column: 2; justify-self: start; } .tank-wrap { flex-direction: row; } }
+
+.feedl { margin-top: 18px; border-top: 1px solid var(--rule); padding-top: 10px; } .feedl li { display: grid; grid-template-columns: 48px 1fr; gap: 8px; padding: 6px 0; color: var(--muted); font-size: 13px; } .feedl li b { color: var(--faint); font-weight: 500; } .feedl li:first-child { color: var(--text); animation: pop .3s var(--ease) both; }
+.map { width: 100%; height: auto; display: block; margin: -4px 0 8px; }
+.map .rt { stroke: var(--border); stroke-width: 2; stroke-dasharray: 3 6; fill: none; } .map .rt.on { stroke: var(--accent); opacity: .55; }
+.map .site { fill: var(--raised); stroke: var(--faint); stroke-width: 2; } .map text { font: 12px var(--font); fill: var(--faint); }
+.map .hub { fill: var(--accent); } .map .mk { fill: var(--accent); stroke: var(--bg); stroke-width: 3; } .map .pulse { fill: var(--accent); opacity: .25; animation: mp 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes mp { from { transform: scale(.6); opacity: .45; } to { transform: scale(2.2); opacity: 0; } }
+.tp { height: 4px; border-radius: 2px; background: var(--raised); margin-top: 6px; overflow: hidden; } .tp i { display: block; height: 100%; background: var(--accent); transition: width 1.4s linear; }
 </style>
 </head>
 <body>
-<div class="demo-banner">⚠ DEMO — dimkaprojects.xyz ⚠</div>
-
+<div class="notice"><b>Demo</b> DizelTrade ERP · data is fictional</div>
 <div class="app">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-mark">
-        <div class="logo-icon">⛽</div>
-        <div>
-          <div class="logo-text">DizelTrade</div>
-          <div class="logo-sub">Якутия / Дипкун</div>
-        </div>
-      </div>
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></svg></div>
+      <div><div class="brand-name">DizelTrade</div><div class="brand-sub">Tynda Base</div></div>
     </div>
-    <nav class="sidebar-nav" id="sidebarNav">
-      <div class="nav-item active" data-tab="dashboard"><span class="nav-icon">📊</span> Дашборд</div>
-      <div class="nav-item" data-tab="base"><span class="nav-icon">🗃️</span> База</div>
-      <div class="nav-item" data-tab="orders"><span class="nav-icon">📋</span> Заказы</div>
-      <div class="nav-item" data-tab="fleet"><span class="nav-icon">🚛</span> Автопарк</div>
-    </nav>
-    <div class="sidebar-footer">v2.4.1 · DizelTrade CRM</div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">VS</div><div class="who"><b>V. A. Speransky</b><span>Partner · full access</span></div></div>
   </aside>
-
-  <div class="main">
-    <!-- Desktop topbar -->
-    <header class="topbar">
-      <span class="topbar-title" id="topbarTitle">Дашборд</span>
-      <div class="chip"><div class="chip-dot"></div><span>На базе: 186.5 куб</span></div>
-      <div class="chip"><div class="chip-dot orange"></div><span>Рейсов в пути: 3</span></div>
-    </header>
-
-    <!-- Mobile topbar -->
-    <header class="mob-topbar">
-      <div class="mob-logo">⛽ DizelTrade</div>
-      <div class="chip" style="font-size:11px"><div class="chip-dot"></div><span>186.5 куб</span></div>
-      <div class="chip" style="font-size:11px"><div class="chip-dot orange"></div><span>3 в пути</span></div>
-    </header>
-
-    <div class="content">
-
-      <!-- ───────── DASHBOARD ───────── -->
-      <div class="screen active" id="screen-dashboard">
-        <div class="kpi-grid">
-          <div class="kpi-tile">
-            <div class="kpi-val">186.5</div>
-            <div class="kpi-label">На базе, куб</div>
-          </div>
-          <div class="kpi-tile">
-            <div class="kpi-val white">3</div>
-            <div class="kpi-label">Рейсов в пути</div>
-          </div>
-          <div class="kpi-tile">
-            <div class="kpi-val">₽2.48M</div>
-            <div class="kpi-label">Выручка мес.</div>
-          </div>
-          <div class="kpi-tile">
-            <div class="kpi-val white">12</div>
-            <div class="kpi-label">Активных заказов</div>
-          </div>
-        </div>
-
-        <div class="section-hdr">
-          <h3>Последние отгрузки</h3>
-          <span>сегодня</span>
-        </div>
-        <div class="card-list">
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(200,255,0,.1)">🚛</div>
-            <div class="list-row-info">
-              <div class="list-row-title">Шахман-1 → Дипкун ближний</div>
-              <div class="list-row-sub">Алексей Данилов · Лао Цзе ООО</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val">26 куб</div>
-              <div class="list-row-time"><span class="badge badge-green">Доставлено</span></div>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(255,159,10,.1)">🚛</div>
-            <div class="list-row-info">
-              <div class="list-row-title">МАН → Акурдан</div>
-              <div class="list-row-sub">Сергей Волков · Акурданский ГОК</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val">18 куб</div>
-              <div class="list-row-time"><span class="badge badge-orange">В пути</span></div>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(255,159,10,.1)">🚛</div>
-            <div class="list-row-info">
-              <div class="list-row-title">Сайгак-КамАЗ → Сагинах</div>
-              <div class="list-row-sub">Роман Медведев · Северная ГРП</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val">11 куб</div>
-              <div class="list-row-time"><span class="badge badge-orange">В пути</span></div>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(50,215,75,.1)">🚛</div>
-            <div class="list-row-info">
-              <div class="list-row-title">Шахман-2 → Беркакит</div>
-              <div class="list-row-sub">Алексей Данилов · Нерюнгри Уголь</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val">26 куб</div>
-              <div class="list-row-time"><span class="badge badge-green">Доставлено</span></div>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(255,159,10,.1)">🚛</div>
-            <div class="list-row-info">
-              <div class="list-row-title">МАН → Нагорная</div>
-              <div class="list-row-sub">Сергей Волков · Зея Золото</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val">18 куб</div>
-              <div class="list-row-time"><span class="badge badge-orange">В пути</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-hdr">
-          <h3>Активные заказы</h3>
-          <span>12 всего</span>
-        </div>
-        <div class="card-list">
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(10,132,255,.1)">📄</div>
-            <div class="list-row-info">
-              <div class="list-row-title">Акурданский ГОК</div>
-              <div class="list-row-sub">ЗАК-2024-088 · 320 куб</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val" style="color:var(--green)">62%</div>
-              <div class="list-row-time">198 / 320 куб</div>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(10,132,255,.1)">📄</div>
-            <div class="list-row-info">
-              <div class="list-row-title">Северная ГРП</div>
-              <div class="list-row-sub">ЗАК-2024-091 · 110 куб</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val" style="color:var(--orange)">33%</div>
-              <div class="list-row-time">36 / 110 куб</div>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(10,132,255,.1)">📄</div>
-            <div class="list-row-info">
-              <div class="list-row-title">Зея Золото</div>
-              <div class="list-row-sub">ЗАК-2024-095 · 180 куб</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val" style="color:var(--accent)">81%</div>
-              <div class="list-row-time">146 / 180 куб</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ───────── BASE ───────── -->
-      <div class="screen" id="screen-base">
-        <div class="subtabs">
-          <div class="subtab active" id="st-receipts" onclick="switchSubtab('receipts')">Накладные</div>
-          <div class="subtab" id="st-dispatches" onclick="switchSubtab('dispatches')">Отгрузки</div>
-        </div>
-
-        <!-- Накладные -->
-        <div id="sub-receipts">
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Дата</th>
-                  <th>Поставщик</th>
-                  <th>ТТН</th>
-                  <th>Объём, куб</th>
-                  <th>Темп.</th>
-                  <th>Плотность</th>
-                  <th>Статус</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>01.11.2024</td>
-                  <td>Хабаровск Нефть</td>
-                  <td class="num">TTN-44821</td>
-                  <td class="num">52.4</td>
-                  <td>−18 °C</td>
-                  <td class="num">0.8362</td>
-                  <td><span class="badge badge-accent">На базе</span></td>
-                </tr>
-                <tr>
-                  <td>28.10.2024</td>
-                  <td>Ангарск Топливо</td>
-                  <td class="num">TTN-44755</td>
-                  <td class="num">78.6</td>
-                  <td>−20 °C</td>
-                  <td class="num">0.8349</td>
-                  <td><span class="badge badge-green">Принято</span></td>
-                </tr>
-                <tr>
-                  <td>25.10.2024</td>
-                  <td>Восточная База</td>
-                  <td class="num">TTN-44701</td>
-                  <td class="num">26.0</td>
-                  <td>−19 °C</td>
-                  <td class="num">0.8371</td>
-                  <td><span class="badge badge-green">Принято</span></td>
-                </tr>
-                <tr>
-                  <td>20.10.2024</td>
-                  <td>Хабаровск Нефть</td>
-                  <td class="num">TTN-44633</td>
-                  <td class="num">104.0</td>
-                  <td>−17 °C</td>
-                  <td class="num">0.8358</td>
-                  <td><span class="badge badge-green">Принято</span></td>
-                </tr>
-                <tr>
-                  <td>15.10.2024</td>
-                  <td>Ангарск Топливо</td>
-                  <td class="num">TTN-44560</td>
-                  <td class="num">52.0</td>
-                  <td>−16 °C</td>
-                  <td class="num">0.8380</td>
-                  <td><span class="badge badge-green">Принято</span></td>
-                </tr>
-                <tr>
-                  <td>10.10.2024</td>
-                  <td>Восточная База</td>
-                  <td class="num">TTN-44489</td>
-                  <td class="num">36.5</td>
-                  <td>−15 °C</td>
-                  <td class="num">0.8344</td>
-                  <td><span class="badge badge-muted">Архив</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Отгрузки -->
-        <div id="sub-dispatches" style="display:none">
-          <div class="tbl-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Дата</th>
-                  <th>Водитель</th>
-                  <th>Автомобиль</th>
-                  <th>Точка</th>
-                  <th>Заказ</th>
-                  <th>Объём, куб</th>
-                  <th>Статус</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>02.11.2024</td>
-                  <td>А. Данилов</td>
-                  <td>Шахман-1</td>
-                  <td>Дипкун ближний</td>
-                  <td class="num">ЗАК-2024-088</td>
-                  <td class="num">26.0</td>
-                  <td><span class="badge badge-green">Доставлено</span></td>
-                </tr>
-                <tr>
-                  <td>02.11.2024</td>
-                  <td>С. Волков</td>
-                  <td>МАН</td>
-                  <td>Акурдан</td>
-                  <td class="num">ЗАК-2024-088</td>
-                  <td class="num">18.0</td>
-                  <td><span class="badge badge-orange">В пути</span></td>
-                </tr>
-                <tr>
-                  <td>02.11.2024</td>
-                  <td>Р. Медведев</td>
-                  <td>Сайгак-КамАЗ</td>
-                  <td>Сагинах</td>
-                  <td class="num">ЗАК-2024-091</td>
-                  <td class="num">11.0</td>
-                  <td><span class="badge badge-orange">В пути</span></td>
-                </tr>
-                <tr>
-                  <td>01.11.2024</td>
-                  <td>А. Данилов</td>
-                  <td>Шахман-2</td>
-                  <td>Беркакит</td>
-                  <td class="num">ЗАК-2024-093</td>
-                  <td class="num">26.0</td>
-                  <td><span class="badge badge-green">Доставлено</span></td>
-                </tr>
-                <tr>
-                  <td>01.11.2024</td>
-                  <td>С. Волков</td>
-                  <td>МАН</td>
-                  <td>Нагорная</td>
-                  <td class="num">ЗАК-2024-095</td>
-                  <td class="num">18.0</td>
-                  <td><span class="badge badge-orange">В пути</span></td>
-                </tr>
-                <tr>
-                  <td>31.10.2024</td>
-                  <td>Р. Медведев</td>
-                  <td>Шахман-1</td>
-                  <td>Дипкун дальний</td>
-                  <td class="num">ЗАК-2024-087</td>
-                  <td class="num">26.0</td>
-                  <td><span class="badge badge-green">Доставлено</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ───────── ORDERS ───────── -->
-      <div class="screen" id="screen-orders">
-        <div class="section-hdr">
-          <h3>Активные заказы</h3>
-          <span>12 контрактов</span>
-        </div>
-        <div class="orders-grid">
-
-          <div class="order-card" onclick="toggleOrder(this)">
-            <div class="order-hdr">
-              <div class="order-client">
-                <div class="order-client-name">Акурданский ГОК</div>
-                <div class="order-num">ЗАК-2024-088 · Акурдан</div>
-              </div>
-              <span class="badge badge-orange">В работе</span>
-            </div>
-            <div class="progress-bar">
-              <div class="pb-seg pb-green" style="width:52%"></div>
-              <div class="pb-seg pb-orange" style="width:10%"></div>
-              <div class="pb-seg pb-grey" style="width:38%"></div>
-            </div>
-            <div class="order-meta">
-              <span style="color:var(--green)">198 куб доставлено</span>
-              <span>18 куб в пути</span>
-              <span>104 куб остаток</span>
-            </div>
-            <div class="order-detail">
-              <div class="detail-grid">
-                <div class="detail-item"><div class="detail-label">Заказано</div><div class="detail-val">320 куб</div></div>
-                <div class="detail-item"><div class="detail-label">Цена за куб</div><div class="detail-val">₽72 400</div></div>
-                <div class="detail-item"><div class="detail-label">Сумма</div><div class="detail-val">₽23.17M</div></div>
-                <div class="detail-item"><div class="detail-label">Поставщик</div><div class="detail-val">Хабаровск Нефть</div></div>
-                <div class="detail-item"><div class="detail-label">Водитель</div><div class="detail-val">С. Волков</div></div>
-                <div class="detail-item"><div class="detail-label">Авто</div><div class="detail-val">МАН (18 куб)</div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-card" onclick="toggleOrder(this)">
-            <div class="order-hdr">
-              <div class="order-client">
-                <div class="order-client-name">Северная ГРП</div>
-                <div class="order-num">ЗАК-2024-091 · Сагинах</div>
-              </div>
-              <span class="badge badge-orange">В работе</span>
-            </div>
-            <div class="progress-bar">
-              <div class="pb-seg pb-green" style="width:25%"></div>
-              <div class="pb-seg pb-orange" style="width:8%"></div>
-              <div class="pb-seg pb-grey" style="width:67%"></div>
-            </div>
-            <div class="order-meta">
-              <span style="color:var(--green)">36 куб доставлено</span>
-              <span>11 куб в пути</span>
-              <span>63 куб остаток</span>
-            </div>
-            <div class="order-detail">
-              <div class="detail-grid">
-                <div class="detail-item"><div class="detail-label">Заказано</div><div class="detail-val">110 куб</div></div>
-                <div class="detail-item"><div class="detail-label">Цена за куб</div><div class="detail-val">₽74 800</div></div>
-                <div class="detail-item"><div class="detail-label">Сумма</div><div class="detail-val">₽8.23M</div></div>
-                <div class="detail-item"><div class="detail-label">Поставщик</div><div class="detail-val">Ангарск Топливо</div></div>
-                <div class="detail-item"><div class="detail-label">Водитель</div><div class="detail-val">Р. Медведев</div></div>
-                <div class="detail-item"><div class="detail-label">Авто</div><div class="detail-val">Сайгак-КамАЗ (11 куб)</div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-card" onclick="toggleOrder(this)">
-            <div class="order-hdr">
-              <div class="order-client">
-                <div class="order-client-name">Зея Золото</div>
-                <div class="order-num">ЗАК-2024-095 · Нагорная</div>
-              </div>
-              <span class="badge badge-accent">Финиш близко</span>
-            </div>
-            <div class="progress-bar">
-              <div class="pb-seg pb-green" style="width:71%"></div>
-              <div class="pb-seg pb-orange" style="width:10%"></div>
-              <div class="pb-seg pb-grey" style="width:19%"></div>
-            </div>
-            <div class="order-meta">
-              <span style="color:var(--green)">128 куб доставлено</span>
-              <span>18 куб в пути</span>
-              <span>34 куб остаток</span>
-            </div>
-            <div class="order-detail">
-              <div class="detail-grid">
-                <div class="detail-item"><div class="detail-label">Заказано</div><div class="detail-val">180 куб</div></div>
-                <div class="detail-item"><div class="detail-label">Цена за куб</div><div class="detail-val">₽76 200</div></div>
-                <div class="detail-item"><div class="detail-label">Сумма</div><div class="detail-val">₽13.72M</div></div>
-                <div class="detail-item"><div class="detail-label">Поставщик</div><div class="detail-val">Восточная База</div></div>
-                <div class="detail-item"><div class="detail-label">Водитель</div><div class="detail-val">С. Волков</div></div>
-                <div class="detail-item"><div class="detail-label">Авто</div><div class="detail-val">МАН (18 куб)</div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-card" onclick="toggleOrder(this)">
-            <div class="order-hdr">
-              <div class="order-client">
-                <div class="order-client-name">Лао Цзе ООО</div>
-                <div class="order-num">ЗАК-2024-089 · Дипкун ближний</div>
-              </div>
-              <span class="badge badge-green">Завершён</span>
-            </div>
-            <div class="progress-bar">
-              <div class="pb-seg pb-green" style="width:100%"></div>
-            </div>
-            <div class="order-meta">
-              <span style="color:var(--green)">78 куб доставлено</span>
-              <span>0 куб в пути</span>
-              <span>0 куб остаток</span>
-            </div>
-            <div class="order-detail">
-              <div class="detail-grid">
-                <div class="detail-item"><div class="detail-label">Заказано</div><div class="detail-val">78 куб</div></div>
-                <div class="detail-item"><div class="detail-label">Цена за куб</div><div class="detail-val">₽71 500</div></div>
-                <div class="detail-item"><div class="detail-label">Сумма</div><div class="detail-val">₽5.58M</div></div>
-                <div class="detail-item"><div class="detail-label">Поставщик</div><div class="detail-val">Хабаровск Нефть</div></div>
-                <div class="detail-item"><div class="detail-label">Водитель</div><div class="detail-val">А. Данилов</div></div>
-                <div class="detail-item"><div class="detail-val">Шахман-1 (26 куб)</div></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-card" onclick="toggleOrder(this)">
-            <div class="order-hdr">
-              <div class="order-client">
-                <div class="order-client-name">Нерюнгри Уголь</div>
-                <div class="order-num">ЗАК-2024-093 · Беркакит</div>
-              </div>
-              <span class="badge badge-orange">В работе</span>
-            </div>
-            <div class="progress-bar">
-              <div class="pb-seg pb-green" style="width:44%"></div>
-              <div class="pb-seg pb-orange" style="width:0%"></div>
-              <div class="pb-seg pb-grey" style="width:56%"></div>
-            </div>
-            <div class="order-meta">
-              <span style="color:var(--green)">104 куб доставлено</span>
-              <span>0 куб в пути</span>
-              <span>130 куб остаток</span>
-            </div>
-            <div class="order-detail">
-              <div class="detail-grid">
-                <div class="detail-item"><div class="detail-label">Заказано</div><div class="detail-val">234 куб</div></div>
-                <div class="detail-item"><div class="detail-label">Цена за куб</div><div class="detail-val">₽69 800</div></div>
-                <div class="detail-item"><div class="detail-label">Сумма</div><div class="detail-val">₽16.33M</div></div>
-                <div class="detail-item"><div class="detail-label">Поставщик</div><div class="detail-val">Ангарск Топливо</div></div>
-                <div class="detail-item"><div class="detail-label">Водитель</div><div class="detail-val">А. Данилов</div></div>
-                <div class="detail-item"><div class="detail-label">Авто</div><div class="detail-val">Шахман-2 (26 куб)</div></div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ───────── FLEET ───────── -->
-      <div class="screen" id="screen-fleet">
-        <div class="section-hdr">
-          <h3>Автопарк</h3>
-          <span>4 единицы</span>
-        </div>
-        <div class="fleet-grid">
-          <div class="fleet-card">
-            <div class="fleet-icon">🚚</div>
-            <div class="fleet-name">Шахман-1</div>
-            <div class="fleet-vol">Цистерна 26 куб · Дизель</div>
-            <div class="fleet-driver">
-              <div class="fleet-driver-icon">👤</div>
-              <div>
-                <div style="font-weight:500">Алексей Данилов</div>
-                <div style="color:var(--muted);font-size:11px">Активен</div>
-              </div>
-            </div>
-            <div class="fleet-stat">
-              <span>Статус</span>
-              <span class="badge badge-green" style="font-size:11px">Доставлено</span>
-            </div>
-            <div class="fleet-stat" style="margin-top:5px">
-              <span>Рейсов / мес.</span>
-              <span style="font-weight:600">14</span>
-            </div>
-          </div>
-
-          <div class="fleet-card">
-            <div class="fleet-icon">🚚</div>
-            <div class="fleet-name">Шахман-2</div>
-            <div class="fleet-vol">Цистерна 26 куб · Дизель</div>
-            <div class="fleet-driver">
-              <div class="fleet-driver-icon">👤</div>
-              <div>
-                <div style="font-weight:500">Алексей Данилов</div>
-                <div style="color:var(--muted);font-size:11px">Активен</div>
-              </div>
-            </div>
-            <div class="fleet-stat">
-              <span>Статус</span>
-              <span class="badge badge-green" style="font-size:11px">На базе</span>
-            </div>
-            <div class="fleet-stat" style="margin-top:5px">
-              <span>Рейсов / мес.</span>
-              <span style="font-weight:600">12</span>
-            </div>
-          </div>
-
-          <div class="fleet-card">
-            <div class="fleet-icon">🚛</div>
-            <div class="fleet-name">МАН</div>
-            <div class="fleet-vol">Цистерна 18 куб · Дизель</div>
-            <div class="fleet-driver">
-              <div class="fleet-driver-icon">👤</div>
-              <div>
-                <div style="font-weight:500">Сергей Волков</div>
-                <div style="color:var(--muted);font-size:11px">В рейсе</div>
-              </div>
-            </div>
-            <div class="fleet-stat">
-              <span>Статус</span>
-              <span class="badge badge-orange" style="font-size:11px">В пути</span>
-            </div>
-            <div class="fleet-stat" style="margin-top:5px">
-              <span>Рейсов / мес.</span>
-              <span style="font-weight:600">18</span>
-            </div>
-          </div>
-
-          <div class="fleet-card">
-            <div class="fleet-icon">🚗</div>
-            <div class="fleet-name">Сайгак-КамАЗ</div>
-            <div class="fleet-vol">Цистерна 11 куб · Дизель</div>
-            <div class="fleet-driver">
-              <div class="fleet-driver-icon">👤</div>
-              <div>
-                <div style="font-weight:500">Роман Медведев</div>
-                <div style="color:var(--muted);font-size:11px">В рейсе</div>
-              </div>
-            </div>
-            <div class="fleet-stat">
-              <span>Статус</span>
-              <span class="badge badge-orange" style="font-size:11px">В пути</span>
-            </div>
-            <div class="fleet-stat" style="margin-top:5px">
-              <span>Рейсов / мес.</span>
-              <span style="font-weight:600">22</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-hdr" style="margin-top:20px">
-          <h3>Водители</h3>
-        </div>
-        <div class="card-list">
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(10,132,255,.12);font-size:18px">👤</div>
-            <div class="list-row-info">
-              <div class="list-row-title">Алексей Данилов</div>
-              <div class="list-row-sub">Шахман-1 / Шахман-2</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val">26 рейсов</div>
-              <div class="list-row-time"><span class="badge badge-green">Активен</span></div>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(10,132,255,.12);font-size:18px">👤</div>
-            <div class="list-row-info">
-              <div class="list-row-title">Сергей Волков</div>
-              <div class="list-row-sub">МАН</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val">18 рейсов</div>
-              <div class="list-row-time"><span class="badge badge-orange">В рейсе</span></div>
-            </div>
-          </div>
-          <div class="list-row">
-            <div class="list-row-icon" style="background:rgba(10,132,255,.12);font-size:18px">👤</div>
-            <div class="list-row-info">
-              <div class="list-row-title">Роман Медведев</div>
-              <div class="list-row-sub">Сайгак-КамАЗ</div>
-            </div>
-            <div class="list-row-right">
-              <div class="list-row-val">22 рейса</div>
-              <div class="list-row-time"><span class="badge badge-orange">В рейсе</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /content -->
-  </div><!-- /main -->
-</div><!-- /app -->
-
-<!-- Mobile bottom nav -->
-<nav class="bottom-nav">
-  <div class="bottom-tabs">
-    <div class="btab active" data-tab="dashboard"><div class="btab-icon">📊</div><span>Дашборд</span></div>
-    <div class="btab" data-tab="base"><div class="btab-icon">🗃️</div><span>База</span></div>
-    <div class="btab" data-tab="orders"><div class="btab-icon">📋</div><span>Заказы</span></div>
-    <div class="btab" data-tab="fleet"><div class="btab-icon">🚛</div><span>Автопарк</span></div>
-  </div>
-</nav>
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
-const screenTitles={dashboard:'Дашборд',base:'База',orders:'Заказы',fleet:'Автопарк'};
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('en-GB');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
 
-function switchTab(tab){
-  // hide all screens
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  // show target
-  const sc=document.getElementById('screen-'+tab);
-  if(sc)sc.classList.add('active');
-  // sidebar
-  document.querySelectorAll('.nav-item').forEach(n=>{
-    n.classList.toggle('active',n.dataset.tab===tab);
-  });
-  // mobile tabs
-  document.querySelectorAll('.btab').forEach(b=>{
-    b.classList.toggle('active',b.dataset.tab===tab);
-  });
-  // topbar title
-  const tt=document.getElementById('topbarTitle');
-  if(tt)tt.textContent=screenTitles[tab]||tab;
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
+
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
+}
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
+}
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
+
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
+  }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Trend: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
 }
 
-// Sidebar clicks
-document.querySelectorAll('.nav-item[data-tab]').forEach(n=>{
-  n.addEventListener('click',()=>switchTab(n.dataset.tab));
+'use strict';
+
+/* ── data ─────────────────────────────────────────────── */
+const CAP = 2500;
+const TODAY = '10.06.2026';
+const S = {
+  stockJun1: 1267,            // 1 June: 1 267 + 120 received − 540 shipped = 847
+  shippedJun: 540,
+  orders: [
+    { id: 101, client: 'Mirage DV',       date: '05.06.2026', total: 400,  delivered: 370,  transit: 20, sites: ['Dipkun', 'Skovorodino'],  price: 20900 },
+    { id: 102, client: 'Sakh Trans',      date: '12.05.2026', total: 250,  delivered: 195,  transit: 12, sites: ['Akurdan'],                price: 19500 },
+    { id: 103, client: 'Belaya Gora Mining', date: '20.05.2026', total: 600,  delivered: 510,  transit: 18, sites: ['Belaya Gora', 'Chulman'],  price: 22000 },
+    { id: 104, client: 'Tynda Airport', date: '01.06.2026', total: 180,  delivered: 155,  transit: 0,  sites: ['Tynda · airport'],       price: 18500 },
+    { id: 105, client: 'Russian Railways Tynda',      date: '15.04.2026', total: 1200, delivered: 1150, transit: 0,  sites: ['Tynda · depot', 'Zeysk'],  price: 21100 },
+  ],
+  trucks: [
+    { id: 1, name: 'KamAZ-6522',  plate: 'E412UA28', owner: 'DTL',   tank: 20, driver: 'Ivanov A. E.',   status: 'transit', last: 'Dipkun',     trips: 14 },
+    { id: 2, name: 'MAZ-5337',    plate: 'O185HA28', owner: 'DTL',   tank: 14, driver: 'Petrov S. N.',   status: 'base',    last: 'Akurdan',    trips: 11 },
+    { id: 3, name: 'KamAZ-65115', plate: 'A741KP28', owner: 'DTL',   tank: 16, driver: 'Kuznetsov R. V.', status: 'free',    last: 'Belaya Gora', trips: 9 },
+    { id: 4, name: 'KamAZ-6520',  plate: 'M329OA28', owner: 'Artem', tank: 18, driver: 'Ivanov A. E.',   status: 'transit', last: 'Chulman',    trips: 7 },
+    { id: 5, name: 'Ural-4320',   plate: 'B558KH28', owner: 'Artem', tank: 12, driver: 'Sidorov P. L.',  status: 'transit', last: 'Akurdan',    trips: 6 },
+    { id: 6, name: 'KamAZ-5350',  plate: 'T770ME28', owner: 'Artem', tank: 16, driver: 'Romanov D. A.',  status: 'base',    last: 'Zeysk',      trips: 8 },
+  ],
+  trips: [
+    { id: 9, truck: 1, order: 101, site: 'Dipkun',     vol: 20, date: '10.06.2026', status: 'transit' },
+    { id: 8, truck: 4, order: 103, site: 'Chulman',    vol: 18, date: '10.06.2026', status: 'transit' },
+    { id: 7, truck: 5, order: 102, site: 'Akurdan',    vol: 12, date: '09.06.2026', status: 'transit' },
+    { id: 6, truck: 1, order: 101, site: 'Dipkun',     vol: 20, date: '02.06.2026', status: 'done' },
+    { id: 5, truck: 2, order: 102, site: 'Akurdan',    vol: 14, date: '28.05.2026', status: 'done' },
+    { id: 4, truck: 3, order: 103, site: 'Belaya Gora', vol: 16, date: '25.05.2026', status: 'done' },
+    { id: 3, truck: 4, order: 101, site: 'Skovorodino', vol: 18, date: '20.05.2026', status: 'done' },
+  ],
+  receipts: [
+    { id: 4, src: 'Rosneft Tynda', vol: 150, ttn: 'BOL-2026-1901', date: '08.06.2026', ok: false, jun: true },
+    { id: 1, src: 'Rosneft Tynda', vol: 120, ttn: 'BOL-2026-1842', date: '03.06.2026', ok: true,  jun: true },
+    { id: 2, src: 'Gazpromneft',   vol: 200, ttn: 'BOL-2026-1791', date: '27.05.2026', ok: true,  jun: false },
+    { id: 3, src: 'Kamysh (private)', vol: 80, ttn: 'BOL-2026-1780', date: '20.05.2026', ok: true,  jun: false },
+  ],
+  months: [['Jan', 210], ['Feb', 260], ['Mar', 360], ['Apr', 450], ['May', 610], ['Jun', 540]],  // shipped, m³ (June includes 50 on the road)
+};
+const STATUS = { transit: ['In transit', 'warn'], base: ['At base', ''], free: ['Available', 'pos'] };
+
+/* derived: every figure is computed from the rows */
+const receivedJun = () => S.receipts.filter((r) => r.ok && r.jun).reduce((s, r) => s + r.vol, 0);
+const pendingRc = () => S.receipts.filter((r) => !r.ok);
+const stock = () => S.stockJun1 + receivedJun() - S.shippedJun;
+const transitTrips = () => S.trips.filter((t) => t.status === 'transit');
+const transitVol = () => transitTrips().reduce((s, t) => s + t.vol, 0);
+const delivered = () => S.orders.reduce((s, o) => s + o.delivered, 0);
+const revenue = () => S.orders.reduce((s, o) => s + o.delivered * o.price, 0);
+const avgPrice = () => revenue() / delivered();
+const truck = (id) => S.trucks.find((t) => t.id === id);
+const order = (id) => S.orders.find((o) => o.id === id);
+const mln = (n) => fmtD(n / 1e6, 1);
+const pctOf = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+console.assert(stock() === 847 && transitVol() === 50 && delivered() === 2380, 'seed data must reconcile');
+
+/* ── tank gauge: the product's one thing ───────────────── */
+function tankSVG(level) {
+  const W = 84, H = 210, y0 = 6, ph = H - 12, fill = ph * level;
+  const ticks = [0.25, 0.5, 0.75].map((t) => `<line x1="10" x2="26" y1="${y0 + ph * (1 - t)}" y2="${y0 + ph * (1 - t)}" stroke="var(--border)" stroke-width="2"/>`).join('');
+  return `<svg class="tank" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${Math.round(level * 100)}% full of ${fmt(CAP)} m³">
+    <rect x="1" y="${y0}" width="${W - 2}" height="${ph}" rx="14" fill="var(--raised)" stroke="var(--border)" stroke-width="2"/>
+    <clipPath id="tk"><rect x="1" y="${y0}" width="${W - 2}" height="${ph}" rx="14"/></clipPath>
+    <rect x="0" y="${y0 + ph - fill}" width="${W}" height="${fill}" fill="var(--accent)" clip-path="url(#tk)" style="transition:all .6s var(--ease)"/>
+    ${ticks}</svg>`;
+}
+
+/* ── pages ────────────────────────────────────────────── */
+const PAGES = {
+  dashboard: ['Dashboard', 'home'], base: ['Base', 'drop'], orders: ['Orders', 'box'], fleet: ['Fleet', 'truck'], analytics: ['Analytics', 'chart'],
+};
+let page = 'dashboard', baseTab = 'receipts';
+
+function chrome() {
+  const pend = pendingRc().length;
+  const item = (k, extra = '') => `<a data-page="${k}" role="link" tabindex="0">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${extra}</a>`;
+  $('#nav').innerHTML = item('dashboard') + `<div class="nav-label">Base</div>` + item('base', pend ? `<span class="count" title="Awaiting confirmation">${pend}</span>` : '') + item('orders') + `<div class="nav-label">Operations</div>` + item('fleet') + item('analytics');
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" role="link" tabindex="0">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'base' && pend ? `<b class="count">${pend}</b>` : ''}</a>`).join('');
+  setNav(page);
+}
+
+function render() {
+  chrome();
+  $('#main').innerHTML = ({ dashboard, base, orders, fleet, analytics })[page]();
+  mountCharts();
+  window.scrollTo(0, 0);
+}
+function go(p) { page = p; render(); }
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) { go(a.dataset.page); return; }
+  const act = e.target.closest('[data-act]'); if (act) { act.blur(); ACT[act.dataset.act](act.dataset); return; }
+  const row = e.target.closest('[data-open]'); if (row) openOrder(+row.dataset.open);
+  const tab = e.target.closest('[data-tab]'); if (tab) { baseTab = tab.dataset.tab; render(); }
 });
-// Bottom tab clicks
-document.querySelectorAll('.btab[data-tab]').forEach(b=>{
-  b.addEventListener('click',()=>switchTab(b.dataset.tab));
-});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
 
-function switchSubtab(sub){
-  document.querySelectorAll('.subtab').forEach(s=>s.classList.remove('active'));
-  document.getElementById('st-'+sub).classList.add('active');
-  const panels=['receipts','dispatches'];
-  panels.forEach(p=>{
-    const el=document.getElementById('sub-'+p);
-    if(el)el.style.display=p===sub?'block':'none';
-  });
+const head = (title, sub, actions = '') => `<header class="head"><div><h1>${title}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+const mainActions = `<button class="btn" data-act="newTrip">${ic('truck')}New trip</button><button class="btn primary" data-act="newReceipt">${ic('plus')}Log fuel receipt</button>`;
+
+function dashboard() {
+  const pend = pendingRc();
+  const pv = pend.reduce((s, r) => s + r.vol, 0);
+  const trips = transitTrips();
+  const level = stock() / CAP;
+  return head('Dashboard', `${TODAY} · Tynda base`, mainActions) +
+    (pend.length ? `<div class="finding">${ic('alert')}<span>Receipt ${esc(pend[0].ttn)} from ${esc(pend[0].src)}, ${pend[0].vol} m³, awaiting confirmation. Base stock will then be ${fmt(stock() + pv)} m³.</span><button class="btn sm" data-act="confirmRc" data-id="${pend[0].id}">Confirm</button></div>` : '') +
+    `<div class="kpis">
+      <div class="kpi"><b>${mln(revenue())}<small>M ₽</small></b><span>Revenue on delivered fuel</span></div>
+      <div class="kpi"><b>${fmt(delivered())}<small>m³</small></b><span>Delivered to customers</span></div>
+      <div class="kpi"><b>${S.orders.length}</b><span>Active orders</span></div>
+    </div>
+    <div class="grid">
+      <section class="card c5"><div class="card-h"><h2>Base stock</h2><span>capacity ${fmt(CAP)} m³</span></div>
+        <div class="tank-wrap">${tankSVG(level)}
+          <div class="tank-list"><div><div class="big">${fmt(stock())}<small>m³</small></div><div class="muted" style="margin-top:6px">${pctOf(stock(), CAP)}% of capacity</div></div>
+            <dl><dt>Received in June</dt><dd class="pos">${signed(receivedJun())}</dd><dt>Shipped in June</dt><dd>${signed(-S.shippedJun)}</dd><dt>Awaiting receipt</dt><dd class="${pv ? 'warn' : 'muted'}">${pv ? fmt(pv) : '—'}</dd></dl></div></div>
+        <ul class="feedl" aria-label="Events">${LOG.slice(0, 5).map(([h, x]) => `<li><b>${h}</b><span>${esc(x)}</span></li>`).join('')}</ul>
+      </section>
+      <section class="card c7"><div class="card-h"><h2>Trips on the road${trips.length ? ` · ${trips.length}` : ''}</h2><span>${fmt(transitVol())} m³ on the road</span></div>
+        ${mapSVG()}${trips.length ? trips.map((t) => `<div class="trip"><div class="trip-ic">${ic('truck')}</div><div><b>${esc(truck(t.truck).name)} → ${esc(t.site)}</b><span>${esc(truck(t.truck).driver)} · ${t.vol} m³ · left ${t.date.slice(0, 5)}</span><div class="tp"><i data-tp="${t.id}" style="width:${Math.round((TP[t.id] || 0) * 100)}%"></i></div></div><button class="btn sm" data-act="deliver" data-id="${t.id}">${ic('check')}Delivered</button></div>`).join('') : `<div class="empty">All trips delivered.<br><button class="btn sm" style="margin-top:10px" data-act="newTrip">Create trip</button></div>`}
+      </section>
+      <section class="card c7"><div class="card-h"><h2>Monthly shipments, m³</h2><span>June includes trips on the road</span></div><div id="ch-months"></div></section>
+      <section class="card c5"><div class="card-h"><h2>Order fulfilment</h2><span>delivered of ordered</span></div>
+        ${S.orders.map((o) => barRow(esc(o.client), pctOf(o.delivered, o.total), `${pctOf(o.delivered, o.total)}%`, `${fmt(o.delivered)} of ${fmt(o.total)} m³`)).join('')}
+      </section>
+    </div>`;
 }
 
-function toggleOrder(card){
-  card.classList.toggle('expanded');
+function base() {
+  const rc = `<div class="tbl" style="--cols:92px 1.4fr 1.2fr 80px 130px;--colsm:1.4fr 70px 110px">
+      <div class="tr th"><span class="hm">Date</span><span>Supplier</span><span class="hm">BOL</span><span class="r">m³</span><span class="r">Status</span></div>
+      ${S.receipts.map((r) => `<div class="tr"><span class="hm muted">${r.date}</span><span class="cell-main"><b>${esc(r.src)}</b><span class="hm" style="display:none"></span></span><span class="hm muted">${esc(r.ttn)}</span><span class="r">${r.vol}</span><span class="r">${r.ok ? '<span class="pill pos"><i></i>Received</span>' : `<button class="btn sm primary" data-act="confirmRc" data-id="${r.id}">Receive</button>`}</span></div>`).join('')}</div>`;
+  const tr = `<div class="tbl" style="--cols:92px 1.3fr 1.2fr 1fr 70px 110px;--colsm:1.2fr 1fr 60px">
+      <div class="tr th"><span class="hm">Date</span><span>Truck</span><span class="hm">Driver</span><span>Site</span><span class="r">m³</span><span class="r hm">Status</span></div>
+      ${S.trips.map((t) => `<div class="tr"><span class="hm muted">${t.date}</span><span class="cell-main"><b>${esc(truck(t.truck).name)}</b></span><span class="hm muted">${esc(truck(t.truck).driver)}</span><span>${esc(t.site)}</span><span class="r">${t.vol}</span><span class="r hm">${t.status === 'transit' ? '<span class="pill warn"><i></i>In transit</span>' : '<span class="pill pos"><i></i>Delivered</span>'}</span></div>`).join('')}</div>`;
+  return head('Base', `Stock ${fmt(stock())} of ${fmt(CAP)} m³ · ${pctOf(stock(), CAP)}%`, mainActions) +
+    `<div class="card" style="margin-bottom:var(--gap)"><div class="bar thick"><i style="width:${pctOf(stock(), CAP)}%"></i></div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px" class="muted"><span>0</span><span>${fmt(CAP / 2)}</span><span>${fmt(CAP)} m³</span></div></div>
+    <div class="tabs" role="tablist"><button data-tab="receipts" class="${baseTab === 'receipts' ? 'on' : ''}">Receipts</button><button data-tab="trips" class="${baseTab === 'trips' ? 'on' : ''}">Trips</button></div>
+    <div class="card">${baseTab === 'receipts' ? rc : tr}</div>`;
 }
+
+function orders() {
+  return head('Customer orders', `${S.orders.length} active · ${fmt(S.orders.reduce((s, o) => s + o.total, 0))} m³ ordered`, `<button class="btn primary" data-act="newTrip">${ic('truck')}New trip</button>`) +
+    `<div class="card"><div class="tbl" style="--cols:1.4fr 100px 1.3fr 130px 130px;--colsm:1.3fr 110px">
+      <div class="tr th"><span>Customer</span><span class="hm">Date</span><span class="hm">Fulfilment</span><span class="r">Delivered</span><span class="r hm">Amount, ₽</span></div>
+      ${S.orders.map((o) => `<div class="tr" data-open="${o.id}"><span class="cell-main"><b>${esc(o.client)}</b><span>${esc(o.sites.join(', '))}</span></span><span class="hm muted">${o.date}</span><span class="hm"><div class="bar"><i style="width:${pctOf(o.delivered, o.total)}%"></i></div></span><span class="r">${fmt(o.delivered)} <span class="muted">/ ${fmt(o.total)}</span></span><span class="r hm">${fmt(o.total * o.price)}</span></div>`).join('')}</div></div>`;
+}
+
+function fleet() {
+  const n = (s) => S.trucks.filter((t) => t.status === s).length;
+  return head('Fleet', `${S.trucks.length} trucks · ${n('transit')} in transit, ${n('base') + n('free')} available to assign`, `<button class="btn primary" data-act="newTrip">${ic('plus')}New trip</button>`) +
+    `<div class="card"><div class="tbl" style="--cols:1.3fr 90px 70px 1.2fr 1fr 80px 120px;--colsm:1.2fr 100px">
+      <div class="tr th"><span>Truck</span><span class="hm">Owner</span><span class="hm r">Tank, m³</span><span class="hm">Driver</span><span class="hm">Last site</span><span class="hm r">Trips</span><span class="r">Status</span></div>
+      ${S.trucks.map((t) => `<div class="tr"><span class="cell-main"><b>${esc(t.name)}</b><span>${esc(t.plate)}</span></span><span class="hm muted">${esc(t.owner)}</span><span class="hm r">${t.tank}</span><span class="hm">${esc(t.driver)}</span><span class="hm muted">${esc(t.last)}</span><span class="hm r">${t.trips}</span><span class="r"><span class="pill ${STATUS[t.status][1]}"><i></i>${STATUS[t.status][0]}</span></span></div>`).join('')}</div></div>`;
+}
+
+function analytics() {
+  const best = S.months.reduce((a, b) => (b[1] > a[1] ? b : a));
+  const rows = S.months.map(([m, v], i) => ({ m, v, d: i ? v - S.months[i - 1][1] : null, rev: v * avgPrice() }));
+  return head('Analytics', 'Shipments and revenue year to date') +
+    `<div class="kpis"><div class="kpi"><b>${fmt(S.months.reduce((s, m) => s + m[1], 0))}<small>m³</small></b><span>Shipped since January</span></div>
+      <div class="kpi"><b>${best[0]}<small>${best[1]} m³</small></b><span>Best month</span></div>
+      <div class="kpi"><b>${fmt(avgPrice())}<small>₽/m³</small></b><span>Average sale price</span></div></div>
+    <div class="grid"><section class="card c8"><div class="card-h"><h2>Shipments, m³ per month</h2></div><div id="ch-line"></div></section>
+      <section class="card c4"><div class="card-h"><h2>Revenue by customer</h2><span>M ₽</span></div>
+        ${[...S.orders].sort((a, b) => b.delivered * b.price - a.delivered * a.price).map((o) => barRow(esc(o.client), (o.delivered * o.price) / (Math.max(...S.orders.map((x) => x.delivered * x.price))) * 100, mln(o.delivered * o.price))).join('')}</section>
+      <section class="card c12"><div class="card-h"><h2>By month</h2><span>revenue at average price</span></div>
+        <div class="tbl" style="--cols:1fr 1fr 1fr 1fr;--colsm:1fr 1fr 1fr"><div class="tr th"><span>Month</span><span class="r">m³</span><span class="r">Revenue, M ₽</span><span class="r hm">vs. previous month</span></div>
+        ${rows.map((r) => `<div class="tr"><span>${r.m}${r.m === 'Jun' ? ' <span class="muted">(incomplete)</span>' : ''}</span><span class="r">${r.v}</span><span class="r">${mln(r.rev)}</span><span class="r hm ${r.d > 0 ? 'pos' : r.d < 0 ? 'neg' : 'muted'}">${r.d == null ? '—' : signed(r.d) + ' m³'}</span></div>`).join('')}</div></section></div>`;
+}
+
+function mountCharts() {
+  const labels = S.months.map((m) => m[0]), values = S.months.map((m) => m[1]);
+  const a = $('#ch-months'); if (a) chart(a, (w) => barsSVG(w, { labels, values, unit: 'm³' }));
+  const b = $('#ch-line'); if (b) chart(b, (w) => lineSVG(w, { labels, values }));
+}
+
+/* ── actions ──────────────────────────────────────────── */
+/* ── live map: trucks drive along their routes; on arrival the trip closes by itself ─ */
+const SITES = { 'Tynda Base': [300, 150], 'Dipkun': [520, 60], 'Skovorodino': [90, 50], 'Akurdan': [490, 235], 'Belaya Gora': [90, 235], 'Chulman': [320, 275], 'Zeysk': [230, 25] };
+let CLK = 14 * 60 + 36; const LOG = [['14:02', 'KamAZ-6522 left for Dipkun'], ['13:40', 'Ural-4320 left for Akurdan'], ['12:15', 'Receipt BOL-2026-1901 awaiting confirmation']];
+const clk = () => String(Math.floor(CLK / 60)).padStart(2, '0') + ':' + String(CLK % 60).padStart(2, '0');
+const TP = { 9: .55, 8: .3, 7: .78 };
+const pos = (site, p) => { const a = SITES['Tynda Base'], b = SITES[site] || [300, 40]; return [a[0] + (b[0] - a[0]) * p, a[1] + (b[1] - a[1]) * p]; };
+function mapSVG() {
+  const trips = transitTrips(), active = new Set(trips.map((t) => t.site));
+  return `<svg class="map" viewBox="0 0 600 300" role="img" aria-label="Trips on the map">${Object.entries(SITES).filter(([n]) => n !== 'Tynda Base').map(([n, [x, y]]) => `<line class="rt ${active.has(n) ? 'on' : ''}" x1="300" y1="150" x2="${x}" y2="${y}"/><circle class="site" cx="${x}" cy="${y}" r="7"/><text x="${x}" y="${y + (y > 150 ? 24 : -14)}" text-anchor="middle">${n}</text>`).join('')}
+    <circle class="hub" cx="300" cy="150" r="10"/><text x="300" y="130" text-anchor="middle" style="fill:var(--text);font-weight:600">Tynda Base</text>
+    ${trips.map((t) => { const [x, y] = pos(t.site, TP[t.id] || 0); return `<g data-mk="${t.id}" transform="translate(${x} ${y})"><circle class="pulse" r="9"/><circle class="mk" r="8"/></g>`; }).join('')}</svg>`;
+}
+setInterval(() => {
+  if (document.hidden || $('#scrim')) return;
+  CLK++; let arrived = null;
+  transitTrips().forEach((t) => { TP[t.id] = Math.min(1, (TP[t.id] || 0) + .012 + (t.id % 3) * .004); if (TP[t.id] >= 1 && !arrived) arrived = t; });
+  if (arrived) { ACT.deliver({ id: arrived.id }); return; }
+  if (page !== 'dashboard') return;
+  transitTrips().forEach((t) => { const g = $(`[data-mk="${t.id}"]`), [x, y] = pos(t.site, TP[t.id] || 0); if (g) g.setAttribute('transform', `translate(${x} ${y})`); const b = $(`[data-tp="${t.id}"]`); if (b) b.style.width = Math.round((TP[t.id] || 0) * 100) + '%'; });
+}, 1400);
+
+const ACT = {
+  deliver({ id }) {
+    const t = S.trips.find((x) => x.id === +id); t.status = 'done';
+    const o = order(t.order); o.transit -= t.vol; o.delivered += t.vol;
+    truck(t.truck).status = 'base'; truck(t.truck).last = t.site; truck(t.truck).trips += 1;
+    LOG.unshift([clk(), `${truck(t.truck).name} delivered ${t.vol} m³ to ${t.site}`]); toast(`Delivered: ${t.vol} m³ to ${t.site}`); render();
+  },
+  confirmRc({ id }) { const r = S.receipts.find((x) => x.id === +id); r.ok = true; toast(`Receipt confirmed: +${r.vol} m³ at base`); render(); },
+  newReceipt() {
+    modal(`<h2>Log fuel receipt</h2><p>The new receipt will be sent for confirmation.</p>
+      <div class="field"><label>Supplier</label><select id="f-src"><option>Rosneft Tynda</option><option>Gazpromneft</option><option>Kamysh (private)</option></select></div>
+      <div class="field"><label>Volume, m³</label><input id="f-vol" type="number" min="1" max="500" value="100"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="f-ok">Save</button></div>`, () => {
+      $('#f-ok').onclick = () => {
+        const vol = +$('#f-vol').value; if (!(vol > 0)) return;
+        S.receipts.unshift({ id: Date.now(), src: $('#f-src').value, vol, ttn: 'BOL-2026-' + (1902 + S.receipts.length - 4), date: TODAY, ok: false, jun: true });
+        closeModal(); toast('Receipt saved, awaiting confirmation'); render();
+      };
+    });
+  },
+  newTrip(data = {}) {
+    const free = S.trucks.filter((t) => t.status !== 'transit');
+    if (!free.length) { toast('All trucks are in transit'); return; }
+    modal(`<h2>New trip</h2><p>Fuel is deducted from base stock immediately. Base stock now: ${fmt(stock())} m³.</p>
+      <div class="field"><label>Truck</label><select id="f-truck">${free.map((t) => `<option value="${t.id}">${esc(t.name)} · tank ${t.tank} m³</option>`).join('')}</select></div>
+      <div class="field"><label>Order</label><select id="f-order">${S.orders.map((o) => `<option value="${o.id}">${esc(o.client)} · ${fmt(o.total - o.delivered - o.transit)} m³ left</option>`).join('')}</select></div>
+      <div class="field"><label>Site</label><select id="f-site"></select></div>
+      <div class="field"><label>Volume, m³</label><input id="f-vol" type="number" min="1" value="12"><span id="f-err" class="neg" style="font-size:13px"></span></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="f-ok">Dispatch trip</button></div>`, () => {
+      const sync = () => {
+        const o = order(+$('#f-order').value), t = truck(+$('#f-truck').value);
+        $('#f-site').innerHTML = o.sites.map((s) => `<option>${esc(s)}</option>`).join('');
+        $('#f-vol').max = t.tank; if (+$('#f-vol').value > t.tank) $('#f-vol').value = t.tank;
+      };
+      $('#f-order').onchange = sync; $('#f-truck').onchange = sync; sync();
+      $('#f-ok').onclick = () => {
+        const t = truck(+$('#f-truck').value), o = order(+$('#f-order').value), vol = +$('#f-vol').value, left = o.total - o.delivered - o.transit;
+        const err = !(vol > 0) ? 'Enter a volume' : vol > t.tank ? `${t.name} tank holds ${t.tank} m³` : vol > stock() ? `Only ${fmt(stock())} m³ at base` : vol > left ? `Only ${left} m³ left on this order` : '';
+        if (err) { $('#f-err').textContent = err; return; }
+        S.trips.unshift({ id: Date.now(), truck: t.id, order: o.id, site: $('#f-site').value, vol, date: TODAY, status: 'transit' });
+        t.status = 'transit'; o.transit += vol; S.shippedJun += vol;
+        closeModal(); toast(`${t.name} dispatched: ${vol} m³`); render();
+      };
+    });
+  },
+};
+function openOrder(id) {
+  const o = order(id), trips = S.trips.filter((t) => t.order === id);
+  modal(`<h2>${esc(o.client)}</h2><p>Order of ${o.date} · ${fmt(o.price)} ₽/m³ · ${fmt(o.total * o.price)} ₽</p>
+    <div class="brow-t"><span>Delivered</span><b>${fmt(o.delivered)} of ${fmt(o.total)} m³</b></div><div class="bar thick" style="margin-bottom:6px"><i style="width:${pctOf(o.delivered, o.total)}%"></i></div>
+    <p class="muted" style="margin:0 0 14px">${o.transit ? `${o.transit} m³ on the road · ` : ''}${fmt(o.total - o.delivered - o.transit)} m³ left to ship</p>
+    ${trips.length ? trips.map((t) => `<div class="trip" style="grid-template-columns:1fr auto"><div><b>${esc(truck(t.truck).name)} → ${esc(t.site)}</b><span>${t.date} · ${t.vol} m³</span></div><span class="pill ${t.status === 'transit' ? 'warn' : 'pos'}"><i></i>${t.status === 'transit' ? 'In transit' : 'Delivered'}</span></div>`).join('') : '<p class="muted">No trips yet.</p>'}
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button></div>`);
+}
+
+render();
 </script>
 </body>
 </html>

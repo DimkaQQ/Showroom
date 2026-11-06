@@ -1,1938 +1,546 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shipter — Demo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<title>Shipter — product launch planner (demo)</title>
+<meta name="description" content="Demo: AI builds a distribution plan for a digital product, and the launch board walks you through the tasks. Plans with generation limits. Data is fictional.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ====================================================
-   DESIGN TOKENS — dark-first, single-theme (intentional)
-   Layout: sticky navbar 72px + scrollable content area
-   ==================================================== */
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
 :root {
-  --bg-base:        #0a0e14;
-  --bg-surface:     #0f1620;
-  --bg-elevated:    #151f2e;
-  --bg-overlay:     #1a273a;
-  --accent:         #00d9ff;
-  --accent-glow:    rgba(0,217,255,0.12);
-  --accent2:        #00ff9d;
-  --accent-warning: #ffb700;
-  --accent-danger:  #ff4757;
-  --accent-success: #2ed573;
-  --text-primary:   #e8f4f8;
-  --text-secondary: #7a9ba8;
-  --text-muted:     #3d5a6b;
-  --border-subtle:  rgba(0,217,255,0.08);
-  --border-default: rgba(0,217,255,0.18);
-  --border-strong:  rgba(0,217,255,0.35);
-  --gradient-hero:  linear-gradient(135deg, #00d9ff 0%, #00ff9d 100%);
-  --font:           'Syne', 'DM Sans', -apple-system, sans-serif;
-  --font-body:      'DM Sans', -apple-system, sans-serif;
-  --font-mono:      'JetBrains Mono', 'Courier New', monospace;
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
   color-scheme: dark;
 }
-
-/* ====================================================
-   RESET & BASE
-   ==================================================== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-button { cursor: pointer; }
-a { color: inherit; }
-
-body {
-  font-family: var(--font-body);
-  background: var(--bg-base);
-  color: var(--text-primary);
-  padding-top: 32px; /* demo banner height */
-  min-height: 100vh;
-  overflow-x: hidden;
-  padding-left: max(0px, env(safe-area-inset-left, 0px));
-  padding-right: max(0px, env(safe-area-inset-right, 0px));
-}
-
-/* ====================================================
-   ANIMATED BACKGROUND ORBS
-   ==================================================== */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(ellipse 800px 600px at 20% 50%, rgba(0,217,255,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 600px 800px at 80% 20%, rgba(0,255,157,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 700px 500px at 60% 80%, rgba(0,136,255,0.05) 0%, transparent 60%);
-  animation: orb-float 20s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes orb-float {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  33%       { opacity: .8; transform: scale(1.03) translateX(-12px); }
-  66%       { opacity: .9; transform: scale(.97) translateX(8px); }
-}
-
-/* ====================================================
-   DEMO BANNER
-   ==================================================== */
-.demo-banner {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 9999;
-  background: #00d9ff;
-  color: #0a0e14;
-  text-align: center;
-  padding: 5px 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .1em;
-  font-family: var(--font);
-}
-
-/* ====================================================
-   NAVBAR
-   ==================================================== */
-.navbar {
-  position: sticky;
-  top: 32px;
-  z-index: 100;
-  height: 72px;
-  background: rgba(10,14,20,0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  padding: 0 max(24px, env(safe-area-inset-left, 24px)) 0 max(24px, env(safe-area-inset-left, 24px));
-  gap: 32px;
-}
-
-.navbar-brand {
-  font-family: var(--font);
-  font-size: 20px;
-  font-weight: 700;
-  background: var(--gradient-hero);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  white-space: nowrap;
-  letter-spacing: -.01em;
-}
-
-.navbar-nav {
-  display: flex;
-  gap: 2px;
-  flex: 1;
-}
-
-.nav-link {
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: none;
-  border: none;
-  font-family: var(--font-body);
-  transition: color 0.2s, background 0.2s;
-}
-
-.nav-link:hover  { color: var(--text-primary); background: var(--border-subtle); }
-.nav-link.active { color: var(--accent); background: rgba(0,217,255,0.08); }
-
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: auto;
-}
-
-.avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: var(--gradient-hero);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: #0a0e14;
-  font-family: var(--font);
-  flex-shrink: 0;
-}
-
-/* ====================================================
-   MAIN LAYOUT
-   ==================================================== */
-.main {
-  position: relative;
-  z-index: 1;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-block: 40px;
-  padding-left: max(24px, env(safe-area-inset-left, 24px));
-  padding-right: max(24px, env(safe-area-inset-right, 24px));
-}
-
-/* ====================================================
-   CARDS (glassmorphism)
-   ==================================================== */
-.card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  transition: border-color 0.3s cubic-bezier(0.16,1,0.3,1),
-              box-shadow   0.3s cubic-bezier(0.16,1,0.3,1),
-              transform    0.3s cubic-bezier(0.16,1,0.3,1);
-}
-
-.card:hover {
-  border-color: var(--border-strong);
-  box-shadow: 0 0 40px var(--accent-glow);
-  transform: translateY(-4px);
-}
-
-/* ====================================================
-   BUTTONS
-   ==================================================== */
-.btn-primary {
-  background: var(--gradient-hero);
-  color: #0a0e14;
-  font-weight: 700;
-  border-radius: 8px;
-  padding: 10px 20px;
-  position: relative;
-  overflow: hidden;
-  border: none;
-  font-size: 14px;
-  font-family: var(--font-body);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: transform 0.2s, opacity 0.2s;
-}
-
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
-  transition: left 0.5s;
-}
-
-.btn-primary:hover::before { left: 100%; }
-.btn-primary:hover { transform: translateY(-1px); opacity: 0.95; }
-.btn-primary:active { transform: translateY(0); }
-
-.btn-secondary {
-  background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-family: var(--font-body);
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.btn-secondary:hover { border-color: var(--border-strong); background: var(--accent-glow); }
-
-.btn-ghost {
-  background: transparent;
-  color: var(--text-secondary);
-  border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-family: var(--font-body);
-  transition: color 0.2s, background 0.2s;
-}
-
-.btn-ghost:hover { color: var(--text-primary); background: var(--border-subtle); }
-
-/* ====================================================
-   BADGES
-   ==================================================== */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 20px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.badge-saas    { background: rgba(0,217,255,0.12);  color: var(--accent);         border: 1px solid rgba(0,217,255,0.2); }
-.badge-app     { background: rgba(0,255,157,0.1);   color: var(--accent2);        border: 1px solid rgba(0,255,157,0.2); }
-.badge-bot     { background: rgba(255,183,0,0.1);   color: var(--accent-warning); border: 1px solid rgba(255,183,0,0.2); }
-.badge-high    { background: rgba(255,71,87,0.12);  color: var(--accent-danger);  border: 1px solid rgba(255,71,87,0.2); }
-.badge-medium  { background: rgba(255,183,0,0.1);   color: var(--accent-warning); border: 1px solid rgba(255,183,0,0.2); }
-.badge-low     { background: rgba(46,213,115,0.1);  color: var(--accent-success); border: 1px solid rgba(46,213,115,0.2); }
-.badge-active  { background: rgba(46,213,115,0.1);  color: var(--accent-success); border: 1px solid rgba(46,213,115,0.2); }
-.badge-draft   { background: rgba(61,90,107,0.25);  color: var(--text-muted);     border: 1px solid rgba(61,90,107,0.3); }
-.badge-twitter { background: rgba(29,161,242,0.1);  color: #1da1f2;               border: 1px solid rgba(29,161,242,0.2); }
-.badge-linkedin{ background: rgba(0,119,181,0.1);   color: #4db8ff;               border: 1px solid rgba(0,119,181,0.25); }
-.badge-blog    { background: rgba(0,255,157,0.1);   color: var(--accent2);        border: 1px solid rgba(0,255,157,0.2); }
-.badge-tg      { background: rgba(42,171,238,0.12); color: #2aabee;               border: 1px solid rgba(42,171,238,0.2); }
-
-/* ====================================================
-   SCREEN ROUTING
-   ==================================================== */
-.screen               { display: none; }
-.screen.active        { display: block; }
-.tab-content          { display: none; }
-.tab-content.active   { display: block; }
-
-/* ====================================================
-   PAGE STRUCTURE — HEADERS, SECTION TITLES
-   ==================================================== */
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 32px;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.page-title {
-  font-family: var(--font);
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-wrap: balance;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.section-title {
-  font-family: var(--font);
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.divider { height: 1px; background: var(--border-subtle); margin: 32px 0; }
-
-/* ====================================================
-   PROJECTS GRID
-   ==================================================== */
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
-}
-
-.project-card {
-  padding: 24px;
-  cursor: pointer;
-}
-
-.project-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.project-card-title {
-  font-family: var(--font);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-}
-
-.project-card-tags {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.project-card-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.55;
-  margin-bottom: 16px;
-}
-
-.project-metrics {
-  display: flex;
-  gap: 20px;
-  padding: 16px 0;
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
-  margin-bottom: 16px;
-}
-
-.project-metric { display: flex; flex-direction: column; gap: 2px; }
-
-.metric-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.metric-label {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.project-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-/* ====================================================
-   PROGRESS BAR
-   ==================================================== */
-.progress-bar {
-  height: 4px;
-  background: var(--bg-overlay);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--gradient-hero);
-  border-radius: 4px;
-  transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
-}
-
-/* ====================================================
-   PROJECT DETAIL — BACK BUTTON & HEADER
-   ==================================================== */
-.project-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  background: none;
-  border: none;
-  font-family: var(--font-body);
-  margin-bottom: 24px;
-  padding: 0;
-  transition: color 0.2s;
-}
-
-.project-back:hover { color: var(--accent); }
-
-.project-detail-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 32px;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.project-detail-title-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 6px;
-  flex-wrap: wrap;
-}
-
-/* ====================================================
-   PROJECT TABS
-   ==================================================== */
-.project-tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--border-subtle);
-  margin-bottom: 32px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.project-tabs::-webkit-scrollbar { display: none; }
-
-.tab-btn {
-  padding: 10px 20px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  font-family: var(--font-body);
-  transition: color 0.2s, border-color 0.2s;
-  margin-bottom: -1px;
-  white-space: nowrap;
-}
-
-.tab-btn:hover  { color: var(--text-primary); }
-.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-/* ====================================================
-   OVERVIEW — METRIC TILES
-   ==================================================== */
-.metrics-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.metric-tile {
-  padding: 24px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  text-align: center;
-}
-
-.metric-tile-value {
-  font-family: var(--font);
-  font-size: 36px;
-  font-weight: 700;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-  display: block;
-  margin-bottom: 6px;
-  background: var(--gradient-hero);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.metric-tile-label { font-size: 13px; color: var(--text-secondary); }
-
-.overview-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 32px;
-}
-
-.info-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  padding: 18px;
-}
-
-.info-card-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-
-.info-card-value { font-size: 14px; color: var(--text-primary); line-height: 1.4; }
-
-/* ====================================================
-   DISTRIBUTION CHANNELS
-   ==================================================== */
-.channel-list { display: flex; flex-direction: column; gap: 12px; }
-
-.channel-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: border-color 0.25s, box-shadow 0.25s;
-  cursor: pointer;
-}
-
-.channel-card:hover {
-  border-color: var(--border-strong);
-  box-shadow: 0 0 24px rgba(0,217,255,0.08);
-}
-
-.channel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 20px;
-}
-
-.channel-info { display: flex; align-items: center; gap: 14px; min-width: 0; }
-
-.channel-icon {
-  font-size: 20px;
-  width: 42px; height: 42px;
-  background: var(--bg-overlay);
-  border: 1px solid var(--border-default);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.channel-name  { font-weight: 600; font-size: 15px; color: var(--text-primary); }
-.channel-desc  { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
-.channel-meta  { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-
-.channel-expand { color: var(--text-muted); font-size: 14px; transition: transform 0.3s; }
-.channel-expand.open { transform: rotate(180deg); }
-
-.channel-details {
-  display: none;
-  padding: 0 20px 18px;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.channel-details.open { display: block; }
-
-.tactics-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 14px;
-}
-
-.tactics-list li {
-  display: flex;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.55;
-}
-
-.tactics-list li::before { content: '→'; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
-
-/* ====================================================
-   CONTENT ITEMS
-   ==================================================== */
-.content-list { display: flex; flex-direction: column; gap: 12px; }
-
-.content-item {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition: border-color 0.2s;
-}
-
-.content-item:hover { border-color: var(--border-strong); }
-
-.content-item-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.content-item-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.content-item-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.content-item-text {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  border-left: 2px solid var(--border-default);
-  padding-left: 14px;
-}
-
-.btn-copy {
-  background: var(--bg-overlay);
-  border: 1px solid var(--border-default);
-  color: var(--text-secondary);
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-family: var(--font-body);
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.btn-copy:hover     { border-color: var(--border-strong); color: var(--accent); }
-.btn-copy.copied    { background: rgba(46,213,115,0.1); border-color: rgba(46,213,115,0.3); color: var(--accent-success); }
-
-/* ====================================================
-   TASKS
-   ==================================================== */
-.tasks-section { margin-bottom: 28px; }
-
-.tasks-section-title {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-}
-
-.task-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px 16px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  user-select: none;
-}
-
-.task-item:hover { border-color: var(--border-default); }
-
-.task-checkbox {
-  width: 18px; height: 18px;
-  border: 2px solid var(--text-muted);
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  transition: background 0.2s, border-color 0.2s;
-  margin-top: 1px;
-}
-
-.task-item.done .task-checkbox {
-  background: var(--accent-success);
-  border-color: var(--accent-success);
-  color: #0a0e14;
-}
-
-.task-text { font-size: 14px; color: var(--text-primary); line-height: 1.4; flex: 1; min-width: 0; }
-
-.task-item.done .task-text { color: var(--text-muted); text-decoration: line-through; }
-
-/* ====================================================
-   METRICS TAB
-   ==================================================== */
-.metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-.metric-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: 20px;
-}
-
-.metric-card-title {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin-bottom: 14px;
-}
-
-.mini-bar-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 5px;
-  height: 56px;
-}
-
-.bar {
-  flex: 1;
-  background: linear-gradient(to top, rgba(0,217,255,0.55), rgba(0,217,255,0.18));
-  border-radius: 3px 3px 0 0;
-  transition: background 0.2s;
-  min-height: 4px;
-}
-
-.bar:hover { background: linear-gradient(to top, var(--accent), rgba(0,217,255,0.45)); }
-
-.chart-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
-  font-size: 10px;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.metrics-stat-big {
-  font-size: 26px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  margin-top: 8px;
-}
-
-/* ====================================================
-   CREATE PROJECT FORM
-   ==================================================== */
-.create-form { max-width: 600px; }
-
-.form-group { margin-bottom: 24px; }
-
-.form-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-  letter-spacing: 0.04em;
-}
-
-.form-input,
-.form-textarea,
-.form-select {
-  width: 100%;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 8px;
-  padding: 12px 16px;
-  color: var(--text-primary);
-  font-size: 14px;
-  font-family: var(--font-body);
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.form-input:focus,
-.form-textarea:focus,
-.form-select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(0,217,255,0.08);
-}
-
-.form-input::placeholder,
-.form-textarea::placeholder { color: var(--text-muted); }
-
-.form-textarea { resize: vertical; min-height: 80px; }
-
-.form-select {
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a9ba8' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 36px;
-}
-
-.form-select option { background: var(--bg-elevated); color: var(--text-primary); }
-
-/* ====================================================
-   AI GENERATION ANIMATION
-   ==================================================== */
-.ai-loading {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  text-align: center;
-  padding: 48px 24px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  margin-top: 24px;
-}
-
-.ai-loading.active { display: flex; }
-
-.ai-spinner {
-  width: 48px; height: 48px;
-  border: 3px solid var(--border-default);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  flex-shrink: 0;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.ai-loading-label {
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.ai-loading-sublabel { font-size: 13px; color: var(--text-muted); }
-
-.ai-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: left;
-  width: 100%;
-  max-width: 340px;
-}
-
-.ai-step {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--text-muted);
-  transition: color 0.3s;
-}
-
-.ai-step.active { color: var(--accent); }
-.ai-step.done   { color: var(--accent-success); }
-
-.ai-step-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--text-muted);
-  flex-shrink: 0;
-  transition: background 0.3s, box-shadow 0.3s;
-}
-
-.ai-step.active .ai-step-dot {
-  background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
-  animation: pulse-dot 1s ease-in-out infinite;
-}
-
-.ai-step.done .ai-step-dot { background: var(--accent-success); }
-
-@keyframes pulse-dot {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.6); }
-}
-
-/* ====================================================
-   RESULT REVEAL
-   ==================================================== */
-.result-reveal { animation: fadeSlide 0.5s cubic-bezier(0.16,1,0.3,1) both; }
-
-@keyframes fadeSlide {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.result-box {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-strong);
-  border-radius: 12px;
-  padding: 22px 24px;
-  margin-bottom: 24px;
-}
-
-.result-box-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-/* ====================================================
-   RESPONSIVE
-   ==================================================== */
-@media (max-width: 680px) {
-  .navbar               { padding: 0 16px; gap: 16px; }
-  .navbar-nav .nav-link { padding: 6px 10px; font-size: 13px; }
-  .main                 { padding-block: 24px; }
-  .projects-grid        { grid-template-columns: 1fr; }
-  .metrics-row          { grid-template-columns: 1fr; }
-  .overview-grid        { grid-template-columns: 1fr; }
-  .metrics-grid         { grid-template-columns: 1fr; }
-  .page-title           { font-size: 22px; }
-  .tab-btn              { padding: 10px 14px; font-size: 13px; }
-}
-
-/* ====================================================
-   UTILITY
-   ==================================================== */
-.text-accent   { color: var(--accent); }
-.text-success  { color: var(--accent-success); }
-.text-muted    { color: var(--text-muted); }
-.text-secondary{ color: var(--text-secondary); }
-.font-display  { font-family: var(--font); }
-.font-mono     { font-family: var(--font-mono); }
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
+
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
+
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
+
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
+
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
+
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
+
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
+
+:root {
+  --bg: #0e0c0b; --surface: #151211; --raised: #1d1917; --hover: #241f1d; --border: #2a2422; --rule: #1f1a18;
+  --text: #f4efec; --muted: #b0a7a2; --faint: #8b827d;
+  --accent: #ff7a45; --accent-ink: #1d0a02; --accent-bg: rgba(255,122,69,.13);
+  --pos: #5fd39a; --neg: #ff6b6b; --warn: #f0b95a;
+  --font: "Sofia Sans", system-ui, sans-serif; --display: "Sofia Sans", system-ui, sans-serif;
+}
+body { font-size: 15px; }
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
+.head h1 { font-size: 28px; }
+.nav .count { background: var(--accent); color: var(--accent-ink); }
+
+.cvr { width: 72px; height: 72px; border-radius: 16px; overflow: hidden; flex: none; } .cvr img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.proj { grid-template-columns: 72px minmax(0, 1fr) 200px auto !important; }
+.vis { font: 800 22px var(--display); } .vis small { font: 500 13px var(--font); color: var(--muted); margin-left: 6px; }
+.livedot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--pos); margin-right: 6px; animation: pulse2 1.8s ease-in-out infinite; } @keyframes pulse2 { 50% { opacity: .3; } }
+@media (max-width: 899px) { .proj { grid-template-columns: 72px minmax(0, 1fr) !important; } .proj .prog, .proj > .btn { grid-column: 1 / -1; } }
+.checks li { list-style: none; }
+.task { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 44px; padding: 4px 0; }
+.task + .task { border-top: 1px solid var(--rule); }
+.cb { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); background: none; cursor: pointer; display: grid; place-items: center; color: var(--accent-ink); transition: background-color .15s, border-color .15s; padding: 0; }
+.cb:hover { border-color: var(--accent); } .cb[aria-checked="true"] { background: var(--accent); border-color: var(--accent); } .cb .ic { width: 14px; height: 14px; stroke-width: 3; }
+.task.done .t { color: var(--faint); text-decoration: line-through; }
+.task .w { color: var(--muted); font-size: 13px; }
+.proj { display: grid; grid-template-columns: minmax(0, 1fr) 200px auto; gap: 20px; align-items: center; padding: 16px 0; cursor: pointer; }
+.proj + .proj { border-top: 1px solid var(--rule); }
+.proj h3 { font-size: 17px; font-weight: 700; } .proj p { color: var(--muted); margin-top: 2px; }
+.proj .meta { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.prog { font-size: 13px; color: var(--muted); } .prog .bar { margin-top: 6px; }
+.week { padding: 16px 0; } .week + .week { border-top: 1px solid var(--rule); }
+.week-h { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; } .week-h b { font-size: 16px; font-weight: 700; } .week-h span { color: var(--muted); font-size: 13px; }
+.gen { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: var(--gap); align-items: start; }
+.out-h { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.cursor::after { content: ""; display: inline-block; width: 8px; height: 1em; margin-left: 3px; vertical-align: -2px; background: var(--accent); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.reveal { animation: pop .3s var(--ease) both; }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
+.plan { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; }
+.plan.cur { border-color: var(--accent); }
+.plan h3 { font-size: 15px; color: var(--muted); font-weight: 600; } .plan .pr { font: 800 40px/1.1 var(--display); letter-spacing: -.02em; margin: 6px 0 2px; } .plan .pr small { font-size: 15px; color: var(--muted); font-weight: 500; }
+.plan ul { margin: 16px 0 20px; flex: 1; } .plan li { display: flex; gap: 8px; padding: 5px 0; } .plan li .ic { color: var(--accent); width: 16px; height: 16px; margin-top: 3px; stroke-width: 2.4; } .plan li.off { color: var(--faint); } .plan li.off .ic { color: var(--faint); }
+.meter { margin-bottom: var(--gap); }
+@media (max-width: 1099px) { .gen { grid-template-columns: minmax(0, 1fr); } .plans { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 899px) { .proj { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
 </style>
 </head>
 <body>
-
-<!-- ================================================
-     DEMO BANNER
-     ================================================ -->
-<div class="demo-banner">⚠ DEMO — dimkaprojects.xyz ⚠</div>
-
-<!-- ================================================
-     NAVBAR
-     ================================================ -->
-<nav class="navbar">
-  <div class="navbar-brand">⚡ Shipter</div>
-
-  <div class="navbar-nav">
-    <button class="nav-link active" id="nav-projects" onclick="showScreen('projects')">Проекты</button>
-    <button class="nav-link" id="nav-analytics" onclick="showScreen('analytics')">Аналитика</button>
-    <button class="nav-link" id="nav-templates" onclick="showScreen('templates')">Шаблоны</button>
-  </div>
-
-  <div class="navbar-right">
-    <button class="btn-ghost" title="Настройки" style="font-size:16px;">⚙</button>
-    <div class="avatar" title="Dimash">D</div>
-  </div>
-</nav>
-
-<!-- ================================================
-     MAIN
-     ================================================ -->
-<main class="main">
-
-  <!-- ══════════════════════════════════════════════
-       SCREEN: PROJECTS LIST
-       ══════════════════════════════════════════════ -->
-  <div id="screen-projects" class="screen active">
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Мои проекты</h1>
-        <p style="color:var(--text-secondary);font-size:14px;margin-top:4px;">3 проекта · 2 активных</p>
-      </div>
-      <button class="btn-primary" onclick="showScreen('create')">+ Новый проект</button>
+<div class="notice"><b>Demo</b> Shipter · plans are built from templates, data is fictional</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11a2.8 2.8 0 00-4-4L4 15zM13 6l5 5"/></svg></div>
+      <div><div class="brand-name">Shipter</div><div class="brand-sub" id="side-plan"></div></div>
     </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">AL</div><div class="who"><b>Alex Lebedev</b><span id="side-who"></span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
-    <div class="projects-grid">
-
-      <!-- TradeMate -->
-      <div class="card project-card" onclick="openProject('trademate')">
-        <div class="project-card-header">
-          <div>
-            <div class="project-card-title">TradeMate</div>
-            <div class="project-card-tags">
-              <span class="badge badge-saas">SaaS</span>
-              <span class="badge badge-active">● Активный</span>
-            </div>
-          </div>
-          <span style="font-size:26px;">📊</span>
-        </div>
-        <p class="project-card-desc">Торговый помощник на базе ИИ для криптотрейдеров. Анализ рынка в реальном времени, автосигналы и риск-менеджмент.</p>
-        <div class="project-metrics">
-          <div class="project-metric">
-            <span class="metric-value">5</span>
-            <span class="metric-label">Каналов</span>
-          </div>
-          <div class="project-metric">
-            <span class="metric-value">12</span>
-            <span class="metric-label">Контент</span>
-          </div>
-          <div class="project-metric">
-            <span class="metric-value">8/15</span>
-            <span class="metric-label">Задачи</span>
-          </div>
-        </div>
-        <div class="project-card-footer">
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;">Прогресс плана — 53%</div>
-            <div class="progress-bar"><div class="progress-fill" style="width:53%;"></div></div>
-          </div>
-          <button class="btn-secondary" style="font-size:13px;padding:7px 16px;" onclick="event.stopPropagation();openProject('trademate')">Открыть →</button>
-        </div>
-      </div>
-
-      <!-- NoteFlow -->
-      <div class="card project-card" onclick="openProject('noteflow')">
-        <div class="project-card-header">
-          <div>
-            <div class="project-card-title">NoteFlow</div>
-            <div class="project-card-tags">
-              <span class="badge badge-app">App</span>
-              <span class="badge badge-active">● Активный</span>
-            </div>
-          </div>
-          <span style="font-size:26px;">📝</span>
-        </div>
-        <p class="project-card-desc">Умные заметки с AI-суммаризацией и поиском по смыслу. Превращает хаотичные записи в структурированные знания.</p>
-        <div class="project-metrics">
-          <div class="project-metric">
-            <span class="metric-value">3</span>
-            <span class="metric-label">Каналов</span>
-          </div>
-          <div class="project-metric">
-            <span class="metric-value">7</span>
-            <span class="metric-label">Контент</span>
-          </div>
-          <div class="project-metric">
-            <span class="metric-value">4/11</span>
-            <span class="metric-label">Задачи</span>
-          </div>
-        </div>
-        <div class="project-card-footer">
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px;">Прогресс плана — 36%</div>
-            <div class="progress-bar"><div class="progress-fill" style="width:36%;"></div></div>
-          </div>
-          <button class="btn-secondary" style="font-size:13px;padding:7px 16px;" onclick="event.stopPropagation();openProject('noteflow')">Открыть →</button>
-        </div>
-      </div>
-
-      <!-- CryptoCoach Bot -->
-      <div class="card project-card" onclick="showScreen('create')">
-        <div class="project-card-header">
-          <div>
-            <div class="project-card-title">CryptoCoach Bot</div>
-            <div class="project-card-tags">
-              <span class="badge badge-bot">Bot</span>
-              <span class="badge badge-draft">Черновик</span>
-            </div>
-          </div>
-          <span style="font-size:26px;">🤖</span>
-        </div>
-        <p class="project-card-desc">Telegram-бот для обучения крипто-трейдингу. Ежедневные уроки, практические задания и прогресс-трекер.</p>
-        <div class="project-metrics">
-          <div class="project-metric">
-            <span class="metric-value" style="color:var(--text-muted);">—</span>
-            <span class="metric-label">Каналов</span>
-          </div>
-          <div class="project-metric">
-            <span class="metric-value" style="color:var(--text-muted);">—</span>
-            <span class="metric-label">Контент</span>
-          </div>
-          <div class="project-metric">
-            <span class="metric-value" style="color:var(--text-muted);">—</span>
-            <span class="metric-label">Задачи</span>
-          </div>
-        </div>
-        <div class="project-card-footer">
-          <p style="font-size:12px;color:var(--text-muted);">Нет плана дистрибуции</p>
-          <button class="btn-primary" style="font-size:13px;padding:7px 16px;" onclick="event.stopPropagation();showScreen('create')">Создать план</button>
-        </div>
-      </div>
-
-    </div>
-  </div><!-- /screen-projects -->
-
-
-  <!-- ══════════════════════════════════════════════
-       SCREEN: PROJECT DETAIL
-       ══════════════════════════════════════════════ -->
-  <div id="screen-detail" class="screen">
-
-    <button class="project-back" onclick="showScreen('projects')">← Все проекты</button>
-
-    <div class="project-detail-header">
-      <div>
-        <div class="project-detail-title-row">
-          <h1 class="page-title" id="detail-name">TradeMate</h1>
-          <span id="detail-badge" class="badge badge-saas">SaaS</span>
-        </div>
-        <p style="font-size:14px;color:var(--text-secondary);" id="detail-desc">Торговый помощник на базе ИИ для криптотрейдеров</p>
-      </div>
-      <button class="btn-primary">🤖 Обновить план</button>
-    </div>
-
-    <!-- Tabs -->
-    <div class="project-tabs">
-      <button class="tab-btn" id="tb-overview"      onclick="switchTab('overview')">Обзор</button>
-      <button class="tab-btn active" id="tb-distribution" onclick="switchTab('distribution')">План дистрибуции</button>
-      <button class="tab-btn" id="tb-content"       onclick="switchTab('content')">Контент</button>
-      <button class="tab-btn" id="tb-tasks"         onclick="switchTab('tasks')">Задачи</button>
-      <button class="tab-btn" id="tb-metrics"       onclick="switchTab('metrics')">Показатели</button>
-    </div>
-
-    <!-- ── TAB: OVERVIEW ── -->
-    <div id="tab-overview" class="tab-content">
-      <div class="metrics-row">
-        <div class="metric-tile">
-          <span class="metric-tile-value">5</span>
-          <div class="metric-tile-label">Активных каналов</div>
-        </div>
-        <div class="metric-tile">
-          <span class="metric-tile-value">12</span>
-          <div class="metric-tile-label">Контент создан</div>
-        </div>
-        <div class="metric-tile">
-          <span class="metric-tile-value">8/15</span>
-          <div class="metric-tile-label">Задач выполнено</div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:32px;">
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:6px;">
-          <span>Прогресс плана дистрибуции</span>
-          <span style="font-variant-numeric:tabular-nums;">53%</span>
-        </div>
-        <div class="progress-bar" style="height:6px;"><div class="progress-fill" style="width:53%;"></div></div>
-      </div>
-
-      <div class="overview-grid">
-        <div class="info-card">
-          <div class="info-card-label">Тип продукта</div>
-          <div class="info-card-value">SaaS — торговый инструмент</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">Целевая аудитория</div>
-          <div class="info-card-value">Криптотрейдеры, 22–40 лет, $500–50k в портфеле</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">Ключевая проблема</div>
-          <div class="info-card-value">Нет времени следить за рынком 24/7 и принимать взвешенные решения под давлением</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">Дата создания плана</div>
-          <div class="info-card-value">12 октября 2025 г.</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">Уникальное ценностное предложение</div>
-          <div class="info-card-value">ИИ торгует без эмоций, 24/7, по твоей стратегии</div>
-        </div>
-        <div class="info-card">
-          <div class="info-card-label">Ценовая модель</div>
-          <div class="info-card-value">Freemium + Pro $29/мес + Enterprise</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── TAB: DISTRIBUTION PLAN ── -->
-    <div id="tab-distribution" class="tab-content active">
-      <div class="section-header">
-        <div>
-          <div class="section-title">AI-план дистрибуции</div>
-          <p style="font-size:13px;color:var(--text-secondary);margin-top:4px;">5 каналов · нажми на карточку, чтобы раскрыть тактики</p>
-        </div>
-        <button class="btn-ghost">↕ Сортировать</button>
-      </div>
-
-      <div class="channel-list">
-
-        <!-- Twitter/X -->
-        <div class="channel-card" onclick="toggleChannel(this)">
-          <div class="channel-header">
-            <div class="channel-info">
-              <div class="channel-icon">🐦</div>
-              <div>
-                <div class="channel-name">Twitter / X</div>
-                <div class="channel-desc">Основная площадка крипто-комьюнити</div>
-              </div>
-            </div>
-            <div class="channel-meta">
-              <span class="badge badge-high">ВЫСОКИЙ</span>
-              <span class="channel-expand">▼</span>
-            </div>
-          </div>
-          <div class="channel-details">
-            <ul class="tactics-list">
-              <li>Публикуй 2–3 поста в день о торговых стратегиях и аналитике рынка. Хэштеги #crypto #trading #DeFi #Bitcoin.</li>
-              <li>Делись скриншотами реальных сигналов TradeMate — социальное доказательство работает лучше рекламы.</li>
-              <li>Ежедневная рубрика «Разбор сделки» — анализ конкретной позиции с объяснением логики ИИ.</li>
-              <li>Взаимодействуй с топ-20 крипто-аккаунтами: комментируй своей экспертизой, ретвити с добавлением ценности.</li>
-              <li>Запусти Twitter Space с трейдерами раз в неделю — жи­вое обсуждение рынка с демонстрацией продукта.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- YouTube -->
-        <div class="channel-card" onclick="toggleChannel(this)">
-          <div class="channel-header">
-            <div class="channel-info">
-              <div class="channel-icon">📺</div>
-              <div>
-                <div class="channel-name">YouTube</div>
-                <div class="channel-desc">Образовательный контент с долгим хвостом</div>
-              </div>
-            </div>
-            <div class="channel-meta">
-              <span class="badge badge-medium">СРЕДНИЙ</span>
-              <span class="channel-expand">▼</span>
-            </div>
-          </div>
-          <div class="channel-details">
-            <ul class="tactics-list">
-              <li>Серия «Неделя с TradeMate» — документальный влог о реальном трейдинге с ИИ-ассистентом.</li>
-              <li>Обучающие видео о технических индикаторах с демонстрацией того, как их интерпретирует алгоритм.</li>
-              <li>YouTube Shorts: «Один торговый сигнал за 60 секунд» — быстрый охват без долгого монтажа.</li>
-              <li>Ежемесячный стрим «Портфель публично» — честный разбор результатов за месяц.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Telegram -->
-        <div class="channel-card" onclick="toggleChannel(this)">
-          <div class="channel-header">
-            <div class="channel-info">
-              <div class="channel-icon">💬</div>
-              <div>
-                <div class="channel-name">Telegram каналы</div>
-                <div class="channel-desc">Прямой доступ к целевой аудитории РУнета</div>
-              </div>
-            </div>
-            <div class="channel-meta">
-              <span class="badge badge-high">ВЫСОКИЙ</span>
-              <span class="channel-expand">▼</span>
-            </div>
-          </div>
-          <div class="channel-details">
-            <ul class="tactics-list">
-              <li>Размести рекламные посты в 5–10 крупных Telegram-каналах по трейдингу (50k+ подписчиков): @cryptomans, @trading_signals и др.</li>
-              <li>Создай собственный канал TradeMate: ежедневные сигналы бесплатно → конвертация в платных пользователей.</li>
-              <li>Партнёрство с владельцами каналов: реферальная программа 30% от каждого привлечённого платного пользователя.</li>
-              <li>Добавь TradeMate в Telegram Directory в категорию Finance — органический трафик без затрат.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Email -->
-        <div class="channel-card" onclick="toggleChannel(this)">
-          <div class="channel-header">
-            <div class="channel-info">
-              <div class="channel-icon">📧</div>
-              <div>
-                <div class="channel-name">Email рассылка</div>
-                <div class="channel-desc">Долгосрочное удержание и апселл</div>
-              </div>
-            </div>
-            <div class="channel-meta">
-              <span class="badge badge-medium">СРЕДНИЙ</span>
-              <span class="channel-expand">▼</span>
-            </div>
-          </div>
-          <div class="channel-details">
-            <ul class="tactics-list">
-              <li>Собирай email с первого дня через лид-магнит: «Чеклист риск-менеджмента для трейдера» — скачай бесплатно.</li>
-              <li>Еженедельный дайджест: топ-3 сигнала TradeMate + короткий обзор рынка от алгоритма.</li>
-              <li>Onboarding-последовательность 7 писем: «День 1 — Как работает ИИ», «День 3 — Первая сделка» и т.д.</li>
-              <li>Ежемесячный «Отчёт инвестора»: совокупный результат пользователей TradeMate за месяц.</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Product Hunt -->
-        <div class="channel-card" onclick="toggleChannel(this)">
-          <div class="channel-header">
-            <div class="channel-info">
-              <div class="channel-icon">🚀</div>
-              <div>
-                <div class="channel-name">Product Hunt</div>
-                <div class="channel-desc">Единоразовый буст и PR при запуске</div>
-              </div>
-            </div>
-            <div class="channel-meta">
-              <span class="badge badge-low">НИЗКИЙ</span>
-              <span class="channel-expand">▼</span>
-            </div>
-          </div>
-          <div class="channel-details">
-            <ul class="tactics-list">
-              <li>Запускайся во вторник или среду — статистически лучшие дни для финтех/крипто продуктов.</li>
-              <li>Подготовь аудиторию за 2 недели: напомни подписчикам заранее и попроси проголосовать в день X.</li>
-              <li>Сделай GIF-демо ключевых функций: продукты с видео получают на 42% больше голосов, чем со скриншотами.</li>
-              <li>Отвечай на каждый комментарий в день запуска — активность поднимает позицию в рейтинге.</li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-    </div><!-- /tab-distribution -->
-
-    <!-- ── TAB: CONTENT ── -->
-    <div id="tab-content" class="tab-content">
-      <div class="section-header">
-        <div>
-          <div class="section-title">Готовый контент</div>
-          <p style="font-size:13px;color:var(--text-secondary);margin-top:4px;">12 материалов · нажми «Копировать» и публикуй сразу</p>
-        </div>
-        <button class="btn-primary" style="font-size:13px;padding:8px 16px;">+ Генерировать</button>
-      </div>
-
-      <div class="content-list">
-
-        <div class="content-item">
-          <div class="content-item-header">
-            <div class="content-item-meta">
-              <span class="badge badge-twitter">Twitter</span>
-              <span class="content-item-title">Анонс запуска #1</span>
-            </div>
-            <button class="btn-copy" onclick="copyContent(this, 'Мы потратили 8 месяцев на то, чтобы ИИ научился торговать лучше, чем 90% трейдеров.\n\nСегодня TradeMate доступен публично.\n\nПервые 100 пользователей — Pro план бесплатно на 3 месяца.\n\nОткрываю тред 🧵')">Копировать</button>
-          </div>
-          <div class="content-item-text">Мы потратили 8 месяцев на то, чтобы ИИ научился торговать лучше, чем 90% трейдеров. Сегодня TradeMate доступен публично. Первые 100 пользователей — Pro план бесплатно на 3 месяца. Открываю тред 🧵</div>
-        </div>
-
-        <div class="content-item">
-          <div class="content-item-header">
-            <div class="content-item-meta">
-              <span class="badge badge-twitter">Twitter</span>
-              <span class="content-item-title">Образовательный пост — RSI</span>
-            </div>
-            <button class="btn-copy" onclick="copyContent(this, 'RSI — самый недооценённый индикатор.\n\nБольшинство трейдеров используют его неправильно.\n\nВот как TradeMate интерпретирует RSI, чтобы фильтровать ложные сигналы:\n\n→ RSI &lt; 30 ≠ покупать сразу\n→ Смотрим дивергенцию с ценой\n→ Ждём подтверждения объёмом')">Копировать</button>
-          </div>
-          <div class="content-item-text">RSI — самый недооценённый индикатор. Большинство трейдеров используют его неправильно. Вот как TradeMate интерпретирует RSI, чтобы фильтровать ложные сигналы: → RSI &lt; 30 ≠ покупать сразу → Смотрим дивергенцию с ценой → Ждём подтверждения объёмом</div>
-        </div>
-
-        <div class="content-item">
-          <div class="content-item-header">
-            <div class="content-item-meta">
-              <span class="badge badge-linkedin">LinkedIn</span>
-              <span class="content-item-title">История создания продукта</span>
-            </div>
-            <button class="btn-copy" onclick="copyContent(this, '18 месяцев назад я потерял $12,000 на крипторынке.\n\nНе из-за плохой стратегии.\nА из-за эмоций.\n\nЯ входил в позицию слишком поздно. Держал убыточные сделки. Фиксировал прибыль раньше времени.\n\nЭта боль заставила меня создать TradeMate.\nАлгоритм убирает эмоции из уравнения.')">Копировать</button>
-          </div>
-          <div class="content-item-text">18 месяцев назад я потерял $12,000 на крипторынке. Не из-за плохой стратегии — из-за эмоций. Я входил в позицию слишком поздно, держал убыточные сделки. Эта боль заставила меня создать TradeMate. Алгоритм убирает эмоции из уравнения.</div>
-        </div>
-
-        <div class="content-item">
-          <div class="content-item-header">
-            <div class="content-item-meta">
-              <span class="badge badge-blog">Статья</span>
-              <span class="content-item-title">Гайд по AI-трейдингу 2025</span>
-            </div>
-            <button class="btn-copy" onclick="copyContent(this, 'Как использовать искусственный интеллект в криптотрейдинге в 2025 году: полный гайд.\n\nОбзор инструментов, разбор стратегий и реальные результаты 200+ пользователей TradeMate за 6 месяцев.')">Копировать</button>
-          </div>
-          <div class="content-item-text">Как использовать искусственный интеллект в криптотрейдинге в 2025 году: полный гайд. Обзор инструментов, разбор стратегий и реальные результаты 200+ пользователей TradeMate за 6 месяцев.</div>
-        </div>
-
-        <div class="content-item">
-          <div class="content-item-header">
-            <div class="content-item-meta">
-              <span class="badge badge-twitter">Twitter</span>
-              <span class="content-item-title">Социальное доказательство — 30 дней</span>
-            </div>
-            <button class="btn-copy" onclick="copyContent(this, '30 дней с TradeMate. Результаты:\n\n✅ +23% точность входа в позицию\n✅ -67% времени на анализ рынка\n✅ 0 эмоциональных сделок\n✅ -41% максимальная просадка\n\nЭто не магия. Это данные.\n\nПопробуй бесплатно →')">Копировать</button>
-          </div>
-          <div class="content-item-text">30 дней с TradeMate. Результаты: ✅ +23% точность входа · ✅ -67% времени на анализ · ✅ 0 эмоциональных сделок · ✅ -41% максимальная просадка. Это не магия. Это данные. Попробуй бесплатно →</div>
-        </div>
-
-        <div class="content-item">
-          <div class="content-item-header">
-            <div class="content-item-meta">
-              <span class="badge badge-tg">Telegram</span>
-              <span class="content-item-title">Анонс для крипто-каналов</span>
-            </div>
-            <button class="btn-copy" onclick="copyContent(this, '📊 TradeMate — ИИ-помощник для трейдеров\n\n• Анализирует 50+ индикаторов одновременно\n• Даёт сигналы в реальном времени\n• Управляет риском автоматически\n\n🎁 Первый месяц Pro — бесплатно по ссылке: trademate.app')">Копировать</button>
-          </div>
-          <div class="content-item-text">📊 TradeMate — ИИ-помощник для трейдеров. Анализирует 50+ индикаторов одновременно, даёт сигналы в реальном времени, управляет риском автоматически. 🎁 Первый месяц Pro — бесплатно.</div>
-        </div>
-
-      </div>
-
-      <div style="text-align:center;padding:24px 0 8px;color:var(--text-muted);font-size:13px;">
-        Показано 6 из 12 материалов &nbsp;·&nbsp;
-        <span style="color:var(--accent);cursor:pointer;font-weight:500;">Показать ещё ↓</span>
-      </div>
-    </div><!-- /tab-content -->
-
-    <!-- ── TAB: TASKS ── -->
-    <div id="tab-tasks" class="tab-content">
-      <div class="section-header">
-        <div>
-          <div class="section-title">Задачи дистрибуции</div>
-          <p id="task-counter" style="font-size:13px;color:var(--text-secondary);margin-top:4px;">8 выполнено · 7 в процессе</p>
-        </div>
-      </div>
-
-      <div class="tasks-section">
-        <div class="tasks-section-title">📋 Подготовка</div>
-        <div class="task-item done" onclick="toggleTask(this)">
-          <div class="task-checkbox">✓</div>
-          <div class="task-text">Создать профиль Twitter/X и оформить его под TradeMate (bio, аватар, ссылка на лендинг)</div>
-        </div>
-        <div class="task-item done" onclick="toggleTask(this)">
-          <div class="task-checkbox">✓</div>
-          <div class="task-text">Настроить лендинг с формой сбора email и лид-магнитом</div>
-        </div>
-        <div class="task-item done" onclick="toggleTask(this)">
-          <div class="task-checkbox">✓</div>
-          <div class="task-text">Подготовить контент-банк: 15 постов для первых двух недель</div>
-        </div>
-        <div class="task-item done" onclick="toggleTask(this)">
-          <div class="task-checkbox">✓</div>
-          <div class="task-text">Запустить собственный Telegram-канал и написать первые 5 постов</div>
-        </div>
-      </div>
-
-      <div class="tasks-section">
-        <div class="tasks-section-title">🚀 Запуск</div>
-        <div class="task-item done" onclick="toggleTask(this)">
-          <div class="task-checkbox">✓</div>
-          <div class="task-text">Опубликовать анонс-тред в Twitter о публичном запуске TradeMate</div>
-        </div>
-        <div class="task-item done" onclick="toggleTask(this)">
-          <div class="task-checkbox">✓</div>
-          <div class="task-text">Связаться с 5 крипто-каналами в Telegram и согласовать рекламные посты</div>
-        </div>
-        <div class="task-item done" onclick="toggleTask(this)">
-          <div class="task-checkbox">✓</div>
-          <div class="task-text">Написать и опубликовать статью «Как мы создали TradeMate» на Medium/Habr</div>
-        </div>
-        <div class="task-item done" onclick="toggleTask(this)">
-          <div class="task-checkbox">✓</div>
-          <div class="task-text">Настроить onboarding email-последовательность из 7 писем в ConvertKit</div>
-        </div>
-      </div>
-
-      <div class="tasks-section">
-        <div class="tasks-section-title">📈 Рост</div>
-        <div class="task-item" onclick="toggleTask(this)">
-          <div class="task-checkbox"></div>
-          <div class="task-text">Запустить серию YouTube-видео «Разбор рынка с TradeMate» — минимум 4 эпизода</div>
-        </div>
-        <div class="task-item" onclick="toggleTask(this)">
-          <div class="task-checkbox"></div>
-          <div class="task-text">Подать заявку на Product Hunt и согласовать дату запуска (вторник/среда)</div>
-        </div>
-        <div class="task-item" onclick="toggleTask(this)">
-          <div class="task-checkbox"></div>
-          <div class="task-text">Запустить реферальную программу: «Пригласи друга — получи месяц Pro бесплатно»</div>
-        </div>
-        <div class="task-item" onclick="toggleTask(this)">
-          <div class="task-checkbox"></div>
-          <div class="task-text">Заключить партнёрство с 3 крупными Telegram-каналами (50k+ подписчиков) по CPA-модели</div>
-        </div>
-        <div class="task-item" onclick="toggleTask(this)">
-          <div class="task-checkbox"></div>
-          <div class="task-text">Опубликовать кейс «30 дней с TradeMate» с реальными метриками пользователей</div>
-        </div>
-        <div class="task-item" onclick="toggleTask(this)">
-          <div class="task-checkbox"></div>
-          <div class="task-text">Автоматизировать Telegram-постинг через Bot API: сигналы в канал без ручного труда</div>
-        </div>
-        <div class="task-item" onclick="toggleTask(this)">
-          <div class="task-checkbox"></div>
-          <div class="task-text">Протестировать платную рекламу в Telegram: стартовый бюджет $200, измерить CAC</div>
-        </div>
-      </div>
-    </div><!-- /tab-tasks -->
-
-    <!-- ── TAB: METRICS ── -->
-    <div id="tab-metrics" class="tab-content">
-      <div class="metrics-grid">
-
-        <div class="metric-card">
-          <div class="metric-card-title">Рост аудитории Twitter</div>
-          <div class="mini-bar-chart">
-            <div class="bar" style="height:18%;"></div>
-            <div class="bar" style="height:32%;"></div>
-            <div class="bar" style="height:44%;"></div>
-            <div class="bar" style="height:37%;"></div>
-            <div class="bar" style="height:58%;"></div>
-            <div class="bar" style="height:74%;"></div>
-            <div class="bar" style="height:92%;"></div>
-          </div>
-          <div class="chart-labels"><span>Нед 1</span><span>Нед 7</span></div>
-          <div class="metrics-stat-big text-success">+847 <span style="font-size:13px;font-weight:400;" class="text-muted">подписчиков</span></div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-card-title">Email подписки</div>
-          <div class="mini-bar-chart">
-            <div class="bar" style="height:14%;background:linear-gradient(to top,rgba(0,255,157,0.5),rgba(0,255,157,0.18));"></div>
-            <div class="bar" style="height:26%;background:linear-gradient(to top,rgba(0,255,157,0.5),rgba(0,255,157,0.18));"></div>
-            <div class="bar" style="height:42%;background:linear-gradient(to top,rgba(0,255,157,0.5),rgba(0,255,157,0.18));"></div>
-            <div class="bar" style="height:57%;background:linear-gradient(to top,rgba(0,255,157,0.5),rgba(0,255,157,0.18));"></div>
-            <div class="bar" style="height:64%;background:linear-gradient(to top,rgba(0,255,157,0.5),rgba(0,255,157,0.18));"></div>
-            <div class="bar" style="height:79%;background:linear-gradient(to top,rgba(0,255,157,0.5),rgba(0,255,157,0.18));"></div>
-            <div class="bar" style="height:96%;background:linear-gradient(to top,rgba(0,255,157,0.5),rgba(0,255,157,0.18));"></div>
-          </div>
-          <div class="chart-labels"><span>Нед 1</span><span>Нед 7</span></div>
-          <div class="metrics-stat-big text-accent">312 <span style="font-size:13px;font-weight:400;" class="text-muted">подписчиков</span></div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-card-title">Источники трафика на лендинг</div>
-          <div style="margin-top:4px;">
-            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
-              <span style="font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;">2,341</span>
-              <span style="color:var(--accent-success);font-size:14px;font-weight:600;">8.2% конв.</span>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:8px;">
-              <div>
-                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px;"><span>Twitter / X</span><span style="font-variant-numeric:tabular-nums;">61%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:61%;"></div></div>
-              </div>
-              <div>
-                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px;"><span>Telegram</span><span style="font-variant-numeric:tabular-nums;">29%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:29%;background:linear-gradient(135deg,#00ff9d,#00d9ff);"></div></div>
-              </div>
-              <div>
-                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px;"><span>Прямой трафик</span><span style="font-variant-numeric:tabular-nums;">10%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:10%;background:rgba(0,217,255,0.4);"></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="metric-card">
-          <div class="metric-card-title">Эффективность контента</div>
-          <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:13px;color:var(--text-secondary);">Постов опубликовано</span>
-              <span style="font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;">34</span>
-            </div>
-            <div style="height:1px;background:var(--border-subtle);"></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:13px;color:var(--text-secondary);">Средний охват</span>
-              <span style="font-size:18px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;">1,240</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:13px;color:var(--text-secondary);">Лучший пост</span>
-              <span style="font-size:18px;font-weight:700;color:var(--accent-success);font-variant-numeric:tabular-nums;">8,930</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:13px;color:var(--text-secondary);">Email open rate</span>
-              <span style="font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;">41%</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:13px;color:var(--text-secondary);">Telegram подписчиков</span>
-              <span style="font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;">1,847</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div><!-- /tab-metrics -->
-
-  </div><!-- /screen-detail -->
-
-
-  <!-- ══════════════════════════════════════════════
-       SCREEN: CREATE PROJECT
-       ══════════════════════════════════════════════ -->
-  <div id="screen-create" class="screen">
-    <button class="project-back" onclick="showScreen('projects')">← Все проекты</button>
-
-    <div style="margin-bottom:36px;">
-      <h1 class="page-title">Новый проект</h1>
-      <p style="color:var(--text-secondary);font-size:14px;margin-top:6px;max-width:480px;line-height:1.6;">Расскажи о своём продукте — AI построит персональный план дистрибуции с тактиками, задачами и готовым контентом.</p>
-    </div>
-
-    <div class="create-form">
-      <div class="form-group">
-        <label class="form-label" for="proj-name">Название проекта</label>
-        <input class="form-input" id="proj-name" type="text" placeholder="Например: MyApp, FinanceBot, CoolSaaS...">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="proj-desc">Описание продукта</label>
-        <textarea class="form-textarea" id="proj-desc" rows="3" placeholder="Что делает твой продукт? Какую проблему решает? Чем отличается от конкурентов?"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="proj-type">Тип продукта</label>
-        <select class="form-select" id="proj-type">
-          <option value="">Выберите тип...</option>
-          <option value="saas">SaaS — веб-сервис по подписке</option>
-          <option value="bot">Bot — Telegram / Discord / WhatsApp бот</option>
-          <option value="app">App — мобильное или десктопное приложение</option>
-          <option value="content">Content — курс, рассылка, сообщество</option>
-          <option value="service">Service — услуга или агентство</option>
-          <option value="other">Other — другое</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="proj-audience">Целевая аудитория</label>
-        <input class="form-input" id="proj-audience" type="text" placeholder="Кто твой идеальный пользователь? Возраст, профессия, боль...">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="proj-problem">Ключевая проблема, которую решаешь</label>
-        <textarea class="form-textarea" id="proj-problem" rows="2" placeholder="Что конкретно болит у твоей аудитории?"></textarea>
-      </div>
-
-      <button class="btn-primary" id="generate-btn" style="width:100%;justify-content:center;padding:14px 20px;font-size:15px;" onclick="generatePlan()">
-        🤖 Сгенерировать план дистрибуции
-      </button>
-    </div>
-
-    <!-- AI Loading -->
-    <div id="ai-loading" class="ai-loading">
-      <div class="ai-spinner"></div>
-      <div>
-        <div class="ai-loading-label">Анализируем ваш проект...</div>
-        <div class="ai-loading-sublabel" id="loading-sublabel">Это займёт несколько секунд</div>
-      </div>
-      <div class="ai-steps">
-        <div class="ai-step active" id="ai-step-1"><div class="ai-step-dot"></div>Изучаем тип продукта и аудиторию</div>
-        <div class="ai-step"        id="ai-step-2"><div class="ai-step-dot"></div>Анализируем конкурентные каналы</div>
-        <div class="ai-step"        id="ai-step-3"><div class="ai-step-dot"></div>Подбираем оптимальные платформы</div>
-        <div class="ai-step"        id="ai-step-4"><div class="ai-step-dot"></div>Генерируем тактики и контент-план</div>
-        <div class="ai-step"        id="ai-step-5"><div class="ai-step-dot"></div>Составляем чеклист задач</div>
-      </div>
-    </div>
-
-    <!-- Result -->
-    <div id="create-result" style="display:none;" class="result-reveal">
-      <div class="divider"></div>
-      <div class="result-box">
-        <div class="result-box-title">
-          <span style="font-size:20px;">✅</span>
-          <span style="font-family:var(--font);font-size:16px;font-weight:700;background:var(--gradient-hero);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-            План успешно создан
-          </span>
-        </div>
-        <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
-          AI проанализировал твой продукт и подготовил персональный план. Найдено
-          <strong style="color:var(--text-primary);">6 каналов дистрибуции</strong>,
-          создано <strong style="color:var(--text-primary);">15 задач</strong> и
-          <strong style="color:var(--text-primary);">8 шаблонов контента</strong> для немедленной публикации.
-        </p>
-      </div>
-      <button class="btn-primary" style="width:100%;justify-content:center;padding:14px;" onclick="openProject('new')">
-        Открыть проект и начать →
-      </button>
-    </div>
-
-  </div><!-- /screen-create -->
-
-
-  <!-- ══════════════════════════════════════════════
-       SCREEN: ANALYTICS (stub)
-       ══════════════════════════════════════════════ -->
-  <div id="screen-analytics" class="screen">
-    <div class="page-header">
-      <h1 class="page-title">Аналитика</h1>
-    </div>
-    <div style="text-align:center;padding:80px 24px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;">
-      <div style="font-size:40px;margin-bottom:16px;">📊</div>
-      <div style="font-family:var(--font);font-size:18px;font-weight:700;margin-bottom:8px;">Сводная аналитика</div>
-      <p style="font-size:14px;color:var(--text-secondary);max-width:340px;margin:0 auto;">Откройте проект и перейдите во вкладку «Показатели», чтобы увидеть метрики по каждому каналу.</p>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════
-       SCREEN: TEMPLATES (stub)
-       ══════════════════════════════════════════════ -->
-  <div id="screen-templates" class="screen">
-    <div class="page-header">
-      <h1 class="page-title">Шаблоны</h1>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;">
-      <div class="card" style="padding:20px;cursor:not-allowed;opacity:.6;">
-        <div style="font-size:24px;margin-bottom:10px;">🎮</div>
-        <div style="font-family:var(--font);font-weight:700;margin-bottom:4px;">Indie Game</div>
-        <p style="font-size:13px;color:var(--text-secondary);">Шаблон дистрибуции для инди-игр: Steam, itch.io, TikTok, Discord</p>
-        <div style="margin-top:12px;"><span class="badge badge-draft">Скоро</span></div>
-      </div>
-      <div class="card" style="padding:20px;cursor:not-allowed;opacity:.6;">
-        <div style="font-size:24px;margin-bottom:10px;">🎓</div>
-        <div style="font-family:var(--font);font-weight:700;margin-bottom:4px;">Online Course</div>
-        <p style="font-size:13px;color:var(--text-secondary);">Email-маркетинг, YouTube воронка, партнёрства с инфлюенсерами</p>
-        <div style="margin-top:12px;"><span class="badge badge-draft">Скоро</span></div>
-      </div>
-      <div class="card" style="padding:20px;cursor:not-allowed;opacity:.6;">
-        <div style="font-size:24px;margin-bottom:10px;">🛠️</div>
-        <div style="font-family:var(--font);font-weight:700;margin-bottom:4px;">Dev Tool</div>
-        <p style="font-size:13px;color:var(--text-secondary);">Hacker News, GitHub, Dev.to, Twitter для разработчиков</p>
-        <div style="margin-top:12px;"><span class="badge badge-draft">Скоро</span></div>
-      </div>
-    </div>
-  </div>
-
-</main><!-- /main -->
-
-<!-- ================================================
-     JAVASCRIPT
-     ================================================ -->
 <script>
-// ── Navigation ──────────────────────────────────────
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('en-GB');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
 
-  var screen = document.getElementById('screen-' + name);
-  if (screen) screen.classList.add('active');
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
 
-  var navId = 'nav-' + name;
-  var nav = document.getElementById(navId);
-  if (nav) nav.classList.add('active');
-  else document.getElementById('nav-projects').classList.add('active');
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
+}
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
+}
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
+
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
+  }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Trend: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
 }
 
-function openProject(id) {
-  // Update detail header based on project
-  var projects = {
-    trademate: {
-      name: 'TradeMate',
-      badgeClass: 'badge-saas',
-      badgeText: 'SaaS',
-      desc: 'Торговый помощник на базе ИИ для криптотрейдеров'
-    },
-    noteflow: {
-      name: 'NoteFlow',
-      badgeClass: 'badge-app',
-      badgeText: 'App',
-      desc: 'Умные заметки с AI-суммаризацией и семантическим поиском'
-    },
-    'new': {
-      name: document.getElementById('proj-name').value || 'Новый проект',
-      badgeClass: 'badge-saas',
-      badgeText: 'SaaS',
-      desc: 'Сгенерированный план дистрибуции'
-    }
-  };
+'use strict';
 
-  var p = projects[id] || projects['trademate'];
-  document.getElementById('detail-name').textContent = p.name;
-  var badge = document.getElementById('detail-badge');
-  badge.className = 'badge ' + p.badgeClass;
-  badge.textContent = p.badgeText;
-  document.getElementById('detail-desc').textContent = p.desc;
+/* ── catalog the planner picks from ───────────────────── */
+const CH = [
+  { id: 'tg',   n: 'Telegram channels your audience follows', m: ['cis'], paid: false, lo: 2, hi: 6, tasks: ['List 15 channels where your audience hangs out', 'Secure 3 reviews or mentions'] },
+  { id: 'vc',   n: 'vc.ru and Habr', m: ['cis'], paid: false, lo: 3, hi: 9, tasks: ['Write a 1,000-word "how we built it" breakdown', 'Reply to comments within the first 2 hours of publishing'] },
+  { id: 'ph',   n: 'Product Hunt', m: ['global', 'eu', 'asia'], paid: false, lo: 2, hi: 8, tasks: ['Prepare the page, 4 screenshots and a short video', 'Schedule the launch for a Tuesday and ask 20 friends to support it'] },
+  { id: 'rd',   n: 'Reddit and niche forums', m: ['global', 'eu', 'asia'], paid: false, lo: 1, hi: 5, tasks: ['Find 5 communities that discuss your problem', 'Help in replies for two weeks, then show your product'] },
+  { id: 'dm',   n: 'Direct messages to first customers', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.1, hi: 0.4, tasks: ['List 30 people who have this pain', 'Message each one personally and offer a free trial'] },
+  { id: 'em',   n: 'Email campaign to your list', m: ['cis', 'global', 'eu', 'asia'], paid: false, lo: 0.5, hi: 2, tasks: ['Add a signup form to your landing page', 'Send 3 emails: story, value, offer'] },
+  { id: 'inf',  n: 'Creators and partners', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 5, hi: 15, tasks: ['Pick 5 creators with an engaged audience in your niche', 'Offer a sales commission instead of a flat fee'] },
+  { id: 'ads',  n: 'Telegram Ads or Google ads', m: ['cis', 'global', 'eu', 'asia'], paid: true, lo: 8, hi: 20, tasks: ['Run 3 ads with different headlines at $5 a day', 'After 4 days, keep the one that brought leads at the lowest cost'] },
+];
+const MARKETS = { cis: 'CIS', global: 'Global', eu: 'Europe', asia: 'Asia' };
+const BUDGETS = [['0', 'No budget'], ['100', '$100–500 per month'], ['500', '$500–2000 per month'], ['2000', '$2000+ per month']];
+const LIM = { trial: 10, starter: 200, pro: Infinity };
+const PLAN_N = { trial: 'Trial', starter: 'Starter', pro: 'Pro' };
 
-  showScreen('detail');
-  switchTab('distribution');
+/* the planner: same inputs, same plan. Free channels first; paid ones only when there is a budget */
+function makePlan(market, budget) {
+  const pick = CH.filter((c) => c.m.includes(market) && (!c.paid || +budget >= 100)).sort((a, b) => (+a.paid - +b.paid) || b.hi - a.hi).slice(0, +budget >= 500 ? 6 : 5);
+  const ch = pick.map((c, i) => ({ id: c.id, week: Math.min(4, 1 + Math.floor(i * 4 / pick.length)), tasks: c.tasks.map((t) => ({ t, done: false })) }));
+  return ch;
+}
+const catOf = (id) => CH.find((c) => c.id === id);
+const reach = (plan) => plan.reduce((a, c) => [a[0] + catOf(c.id).lo, a[1] + catOf(c.id).hi], [0, 0]);
+const taskCount = (p) => p.plan.reduce((a, c) => a + c.tasks.length, 0), doneCount = (p) => p.plan.reduce((a, c) => a + c.tasks.filter((t) => t.done).length, 0);
+
+
+/* cover photos (CC0, see demos/CREDITS.md): three images, cycled by project id */
+const coverImg = (id) => `<img src="img/cover-${(id - 1) % 3 + 1}.jpg" alt="" loading="lazy" decoding="async">`;
+const visits = (p) => p.vis ?? 0;
+const S = {
+  plan: 'trial', used: 7, trialDays: 5,
+  projects: [
+    { id: 1, name: 'TelegramBot Pro', type: 'SaaS', desc: 'A platform where sellers build Telegram bots with payments and analytics.', aud: 'Sellers and experts on Telegram', market: 'cis', budget: '0' },
+    { id: 2, name: 'SaaS Landing Kit', type: 'Landing', desc: 'A set of ready-made landing pages for SaaS startups.', aud: 'B2B SaaS founders', market: 'global', budget: '100' },
+    { id: 3, name: 'GameApp Store', type: 'App', desc: 'A mini-game catalogue with one-tap purchase.', aud: 'Players aged 18–30', market: 'asia', budget: '500' },
+  ],
+};
+S.projects.forEach((p, i) => { p.plan = makePlan(p.market, p.budget); p.vis = [214, 96, 41][i]; });
+{ // seed some progress so the board has something to show
+  const mark = (p, n) => { let k = 0; for (const c of p.plan) for (const t of c.tasks) if (k++ < n) t.done = true; };
+  mark(S.projects[0], 4); mark(S.projects[1], 2); mark(S.projects[2], 0);
+}
+console.assert(S.projects[0].plan.length === 4 && taskCount(S.projects[0]) === 8 && doneCount(S.projects[0]) === 4, 'plan');
+const limit = () => LIM[S.plan], left = () => limit() - S.used;
+const fmtReach = ([a, b]) => `${fmtD(a, a % 1 ? 1 : 0)}–${fmtD(b, b % 1 ? 1 : 0)} k`;
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { dash: ['Launch', 'home'], projects: ['Projects', 'list'], gen: ['AI plan', 'zap'], pricing: ['Pricing', 'coin'] };
+let page = 'dash', openId = null, filter = 'all', timers = [], genState = null;
+const proj = (id) => S.projects.find((p) => p.id === id);
+
+function chrome() {
+  $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
+  $('#tabbar').innerHTML = $('#nav').innerHTML;
+  $('#side-plan').textContent = S.plan === 'trial' ? `Trial · ${S.trialDays} days` : `${PLAN_N[S.plan]} plan`;
+  $('#side-who').textContent = S.plan === 'pro' ? 'Unlimited generations' : `Generations: ${left()} of ${limit()}`;
+  setNav(page === 'project' ? 'projects' : page);
+}
+function render() { timers.forEach(clearTimeout); timers = []; chrome(); $('#main').innerHTML = ({ dash, projects, project: projectPage, gen, pricing })[page](); }
+function go(p, id) { page = p; if (id !== undefined) openId = id; render(); window.scrollTo(0, 0); }
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const o = e.target.closest('[data-open]'); if (o && !e.target.closest('button,input')) return go('project', +o.dataset.open);
+  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+
+const cb = (done, attrs) => `<button class="cb" role="checkbox" aria-checked="${done}" ${attrs}>${done ? ic('check') : ''}</button>`;
+
+/* ── dashboard ────────────────────────────────────────── */
+function dash() {
+  const all = S.projects.reduce((a, p) => a + taskCount(p), 0), done = S.projects.reduce((a, p) => a + doneCount(p), 0);
+  const today = S.projects.flatMap((p) => p.plan.filter((c) => c.week === 1).flatMap((c) => c.tasks.map((t, ti) => ({ p, c, t, ti })))).filter((x) => !x.t.done).slice(0, 5);
+  const finding = S.plan === 'trial' ? `<div class="finding">${ic('clock')}<span>Trial ends in ${S.trialDays} days, ${left()} of ${limit()} ${left() === 1 ? 'generation' : 'generations'} left.</span><button class="btn sm primary" data-page="pricing">Choose a plan</button></div>` : '';
+  return head('Launch board', 'What to do today to get your products in front of first customers', `<button class="btn primary" data-act="newProject">${ic('plus')}New project</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${S.projects.length}</b><span>Active projects</span></div><div class="kpi"><b>${done}<small>of ${all}</small></b><span>Tasks done</span></div><div class="kpi"><b data-vis="all">${fmt(S.projects.reduce((a, p) => a + visits(p), 0))}</b><span><i class="livedot"></i>Link visits today</span></div><div class="kpi"><b>${S.used}${S.plan === 'pro' ? '' : `<small>of ${limit()}</small>`}</b><span>Generations used</span></div></div>
+    <div class="grid"><section class="card c7"><div class="card-h"><h2>Do in week one</h2><span>${today.length ? 'tick when done' : 'all done'}</span></div>${today.map((x) => `<div class="task"><span>${cb(false, `data-act="tick" data-p="${x.p.id}" data-c="${x.c.id}" data-i="${x.ti}" aria-label="Mark done: ${esc(x.t.t)}"`)}</span><div class="t">${esc(x.t.t)}<div class="w">${esc(x.p.name)} · ${catOf(x.c.id).n}</div></div></div>`).join('') || '<p class="empty">No tasks for week one.</p>'}</section>
+    <section class="card c5"><div class="card-h"><h2>Progress by project</h2></div>${S.projects.map((p) => barRow(esc(p.name), taskCount(p) ? doneCount(p) / taskCount(p) * 100 : 0, `${doneCount(p)} of ${taskCount(p)}`)).join('')}</section></div>`;
 }
 
-// ── Tab switching ────────────────────────────────────
-var tabOrder = ['overview','distribution','content','tasks','metrics'];
-
-function switchTab(name) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-
-  var btn = document.getElementById('tb-' + name);
-  var content = document.getElementById('tab-' + name);
-  if (btn)     btn.classList.add('active');
-  if (content) content.classList.add('active');
+/* ── projects ─────────────────────────────────────────── */
+function projects() {
+  const types = ['all', ...new Set(S.projects.map((p) => p.type))], list = S.projects.filter((p) => filter === 'all' || p.type === filter);
+  return head('Projects', `${S.projects.length} ${S.projects.length === 1 ? 'product' : 'products'}. Open a project to see its plan and tick off tasks.`, `<button class="btn primary" data-act="newProject">${ic('plus')}New project</button>`) +
+    `<div class="tabs">${types.map((t) => `<button class="${filter === t ? 'on' : ''}" data-act="filter" data-v="${t}">${t === 'all' ? 'All' : t}</button>`).join('')}</div>
+    <section class="card">${list.map((p) => { const t = taskCount(p), d = doneCount(p); return `<div class="proj" data-open="${p.id}"><span class="cvr">${coverImg(p.id)}</span><div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="meta"><span class="pill">${p.type}</span><span class="pill">${MARKETS[p.market]}</span></div></div><div class="prog">${t ? `${d} of ${t} tasks` : 'No plan yet'}<div class="bar"><i style="width:${t ? d / t * 100 : 0}%"></i></div></div><button class="btn sm" data-act="${t ? 'open' : 'planFor'}" data-id="${p.id}">${t ? 'Open' : 'Build plan'}</button></div>`; }).join('') || '<p class="empty">Nothing here yet.</p>'}</section>`;
+}
+function projectPage() {
+  const p = proj(openId), t = taskCount(p), d = doneCount(p), r = reach(p.plan);
+  const weeks = [1, 2, 3, 4].map((w) => ({ w, cs: p.plan.filter((c) => c.week === w) })).filter((x) => x.cs.length);
+  return head(esc(p.name), `${esc(p.aud)} · ${MARKETS[p.market]} · ${BUDGETS.find((b) => b[0] === p.budget)[1].toLowerCase()}`, `<button class="btn" data-page="projects">${ic('arrow')}Back to projects</button><button class="btn" data-act="planFor" data-id="${p.id}">Rebuild plan</button>`) +
+    `<div class="kpis"><div class="kpi"><b>${d}<small>of ${t}</small></b><span>Tasks done</span></div><div class="kpi"><b data-vis="${p.id}">${fmt(visits(p))}</b><span><i class="livedot"></i>Visits today</span></div><div class="kpi"><b>${p.plan.length}</b><span>Channels in plan</span></div><div class="kpi"><b>${t ? fmtReach(r) : '—'}</b><span>Estimated monthly reach</span></div></div>
+    <section class="card">${weeks.map(({ w, cs }) => `<div class="week"><div class="week-h"><b>Week ${w}</b></div>${cs.map((c) => `<div style="margin-top:12px"><b>${catOf(c.id).n}</b> <span class="muted">· ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · paid' : ''}</span>${c.tasks.map((tk, i) => `<div class="task ${tk.done ? 'done' : ''}"><span>${cb(tk.done, `data-act="tick" data-p="${p.id}" data-c="${c.id}" data-i="${i}" aria-label="${esc(tk.t)}"`)}</span><div class="t">${esc(tk.t)}</div></div>`).join('')}</div>`).join('')}</div>`).join('') || '<p class="empty">No plan yet. Click “Rebuild plan”.</p>'}</section>`;
 }
 
-// ── Channel expand/collapse ───────────────────────────
-function toggleChannel(card) {
-  var details = card.querySelector('.channel-details');
-  var expand  = card.querySelector('.channel-expand');
-  var open = details.classList.toggle('open');
-  expand.classList.toggle('open', open);
+/* ── generator ────────────────────────────────────────── */
+function meterHTML() {
+  return S.plan === 'pro' ? '' : `<div class="meter"><div class="brow-t"><span>Generations</span><b>${S.used} of ${limit()}</b></div><div class="bar thick"><i style="width:${S.used / limit() * 100}%"></i></div></div>`;
+}
+function gen() {
+  const g = genState || { pid: 1, aud: S.projects[0].aud, market: S.projects[0].market, budget: S.projects[0].budget, out: null };
+  genState = g;
+  return head('AI plan', 'Tell us about your product and get a week-by-week channel plan with tasks') + `<div class="gen"><section class="card">${meterHTML()}
+    <div class="field"><label for="g-p">Project</label><select id="g-p" onchange="genState.pid=+this.value;const p=proj(genState.pid);genState.aud=p.aud;genState.market=p.market;genState.budget=p.budget;render()">${S.projects.map((p) => `<option value="${p.id}" ${g.pid === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
+    <div class="field"><label for="g-a">Target audience</label><input id="g-a" value="${esc(g.aud)}" oninput="genState.aud=this.value"></div>
+    <div class="field"><label for="g-m">Market</label><select id="g-m" onchange="genState.market=this.value">${Object.entries(MARKETS).map(([k, v]) => `<option value="${k}" ${g.market === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <div class="field"><label for="g-b">Promotion budget</label><select id="g-b" onchange="genState.budget=this.value">${BUDGETS.map(([k, v]) => `<option value="${k}" ${g.budget === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+    <button class="btn primary" style="width:100%;height:42px" data-act="run" id="g-run">${ic('zap')}Build plan</button></section>
+    <section class="card" id="g-out" aria-live="polite">${g.out ? outHTML(g.out) : `<p class="empty" style="padding:60px 12px">Nothing yet. Fill in the settings on the left and click “Build plan”. Results are built from templates; this is a demo.</p>`}</section></div>`;
+}
+function outHTML(o) {
+  const r = reach(o.plan);
+  return `<div class="out-h"><div><h2 style="font-size:18px;font-weight:700">4-week plan for “${esc(proj(o.pid).name)}”</h2><p class="muted">${o.plan.length} ${o.plan.length === 1 ? 'channel' : 'channels'} · estimated reach ${fmtReach(r)} per month</p></div><button class="btn primary" data-act="save">Save to project</button></div>`
+    + o.plan.map((c) => `<div class="week reveal"><div class="week-h"><b>${catOf(c.id).n}</b><span>week ${c.week} · ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · paid' : ''}</span></div><ul class="checks">${c.tasks.map((t) => `<li class="muted" style="padding:3px 0">— ${esc(t.t)}</li>`).join('')}</ul></div>`).join('');
 }
 
-// ── Copy content ─────────────────────────────────────
-function copyContent(btn, text) {
-  var succeed = function() {
-    btn.textContent = '✓ Скопировано!';
-    btn.classList.add('copied');
-    setTimeout(function() {
-      btn.textContent = 'Копировать';
-      btn.classList.remove('copied');
-    }, 2000);
-  };
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(succeed).catch(function() { fallback(btn, text, succeed); });
-  } else {
-    fallback(btn, text, succeed);
-  }
+/* ── pricing ──────────────────────────────────────────── */
+function pricing() {
+  const P = [['trial', 'Trial', '$0', '7 days free', ['Up to 3 projects', '10 generations', 'Basic channel plan'], ['Multiple projects', 'Priority support']],
+    ['starter', 'Starter', '$29', 'per month, cancel anytime', ['Up to 10 projects', '200 generations per month', 'Full plan with tasks', 'Email support'], ['API access']],
+    ['pro', 'Pro', '$79', 'per month, cancel anytime', ['Unlimited projects', 'Unlimited generations', 'API access', '24/7 support'], []]];
+  return head('Pricing', 'The generation limit changes as soon as you pick a plan. Payments are not connected in this demo.') +
+    `<div class="plans">${P.map(([k, n, pr, per, yes, no]) => `<article class="plan ${S.plan === k ? 'cur' : ''}"><h3>${n}${S.plan === k ? ' · your plan' : ''}</h3><div class="pr">${pr}<small> ${k === 'trial' ? '' : '/ mo'}</small></div><p class="muted">${per}</p><ul>${yes.map((y) => `<li>${ic('check')}${y}</li>`).join('')}${no.map((y) => `<li class="off">${ic('x')}${y}</li>`).join('')}</ul><button class="btn ${S.plan === k ? '' : 'primary'}" data-act="plan" data-v="${k}" ${S.plan === k ? 'disabled' : ''}>${S.plan === k ? 'Current plan' : 'Choose ' + n}</button></article>`).join('')}</div>`;
 }
 
-function fallback(btn, text, succeed) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); } catch(e) {}
-  document.body.removeChild(ta);
-  succeed();
-}
-
-// ── Toggle task ──────────────────────────────────────
-function toggleTask(item) {
-  var done = item.classList.toggle('done');
-  item.querySelector('.task-checkbox').textContent = done ? '✓' : '';
-  updateTaskCount();
-}
-
-function updateTaskCount() {
-  var allTasks = document.querySelectorAll('#tab-tasks .task-item');
-  var doneCount = document.querySelectorAll('#tab-tasks .task-item.done').length;
-  var counter = document.getElementById('task-counter');
-  if (counter) {
-    counter.textContent = doneCount + ' выполнено · ' + (allTasks.length - doneCount) + ' в процессе';
-  }
-}
-
-// ── Generate plan animation ───────────────────────────
-function generatePlan() {
-  var name = (document.getElementById('proj-name').value || '').trim();
-  if (!name) {
-    var input = document.getElementById('proj-name');
-    input.focus();
-    input.style.borderColor = 'var(--accent-danger)';
-    input.style.boxShadow = '0 0 0 3px rgba(255,71,87,0.12)';
-    setTimeout(function() {
-      input.style.borderColor = '';
-      input.style.boxShadow = '';
-    }, 1800);
-    return;
-  }
-
-  var loading = document.getElementById('ai-loading');
-  var result  = document.getElementById('create-result');
-  var genBtn  = document.getElementById('generate-btn');
-
-  loading.classList.add('active');
-  result.style.display = 'none';
-  genBtn.disabled = true;
-  genBtn.style.opacity = '0.5';
-
-  // Reset steps
-  for (var i = 1; i <= 5; i++) {
-    var s = document.getElementById('ai-step-' + i);
-    s.classList.remove('active','done');
-  }
-
-  var messages = [
-    'Изучаем тип продукта и аудиторию...',
-    'Анализируем конкурентные каналы...',
-    'Подбираем оптимальные платформы...',
-    'Генерируем тактики и контент-план...',
-    'Составляем чеклист задач...'
-  ];
-
-  var current = 0;
-
-  function next() {
-    if (current > 0) {
-      var prev = document.getElementById('ai-step-' + current);
-      prev.classList.remove('active');
-      prev.classList.add('done');
-    }
-    current++;
-    if (current <= 5) {
-      var step = document.getElementById('ai-step-' + current);
-      step.classList.add('active');
-      document.getElementById('loading-sublabel').textContent = messages[current - 1];
-      setTimeout(next, 420);
-    } else {
-      setTimeout(function() {
-        loading.classList.remove('active');
-        result.style.display = 'block';
-        genBtn.disabled = false;
-        genBtn.style.opacity = '';
-      }, 280);
-    }
-  }
-
-  next();
-}
+/* ── actions ──────────────────────────────────────────── */
+const ACT = {
+  filter(d) { filter = d.v; render(); }, open(d) { go('project', +d.id); },
+  tick(d) { const c = proj(+d.p).plan.find((x) => x.id === d.c), t = c.tasks[+d.i]; t.done = !t.done; render(); if (t.done) toast('Done'); },
+  plan(d) { S.plan = d.v; if (d.v !== 'trial') S.trialDays = 0; toast(`${PLAN_N[d.v]} plan: ${d.v === 'pro' ? 'no limit' : 'limit ' + LIM[d.v] + ' generations'}`); render(); },
+  planFor(d) { genState = null; const p = proj(+d.id); genState = { pid: p.id, aud: p.aud, market: p.market, budget: p.budget, out: null }; go('gen'); },
+  run() {
+    if (left() <= 0) { toast('Generation limit reached. Choose a plan'); return go('pricing'); }
+    const g = genState; if (!g.aud.trim()) return toast('Describe your audience');
+    S.used++; g.out = null; chrome();
+    const out = $('#g-out'), btn = $('#g-run'); btn.disabled = true;
+    out.innerHTML = `<p class="cursor" style="padding:40px 4px;color:var(--muted)">Analysing audience “${esc(g.aud)}” and the ${esc(MARKETS[g.market])} market</p>`;
+    const plan = makePlan(g.market, g.budget); const res = { pid: g.pid, plan };
+    timers.push(setTimeout(() => {
+      plan.forEach((_, i) => timers.push(setTimeout(() => {
+        out.innerHTML = outHTML({ ...res, plan: plan.slice(0, i + 1) });
+        if (i === plan.length - 1) { g.out = res; $('#g-run').disabled = false; }
+      }, 380 * i)));
+    }, 900));
+    const m = $('.meter'); if (m) m.outerHTML = meterHTML();
+  },
+  save() { const g = genState, p = proj(g.pid); p.aud = g.aud; p.market = g.market; p.budget = g.budget; const was = new Set(p.plan.flatMap((c) => c.tasks.filter((t) => t.done).map((t) => t.t))); p.plan = g.out.plan.map((c) => ({ ...c, tasks: c.tasks.map((t) => ({ t: t.t, done: was.has(t.t) })) })); toast('Plan saved to project'); go('project', p.id); },
+  newProject() {
+    modal(`<h2>New project</h2><p>You will build the plan in the next step.</p><div class="field"><label for="n-n">Name</label><input id="n-n" placeholder="e.g. My SaaS"></div>
+      <div class="field"><label for="n-t">Type</label><select id="n-t"><option>SaaS</option><option>App</option><option>Game</option><option>Landing</option><option>Bot</option></select></div><div class="field"><label for="n-d">Description</label><textarea id="n-d" placeholder="What the product does"></textarea></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="n-ok">Create</button></div>`, () => {
+      $('#n-ok').onclick = () => {
+        const n = $('#n-n').value.trim(); if (!n) return $('#n-n').focus();
+        if (S.projects.length >= { trial: 3, starter: 10, pro: 999 }[S.plan]) { closeModal(); toast('Project limit reached on this plan'); return go('pricing'); }
+        const id = Math.max(...S.projects.map((x) => x.id)) + 1; S.projects.push({ id, name: n, type: $('#n-t').value, desc: $('#n-d').value.trim() || 'No description', aud: 'Your audience', market: 'cis', budget: '0', plan: [] });
+        closeModal(); toast('Project created'); render();
+      };
+    });
+  },
+};
+/* live traffic: visits trickle in from the channels in each plan */
+setInterval(() => {
+  if (document.hidden) return;
+  const p = S.projects[Math.floor(Math.random() * S.projects.length)]; p.vis += 1 + Math.floor(Math.random() * 3);
+  const all = $('[data-vis="all"]'); if (all) all.textContent = fmt(S.projects.reduce((a, x) => a + visits(x), 0));
+  const one = $(`[data-vis="${p.id}"]`); if (one) one.textContent = fmt(visits(p));
+}, 1800);
+render();
 </script>
-
 </body>
 </html>

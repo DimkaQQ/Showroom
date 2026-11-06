@@ -1,1775 +1,670 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BotFactory — Demo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>BotFactory — Telegram Bot Builder (demo)</title>
+<meta name="description" content="Demo: build a Telegram bot from blocks and test it instantly in a live preview. Sales, funnel and buyers. All data is fictional.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   DESIGN TOKENS — Light-first (Telegram Mini App style)
-   ============================================================ */
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
 :root {
-  --tg-bg: #fafafa;
-  --tg-text: #0f1115;
-  --tg-hint: #565c68;
-  --tg-link: #047857;
-  --tg-button: #047857;
-  --tg-button-text: #ffffff;
-  --tg-secondary-bg: #f0f1f3;
-  --tg-destructive: #dc2626;
-  --radius: 12px;
-  --font: 'Onest', 'Inter', -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-
-  /* Block accent palette */
-  --accent-welcome: #0369a1;
-  --accent-description: #4d7c0f;
-  --accent-image: #be185d;
-  --accent-buttons: #b45309;
-  --accent-delivery: #15803d;
-  --accent-delay: #52525b;
-  --accent-payment: #7c3aed;
-
-  /* Surface system */
-  --panel-bg: #ffffff;
-  --card-bg: #ffffff;
-  --input-bg: #f5f6f8;
-  --input-border: #d1d5db;
-  --border: #e4e6ea;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
-  --shadow-md: 0 4px 14px rgba(0,0,0,.09);
-  --shadow-lg: 0 8px 28px rgba(0,0,0,.13);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --tg-bg: #1a1b1e;
-    --tg-text: #e8eaed;
-    --tg-hint: #9aa0aa;
-    --tg-secondary-bg: #242528;
-    --panel-bg: #1e1f23;
-    --card-bg: #242528;
-    --input-bg: #2a2c30;
-    --input-border: #3a3d42;
-    --border: #2e3035;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --tg-bg: #1a1b1e;
-  --tg-text: #e8eaed;
-  --tg-hint: #9aa0aa;
-  --tg-secondary-bg: #242528;
-  --panel-bg: #1e1f23;
-  --card-bg: #242528;
-  --input-bg: #2a2c30;
-  --input-border: #3a3d42;
-  --border: #2e3035;
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
   color-scheme: dark;
 }
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ============================================================
-   RESET & BASE
-   ============================================================ */
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
 
-html, body {
-  height: 100%;
-  font-family: var(--font);
-  font-size: 14px;
-  color: var(--tg-text);
-  background: var(--tg-bg);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-}
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
 
-body { padding-top: 32px; } /* demo banner offset */
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-img { max-width: 100%; }
-button { font-family: inherit; cursor: pointer; }
-input, textarea, select { font-family: inherit; }
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
 
-/* ============================================================
-   DEMO BANNER
-   ============================================================ */
-.demo-banner {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 9999;
-  background: #047857;
-  color: #fff;
-  text-align: center;
-  padding: 5px 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .1em;
-}
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
 
-/* ============================================================
-   SHARED UTILITIES
-   ============================================================ */
-.hidden { display: none !important; }
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: all .15s;
-  white-space: nowrap;
-  text-decoration: none;
-}
-.btn-primary {
-  background: var(--tg-button);
-  color: var(--tg-button-text);
-}
-.btn-primary:hover { background: #065f46; transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.btn-primary:active { transform: none; }
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-.btn-secondary {
-  background: var(--tg-secondary-bg);
-  color: var(--tg-text);
-  border: 1px solid var(--border);
-}
-.btn-secondary:hover { background: var(--border); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
 
-.btn-ghost {
-  background: transparent;
-  color: var(--tg-hint);
-  padding: 6px 10px;
-}
-.btn-ghost:hover { background: var(--tg-secondary-bg); color: var(--tg-text); }
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
 
-.btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
 
-.screen { min-height: calc(100vh - 32px); }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
 
-/* ============================================================
-   SCREEN 1 — BOT LIST
-   ============================================================ */
-.app-header {
-  background: var(--panel-bg);
-  border-bottom: 1px solid var(--border);
-  padding: 0 max(20px, env(safe-area-inset-left, 0px));
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 32px;
-  z-index: 100;
-}
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
 
-.logo {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--tg-link);
-  letter-spacing: -.03em;
-}
-.logo-dim { color: var(--tg-text); }
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
 
-.header-actions { display: flex; gap: 8px; align-items: center; }
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
 
-/* List content */
-.list-content {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 24px max(20px, env(safe-area-inset-left, 0px));
-  padding-right: max(20px, env(safe-area-inset-right, 0px));
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
 }
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
 
-.section-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--tg-hint);
-  margin-bottom: 12px;
-  display: block;
+:root[data-theme="light"] {
+  --bg: #eef2f6; --surface: #ffffff; --raised: #f3f6f9; --hover: #eaf0f6; --border: #dde4ec; --rule: #eaeff4;
+  --text: #121a24; --muted: #53606f; --faint: #66737f;
+  --accent: #1b78c8; --accent-ink: #ffffff; --accent-bg: #e3f0fb;
+  --font: "Manrope", system-ui, sans-serif; --display: "Manrope", system-ui, sans-serif;
 }
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
+.nav .count { background: var(--accent); color: #fff; }
 
-/* Bot grid */
-.bot-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 14px;
-  margin-bottom: 36px;
-}
+/* builder */
+.build { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
+.flow { position: relative; display: flex; flex-direction: column; gap: 10px; padding-left: 28px; }
+.flow::before { content: ""; position: absolute; left: 11px; top: 18px; bottom: 54px; width: 2px; background: var(--border); border-radius: 1px; }
+.step { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); animation: pop .25s var(--ease) both; transition: border-color .15s; }
+.step::before { content: attr(data-n); position: absolute; left: -28px; top: 14px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--border); font-size: 12px; font-weight: 700; color: var(--muted); }
+.step.open { border-color: var(--accent); }
+.step.open::before { border-color: var(--accent); color: var(--accent); }
+.step-h { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 12px 14px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: var(--radius); }
+.step-ic { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-bg); color: var(--accent); }
+.step-h b { display: block; font-weight: 700; } .step-h span { display: block; color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.step-h .ic.chev { color: var(--faint); transition: transform .2s var(--ease); } .step.open .chev { transform: rotate(180deg); }
+.step-b { padding: 4px 14px 14px 60px; }
+.step-b .field { margin-bottom: 10px; }
+.step-b textarea { width: 100%; }
+.opt-row { display: flex; gap: 6px; margin-bottom: 6px; } .opt-row input { flex: 1; min-width: 0; }
+.step-tools { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.add-step { margin-top: 4px; justify-self: start; }
 
-.bot-card {
-  background: var(--card-bg);
-  border-radius: var(--radius);
-  border-top: 4px solid var(--tg-link);
-  box-shadow: var(--shadow-sm);
-  padding: 16px;
-  cursor: pointer;
-  transition: box-shadow .2s, transform .2s;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.bot-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+/* phone */
+.phone { position: sticky; top: 16px; width: 340px; border: 1px solid var(--border); border-radius: 28px; background: var(--surface); overflow: hidden; display: flex; flex-direction: column; height: min(640px, calc(100svh - 70px)); }
+.tg-h { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.tg-av { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 800; }
+.tg-h b { display: block; font-size: 14px; } .tg-h span { font-size: 12px; color: var(--muted); }
+.tg-h .btn { margin-left: auto; }
+.chat { flex: 1; overflow: auto; padding: 14px 12px; background: #dfe8ef; display: flex; flex-direction: column; gap: 6px; }
+.m { max-width: 84%; padding: 8px 11px; border-radius: 14px; background: #fff; align-self: flex-start; border-bottom-left-radius: 4px; animation: pop .2s var(--ease) both; word-wrap: break-word; }
+.m.me { align-self: flex-end; background: #d4ecb8; border-radius: 14px; border-bottom-right-radius: 4px; }
+.m small { display: block; margin-top: 4px; font-size: 11px; color: #5f7a90; }
+.m.file { display: flex; align-items: center; gap: 8px; }
+.m.file .ic { color: var(--accent); }
+.inl { display: flex; flex-direction: column; gap: 4px; align-self: stretch; animation: pop .2s var(--ease) both; }
+.inl button { height: 34px; border: 0; border-radius: 10px; background: rgba(27,120,200,.88); color: #fff; font-weight: 600; cursor: pointer; transition: background-color .15s, transform .12s; }
+.inl button:hover { background: #1b78c8; } .inl button:active { transform: scale(.97); }
+.inl button.pay { background: #2f9e57; }
+.note { align-self: center; font-size: 12px; color: #54697b; background: rgba(255,255,255,.6); padding: 3px 10px; border-radius: 10px; }
+.tg-f { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--surface); }
+.tg-f input { flex: 1; min-width: 0; height: 36px; border: 1px solid var(--border); border-radius: 18px; padding: 0 14px; background: var(--bg); outline: none; }
+.tg-f input:focus { border-color: var(--accent); }
+.tg-f button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; cursor: pointer; display: grid; place-items: center; }
+.tg-f input:disabled, .tg-f button:disabled { opacity: .45; cursor: default; }
+.bmode { display: none; } .dm { display: none; }
 
-.bot-card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-}
-.bot-name {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--tg-text);
-  line-height: 1.3;
-  text-wrap: balance;
-}
-.bot-username {
-  font-size: 12px;
-  color: var(--tg-hint);
-  font-family: var(--font-mono);
-  margin-top: 3px;
-}
+/* dashboard */
+.funnel { display: flex; flex-direction: column; gap: 14px; }
+.fn { display: grid; grid-template-columns: 150px minmax(0, 1fr) 64px; gap: 14px; align-items: center; }
+.fn .bar { height: 22px; border-radius: 6px; } .fn .bar i { border-radius: 6px; }
+.fn .bar i.lost { background: var(--neg); opacity: .8; }
+.fn b { text-align: right; font-weight: 700; }
+.fn-note { margin-top: 14px; color: var(--muted); }
+.botrow-n { display: flex; align-items: center; gap: 10px; }
+.botrow-n .step-ic { width: 32px; height: 32px; }
 
-.badge {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .05em;
-  padding: 3px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.badge-active  { background: #dcfce7; color: #15803d; }
-.badge-draft   { background: var(--tg-secondary-bg); color: var(--tg-hint); }
-
-.bot-meta { display: flex; flex-direction: column; gap: 5px; }
-.bot-meta-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  color: var(--tg-hint);
-}
-
-.bot-footer .btn { width: 100%; justify-content: center; }
-
-/* Templates */
-.templates-section { margin-top: 4px; }
-.templates-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.template-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 10px;
-}
-.template-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: border-color .15s, box-shadow .15s;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.template-card:hover { border-color: var(--tg-link); box-shadow: var(--shadow-sm); }
-.template-card-icon { font-size: 24px; }
-.template-card-name { font-size: 13px; font-weight: 600; color: var(--tg-text); }
-.template-card-desc { font-size: 11px; color: var(--tg-hint); line-height: 1.4; }
-
-/* ============================================================
-   SCREEN 2 — BOT BUILDER
-   ============================================================ */
-#screen-builder {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 32px);
-  overflow: hidden;
-}
-
-/* Top bar */
-.builder-topbar {
-  background: var(--panel-bg);
-  border-bottom: 1px solid var(--border);
-  height: 54px;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  gap: 10px;
-  flex-shrink: 0;
-  z-index: 50;
-}
-
-.topbar-back {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--tg-link);
-  cursor: pointer;
-  padding: 5px 9px;
-  border-radius: 7px;
-  transition: background .15s;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-.topbar-back:hover { background: var(--tg-secondary-bg); }
-
-.topbar-center {
-  flex: 1;
-  text-align: center;
-  min-width: 0;
-}
-.topbar-name { font-size: 14px; font-weight: 700; color: var(--tg-text); }
-.topbar-username { font-size: 11px; color: var(--tg-hint); font-family: var(--font-mono); }
-
-.topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-
-.save-status {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--tg-hint);
-  font-weight: 500;
-  white-space: nowrap;
-}
-.save-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #22c55e;
-  flex-shrink: 0;
-  transition: background .3s;
-}
-.save-dot.saving { background: #f59e0b; }
-
-.preview-tog {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 7px;
-  background: var(--tg-secondary-bg);
-  border: none;
-  color: var(--tg-hint);
-  cursor: pointer;
-  transition: all .15s;
-}
-.preview-tog.on { background: #dcfce7; color: #15803d; }
-.preview-tog:hover { filter: brightness(.95); }
-
-/* Builder layout */
-.builder-body {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* Left panel */
-.left-panel {
-  width: 296px;
-  min-width: 296px;
-  background: var(--panel-bg);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.lp-section {
-  padding: 12px 12px 10px;
-  border-bottom: 1px solid var(--border);
-}
-.lp-section.grow {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.lp-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--tg-hint);
-  margin-bottom: 9px;
-}
-
-/* Block palette */
-.palette-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-}
-.pal-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 9px;
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--tg-text);
-  background: var(--tg-secondary-bg);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all .15s;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.pal-btn:hover { border-color: var(--border); background: var(--border); }
-.pal-btn:active { transform: scale(.97); }
-.pal-icon {
-  width: 22px;
-  height: 22px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-/* Flow tree */
-.flow-tree {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.block-node {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: 8px;
-  border-left: 3px solid var(--border);
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-left-width: 3px;
-  cursor: pointer;
-  transition: all .15s;
-  position: relative;
-}
-.block-node:hover { box-shadow: var(--shadow-sm); }
-.block-node.active {
-  background: var(--tg-secondary-bg);
-  border-left-color: var(--tg-link) !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-}
-
-.bn-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  flex-shrink: 0;
-}
-.bn-info { flex: 1; min-width: 0; }
-.bn-title { font-size: 12px; font-weight: 600; color: var(--tg-text); margin-bottom: 1px; }
-.bn-sub {
-  font-size: 11px;
-  color: var(--tg-hint);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.bn-drag {
-  color: var(--tg-hint);
-  opacity: 0;
-  font-size: 11px;
-  transition: opacity .15s;
-}
-.block-node:hover .bn-drag { opacity: 1; }
-
-.flow-line {
-  height: 8px;
-  display: flex;
-  align-items: center;
-  padding-left: 22px;
-}
-.flow-line::after {
-  content: '';
-  display: block;
-  width: 2px;
-  height: 100%;
-  background: var(--border);
-  border-radius: 1px;
-}
-
-/* Right panel */
-.right-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 0;
-}
-
-/* Block editor */
-.block-editor {
-  flex: 1;
-  overflow-y: auto;
-  padding: 22px 26px;
-  background: var(--tg-bg);
-}
-
-.be-header {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-}
-.be-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.be-title { font-size: 16px; font-weight: 700; color: var(--tg-text); }
-.be-hint { font-size: 12px; color: var(--tg-hint); margin-top: 2px; }
-
-.form-group { margin-bottom: 16px; }
-.form-label {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--tg-hint);
-  margin-bottom: 6px;
-}
-.form-input, .form-textarea, .form-select {
-  width: 100%;
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 14px;
-  color: var(--tg-text);
-  outline: none;
-  transition: border-color .15s, box-shadow .15s;
-}
-.form-input:focus, .form-textarea:focus, .form-select:focus {
-  border-color: var(--tg-link);
-  box-shadow: 0 0 0 3px rgba(4,120,87,.1);
-}
-.form-textarea { resize: vertical; min-height: 96px; line-height: 1.55; }
-.char-counter {
-  font-size: 11px;
-  color: var(--tg-hint);
-  text-align: right;
-  margin-top: 4px;
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Button rows */
-.btn-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 9px 10px;
-  margin-bottom: 7px;
-}
-.btn-row-input {
-  flex: 1;
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 13px;
-  color: var(--tg-text);
-  outline: none;
-  min-width: 0;
-}
-.btn-row-input:focus { border-color: var(--tg-link); }
-.btn-row-type {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  border-radius: 6px;
-  padding: 6px 9px;
-  font-size: 12px;
-  color: var(--tg-text);
-  outline: none;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.btn-row-del {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  color: var(--tg-destructive);
-  cursor: pointer;
-  border-radius: 6px;
-  font-size: 17px;
-  opacity: .55;
-  transition: opacity .15s, background .15s;
-  flex-shrink: 0;
-}
-.btn-row-del:hover { opacity: 1; background: #fee2e2; }
-
-/* Payment row */
-.pay-fields { display: flex; gap: 10px; }
-.pay-fields .form-group { flex: 1; margin-bottom: 0; }
-
-.radio-group { display: flex; gap: 14px; flex-wrap: wrap; }
-.radio-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  cursor: pointer;
-  color: var(--tg-text);
-}
-.radio-label input[type="radio"] { accent-color: var(--tg-link); width: 15px; height: 15px; }
-
-/* Upload area */
-.upload-area {
-  border: 2px dashed var(--border);
-  border-radius: 10px;
-  padding: 24px;
-  text-align: center;
-  cursor: pointer;
-  background: var(--input-bg);
-  transition: border-color .15s;
-}
-.upload-area:hover { border-color: var(--tg-link); }
-.upload-icon { font-size: 26px; margin-bottom: 6px; }
-.upload-text { font-size: 13px; color: var(--tg-text); font-weight: 500; }
-.upload-sub  { font-size: 11px; color: var(--tg-hint); margin-top: 4px; }
-
-/* Format buttons */
-.fmt-row { display: flex; gap: 6px; flex-wrap: wrap; }
-.fmt-btn {
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  background: var(--tg-secondary-bg);
-  border: 1px solid var(--border);
-  color: var(--tg-text);
-  cursor: pointer;
-  transition: background .15s;
-}
-.fmt-btn:hover { background: var(--border); }
-
-.be-delete {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-.btn-delete {
-  background: transparent;
-  border: none;
-  color: var(--tg-destructive);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 6px 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font);
-  opacity: .8;
-  transition: opacity .15s;
-}
-.btn-delete:hover { opacity: 1; }
-
-/* Delay */
-.delay-row { display: flex; gap: 8px; align-items: center; }
-.delay-num { width: 80px; }
-
-/* ============================================================
-   PREVIEW PANEL
-   ============================================================ */
-.preview-panel {
-  border-top: 1px solid var(--border);
-  background: var(--panel-bg);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  flex-shrink: 0;
-  height: 290px;
-  transition: height .25s ease;
-}
-.preview-panel.collapsed { height: 42px; }
-
-.preview-header {
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  cursor: pointer;
-  user-select: none;
-}
-.preview-header-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--tg-hint);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.preview-chevron {
-  font-size: 11px;
-  color: var(--tg-hint);
-  transition: transform .2s;
-}
-.preview-panel.collapsed .preview-chevron { transform: rotate(180deg); }
-
-.preview-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px 18px;
-}
-
-/* Telegram simulator */
-.tg-sim {
-  max-width: 340px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-.tg-sim-head {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
-}
-.tg-ava {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #047857, #10b981);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-.tg-bot-name  { font-size: 13px; font-weight: 700; color: var(--tg-text); }
-.tg-bot-status { font-size: 11px; color: #22c55e; }
-
-.tg-bubble {
-  background: #e8f5f0;
-  border-radius: 14px 14px 14px 3px;
-  padding: 10px 12px;
-  font-size: 13px;
-  line-height: 1.45;
-  color: #0f2419;
-  max-width: 88%;
-  word-break: break-word;
-  white-space: pre-wrap;
-}
-.tg-time {
-  font-size: 10px;
-  color: #6aac8a;
-  text-align: right;
-  margin-top: 3px;
-}
-.tg-img-ph {
-  height: 110px;
-  max-width: 88%;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 60%, #7dd3fc 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-}
-.tg-btns { display: flex; gap: 6px; flex-wrap: wrap; max-width: 92%; }
-.tg-btn {
-  background: var(--tg-link);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: background .15s;
-}
-.tg-btn:hover { background: #065f46; }
-.tg-btn.outline {
-  background: transparent;
-  color: var(--tg-link);
-  border: 1.5px solid var(--tg-link);
-}
-.tg-file-card {
-  background: #e8f5f0;
-  border-radius: 10px;
-  padding: 10px 12px;
-  max-width: 88%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.tg-file-card .file-icon { font-size: 24px; }
-.tg-file-name { font-size: 13px; font-weight: 600; color: #0f2419; }
-.tg-file-type { font-size: 11px; color: #6aac8a; }
-
-.tg-typing {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #e8f5f0;
-  border-radius: 12px;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: #4a7a60;
-}
-.tg-delay-badge {
-  display: inline-block;
-  background: var(--tg-secondary-bg);
-  color: var(--tg-hint);
-  font-size: 11px;
-  padding: 4px 12px;
-  border-radius: 10px;
-  text-align: center;
-}
-
-/* ============================================================
-   MODALS & SHEETS
-   ============================================================ */
-.overlay {
-  position: fixed;
-  inset: 32px 0 0 0;
-  background: rgba(0,0,0,.45);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-}
-.modal {
-  background: var(--card-bg);
-  border-radius: 18px;
-  padding: 28px;
-  max-width: 380px;
-  width: 90%;
-  box-shadow: var(--shadow-lg);
-  animation: modal-in .2s ease;
-}
-@keyframes modal-in {
-  from { transform: scale(.94) translateY(8px); opacity: 0; }
-  to   { transform: scale(1) translateY(0); opacity: 1; }
-}
-.modal-center { text-align: center; }
-.modal-icon  { font-size: 46px; margin-bottom: 10px; }
-.modal-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--tg-text); }
-.modal-body  { font-size: 14px; color: var(--tg-hint); line-height: 1.55; margin-bottom: 22px; }
-
-.sheet-overlay {
-  position: fixed;
-  inset: 32px 0 0 0;
-  background: rgba(0,0,0,.45);
-  z-index: 1000;
-  display: flex;
-  align-items: flex-end;
-  backdrop-filter: blur(2px);
-}
-.sheet {
-  background: var(--card-bg);
-  border-radius: 20px 20px 0 0;
-  width: 100%;
-  padding: 18px 20px 36px;
-  max-height: 82vh;
-  overflow-y: auto;
-  animation: sheet-in .25s ease;
-}
-@keyframes sheet-in {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-.sheet-handle {
-  width: 36px;
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  margin: 0 auto 16px;
-}
-.sheet-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; color: var(--tg-text); }
-.sheet-items { display: flex; flex-direction: column; gap: 8px; }
-.sheet-item {
-  background: var(--tg-secondary-bg);
-  border-radius: 10px;
-  padding: 13px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: background .15s;
-}
-.sheet-item:hover { background: var(--border); }
-.sheet-item-icon { font-size: 22px; }
-.sheet-item-info { flex: 1; }
-.sheet-item-name { font-size: 14px; font-weight: 600; color: var(--tg-text); }
-.sheet-item-desc { font-size: 12px; color: var(--tg-hint); margin-top: 2px; }
-.sheet-item-arr  { color: var(--tg-hint); font-size: 14px; }
-
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-@media (max-width: 660px) {
-  .builder-body { flex-direction: column; overflow: auto; }
-  .left-panel { width: 100%; min-width: unset; border-right: none; border-bottom: 1px solid var(--border); max-height: 270px; }
-  .right-panel { min-height: 280px; flex: none; }
-  .preview-panel { height: 250px; }
-  .list-content { padding: 14px; }
-  .bot-grid { grid-template-columns: 1fr; }
-  .topbar-username { display: none; }
-  .save-status { display: none; }
-  .template-grid { grid-template-columns: 1fr 1fr; }
-  .topbar-right .preview-tog { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
+@media (max-width: 1099px) { .build { grid-template-columns: minmax(0, 1fr); } .phone { position: relative; top: 0; width: 100%; max-width: 380px; margin: 0 auto; height: 560px; } }
+@media (max-width: 899px) {
+  .bmode { display: inline-flex; } .dm { display: block; }
+  .build[data-mode="flow"] .phone, .build[data-mode="chat"] .flow { display: none; }
+  .fn { grid-template-columns: 110px minmax(0, 1fr) 48px; gap: 10px; }
+  .step-b { padding-left: 14px; }
 }
 </style>
 </head>
 <body>
-
-<!-- Demo Banner -->
-<div class="demo-banner">⚠ DEMO — dimkaprojects.xyz ⚠</div>
-
-<!-- ============================================================
-     SCREEN 1 — BOT LIST
-     ============================================================ -->
-<div id="screen-list" class="screen">
-
-  <header class="app-header">
-    <div class="logo">Bot<span class="logo-dim">Factory</span></div>
-    <div class="header-actions">
-      <button class="btn btn-secondary" onclick="openTemplateSheet()">📋 Шаблоны</button>
-      <button class="btn btn-primary" onclick="openCreateModal()">+ Создать бота</button>
+<div class="notice"><b>Demo</b> BotFactory · data is fictional</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3"/></svg></div>
+      <div><div class="brand-name">BotFactory</div><div class="brand-sub">Lena's Studio</div></div>
     </div>
-  </header>
-
-  <div class="list-content">
-
-    <span class="section-label" style="margin-top:6px;display:block">Мои боты</span>
-
-    <div class="bot-grid">
-
-      <!-- Bot 1 — Гайд по трейдингу -->
-      <div class="bot-card" onclick="openBuilder()">
-        <div class="bot-top">
-          <div class="bot-card-top">
-            <div>
-              <div class="bot-name">🤖 Гайд по трейдингу</div>
-              <div class="bot-username">@trading_guide_bot</div>
-            </div>
-            <span class="badge badge-active">АКТИВЕН</span>
-          </div>
-        </div>
-        <div class="bot-meta">
-          <div class="bot-meta-row"><span>📦</span><span>12 блоков</span></div>
-          <div class="bot-meta-row"><span>💳</span><span>Оплачен до: 02.12.2026</span></div>
-        </div>
-        <div class="bot-footer">
-          <button class="btn btn-primary" onclick="event.stopPropagation(); openBuilder()">
-            Открыть конструктор
-          </button>
-        </div>
-      </div>
-
-      <!-- Bot 2 — Магазин курсов -->
-      <div class="bot-card">
-        <div class="bot-card-top">
-          <div>
-            <div class="bot-name">🛍️ Магазин курсов</div>
-            <div class="bot-username">@my_courses_bot</div>
-          </div>
-          <span class="badge badge-active">АКТИВЕН</span>
-        </div>
-        <div class="bot-meta">
-          <div class="bot-meta-row"><span>📦</span><span>8 блоков</span></div>
-          <div class="bot-meta-row"><span>💳</span><span>Оплачен до: 15.11.2026</span></div>
-        </div>
-        <div class="bot-footer">
-          <button class="btn btn-secondary">Открыть</button>
-        </div>
-      </div>
-
-      <!-- Bot 3 — Бронирование -->
-      <div class="bot-card">
-        <div class="bot-card-top">
-          <div>
-            <div class="bot-name">📋 Запись на консультацию</div>
-            <div class="bot-username">@booking_bot_demo</div>
-          </div>
-          <span class="badge badge-draft">ЧЕРНОВИК</span>
-        </div>
-        <div class="bot-meta">
-          <div class="bot-meta-row"><span>📦</span><span>5 блоков</span></div>
-          <div class="bot-meta-row"><span>⏰</span><span>Не опубликован</span></div>
-        </div>
-        <div class="bot-footer">
-          <button class="btn btn-secondary">Открыть</button>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Templates -->
-    <div class="templates-section">
-      <div class="templates-header">
-        <span class="section-label" style="margin-bottom:0">Начать с шаблона</span>
-        <button class="btn btn-ghost" style="font-size:12px" onclick="openTemplateSheet()">Все →</button>
-      </div>
-      <div class="template-grid">
-        <div class="template-card" onclick="openTemplateSheet()">
-          <div class="template-card-icon">📄</div>
-          <div class="template-card-name">Разовый продукт</div>
-          <div class="template-card-desc">Файл, гайд или курс с оплатой</div>
-        </div>
-        <div class="template-card" onclick="openTemplateSheet()">
-          <div class="template-card-icon">🔑</div>
-          <div class="template-card-name">Платная подписка</div>
-          <div class="template-card-desc">Регулярные платежи</div>
-        </div>
-        <div class="template-card" onclick="openTemplateSheet()">
-          <div class="template-card-icon">📅</div>
-          <div class="template-card-name">Бронирование</div>
-          <div class="template-card-desc">Запись на услуги</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">EK</div><div class="who"><b>Elena Kravets</b><span>Master plan</span></div></div>
+  </aside>
+  <main class="main" id="main"></main>
 </div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
-
-<!-- ============================================================
-     SCREEN 2 — BOT BUILDER
-     ============================================================ -->
-<div id="screen-builder" class="screen hidden">
-
-  <!-- Top bar -->
-  <div class="builder-topbar">
-    <div class="topbar-back" onclick="goBack()">← Назад</div>
-    <div class="topbar-center">
-      <div class="topbar-name">Гайд по трейдингу</div>
-      <div class="topbar-username">@trading_guide_bot</div>
-    </div>
-    <div class="topbar-right">
-      <div class="save-status">
-        <span class="save-dot" id="save-dot"></span>
-        <span id="save-text">Сохранено</span>
-      </div>
-      <button class="preview-tog on" id="prev-tog-btn" onclick="togglePreview()">👁 Предпросмотр</button>
-      <button class="btn btn-primary" id="pub-btn" onclick="publishBot()">Опубликовать</button>
-    </div>
-  </div>
-
-  <!-- Builder body -->
-  <div class="builder-body">
-
-    <!-- LEFT PANEL -->
-    <div class="left-panel">
-
-      <div class="lp-section">
-        <div class="lp-title">Добавить блок</div>
-        <div class="palette-grid">
-          <button class="pal-btn" onclick="addBlock('welcome')">
-            <span class="pal-icon" style="background:#dbeafe;color:#0369a1">👋</span>Приветствие
-          </button>
-          <button class="pal-btn" onclick="addBlock('description')">
-            <span class="pal-icon" style="background:#dcfce7;color:#4d7c0f">📝</span>Описание
-          </button>
-          <button class="pal-btn" onclick="addBlock('image')">
-            <span class="pal-icon" style="background:#fce7f3;color:#be185d">🖼️</span>Изображение
-          </button>
-          <button class="pal-btn" onclick="addBlock('buttons')">
-            <span class="pal-icon" style="background:#fef3c7;color:#b45309">🔘</span>Кнопки
-          </button>
-          <button class="pal-btn" onclick="addBlock('delivery')">
-            <span class="pal-icon" style="background:#d1fae5;color:#15803d">📦</span>Выдача
-          </button>
-          <button class="pal-btn" onclick="addBlock('delay')">
-            <span class="pal-icon" style="background:#f4f4f5;color:#52525b">⏱</span>Задержка
-          </button>
-          <button class="pal-btn" onclick="addBlock('payment')" style="grid-column:span 2">
-            <span class="pal-icon" style="background:#ede9fe;color:#7c3aed">💳</span>Оплата
-          </button>
-        </div>
-      </div>
-
-      <div class="lp-section grow">
-        <div class="lp-title">Структура бота</div>
-        <div class="flow-tree" id="flow-tree"></div>
-      </div>
-
-    </div>
-
-    <!-- RIGHT PANEL -->
-    <div class="right-panel">
-
-      <div class="block-editor" id="block-editor">
-        <!-- Populated by JS -->
-      </div>
-
-      <div class="preview-panel" id="preview-panel">
-        <div class="preview-header" onclick="togglePreviewPanel()">
-          <div class="preview-header-label">📱 Предпросмотр — Telegram</div>
-          <span class="preview-chevron" id="prev-chevron">▼</span>
-        </div>
-        <div class="preview-body">
-          <div class="tg-sim" id="tg-sim">
-            <!-- Populated by JS -->
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================
-     PUBLISH SUCCESS MODAL
-     ============================================================ -->
-<div class="overlay hidden" id="publish-modal" onclick="handlePublishOverlay(event)">
-  <div class="modal modal-center" role="dialog" aria-modal="true">
-    <div class="modal-icon">✅</div>
-    <div class="modal-title">Бот опубликован!</div>
-    <div class="modal-body">
-      Ваш бот <strong>@trading_guide_bot</strong> успешно запущен и доступен пользователям в Telegram.
-    </div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:12px" onclick="closePublishModal()">
-      Отлично! 🎉
-    </button>
-  </div>
-</div>
-
-
-<!-- ============================================================
-     TEMPLATE SHEET
-     ============================================================ -->
-<div class="sheet-overlay hidden" id="template-sheet" onclick="handleSheetOverlay(event)">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title">Выбрать шаблон</div>
-    <div class="sheet-items">
-      <div class="sheet-item" onclick="closeTemplateSheet()">
-        <div class="sheet-item-icon">📄</div>
-        <div class="sheet-item-info">
-          <div class="sheet-item-name">Разовый продукт</div>
-          <div class="sheet-item-desc">Файл, гайд или курс с разовой оплатой</div>
-        </div>
-        <span class="sheet-item-arr">→</span>
-      </div>
-      <div class="sheet-item" onclick="closeTemplateSheet()">
-        <div class="sheet-item-icon">🔑</div>
-        <div class="sheet-item-info">
-          <div class="sheet-item-name">Платная подписка</div>
-          <div class="sheet-item-desc">Регулярные платежи с доступом к контенту</div>
-        </div>
-        <span class="sheet-item-arr">→</span>
-      </div>
-      <div class="sheet-item" onclick="closeTemplateSheet()">
-        <div class="sheet-item-icon">📅</div>
-        <div class="sheet-item-info">
-          <div class="sheet-item-name">Запись / Бронирование</div>
-          <div class="sheet-item-desc">Запись на услуги с выбором времени</div>
-        </div>
-        <span class="sheet-item-arr">→</span>
-      </div>
-      <div class="sheet-item" onclick="closeTemplateSheet()">
-        <div class="sheet-item-icon">🛍️</div>
-        <div class="sheet-item-info">
-          <div class="sheet-item-name">Магазин товаров</div>
-          <div class="sheet-item-desc">Каталог товаров с корзиной и оплатой</div>
-        </div>
-        <span class="sheet-item-arr">→</span>
-      </div>
-      <div class="sheet-item" onclick="closeTemplateSheet()">
-        <div class="sheet-item-icon">📊</div>
-        <div class="sheet-item-info">
-          <div class="sheet-item-name">Квиз / Опрос</div>
-          <div class="sheet-item-desc">Тест с ветвлением и персонализированными результатами</div>
-        </div>
-        <span class="sheet-item-arr">→</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================
-     CREATE BOT MODAL
-     ============================================================ -->
-<div class="overlay hidden" id="create-modal" onclick="handleCreateOverlay(event)">
-  <div class="modal" style="max-width:420px" role="dialog" aria-modal="true">
-    <div style="font-size:18px;font-weight:700;margin-bottom:5px;color:var(--tg-text)">Новый бот</div>
-    <div style="font-size:13px;color:var(--tg-hint);margin-bottom:20px">Подключите своего бота из @BotFather</div>
-    <div class="form-group">
-      <label class="form-label">Название бота</label>
-      <input type="text" class="form-input" id="new-name" placeholder="Например: Мой магазин" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Bot Token (@BotFather)</label>
-      <input type="text" class="form-input" id="new-token" placeholder="1234567890:AAFxxxxxxx" style="font-family:var(--font-mono);font-size:12px" autocomplete="off">
-    </div>
-    <div style="display:flex;gap:10px;margin-top:8px">
-      <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="closeCreateModal()">Отмена</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="closeCreateModal()">Создать →</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ============================================================
-     JAVASCRIPT
-     ============================================================ -->
 <script>
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('en-GB');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
+
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
+
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
+}
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
+}
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
+
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
+  }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Trend: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
+}
+
 'use strict';
 
-// ─── Block type registry ─────────────────────────────────────
-const TYPES = {
-  welcome:     { icon: '👋', label: 'Приветствие',  color: '#0369a1', bg: '#dbeafe', hint: 'Первое сообщение при старте бота' },
-  description: { icon: '📝', label: 'Описание',      color: '#4d7c0f', bg: '#dcfce7', hint: 'Текстовое сообщение для пользователя' },
-  image:       { icon: '🖼️', label: 'Изображение',   color: '#be185d', bg: '#fce7f3', hint: 'Картинка или баннер' },
-  buttons:     { icon: '🔘', label: 'Кнопки',        color: '#b45309', bg: '#fef3c7', hint: 'Интерактивные кнопки для выбора действия' },
-  payment:     { icon: '💳', label: 'Оплата',        color: '#7c3aed', bg: '#ede9fe', hint: 'Блок приёма платежей' },
-  delivery:    { icon: '📦', label: 'Выдача',        color: '#15803d', bg: '#d1fae5', hint: 'Автоматическая отправка файла' },
-  delay:       { icon: '⏱',  label: 'Задержка',      color: '#52525b', bg: '#f4f4f5', hint: 'Пауза перед следующим блоком' },
+/* ── data ─────────────────────────────────────────────── */
+const rub = (n) => fmt(n) + ' ₽';
+const TODAY = new Date(2026, 9, 21, 15, 20);          // Wed 21 Oct 2026
+const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const dayOf = (ago) => new Date(TODAY.getTime() - ago * 864e5);
+const dLabel = (ago) => ago === 0 ? 'Today' : ago === 1 ? 'Yesterday' : dayOf(ago).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+
+const TPL = {
+  salon: { name: 'Appointment booking', icon: 'calendar', steps: () => [
+    { t: 'msg', text: "Hi! I'm Lena, a nail artist in Tynda. I'll book you in a minute." },
+    { t: 'buttons', text: 'What would you like to do?', opts: ['Manicure · 2,500 ₽', 'Pedicure · 3,000 ₽', 'Removal · 800 ₽'] },
+    { t: 'ask', text: 'What is your name?' },
+    { t: 'pay', text: 'A prepayment secures your slot. It is deducted from the price.', price: 500 },
+    { t: 'give', text: 'You are booked! Address: 12 Krasnaya Presnya St, room 4.', file: 'Before your visit.pdf' },
+  ] },
+  course: { name: 'Course sales', icon: 'graduation', steps: () => [
+    { t: 'msg', text: 'Hello! This is the bot for the "First Launch" course: 12 lessons on getting your first sales.' },
+    { t: 'buttons', text: 'Where shall we start?', opts: ['What is inside the course', 'I want to buy'] },
+    { t: 'pay', text: 'Lifetime access to the course. Pay by card or instant bank transfer.', price: 4900 },
+    { t: 'give', text: 'Payment received, thank you! Your lessons are now unlocked.', file: 'Open course' },
+  ] },
+  channel: { name: 'Private channel', icon: 'lock', steps: () => [
+    { t: 'msg', text: 'Hi! Every day I review buyer requests here. The channel is private, access by subscription.' },
+    { t: 'buttons', text: 'Want a peek inside?', opts: ['Show a sample review', 'Subscribe'] },
+    { t: 'pay', text: '30-day subscription, no auto-renewal.', price: 990 },
+    { t: 'give', text: 'Welcome! This link works only for you.', file: 'Join channel' },
+  ] },
+};
+const STEP = {
+  msg: ['Message', 'chat'], ask: ['Question', 'edit'], buttons: ['Buttons', 'grid'], pay: ['Payment', 'coin'], give: ['Delivery', 'file'], remind: ['Reminder', 'clock'],
 };
 
-// ─── App state ────────────────────────────────────────────────
-let activeBlockId = 'b_welcome';
-let saveTimer = null;
-let previewOpen = true;
+const S = {
+  bots: [
+    { id: 1, name: 'Booking with Lena', user: '@lena_nails_bot', tpl: 'salon', live: true, steps: TPL.salon.steps(), starts: 96, answered: 71, atPay: 38 },
+    { id: 2, name: 'Course "First Launch"', user: '@first_launch_bot', tpl: 'course', live: true, steps: TPL.course.steps(), starts: 180, answered: 120, atPay: 41 },
+    { id: 3, name: 'Private channel', user: '@lena_club_bot', tpl: 'channel', live: true, steps: TPL.channel.steps(), starts: 64, answered: 52, atPay: 19 },
+  ],
+  sales: [],
+};
+/* sales are derived from days-ago lists, so every total on every page reconciles */
+const BUYERS = ['Anna L.', 'Maria S.', 'Olga K.', 'Irina V.', 'Svetlana P.', 'Daria M.', 'Natalia B.', 'Yulia G.', 'Ekaterina T.', 'Alyona R.', 'Polina Zh.', 'Viktoria N.', 'Kristina A.'];
+const DAYS = { 1: [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 6, 6], 2: [0, 1, 3, 4, 6, 6], 3: [0, 0, 1, 1, 2, 3, 3, 4, 5, 6, 6] };
+const PRICE = { 1: 500, 2: 4900, 3: 990 };
+(() => {
+  let k = 0;
+  for (const id of [1, 2, 3]) DAYS[id].forEach((ago, i) => { S.sales.push({ bot: id, ago, buyer: BUYERS[(k * 5 + i * 3 + id) % BUYERS.length], amount: PRICE[id], min: 540 + ((k * 137) % 780) }); k++; });
+  S.sales.sort((a, b) => a.ago - b.ago || b.min - a.min);
+})();
+const sold = (id) => S.sales.filter((s) => s.bot === id);
+const botPrice = (b) => (b.steps.find((s) => s.t === 'pay') || {}).price || 0;
+const hhmm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const stats = (b) => { const paid = sold(b.id).length, rev = paid * PRICE[b.id]; return { paid, rev, conv: b.starts ? paid / b.starts : 0 }; };
+const totals = () => { const r = S.bots.map(stats); return { rev: r.reduce((a, x) => a + x.rev, 0), paid: r.reduce((a, x) => a + x.paid, 0), starts: S.bots.reduce((a, b) => a + b.starts, 0) }; };
+console.assert(S.sales.length === 31 && totals().rev === 47290, 'sales reconcile');
+console.assert(S.bots.every((b) => b.starts >= b.answered && b.answered >= b.atPay && b.atPay >= sold(b.id).length), 'funnel narrows');
 
-let blocks = [
-  { id: 'b_welcome',  type: 'welcome',     text: 'Привет! 👋 Я — бот-помощник по трейдингу. Здесь ты получишь практический гайд по торговым стратегиям.' },
-  { id: 'b_desc',     type: 'description', text: 'Этот бот поможет тебе освоить базовые и продвинутые торговые стратегии на крипто-рынке. Внутри — 47 страниц практики с реальными сделками.' },
-  { id: 'b_img',      type: 'image',       text: 'cover.jpg', caption: '' },
-  { id: 'b_btns',     type: 'buttons',     buttons: [
-    { text: '🎓 Получить гайд', type: 'text' },
-    { text: 'ℹ️ Подробнее',    type: 'url' },
-  ]},
-  { id: 'b_pay',      type: 'payment',     price: '1 990', currency: '₸', desc: 'Практический гайд по торговым стратегиям', provider: 'robokassa' },
-  { id: 'b_delivery', type: 'delivery',    file: 'guide.pdf' },
-];
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { dashboard: ['Bots', 'home'], builder: ['Builder', 'sliders'], sales: ['Sales', 'coin'], buyers: ['Buyers', 'users'] };
+let page = 'dashboard', cur = 1, openStep = 0, salesBot = 0, mode = 'flow', fbot = 2;
 
-// ─── Screen navigation ────────────────────────────────────────
-function openBuilder() {
-  document.getElementById('screen-list').classList.add('hidden');
-  const builder = document.getElementById('screen-builder');
-  builder.classList.remove('hidden');
-  renderFlowTree();
-  selectBlock('b_welcome');
+function chrome() {
+  const item = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`;
+  $('#nav').innerHTML = item('dashboard') + item('builder') + `<div class="nav-label">Money and people</div>` + item('sales') + item('buyers');
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
+  setNav(page);
 }
+function render() { chrome(); $('#main').innerHTML = ({ dashboard, builder, sales, buyers })[page](); mount(); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+const bot = () => S.bots.find((b) => b.id === cur);
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
 
-function goBack() {
-  document.getElementById('screen-builder').classList.add('hidden');
-  document.getElementById('screen-list').classList.remove('hidden');
-}
-
-// ─── Flow tree ────────────────────────────────────────────────
-function renderFlowTree() {
-  const tree = document.getElementById('flow-tree');
-  if (!tree) return;
-  tree.innerHTML = '';
-  blocks.forEach((block, i) => {
-    const t = TYPES[block.type];
-    if (i > 0) {
-      const line = document.createElement('div');
-      line.className = 'flow-line';
-      tree.appendChild(line);
-    }
-    const node = document.createElement('div');
-    node.className = 'block-node' + (block.id === activeBlockId ? ' active' : '');
-    node.style.borderLeftColor = block.id === activeBlockId ? 'var(--tg-link)' : t.color;
-    node.tabIndex = 0;
-    node.setAttribute('role', 'button');
-    node.setAttribute('aria-label', t.label);
-    node.onclick = () => selectBlock(block.id);
-    node.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') selectBlock(block.id); };
-
-    node.innerHTML =
-      '<div class="bn-icon" style="background:' + t.bg + ';color:' + t.color + '">' + t.icon + '</div>' +
-      '<div class="bn-info">' +
-        '<div class="bn-title">' + esc(t.label) + '</div>' +
-        '<div class="bn-sub">' + esc(blockSubtitle(block)) + '</div>' +
-      '</div>' +
-      '<span class="bn-drag" aria-hidden="true">⠿</span>';
-
-    tree.appendChild(node);
-  });
-}
-
-function blockSubtitle(block) {
-  switch (block.type) {
-    case 'welcome':
-    case 'description': return (block.text || '').substring(0, 34) + ((block.text||'').length > 34 ? '…' : '');
-    case 'image':        return block.text || 'Нет изображения';
-    case 'buttons':      return (block.buttons || []).length + ' кнопки';
-    case 'payment':      return (block.price || '0') + ' ' + (block.currency || '₸');
-    case 'delivery':     return block.file || 'Файл не выбран';
-    case 'delay':        return (block.seconds || 3) + ' сек';
-    default:             return '';
-  }
-}
-
-// ─── Block selection & editor ─────────────────────────────────
-function selectBlock(id) {
-  activeBlockId = id;
-  renderFlowTree();
-  renderEditor();
-  renderPreview();
-}
-
-function renderEditor() {
-  const editor = document.getElementById('block-editor');
-  if (!editor) return;
-  const block = blocks.find(b => b.id === activeBlockId);
-  if (!block) {
-    editor.innerHTML = '<div style="padding:40px;text-align:center;color:var(--tg-hint)">Выберите блок из списка слева</div>';
-    return;
-  }
-  const t = TYPES[block.type];
-
-  let html =
-    '<div class="be-header">' +
-      '<div class="be-icon" style="background:' + t.bg + ';color:' + t.color + '">' + t.icon + '</div>' +
-      '<div><div class="be-title">' + esc(t.label) + '</div><div class="be-hint">' + esc(t.hint) + '</div></div>' +
-    '</div>';
-
-  switch (block.type) {
-    case 'welcome':
-    case 'description':
-      html +=
-        '<div class="form-group">' +
-          '<label class="form-label" for="blk-text">Текст сообщения</label>' +
-          '<textarea class="form-textarea" id="blk-text" oninput="onTextChange(this.value)">' + esc(block.text || '') + '</textarea>' +
-          '<div class="char-counter" id="char-cnt">' + (block.text||'').length + '/2000</div>' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label">Форматирование</label>' +
-          '<div class="fmt-row">' +
-            '<button class="fmt-btn" onclick="insertFmt(\'bold\')"><b>Жирный</b></button>' +
-            '<button class="fmt-btn" onclick="insertFmt(\'italic\')"><i>Курсив</i></button>' +
-            '<button class="fmt-btn" onclick="insertFmt(\'code\')" style="font-family:var(--font-mono)">Код</button>' +
-            '<button class="fmt-btn" onclick="insertFmt(\'link\')">🔗 Ссылка</button>' +
-          '</div>' +
-        '</div>';
-      break;
-
-    case 'image':
-      html +=
-        '<div class="form-group">' +
-          '<label class="form-label">Изображение</label>' +
-          '<div class="upload-area" onclick="demoAlert(\'upload\')">' +
-            '<div class="upload-icon">🖼️</div>' +
-            '<div class="upload-text">' + esc(block.text || 'Нажмите для загрузки') + '</div>' +
-            '<div class="upload-sub">PNG, JPG, GIF до 10 МБ</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label" for="img-cap">Подпись к изображению (необязательно)</label>' +
-          '<input type="text" class="form-input" id="img-cap" placeholder="Подпись..." value="' + esc(block.caption || '') + '" oninput="updateField(\'caption\', this.value)">' +
-        '</div>';
-      break;
-
-    case 'buttons': {
-      let rows = '';
-      (block.buttons || []).forEach((btn, i) => {
-        rows +=
-          '<div class="btn-row">' +
-            '<input type="text" class="btn-row-input" value="' + esc(btn.text) + '" placeholder="Текст кнопки..." oninput="updateBtn(' + i + ',\'text\',this.value)">' +
-            '<select class="btn-row-type" onchange="updateBtn(' + i + ',\'type\',this.value)">' +
-              '<option value="text"' + (btn.type==='text'?' selected':'') + '>Текст ответ</option>' +
-              '<option value="url"'  + (btn.type==='url'?' selected':'')  + '>Ссылка</option>' +
-              '<option value="pay"'  + (btn.type==='pay'?' selected':'')  + '>Оплата</option>' +
-            '</select>' +
-            '<button class="btn-row-del" onclick="removeBtn(' + i + ')" aria-label="Удалить кнопку">×</button>' +
-          '</div>';
-      });
-      html +=
-        '<div class="form-group">' +
-          '<label class="form-label">Кнопки (' + (block.buttons||[]).length + '/8)</label>' +
-          '<div id="btn-list">' + rows + '</div>' +
-          '<button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:8px" onclick="addBtn()">+ Добавить кнопку</button>' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label">Тип клавиатуры</label>' +
-          '<select class="form-select"><option>Inline (под сообщением)</option><option>Reply (вместо клавиатуры)</option></select>' +
-        '</div>';
-      break;
-    }
-
-    case 'payment':
-      html +=
-        '<div class="form-group">' +
-          '<label class="form-label">Стоимость</label>' +
-          '<div class="pay-fields">' +
-            '<div class="form-group" style="flex:2"><input type="text" class="form-input" value="' + esc(block.price || '') + '" placeholder="1 990" oninput="updateField(\'price\', this.value)"></div>' +
-            '<div class="form-group" style="flex:1">' +
-              '<select class="form-select" onchange="updateField(\'currency\', this.value)">' +
-                '<option' + (block.currency==='₸'?' selected':'') + '>₸</option>' +
-                '<option' + (block.currency==='₽'?' selected':'') + '>₽</option>' +
-                '<option' + (block.currency==='$'?' selected':'') + '>$</option>' +
-                '<option' + (block.currency==='€'?' selected':'') + '>€</option>' +
-              '</select>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label" for="pay-desc">Описание платежа</label>' +
-          '<input type="text" class="form-input" id="pay-desc" value="' + esc(block.desc||'') + '" placeholder="Что получит пользователь..." oninput="updateField(\'desc\', this.value)">' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label">Платёжный провайдер</label>' +
-          '<div class="radio-group">' +
-            '<label class="radio-label"><input type="radio" name="prov" value="robokassa"' + (block.provider==='robokassa'?' checked':'') + ' onchange="updateField(\'provider\',this.value)"> Robokassa</label>' +
-            '<label class="radio-label"><input type="radio" name="prov" value="stripe"'    + (block.provider==='stripe'?' checked':'')    + ' onchange="updateField(\'provider\',this.value)"> Stripe</label>' +
-            '<label class="radio-label"><input type="radio" name="prov" value="yookassa"'  + (block.provider==='yookassa'?' checked':'')  + ' onchange="updateField(\'provider\',this.value)"> ЮКасса</label>' +
-          '</div>' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label" for="pay-btn-txt">Текст кнопки оплаты</label>' +
-          '<input type="text" class="form-input" id="pay-btn-txt" value="💳 Оплатить" placeholder="💳 Оплатить">' +
-        '</div>';
-      break;
-
-    case 'delivery':
-      html +=
-        '<div class="form-group">' +
-          '<label class="form-label">Файл для выдачи</label>' +
-          '<div class="upload-area" onclick="demoAlert(\'file\')">' +
-            '<div class="upload-icon">📦</div>' +
-            '<div class="upload-text">' + esc(block.file || 'Нажмите для загрузки файла') + '</div>' +
-            '<div class="upload-sub">PDF, ZIP, MP4 до 50 МБ</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label">Сопроводительное сообщение</label>' +
-          '<textarea class="form-textarea" style="min-height:70px" placeholder="Ваш файл готов! 🎉 Нажмите кнопку ниже, чтобы скачать."></textarea>' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label">Условие выдачи</label>' +
-          '<select class="form-select"><option>После успешной оплаты</option><option>По команде /start</option><option>По нажатию кнопки</option></select>' +
-        '</div>';
-      break;
-
-    case 'delay':
-      html +=
-        '<div class="form-group">' +
-          '<label class="form-label">Задержка перед следующим сообщением</label>' +
-          '<div class="delay-row">' +
-            '<input type="number" class="form-input delay-num" min="1" max="60" value="' + (block.seconds||3) + '" oninput="updateField(\'seconds\', +this.value)">' +
-            '<select class="form-select" style="flex:1"><option>секунд</option><option>минут</option></select>' +
-          '</div>' +
-        '</div>' +
-        '<div class="form-group">' +
-          '<label class="form-label">Индикатор ожидания</label>' +
-          '<div class="radio-group" style="flex-direction:column;gap:8px">' +
-            '<label class="radio-label"><input type="radio" name="typing_ind" value="typing" checked> Показывать «печатает…»</label>' +
-            '<label class="radio-label"><input type="radio" name="typing_ind" value="none"> Без индикатора</label>' +
-          '</div>' +
-        '</div>';
-      break;
-  }
-
-  html +=
-    '<div class="be-delete">' +
-      '<button class="btn-delete" onclick="removeBlock(\'' + block.id + '\')">🗑 Удалить блок</button>' +
-    '</div>';
-
-  editor.innerHTML = html;
-}
-
-// ─── Preview ──────────────────────────────────────────────────
-function renderPreview() {
-  const sim = document.getElementById('tg-sim');
-  if (!sim) return;
-
-  const block = blocks.find(b => b.id === activeBlockId);
-  let html =
-    '<div class="tg-sim-head">' +
-      '<div class="tg-ava">🤖</div>' +
-      '<div><div class="tg-bot-name">Гайд по трейдингу</div><div class="tg-bot-status">в сети</div></div>' +
-    '</div>';
-
-  if (!block) { sim.innerHTML = html + '<div style="color:var(--tg-hint);font-size:12px">Выберите блок</div>'; return; }
-
-  switch (block.type) {
-    case 'welcome':
-    case 'description':
-      html +=
-        '<div class="tg-bubble">' + esc(block.text || '(пустой блок)') + '<div class="tg-time">сейчас</div></div>';
-      break;
-    case 'image':
-      html += '<div class="tg-img-ph">🖼️</div>';
-      if (block.caption) html += '<div class="tg-bubble">' + esc(block.caption) + '</div>';
-      break;
-    case 'buttons':
-      html +=
-        '<div class="tg-bubble">Выберите действие:<div class="tg-time">сейчас</div></div>' +
-        '<div class="tg-btns">' +
-        (block.buttons||[]).map(b => '<button class="tg-btn' + (b.type==='url'?' outline':'') + '">' + esc(b.text||'Кнопка') + '</button>').join('') +
-        '</div>';
-      break;
-    case 'payment':
-      html +=
-        '<div class="tg-bubble">💳 <strong>Оплата</strong><br>' + esc(block.desc||'Описание платежа') + '<br><strong style="color:#047857">' + esc(block.price||'0') + ' ' + esc(block.currency||'₸') + '</strong><div class="tg-time">сейчас</div></div>' +
-        '<div class="tg-btns"><button class="tg-btn">💳 Оплатить ' + esc(block.price||'0') + ' ' + esc(block.currency||'₸') + '</button></div>';
-      break;
-    case 'delivery':
-      html +=
-        '<div class="tg-bubble">📦 Ваш файл готов!<div class="tg-time">сейчас</div></div>' +
-        '<div class="tg-file-card"><span class="file-icon">📄</span><div><div class="tg-file-name">' + esc(block.file||'файл') + '</div><div class="tg-file-type">PDF документ · Нажмите чтобы скачать</div></div></div>';
-      break;
-    case 'delay':
-      html +=
-        '<div style="text-align:center"><div class="tg-delay-badge">⏱ Задержка ' + (block.seconds||3) + ' сек — печатает…</div></div>' +
-        '<div class="tg-typing"><span>●</span><span>●</span><span>●</span></div>';
-      break;
-  }
-
-  sim.innerHTML = html;
-}
-
-// ─── Block mutations ──────────────────────────────────────────
-function onTextChange(val) {
-  const block = blocks.find(b => b.id === activeBlockId);
-  if (!block) return;
-  block.text = val;
-  const cc = document.getElementById('char-cnt');
-  if (cc) cc.textContent = val.length + '/2000';
-  triggerSave();
-  renderFlowTree();
-  renderPreview();
-}
-
-function updateField(field, val) {
-  const block = blocks.find(b => b.id === activeBlockId);
-  if (!block) return;
-  block[field] = val;
-  triggerSave();
-  renderFlowTree();
-  renderPreview();
-}
-
-function updateBtn(i, field, val) {
-  const block = blocks.find(b => b.id === activeBlockId);
-  if (!block || !block.buttons) return;
-  block.buttons[i][field] = val;
-  triggerSave();
-  renderPreview();
-}
-
-function addBtn() {
-  const block = blocks.find(b => b.id === activeBlockId);
-  if (!block || (block.buttons||[]).length >= 8) return;
-  if (!block.buttons) block.buttons = [];
-  block.buttons.push({ text: '', type: 'text' });
-  triggerSave();
-  renderFlowTree();
-  renderEditor();
-}
-
-function removeBtn(i) {
-  const block = blocks.find(b => b.id === activeBlockId);
-  if (!block || !block.buttons) return;
-  block.buttons.splice(i, 1);
-  triggerSave();
-  renderFlowTree();
-  renderEditor();
-}
-
-function addBlock(type) {
-  const id = 'b_' + type + '_' + Date.now();
-  const block = { id, type };
-  if (type === 'welcome' || type === 'description') block.text = '';
-  if (type === 'image') { block.text = ''; block.caption = ''; }
-  if (type === 'buttons') block.buttons = [{ text: '', type: 'text' }];
-  if (type === 'payment') { block.price = '990'; block.currency = '₸'; block.desc = ''; block.provider = 'robokassa'; }
-  if (type === 'delivery') block.file = '';
-  if (type === 'delay') block.seconds = 3;
-  blocks.push(block);
-  triggerSave();
-  renderFlowTree();
-  selectBlock(id);
-  setTimeout(() => {
-    const tree = document.getElementById('flow-tree');
-    if (tree) tree.scrollTop = tree.scrollHeight;
-  }, 60);
-}
-
-function removeBlock(id) {
-  const idx = blocks.findIndex(b => b.id === id);
-  if (idx < 0) return;
-  blocks.splice(idx, 1);
-  const next = blocks[Math.min(idx, blocks.length - 1)];
-  if (next) selectBlock(next.id);
-  else {
-    activeBlockId = null;
-    renderFlowTree();
-    const ed = document.getElementById('block-editor');
-    if (ed) ed.innerHTML = '<div style="padding:40px;text-align:center;color:var(--tg-hint)">Нет блоков. Добавьте первый блок из панели слева.</div>';
-  }
-  triggerSave();
-}
-
-function insertFmt(fmt) {
-  const ta = document.getElementById('blk-text');
-  if (!ta) return;
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s, e) || 'текст';
-  const wrap = fmt === 'bold' ? `*${sel}*` : fmt === 'italic' ? `_${sel}_` : fmt === 'code' ? `\`${sel}\`` : `[${sel}](https://)`;
-  ta.value = ta.value.substring(0, s) + wrap + ta.value.substring(e);
-  onTextChange(ta.value);
-  ta.focus();
-}
-
-// ─── Auto-save ────────────────────────────────────────────────
-function triggerSave() {
-  const dot  = document.getElementById('save-dot');
-  const text = document.getElementById('save-text');
-  if (dot)  dot.classList.add('saving');
-  if (text) text.textContent = 'Сохранение…';
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    const dot  = document.getElementById('save-dot');
-    const text = document.getElementById('save-text');
-    if (dot)  dot.classList.remove('saving');
-    if (text) text.textContent = 'Сохранено';
-  }, 1500);
-}
-
-// ─── Preview toggle ───────────────────────────────────────────
-function togglePreview() {
-  previewOpen = !previewOpen;
-  const panel  = document.getElementById('preview-panel');
-  const togBtn = document.getElementById('prev-tog-btn');
-  if (!panel) return;
-  if (previewOpen) {
-    panel.classList.remove('hidden');
-    if (togBtn) { togBtn.classList.add('on'); togBtn.textContent = '👁 Предпросмотр'; }
-  } else {
-    panel.classList.add('hidden');
-    if (togBtn) { togBtn.classList.remove('on'); togBtn.textContent = '👁 Скрыт'; }
-  }
-}
-
-function togglePreviewPanel() {
-  const panel   = document.getElementById('preview-panel');
-  const chevron = document.getElementById('prev-chevron');
-  if (!panel) return;
-  panel.classList.toggle('collapsed');
-  if (chevron) chevron.textContent = panel.classList.contains('collapsed') ? '▲' : '▼';
-}
-
-// ─── Modals ───────────────────────────────────────────────────
-function publishBot() {
-  document.getElementById('publish-modal').classList.remove('hidden');
-}
-function closePublishModal() {
-  document.getElementById('publish-modal').classList.add('hidden');
-}
-function handlePublishOverlay(e) {
-  if (e.target === document.getElementById('publish-modal')) closePublishModal();
-}
-
-function openTemplateSheet() {
-  document.getElementById('template-sheet').classList.remove('hidden');
-}
-function closeTemplateSheet() {
-  document.getElementById('template-sheet').classList.add('hidden');
-}
-function handleSheetOverlay(e) {
-  if (e.target === document.getElementById('template-sheet')) closeTemplateSheet();
-}
-
-function openCreateModal() {
-  document.getElementById('create-modal').classList.remove('hidden');
-  setTimeout(() => { const el = document.getElementById('new-name'); if (el) el.focus(); }, 100);
-}
-function closeCreateModal() {
-  document.getElementById('create-modal').classList.add('hidden');
-}
-function handleCreateOverlay(e) {
-  if (e.target === document.getElementById('create-modal')) closeCreateModal();
-}
-
-// ─── Misc ─────────────────────────────────────────────────────
-function demoAlert(kind) {
-  // No-op: demo mode — file upload disabled
-}
-
-function esc(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
-
-// ─── Init ─────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-  // Close modals on Escape
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      closePublishModal();
-      closeTemplateSheet();
-      closeCreateModal();
-    }
-  });
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const o = e.target.closest('[data-openbot]'); if (o) { cur = +o.dataset.openbot; openStep = 0; resetRun(); return go('builder'); }
+  const act = e.target.closest('[data-act]'); if (act) ACT[act.dataset.act](act.dataset, act);
 });
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('input', (e) => {
+  const f = e.target.dataset.f; if (!f) return;
+  const s = bot().steps[+e.target.dataset.i];
+  if (f === 'text') s.text = e.target.value;
+  if (f === 'file') s.file = e.target.value;
+  if (f === 'price') s.price = Math.max(0, +e.target.value || 0);
+  if (f === 'opt') s.opts[+e.target.dataset.o] = e.target.value;
+  const sub = e.target.closest('.step')?.querySelector('.step-h span'); if (sub) sub.textContent = summary(s);
+  resetRun(); drawChat();
+});
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'bot-sel') { cur = +e.target.value; openStep = 0; resetRun(); render(); }
+});
+document.addEventListener('submit', (e) => { if (e.target.id === 'tg-form') { e.preventDefault(); answer(); } });
+
+/* ── dashboard ────────────────────────────────────────── */
+function dashboard() {
+  const t = totals(), conv = t.paid / t.starts;
+  const worst = S.bots.map((b) => ({ b, lost: b.atPay - sold(b.id).length })).filter((x) => !x.b.steps.some((s) => s.t === 'remind') && x.lost >= 30).sort((a, b) => b.lost - a.lost)[0];
+  const finding = worst ? `<div class="finding">${ic('alert')}<span>In "${esc(worst.b.name)}", ${worst.lost} of ${worst.b.atPay} people reached payment and left. A reminder an hour later usually wins some of them back.</span><button class="btn sm primary" data-act="addRemind" data-bot="${worst.b.id}">Add reminder</button></div>` : '';
+  const rows = S.bots.map((b) => { const s = stats(b); return `<div class="tr" data-openbot="${b.id}" tabindex="0" style="cursor:pointer;--cols:1.6fr .8fr .7fr .7fr .9fr;--colsm:1fr auto">
+    <div class="botrow-n"><span class="step-ic">${ic(TPL[b.tpl].icon)}</span><div class="cell-main"><b>${esc(b.name)}</b><span>${esc(b.user)}</span></div></div>
+    <div class="hm"><span class="pill ${b.live ? 'pos' : ''}"><i></i>${b.live ? 'Live' : 'Draft'}</span></div>
+    <div class="hm r">${fmt(b.starts)}</div><div class="hm r">${s.paid}</div><div class="r"><b>${rub(s.rev)}</b></div></div>`; }).join('');
+  const fb = S.bots.find((b) => b.id === fbot) || S.bots[0], paid = sold(fb.id).length;
+  const steps = [['Pressed "Start"', fb.starts], ['Replied to bot', fb.answered], ['Reached payment', fb.atPay], ['Paid', paid]];
+  const fn = steps.map(([l, v], i) => `<div class="fn"><span>${l}</span><div class="bar"><i style="width:${fb.starts ? v / fb.starts * 100 : 0}%;${i === 3 ? '' : 'opacity:.4'}"></i></div><b>${fmt(v)}</b></div>`).join('');
+  const dropAt = fb.atPay - paid;
+  return head('Bots', `${WD[TODAY.getDay()]}, 21 October · last 7 days`, `<button class="btn primary" data-act="newBot">${ic('plus')}New bot</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${rub(t.rev)}</b><span>Revenue, 7 days</span></div><div class="kpi"><b>${t.paid}</b><span>Payments</span></div><div class="kpi"><b>${fmt(t.starts)}</b><span>Bot starts</span></div><div class="kpi"><b>${fmtD(conv * 100)}<small>%</small></b><span>Starts that ended in a purchase</span></div></div>
+    <div class="grid">
+      <section class="card c7"><div class="card-h"><h2>Revenue by day</h2><span>₽</span></div><div id="ch-rev"></div></section>
+      <section class="card c5"><div class="card-h"><h2>Funnel</h2></div>
+        <div class="tabs" role="tablist">${S.bots.map((b) => `<button class="${b.id === fb.id ? 'on' : ''}" data-act="fbot" data-id="${b.id}">${esc(b.name.split(' ')[0])}</button>`).join('')}</div>
+        <div class="funnel">${fn}</div><p class="fn-note">${dropAt ? `Lost between payment and purchase: ${dropAt} of ${fb.atPay}.` : 'Everyone who reached payment paid.'}</p></section>
+      <section class="card c12"><div class="card-h"><h2>Your bots</h2><span>click to open the flow</span></div>
+        <div class="tbl"><div class="tr th" style="--cols:1.6fr .8fr .7fr .7fr .9fr;--colsm:1fr auto"><span>Bot</span><span class="hm">Status</span><span class="hm r">Starts</span><span class="hm r">Payments</span><span class="r">Revenue</span></div>${rows}</div></section>
+    </div>`;
+}
+
+/* ── builder ──────────────────────────────────────────── */
+const summary = (s) => s.t === 'buttons' ? s.opts.join(' · ') || 'No buttons' : s.t === 'pay' ? `${rub(s.price)} · ${s.text}` : s.t === 'give' ? `${s.file ? '📎 ' + s.file : ''}` || s.text : s.text;
+function stepEditor(s, i) {
+  const ta = `<div class="field"><label>Message text</label><textarea data-f="text" data-i="${i}">${esc(s.text)}</textarea></div>`;
+  let body = ta;
+  if (s.t === 'buttons') body += `<div class="field"><label>Buttons</label>${s.opts.map((o, k) => `<div class="opt-row"><input data-f="opt" data-i="${i}" data-o="${k}" value="${esc(o)}"><button class="btn sm" data-act="delOpt" data-i="${i}" data-o="${k}" aria-label="Delete button">${ic('x')}</button></div>`).join('')}<button class="btn sm" data-act="addOpt" data-i="${i}" ${s.opts.length >= 5 ? 'disabled' : ''}>${ic('plus')}Button</button></div>`;
+  if (s.t === 'pay') body += `<div class="field"><label>Price, ₽</label><input data-f="price" data-i="${i}" type="number" min="0" value="${s.price}"></div>`;
+  if (s.t === 'give') body += `<div class="field"><label>File or link</label><input data-f="file" data-i="${i}" value="${esc(s.file || '')}"></div>`;
+  return body + `<div class="step-tools"><button class="btn sm" data-act="mv" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''}>${ic('up')}Up</button><button class="btn sm" data-act="mv" data-i="${i}" data-d="1" ${i === bot().steps.length - 1 ? 'disabled' : ''}>${ic('down')}Down</button><button class="btn sm" data-act="delStep" data-i="${i}">${ic('trash')}Delete</button></div>`;
+}
+function builder() {
+  const b = bot(), p = botPrice(b);
+  const flow = b.steps.map((s, i) => `<article class="step${openStep === i ? ' open' : ''}" data-n="${i + 1}"><button class="step-h" data-act="toggle" data-i="${i}" aria-expanded="${openStep === i}"><span class="step-ic">${ic(STEP[s.t][1])}</span><div><b>${STEP[s.t][0]}</b><span>${esc(summary(s))}</span></div>${ic('down', 'chev')}</button>${openStep === i ? `<div class="step-b">${stepEditor(s, i)}</div>` : ''}</article>`).join('');
+  return head('Builder', `Flow for ${esc(b.user)}. It runs for real on the right.`,
+    `<select id="bot-sel" class="btn" aria-label="Bot">${S.bots.map((x) => `<option value="${x.id}" ${x.id === cur ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select><button class="btn primary" data-act="publish">${b.live ? 'Unpublish' : 'Publish'}</button>`) +
+    `<div class="tabs bmode" role="tablist"><button class="${mode === 'flow' ? 'on' : ''}" data-act="mode" data-m="flow">Flow</button><button class="${mode === 'chat' ? 'on' : ''}" data-act="mode" data-m="chat">Preview</button></div>
+    <div class="build" data-mode="${mode}">
+      <div class="flow">${flow}<button class="btn add-step" data-act="addStep">${ic('plus')}Add block</button></div>
+      <aside class="phone" aria-label="Bot preview"><div class="tg-h"><span class="tg-av">${esc(b.name[0])}</span><div><b>${esc(b.name)}</b><span>bot · ${b.live ? 'online' : 'draft'}${p ? ' · ' + rub(p) : ''}</span></div><button class="btn sm" data-act="restart">${ic('play')}Restart</button></div>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <form class="tg-f" id="tg-form"><input id="tg-in" placeholder="Message" autocomplete="off" aria-label="Reply to bot"><button aria-label="Send" id="tg-send">${ic('arrow')}</button></form></aside>
+    </div>`;
+}
+
+/* preview engine: runs the real scenario; a step that needs the buyer pauses the run */
+let run = null;
+function resetRun() { run = null; }
+function startRun() { run = { i: 0, log: [], wait: null, done: false, name: '' }; step(); }
+function step() {
+  const steps = bot().steps;
+  while (run.i < steps.length) {
+    const s = steps[run.i];
+    if (s.t === 'msg') run.log.push({ k: 'bot', text: s.text });
+    else if (s.t === 'remind') run.log.push({ k: 'note', text: `If they do not pay, the bot will remind them in an hour: "${s.text}"` });
+    else if (s.t === 'give') { run.log.push({ k: 'bot', text: s.text }); if (s.file) run.log.push({ k: 'file', text: s.file }); }
+    else { run.log.push({ k: 'bot', text: (s.t === 'ask' ? s.text : s.text).replace('{name}', run.name || 'friend') }); run.wait = s; break; }
+    run.i++;
+  }
+  if (run.i >= steps.length) run.done = true;
+}
+function drawChat() {
+  const c = $('#chat'); if (!c) return;
+  if (!run) startRun();
+  const last = run.log.map((m) => m.k).lastIndexOf('bot');
+  const lastBot = run.done ? run.log.length - 1 - [...run.log].reverse().findIndex((m) => m.k === 'bot' || m.k === 'file') : -1;
+  c.innerHTML = run.log.map((m, i) => m.k === 'me' ? `<div class="m me">${esc(m.text)}</div>`
+    : m.k === 'note' ? `<div class="note">${esc(m.text)}</div>`
+    : m.k === 'file' ? `<div class="m file">${ic('file')}<b>${esc(m.text)}</b>${run.done && i === lastBot ? '<small>Made with @DragDropBot</small>' : ''}</div>`
+    : `<div class="m">${esc(m.text)}${run.done && i === lastBot ? '<small>Made with @DragDropBot</small>' : ''}</div>`).join('') + waitUI();
+  c.scrollTop = c.scrollHeight;
+  const ask = run.wait && run.wait.t === 'ask';
+  $('#tg-in').disabled = !ask; $('#tg-send').disabled = !ask; $('#tg-in').placeholder = ask ? 'Reply to the bot…' : run.done ? 'Flow finished' : 'Choose a button';
+}
+function waitUI() {
+  const w = run.wait; if (!w || run.done) return run.done ? '' : '';
+  if (w.t === 'buttons') return `<div class="inl">${w.opts.map((o, k) => `<button data-act="pick" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
+  if (w.t === 'pay') return `<div class="inl"><button class="pay" data-act="pay">Pay ${rub(w.price)}</button></div>`;
+  return '';
+}
+function answer(text) {
+  if (!run.wait) return;
+  const inp = $('#tg-in'), v = (text ?? inp.value).trim(); if (!v) return;
+  if (run.wait.t === 'ask') run.name = v;
+  run.log.push({ k: 'me', text: v }); run.wait = null; run.i++; inp.value = ''; step(); drawChat();
+}
+
+/* ── sales + buyers ───────────────────────────────────── */
+function sales() {
+  const list = S.sales.filter((s) => !salesBot || s.bot === salesBot), sum = list.reduce((a, s) => a + s.amount, 0);
+  const rows = list.map((s) => { const b = S.bots.find((x) => x.id === s.bot); return `<div class="tr" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><div class="cell-main hm"><b>${dLabel(s.ago)}</b><span>${hhmm(s.min)}</span></div><div class="cell-main dm"><b>${esc(s.buyer)}</b><span>${dLabel(s.ago)}, ${hhmm(s.min)} · ${esc(b.name)}</span></div><div class="hm">${esc(s.buyer)}</div><div class="hm">${esc(b.name)}</div><div class="r"><b>${rub(s.amount)}</b></div></div>`; }).join('');
+  return head('Sales', `${list.length} ${list.length === 1 ? 'payment' : 'payments'} totalling ${rub(sum)} in 7 days`) +
+    `<div class="tabs"><button class="${!salesBot ? 'on' : ''}" data-act="sbot" data-id="0">All</button>${S.bots.map((b) => `<button class="${salesBot === b.id ? 'on' : ''}" data-act="sbot" data-id="${b.id}">${esc(b.name.split(' ')[0])}</button>`).join('')}</div>
+    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1fr 1.3fr 1.3fr .8fr;--colsm:1fr auto"><span>When</span><span class="hm">Buyer</span><span class="hm">Bot</span><span class="r">Amount</span></div>${rows}</div></section>`;
+}
+function buyers() {
+  const map = {};
+  S.sales.forEach((s) => { const x = map[s.buyer] || (map[s.buyer] = { n: s.buyer, c: 0, sum: 0, ago: 99 }); x.c++; x.sum += s.amount; x.ago = Math.min(x.ago, s.ago); });
+  const list = Object.values(map).sort((a, b) => b.sum - a.sum);
+  const rows = list.map((x) => `<div class="tr" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(x.n)}</b><span class="muted">${x.c} ${x.c === 1 ? 'purchase' : 'purchases'} · ${dLabel(x.ago).toLowerCase()}</span></div><div class="hm r">${x.c}</div><div class="hm r">${dLabel(x.ago)}</div><div class="r"><b>${rub(x.sum)}</b></div></div>`).join('');
+  const rep = list.filter((x) => x.c > 1).length;
+  return head('Buyers', `${list.length} ${list.length === 1 ? 'person' : 'people'}, ${rep} bought more than once`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.4fr .6fr .9fr 1fr;--colsm:1fr auto"><span>Buyer</span><span class="hm r">Purchases</span><span class="hm r">Last</span><span class="r">Total</span></div>${rows}</div></section>`;
+}
+
+function mount() {
+  const a = $('#ch-rev');
+  if (a) { const vals = [], labels = []; for (let ago = 6; ago >= 0; ago--) { vals.push(S.sales.filter((s) => s.ago === ago).reduce((x, s) => x + s.amount, 0) / 1000); labels.push(ago === 0 ? 'Wed' : WD[dayOf(ago).getDay()]); }
+    chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) + 'k' })); }
+  drawChat();
+}
+
+/* ── actions ──────────────────────────────────────────── */
+const ACT = {
+  fbot(d) { fbot = +d.id; render(); },
+  sbot(d) { salesBot = +d.id; render(); },
+  mode(d) { mode = d.m; render(); },
+  toggle(d) { openStep = openStep === +d.i ? -1 : +d.i; render(); },
+  restart() { resetRun(); drawChat(); },
+  pick(d) { const w = run.wait; run.log.push({ k: 'me', text: w.opts[+d.k] }); run.wait = null; run.i++; step(); drawChat(); },
+  pay() { const w = run.wait; run.log.push({ k: 'note', text: `Payment of ${rub(w.price)} received` }); run.wait = null; run.i++; step(); drawChat(); },
+  mv(d) { const s = bot().steps, i = +d.i, j = i + +d.d; [s[i], s[j]] = [s[j], s[i]]; openStep = j; resetRun(); render(); },
+  delStep(d) { bot().steps.splice(+d.i, 1); openStep = -1; resetRun(); render(); toast('Block deleted'); },
+  addOpt(d) { bot().steps[+d.i].opts.push('New button'); resetRun(); render(); },
+  delOpt(d) { bot().steps[+d.i].opts.splice(+d.o, 1); resetRun(); render(); },
+  publish() { const b = bot(); b.live = !b.live; toast(b.live ? 'Bot published' : 'Bot unpublished'); render(); },
+  addRemind(d) {
+    const b = S.bots.find((x) => x.id === +d.bot), at = b.steps.findIndex((s) => s.t === 'pay');
+    b.steps.splice(at + 1, 0, { t: 'remind', text: 'You have not finished your payment. The course is waiting, and the link is valid for 24 hours.' });
+    cur = b.id; openStep = at + 1; resetRun(); toast('Reminder added to the flow'); go('builder');
+  },
+  addStep() {
+    modal(`<h2>New block</h2><p>It will be added to the end of the flow.</p><div class="field"><label>Type</label><select id="n-t">${Object.entries(STEP).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="n-ok">Add</button></div>`, () => {
+      $('#n-ok').onclick = () => {
+        const t = $('#n-t').value, def = { msg: { text: 'New message' }, ask: { text: 'What is your name?' }, buttons: { text: 'Choose an option', opts: ['Option 1', 'Option 2'] }, pay: { text: 'Order payment', price: 1000 }, give: { text: 'Thank you! Here is your access.', file: 'Link' }, remind: { text: 'A reminder about your order' } }[t];
+        const s = bot().steps; s.push({ t, ...structuredClone(def) }); openStep = s.length - 1; closeModal(); resetRun(); render();
+      };
+    });
+  },
+  newBot() {
+    modal(`<h2>New bot</h2><p>Pick a template, then adjust it to your needs.</p><div class="field"><label>Name</label><input id="b-n" placeholder="E.g. Massage booking"></div>
+      <div class="field"><label>Template</label><select id="b-t">${Object.entries(TPL).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('')}</select></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="b-ok">Create</button></div>`, () => {
+      $('#b-ok').onclick = () => {
+        const n = $('#b-n').value.trim(); if (!n) { $('#b-n').focus(); return; }
+        const t = $('#b-t').value, id = Math.max(...S.bots.map((x) => x.id)) + 1;
+        S.bots.push({ id, name: n, user: '@' + ['new', 'bot', id].join('_'), tpl: t, live: false, steps: TPL[t].steps(), starts: 0, answered: 0, atPay: 0 });
+        PRICE[id] = botPrice(S.bots.at(-1)); DAYS[id] = [];
+        cur = id; openStep = 0; resetRun(); closeModal(); toast('Bot created. It is a draft, so adjust the flow'); go('builder');
+      };
+    });
+  },
+};
+/* ── live sales: buyers keep arriving, every number on every page follows ─ */
+let NOWM = 15 * 60 + 20;
+const NEWBUY = ['Aliya N.', 'Kamila E.', 'Zarina T.', 'Laura S.', 'Gulmira D.', 'Aruzhan K.', 'Tomiris A.', 'Diana F.'];
+setInterval(() => {
+  if (document.hidden || $('#scrim')) return;
+  NOWM++;
+  const live = S.bots.filter((b) => b.live && DAYS[b.id]); if (!live.length) return;
+  S.bots.forEach((b) => { if (b.live && Math.random() < .7) { b.starts += 1; if (Math.random() < .65) b.answered += 1; } });
+  S.bots.forEach((b) => { b.answered = Math.min(b.starts, b.answered); b.atPay = Math.min(b.answered, b.atPay); });
+  const b = live[Math.floor(Math.random() * live.length)];
+  if (Math.random() < .55) {
+    if (sold(b.id).length + 1 > b.atPay) { b.atPay = sold(b.id).length + 1; b.answered = Math.max(b.answered, b.atPay); b.starts = Math.max(b.starts, b.answered); }
+    const buyer = NEWBUY[Math.floor(Math.random() * NEWBUY.length)];
+    S.sales.unshift({ bot: b.id, ago: 0, buyer, amount: PRICE[b.id], min: NOWM });
+    toast(`New payment ${rub(PRICE[b.id])} · ${b.name}`);
+  }
+  if (['dashboard', 'sales', 'buyers'].includes(page)) render();
+}, 7000);
+render();
 </script>
 </body>
 </html>

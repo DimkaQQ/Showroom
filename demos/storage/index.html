@@ -1,1681 +1,518 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="claude:viewport-fit-sides" content="cover">
-<title>Склад — Demo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stockroom: purchasing for restaurant groups (demo)</title>
+<meta name="description" content="Demo: stock levels by venue, auto-drafted supplier orders for shortfalls, receiving and write-offs. Data is fictional.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ─── Design tokens ─── */
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
 :root {
-  --bg: #0d0d0d;
-  --card: #141414;
-  --card-hover: #1a1a1a;
-  --border: rgba(255,255,255,0.07);
-  --white: #f5f5f7;
-  --muted: rgba(255,255,255,0.4);
-  --gold: #c8a84b;
-  --gold-dim: rgba(200,168,75,0.12);
-  --gold-gradient: linear-gradient(135deg,#c8a84b,#a8882b);
-  --red: #ff453a;
-  --green: #30d158;
-  --amber: #ffd60a;
-  --blue: #0a84ff;
-  --font: 'Inter', -apple-system, sans-serif;
-  --font-display: 'Instrument Serif', serif;
-  --sidebar-w: 240px;
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
   color-scheme: dark;
 }
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--white);
-  padding-top: 32px;
-  padding-left: max(0px, env(safe-area-inset-left, 0px));
-  padding-right: max(0px, env(safe-area-inset-right, 0px));
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ─── Demo banner ─── */
-.demo-banner {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 9999;
-  background: #c8a84b;
-  color: #000;
-  text-align: center;
-  padding: 5px 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .1em;
-}
-
-/* ─── App shell ─── */
-.app-shell {
-  display: flex;
-  height: calc(100vh - 32px);
-  overflow: hidden;
-}
-
-/* ─── Sidebar ─── */
-.sidebar {
-  width: var(--sidebar-w);
-  flex-shrink: 0;
-  background: var(--card);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: transform .25s ease;
-}
-
-.sidebar-logo {
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.sidebar-logo .brand {
-  font-family: var(--font-display);
-  font-size: 20px;
-  color: var(--gold);
-  line-height: 1.1;
-  display: block;
-}
-.sidebar-logo .sub {
-  font-size: 10px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .12em;
-  margin-top: 2px;
-}
-
-.nav-list {
-  list-style: none;
-  padding: 12px 10px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--muted);
-  margin-bottom: 2px;
-  transition: all .15s;
-  border-left: 3px solid transparent;
-  user-select: none;
-}
-
-.nav-item:hover { background: var(--card-hover); color: var(--white); }
-
-.nav-item.active {
-  background: var(--gold-dim);
-  color: var(--gold);
-  border-left-color: var(--gold);
-}
-
-.nav-icon { font-size: 16px; flex-shrink: 0; }
-
-.sidebar-footer {
-  padding: 14px 16px;
-  border-top: 1px solid var(--border);
-  font-size: 12px;
-  color: var(--muted);
-}
-.sidebar-footer strong { color: var(--white); display: block; font-size: 13px; margin-bottom: 2px; }
-
-/* ─── Main content ─── */
-.main {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ─── Top bar ─── */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 24px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
-  flex-shrink: 0;
-  gap: 12px;
-}
-
-.topbar-left { display: flex; align-items: center; gap: 12px; }
-
-.hamburger {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--white);
-  font-size: 20px;
-  cursor: pointer;
-  padding: 4px;
-  line-height: 1;
-}
-
-.page-title { font-size: 18px; font-weight: 600; }
-
-.venue-switcher { position: relative; }
-
-.venue-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--white);
-  cursor: pointer;
-  transition: background .15s;
-  font-family: var(--font);
-}
-
-.venue-btn:hover { background: var(--card-hover); }
-.venue-btn .chevron { color: var(--muted); font-size: 11px; transition: transform .2s; }
-.venue-btn.open .chevron { transform: rotate(180deg); }
-
-.venue-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  min-width: 240px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,.6);
-  z-index: 200;
-  display: none;
-}
-
-.venue-dropdown.open { display: block; }
-
-.venue-option {
-  padding: 10px 16px;
-  cursor: pointer;
-  font-size: 13px;
-  transition: background .15s;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.venue-option:hover { background: var(--card-hover); }
-.venue-option.selected { background: var(--gold-dim); }
-.venue-option .vname { font-weight: 600; color: var(--white); }
-.venue-option .vaddr { font-size: 11px; color: var(--muted); }
-
-.topbar-right { display: flex; align-items: center; gap: 8px; }
-
-.notif-btn {
-  width: 34px; height: 34px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background .15s;
-}
-.notif-btn:hover { background: var(--card-hover); }
-
-/* ─── Content area ─── */
-.content { padding: 24px; flex: 1; }
-
-/* ─── Screens ─── */
-.screen { display: none; }
-.screen.active { display: block; }
-
-/* ─── Stat cards ─── */
-.stat-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 24px;
-}
-
-.stat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 20px;
-}
-
-.stat-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .09em;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--gold);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.stat-value.red { color: var(--red); }
-.stat-value.green { color: var(--green); }
-
-.stat-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-
-/* ─── Section headers ─── */
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.section-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--white);
-}
-
-.section-action {
-  font-size: 12px;
-  color: var(--gold);
-  cursor: pointer;
-  text-decoration: none;
-}
-.section-action:hover { text-decoration: underline; }
-
-/* ─── Cards ─── */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-/* ─── Deficit list ─── */
-.deficit-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.deficit-item {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-}
-
-.deficit-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 10px;
-  gap: 8px;
-}
-
-.deficit-name { font-size: 14px; font-weight: 600; }
-.deficit-qty { font-size: 13px; color: var(--red); font-weight: 600; }
-
-.stock-bar-track {
-  height: 8px;
-  background: rgba(255,255,255,.07);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.stock-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width .4s ease;
-}
-
-.deficit-meta { font-size: 11px; color: var(--muted); margin-top: 6px; }
-
-/* ─── Recent purchases ─── */
-.purchases-list { margin-bottom: 24px; }
-
-.purchase-row {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  gap: 14px;
-  transition: background .15s;
-}
-.purchase-row:last-child { border-bottom: none; }
-.purchase-row:hover { background: var(--card-hover); }
-
-.purchase-icon {
-  width: 38px; height: 38px;
-  border-radius: 9px;
-  background: var(--gold-dim);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.purchase-info { flex: 1; min-width: 0; }
-.purchase-supplier { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.purchase-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-.purchase-amount { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--gold); }
-
-/* ─── Status badge ─── */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 9px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  flex-shrink: 0;
-}
-
-.badge-ok    { background: rgba(48,209,88,.15);   color: var(--green); }
-.badge-warn  { background: rgba(255,214,10,.15);  color: var(--amber); }
-.badge-low   { background: rgba(255,69,58,.15);   color: var(--red); }
-.badge-empty { background: rgba(255,69,58,.25);   color: var(--red); }
-.badge-ordered   { background: rgba(10,132,255,.15);  color: var(--blue); }
-.badge-received  { background: rgba(48,209,88,.15);   color: var(--green); }
-.badge-cancelled { background: rgba(255,255,255,.07); color: var(--muted); }
-.badge-pending   { background: rgba(255,214,10,.15);  color: var(--amber); }
-
-/* ─── Inventory ─── */
-.filter-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.chip {
-  padding: 5px 13px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  cursor: pointer;
-  transition: all .15s;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.chip:hover { border-color: var(--gold); color: var(--white); }
-
-.chip.active {
-  background: var(--gold-dim);
-  border-color: var(--gold);
-  color: var(--gold);
-}
-
-.search-wrap {
-  flex: 1;
-  min-width: 180px;
-  position: relative;
-}
-
-.search-wrap::before {
-  content: '🔍';
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 13px;
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px 8px 32px;
-  font-size: 13px;
-  color: var(--white);
-  font-family: var(--font);
-  transition: border-color .15s;
-  outline: none;
-}
-
-.search-input:focus { border-color: var(--gold); }
-.search-input::placeholder { color: var(--muted); }
-
-/* ─── Inventory table ─── */
-.inv-table-wrap { overflow-x: auto; }
-
-.inv-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 640px;
-}
-
-.inv-table th {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .09em;
-  color: var(--muted);
-  padding: 10px 14px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-.inv-table td {
-  padding: 11px 14px;
-  font-size: 14px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: middle;
-}
-
-.inv-table tr:last-child td { border-bottom: none; }
-
-.inv-table tbody tr {
-  cursor: pointer;
-  transition: background .12s;
-}
-
-.inv-table tbody tr:hover { background: var(--card-hover); }
-.inv-table tbody tr.expanded { background: var(--card-hover); }
-
-.item-name { font-weight: 600; }
-.item-cat  { font-size: 12px; color: var(--muted); }
-.item-qty  { font-weight: 700; font-variant-numeric: tabular-nums; }
-.item-price { font-variant-numeric: tabular-nums; color: var(--muted); }
-
-.stock-cell { min-width: 100px; }
-
-.expand-row td {
-  padding: 0;
-  background: var(--card-hover);
-}
-
-.expand-content {
-  padding: 14px 16px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-  border-top: 1px solid var(--border);
-}
-
-.expand-content label { font-size: 12px; color: var(--muted); margin-right: 4px; }
-
-.qty-input {
-  width: 70px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 5px 8px;
-  font-size: 13px;
-  color: var(--white);
-  font-family: var(--font);
-  font-variant-numeric: tabular-nums;
-  outline: none;
-}
-
-.qty-input:focus { border-color: var(--gold); }
-
-/* ─── Buttons ─── */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 18px;
-  background: var(--gold-gradient);
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  font-family: var(--font);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: opacity .15s;
-}
-
-.btn-primary::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.25) 50%, transparent 100%);
-  transform: translateX(-100%);
-  transition: transform .4s ease;
-}
-
-.btn-primary:hover::after { transform: translateX(100%); }
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: var(--card);
-  color: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: var(--font);
-  cursor: pointer;
-  transition: background .15s;
-}
-
-.btn-secondary:hover { background: var(--card-hover); }
-.btn-sm { padding: 5px 12px; font-size: 12px; }
-
-/* ─── Purchase cards ─── */
-.purchase-filter-tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 12px;
-  flex-wrap: wrap;
-}
-
-.tab-btn {
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--muted);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all .15s;
-}
-
-.tab-btn:hover { color: var(--white); background: var(--card); }
-.tab-btn.active { color: var(--gold); background: var(--gold-dim); }
-
-.purchase-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 14px;
-}
-
-.p-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  transition: background .15s, border-color .15s;
-  cursor: pointer;
-}
-
-.p-card:hover { background: var(--card-hover); border-color: rgba(255,255,255,.12); }
-
-.p-card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.p-card-supplier { font-size: 15px; font-weight: 700; }
-.p-card-date { font-size: 12px; color: var(--muted); margin-top: 3px; }
-
-.p-card-body { display: flex; flex-direction: column; gap: 6px; }
-
-.p-card-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.p-card-row span:last-child { color: var(--white); font-weight: 500; }
-
-.p-card-amount { font-size: 20px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; margin-top: 10px; }
-
-/* ─── Suppliers screen ─── */
-.supplier-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
-}
-
-.supplier-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px;
-}
-
-.supplier-icon { font-size: 28px; margin-bottom: 8px; }
-.supplier-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-.supplier-rating { font-size: 13px; color: var(--gold); margin-bottom: 8px; }
-.supplier-cats { font-size: 12px; color: var(--muted); }
-.supplier-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
-.s-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.s-stat-val { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--white); }
-
-/* ─── Analytics ─── */
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.chart-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-}
-
-.chart-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .09em;
-  margin-bottom: 16px;
-}
-
-/* ─── Horizontal bar chart ─── */
-.hbar-item {
-  margin-bottom: 12px;
-}
-.hbar-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  margin-bottom: 5px;
-}
-.hbar-label .hval { color: var(--gold); font-weight: 600; font-variant-numeric: tabular-nums; }
-.hbar-track {
-  height: 10px;
-  background: rgba(255,255,255,.07);
-  border-radius: 5px;
-  overflow: hidden;
-}
-.hbar-fill {
-  height: 100%;
-  background: var(--gold-gradient);
-  border-radius: 5px;
-  transition: width .6s ease;
-}
-
-/* ─── SVG Pie ─── */
-.pie-wrap {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.pie-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 120px;
-}
-
-.pie-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-
-.pie-dot {
-  width: 10px; height: 10px;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.pie-lname { color: var(--muted); }
-.pie-lpct  { color: var(--white); font-weight: 600; margin-left: auto; font-variant-numeric: tabular-nums; }
-
-/* ─── Top items table ─── */
-.top-items-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.top-items-table th {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .09em;
-  color: var(--muted);
-  padding: 9px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-.top-items-table td {
-  padding: 10px 12px;
-  font-size: 13px;
-  border-bottom: 1px solid var(--border);
-  font-variant-numeric: tabular-nums;
-}
-.top-items-table tr:last-child td { border-bottom: none; }
-.top-items-table tbody tr:hover { background: var(--card-hover); }
-.rank-num { color: var(--muted); font-size: 12px; }
-.top-val  { color: var(--gold); font-weight: 600; }
-
-/* ─── Categories screen ─── */
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
-}
-.cat-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-}
-.cat-icon  { font-size: 36px; margin-bottom: 10px; }
-.cat-name  { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-.cat-count { font-size: 12px; color: var(--muted); }
-.cat-val   { font-size: 18px; font-weight: 700; color: var(--gold); margin-top: 10px; font-variant-numeric: tabular-nums; }
-
-/* ─── Overlay for mobile ─── */
-.sidebar-overlay {
-  display: none;
-  position: fixed;
-  inset: 32px 0 0;
-  background: rgba(0,0,0,.7);
-  z-index: 99;
-}
-
-/* ─── Responsive ─── */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 32px; bottom: 0; left: 0;
-    z-index: 100;
-    transform: translateX(-100%);
-  }
-  .sidebar.open { transform: translateX(0); }
-  .sidebar-overlay.open { display: block; }
-  .hamburger { display: flex; }
-  .stat-row { grid-template-columns: 1fr 1fr; }
-  .deficit-grid { grid-template-columns: 1fr; }
-  .charts-grid { grid-template-columns: 1fr; }
-  .content { padding: 16px; }
-  .topbar { padding: 12px 16px; }
-  .purchase-cards-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 480px) {
-  .stat-row { grid-template-columns: 1fr; }
-}
-
-/* ─── Utility ─── */
-.row-flex { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.spacer { flex: 1; }
-.text-muted { color: var(--muted); }
-.text-gold { color: var(--gold); }
-.text-red { color: var(--red); }
-.text-green { color: var(--green); }
-.mt-4 { margin-top: 16px; }
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
+
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
+
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
+
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
+
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
+
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
+
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
+
+:root[data-theme="light"] {
+  --bg: #ebecee; --surface: #ffffff; --raised: #f4f5f6; --hover: #eceef0; --border: #dcdfe3; --rule: #eceef0;
+  --text: #14171a; --muted: #565d66; --faint: #6a717b;
+  --accent: #a85f00; --accent-ink: #ffffff; --accent-bg: #fbeed7;
+  --pos: #1b7a4a; --neg: #b3302b; --warn: #8a5a0a;
+  --font: "Commissioner", system-ui, sans-serif; --display: "Commissioner", system-ui, sans-serif;
+}
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
+.nav .count { background: var(--neg); color: #fff; }
+.pt { width: 40px; height: 40px; border-radius: 11px; flex: none; overflow: hidden; } .pt img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cell-pt { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.line .pt { width: 28px; height: 28px; border-radius: 8px; } .line > span { display: flex; align-items: center; gap: 10px; }
+.flash { animation: flash 1.4s ease-out; } @keyframes flash { from { background: var(--accent-bg); } to { background: transparent; } }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--gap); }
+.chip { height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.chip:hover { color: var(--text); } .chip.on { background: var(--text); color: var(--surface); border-color: transparent; }
+.row-tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: var(--gap); }
+.search { flex: 1; min-width: 180px; max-width: 340px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); padding: 0 12px; outline: none; } .search:focus { border-color: var(--accent); }
+.level { display: flex; align-items: center; gap: 10px; } .level .bar { flex: 1; height: 8px; min-width: 60px; }
+.level .bar i.low { background: var(--neg); } .level .bar i.soon { background: var(--warn); } .level .bar i.ok { background: var(--pos); }
+.level b { min-width: 64px; text-align: right; font-weight: 600; }
+.draft { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; animation: pop .25s var(--ease) both; }
+.drafts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+.draft-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; } .draft-h b { font-size: 16px; font-weight: 700; } .draft-h span { color: var(--muted); font-size: 13px; }
+.line { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; color: var(--muted); } .line b { color: var(--text); font-weight: 500; }
+.draft-f { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--rule); } .draft-f b { font-size: 18px; font-weight: 700; }
+.stars { color: var(--accent); letter-spacing: 1px; } .stars i { color: var(--border); font-style: normal; }
+@media (max-width: 899px) { .drafts { grid-template-columns: minmax(0, 1fr); } .level b { min-width: 0; } }
+.dm { display: none; } @media (max-width: 899px) { .dm { display: block; } }
 </style>
 </head>
 <body>
-
-<div class="demo-banner">⚠ DEMO — dimkaprojects.xyz ⚠</div>
-
-<div class="app-shell">
-
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <span class="brand">RestoPro</span>
-      <span class="sub">Управление закупками</span>
+<div class="notice"><b>Demo</b> Stockroom · data is fictional</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg></div>
+      <div><div class="brand-name">Stockroom</div><div class="brand-sub">Two venues, one ledger</div></div>
     </div>
-    <ul class="nav-list">
-      <li class="nav-item active" data-screen="dashboard">
-        <span class="nav-icon">📊</span> Дашборд
-      </li>
-      <li class="nav-item" data-screen="inventory">
-        <span class="nav-icon">📦</span> Склад
-      </li>
-      <li class="nav-item" data-screen="purchases">
-        <span class="nav-icon">🛒</span> Закупки
-      </li>
-      <li class="nav-item" data-screen="suppliers">
-        <span class="nav-icon">🚛</span> Поставщики
-      </li>
-      <li class="nav-item" data-screen="categories">
-        <span class="nav-icon">🏷️</span> Категории
-      </li>
-      <li class="nav-item" data-screen="analytics">
-        <span class="nav-icon">📈</span> Аналитика
-      </li>
-    </ul>
-    <div class="sidebar-footer">
-      <strong>Ресторанная сеть</strong>
-      Алматы, Казахстан
-    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="avatar">MS</div><div class="who"><b>Marina Seitova</b><span>Buyer</span></div></div>
   </aside>
-
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-  <!-- Main -->
-  <main class="main">
-    <!-- Topbar -->
-    <div class="topbar">
-      <div class="topbar-left">
-        <button class="hamburger" id="hamburger" aria-label="Меню">☰</button>
-        <span class="page-title" id="pageTitle">Дашборд</span>
-      </div>
-      <div class="topbar-right">
-        <!-- Venue switcher -->
-        <div class="venue-switcher">
-          <button class="venue-btn" id="venueBtn">
-            <span id="venueName">Все заведения</span>
-            <span class="chevron">▾</span>
-          </button>
-          <div class="venue-dropdown" id="venueDropdown">
-            <div class="venue-option selected" data-venue="all">
-              <span class="vname">Все заведения</span>
-              <span class="vaddr">Сводные данные</span>
-            </div>
-            <div class="venue-option" data-venue="central">
-              <span class="vname">Центральный</span>
-              <span class="vaddr">пр. Достык, 12, Алматы</span>
-            </div>
-            <div class="venue-option" data-venue="north">
-              <span class="vname">Северный</span>
-              <span class="vaddr">ул. Байтурсынова, 88, Алматы</span>
-            </div>
-            <div class="venue-option" data-venue="south">
-              <span class="vname">Южный</span>
-              <span class="vaddr">пр. Аль-Фараби, 34, Алматы</span>
-            </div>
-          </div>
-        </div>
-        <div class="notif-btn">🔔</div>
-      </div>
-    </div>
-
-    <!-- Content -->
-    <div class="content">
-
-      <!-- ═══ DASHBOARD ═══ -->
-      <div class="screen active" id="screen-dashboard">
-        <div class="stat-row">
-          <div class="stat-card">
-            <div class="stat-label">Позиций на складе</div>
-            <div class="stat-value">22</div>
-            <div class="stat-sub">по 6 категориям</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Позиций с дефицитом</div>
-            <div class="stat-value red">4</div>
-            <div class="stat-sub">требуют закупки</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Закупок за месяц</div>
-            <div class="stat-value">8</div>
-            <div class="stat-sub">октябрь 2026</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Сумма закупок</div>
-            <div class="stat-value" style="font-size:22px">₸ 847 200</div>
-            <div class="stat-sub">↑ 12% к прошлому месяцу</div>
-          </div>
-        </div>
-
-        <div class="section-header">
-          <span class="section-title">⚠️ Дефицит товаров</span>
-          <a class="section-action" onclick="switchScreen('purchases')">Создать закупку →</a>
-        </div>
-        <div class="deficit-grid">
-          <div class="deficit-item">
-            <div class="deficit-head">
-              <span class="deficit-name">Лосось свежий</span>
-              <span class="deficit-qty">2 кг / мин. 3 кг</span>
-            </div>
-            <div class="stock-bar-track">
-              <div class="stock-bar-fill" style="width:35%;background:var(--red)"></div>
-            </div>
-            <div class="deficit-meta">🐟 Рыба · Океан Фреш · ₸6 000/кг</div>
-          </div>
-          <div class="deficit-item">
-            <div class="deficit-head">
-              <span class="deficit-name">Красное вино</span>
-              <span class="deficit-qty">0 бут / мин. 6 бут</span>
-            </div>
-            <div class="stock-bar-track">
-              <div class="stock-bar-fill" style="width:0%;background:var(--red)"></div>
-            </div>
-            <div class="deficit-meta">🍷 Напитки · ВинТорг · ₸3 200/бут</div>
-          </div>
-          <div class="deficit-item">
-            <div class="deficit-head">
-              <span class="deficit-name">Тунец консервированный</span>
-              <span class="deficit-qty">1 кг / мин. 3 кг</span>
-            </div>
-            <div class="stock-bar-track">
-              <div class="stock-bar-fill" style="width:20%;background:var(--red)"></div>
-            </div>
-            <div class="deficit-meta">🐟 Рыба · Океан Фреш · ₸3 500/кг</div>
-          </div>
-          <div class="deficit-item">
-            <div class="deficit-head">
-              <span class="deficit-name">Пармезан</span>
-              <span class="deficit-qty">1.5 кг / мин. 2 кг</span>
-            </div>
-            <div class="stock-bar-track">
-              <div class="stock-bar-fill" style="width:55%;background:var(--amber)"></div>
-            </div>
-            <div class="deficit-meta">🧀 Молочные · МолокоПлюс · ₸9 000/кг</div>
-          </div>
-        </div>
-
-        <div class="section-header">
-          <span class="section-title">📋 Последние закупки</span>
-          <a class="section-action" onclick="switchScreen('purchases')">Все закупки →</a>
-        </div>
-        <div class="card purchases-list">
-          <div class="purchase-row">
-            <div class="purchase-icon">🐟</div>
-            <div class="purchase-info">
-              <div class="purchase-supplier">Океан Фреш</div>
-              <div class="purchase-meta">28 окт 2026 · Центральный · 4 позиции</div>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-              <div class="purchase-amount">₸ 124 000</div>
-              <span class="badge badge-received">Получено</span>
-            </div>
-          </div>
-          <div class="purchase-row">
-            <div class="purchase-icon">🌾</div>
-            <div class="purchase-info">
-              <div class="purchase-supplier">Бакалея Трейд</div>
-              <div class="purchase-meta">25 окт 2026 · Южный · 6 позиций</div>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-              <div class="purchase-amount">₸ 87 500</div>
-              <span class="badge badge-ordered">Заказано</span>
-            </div>
-          </div>
-          <div class="purchase-row">
-            <div class="purchase-icon">🥩</div>
-            <div class="purchase-info">
-              <div class="purchase-supplier">АгроПром</div>
-              <div class="purchase-meta">22 окт 2026 · Северный · 3 позиции</div>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-              <div class="purchase-amount">₸ 215 400</div>
-              <span class="badge badge-received">Получено</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ INVENTORY ═══ -->
-      <div class="screen" id="screen-inventory">
-        <div class="row-flex">
-          <button class="btn-primary" onclick="alert('В демо-версии недоступно')">+ Добавить товар</button>
-        </div>
-        <div class="filter-row">
-          <div class="chip active" data-cat="all">Все</div>
-          <div class="chip" data-cat="Мясо">🥩 Мясо</div>
-          <div class="chip" data-cat="Рыба">🐟 Рыба</div>
-          <div class="chip" data-cat="Овощи">🥦 Овощи</div>
-          <div class="chip" data-cat="Молочные">🧀 Молочные</div>
-          <div class="chip" data-cat="Бакалея">🌾 Бакалея</div>
-          <div class="chip" data-cat="Напитки">🍷 Напитки</div>
-          <div class="search-wrap">
-            <input type="text" class="search-input" id="invSearch" placeholder="Поиск товара...">
-          </div>
-        </div>
-        <div class="card inv-table-wrap">
-          <table class="inv-table">
-            <thead>
-              <tr>
-                <th>Название</th>
-                <th>Категория</th>
-                <th>Кол-во</th>
-                <th>Ед.</th>
-                <th>Мин.</th>
-                <th>Цена</th>
-                <th>Запас</th>
-                <th>Статус</th>
-              </tr>
-            </thead>
-            <tbody id="invTbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ═══ PURCHASES ═══ -->
-      <div class="screen" id="screen-purchases">
-        <div class="row-flex">
-          <button class="btn-primary" onclick="alert('В демо-версии недоступно')">+ Создать закупку</button>
-          <span class="spacer"></span>
-          <button class="btn-secondary btn-sm">⬇ Экспорт</button>
-        </div>
-        <div class="purchase-filter-tabs">
-          <button class="tab-btn active" data-filter="all">Все <span style="color:var(--muted);font-weight:400">(6)</span></button>
-          <button class="tab-btn" data-filter="pending">Ожидание <span style="color:var(--muted);font-weight:400">(1)</span></button>
-          <button class="tab-btn" data-filter="ordered">Заказано <span style="color:var(--muted);font-weight:400">(2)</span></button>
-          <button class="tab-btn" data-filter="received">Получено <span style="color:var(--muted);font-weight:400">(2)</span></button>
-          <button class="tab-btn" data-filter="cancelled">Отменено <span style="color:var(--muted);font-weight:400">(1)</span></button>
-        </div>
-        <div class="purchase-cards-grid" id="purchaseGrid"></div>
-      </div>
-
-      <!-- ═══ SUPPLIERS ═══ -->
-      <div class="screen" id="screen-suppliers">
-        <div class="row-flex">
-          <span class="section-title">5 поставщиков</span>
-          <span class="spacer"></span>
-          <button class="btn-primary btn-sm" onclick="alert('В демо-версии недоступно')">+ Добавить</button>
-        </div>
-        <div class="supplier-grid">
-          <div class="supplier-card">
-            <div class="supplier-icon">🌾</div>
-            <div class="supplier-name">АгроПром</div>
-            <div class="supplier-rating">⭐ 4.8 · Мясо, Овощи</div>
-            <div class="supplier-cats">Производитель, Алматы</div>
-            <div class="supplier-stats">
-              <div><div class="s-stat-label">Закупок</div><div class="s-stat-val">24</div></div>
-              <div><div class="s-stat-label">Сумма ₸</div><div class="s-stat-val">3.2М</div></div>
-            </div>
-          </div>
-          <div class="supplier-card">
-            <div class="supplier-icon">🐟</div>
-            <div class="supplier-name">Океан Фреш</div>
-            <div class="supplier-rating">⭐ 4.6 · Рыба, Морепродукты</div>
-            <div class="supplier-cats">Импортёр, Алматы</div>
-            <div class="supplier-stats">
-              <div><div class="s-stat-label">Закупок</div><div class="s-stat-val">18</div></div>
-              <div><div class="s-stat-label">Сумма ₸</div><div class="s-stat-val">1.8М</div></div>
-            </div>
-          </div>
-          <div class="supplier-card">
-            <div class="supplier-icon">🧀</div>
-            <div class="supplier-name">МолокоПлюс</div>
-            <div class="supplier-rating">⭐ 4.9 · Молочные продукты</div>
-            <div class="supplier-cats">Производитель, Алматы</div>
-            <div class="supplier-stats">
-              <div><div class="s-stat-label">Закупок</div><div class="s-stat-val">31</div></div>
-              <div><div class="s-stat-label">Сумма ₸</div><div class="s-stat-val">2.1М</div></div>
-            </div>
-          </div>
-          <div class="supplier-card">
-            <div class="supplier-icon">🌽</div>
-            <div class="supplier-name">Бакалея Трейд</div>
-            <div class="supplier-rating">⭐ 4.5 · Бакалея, Специи</div>
-            <div class="supplier-cats">Дистрибьютор, Алматы</div>
-            <div class="supplier-stats">
-              <div><div class="s-stat-label">Закупок</div><div class="s-stat-val">42</div></div>
-              <div><div class="s-stat-label">Сумма ₸</div><div class="s-stat-val">1.4М</div></div>
-            </div>
-          </div>
-          <div class="supplier-card">
-            <div class="supplier-icon">🍷</div>
-            <div class="supplier-name">ВинТорг</div>
-            <div class="supplier-rating">⭐ 4.7 · Алкоголь, Напитки</div>
-            <div class="supplier-cats">Импортёр, Алматы</div>
-            <div class="supplier-stats">
-              <div><div class="s-stat-label">Закупок</div><div class="s-stat-val">15</div></div>
-              <div><div class="s-stat-label">Сумма ₸</div><div class="s-stat-val">0.9М</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ CATEGORIES ═══ -->
-      <div class="screen" id="screen-categories">
-        <div class="row-flex">
-          <span class="section-title">6 категорий</span>
-        </div>
-        <div class="categories-grid">
-          <div class="cat-card">
-            <div class="cat-icon">🥩</div>
-            <div class="cat-name">Мясо</div>
-            <div class="cat-count">2 позиции</div>
-            <div class="cat-val">₸ 82 800</div>
-          </div>
-          <div class="cat-card">
-            <div class="cat-icon">🐟</div>
-            <div class="cat-name">Рыба</div>
-            <div class="cat-count">2 позиции</div>
-            <div class="cat-val">₸ 15 500</div>
-          </div>
-          <div class="cat-card">
-            <div class="cat-icon">🥦</div>
-            <div class="cat-name">Овощи</div>
-            <div class="cat-count">2 позиции</div>
-            <div class="cat-val">₸ 8 200</div>
-          </div>
-          <div class="cat-card">
-            <div class="cat-icon">🧀</div>
-            <div class="cat-name">Молочные</div>
-            <div class="cat-count">2 позиции</div>
-            <div class="cat-val">₸ 18 300</div>
-          </div>
-          <div class="cat-card">
-            <div class="cat-icon">🌾</div>
-            <div class="cat-name">Бакалея</div>
-            <div class="cat-count">2 позиции</div>
-            <div class="cat-val">₸ 14 650</div>
-          </div>
-          <div class="cat-card">
-            <div class="cat-icon">🍷</div>
-            <div class="cat-name">Напитки</div>
-            <div class="cat-count">2 позиции</div>
-            <div class="cat-val">₸ 54 000</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══ ANALYTICS ═══ -->
-      <div class="screen" id="screen-analytics">
-        <div class="stat-row">
-          <div class="stat-card">
-            <div class="stat-label">Стоимость склада</div>
-            <div class="stat-value" style="font-size:22px">₸ 193 450</div>
-            <div class="stat-sub">12 позиций</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Закупки (10 мес.)</div>
-            <div class="stat-value" style="font-size:22px">₸ 8.4М</div>
-            <div class="stat-sub">2026 г.</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Поставщиков</div>
-            <div class="stat-value">5</div>
-            <div class="stat-sub">активных</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Средний чек</div>
-            <div class="stat-value" style="font-size:22px">₸ 105 900</div>
-            <div class="stat-sub">за закупку</div>
-          </div>
-        </div>
-
-        <div class="charts-grid">
-          <div class="chart-card">
-            <div class="chart-title">Расходы по поставщикам (₸)</div>
-            <div id="supplierBars"></div>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">Склад по категориям</div>
-            <div class="pie-wrap" id="pieWrap"></div>
-          </div>
-        </div>
-
-        <div class="section-header">
-          <span class="section-title">📊 Топ товары по стоимости запаса</span>
-        </div>
-        <div class="card">
-          <table class="top-items-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Товар</th>
-                <th>Категория</th>
-                <th>Кол-во</th>
-                <th>Цена</th>
-                <th>Стоимость</th>
-              </tr>
-            </thead>
-            <tbody id="topItemsTbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-    </div><!-- /content -->
-  </main>
-</div><!-- /app-shell -->
+  <main class="main" id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
-// ─── Data ───────────────────────────────────────────────────────────────────
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('en-GB');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
 
-const INVENTORY = [
-  { id:1,  name:'Говядина (вырезка)',  cat:'Мясо',     qty:12,   unit:'кг',  min:5,  price:4200,  priceLabel:'₸4 200/кг' },
-  { id:2,  name:'Лосось свежий',       cat:'Рыба',     qty:2,    unit:'кг',  min:3,  price:6000,  priceLabel:'₸6 000/кг' },
-  { id:3,  name:'Помидоры черри',      cat:'Овощи',    qty:8,    unit:'кг',  min:2,  price:800,   priceLabel:'₸800/кг'   },
-  { id:4,  name:'Пармезан',            cat:'Молочные', qty:1.5,  unit:'кг',  min:2,  price:9000,  priceLabel:'₸9 000/кг' },
-  { id:5,  name:'Мука пшеничная',      cat:'Бакалея',  qty:25,   unit:'кг',  min:10, price:250,   priceLabel:'₸250/кг'   },
-  { id:6,  name:'Красное вино',        cat:'Напитки',  qty:0,    unit:'бут', min:6,  price:3200,  priceLabel:'₸3 200/бут'},
-  { id:7,  name:'Курица (филе)',        cat:'Мясо',     qty:18,   unit:'кг',  min:8,  price:1800,  priceLabel:'₸1 800/кг' },
-  { id:8,  name:'Сливочное масло',     cat:'Молочные', qty:4,    unit:'кг',  min:2,  price:1200,  priceLabel:'₸1 200/кг' },
-  { id:9,  name:'Лук репчатый',        cat:'Овощи',    qty:15,   unit:'кг',  min:5,  price:120,   priceLabel:'₸120/кг'   },
-  { id:10, name:'Оливковое масло',     cat:'Бакалея',  qty:3,    unit:'л',   min:2,  price:2800,  priceLabel:'₸2 800/л'  },
-  { id:11, name:'Шампанское',          cat:'Напитки',  qty:12,   unit:'бут', min:6,  price:4500,  priceLabel:'₸4 500/бут'},
-  { id:12, name:'Тунец конс.',         cat:'Рыба',     qty:1,    unit:'кг',  min:3,  price:3500,  priceLabel:'₸3 500/кг' },
-];
-
-const PURCHASES = [
-  { id:1, supplier:'АгроПром',      date:'28 окт 2026', venue:'Центральный', amount:215400, items:3, status:'received' },
-  { id:2, supplier:'Океан Фреш',   date:'28 окт 2026', venue:'Центральный', amount:124000, items:4, status:'received' },
-  { id:3, supplier:'Бакалея Трейд',date:'25 окт 2026', venue:'Южный',       amount:87500,  items:6, status:'ordered'  },
-  { id:4, supplier:'МолокоПлюс',   date:'20 окт 2026', venue:'Северный',    amount:63200,  items:3, status:'ordered'  },
-  { id:5, supplier:'ВинТорг',      date:'15 окт 2026', venue:'Все',         amount:192000, items:8, status:'pending'  },
-  { id:6, supplier:'АгроПром',     date:'10 окт 2026', venue:'Южный',       amount:45000,  items:2, status:'cancelled'},
-];
-
-const SUPPLIER_SPEND = [
-  { name:'АгроПром',      val:3200000 },
-  { name:'МолокоПлюс',   val:2100000 },
-  { name:'Океан Фреш',  val:1800000 },
-  { name:'Бакалея Трейд',val:1400000 },
-  { name:'ВинТорг',      val:900000  },
-];
-
-const PIE_DATA = [
-  { cat:'Мясо',     pct:43, color:'#c8a84b' },
-  { cat:'Напитки',  pct:28, color:'#0a84ff' },
-  { cat:'Молочные', pct:9,  color:'#30d158' },
-  { cat:'Бакалея',  pct:8,  color:'#ff9f0a' },
-  { cat:'Рыба',     pct:8,  color:'#bf5af2' },
-  { cat:'Овощи',    pct:4,  color:'#32d74b' },
-];
-
-const STATUS_LABELS = {
-  pending:   'Ожидание',
-  ordered:   'Заказано',
-  received:  'Получено',
-  cancelled: 'Отменено',
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
 };
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
 
-const STATUS_BADGES = {
-  pending:   'badge-pending',
-  ordered:   'badge-ordered',
-  received:  'badge-received',
-  cancelled: 'badge-cancelled',
-};
-
-const SUPPLIER_ICONS = {
-  'АгроПром':'🌾','Океан Фреш':'🐟','МолокоПлюс':'🧀',
-  'Бакалея Трейд':'🌽','ВинТорг':'🍷',
-};
-
-const PAGE_TITLES = {
-  dashboard:'Дашборд',inventory:'Склад',purchases:'Закупки',
-  suppliers:'Поставщики',categories:'Категории',analytics:'Аналитика',
-};
-
-// ─── Inventory rendering ────────────────────────────────────────────────────
-
-let activeCat = 'all';
-let searchQuery = '';
-let expandedRow = null;
-
-function getItemStatus(item) {
-  if (item.qty === 0) return { label:'Пусто',       cls:'badge-empty' };
-  if (item.qty < item.min) return { label:'Мало',   cls:'badge-low'  };
-  if (item.qty === item.min) return { label:'Предупреждение', cls:'badge-warn' };
-  return { label:'OK', cls:'badge-ok' };
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
-
-function getBarStyle(item) {
-  if (item.qty === 0) return { pct:0,   color:'var(--red)' };
-  if (item.qty < item.min) {
-    const p = Math.round((item.qty / item.min) * 100);
-    return { pct:p, color:'var(--red)' };
-  }
-  if (item.qty === item.min) return { pct:60, color:'var(--amber)' };
-  const cap = item.min * 4;
-  const p = Math.min(100, Math.round((item.qty / cap) * 100));
-  return { pct:p, color:'var(--green)' };
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
 }
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-function renderInventory() {
-  const tbody = document.getElementById('invTbody');
-  expandedRow = null;
-
-  const filtered = INVENTORY.filter(item => {
-    const catMatch = activeCat === 'all' || item.cat === activeCat;
-    const srch = searchQuery.toLowerCase();
-    const nameMatch = item.name.toLowerCase().includes(srch) ||
-                      item.cat.toLowerCase().includes(srch);
-    return catMatch && nameMatch;
-  });
-
-  tbody.innerHTML = '';
-
-  filtered.forEach(item => {
-    const st = getItemStatus(item);
-    const bar = getBarStyle(item);
-    const totalVal = (item.qty * item.price).toLocaleString('ru-RU');
-
-    const tr = document.createElement('tr');
-    tr.setAttribute('data-id', item.id);
-    tr.innerHTML = `
-      <td><span class="item-name">${item.name}</span></td>
-      <td><span class="item-cat">${item.cat}</span></td>
-      <td class="item-qty">${item.qty}</td>
-      <td class="text-muted">${item.unit}</td>
-      <td class="text-muted">${item.min}</td>
-      <td class="item-price">${item.priceLabel}</td>
-      <td class="stock-cell">
-        <div class="stock-bar-track">
-          <div class="stock-bar-fill" style="width:${bar.pct}%;background:${bar.color}"></div>
-        </div>
-      </td>
-      <td><span class="badge ${st.cls}">${st.label}</span></td>
-    `;
-
-    tr.addEventListener('click', () => toggleExpand(item, tr));
-    tbody.appendChild(tr);
-  });
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
 }
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
 
-function toggleExpand(item, tr) {
-  // Remove any existing expand row
-  const existing = document.querySelector('.expand-row');
-  if (existing) {
-    existing.previousElementSibling && existing.previousElementSibling.classList.remove('expanded');
-    existing.remove();
-  }
-
-  if (expandedRow === item.id) {
-    expandedRow = null;
-    return;
-  }
-
-  expandedRow = item.id;
-  tr.classList.add('expanded');
-
-  const expandTr = document.createElement('tr');
-  expandTr.className = 'expand-row';
-  expandTr.innerHTML = `
-    <td colspan="8">
-      <div class="expand-content">
-        <label>Изменить кол-во:</label>
-        <input type="number" class="qty-input" id="qtyEdit_${item.id}" value="${item.qty}" min="0" step="0.5">
-        <button class="btn-primary btn-sm" onclick="saveQty(${item.id})">Сохранить</button>
-        <button class="btn-secondary btn-sm" onclick="closeExpand()">Отмена</button>
-        <span class="text-muted" style="margin-left:8px;font-size:12px">
-          Стоимость запаса: <strong style="color:var(--gold)">₸ ${(item.qty * item.price).toLocaleString('ru-RU')}</strong>
-        </span>
-        <span class="text-muted" style="margin-left:8px;font-size:12px">Мин. остаток: ${item.min} ${item.unit}</span>
-      </div>
-    </td>
-  `;
-
-  tr.after(expandTr);
-}
-
-function closeExpand() {
-  const existing = document.querySelector('.expand-row');
-  if (existing) {
-    const prev = existing.previousElementSibling;
-    if (prev) prev.classList.remove('expanded');
-    existing.remove();
-  }
-  expandedRow = null;
-}
-
-function saveQty(id) {
-  const input = document.getElementById('qtyEdit_' + id);
-  if (!input) return;
-  const item = INVENTORY.find(i => i.id === id);
-  if (item) {
-    item.qty = parseFloat(input.value) || 0;
-    closeExpand();
-    renderInventory();
-  }
-}
-
-// ─── Category chips ──────────────────────────────────────────────────────────
-
-document.querySelectorAll('.chip[data-cat]').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.chip[data-cat]').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    activeCat = chip.dataset.cat;
-    renderInventory();
-  });
-});
-
-document.getElementById('invSearch').addEventListener('input', e => {
-  searchQuery = e.target.value;
-  renderInventory();
-});
-
-// ─── Purchase cards ──────────────────────────────────────────────────────────
-
-let activeFilter = 'all';
-
-function renderPurchases() {
-  const grid = document.getElementById('purchaseGrid');
-  const items = activeFilter === 'all'
-    ? PURCHASES
-    : PURCHASES.filter(p => p.status === activeFilter);
-
-  grid.innerHTML = '';
-
-  items.forEach(p => {
-    const icon = SUPPLIER_ICONS[p.supplier] || '📦';
-    const label = STATUS_LABELS[p.status];
-    const badgeCls = STATUS_BADGES[p.status];
-    const amount = '₸ ' + p.amount.toLocaleString('ru-RU');
-
-    const div = document.createElement('div');
-    div.className = 'p-card';
-    div.innerHTML = `
-      <div class="p-card-head">
-        <div>
-          <div class="p-card-supplier">${icon} ${p.supplier}</div>
-          <div class="p-card-date">${p.date}</div>
-        </div>
-        <span class="badge ${badgeCls}">${label}</span>
-      </div>
-      <div class="p-card-body">
-        <div class="p-card-row"><span>Заведение</span><span>${p.venue}</span></div>
-        <div class="p-card-row"><span>Позиций</span><span>${p.items}</span></div>
-      </div>
-      <div class="p-card-amount">${amount}</div>
-    `;
-    grid.appendChild(div);
-  });
-}
-
-document.querySelectorAll('.tab-btn[data-filter]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn[data-filter]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeFilter = btn.dataset.filter;
-    renderPurchases();
-  });
-});
-
-// ─── Analytics charts ────────────────────────────────────────────────────────
-
-function renderSupplierBars() {
-  const el = document.getElementById('supplierBars');
-  const max = SUPPLIER_SPEND[0].val;
-  el.innerHTML = SUPPLIER_SPEND.map(s => {
-    const pct = Math.round((s.val / max) * 100);
-    const label = (s.val / 1000000).toFixed(1) + 'М ₸';
-    return `
-      <div class="hbar-item">
-        <div class="hbar-label">
-          <span>${s.name}</span>
-          <span class="hval">${label}</span>
-        </div>
-        <div class="hbar-track">
-          <div class="hbar-fill" style="width:${pct}%"></div>
-        </div>
-      </div>
-    `;
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
   }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Trend: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
 }
 
-function renderPie() {
-  const wrap = document.getElementById('pieWrap');
+'use strict';
 
-  // Build SVG pie
-  const size = 150;
-  const cx = size / 2, cy = size / 2, r = 58;
-  let cumAngle = -Math.PI / 2;
+/* ── data ─────────────────────────────────────────────── */
+const tg = (n) => fmt(n) + ' ₸';
+const TODAY = '28.09.2026';
+const VEN = { center: 'Central Café', north: 'North Restaurant' };
+const SUP = [
+  { id: 1, n: 'Myaskom LLC',    who: 'Petrov A. V.',   tel: '+7 701 123 45 67', r: 5 },
+  { id: 2, n: 'Molochny Dvor',  who: 'Kuznetsov P. S.', tel: '+7 702 345 67 89', r: 5 },
+  { id: 3, n: 'OvoshBaza',      who: 'Ivanova M. I.',  tel: '+7 707 456 78 90', r: 3 },
+  { id: 4, n: 'AgroPlus',      who: 'Fedorov D. O.',  tel: '+7 705 567 89 01', r: 4 },
+  { id: 5, n: 'RestoSupply', who: 'Smirnova L. G.', tel: '+7 777 678 90 12', r: 4 },
+  { id: 6, n: 'SvezheSnabzh',    who: 'Popova K. A.',   tel: '+7 700 890 12 34', r: 5 },
+];
+/* qty / min per venue; null = the venue does not stock the item */
+const ITEMS = [
+  { id: 1,  n: 'Beef',         cat: 'Meat',     u: 'kg', px: 3600, s: 1, qty: { center: null, north: 10 }, min: { center: null, north: 15 } },
+  { id: 2,  n: 'Whole milk 3.2%',      cat: 'Dairy', u: 'L',  px: 450,  s: 2, qty: { center: 40, north: 22 },   min: { center: 30, north: 20 } },
+  { id: 3,  n: 'Potatoes',        cat: 'Vegetables',    u: 'kg', px: 220,  s: 3, qty: { center: null, north: 8 },  min: { center: null, north: 15 } },
+  { id: 4,  n: 'Cream 33%',       cat: 'Dairy', u: 'L',  px: 1800, s: 2, qty: { center: 6, north: 5 },     min: { center: 8, north: 10 } },
+  { id: 5,  n: 'Chicken fillet',     cat: 'Meat',     u: 'kg', px: 2100, s: 1, qty: { center: 3, north: 22 },    min: { center: 3, north: 12 } },
+  { id: 6,  n: 'Butter',  cat: 'Dairy', u: 'kg', px: 4200, s: 2, qty: { center: 2, north: 3 },     min: { center: 2, north: 4 } },
+  { id: 7,  n: 'Onions',     cat: 'Vegetables',    u: 'kg', px: 160,  s: 3, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 8,  n: 'Carrots',          cat: 'Vegetables',    u: 'kg', px: 180,  s: 3, qty: { center: null, north: 15 }, min: { center: null, north: 10 } },
+  { id: 9,  n: 'Rice',              cat: 'Grains',    u: 'kg', px: 650,  s: 4, qty: { center: null, north: 24 }, min: { center: null, north: 15 } },
+  { id: 10, n: 'Buckwheat',           cat: 'Grains',    u: 'kg', px: 700,  s: 4, qty: { center: null, north: 5 },  min: { center: null, north: 8 } },
+  { id: 11, n: 'Tomato paste',   cat: 'Sauces',    u: 'pcs', px: 420,  s: 5, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
+  { id: 12, n: 'Mayonnaise',          cat: 'Sauces',    u: 'pcs', px: 700,  s: 5, qty: { center: 4, north: 8 },     min: { center: 3, north: 6 } },
+  { id: 13, n: 'Mineral water', cat: 'Drinks',  u: 'pcs', px: 150,  s: 6, qty: { center: 60, north: 60 },   min: { center: 40, north: 50 } },
+  { id: 14, n: 'Orange juice', cat: 'Drinks',  u: 'L',  px: 900,  s: 6, qty: { center: 8, north: 10 },    min: { center: 6, north: 10 } },
+  { id: 15, n: 'Pork neck',   cat: 'Meat',     u: 'kg', px: 2800, s: 1, qty: { center: null, north: 14 }, min: { center: null, north: 12 } },
+];
+/* every order is lines; totals, "in transit" and supplier spend all derive from them */
+let PO = [
+  { id: 2038, s: 1, v: 'north',  date: '20.09.2026', st: 'received', lines: [[1, 20], [15, 14], [5, 10]] },
+  { id: 2039, s: 2, v: 'center', date: '22.09.2026', st: 'received', lines: [[2, 40], [4, 10], [6, 4]] },
+  { id: 2040, s: 6, v: 'north',  date: '24.09.2026', st: 'received', lines: [[13, 60], [14, 12]] },
+  { id: 2041, s: 3, v: 'north',  date: '27.09.2026', st: 'ordered',  lines: [[7, 20], [8, 10]] },
+  { id: 2042, s: 5, v: 'center', date: '27.09.2026', st: 'ordered',  lines: [[12, 6]] },
+  { id: 2037, s: 4, v: 'north',  date: '15.09.2026', st: 'cancelled', lines: [[9, 25]] },
+];
+const item = (id) => ITEMS.find((i) => i.id === id), sup = (id) => SUP.find((s) => s.id === id);
+const poTotal = (o) => o.lines.reduce((a, [i, q]) => a + item(i).px * q, 0);
+const stocked = (i, v) => (v === 'all' ? ['center', 'north'].some((x) => i.qty[x] !== null) : i.qty[v] !== null);
+const qtyOf = (i, v) => v === 'all' ? ['center', 'north'].reduce((a, x) => a + (i.qty[x] || 0), 0) : i.qty[v] || 0;
+const minOf = (i, v) => v === 'all' ? ['center', 'north'].reduce((a, x) => a + (i.min[x] || 0), 0) : i.min[v] || 0;
+const incoming = (id, v) => PO.filter((o) => o.st === 'ordered' && o.v === v).reduce((a, o) => a + o.lines.filter(([i]) => i === id).reduce((b, [, q]) => b + q, 0), 0);
+const incomingAll = (id) => incoming(id, 'center') + incoming(id, 'north');
+const state = (i, v) => { const q = qtyOf(i, v), m = minOf(i, v); return q < m ? 'low' : q < m * 1.3 ? 'soon' : 'ok'; };
+const value = (v) => ITEMS.filter((i) => stocked(i, v)).reduce((a, i) => a + qtyOf(i, v) * i.px, 0);
+const lowLines = () => ['center', 'north'].flatMap((v) => ITEMS.filter((i) => i.qty[v] !== null && i.qty[v] < i.min[v]).map((i) => ({ i, v })));
+/* what to buy: refill to twice the minimum, minus what is already on its way */
+const needQty = (i, v) => Math.max(0, i.min[v] * 2 - i.qty[v] - incoming(i.id, v));
+function drafts() {
+  const map = {};
+  lowLines().forEach(({ i, v }) => { const q = needQty(i, v); if (q > 0) (map[i.s + v] ||= { s: i.s, v, lines: [] }).lines.push([i.id, q]); });
+  return Object.values(map).sort((a, b) => a.s - b.s || a.v.localeCompare(b.v));
+}
+console.assert(lowLines().length === 6 && drafts().length === 5 && drafts().reduce((a, d) => a + poTotal(d), 0) === 150540, 'drafts');
 
-  let paths = '';
-  PIE_DATA.forEach(d => {
-    const angle = (d.pct / 100) * 2 * Math.PI;
-    const x1 = cx + r * Math.cos(cumAngle);
-    const y1 = cy + r * Math.sin(cumAngle);
-    cumAngle += angle;
-    const x2 = cx + r * Math.cos(cumAngle);
-    const y2 = cy + r * Math.sin(cumAngle);
-    const largeArc = angle > Math.PI ? 1 : 0;
-    paths += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc},1 ${x2},${y2} Z" fill="${d.color}" opacity="0.9"/>`;
+
+/* product photos (CC0, see demos/CREDITS.md), one per category */
+const PT = { 'Meat': 'meat', 'Dairy': 'dairy', 'Vegetables': 'veg', 'Grains': 'grain', 'Sauces': 'sauce', 'Drinks': 'drink' };
+const ptImg = (cat) => `<img src="img/pt-${PT[cat]}.jpg" alt="" loading="lazy" decoding="async">`;
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { today: ['Today', 'home'], stock: ['Stock', 'box'], orders: ['Purchasing', 'bag'], sup: ['Suppliers', 'users'] };
+let page = 'today', venue = 'all', cat = 'All', q = '';
+const CATS = ['All', ...new Set(ITEMS.map((i) => i.cat))];
+
+function chrome() {
+  const n = lowLines().length;
+  const item = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<span class="count" title="Below minimum">${n}</span>` : ''}</a>`;
+  $('#nav').innerHTML = Object.keys(PAGES).map(item).join('');
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
+  setNav(page);
+}
+function render() { chrome(); $('#main').innerHTML = ({ today, stock, orders, sup: suppliers })[page](); }
+function go(p) { page = p; render(); window.scrollTo(0, 0); }
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
+  const it = e.target.closest('[data-item]'); if (it) return openItem(+it.dataset.item);
+  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+document.addEventListener('input', (e) => { if (e.target.id === 'q') { q = e.target.value.toLowerCase(); const p = e.target.selectionStart; render(); const i = $('#q'); i.focus(); i.setSelectionRange(p, p); } });
+
+/* ── today ────────────────────────────────────────────── */
+function draftCard(d, k) {
+  return `<article class="draft"><div class="draft-h"><b>${esc(sup(d.s).n)}</b><span>for ${VEN[d.v]}</span></div>${d.lines.map(([i, qn]) => `<div class="line"><span><i class="pt">${ptImg(item(i).cat)}</i>${esc(item(i).n)}</span><b>${qn} ${item(i).u} · ${tg(qn * item(i).px)}</b></div>`).join('')}
+    <div class="draft-f"><b>${tg(poTotal(d))}</b><button class="btn primary sm" data-act="order" data-k="${k}">Order</button></div></article>`;
+}
+function today() {
+  const ds = drafts(), sum = ds.reduce((a, d) => a + poTotal(d), 0), low = lowLines().length;
+  const open = PO.filter((o) => o.st === 'ordered'), transit = open.reduce((a, o) => a + poTotal(o), 0);
+  const finding = ds.length ? `<div class="finding">${ic('alert')}<span>${low} ${low === 1 ? 'item is' : 'items are'} below minimum. ${ds.length} supplier ${ds.length === 1 ? 'order' : 'orders'} drafted, ${tg(sum)} in total. Review and send.</span><button class="btn sm primary" data-act="orderAll">Order all</button></div>` : `<div class="finding" style="background:var(--pos-bg);color:var(--pos)">${ic('check')}<span>Everything is above minimum. Nothing to order.</span></div>`;
+  return head('What to restock today', `${TODAY} · stock across both venues`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${ITEMS.length}</b><span>Items tracked</span></div><div class="kpi"><b>${tg(value('all'))}</b><span>Stock value</span></div><div class="kpi"><b>${low}</b><span>Below minimum</span></div><div class="kpi"><b>${tg(transit)}</b><span>In transit, ${open.length} ${open.length === 1 ? 'order' : 'orders'}</span></div></div>
+    ${ds.length ? `<div class="drafts">${ds.map(draftCard).join('')}</div>` : ''}
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2>Awaiting delivery</h2><span>${open.length}</span></div>${open.map((o) => `<div class="tr" style="--cols:1.3fr 1fr 1fr auto;--colsm:1fr auto"><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · order ${o.id} · ${o.date}</span></div><span class="hm">${o.lines.length} ${o.lines.length === 1 ? 'item' : 'items'}</span><b class="hm">${tg(poTotal(o))}</b><button class="btn sm" data-act="receive" data-id="${o.id}">Receive</button></div>`).join('') || '<p class="empty">Nothing pending.</p>'}</section>`;
+}
+
+/* ── stock ────────────────────────────────────────────── */
+function stock() {
+  const list = ITEMS.filter((i) => stocked(i, venue) && (cat === 'All' || i.cat === cat) && i.n.toLowerCase().includes(q));
+  const rows = list.map((i) => { const qn = qtyOf(i, venue), m = minOf(i, venue), st = state(i, venue), inc = venue === 'all' ? incomingAll(i.id) : incoming(i.id, venue); return `<div class="tr" data-item="${i.id}" tabindex="0" style="cursor:pointer;--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><div class="cell-pt"><span class="pt">${ptImg(i.cat)}</span><div class="cell-main"><b>${esc(i.n)}</b><span>${i.cat} · ${esc(sup(i.s).n)}${inc ? ` · ${inc} ${i.u} on the way` : ''}</span></div></div>
+    <div class="level hm"><div class="bar"><i class="${st}" style="width:${Math.min(100, qn / (m * 2 || 1) * 100)}%"></i></div><b>${qn} ${i.u}</b></div><span class="hm r muted">min ${m}</span><span class="hm r">${tg(i.px)}</span>
+    <div class="r"><span class="pill ${st === 'low' ? 'neg' : st === 'soon' ? 'warn' : 'pos'}"><i></i>${st === 'low' ? 'Low' : st === 'soon' ? 'Soon' : 'OK'}</span><div class="dm muted" style="font-size:12px;margin-top:2px">${qn} ${i.u}</div></div></div>`; }).join('');
+  return head('Stock', `${list.length} ${list.length === 1 ? 'item' : 'items'} · ${tg(list.reduce((a, i) => a + qtyOf(i, venue) * i.px, 0))}`) +
+    `<div class="chips">${['all', 'center', 'north'].map((v) => `<button class="chip ${venue === v ? 'on' : ''}" data-act="venue" data-v="${v}">${v === 'all' ? 'All venues' : VEN[v]}</button>`).join('')}</div>
+    <div class="row-tools"><input class="search" id="q" value="${esc(q)}" placeholder="Search by name" aria-label="Search"><div class="chips" style="margin:0">${CATS.map((c) => `<button class="chip ${cat === c ? 'on' : ''}" data-act="cat" data-v="${c}">${c}</button>`).join('')}</div></div>
+    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><span>Item</span><span class="hm">In stock</span><span class="hm r">Minimum</span><span class="hm r">Price</span><span class="r">Status</span></div>${rows || '<p class="empty">Nothing found.</p>'}</div></section>`;
+}
+function openItem(id) {
+  const i = item(id), vs = ['center', 'north'].filter((v) => i.qty[v] !== null);
+  modal(`<h2>${esc(i.n)}</h2><p>${i.cat} · ${esc(sup(i.s).n)} · ${tg(i.px)} per ${i.u}</p>
+    ${vs.map((v) => `<div class="line"><span>${VEN[v]}</span><b>${i.qty[v]} ${i.u} <span class="muted">(min ${i.min[v]})</span></b></div>`).join('')}
+    <div class="field" style="margin-top:14px"><label for="a-v">Venue</label><select id="a-v">${vs.map((v) => `<option value="${v}" ${venue === v ? 'selected' : ''}>${VEN[v]}</option>`).join('')}</select></div>
+    <div class="field"><label for="a-q">Quantity, ${i.u}</label><input id="a-q" type="number" min="0.5" step="0.5" value="1"></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button><button class="btn" id="a-out">Write off</button><button class="btn primary" id="a-in">Receive stock</button></div>`, () => {
+    const apply = (sign) => { const v = $('#a-v').value, n = +$('#a-q').value; if (!(n > 0)) return toast('Enter a quantity'); if (sign < 0 && n > i.qty[v]) return toast(`Only ${i.qty[v]} ${i.u} at this venue`); i.qty[v] = Math.round((i.qty[v] + sign * n) * 10) / 10; closeModal(); toast(`${i.n}: ${sign > 0 ? 'received' : 'written off'} ${n} ${i.u}`); render(); };
+    $('#a-out').onclick = () => apply(-1); $('#a-in').onclick = () => apply(1);
   });
-
-  const svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex-shrink:0">
-    <circle cx="${cx}" cy="${cy}" r="${r+4}" fill="rgba(255,255,255,0.03)"/>
-    ${paths}
-    <circle cx="${cx}" cy="${cy}" r="30" fill="#141414"/>
-    <text x="${cx}" y="${cy+5}" text-anchor="middle" fill="#f5f5f7" font-size="12" font-family="Inter,sans-serif" font-weight="600">Склад</text>
-  </svg>`;
-
-  const legend = PIE_DATA.map(d => `
-    <div class="pie-legend-item">
-      <div class="pie-dot" style="background:${d.color}"></div>
-      <span class="pie-lname">${d.cat}</span>
-      <span class="pie-lpct">${d.pct}%</span>
-    </div>
-  `).join('');
-
-  wrap.innerHTML = svg + `<div class="pie-legend">${legend}</div>`;
 }
 
-function renderTopItems() {
-  const tbody = document.getElementById('topItemsTbody');
-  const sorted = [...INVENTORY]
-    .map(i => ({ ...i, total: i.qty * i.price }))
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 8);
-
-  tbody.innerHTML = sorted.map((item, idx) => `
-    <tr>
-      <td class="rank-num">${idx + 1}</td>
-      <td style="font-weight:600">${item.name}</td>
-      <td class="text-muted">${item.cat}</td>
-      <td class="text-muted">${item.qty} ${item.unit}</td>
-      <td class="text-muted">${item.priceLabel}</td>
-      <td class="top-val">₸ ${item.total.toLocaleString('ru-RU')}</td>
-    </tr>
-  `).join('');
+/* ── orders + suppliers ───────────────────────────────── */
+const ST = { ordered: ['In transit', 'warn'], received: ['Received', 'pos'], cancelled: ['Cancelled', ''] };
+function orders() {
+  const rows = [...PO].sort((a, b) => b.id - a.id).map((o) => `<div class="tr" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm muted">${o.id}</span><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · ${o.date}${' · ' + o.lines.length + (o.lines.length === 1 ? ' item' : ' items')}</span></div><span class="hm">${o.lines.map(([i, qn]) => esc(item(i).n.split(' ')[0]) + ' ' + qn).join(', ')}</span><b class="hm r">${tg(poTotal(o))}</b><span class="hm"><span class="pill ${ST[o.st][1]}"><i></i>${ST[o.st][0]}</span></span>
+    <span class="r">${o.st === 'ordered' ? `<button class="btn sm primary" data-act="receive" data-id="${o.id}">Receive</button>` : `<b>${tg(poTotal(o))}</b>`}</span></div>`).join('');
+  return head('Purchasing', `${PO.length} orders · received orders go straight into stock`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm">No.</span><span>Supplier</span><span class="hm">Contents</span><span class="hm r">Total</span><span class="hm">Status</span><span class="r"></span></div>${rows}</div></section>`;
+}
+function suppliers() {
+  const rows = SUP.map((s) => { const mine = PO.filter((o) => o.s === s.id && o.st !== 'cancelled'), spent = mine.reduce((a, o) => a + poTotal(o), 0); return `<div class="tr" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(s.n)}</b><span>${esc(s.who)} · ${s.tel}</span></div><span class="hm">${s.tel}</span><span class="hm stars">${'★'.repeat(s.r)}<i>${'★'.repeat(5 - s.r)}</i></span><span class="hm r">${mine.length}</span><b class="r">${tg(spent)}</b></div>`; }).join('');
+  return head('Suppliers', `${SUP.length} suppliers · ${tg(PO.filter((o) => o.st !== 'cancelled').reduce((a, o) => a + poTotal(o), 0))} spent in the last 2 weeks`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><span>Supplier</span><span class="hm">Phone</span><span class="hm">Rating</span><span class="hm r">Orders</span><span class="r">Total</span></div>${rows}</div></section>`;
 }
 
-// ─── Navigation ──────────────────────────────────────────────────────────────
-
-function switchScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-  const screen = document.getElementById('screen-' + name);
-  if (screen) screen.classList.add('active');
-
-  const navItem = document.querySelector(`.nav-item[data-screen="${name}"]`);
-  if (navItem) navItem.classList.add('active');
-
-  document.getElementById('pageTitle').textContent = PAGE_TITLES[name] || name;
-
-  // Close mobile sidebar
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
-}
-
-document.querySelectorAll('.nav-item[data-screen]').forEach(item => {
-  item.addEventListener('click', () => switchScreen(item.dataset.screen));
-});
-
-// ─── Hamburger ───────────────────────────────────────────────────────────────
-
-const hamburger = document.getElementById('hamburger');
-const sidebar   = document.getElementById('sidebar');
-const overlay   = document.getElementById('sidebarOverlay');
-
-hamburger.addEventListener('click', () => {
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('open');
-});
-
-overlay.addEventListener('click', () => {
-  sidebar.classList.remove('open');
-  overlay.classList.remove('open');
-});
-
-// ─── Venue switcher ──────────────────────────────────────────────────────────
-
-const venueBtn      = document.getElementById('venueBtn');
-const venueDropdown = document.getElementById('venueDropdown');
-const venueNameEl   = document.getElementById('venueName');
-
-venueBtn.addEventListener('click', e => {
-  e.stopPropagation();
-  venueBtn.classList.toggle('open');
-  venueDropdown.classList.toggle('open');
-});
-
-document.addEventListener('click', () => {
-  venueBtn.classList.remove('open');
-  venueDropdown.classList.remove('open');
-});
-
-venueDropdown.addEventListener('click', e => {
-  const opt = e.target.closest('.venue-option');
-  if (!opt) return;
-  document.querySelectorAll('.venue-option').forEach(o => o.classList.remove('selected'));
-  opt.classList.add('selected');
-  venueNameEl.textContent = opt.querySelector('.vname').textContent;
-  venueBtn.classList.remove('open');
-  venueDropdown.classList.remove('open');
-});
-
-// ─── Init ────────────────────────────────────────────────────────────────────
-
-renderInventory();
-renderPurchases();
-renderSupplierBars();
-renderPie();
-renderTopItems();
+/* ── actions ──────────────────────────────────────────── */
+const nextPO = () => Math.max(...PO.map((o) => o.id)) + 1;
+const ACT = {
+  venue(d) { venue = d.v; render(); }, cat(d) { cat = d.v; render(); },
+  order(d) { const x = drafts()[+d.k]; PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines }); toast(`Order sent: ${sup(x.s).n}`); render(); },
+  orderAll() { const ds = drafts(); ds.forEach((x) => PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines })); toast(`Orders sent: ${ds.length}`); render(); },
+  receive(d) { const o = PO.find((x) => x.id === +d.id); o.lines.forEach(([i, qn]) => { item(i).qty[o.v] = (item(i).qty[o.v] || 0) + qn; }); o.st = 'received'; toast(`Received: order ${o.id}, stock updated`); render(); },
+};
+/* ── live consumption: the kitchens use stock all day, so statuses and orders move on their own ─ */
+setInterval(() => {
+  if (document.hidden || $('#scrim')) return;
+  const pool = ITEMS.flatMap((i) => ['center', 'north'].filter((v) => i.qty[v] !== null && i.qty[v] > 0).map((v) => [i, v]));
+  const [i, v] = pool[Math.floor(Math.random() * pool.length)], before = i.qty[v] < i.min[v];
+  const used = i.u === 'pcs' ? 1 + Math.floor(Math.random() * 3) : [0.5, 1, 1.5][Math.floor(Math.random() * 3)];
+  i.qty[v] = Math.max(0, Math.round((i.qty[v] - used) * 10) / 10);
+  if (!before && i.qty[v] < i.min[v]) toast(`${i.n} (${VEN[v]}): below minimum, ${i.qty[v]} ${i.u}`);
+  if (['today', 'stock'].includes(page) && document.activeElement?.id !== 'q') render();
+}, 4500);
+render();
 </script>
 </body>
 </html>

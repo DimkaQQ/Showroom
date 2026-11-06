@@ -1,2496 +1,553 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RestOS HR — Demo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>RestOS HR — staff onboarding (demo)</title>
+<meta name="description" content="Demo: a new-hire app for restaurant staff with a learning path, quizzes, manager chat and checklists. The manager view is on the right. All data is fictional.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+/* Shared kit for the Showroom demos. Inlined into each demo by tools/build-demos.mjs.
+   Per-demo files set the tokens (colour, fonts); everything here reads them. */
 :root {
-  --black: #161616;
-  --card: #1E1E1E;
-  --card2: #272727;
-  --gold: #0A84FF;
-  --gold-dim: rgba(10,132,255,0.1);
-  --border: rgba(255,255,255,0.07);
-  --white: #F5F5F5;
-  --muted: rgba(255,255,255,0.5);
-  --danger: #FF453A;
-  --success: #30D158;
-  --info: #0A84FF;
-  --xp-color: #FFD60A;
-  --font: 'Inter', -apple-system, 'Helvetica Neue', sans-serif;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  height: 100%;
-  background: var(--black);
-  color: var(--white);
-  font-family: var(--font);
-  font-size: 14px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-
-body { padding-top: 32px; }
-
-/* DEMO BANNER */
-.demo-banner {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 9999;
-  background: #0A84FF;
-  color: #fff;
-  text-align: center;
-  padding: 5px 0;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .1em;
-}
-
-/* APP SHELL */
-.app-shell {
-  display: flex;
-  height: calc(100vh - 32px);
-  overflow: hidden;
-}
-
-/* SIDEBAR */
-.sidebar {
-  width: 240px;
-  min-width: 240px;
-  background: #141414;
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease;
-}
-
-.sidebar-header {
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sidebar-logo-icon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #0A84FF, #5AC8FA);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.sidebar-logo-text h1 {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--white);
-  letter-spacing: -0.02em;
-}
-
-.sidebar-logo-text p {
-  font-size: 10px;
-  color: var(--muted);
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  margin-top: 1px;
-}
-
-/* NAV */
-.sidebar-nav {
-  flex: 1;
-  padding: 12px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  color: var(--muted);
-  font-size: 13.5px;
-  font-weight: 500;
-  border-left: 3px solid transparent;
-  border-radius: 0 10px 10px 0;
-  margin-left: -10px;
-  padding-left: 22px;
-  position: relative;
-}
-
-.nav-item:hover {
-  color: var(--white);
-  background: rgba(255,255,255,0.04);
-}
-
-.nav-item.active {
-  color: var(--gold);
-  background: var(--gold-dim);
-  border-left-color: var(--gold);
-}
-
-.nav-item .nav-icon {
-  font-size: 16px;
-  width: 20px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.nav-item .nav-badge {
-  margin-left: auto;
-  background: var(--danger);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 10px;
-  min-width: 18px;
-  text-align: center;
-}
-
-/* SIDEBAR USER */
-.sidebar-user {
-  padding: 14px 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #5AC8FA, #32ADE6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  flex-shrink: 0;
-}
-
-.user-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.user-info .user-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--white);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-info .user-role {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.user-logout {
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 16px;
-  padding: 4px;
-  border-radius: 6px;
-  transition: color 0.15s;
-  flex-shrink: 0;
-}
-
-.user-logout:hover { color: var(--danger); }
-
-/* MAIN CONTENT */
-.main-content {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* SCREENS */
-.screen {
-  display: none;
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-}
-
-.screen.active { display: flex; flex-direction: column; }
-
-/* ONBOARDING SCREEN */
-.content-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 28px;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.content-title h2 {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--white);
-  letter-spacing: -0.03em;
-}
-
-.content-title p {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 3px;
-}
-
-.xp-badges {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.xp-badge {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.xp-badge.xp {
-  background: rgba(255,214,10,0.12);
-  color: var(--xp-color);
-  border: 1px solid rgba(255,214,10,0.2);
-}
-
-.xp-badge.streak {
-  background: rgba(255,69,58,0.1);
-  color: #FF9F0A;
-  border: 1px solid rgba(255,159,10,0.2);
-}
-
-/* SKILL PATH */
-.skill-path-container {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-}
-
-.skill-path-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 20px;
-}
-
-.skill-path {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.skill-path::-webkit-scrollbar { height: 4px; }
-.skill-path::-webkit-scrollbar-track { background: transparent; }
-.skill-path::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-.path-node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  cursor: pointer;
-}
-
-.path-node-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: transform 0.15s;
-  position: relative;
-}
-
-.path-node-circle:hover { transform: scale(1.1); }
-
-.path-node.completed .path-node-circle {
-  background: linear-gradient(135deg, #0A84FF, #5AC8FA);
-  box-shadow: 0 4px 16px rgba(10,132,255,0.35);
-}
-
-.path-node.active .path-node-circle {
-  background: transparent;
-  border: 2.5px solid var(--gold);
-  box-shadow: 0 0 0 4px rgba(10,132,255,0.15);
-  animation: pulse-node 2s infinite;
-}
-
-@keyframes pulse-node {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(10,132,255,0.15); }
-  50% { box-shadow: 0 0 0 8px rgba(10,132,255,0.08); }
-}
-
-.path-node.locked .path-node-circle {
-  background: var(--card2);
-  border: 2px solid rgba(255,255,255,0.1);
-  opacity: 0.6;
-}
-
-.path-node-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  text-align: center;
-  max-width: 60px;
-  line-height: 1.2;
-}
-
-.path-node.active .path-node-label { color: var(--gold); }
-.path-node.completed .path-node-label { color: rgba(255,255,255,0.7); }
-
-.path-connector {
-  height: 3px;
-  flex: 1;
-  min-width: 24px;
-  max-width: 48px;
-  border-radius: 2px;
-  margin-bottom: 22px;
-  flex-shrink: 0;
-}
-
-.path-connector.done { background: linear-gradient(90deg, #0A84FF, #5AC8FA); }
-.path-connector.pending { background: rgba(255,255,255,0.1); }
-
-/* MODULE CARDS */
-.modules-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.module-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 18px 20px;
-  transition: border-color 0.15s, transform 0.15s;
-  position: relative;
-  overflow: hidden;
-}
-
-.module-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px;
-  height: 100%;
-  border-radius: 3px 0 0 3px;
-}
-
-.module-card.completed::before { background: var(--success); }
-.module-card.in-progress::before { background: var(--gold); }
-.module-card.locked::before { background: rgba(255,255,255,0.1); }
-
-.module-card:hover:not(.locked) {
-  border-color: rgba(255,255,255,0.14);
-  transform: translateY(-1px);
-}
-
-.module-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.module-card-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.module-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.module-icon.completed { background: rgba(48,209,88,0.12); }
-.module-icon.in-progress { background: var(--gold-dim); }
-.module-icon.locked { background: rgba(255,255,255,0.04); }
-
-.module-card-title-text h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--white);
-}
-
-.module-card-title-text p {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-.module-status-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 20px;
-  flex-shrink: 0;
-}
-
-.module-status-badge.done {
-  background: rgba(48,209,88,0.12);
-  color: var(--success);
-}
-
-.module-status-badge.progress {
-  background: var(--gold-dim);
-  color: var(--gold);
-}
-
-.module-status-badge.lock {
-  background: rgba(255,255,255,0.06);
-  color: var(--muted);
-}
-
-.module-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.module-meta-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.module-meta-item.test-passed { color: var(--success); }
-.module-meta-item.test-failed { color: #FF9F0A; }
-
-.module-progress-bar {
-  height: 4px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
-  margin: 12px 0 10px;
-  overflow: hidden;
-}
-
-.module-progress-fill {
-  height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--gold), #5AC8FA);
-  transition: width 0.5s ease;
-}
-
-.cert-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--xp-color);
-  background: rgba(255,214,10,0.1);
-  border: 1px solid rgba(255,214,10,0.2);
-  padding: 4px 10px;
-  border-radius: 20px;
-  margin-top: 8px;
-}
-
-.btn-continue {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
-  padding: 11px 20px;
-  background: linear-gradient(135deg, #0A84FF, #5AC8FA);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: opacity 0.15s, transform 0.15s;
-  box-shadow: 0 4px 16px rgba(10,132,255,0.3);
-}
-
-.btn-continue:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-continue:active { transform: translateY(0); }
-
-/* LESSON VIEW */
-#lesson-screen {
-  padding: 0;
-  background: var(--black);
-}
-
-.lesson-topbar {
-  padding: 16px 24px 0;
-  background: var(--black);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.lesson-topbar-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.lesson-back-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--gold);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 0;
-  transition: opacity 0.15s;
-}
-
-.lesson-back-btn:hover { opacity: 0.7; }
-
-.lesson-xp-display {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--xp-color);
-  background: rgba(255,214,10,0.1);
-  padding: 5px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,214,10,0.2);
-}
-
-.lesson-progress-track {
-  height: 4px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 0;
-}
-
-.lesson-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--gold), #5AC8FA);
-  border-radius: 2px;
-  transition: width 0.4s ease;
-}
-
-.lesson-progress-label {
-  font-size: 11px;
-  color: var(--muted);
-  text-align: right;
-  padding: 6px 0 14px;
-}
-
-.lesson-body {
-  flex: 1;
-  padding: 28px 24px;
-  overflow-y: auto;
-}
-
-.lesson-module-tag {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--gold);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.lesson-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--white);
-  letter-spacing: -0.03em;
-  line-height: 1.2;
-  margin-bottom: 20px;
-}
-
-.lesson-content {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.lesson-content p {
-  font-size: 14.5px;
-  color: rgba(255,255,255,0.8);
-  line-height: 1.7;
-}
-
-.lesson-content .info-block {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--gold);
-  border-radius: 10px;
-  padding: 14px 16px;
-  font-size: 13.5px;
-  color: rgba(255,255,255,0.75);
-  line-height: 1.6;
-}
-
-.lesson-content .info-block .info-title {
-  font-weight: 600;
-  color: var(--gold);
-  font-size: 13px;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.lesson-content ul {
-  padding-left: 20px;
-}
-
-.lesson-content ul li {
-  color: rgba(255,255,255,0.75);
-  font-size: 14px;
-  line-height: 1.7;
-  margin-bottom: 4px;
-}
-
-.lesson-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border);
-  background: var(--black);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  position: sticky;
-  bottom: 0;
-}
-
-.btn-secondary {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 11px 18px;
-  background: var(--card2);
-  color: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all 0.15s;
-}
-
-.btn-secondary:hover { border-color: rgba(255,255,255,0.2); }
-
-.btn-primary {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 11px 20px;
-  background: linear-gradient(135deg, #0A84FF, #5AC8FA);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all 0.15s;
-  box-shadow: 0 4px 16px rgba(10,132,255,0.3);
-}
-
-.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-primary:active { transform: translateY(0); }
-
-/* QUIZ VIEW */
-#quiz-screen {
-  padding: 0;
-}
-
-.quiz-topbar {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border);
-  background: var(--black);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.quiz-topbar-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.quiz-progress-dots {
-  display: flex;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.quiz-dot {
-  height: 4px;
-  flex: 1;
-  border-radius: 2px;
-  background: rgba(255,255,255,0.1);
-  transition: background 0.3s;
-}
-
-.quiz-dot.done { background: var(--gold); }
-.quiz-dot.active { background: rgba(10,132,255,0.5); }
-
-.quiz-body {
-  flex: 1;
-  padding: 28px 24px;
-  overflow-y: auto;
-}
-
-.quiz-question-num {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-
-.quiz-question-text {
-  font-size: 19px;
-  font-weight: 700;
-  color: var(--white);
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-  margin-bottom: 24px;
-}
-
-.quiz-options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.quiz-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 15px 16px;
-  background: var(--card);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-size: 13.5px;
-  color: rgba(255,255,255,0.8);
-  line-height: 1.45;
-}
-
-.quiz-option:hover { border-color: rgba(10,132,255,0.4); background: rgba(10,132,255,0.05); }
-
-.quiz-option.selected {
-  border-color: var(--gold);
-  background: var(--gold-dim);
-  color: var(--white);
-}
-
-.quiz-option.correct {
-  border-color: var(--success);
-  background: rgba(48,209,88,0.08);
-  color: var(--white);
-}
-
-.quiz-option.wrong {
-  border-color: var(--danger);
-  background: rgba(255,69,58,0.08);
-  color: rgba(255,255,255,0.6);
-}
-
-.option-letter {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--card2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  flex-shrink: 0;
-  transition: all 0.15s;
-}
-
-.quiz-option.selected .option-letter {
-  background: var(--gold);
-  color: #fff;
-}
-
-.quiz-option.correct .option-letter {
-  background: var(--success);
-  color: #fff;
-}
-
-.quiz-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border);
-  background: var(--black);
-  position: sticky;
-  bottom: 0;
-}
-
-.btn-next-quiz {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #0A84FF, #5AC8FA);
-  color: #fff;
-  border: none;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all 0.15s;
-  box-shadow: 0 4px 16px rgba(10,132,255,0.3);
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-.btn-next-quiz.enabled {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.btn-next-quiz.enabled:hover { opacity: 0.9; }
-
-/* QUIZ RESULT */
-.quiz-result {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 40px 24px;
-  flex: 1;
-}
-
-.quiz-result.visible { display: flex; }
-
-.result-score-ring {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  margin-bottom: 20px;
-}
-
-.result-score-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.result-score-text .pct {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--white);
-}
-
-.result-score-text .lbl {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.result-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--white);
-  margin-bottom: 8px;
-}
-
-.result-subtitle {
-  font-size: 14px;
-  color: var(--muted);
-  margin-bottom: 28px;
-}
-
-.result-xp-award {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255,214,10,0.12);
-  border: 1px solid rgba(255,214,10,0.25);
-  border-radius: 20px;
-  padding: 10px 20px;
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--xp-color);
-  margin-bottom: 28px;
-  animation: xp-pop 0.5s 0.3s both;
-}
-
-@keyframes xp-pop {
-  0% { transform: scale(0.5); opacity: 0; }
-  70% { transform: scale(1.1); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.result-cert-preview {
-  width: 100%;
-  max-width: 380px;
-  background: var(--card);
-  border: 1px solid rgba(255,214,10,0.2);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.result-cert-preview .cert-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--xp-color);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.result-cert-preview h3 {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--white);
-  margin-bottom: 4px;
-}
-
-.result-cert-preview p {
-  font-size: 12.5px;
-  color: var(--muted);
-}
-
-.btn-cert {
-  width: 100%;
-  max-width: 380px;
-  padding: 14px;
-  background: linear-gradient(135deg, #FFD60A, #FF9F0A);
-  color: #000;
-  border: none;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all 0.15s;
-}
-
-.btn-cert:hover { opacity: 0.9; transform: translateY(-1px); }
-
-/* CERTIFICATE MODAL */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  backdrop-filter: blur(8px);
-}
-
-.modal-overlay.open { display: flex; }
-
-.cert-modal {
-  background: var(--card);
-  border: 1px solid rgba(255,214,10,0.25);
-  border-radius: 20px;
-  padding: 32px;
-  max-width: 440px;
-  width: 100%;
-  position: relative;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,214,10,0.1);
-  animation: modal-in 0.25s ease;
-}
-
-@keyframes modal-in {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.cert-modal-header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.cert-modal-header .cert-emoji {
-  font-size: 48px;
-  display: block;
-  margin-bottom: 12px;
-}
-
-.cert-modal-header h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--white);
-}
-
-.cert-modal-header p {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.cert-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,214,10,0.3), transparent);
-  margin: 18px 0;
-}
-
-.cert-field {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13.5px;
-}
-
-.cert-field:last-child { border-bottom: none; }
-
-.cert-field .cert-field-label {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.cert-field .cert-field-value {
-  font-weight: 600;
-  color: var(--white);
-}
-
-.cert-seal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-  padding: 12px;
-  background: rgba(255,214,10,0.08);
-  border: 1px solid rgba(255,214,10,0.2);
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--xp-color);
-}
-
-.btn-close-cert {
-  width: 100%;
-  margin-top: 20px;
-  padding: 12px;
-  background: var(--card2);
-  color: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font);
-  transition: all 0.15s;
-}
-
-.btn-close-cert:hover { border-color: rgba(255,255,255,0.2); }
-
-/* CHAT SCREEN */
-.chat-layout {
-  display: flex;
-  height: 100%;
-  gap: 0;
-}
-
-.chat-list {
-  width: 220px;
-  min-width: 220px;
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-list-header {
-  padding: 16px;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.chat-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  cursor: pointer;
-  transition: background 0.15s;
-  border-bottom: 1px solid var(--border);
-}
-
-.chat-item:hover { background: rgba(255,255,255,0.03); }
-.chat-item.active { background: var(--gold-dim); }
-
-.chat-item-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  flex-shrink: 0;
-}
-
-.chat-item-info { flex: 1; min-width: 0; }
-
-.chat-item-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--white);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.chat-item-preview {
-  font-size: 11.5px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 2px;
-}
-
-.chat-unread {
-  background: var(--gold);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.chat-messages-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.chat-messages-header {
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.chat-messages-body {
-  flex: 1;
-  padding: 16px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.msg {
-  display: flex;
-  gap: 8px;
-  max-width: 75%;
-}
-
-.msg.out {
-  align-self: flex-end;
-  flex-direction: row-reverse;
-}
-
-.msg-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  margin-top: 2px;
-}
-
-.msg-bubble {
-  background: var(--card2);
-  padding: 9px 13px;
-  border-radius: 14px;
-  font-size: 13px;
-  color: rgba(255,255,255,0.85);
-  line-height: 1.45;
-}
-
-.msg.out .msg-bubble {
-  background: var(--gold);
-  color: #fff;
-  border-radius: 14px 14px 4px 14px;
-}
-
-.msg:not(.out) .msg-bubble {
-  border-radius: 14px 14px 14px 4px;
-}
-
-.msg-time {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 4px;
-  text-align: right;
-}
-
-.chat-input-bar {
-  padding: 12px 16px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 8px;
-}
-
-.chat-input {
-  flex: 1;
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 9px 16px;
-  color: var(--white);
-  font-size: 13px;
-  font-family: var(--font);
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.chat-input:focus { border-color: rgba(10,132,255,0.4); }
-.chat-input::placeholder { color: var(--muted); }
-
-.chat-send-btn {
-  width: 38px;
-  height: 38px;
-  background: var(--gold);
-  border: none;
-  border-radius: 50%;
-  color: #fff;
-  font-size: 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.15s;
-}
-
-.chat-send-btn:hover { opacity: 0.8; }
-
-/* CHECKLIST SCREEN */
-.checklist-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.date-tabs {
-  display: flex;
-  gap: 6px;
-}
-
-.date-tab {
-  padding: 7px 14px;
-  border-radius: 20px;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  color: var(--muted);
-  border: 1.5px solid var(--border);
-}
-
-.date-tab.active {
-  background: var(--gold-dim);
-  border-color: var(--gold);
-  color: var(--gold);
-}
-
-.date-tab:hover:not(.active) {
-  border-color: rgba(255,255,255,0.15);
-  color: var(--white);
-}
-
-.checklist-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.checklist-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  gap: 12px;
-}
-
-.checklist-card-info h3 {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--white);
-}
-
-.checklist-card-info p {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 3px;
-}
-
-.checklist-progress-ring {
-  flex-shrink: 0;
-  position: relative;
-}
-
-.checklist-progress-ring .ring-label {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--white);
-  line-height: 1;
-}
-
-.checklist-progress-ring .ring-label span {
-  font-size: 9px;
-  color: var(--muted);
-  font-weight: 400;
-  margin-top: 1px;
-}
-
-.checklist-items {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.checklist-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.checklist-item:hover { background: rgba(255,255,255,0.03); }
-
-.check-circle {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 12px;
-  transition: all 0.2s;
-}
-
-.check-circle.checked {
-  background: var(--success);
-  border-color: var(--success);
-}
-
-.checklist-item-text {
-  font-size: 13.5px;
-  color: rgba(255,255,255,0.85);
-  transition: all 0.2s;
-  line-height: 1.3;
-}
-
-.checklist-item-text.done {
-  color: var(--muted);
-  text-decoration: line-through;
-}
-
-/* XP FLOAT ANIMATION */
-.xp-float {
-  position: fixed;
-  pointer-events: none;
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--xp-color);
-  z-index: 9998;
-  animation: xp-float-up 1.2s ease-out forwards;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-}
-
-@keyframes xp-float-up {
-  0% { opacity: 1; transform: translateY(0) scale(1); }
-  30% { transform: translateY(-15px) scale(1.2); }
-  100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
-}
-
-/* BOTTOM TAB BAR (mobile) */
-.bottom-tabs {
-  display: none;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(20,20,20,0.96);
-  border-top: 1px solid var(--border);
-  padding: 8px 0 env(safe-area-inset-bottom, 8px);
-  z-index: 100;
-  backdrop-filter: blur(20px);
-}
-
-.bottom-tabs-inner {
-  display: flex;
-  justify-content: space-around;
-}
-
-.bottom-tab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 6px 16px;
-  cursor: pointer;
-  transition: all 0.15s;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 600;
-  border-radius: 10px;
-}
-
-.bottom-tab .tab-icon { font-size: 20px; }
-.bottom-tab.active { color: var(--gold); }
-
-/* RESPONSIVE */
-@media (max-width: 640px) {
-  .sidebar { display: none; }
-  .bottom-tabs { display: flex; }
-  body { padding-bottom: 70px; }
-  .screen { padding: 16px; }
-  .chat-list { display: none; }
-  .chat-list.show-mobile { display: flex; width: 100%; position: absolute; inset: 0; z-index: 5; background: var(--black); }
-  .lesson-body, .quiz-body { padding: 20px 16px; }
-  .lesson-footer, .quiz-footer { padding: 12px 16px; }
-  .skill-path-container { padding: 16px; }
-  .content-header { margin-bottom: 20px; }
-  .modules-grid { gap: 10px; }
-  .chat-layout { position: relative; height: 100%; }
-  .lesson-topbar { padding: 12px 16px 0; }
-  .lesson-topbar-row { margin-bottom: 10px; }
-}
-
-/* Scrollbar styling */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+  --bg: #0b0c0a; --surface: #121311; --raised: #1a1c18; --hover: #1f211c;
+  --border: #242620; --rule: #1b1d19;
+  --text: #f0f1ec; --muted: #a2a59a; --faint: #82857a;
+  --accent: #c8f03c; --accent-ink: #0b0c0a;
+  --pos: #4ccb86; --neg: #f0645f; --warn: #e8b04b;
+  --pos-bg: rgba(76,203,134,.13); --neg-bg: rgba(240,100,95,.14); --warn-bg: rgba(232,176,75,.14); --neutral-bg: rgba(255,255,255,.07);
+  --font: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display: var(--font);
+  --radius: 10px; --radius-s: 6px;
+  --side: 232px; --pad: 28px; --gap: 16px;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #f3f3f0; --surface: #ffffff; --raised: #f6f6f3; --hover: #eeeeea;
+  --border: #e4e4de; --rule: #efefea;
+  --text: #15160f; --muted: #5d6056; --faint: #6f7266;
+  --pos: #1e7a4c; --neg: #b8302b; --warn: #8a5a0a;
+  --pos-bg: #dcf5e6; --neg-bg: #fde8e6; --warn-bg: #fbefd2; --neutral-bg: #ecece7;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* demo notice */
+.notice { display: flex; justify-content: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
+.notice b { color: var(--text); font-weight: 600; }
+
+/* shell */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: calc(100svh - 29px); }
+.side { position: sticky; top: 0; height: calc(100svh - 29px); display: flex; flex-direction: column; padding: 18px 12px 14px; border-right: 1px solid var(--border); background: var(--surface); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.brand-mark .ic { width: 18px; height: 18px; stroke-width: 2; }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: -.01em; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-label { padding: 16px 10px 6px; font-size: 12px; color: var(--faint); }
+.nav a { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.on { background: var(--raised); color: var(--text); }
+.nav .count { margin-left: auto; min-width: 20px; padding: 0 6px; height: 20px; border-radius: 10px; font-size: 12px; font-weight: 600; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px 8px 0; border-top: 1px solid var(--border); }
+.avatar { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; background: var(--raised); color: var(--text); }
+.who { min-width: 0; } .who b { display: block; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who span { font-size: 12px; color: var(--muted); }
+
+.main { min-width: 0; padding: var(--pad) var(--pad) 48px; max-width: 1320px; width: 100%; }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.head h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -.02em; }
+.head p { color: var(--muted); margin-top: 2px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* finding line: the one thing that needs attention */
+.finding { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--warn-bg); color: var(--text); }
+.finding .ic { color: var(--warn); }
+.finding span { flex: 1; min-width: 0; }
+.finding .btn { flex: none; }
+
+/* grid + cards */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
+.c4 { grid-column: span 4; } .c5 { grid-column: span 5; } .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c12 { grid-column: span 12; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-h h2 { font-size: 15px; font-weight: 600; letter-spacing: -.005em; }
+.card-h span { color: var(--muted); font-size: 12px; }
+.kpis { display: flex; gap: 40px; margin-bottom: 22px; flex-wrap: wrap; }
+.kpi b { display: block; font: 700 30px/1.1 var(--display); letter-spacing: -.02em; }
+.kpi b small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.big { font: 700 44px/1 var(--display); letter-spacing: -.03em; }
+.big small { font-size: 16px; font-weight: 500; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
+.muted { color: var(--muted); } .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .acc { color: var(--accent); } .r { text-align: right; }
+
+/* table as grid: .tbl > .tr (set --cols on .tbl) */
+.tbl { width: 100%; }
+.tr { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; min-height: 48px; padding: 6px 12px; margin: 0 -12px; border-radius: 8px; transition: background-color .15s; }
+.tr:not(.th):hover { background: var(--hover); }
+.tr[data-open] { cursor: pointer; }
+.th { min-height: 32px; font-size: 12px; color: var(--faint); }
+.tr + .tr { box-shadow: 0 -1px 0 var(--rule); }
+.tr.th + .tr { box-shadow: none; }
+.cell-main b { display: block; font-weight: 600; } .cell-main span { font-size: 12px; color: var(--muted); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 11px; font-size: 12px; font-weight: 500; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+.pill.pos { background: var(--pos-bg); color: var(--pos); } .pill.neg { background: var(--neg-bg); color: var(--neg); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--raised); font-weight: 500; cursor: pointer; transition: transform .12s var(--ease), background-color .15s, border-color .15s; white-space: nowrap; }
+.btn:hover { background: var(--hover); border-color: var(--faint); }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+.tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); margin-bottom: var(--gap); }
+.tabs button { height: 28px; padding: 0 14px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+.tabs button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .tabs button.on { box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+.bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; transition: width .5s var(--ease); }
+.bar.thick { height: 10px; border-radius: 5px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.field textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+
+.empty { padding: 28px 12px; text-align: center; color: var(--muted); }
+
+/* modal + toast */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; z-index: 40; animation: fade .18s ease both; }
+.modal { width: 100%; max-width: 440px; max-height: 92svh; overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; animation: pop .22s var(--ease) both; }
+.modal h2 { font-size: 18px; margin-bottom: 4px; letter-spacing: -.01em; } .modal > p { color: var(--muted); margin-bottom: 18px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px); opacity: 0; padding: 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; z-index: 60; transition: opacity .2s, transform .25s var(--ease); pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* charts */
+.chart { width: 100%; }
+.chart text { font: 12px var(--font); fill: var(--faint); }
+.chart .grid-l { stroke: var(--rule); stroke-width: 1; }
+.chart .tip { pointer-events: none; }
+
+/* phone: sidebar becomes a bottom tab bar */
+.tabbar { display: none; }
+@media (max-width: 899px) {
+  :root { --pad: 16px; }
+  .app { display: block; }
+  .side { display: none; }
+  .main { padding: 18px 16px 96px; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; font-size: 11px; color: var(--muted); cursor: pointer; position: relative; }
+  .tabbar a.on { color: var(--text); }
+  .tabbar a.on .ic { color: var(--accent); }
+  .tabbar .count { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+  .c4, .c5, .c6, .c7, .c8 { grid-column: span 12; }
+  .head h1 { font-size: 22px; }
+  .kpis { gap: 24px; }
+  .kpi b { font-size: 24px; }
+  .hm { display: none !important; }
+  .finding { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+.brow { margin-bottom: 14px; } .brow:last-child { margin-bottom: 0; }
+.brow-t { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.brow-t em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+.brow-t b { font-weight: 600; }
+@media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
+
+:root[data-theme="light"] {
+  --bg: #f3eef4; --surface: #ffffff; --raised: #f7f3f8; --hover: #efe8f1; --border: #e4dce7; --rule: #f0eaf2;
+  --text: #1f1722; --muted: #62566a; --faint: #75697d;
+  --accent: #b02a73; --accent-ink: #ffffff; --accent-bg: #f9e3ef;
+  --pos: #1b7a4a; --neg: #b3302b; --warn: #8a5a0a;
+  --font: "Nunito", system-ui, sans-serif; --display: "Nunito", system-ui, sans-serif;
+}
+body { font-size: 15px; font-weight: 500; }
+.brand-name, .head h1, .big, .kpi b { font-weight: 800; }
+.wrap { display: grid; grid-template-columns: minmax(0, 360px) 420px; gap: 32px; justify-content: center; align-items: start; padding: 24px 16px 32px; }
+.phone { height: min(820px, calc(100svh - 80px)); min-height: 560px; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 34px; overflow: hidden; position: relative; }
+.scr { flex: 1; overflow: auto; padding: 20px 18px 24px; scroll-behavior: smooth; }
+.pnav { display: flex; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--surface); }
+.pnav button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; border: 0; background: none; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; position: relative; transition: color .15s; }
+.pnav button.on { color: var(--accent); } .pnav button .badge { position: absolute; top: 0; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; display: grid; place-items: center; }
+.hero { border-radius: 20px; overflow: hidden; margin: 0 0 16px; } .hero img { width: 100%; aspect-ratio: 380 / 130; object-fit: cover; display: block; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+.top h1 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; } .top p { color: var(--muted); font-size: 13px; }
+.xp { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--accent-bg); color: var(--accent); font-weight: 800; }
+.xp .ic { width: 15px; height: 15px; }
+
+/* the learning path */
+.path { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.node { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px 6px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: 16px; position: relative; transition: background-color .15s; }
+.node:hover:not(:disabled) { background: var(--raised); } .node:disabled { cursor: default; }
+.node:not(:last-child)::after { content: ""; position: absolute; left: 33px; top: 62px; width: 4px; height: 22px; border-radius: 2px; background: var(--border); }
+.node.done:not(:last-child)::after { background: var(--pos); }
+.dot { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--raised); color: var(--faint); border: 3px solid var(--border); }
+.dot .ic { width: 24px; height: 24px; stroke-width: 2.2; }
+.node.done .dot { background: var(--pos); border-color: var(--pos); color: #fff; }
+.node.cur .dot { background: var(--accent); border-color: var(--accent); color: #fff; animation: ring 2.2s ease-in-out infinite; }
+@keyframes ring { 0%,100% { box-shadow: 0 0 0 0 rgba(176,42,115,.35); } 50% { box-shadow: 0 0 0 8px rgba(176,42,115,0); } }
+.node b { display: block; font-size: 16px; font-weight: 800; } .node span { color: var(--muted); font-size: 13px; }
+.node.lock b { color: var(--faint); }
+.lead { font-size: 13px; color: var(--muted); margin: 18px 0 8px; font-weight: 700; }
+
+.learn h2 { font-size: 22px; font-weight: 800; line-height: 1.2; margin: 14px 0 10px; letter-spacing: -.01em; } .learn p.body { font-size: 16px; line-height: 1.6; color: var(--text); }
+.pbar { display: flex; gap: 4px; margin: 4px 0 6px; } .pbar i { flex: 1; height: 6px; border-radius: 3px; background: var(--border); } .pbar i.on { background: var(--accent); }
+.back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--muted); font-weight: 700; cursor: pointer; padding: 4px 0; }
+.cta { width: 100%; height: 50px; border-radius: 14px; font-size: 16px; font-weight: 800; margin-top: 22px; }
+.opt { display: block; width: 100%; text-align: left; min-height: 52px; padding: 12px 16px; margin-bottom: 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); font-weight: 700; cursor: pointer; transition: border-color .15s, background-color .15s; }
+.opt:hover:not(:disabled) { border-color: var(--faint); } .opt.ok { border-color: var(--pos); background: var(--pos-bg); } .opt.bad { border-color: var(--neg); background: var(--neg-bg); }
+.fb { min-height: 24px; margin-top: 8px; font-weight: 700; } .fb.ok { color: var(--pos); } .fb.bad { color: var(--neg); }
+.cert { margin: 16px 0; padding: 22px 18px; border: 2px solid var(--accent); border-radius: 18px; text-align: center; background: var(--accent-bg); }
+.cert small { color: var(--accent); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; } .cert h3 { font-size: 22px; font-weight: 800; margin: 8px 0 4px; } .cert p { color: var(--muted); }
+.big-xp { font: 900 54px/1 var(--display); color: var(--accent); text-align: center; margin: 10px 0 0; }
+
+/* chat */
+.msgs { display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+.m { max-width: 82%; padding: 10px 14px; border-radius: 18px; background: var(--raised); border-bottom-left-radius: 6px; animation: pop .2s var(--ease) both; line-height: 1.4; }
+.m.me { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-left-radius: 18px; border-bottom-right-radius: 6px; }
+.m small { display: block; font-size: 11px; opacity: .7; margin-top: 3px; }
+.typing { align-self: flex-start; color: var(--faint); font-size: 13px; padding: 2px 6px; }
+.quick { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; } .quick button { padding: 7px 12px; border-radius: 16px; border: 1.5px solid var(--border); background: none; font-weight: 700; color: var(--accent); cursor: pointer; } .quick button:hover { background: var(--accent-bg); }
+.cform { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); } .cform input { flex: 1; min-width: 0; height: 42px; border-radius: 21px; border: 1.5px solid var(--border); padding: 0 16px; outline: none; background: var(--bg); } .cform input:focus { border-color: var(--accent); }
+.cform button { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; display: grid; place-items: center; cursor: pointer; }
+
+/* checklists */
+.cl h3 { font-size: 16px; font-weight: 800; margin: 18px 0 4px; display: flex; justify-content: space-between; align-items: baseline; } .cl h3 span { font-size: 13px; color: var(--muted); font-weight: 700; }
+.ck { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 52px; padding: 4px 0; border-top: 1px solid var(--rule); width: 100%; background: none; border-left: 0; border-right: 0; border-bottom: 0; text-align: left; cursor: pointer; }
+.ck .bx { width: 26px; height: 26px; border-radius: 8px; border: 2.5px solid var(--border); display: grid; place-items: center; color: #fff; transition: background-color .15s, border-color .15s; } .ck .bx .ic { width: 16px; height: 16px; stroke-width: 3.2; }
+.ck.done .bx { background: var(--pos); border-color: var(--pos); } .ck.done b { color: var(--faint); text-decoration: line-through; } .ck b { font-weight: 700; } .ck small { color: var(--muted); }
+
+/* manager side */
+.mgr { position: sticky; top: 24px; }
+.mgr h2 { font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
+.mgr h1 { font-size: 24px; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; margin-bottom: 8px; } .mgr > p { color: var(--muted); margin-bottom: 18px; }
+.member { display: grid; grid-template-columns: 1fr 90px 34px; gap: 12px; align-items: center; padding: 9px 0; } .member + .member { border-top: 1px solid var(--rule); }
+.member.me { color: var(--accent); font-weight: 800; } .member b { text-align: right; font-weight: 800; }
+.feed li { padding: 7px 0; color: var(--muted); font-size: 13.5px; } .feed li + li { border-top: 1px solid var(--rule); } .feed li b { color: var(--text); font-weight: 700; } .feed li:first-child { animation: pop .3s var(--ease) both; }
+@media (max-width: 899px) { .wrap { display: block; padding: 0; } .mgr { display: none; } .phone { height: calc(100svh - 29px); border: 0; border-radius: 0; } }
 </style>
 </head>
 <body>
-
-<div class="demo-banner">⚠ DEMO — dimkaprojects.xyz ⚠</div>
-
-<div class="app-shell">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <div class="sidebar-logo-icon">🍽️</div>
-        <div class="sidebar-logo-text">
-          <h1>RestOS HR</h1>
-          <p>Обучение персонала</p>
-        </div>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-item active" data-screen="onboarding" onclick="switchScreen('onboarding', this)">
-        <span class="nav-icon">📚</span>
-        Онбординг
-      </div>
-      <div class="nav-item" data-screen="chat" onclick="switchScreen('chat', this)">
-        <span class="nav-icon">💬</span>
-        Чат
-        <span class="nav-badge">3</span>
-      </div>
-      <div class="nav-item" data-screen="checklists" onclick="switchScreen('checklists', this)">
-        <span class="nav-icon">✅</span>
-        Чек-листы
-      </div>
-    </nav>
-
-    <div class="sidebar-user">
-      <div class="user-avatar">НС</div>
-      <div class="user-info">
-        <div class="user-name">Нурлан Сейтқали</div>
-        <div class="user-role">Официант · Чайла Центр</div>
-      </div>
-      <div class="user-logout" title="Выйти">⏻</div>
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main-content">
-
-    <!-- ONBOARDING SCREEN -->
-    <div class="screen active" id="onboarding-screen">
-      <div class="content-header">
-        <div class="content-title">
-          <h2>Мой путь обучения</h2>
-          <p>Прогресс: 2 из 5 модулей завершено</p>
-        </div>
-        <div class="xp-badges">
-          <div class="xp-badge xp" id="main-xp-badge">⚡ <span id="main-xp-counter">340</span> XP</div>
-          <div class="xp-badge streak">🔥 7 дней</div>
-        </div>
-      </div>
-
-      <!-- SKILL PATH -->
-      <div class="skill-path-container">
-        <div class="skill-path-label">Путь навыков</div>
-        <div class="skill-path">
-          <div class="path-node completed">
-            <div class="path-node-circle">✅</div>
-            <div class="path-node-label">Модуль 1</div>
-          </div>
-          <div class="path-connector done"></div>
-          <div class="path-node completed">
-            <div class="path-node-circle">✅</div>
-            <div class="path-node-label">Модуль 2</div>
-          </div>
-          <div class="path-connector done"></div>
-          <div class="path-node active" onclick="startLesson()">
-            <div class="path-node-circle">📖</div>
-            <div class="path-node-label">Модуль 3</div>
-          </div>
-          <div class="path-connector pending"></div>
-          <div class="path-node locked">
-            <div class="path-node-circle">🔒</div>
-            <div class="path-node-label">Модуль 4</div>
-          </div>
-          <div class="path-connector pending"></div>
-          <div class="path-node locked">
-            <div class="path-node-circle">🔒</div>
-            <div class="path-node-label">Модуль 5</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MODULE CARDS -->
-      <div class="modules-grid">
-
-        <!-- Module 1 - Completed -->
-        <div class="module-card completed">
-          <div class="module-card-header">
-            <div class="module-card-title">
-              <div class="module-icon completed">🏆</div>
-              <div class="module-card-title-text">
-                <h3>Стандарты обслуживания</h3>
-                <p>Введение и базовые стандарты</p>
-              </div>
-            </div>
-            <span class="module-status-badge done">Пройдено</span>
-          </div>
-          <div class="module-progress-bar">
-            <div class="module-progress-fill" style="width:100%"></div>
-          </div>
-          <div class="module-card-meta">
-            <div class="module-meta-item">📋 3 шага из 3 пройдено</div>
-            <div class="module-meta-item test-passed">✓ Тест сдан (94%)</div>
-          </div>
-          <div class="cert-badge">🎓 Сертификат получен</div>
-        </div>
-
-        <!-- Module 2 - Completed -->
-        <div class="module-card completed">
-          <div class="module-card-header">
-            <div class="module-card-title">
-              <div class="module-icon completed">🍽️</div>
-              <div class="module-card-title-text">
-                <h3>Меню и блюда</h3>
-                <p>Состав, аллергены, рекомендации</p>
-              </div>
-            </div>
-            <span class="module-status-badge done">Пройдено</span>
-          </div>
-          <div class="module-progress-bar">
-            <div class="module-progress-fill" style="width:100%"></div>
-          </div>
-          <div class="module-card-meta">
-            <div class="module-meta-item">📋 3 шага из 3 пройдено</div>
-            <div class="module-meta-item test-passed">✓ Тест сдан (88%)</div>
-          </div>
-        </div>
-
-        <!-- Module 3 - In Progress -->
-        <div class="module-card in-progress">
-          <div class="module-card-header">
-            <div class="module-card-title">
-              <div class="module-icon in-progress">🖥️</div>
-              <div class="module-card-title-text">
-                <h3>Работа с кассой и заказами</h3>
-                <p>RestOS POS · Открытие смены</p>
-              </div>
-            </div>
-            <span class="module-status-badge progress">В процессе</span>
-          </div>
-          <div class="module-progress-bar">
-            <div class="module-progress-fill" style="width:33%"></div>
-          </div>
-          <div class="module-card-meta">
-            <div class="module-meta-item">📋 1 шаг из 3 пройдено</div>
-            <div class="module-meta-item test-failed">⏳ Тест не сдан</div>
-          </div>
-          <button class="btn-continue" onclick="startLesson()">
-            Продолжить обучение →
-          </button>
-        </div>
-
-        <!-- Module 4 - Locked -->
-        <div class="module-card locked">
-          <div class="module-card-header">
-            <div class="module-card-title">
-              <div class="module-icon locked">🤝</div>
-              <div class="module-card-title-text">
-                <h3>Разрешение конфликтных ситуаций</h3>
-                <p>Доступно после Модуля 3</p>
-              </div>
-            </div>
-            <span class="module-status-badge lock">🔒 Заблокировано</span>
-          </div>
-        </div>
-
-        <!-- Module 5 - Locked -->
-        <div class="module-card locked">
-          <div class="module-card-header">
-            <div class="module-card-title">
-              <div class="module-icon locked">⭐</div>
-              <div class="module-card-title-text">
-                <h3>Лояльность гостей</h3>
-                <p>Доступно после Модуля 4</p>
-              </div>
-            </div>
-            <span class="module-status-badge lock">🔒 Заблокировано</span>
-          </div>
-        </div>
-
-      </div><!-- /modules-grid -->
-    </div><!-- /onboarding -->
-
-
-    <!-- LESSON SCREEN -->
-    <div class="screen" id="lesson-screen">
-      <div class="lesson-topbar">
-        <div class="lesson-topbar-row">
-          <div class="lesson-back-btn" onclick="goBackToOnboarding()">
-            ← Назад
-          </div>
-          <div class="lesson-xp-display">⚡ <span id="lesson-xp-counter">340</span> XP</div>
-        </div>
-        <div class="lesson-progress-track">
-          <div class="lesson-progress-fill" id="lesson-progress-fill" style="width:33%"></div>
-        </div>
-        <div class="lesson-progress-label" id="lesson-step-label">Шаг 1 из 3</div>
-      </div>
-
-      <div class="lesson-body" id="lesson-body">
-        <!-- content injected by JS -->
-      </div>
-
-      <div class="lesson-footer">
-        <button class="btn-secondary" id="lesson-prev-btn" onclick="lessonPrev()">← Назад</button>
-        <button class="btn-primary" id="lesson-next-btn" onclick="lessonNext()">Следующий шаг →</button>
-      </div>
-    </div><!-- /lesson -->
-
-
-    <!-- QUIZ SCREEN -->
-    <div class="screen" id="quiz-screen">
-      <div class="quiz-topbar">
-        <div class="quiz-topbar-row">
-          <div class="lesson-back-btn" onclick="goBackToOnboarding()">← Онбординг</div>
-          <div class="lesson-xp-display">⚡ <span id="quiz-xp-counter">340</span> XP</div>
-        </div>
-        <div style="font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px;" id="quiz-title">Тест: Работа с кассой и заказами</div>
-        <div class="quiz-progress-dots" id="quiz-dots">
-          <div class="quiz-dot active"></div>
-          <div class="quiz-dot"></div>
-          <div class="quiz-dot"></div>
-          <div class="quiz-dot"></div>
-          <div class="quiz-dot"></div>
-        </div>
-      </div>
-
-      <div class="quiz-body" id="quiz-body">
-        <!-- content injected by JS -->
-      </div>
-
-      <!-- Quiz Result -->
-      <div class="quiz-result" id="quiz-result">
-        <div class="result-score-ring">
-          <svg width="120" height="120" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="#272727" stroke-width="8"/>
-            <circle cx="60" cy="60" r="52" fill="none" stroke="#0A84FF" stroke-width="8"
-              stroke-dasharray="326.73" id="result-score-arc"
-              stroke-linecap="round" transform="rotate(-90 60 60)"/>
-          </svg>
-          <div class="result-score-text">
-            <div class="pct" id="result-pct">80%</div>
-            <div class="lbl">результат</div>
-          </div>
-        </div>
-
-        <div class="result-title">Тест сдан! ✓</div>
-        <div class="result-subtitle" id="result-subtitle">Правильных ответов: 4 из 5</div>
-
-        <div class="result-xp-award">⚡ +50 XP</div>
-
-        <div class="result-cert-preview">
-          <div class="cert-label">🎓 Сертификат доступен</div>
-          <h3>Работа с кассой и заказами</h3>
-          <p>Нурлан Сейтқали · Официант</p>
-        </div>
-
-        <button class="btn-cert" onclick="openCertModal()">
-          🎓 Получить сертификат
-        </button>
-      </div>
-
-      <div class="quiz-footer" id="quiz-footer">
-        <button class="btn-next-quiz" id="quiz-next-btn" onclick="quizNext()">Следующий вопрос →</button>
-      </div>
-    </div><!-- /quiz -->
-
-
-    <!-- CHAT SCREEN -->
-    <div class="screen" id="chat-screen">
-      <div class="chat-layout">
-        <div class="chat-list" id="chat-list">
-          <div class="chat-list-header">Сообщения</div>
-
-          <div class="chat-item active" onclick="selectChat(0, this)">
-            <div class="chat-item-avatar" style="background:linear-gradient(135deg,#5AC8FA,#32ADE6)">🏠</div>
-            <div class="chat-item-info">
-              <div class="chat-item-name">Общий чат Чайла</div>
-              <div class="chat-item-preview">Айгерим: Добрый день всем!</div>
-            </div>
-            <div class="chat-unread">2</div>
-          </div>
-
-          <div class="chat-item" onclick="selectChat(1, this)">
-            <div class="chat-item-avatar" style="background:linear-gradient(135deg,#FF9F0A,#FF6B00)">👔</div>
-            <div class="chat-item-info">
-              <div class="chat-item-name">Менеджеры</div>
-              <div class="chat-item-preview">Расписание на эту неделю</div>
-            </div>
-            <div class="chat-unread">1</div>
-          </div>
-
-          <div class="chat-item" onclick="selectChat(2, this)">
-            <div class="chat-item-avatar" style="background:linear-gradient(135deg,#BF5AF2,#9B59B6)">🤖</div>
-            <div class="chat-item-info">
-              <div class="chat-item-name">ИИ-помощник</div>
-              <div class="chat-item-preview">Чем могу помочь?</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="chat-messages-panel">
-          <div class="chat-messages-header" id="chat-active-header">
-            <div class="chat-item-avatar" style="width:34px;height:34px;font-size:14px;background:linear-gradient(135deg,#5AC8FA,#32ADE6)">🏠</div>
-            <div>
-              <div style="font-weight:700;font-size:14px;">Общий чат Чайла</div>
-              <div style="font-size:11px;color:var(--muted)">8 участников</div>
-            </div>
-          </div>
-
-          <div class="chat-messages-body" id="chat-messages-body">
-            <!-- injected by JS -->
-          </div>
-
-          <div class="chat-input-bar">
-            <input class="chat-input" type="text" placeholder="Написать сообщение..." id="chat-input-field">
-            <button class="chat-send-btn" onclick="sendMsg()">➤</button>
-          </div>
-        </div>
-      </div>
-    </div><!-- /chat -->
-
-
-    <!-- CHECKLISTS SCREEN -->
-    <div class="screen" id="checklists-screen">
-      <div class="content-header">
-        <div class="content-title">
-          <h2>Чек-листы</h2>
-          <p>Ежедневные задачи смены</p>
-        </div>
-      </div>
-
-      <div class="checklist-header">
-        <div class="date-tabs">
-          <div class="date-tab active" onclick="selectDateTab(this)">Сегодня</div>
-          <div class="date-tab" onclick="selectDateTab(this)">Вчера</div>
-          <div class="date-tab" onclick="selectDateTab(this)">31.10</div>
-        </div>
-      </div>
-
-      <div class="checklist-card">
-        <div class="checklist-card-header">
-          <div class="checklist-card-info">
-            <h3>Открытие смены</h3>
-            <p id="checklist-summary">5 из 8 выполнено</p>
-          </div>
-          <div class="checklist-progress-ring">
-            <svg width="56" height="56" viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="20" fill="none" stroke="#272727" stroke-width="4"/>
-              <circle cx="24" cy="24" r="20" fill="none" stroke="#0A84FF" stroke-width="4"
-                stroke-dasharray="125.66" id="checklist-ring-fill"
-                stroke-dashoffset="47.12"
-                stroke-linecap="round" transform="rotate(-90 24 24)"/>
-            </svg>
-            <div class="ring-label" id="checklist-ring-label">
-              5/8<span>готово</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="checklist-items" id="checklist-items">
-          <!-- injected by JS -->
-        </div>
-      </div>
-    </div><!-- /checklists -->
-
-  </main>
-</div><!-- /app-shell -->
-
-
-<!-- BOTTOM TAB BAR (mobile) -->
-<div class="bottom-tabs">
-  <div class="bottom-tabs-inner">
-    <div class="bottom-tab active" data-screen="onboarding" onclick="switchScreen('onboarding', this)">
-      <span class="tab-icon">📚</span>
-      Обучение
-    </div>
-    <div class="bottom-tab" data-screen="chat" onclick="switchScreen('chat', this)">
-      <span class="tab-icon">💬</span>
-      Чат
-    </div>
-    <div class="bottom-tab" data-screen="checklists" onclick="switchScreen('checklists', this)">
-      <span class="tab-icon">✅</span>
-      Задачи
-    </div>
-  </div>
+<div class="notice"><b>Demo</b> RestOS HR · data is fictional</div>
+<div class="wrap">
+  <aside class="mgr" id="mgr"></aside>
+  <div class="phone"><div class="scr" id="scr"></div><div id="foot"></div><nav class="pnav" id="pnav" aria-label="Sections"></nav></div>
 </div>
-
-
-<!-- CERTIFICATE MODAL -->
-<div class="modal-overlay" id="cert-modal">
-  <div class="cert-modal">
-    <div class="cert-modal-header">
-      <span class="cert-emoji">🎓</span>
-      <h2>Сертификат о прохождении</h2>
-      <p>Официальное подтверждение компетенции</p>
-    </div>
-    <div class="cert-divider"></div>
-    <div class="cert-field">
-      <span class="cert-field-label">Модуль</span>
-      <span class="cert-field-value">Работа с кассой и заказами</span>
-    </div>
-    <div class="cert-field">
-      <span class="cert-field-label">Сотрудник</span>
-      <span class="cert-field-value">Нурлан Сейтқали</span>
-    </div>
-    <div class="cert-field">
-      <span class="cert-field-label">Заведение</span>
-      <span class="cert-field-value">Чайла Центр</span>
-    </div>
-    <div class="cert-field">
-      <span class="cert-field-label">Должность</span>
-      <span class="cert-field-value">Официант</span>
-    </div>
-    <div class="cert-field">
-      <span class="cert-field-label">Дата</span>
-      <span class="cert-field-value">02.11.2026</span>
-    </div>
-    <div class="cert-field">
-      <span class="cert-field-label">Результат теста</span>
-      <span class="cert-field-value" style="color:var(--success)">80% ✓</span>
-    </div>
-    <div class="cert-field">
-      <span class="cert-field-label">Итого XP</span>
-      <span class="cert-field-value" style="color:var(--xp-color)">⚡ 390 XP</span>
-    </div>
-    <div class="cert-seal">
-      🛡️ Верифицировано RestOS HR · Сеть Чайла
-    </div>
-    <button class="btn-close-cert" onclick="closeCertModal()">Закрыть</button>
-  </div>
-</div>
-
 
 <script>
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let currentXP = 340;
-let lessonStep = 2; // step index (0-based), step 1 (index 0) already done
-let quizIndex = 0;
-let quizSelected = null;
-let quizAnswers = [];
-let quizDone = false;
-let currentChat = 0;
+/* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NF = new Intl.NumberFormat('en-GB');
+const fmt = (n) => NF.format(Math.round(n));
+const fmtD = (n, d = 1) => new Intl.NumberFormat('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
+const MINUS = '−';
+const signed = (n, f = fmt) => (n > 0 ? '+' : n < 0 ? MINUS : '') + f(Math.abs(n));
 
-// ─── LESSONS ─────────────────────────────────────────────────────────────────
-const lessons = [
-  {
-    title: 'Открытие смены',
-    content: `
-      <div class="lesson-module-tag">Модуль 3 · Шаг 1</div>
-      <h2 class="lesson-title">Открытие смены в RestOS</h2>
-      <div class="lesson-content">
-        <p>Правильное открытие смены — основа успешного рабочего дня. RestOS автоматически фиксирует время открытия и привязывает все операции к вашей учётной записи.</p>
-        <div class="info-block">
-          <div class="info-title">💡 Порядок действий</div>
-          Войдите в RestOS POS → нажмите «Открыть смену» → система запросит ваш PIN-код или снятие отпечатка.
-        </div>
-        <p>После авторизации вы попадаете на главный экран. В правом верхнем углу отображается ваше имя и статус смены — он должен стать зелёным с надписью <strong>«Смена открыта»</strong>.</p>
-        <div class="info-block">
-          <div class="info-title">🧾 Кассовый ящик</div>
-          Обязательно проверьте наличные: сравните фактическую сумму с нормативом (по умолчанию — начальный остаток вашего заведения). Любое расхождение фиксируйте в разделе «Инциденты».
-        </div>
-        <p>Далее переходите к разделу «Мои столы» и принимаете секцию от предыдущей смены: проверяйте чистоту, наличие приборов и состояние меню-карт.</p>
-        <ul>
-          <li>Убедитесь, что все принятые столы в системе отмечены свободными</li>
-          <li>При наличии открытых счетов — уточните статус у менеджера</li>
-          <li>Активируйте ежедневный чек-лист смены прямо в приложении</li>
-        </ul>
-      </div>
-    `
-  },
-  {
-    title: 'Приём заказов',
-    content: `
-      <div class="lesson-module-tag">Модуль 3 · Шаг 2</div>
-      <h2 class="lesson-title">Работа с заказами в RestOS</h2>
-      <div class="lesson-content">
-        <p>RestOS POS позволяет принимать заказы как с мобильного терминала официанта, так и через планшет у стола. Интерфейс построен по принципу «меню → стол → подтверждение».</p>
-        <div class="info-block">
-          <div class="info-title">📱 Создание заказа</div>
-          Выберите стол на карте зала → нажмите «Новый заказ» → выберите блюда из меню → нажмите «Отправить на кухню».
-        </div>
-        <p>Система автоматически отправит тикет на кухонный дисплей. Вы увидите статус блюда: <em>«В приготовлении»</em>, <em>«Готово»</em> или <em>«Выдано»</em>.</p>
-        <div class="info-block">
-          <div class="info-title">✏️ Редактирование заказа</div>
-          Пока статус «В приготовлении» — вы можете добавить позиции. Для удаления требуется подтверждение менеджера (авторизация по PIN).
-        </div>
-        <p>При оформлении счёта система автоматически рассчитывает сумму с учётом актуальных цен, скидок по программе лояльности и спецпредложений дня.</p>
-        <ul>
-          <li>Проверяйте стоп-лист перед каждой сменой — он обновляется автоматически</li>
-          <li>Для заказов с аллергенами используйте раздел «Комментарий к блюду»</li>
-          <li>Все изменения в заказе логируются с указанием вашего имени</li>
-        </ul>
-      </div>
-    `
-  },
-  {
-    title: 'Закрытие смены',
-    content: `
-      <div class="lesson-module-tag">Модуль 3 · Шаг 3</div>
-      <h2 class="lesson-title">Закрытие смены и передача кассы</h2>
-      <div class="lesson-content">
-        <p>Корректное закрытие смены обеспечивает точность финансовой отчётности и позволяет следующей смене начать работу без задержек.</p>
-        <div class="info-block">
-          <div class="info-title">💰 Инкассация</div>
-          Перед закрытием пересчитайте наличные. В RestOS перейдите в «Касса» → «Закрыть смену» → введите фактическую сумму. Система сравнит её с расчётной и отобразит расхождение.
-        </div>
-        <p>Если расхождение в допустимых пределах (±50 тг) — смена закрывается автоматически. При большем расхождении необходимо подтверждение менеджера.</p>
-        <div class="info-block">
-          <div class="info-title">📋 Передача секции</div>
-          Убедитесь, что все столы убраны и отмечены в чек-листе. Передайте статус каждого стола следующему официанту вербально и в системе.
-        </div>
-        <p>После успешного закрытия смены в вашем профиле RestOS HR будут начислены XP за активность и выполненные KPI. Хорошая работа — это и развитие карьеры!</p>
-        <ul>
-          <li>Итоговый отчёт смены доступен в разделе «Мои отчёты»</li>
-          <li>XP за смену: базовые 20 + бонус за выполнение чек-листа</li>
-          <li>Рейтинг среди коллег обновляется ежедневно в 00:00</li>
-        </ul>
-      </div>
-    `
-  }
-];
+const ICONS = {
+  home: 'M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10',
+  box: 'M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8',
+  truck: 'M2 6h12v10H2zM14 10h4l3 3v3h-7M4 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M16 17.5a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+  drop: 'M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z',
+  chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
+  users: 'M16 20v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 18.5V20M10 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM20 20v-1.5a3.5 3.5 0 00-2.5-3.3M15.5 4.2a3.5 3.5 0 010 6.6',
+  sliders: 'M4 7h10M18 7h2M4 17h2M10 17h10M14 5v4M6 15v4',
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  bell: 'M6 17v-6a6 6 0 0112 0v6l2 2H4zM10 21h4',
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14zM20 20l-4-4',
+  plus: 'M12 5v14M5 12h14',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
+  clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 100-5 2.5 2.5 0 000 5z',
+  list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  chat: 'M4 5h16v11H9l-5 4z',
+  star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
+  arrow: 'M5 12h14M13 6l6 6-6 6',
+  x: 'M6 6l12 12M18 6L6 18',
+  alert: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  coin: 'M12 21a9 9 0 100-18 9 9 0 000 18zM14.5 9.5c-.5-1-1.5-1.5-2.7-1.5-1.5 0-2.8.8-2.8 2s1.2 1.7 3 2 3 .8 3 2.2-1.4 2-2.9 2c-1.3 0-2.4-.6-2.9-1.7M12 6.5V8M12 16v1.5',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6',
+  wrench: 'M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5',
+  tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01',
+  play: 'M7 4l13 8-13 8z',
+  bot: 'M5 9h14v10H5zM12 5v4M9 14h.01M15 14h.01M3 13v3M21 13v3',
+  flame: 'M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+  heart: 'M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z',
+  globe: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  map: 'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14',
+  lock: 'M6 11h12v9H6zM8 11V8a4 4 0 018 0v3',
+  edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
+  trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  copy: 'M9 9h11v11H9zM5 15V4h11',
+  more: 'M5 12h.01M12 12h.01M19 12h.01',
+  up: 'M6 15l6-6 6 6',
+  down: 'M6 9l6 6 6-6',
+  eye: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z',
+  bag: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 016 0v2',
+  utensils: 'M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10',
+  graduation: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
+  zap: 'M13 3L5 14h6l-1 7 8-11h-6z',
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[name] || ICONS.grid}"/></svg>`;
 
-// ─── QUIZ DATA ────────────────────────────────────────────────────────────────
-const quizQuestions = [
-  {
-    q: 'Что нужно сделать ПЕРВЫМ при открытии смены?',
-    options: [
-      'Проверить кассовый ящик и принять столы от предыдущей смены',
-      'Принять первый заказ от гостя',
-      'Включить кофемашину и проверить наличие продуктов',
-      'Согласовать расписание с менеджером'
-    ],
-    correct: 0
-  },
-  {
-    q: 'Как отправить заказ на кухню в RestOS POS?',
-    options: [
-      'Позвонить повару по внутреннему телефону',
-      'Выбрать блюда и нажать «Отправить на кухню»',
-      'Записать заказ в бумажный блокнот',
-      'Нажать «Сохранить» в меню заказа'
-    ],
-    correct: 1
-  },
-  {
-    q: 'Что означает статус «Готово» у блюда в системе?',
-    options: [
-      'Блюдо ещё готовится',
-      'Заказ отменён',
-      'Блюдо готово к выдаче гостю',
-      'Блюдо оплачено'
-    ],
-    correct: 2
-  },
-  {
-    q: 'При каком расхождении кассы смена закрывается автоматически?',
-    options: [
-      '±500 тенге',
-      '±200 тенге',
-      '±50 тенге',
-      'Любое расхождение требует менеджера'
-    ],
-    correct: 2
-  },
-  {
-    q: 'Где проверить информацию об аллергенах при создании заказа?',
-    options: [
-      'В бумажном меню у стойки бара',
-      'В разделе «Комментарий к блюду» в системе',
-      'У шеф-повара лично',
-      'Аллергены не отображаются в RestOS'
-    ],
-    correct: 1
-  }
-];
-
-// ─── CHAT DATA ────────────────────────────────────────────────────────────────
-const chatData = [
-  {
-    name: 'Общий чат Чайла',
-    avatar: '🏠',
-    avatarBg: 'linear-gradient(135deg,#5AC8FA,#32ADE6)',
-    subtitle: '8 участников',
-    messages: [
-      { from: 'Айгерим', text: 'Добрый день всем! 👋', time: '09:02', out: false, initials: 'АС', bg: '#FF9F0A' },
-      { from: 'Дамир', text: 'Стоп-лист обновлён, проверьте пожалуйста', time: '09:15', out: false, initials: 'Д', bg: '#30D158' },
-      { from: 'Нурлан', text: 'Проверил, спасибо!', time: '09:17', out: true },
-      { from: 'Менеджер Асем', text: 'Напоминаю: сегодня в 15:00 обучение по новому меню для всех', time: '10:31', out: false, initials: 'МА', bg: '#BF5AF2' },
-      { from: 'Нурлан', text: 'Буду ✓', time: '10:34', out: true },
-    ]
-  },
-  {
-    name: 'Менеджеры',
-    avatar: '👔',
-    avatarBg: 'linear-gradient(135deg,#FF9F0A,#FF6B00)',
-    subtitle: 'Группа менеджеров',
-    messages: [
-      { from: 'Асем', text: 'Нурлан, расписание на эту неделю прикреплено в файлах', time: 'Вчера', out: false, initials: 'А', bg: '#BF5AF2' },
-      { from: 'Нурлан', text: 'Получил, изучаю', time: 'Вчера', out: true },
-      { from: 'Асем', text: 'Напомни результат теста по модулю 3 после прохождения', time: '09:45', out: false, initials: 'А', bg: '#BF5AF2' },
-    ]
-  },
-  {
-    name: 'ИИ-помощник',
-    avatar: '🤖',
-    avatarBg: 'linear-gradient(135deg,#BF5AF2,#9B59B6)',
-    subtitle: 'RestOS AI · онлайн',
-    messages: [
-      { from: 'ИИ', text: 'Привет, Нурлан! 👋 Я ИИ-помощник RestOS HR. Могу ответить на вопросы по обучению, меню или стандартам работы.', time: '08:00', out: false, isBot: true },
-      { from: 'Нурлан', text: 'Как правильно оформить возврат блюда?', time: '10:05', out: true },
-      { from: 'ИИ', text: 'Для оформления возврата: 1) Откройте заказ в RestOS POS, 2) Выберите блюдо → «Возврат», 3) Укажите причину (некачественное/ошибка заказа/передумал гость), 4) Подтвердите у менеджера. Возврат автоматически попадёт в отчёт смены.', time: '10:05', out: false, isBot: true },
-    ]
-  }
-];
-
-// ─── CHECKLIST DATA ───────────────────────────────────────────────────────────
-let checklistItems = [
-  { text: 'Проверить кассовый ящик', done: true },
-  { text: 'Принять столы от предыдущей смены', done: true },
-  { text: 'Ознакомиться со стоп-листом', done: true },
-  { text: 'Проверить форму и внешний вид', done: true },
-  { text: 'Пополнить запасы на станции', done: true },
-  { text: 'Провести финальную уборку секции', done: false },
-  { text: 'Сдать смену менеджеру', done: false },
-  { text: 'Заполнить отчёт по инцидентам', done: false },
-];
-
-// ─── SCREEN SWITCHING ─────────────────────────────────────────────────────────
-function switchScreen(name, el) {
-  // hide all screens
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(name + '-screen').classList.add('active');
-
-  // update sidebar nav
-  document.querySelectorAll('.nav-item').forEach(n => {
-    n.classList.toggle('active', n.dataset.screen === name);
-  });
-
-  // update bottom tabs
-  document.querySelectorAll('.bottom-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.screen === name);
-  });
-
-  if (name === 'chat') renderChat(currentChat);
-  if (name === 'checklists') renderChecklist();
+let toastTimer;
+function toast(msg) {
+  let t = $('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
-
-// ─── LESSON NAVIGATION ────────────────────────────────────────────────────────
-function startLesson() {
-  lessonStep = 1; // start at step 2 (index 1) since step 1 done
-  showLessonStep();
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('lesson-screen').classList.add('active');
+function modal(html, onMount) {
+  closeModal();
+  const s = document.createElement('div');
+  s.className = 'scrim'; s.id = 'scrim';
+  s.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  s.addEventListener('mousedown', (e) => { if (e.target === s) closeModal(); });
+  document.body.appendChild(s);
+  const f = $('input,select,textarea', s); if (f) f.focus();
+  if (onMount) onMount(s);
+  return s;
 }
+function closeModal() { const s = $('#scrim'); if (s) s.remove(); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-function showLessonStep() {
-  const total = lessons.length;
-  const pct = Math.round(((lessonStep) / total) * 100);
-  document.getElementById('lesson-progress-fill').style.width = pct + '%';
-  document.getElementById('lesson-step-label').textContent = 'Шаг ' + (lessonStep) + ' из ' + total;
-  document.getElementById('lesson-body').innerHTML = lessons[lessonStep - 1].content;
-  document.getElementById('lesson-prev-btn').style.opacity = lessonStep === 1 ? '0.3' : '1';
-  document.getElementById('lesson-prev-btn').disabled = lessonStep === 1;
-  document.getElementById('lesson-next-btn').textContent = lessonStep === total ? 'Пройти тест →' : 'Следующий шаг →';
+/* charts: drawn in SVG at the width they are given, redrawn on resize */
+const NS = 'http://www.w3.org/2000/svg';
+const charts = [];
+function chart(el, draw) {
+  const run = () => { const w = Math.max(160, el.clientWidth); el.innerHTML = draw(w); };
+  charts.push({ el, run }); run();
 }
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => charts.forEach((c) => { if (document.contains(c.el)) c.run(); }), 120); });
+const niceMax = (m) => { const mag = 10 ** Math.floor(Math.log10(m)); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * mag >= m * 1.02) return k * mag; return 10 * mag; };
 
-function lessonPrev() {
-  if (lessonStep > 1) { lessonStep--; showLessonStep(); }
-}
-
-function lessonNext() {
-  const total = lessons.length;
-  if (lessonStep < total) {
-    spawnXPFloat('+10 XP');
-    currentXP += 10;
-    updateAllXP();
-    lessonStep++;
-    showLessonStep();
-  } else {
-    // Go to quiz
-    spawnXPFloat('+10 XP');
-    currentXP += 10;
-    updateAllXP();
-    startQuiz();
-  }
-}
-
-function goBackToOnboarding() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('onboarding-screen').classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.screen === 'onboarding'));
-  document.querySelectorAll('.bottom-tab').forEach(t => t.classList.toggle('active', t.dataset.screen === 'onboarding'));
-}
-
-// ─── QUIZ ─────────────────────────────────────────────────────────────────────
-function startQuiz() {
-  quizIndex = 0;
-  quizSelected = null;
-  quizAnswers = [];
-  quizDone = false;
-
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('quiz-screen').classList.add('active');
-  document.getElementById('quiz-result').classList.remove('visible');
-  document.getElementById('quiz-body').style.display = '';
-  document.getElementById('quiz-footer').style.display = '';
-
-  renderQuizQuestion();
-}
-
-function renderQuizQuestion() {
-  const q = quizQuestions[quizIndex];
-  const dots = document.getElementById('quiz-dots');
-  dots.innerHTML = quizQuestions.map((_, i) => {
-    let cls = 'quiz-dot';
-    if (i < quizIndex) cls += ' done';
-    if (i === quizIndex) cls += ' active';
-    return `<div class="${cls}"></div>`;
+/* bars: values with a marked bar; labels under, 3 faint gridlines */
+function barsSVG(w, { labels, values, mark = values.length - 1, h = 190, fmtV = fmt, unit = '' }) {
+  const L = 36, B = 26, T = 8, ph = h - B - T, pw = w - L - 4;
+  const max = niceMax(Math.max(...values)), bw = Math.min(46, pw / values.length * 0.56), step = pw / values.length;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - (v / max) * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const bars = values.map((v, i) => {
+    const x = L + step * i + (step - bw) / 2, bh = Math.max(2, (v / max) * ph), y = T + ph - bh;
+    const on = Array.isArray(mark) ? mark.includes(i) : i === mark;
+    return `<g><rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${on ? 1 : .38}"><title>${esc(labels[i])}: ${fmtV(v)} ${unit}</title></rect>
+      <text x="${x + bw / 2}" y="${h - 8}" text-anchor="middle" ${on ? 'style="fill:var(--text)"' : ''}>${esc(labels[i])}</text>
+      ${on ? `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtV(v)}</text>` : ''}</g>`;
   }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}${bars}</svg>`;
+}
+/* line: one series, 2px, no markers, end value labelled */
+function lineSVG(w, { labels, values, h = 190, fmtV = fmt, xAt }) {
+  const L = 44, B = 26, T = 12, R = 44, ph = h - B - T, pw = w - L - R;
+  const max = niceMax(Math.max(...values)), n = values.length;
+  const X = (i) => L + (pw * i) / (n - 1), Y = (v) => T + ph - (v / max) * ph;
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R + 20}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmtV(v)}</text>`; }
+  const d = values.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = (xAt || labels.map((_, i) => i)).map((i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${esc(labels[i])}</text>`).join('');
+  const last = values[n - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc('Trend: ' + labels.map((l, i) => l + ' ' + fmtV(values[i])).join(', '))}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="${X(n - 1) + 8}" y="${Y(last) + 4}" style="fill:var(--text);font-weight:600">${fmtV(last)}</text>${xs}</svg>`;
+}
+/* ring: progress with the total inside */
+function ringSVG(size, { value, label, sub }) {
+  const r = size / 2 - 8, c = 2 * Math.PI * r;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label + ' ' + (sub || ''))}"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--raised)" stroke-width="8"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c * value} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="${sub ? '48%' : '52%'}" text-anchor="middle" style="font:700 ${size / 4.4}px var(--display);fill:var(--text)">${esc(label)}</text>${sub ? `<text x="50%" y="62%" text-anchor="middle" style="font:12px var(--font);fill:var(--muted)">${esc(sub)}</text>` : ''}</svg>`;
+}
+const barRow = (label, pct, right, sub) => `<div class="brow"><div class="brow-t"><span>${label}${sub ? ` <em>${sub}</em>` : ''}</span><b>${right}</b></div><div class="bar"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
 
-  document.getElementById('quiz-body').innerHTML = `
-    <div class="quiz-question-num">Вопрос ${quizIndex + 1} из ${quizQuestions.length}</div>
-    <div class="quiz-question-text">${q.q}</div>
-    <div class="quiz-options">
-      ${q.options.map((opt, i) => `
-        <div class="quiz-option" onclick="selectQuizOption(${i})" id="qopt-${i}">
-          <div class="option-letter">${String.fromCharCode(65 + i)}</div>
-          <div>${opt}</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-
-  quizSelected = null;
-  document.getElementById('quiz-next-btn').classList.remove('enabled');
-  document.getElementById('quiz-next-btn').textContent =
-    quizIndex === quizQuestions.length - 1 ? 'Завершить тест →' : 'Следующий вопрос →';
+/* shell helpers */
+function setNav(page) {
+  $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
 }
 
-function selectQuizOption(idx) {
-  if (quizSelected !== null) return;
-  quizSelected = idx;
-  document.querySelectorAll('.quiz-option').forEach((el, i) => {
-    el.classList.toggle('selected', i === idx);
-  });
-  document.getElementById('quiz-next-btn').classList.add('enabled');
+'use strict';
+
+/* ── content ──────────────────────────────────────────── */
+const MODS = [
+  { t: 'Introduction', sub: '4 steps', xp: 100, icon: 'star', steps: [
+    ['Welcome to RestOS', 'Welcome to the team! Here you will find everything you need to get up to speed: training, a chat with your manager and shift checklists.'],
+    ['Team structure', 'The restaurant is run by a general manager, sous chefs, cooks, servers and hosts. Everyone knows their role, and that is the foundation of smooth teamwork.'],
+    ['Work schedule', 'Shifts are planned every week. The schedule arrives 5 days ahead, and any shift swap must be agreed with your manager at least a day in advance.'],
+    ['Your first day', 'The shift manager will greet you, show you the dining room and kitchen, and introduce you to the team. Your access and uniform are prepared in advance.'],
+  ], quiz: [] },
+  { t: 'Kitchen safety', sub: '5 steps', xp: 140, icon: 'shield', steps: [
+    ['Personal hygiene', 'Wear a clean uniform and wash your hands before touching any food. Jewellery, watches and phones are not allowed in the kitchen.'],
+    ['Temperature control', 'Cold dishes are stored at 0–4 °C, hot dishes at 65 °C or above. A reading is taken every 2 hours and recorded in the log.'],
+    ['Equipment', 'Read the instructions on each appliance before use. Faulty equipment is taken out of service and tagged with a red sticker.'],
+    ['Fire safety', 'Keep exits clear at all times. The fire extinguisher is by the kitchen entrance and the evacuation plan is by the changing room.'],
+    ['Injuries and incidents', 'Record any cut or burn in the log immediately. The first-aid kit is at the manager station; for a serious injury call 103.'],
+  ], quiz: [] },
+  { t: 'Guest service', sub: '4 steps and a quiz', xp: 180, icon: 'heart', steps: [
+    ['Greeting guests', 'Greet every guest within 30 seconds. A smile, eye contact and a "Welcome!" set the tone for the whole evening. If you are busy, nod and say "I will be right with you."'],
+    ['Taking the order', 'Give guests 2–3 minutes to decide. Confirm how the dish should be cooked, any allergies and drink details. Repeat the order back aloud.'],
+    ['Table service', 'Serve dishes from the left and drinks from the right. Name each dish as you serve it and, after 2 minutes, ask: "Is everything alright?"'],
+    ['Complaints', 'Listen without interrupting and apologise, even if it is not your fault. Offer a solution: a replacement, a discount or a complimentary item. Tell the manager about every complaint.'],
+  ], quiz: [
+    { q: 'How quickly should you greet a guest?', o: ['When you are free', 'Within 30 seconds', 'Within 2 minutes', 'Once they sit down'], a: 1, why: 'The first 30 seconds shape the impression.' },
+    { q: 'What should you do when a guest complains?', o: ['Explain that it is not your fault', 'Call the manager and walk away', 'Listen and offer a solution', 'Give a discount without a word'], a: 2, why: 'Listen first, then resolve.' },
+    { q: 'Which side do you serve drinks from?', o: ['Left', 'Right', 'Either side', 'Only from the end of the table'], a: 1, why: 'Dishes from the left, drinks from the right.' },
+  ] },
+  { t: 'Menu and allergens', sub: '3 steps and a quiz', xp: 120, icon: 'utensils', steps: [
+    ['The 14 main allergens', 'Gluten, milk, eggs, tree nuts, peanuts, fish, molluscs, soya, celery, mustard, sesame, lupin and more. The full list is kept at the pass.'],
+    ['Answering questions about ingredients', 'Never guess. If you are not sure, say "I will check with the chef" and come back with an exact answer. Tell the kitchen about any allergy straight away.'],
+    ['86 list', 'When a dish runs out, it appears on the 86 list. Check it before recommending a dish to a guest.'],
+  ], quiz: [
+    { q: 'You are not sure whether a dish contains nuts. What do you tell the guest?', o: ['Probably not', 'I will check with the chef and come back', 'Ask the next table', 'Better not to order it'], a: 1, why: 'Guessing is dangerous with allergies.' },
+    { q: 'When should you check the 86 list?', o: ['Once a week', 'Before recommending a dish', 'Only at opening', 'No need'], a: 1, why: 'The dish may have run out a minute ago.' },
+  ] },
+  { t: 'Till and payments', sub: 'Coming soon', xp: 150, icon: 'coin', steps: [], quiz: [] },
+];
+const CHECK = [
+  ['Before the shift', [['Put on a clean uniform and name badge', '09:45'], ['Check the 86 list at the pass', '09:50'], ['Wipe and set your assigned tables', '10:00'], ['Attend the briefing with the manager', '10:15']]],
+  ['After the shift', [['Hand in tips and close out checks', '22:30'], ['Clean your station and take out the trash', '22:45'], ['Write your notes in the log', '22:55']]],
+];
+const TEAM = [['Madina K.', 4], ['Timur B.', 3], ['Aliya S.', 3], ['Daniyar N.', 1]];
+const REPLY = [
+  [/schedule|shift|swap/i, 'The weekly schedule is already published. If you need a swap, message me at least a day ahead.'],
+  [/uniform|dress|wear/i, 'Black trousers and an apron are issued by the host desk; bring your own white shirt.'],
+  [/salary|pay|advance/i, 'Advance on the 10th, the rest on the 25th. Your rate and tips are in your contract.'],
+  [/thanks|thank you|\bok\b|got it/i, 'Great! Message me if you need anything.'],
+];
+
+
+/* hero photo (CC0, see demos/CREDITS.md) */
+const heroImg = () => `<img src="img/hero.jpg" alt="" decoding="async">`;
+
+/* ── state ────────────────────────────────────────────── */
+const S = { done: new Set([0, 1]), tab: 'path', view: 'path', mod: 2, step: 0, qi: 0, picked: null, ticks: new Set(['0-0']), unread: 3, feed: ['<b>Ruslan</b> assigned Aidan a mentor for the first week'],
+  chat: [{ me: false, t: 'Hi Aidan! I am Ruslan, the general manager. Glad to have you with us.', ts: '09:12' }, { me: false, t: 'Finish the training by Friday and ask any questions here.', ts: '09:13' }, { me: false, t: 'Your first day is Monday, please arrive by 9:45.', ts: '09:13' }] };
+const xp = () => [...S.done].reduce((a, i) => a + MODS[i].xp, 0);
+const cur = () => { for (let i = 0; i < MODS.length; i++) if (!S.done.has(i)) return i; return -1; };
+const playable = (i) => MODS[i].steps.length > 0 && (i === 0 || S.done.has(i - 1));
+console.assert(xp() === 240, 'xp 100+140');
+const ckTotal = () => CHECK.reduce((a, [, l]) => a + l.length, 0);
+
+/* ── render ───────────────────────────────────────────── */
+const nav = () => {
+  const T = { path: ['Path', 'map'], chat: ['Chat', 'chat'], list: ['Checklists', 'check'], me: ['Profile', 'users'] };
+  $('#pnav').innerHTML = Object.entries(T).map(([k, v]) => `<button data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${ic(v[1])}${v[0]}${k === 'chat' && S.unread ? `<b class="badge">${S.unread}</b>` : ''}</button>`).join('');
+};
+function render() {
+  nav(); $('#foot').innerHTML = '';
+  const html = ({ path: pathScreen, chat: chatScreen, list: listScreen, me: meScreen })[S.tab]();
+  $('#scr').innerHTML = html; if (S.tab === 'chat') chatMount();
+  mgr();
+}
+function pathScreen() {
+  if (S.view === 'learn') return learnScreen();
+  if (S.view === 'quiz') return quizScreen();
+  if (S.view === 'done') return doneScreen();
+  const c = cur();
+  return `<div class="hero">${heroImg()}</div><div class="top"><div><h1>Hi, Aidan!</h1><p>${c === -1 ? 'Path completed' : `Up next: ${MODS[c].t}`}</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+    <div class="path">${MODS.map((m, i) => { const d = S.done.has(i), cu = i === c, lock = !playable(i) && !d; return `<button class="node ${d ? 'done' : ''} ${cu && !lock ? 'cur' : ''} ${lock ? 'lock' : ''}" data-act="open" data-i="${i}" ${lock ? 'disabled' : ''}><span class="dot">${ic(d ? 'check' : lock ? 'lock' : m.icon)}</span><div><b>${m.t}</b><span>${d ? `Completed · +${m.xp} XP` : lock ? (m.steps.length ? 'Unlocks after the previous module' : 'Coming soon') : `${m.sub} · +${m.xp} XP`}</span></div></button>`; }).join('')}</div>`;
+}
+function learnScreen() {
+  const m = MODS[S.mod], st = m.steps[S.step], last = S.step === m.steps.length - 1, review = S.done.has(S.mod);
+  return `<button class="back" data-act="exit">← Back to path</button><div class="learn"><div class="pbar">${m.steps.map((_, i) => `<i class="${i <= S.step ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">${m.t} · step ${S.step + 1} of ${m.steps.length}</span><h2>${st[0]}</h2><p class="body">${st[1]}</p>
+    <button class="btn primary cta" data-act="next">${last ? (m.quiz.length && !review ? 'Take the quiz' : review ? 'Done' : `Complete module`) : 'Next'}</button></div>`;
+}
+function quizScreen() {
+  const m = MODS[S.mod], q = m.quiz[S.qi];
+  return `<button class="back" data-act="exit">← Back to path</button><div class="learn"><div class="pbar">${m.quiz.map((_, i) => `<i class="${i <= S.qi ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">Question ${S.qi + 1} of ${m.quiz.length}</span><h2>${q.q}</h2>
+    ${q.o.map((o, i) => `<button class="opt ${S.picked === i ? (i === q.a ? 'ok' : 'bad') : ''}" data-act="pick" data-i="${i}" ${S.picked === q.a ? 'disabled' : ''}>${o}</button>`).join('')}
+    <div class="fb ${S.picked === null ? '' : S.picked === q.a ? 'ok' : 'bad'}" role="status">${S.picked === null ? '' : S.picked === q.a ? 'Correct. ' + q.why : 'Not quite, try again'}</div>
+    ${S.picked === q.a ? `<button class="btn primary cta" data-act="qnext">${S.qi === m.quiz.length - 1 ? 'Finish' : 'Next question'}</button>` : ''}</div>`;
+}
+function doneScreen() {
+  const m = MODS[S.mod], nx = S.mod + 1 < MODS.length && playable(S.mod + 1);
+  return `<div class="learn" style="text-align:center;padding-top:20px"><div class="big-xp">+${m.xp}</div><p class="muted" style="font-weight:800">XP for this module</p><div class="cert"><small>Certificate</small><h3>${m.t}</h3><p>Aidan Kerzhanova · 28/09/2026</p></div>
+    <p class="muted">${xp()} XP in total, ${S.done.size} of ${MODS.length} modules completed</p><button class="btn primary cta" data-act="exit">${nx ? 'Go to next module' : 'Back to path'}</button></div>`;
+}
+function chatScreen() {
+  return `<div class="top"><div><h1>Ruslan</h1><p>General manager · usually replies within 5 minutes</p></div></div><div class="msgs" id="msgs">${S.chat.map((m) => `<div class="m ${m.me ? 'me' : ''}">${esc(m.t)}<small>${m.ts}</small></div>`).join('')}</div><div class="quick">${['When is my schedule?', 'What is the uniform?', 'How do I swap a shift?'].map((q) => `<button data-act="say" data-t="${q}">${q}</button>`).join('')}</div>`;
+}
+function chatMount() {
+  S.unread = 0; nav();
+  $('#foot').innerHTML = `<form class="cform" id="cf"><input id="ci" placeholder="Message" autocomplete="off" aria-label="Message"><button aria-label="Send">${ic('arrow')}</button></form>`;
+  $('#cf').onsubmit = (e) => { e.preventDefault(); const v = $('#ci').value.trim(); if (v) say(v); };
+  const s = $('#scr'); s.scrollTop = s.scrollHeight;
+}
+function say(text) {
+  const t = new Date(2026, 8, 28, 14, 20 + S.chat.length % 30), ts = '14:' + String(20 + S.chat.length % 30).padStart(2, '0');
+  S.chat.push({ me: true, t: text, ts }); render();
+  const m = $('#msgs'); m.insertAdjacentHTML('beforeend', '<div class="typing" id="typing">Ruslan is typing…</div>'); $('#scr').scrollTop = 1e6;
+  setTimeout(() => { const r = REPLY.find(([re]) => re.test(text)); S.chat.push({ me: false, t: r ? r[1] : 'Got it, I will reply within the hour.', ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); } }, 1100);
+}
+function listScreen() {
+  const n = S.ticks.size;
+  return `<div class="top"><div><h1>Checklists</h1><p>${n} of ${ckTotal()} done today</p></div></div><div class="pbar" style="margin-bottom:6px">${Array.from({ length: ckTotal() }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div><div class="cl">${CHECK.map(([t, l], li) => `<h3>${t}<span>${l.filter((_, i) => S.ticks.has(li + '-' + i)).length} of ${l.length}</span></h3>${l.map(([x, tm], i) => { const k = li + '-' + i, d = S.ticks.has(k); return `<button class="ck ${d ? 'done' : ''}" data-act="tick" data-k="${k}" role="checkbox" aria-checked="${d}"><span class="bx">${d ? ic('check') : ''}</span><b>${x}</b><small>${tm}</small></button>`; }).join('')}`).join('')}</div>`;
+}
+function meScreen() {
+  return `<div class="top"><div><h1>Aidan Kerzhanova</h1><p>Server · on probation</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
+    <p class="lead">Certificates</p>${[...S.done].sort().map((i) => `<div class="cert" style="margin:0 0 10px;text-align:left"><small>Certificate</small><h3 style="font-size:17px">${MODS[i].t}</h3><p>Issued 28/09/2026 · +${MODS[i].xp} XP</p></div>`).join('')}
+    <p class="lead">Streak</p><p style="font-size:15px">6 days in a row. One more day and your streak becomes a week.</p>`;
+}
+function mgr() {
+  const me = ['Aidan K.', S.done.size], all = [...TEAM, me].sort((a, b) => b[1] - a[1]);
+  $('#mgr').innerHTML = `<h2>What the manager sees</h2><h1>Team training</h1><p>The employee app is on the right. Complete modules and this view updates on its own.</p>
+    <section class="card"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Modules completed</h2><span>of ${MODS.length}</span></div>${all.map((x) => `<div class="member ${x === me ? 'me' : ''}"><span>${x[0]}</span><div class="bar"><i style="width:${x[1] / MODS.length * 100}%"></i></div><b>${x[1]}</b></div>`).join('')}</section>
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Checklists today</h2><span>Aidan</span></div><div class="kpi"><b>${S.ticks.size}<small>of ${ckTotal()}</small></b><span>Items ticked this shift</span></div></section>
+    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Activity</h2></div><ul class="feed">${S.feed.slice(0, 5).map((f) => `<li>${f}</li>`).join('')}</ul></section>`;
 }
 
-function quizNext() {
-  if (quizSelected === null) return;
-  quizAnswers.push(quizSelected);
-
-  if (quizIndex < quizQuestions.length - 1) {
-    quizIndex++;
-    renderQuizQuestion();
-  } else {
-    showQuizResult();
-  }
-}
-
-function showQuizResult() {
-  let correct = 0;
-  quizAnswers.forEach((ans, i) => { if (ans === quizQuestions[i].correct) correct++; });
-  const pct = Math.round((correct / quizQuestions.length) * 100);
-  const passed = pct >= 70;
-
-  document.getElementById('quiz-body').style.display = 'none';
-  document.getElementById('quiz-footer').style.display = 'none';
-  document.getElementById('quiz-result').classList.add('visible');
-
-  document.getElementById('result-pct').textContent = pct + '%';
-  document.getElementById('result-subtitle').textContent = `Правильных ответов: ${correct} из ${quizQuestions.length}`;
-
-  // Animate the ring
-  const circumference = 2 * Math.PI * 52; // 326.73
-  const arc = document.getElementById('result-score-arc');
-  const offset = circumference * (1 - pct / 100);
-  arc.setAttribute('stroke-dasharray', circumference.toFixed(2));
-  arc.style.strokeDashoffset = offset.toFixed(2);
-  arc.setAttribute('stroke', passed ? '#30D158' : '#FF453A');
-
-  // Award XP
-  currentXP += 50;
-  updateAllXP();
-  setTimeout(() => spawnXPFloat('+50 XP'), 400);
-}
-
-// ─── CERTIFICATE MODAL ────────────────────────────────────────────────────────
-function openCertModal() {
-  document.getElementById('cert-modal').classList.add('open');
-}
-
-function closeCertModal() {
-  document.getElementById('cert-modal').classList.remove('open');
-}
-
-document.getElementById('cert-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeCertModal();
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tab]'); if (t) { S.tab = t.dataset.tab; return render(); }
+  const a = e.target.closest('[data-act]'); if (a) ACT[a.dataset.act](a.dataset);
 });
-
-// ─── CHAT ─────────────────────────────────────────────────────────────────────
-function renderChat(idx) {
-  const chat = chatData[idx];
-  const header = document.getElementById('chat-active-header');
-  header.innerHTML = `
-    <div class="chat-item-avatar" style="width:34px;height:34px;font-size:14px;background:${chat.avatarBg}">${chat.avatar}</div>
-    <div>
-      <div style="font-weight:700;font-size:14px;">${chat.name}</div>
-      <div style="font-size:11px;color:var(--muted)">${chat.subtitle}</div>
-    </div>
-  `;
-
-  const body = document.getElementById('chat-messages-body');
-  body.innerHTML = chat.messages.map(m => {
-    if (m.out) {
-      return `
-        <div class="msg out">
-          <div>
-            <div class="msg-bubble">${m.text}</div>
-            <div class="msg-time">${m.time}</div>
-          </div>
-        </div>
-      `;
-    }
-    const avStyle = m.isBot
-      ? `background:linear-gradient(135deg,#BF5AF2,#9B59B6)`
-      : `background:${m.bg || '#555'}`;
-    const avContent = m.isBot ? '🤖' : (m.initials || m.from[0]);
-    return `
-      <div class="msg">
-        <div class="msg-avatar" style="${avStyle}">${avContent}</div>
-        <div>
-          <div style="font-size:10.5px;color:var(--muted);margin-bottom:3px;margin-left:4px;">${m.from}</div>
-          <div class="msg-bubble">${m.text}</div>
-          <div class="msg-time">${m.time}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  body.scrollTop = body.scrollHeight;
-}
-
-function selectChat(idx, el) {
-  currentChat = idx;
-  document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
-  // remove unread badge
-  const badge = el.querySelector('.chat-unread');
-  if (badge) badge.remove();
-  renderChat(idx);
-}
-
-function sendMsg() {
-  const input = document.getElementById('chat-input-field');
-  const text = input.value.trim();
-  if (!text) return;
-  chatData[currentChat].messages.push({ from: 'Нурлан', text, time: 'Сейчас', out: true });
-  input.value = '';
-  renderChat(currentChat);
-
-  // AI auto reply
-  if (currentChat === 2) {
-    setTimeout(() => {
-      chatData[2].messages.push({
-        from: 'ИИ', text: 'Понял вас! Обрабатываю запрос... Если вопрос срочный, обратитесь к менеджеру через раздел «Менеджеры».', time: 'Сейчас', out: false, isBot: true
-      });
-      renderChat(2);
-    }, 900);
-  }
-}
-
-document.getElementById('chat-input-field').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') sendMsg();
-});
-
-// ─── CHECKLISTS ───────────────────────────────────────────────────────────────
-function renderChecklist() {
-  const container = document.getElementById('checklist-items');
-  container.innerHTML = checklistItems.map((item, i) => `
-    <div class="checklist-item" onclick="toggleChecklist(${i})">
-      <div class="check-circle ${item.done ? 'checked' : ''}">
-        ${item.done ? '✓' : ''}
-      </div>
-      <div class="checklist-item-text ${item.done ? 'done' : ''}">${item.text}</div>
-    </div>
-  `).join('');
-  updateChecklistProgress();
-}
-
-function toggleChecklist(idx) {
-  checklistItems[idx].done = !checklistItems[idx].done;
-  if (checklistItems[idx].done) spawnXPFloat('+5 XP');
-  renderChecklist();
-}
-
-function updateChecklistProgress() {
-  const done = checklistItems.filter(i => i.done).length;
-  const total = checklistItems.length;
-  const pct = done / total;
-  const circumference = 125.66;
-  const offset = circumference * (1 - pct);
-  const ring = document.getElementById('checklist-ring-fill');
-  if (ring) ring.setAttribute('stroke-dashoffset', offset.toFixed(2));
-  const label = document.getElementById('checklist-ring-label');
-  if (label) label.innerHTML = `${done}/${total}<span>готово</span>`;
-  const summary = document.getElementById('checklist-summary');
-  if (summary) summary.textContent = `${done} из ${total} выполнено`;
-}
-
-function selectDateTab(el) {
-  document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-}
-
-// ─── XP UTILS ────────────────────────────────────────────────────────────────
-function updateAllXP() {
-  document.getElementById('main-xp-counter').textContent = currentXP;
-  document.getElementById('lesson-xp-counter').textContent = currentXP;
-  document.getElementById('quiz-xp-counter').textContent = currentXP;
-}
-
-function spawnXPFloat(text) {
-  const el = document.createElement('div');
-  el.className = 'xp-float';
-  el.textContent = text;
-  el.style.left = (window.innerWidth / 2 - 30) + 'px';
-  el.style.top = (window.innerHeight / 2) + 'px';
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 1400);
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-renderChecklist();
-renderChat(0);
+const ACT = {
+  open(d) { const i = +d.i; S.mod = i; S.step = 0; S.qi = 0; S.picked = null; S.view = 'learn'; render(); },
+  exit() { S.view = 'path'; render(); },
+  next() {
+    const m = MODS[S.mod];
+    if (S.step < m.steps.length - 1) { S.step++; return render(); }
+    if (m.quiz.length && !S.done.has(S.mod)) { S.view = 'quiz'; S.qi = 0; S.picked = null; return render(); }
+    if (S.done.has(S.mod)) { S.view = 'path'; return render(); }
+    finish();
+  },
+  pick(d) { S.picked = +d.i; render(); },
+  qnext() { const m = MODS[S.mod]; if (S.qi < m.quiz.length - 1) { S.qi++; S.picked = null; return render(); } finish(); },
+  tick(d) { S.ticks.has(d.k) ? S.ticks.delete(d.k) : S.ticks.add(d.k); if (S.ticks.size === ckTotal()) { S.feed.unshift('<b>Aidan</b> completed all shift checklists'); toast('All checklists completed'); } render(); },
+  say(d) { say(d.t); },
+};
+function finish() { S.done.add(S.mod); S.feed.unshift(`<b>Aidan</b> completed the module "${MODS[S.mod].t}", +${MODS[S.mod].xp} XP`); S.view = 'done'; render(); }
+/* ── live: the manager writes, colleagues move through modules, the feed fills up ─ */
+const PINGS = ['Don\'t forget the briefing at 9:45', 'Has anyone seen the new aprons? They are at the host desk', 'Menu quiz again tomorrow, review the allergens', 'Great work yesterday, guests were praising you'];
+const NAMES_T = ['Daniyar N.', 'Aliya S.', 'Timur B.'];
+let beatHR = 0;
+setInterval(() => {
+  if (document.hidden) return;
+  beatHR++;
+  if (beatHR % 3 === 0) { const w = TEAM.find((x) => x[0] === NAMES_T[beatHR % 3 === 0 ? (beatHR / 3) % 3 : 0]) || TEAM[3]; if (w[1] < 4) { w[1]++; S.feed.unshift(`<b>${w[0]}</b> completed a module, now ${w[1]} of ${MODS.length}`); mgr(); } }
+  if (beatHR % 5 === 0 && S.chat.length < 14) { const ts = '14:' + String(30 + (beatHR % 25)).padStart(2, '0'); S.chat.push({ me: false, t: PINGS[(beatHR / 5) % PINGS.length | 0], ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); toast('Ruslan sent you a message'); } }
+}, 6000);
+render();
 </script>
 </body>
 </html>

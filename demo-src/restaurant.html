@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="light">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RestOS — управление рестораном (демо)</title>
-<meta name="description" content="Демо: доска заказов кухни, меню со стоп-листом, гости, персонал и финансы ресторана. Данные вымышлены.">
+<title>RestOS — Restaurant Management (Demo)</title>
+<meta name="description" content="Demo: kitchen order board, menu with stop-list, guests, staff and restaurant finances. All data is fictional.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
 <style>
@@ -61,16 +61,16 @@
 </style>
 </head>
 <body>
-<div class="notice"><b>Демо</b> RestOS · данные вымышлены</div>
+<div class="notice"><b>Demo</b> RestOS · data is fictional</div>
 <div class="app">
   <aside class="side">
-    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/></svg></div><div><div class="brand-name">RestOS</div><div class="brand-sub">Ресторан Север</div></div></div>
+    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/></svg></div><div><div class="brand-name">RestOS</div><div class="brand-sub">North Restaurant</div></div></div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">АС</div><div class="who"><b>Айнур Сейткалиева</b><span>Администратор</span></div></div>
+    <div class="side-foot"><div class="avatar">AS</div><div class="who"><b>Ainur Seitkaliyeva</b><span>Administrator</span></div></div>
   </aside>
   <main class="main" id="main"></main>
 </div>
-<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
 /*@kit.js*/
@@ -78,22 +78,22 @@
 
 /* ── data: every total is computed from the rows ───────── */
 let NOW = '14:35'; const TODAY = '28.09.2026';
-const CATS = { hot: 'Горячее', cold: 'Холодное', drinks: 'Напитки', desserts: 'Десерты', breakfast: 'Завтраки', pizza: 'Пицца и паста', grill: 'Гриль' };
+const CATS = { hot: 'Hot dishes', cold: 'Cold dishes', drinks: 'Drinks', desserts: 'Desserts', breakfast: 'Breakfast', pizza: 'Pizza & pasta', grill: 'Grill' };
 const MENU = [
-  ['Борщ домашний', 'hot', 1800], ['Бефстроганов', 'hot', 2400], ['Плов узбекский', 'hot', 2200], ['Лагман', 'hot', 1900, false], ['Харчо', 'hot', 1700], ['Манты', 'hot', 200],
-  ['Салат Цезарь', 'cold', 1600], ['Оливье', 'cold', 900], ['Роллы Калифорния', 'cold', 2100],
-  ['Чай зелёный', 'drinks', 500], ['Чай чёрный', 'drinks', 400], ['Сок апельсиновый', 'drinks', 600], ['Морс', 'drinks', 400], ['Кола', 'drinks', 400], ['Вино красное', 'drinks', 1800], ['Хлеб', 'cold', 200],
-  ['Торт медовик', 'desserts', 1200], ['Тирамису', 'desserts', 1400, false],
-  ['Яичница с беконом', 'breakfast', 1100], ['Каша овсяная', 'breakfast', 700],
-  ['Пицца Маргарита', 'pizza', 1800], ['Паста Карбонара', 'pizza', 1900],
-  ['Стейк из говядины', 'grill', 4500], ['Шашлык куриный', 'grill', 2600],
+  ['Borscht', 'hot', 1800], ['Beef Stroganoff', 'hot', 2400], ['Uzbek Plov', 'hot', 2200], ['Lagman', 'hot', 1900, false], ['Kharcho', 'hot', 1700], ['Manti', 'hot', 200],
+  ['Caesar Salad', 'cold', 1600], ['Olivier Salad', 'cold', 900], ['California Rolls', 'cold', 2100],
+  ['Green Tea', 'drinks', 500], ['Black Tea', 'drinks', 400], ['Orange Juice', 'drinks', 600], ['Berry Mors', 'drinks', 400], ['Cola', 'drinks', 400], ['Red Wine', 'drinks', 1800], ['Bread', 'cold', 200],
+  ['Honey Cake', 'desserts', 1200], ['Tiramisu', 'desserts', 1400, false],
+  ['Fried Eggs with Bacon', 'breakfast', 1100], ['Oatmeal', 'breakfast', 700],
+  ['Pizza Margherita', 'pizza', 1800], ['Pasta Carbonara', 'pizza', 1900],
+  ['Beef Steak', 'grill', 4500], ['Chicken Shashlik', 'grill', 2600],
 ].map(([n, c, p, a = true]) => ({ n, c, p, a }));
 
 /* ── dish illustrations: flat vector, one per category, tinted per dish ─ */
 const hue = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
 const drink = (c, ice) => `<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 34 h34 l-3.4 40 h-27.2 z" fill="${c}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="${ice}" opacity=".5" transform="rotate(12 54 46)"/><rect x="62" y="56" width="9" height="9" rx="2" fill="${ice}" opacity=".4"/><path d="M68 8 l-7 38" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`;
 /* real photos (CC0, see demos/CREDITS.md) where we have a matching one; the rest fall back to the flat vector below */
-const PHOTO = { 'Салат Цезарь': 'caesar', 'Пицца': 'pizza', 'Яичница': 'eggs', 'Стейк': 'steak', 'Шашлык': 'kebab', 'Чай чёрный': 'tea', 'Морс': 'cocktail', 'Торт': 'cake' };
+const PHOTO = { 'Caesar Salad': 'caesar', 'Pizza': 'pizza', 'Fried Eggs': 'eggs', 'Beef Steak': 'steak', 'Chicken Shashlik': 'kebab', 'Black Tea': 'tea', 'Berry Mors': 'cocktail', 'Honey Cake': 'cake' };
 function dishArt(name, c, size = 'card') {
   const pk = Object.keys(PHOTO).find((k) => name.startsWith(k));
   if (pk) return `<img src="img/${PHOTO[pk]}.jpg" alt="${esc(name)}" loading="lazy" decoding="async">`;
@@ -102,21 +102,21 @@ function dishArt(name, c, size = 'card') {
   const plate = '<ellipse cx="60" cy="74" rx="46" ry="6" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#fff"/><circle cx="60" cy="48" r="27" fill="#f4f1ec"/>';
 
   const mk = {
-    'Борщ': `${plate}<circle cx="60" cy="48" r="22" fill="#a3201f"/><circle cx="60" cy="48" r="16" fill="#b92a26"/><circle cx="60" cy="47" r="6" fill="#fff6e8"/><path d="M52 56 q6 4 12 0" stroke="#7a1516" stroke-width="2.5" fill="none"/><path d="M70 36 l4 -3 M48 38 l-3 -3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
-    'Харчо': `${plate}<circle cx="60" cy="48" r="22" fill="#d9731f"/><circle cx="52" cy="44" r="5" fill="#8a3b14"/><circle cx="68" cy="52" r="5" fill="#8a3b14"/><circle cx="66" cy="40" r="3" fill="#f4e2a4"/><circle cx="50" cy="56" r="3" fill="#f4e2a4"/><path d="M58 34 l4 -5 M64 60 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
-    'Лагман': `${plate}<circle cx="60" cy="48" r="22" fill="#c4521f"/><path d="M42 46 q9 -10 18 0 t18 0 M44 54 q8 -8 16 0 t16 0 M48 40 q6 -6 12 0 t14 0" stroke="#f4dba0" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="68" cy="58" r="3.5" fill="#3f7a3a"/>`,
-    'Плов': `${plate}<path d="M32 56 q4 -30 28 -30 q24 0 28 30 q-28 10 -56 0z" fill="#e6b44a"/><path d="M44 42 l6 5 M62 36 l7 3 M54 52 l8 2 M72 48 l5 6" stroke="#d9741a" stroke-width="3.5" stroke-linecap="round"/><circle cx="58" cy="32" r="3" fill="#7a4a21"/><circle cx="68" cy="30" r="2.5" fill="#fff3d0"/>`,
-    'Манты': `${plate}${[[48, 56], [64, 58], [56, 44], [72, 46]].map(([x, y]) => `<path d="M${x - 10} ${y + 4} q10 -18 20 0 q-10 4 -20 0z" fill="#f6e4c2" stroke="#e0c89a" stroke-width="2"/><path d="M${x - 4} ${y - 4} l8 0" stroke="#e0c89a" stroke-width="2" stroke-linecap="round"/>`).join('')}<circle cx="84" cy="62" r="4" fill="#fff"/>`,
-    'Бефстроганов': `${plate}<path d="M36 52 q-2 -18 22 -20 q22 -2 26 14 q-4 16 -26 14 q-18 0 -22 -8z" fill="#8a4a24"/><path d="M42 46 l10 -4 M56 50 l10 -4 M62 40 l9 3" stroke="#c98a55" stroke-width="3.5" stroke-linecap="round"/><circle cx="82" cy="58" r="6" fill="#f2d78a"/><circle cx="74" cy="64" r="5" fill="#f2d78a"/><path d="M48 58 l4 3 M52 36 l3 -4" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
-    'Салат Цезарь': `${plate}${[0, 70, 140, 210, 280].map((r) => `<ellipse cx="60" cy="38" rx="8" ry="13" fill="#7fbf4f" transform="rotate(${r} 60 48)"/>`).join('')}${[[52, 46], [68, 50], [60, 40], [48, 54]].map(([x, y]) => `<rect x="${x - 4}" y="${y - 4}" width="8" height="8" rx="2" fill="#e8b563" transform="rotate(${x * 3} ${x} ${y})"/>`).join('')}<path d="M62 54 l5 -3 M54 38 l4 -2" stroke="#f5efdc" stroke-width="3" stroke-linecap="round"/>`,
-    'Оливье': `${plate}<path d="M36 54 q2 -26 24 -26 q22 0 24 26 q-24 8 -48 0z" fill="#f2e6c0"/>${[[48, 46], [60, 40], [70, 48], [56, 54], [66, 56]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="3" fill="${i % 2 ? '#e9753a' : '#6fae4a'}"/>`).join('')}`,
-    'Роллы': `${plate}${[[44, 50], [62, 40], [76, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="10" fill="#1f2a24"/><circle cx="${x}" cy="${y}" r="8" fill="#f8f4ea"/><circle cx="${x}" cy="${y}" r="3.5" fill="#ee6f3c"/>`).join('')}<path d="M80 36 h6" stroke="#6fae4a" stroke-width="3" stroke-linecap="round"/>`,
-    'Хлеб': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M24 62 q0 -30 36 -30 q36 0 36 30 q-36 8 -72 0z" fill="#d9a24f"/><path d="M42 44 l6 12 M58 40 l6 14 M74 44 l5 11" stroke="#b9772a" stroke-width="4" stroke-linecap="round"/>`,
-    'Чай зелёный': drink('#9bc24a', '#e8f4d0'), 'Чай чёрный': drink('#9a4a1b', '#fff'), 'Сок': drink('#f09a22', '#fff'), 'Морс': drink('#c4263a', '#fff'), 'Кола': drink('#3a2418', '#fff'),
-    'Вино': `<ellipse cx="60" cy="78" rx="22" ry="4" fill="#000" opacity=".1"/><path d="M44 14 h32 q4 28 -16 36 q-20 -8 -16 -36z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M47 28 h26 q0 16 -13 22 q-13 -6 -13 -22z" fill="#7a1a3a"/><path d="M60 50 v22 M48 74 h24" stroke="#c9d6dc" stroke-width="3" stroke-linecap="round"/>`,
-    'Торт': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 64 L26 36 q34 -12 68 0 L94 64 Z" fill="#e2b072"/><path d="M26 44 h68 M26 54 h68" stroke="#fff1d6" stroke-width="5"/><path d="M26 36 q34 -12 68 0" stroke="#c98a45" stroke-width="3" fill="none"/><circle cx="48" cy="26" r="4" fill="#f4c542"/><circle cx="62" cy="22" r="4" fill="#f4c542"/><circle cx="76" cy="27" r="4" fill="#f4c542"/>`,
-    'Тирамису': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><rect x="28" y="30" width="64" height="34" rx="4" fill="#f4e6cd"/><rect x="28" y="40" width="64" height="6" fill="#6b3a1c"/><rect x="28" y="54" width="64" height="6" fill="#6b3a1c"/><path d="M28 30 h64 v6 h-64z" fill="#4a2814"/>`,
-    'Яичница': `${plate}<path d="M38 52 q-6 -16 10 -22 q16 -8 28 4 q10 12 -2 22 q-14 12 -36 -4z" fill="#fffdf8" stroke="#eee4d0" stroke-width="2"/><circle cx="58" cy="44" r="10" fill="#f4b81f"/><circle cx="55" cy="41" r="3" fill="#fff" opacity=".6"/><path d="M70 62 q8 -10 14 -2 t-2 12" stroke="#b9432c" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    'Borscht': `${plate}<circle cx="60" cy="48" r="22" fill="#a3201f"/><circle cx="60" cy="48" r="16" fill="#b92a26"/><circle cx="60" cy="47" r="6" fill="#fff6e8"/><path d="M52 56 q6 4 12 0" stroke="#7a1516" stroke-width="2.5" fill="none"/><path d="M70 36 l4 -3 M48 38 l-3 -3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
+    'Kharcho': `${plate}<circle cx="60" cy="48" r="22" fill="#d9731f"/><circle cx="52" cy="44" r="5" fill="#8a3b14"/><circle cx="68" cy="52" r="5" fill="#8a3b14"/><circle cx="66" cy="40" r="3" fill="#f4e2a4"/><circle cx="50" cy="56" r="3" fill="#f4e2a4"/><path d="M58 34 l4 -5 M64 60 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
+    'Lagman': `${plate}<circle cx="60" cy="48" r="22" fill="#c4521f"/><path d="M42 46 q9 -10 18 0 t18 0 M44 54 q8 -8 16 0 t16 0 M48 40 q6 -6 12 0 t14 0" stroke="#f4dba0" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="68" cy="58" r="3.5" fill="#3f7a3a"/>`,
+    'Uzbek Plov': `${plate}<path d="M32 56 q4 -30 28 -30 q24 0 28 30 q-28 10 -56 0z" fill="#e6b44a"/><path d="M44 42 l6 5 M62 36 l7 3 M54 52 l8 2 M72 48 l5 6" stroke="#d9741a" stroke-width="3.5" stroke-linecap="round"/><circle cx="58" cy="32" r="3" fill="#7a4a21"/><circle cx="68" cy="30" r="2.5" fill="#fff3d0"/>`,
+    'Manti': `${plate}${[[48, 56], [64, 58], [56, 44], [72, 46]].map(([x, y]) => `<path d="M${x - 10} ${y + 4} q10 -18 20 0 q-10 4 -20 0z" fill="#f6e4c2" stroke="#e0c89a" stroke-width="2"/><path d="M${x - 4} ${y - 4} l8 0" stroke="#e0c89a" stroke-width="2" stroke-linecap="round"/>`).join('')}<circle cx="84" cy="62" r="4" fill="#fff"/>`,
+    'Beef Stroganoff': `${plate}<path d="M36 52 q-2 -18 22 -20 q22 -2 26 14 q-4 16 -26 14 q-18 0 -22 -8z" fill="#8a4a24"/><path d="M42 46 l10 -4 M56 50 l10 -4 M62 40 l9 3" stroke="#c98a55" stroke-width="3.5" stroke-linecap="round"/><circle cx="82" cy="58" r="6" fill="#f2d78a"/><circle cx="74" cy="64" r="5" fill="#f2d78a"/><path d="M48 58 l4 3 M52 36 l3 -4" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
+    'Caesar Salad': `${plate}${[0, 70, 140, 210, 280].map((r) => `<ellipse cx="60" cy="38" rx="8" ry="13" fill="#7fbf4f" transform="rotate(${r} 60 48)"/>`).join('')}${[[52, 46], [68, 50], [60, 40], [48, 54]].map(([x, y]) => `<rect x="${x - 4}" y="${y - 4}" width="8" height="8" rx="2" fill="#e8b563" transform="rotate(${x * 3} ${x} ${y})"/>`).join('')}<path d="M62 54 l5 -3 M54 38 l4 -2" stroke="#f5efdc" stroke-width="3" stroke-linecap="round"/>`,
+    'Olivier Salad': `${plate}<path d="M36 54 q2 -26 24 -26 q22 0 24 26 q-24 8 -48 0z" fill="#f2e6c0"/>${[[48, 46], [60, 40], [70, 48], [56, 54], [66, 56]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="3" fill="${i % 2 ? '#e9753a' : '#6fae4a'}"/>`).join('')}`,
+    'California Rolls': `${plate}${[[44, 50], [62, 40], [76, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="10" fill="#1f2a24"/><circle cx="${x}" cy="${y}" r="8" fill="#f8f4ea"/><circle cx="${x}" cy="${y}" r="3.5" fill="#ee6f3c"/>`).join('')}<path d="M80 36 h6" stroke="#6fae4a" stroke-width="3" stroke-linecap="round"/>`,
+    'Bread': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M24 62 q0 -30 36 -30 q36 0 36 30 q-36 8 -72 0z" fill="#d9a24f"/><path d="M42 44 l6 12 M58 40 l6 14 M74 44 l5 11" stroke="#b9772a" stroke-width="4" stroke-linecap="round"/>`,
+    'Green Tea': drink('#9bc24a', '#e8f4d0'), 'Black Tea': drink('#9a4a1b', '#fff'), 'Orange Juice': drink('#f09a22', '#fff'), 'Berry Mors': drink('#c4263a', '#fff'), 'Cola': drink('#3a2418', '#fff'),
+    'Red Wine': `<ellipse cx="60" cy="78" rx="22" ry="4" fill="#000" opacity=".1"/><path d="M44 14 h32 q4 28 -16 36 q-20 -8 -16 -36z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M47 28 h26 q0 16 -13 22 q-13 -6 -13 -22z" fill="#7a1a3a"/><path d="M60 50 v22 M48 74 h24" stroke="#c9d6dc" stroke-width="3" stroke-linecap="round"/>`,
+    'Honey Cake': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 64 L26 36 q34 -12 68 0 L94 64 Z" fill="#e2b072"/><path d="M26 44 h68 M26 54 h68" stroke="#fff1d6" stroke-width="5"/><path d="M26 36 q34 -12 68 0" stroke="#c98a45" stroke-width="3" fill="none"/><circle cx="48" cy="26" r="4" fill="#f4c542"/><circle cx="62" cy="22" r="4" fill="#f4c542"/><circle cx="76" cy="27" r="4" fill="#f4c542"/>`,
+    'Tiramisu': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><rect x="28" y="30" width="64" height="34" rx="4" fill="#f4e6cd"/><rect x="28" y="40" width="64" height="6" fill="#6b3a1c"/><rect x="28" y="54" width="64" height="6" fill="#6b3a1c"/><path d="M28 30 h64 v6 h-64z" fill="#4a2814"/>`,
+    'Fried Eggs': `${plate}<path d="M38 52 q-6 -16 10 -22 q16 -8 28 4 q10 12 -2 22 q-14 12 -36 -4z" fill="#fffdf8" stroke="#eee4d0" stroke-width="2"/><circle cx="58" cy="44" r="10" fill="#f4b81f"/><circle cx="55" cy="41" r="3" fill="#fff" opacity=".6"/><path d="M70 62 q8 -10 14 -2 t-2 12" stroke="#b9432c" stroke-width="5" fill="none" stroke-linecap="round"/>`,
   };
   const key = Object.keys(mk).find((k) => name.startsWith(k));
   const art = key ? mk[key] : {
@@ -125,7 +125,7 @@ function dishArt(name, c, size = 'card') {
     drinks: `<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 36 h34 l-3.4 38 h-27.2 z" fill="${liq}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="#fff" opacity=".55" transform="rotate(12 54 46)"/><rect x="62" y="54" width="9" height="9" rx="2" fill="#fff" opacity=".45" transform="rotate(-10 66 58)"/><path d="M66 8 l-6 40" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`,
     desserts: `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 66 L26 40 L94 40 L94 66 Z" fill="#e7c08a"/><path d="M26 54 h68" stroke="#f9e7c8" stroke-width="5"/><path d="M26 40 q34 -22 68 0 z" fill="${`hsl(${340 + (h % 20)} 55% 62%)`}"/><circle cx="60" cy="25" r="6" fill="#c8302f"/><path d="M60 19 q2 -7 7 -9" stroke="#3f7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
     breakfast: `${plate}<path d="M38 52 q-6 -16 10 -22 q16 -8 28 4 q10 12 -2 22 q-14 12 -36 -4z" fill="#fffdf8" stroke="#eee4d0" stroke-width="2"/><circle cx="58" cy="44" r="10" fill="#f4b81f"/><circle cx="55" cy="41" r="3" fill="#fff" opacity=".6"/><path d="M70 62 q8 -10 14 -2 t-2 12" stroke="#b9432c" stroke-width="5" fill="none" stroke-linecap="round"/>`,
-    pizza: /Паста/.test(name) ? `${plate}<path d="M40 52 q10 -20 20 -2 q10 -18 20 2 q-10 16 -20 0 q-10 16 -20 0z" fill="#f3d58b"/><path d="M44 50 q8 -10 16 0 t16 0" stroke="#e3b95a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="60" cy="46" r="6" fill="#fff6dc"/><circle cx="52" cy="42" r="2" fill="#6b4a2b"/><circle cx="68" cy="52" r="2" fill="#6b4a2b"/>`
+    pizza: /Pasta/.test(name) ? `${plate}<path d="M40 52 q10 -20 20 -2 q10 -18 20 2 q-10 16 -20 0 q-10 16 -20 0z" fill="#f3d58b"/><path d="M44 50 q8 -10 16 0 t16 0" stroke="#e3b95a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="60" cy="46" r="6" fill="#fff6dc"/><circle cx="52" cy="42" r="2" fill="#6b4a2b"/><circle cx="68" cy="52" r="2" fill="#6b4a2b"/>`
       : `<ellipse cx="60" cy="76" rx="44" ry="5" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#e7b872"/><circle cx="60" cy="48" r="28" fill="#d8402c"/><circle cx="60" cy="48" r="26" fill="#f6e7b8" opacity=".9"/>${[[50, 38], [68, 40], [60, 56], [46, 54], [72, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="#b83a28"/>`).join('')}<path d="M56 30 l4 -4 4 4 M50 62 l4 -3 M70 46 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round" fill="none"/>`,
     grill: `${plate}<path d="M36 52 q-4 -16 14 -20 q26 -6 34 8 q6 14 -10 20 q-26 8 -38 -8z" fill="${`hsl(${15 + (h % 12)} 50% 30%)`}"/><path d="M48 36 l12 20 M58 33 l12 20 M68 34 l10 16" stroke="#2a150c" stroke-width="3" stroke-linecap="round" opacity=".55"/><circle cx="78" cy="62" r="5" fill="${leaf}"/><circle cx="86" cy="58" r="3.5" fill="#d8402c"/>`,
   }[c];
@@ -136,34 +136,34 @@ const cat = (n) => MENU.find((m) => m.n === n).c;
 const O = (id, table, type, guest, items, status, time) => ({ id, table, type, guest, items: items.map(([n, q]) => ({ n, q, p: price(n) })), status, time });
 const S = {
   orders: [
-    O('#1042', 'Стол 5', 'Зал', 'Алмас К.', [['Борщ домашний', 1], ['Хлеб', 2], ['Чай зелёный', 1]], 'new', '14:23'),
-    O('#1041', 'Стол 2', 'Зал', 'Дина М.', [['Бефстроганов', 2], ['Сок апельсиновый', 2]], 'cooking', '14:18'),
-    O('#1040', 'Доставка', 'Доставка', 'Серик Н.', [['Плов узбекский', 1], ['Лагман', 1], ['Морс', 2]], 'confirm', '14:10'),
-    O('#1039', 'Стол 8', 'Зал', 'Айгуль Т.', [['Салат Цезарь', 1], ['Стейк из говядины', 1], ['Вино красное', 1]], 'ready', '13:55'),
-    O('#1038', 'Стол 1', 'Зал', 'Руслан А.', [['Пицца Маргарита', 2], ['Кола', 2]], 'done', '13:40'),
-    O('#1037', 'Доставка', 'Доставка', 'Карина Б.', [['Роллы Калифорния', 2]], 'done', '13:20'),
-    O('#1036', 'Стол 4', 'Зал', 'Нурлан Ж.', [['Харчо', 1], ['Манты', 10], ['Чай чёрный', 2]], 'cooking', '13:15'),
-    O('#1035', 'Стол 7', 'Зал', 'Зарина С.', [['Паста Карбонара', 2]], 'confirm', '13:05'),
-    O('#1034', 'Стол 3', 'Зал', 'Адиль К.', [['Оливье', 1], ['Шашлык куриный', 1]], 'done', '12:50'),
-    O('#1033', 'Стол 6', 'Зал', 'Меруерт О.', [['Торт медовик', 1]], 'cancel', '12:30'),
+    O('#1042', 'Table 5', 'Dine-in', 'Almas K.', [['Borscht', 1], ['Bread', 2], ['Green Tea', 1]], 'new', '14:23'),
+    O('#1041', 'Table 2', 'Dine-in', 'Dina M.', [['Beef Stroganoff', 2], ['Orange Juice', 2]], 'cooking', '14:18'),
+    O('#1040', 'Delivery', 'Delivery', 'Serik N.', [['Uzbek Plov', 1], ['Lagman', 1], ['Berry Mors', 2]], 'confirm', '14:10'),
+    O('#1039', 'Table 8', 'Dine-in', 'Aigul T.', [['Caesar Salad', 1], ['Beef Steak', 1], ['Red Wine', 1]], 'ready', '13:55'),
+    O('#1038', 'Table 1', 'Dine-in', 'Ruslan A.', [['Pizza Margherita', 2], ['Cola', 2]], 'done', '13:40'),
+    O('#1037', 'Delivery', 'Delivery', 'Karina B.', [['California Rolls', 2]], 'done', '13:20'),
+    O('#1036', 'Table 4', 'Dine-in', 'Nurlan Zh.', [['Kharcho', 1], ['Manti', 10], ['Black Tea', 2]], 'cooking', '13:15'),
+    O('#1035', 'Table 7', 'Dine-in', 'Zarina S.', [['Pasta Carbonara', 2]], 'confirm', '13:05'),
+    O('#1034', 'Table 3', 'Dine-in', 'Adil K.', [['Olivier Salad', 1], ['Chicken Shashlik', 1]], 'done', '12:50'),
+    O('#1033', 'Table 6', 'Dine-in', 'Meruert O.', [['Honey Cake', 1]], 'cancel', '12:30'),
   ],
   menu: MENU,
   guests: [
-    ['Руслан Асанов', '+7 708 678-90-12', 42, 320000, '26.09.2026', 'vip'], ['Алмас Кожабеков', '+7 701 234-56-78', 28, 145000, '25.09.2026', 'vip'],
-    ['Зарина Сейткали', '+7 702 901-23-45', 18, 98000, '24.09.2026', 'regular'], ['Дина Мусаева', '+7 702 345-67-89', 15, 72000, '27.09.2026', 'regular'],
-    ['Карина Байжанова', '+7 700 789-01-23', 9, 43000, '22.09.2026', 'regular'], ['Серик Нурланов', '+7 705 456-78-90', 6, 28000, '28.09.2026', 'regular'],
-    ['Айгуль Токова', '+7 707 567-89-01', 2, 8900, '28.09.2026', 'new'], ['Нурлан Жаксыбеков', '+7 701 890-12-34', 1, 4100, '28.09.2026', 'new'],
+    ['Ruslan Asanov', '+7 708 678-90-12', 42, 320000, '26.09.2026', 'vip'], ['Almas Kozhabekov', '+7 701 234-56-78', 28, 145000, '25.09.2026', 'vip'],
+    ['Zarina Seitkali', '+7 702 901-23-45', 18, 98000, '24.09.2026', 'regular'], ['Dina Mussayeva', '+7 702 345-67-89', 15, 72000, '27.09.2026', 'regular'],
+    ['Karina Baizhanova', '+7 700 789-01-23', 9, 43000, '22.09.2026', 'regular'], ['Serik Nurlanov', '+7 705 456-78-90', 6, 28000, '28.09.2026', 'regular'],
+    ['Aigul Tokova', '+7 707 567-89-01', 2, 8900, '28.09.2026', 'new'], ['Nurlan Zhaksybekov', '+7 701 890-12-34', 1, 4100, '28.09.2026', 'new'],
   ].map(([name, phone, visits, spent, last, lvl]) => ({ name, phone, visits, spent, last, lvl })),
   staff: [
-    ['Айнур Сейткалиева', 'Администратор', true, 4.8, 22], ['Болат Дюсенов', 'Повар', true, 4.9, 20], ['Гульнара Аблаева', 'Официант', false, 4.5, 17],
-    ['Данияр Касымов', 'Официант', true, 4.6, 19], ['Елена Петрова', 'Бармен', false, 4.7, 15], ['Жасулан Нурмагамбетов', 'Кассир', true, 4.3, 21],
+    ['Ainur Seitkaliyeva', 'Administrator', true, 4.8, 22], ['Bolat Dyussenov', 'Cook', true, 4.9, 20], ['Gulnara Ablayeva', 'Waiter', false, 4.5, 17],
+    ['Daniyar Kassymov', 'Waiter', true, 4.6, 19], ['Elena Petrova', 'Bartender', false, 4.7, 15], ['Zhassulan Nurmagambetov', 'Cashier', true, 4.3, 21],
   ].map(([name, role, on, rating, shifts]) => ({ name, role, on, rating, shifts })),
-  days: [['Вт', '22.09', 72000], ['Ср', '23.09', 58000], ['Чт', '24.09', 84500], ['Пт', '25.09', 91000], ['Сб', '26.09', 95000], ['Вс', '27.09', 78000]],
-  expenses: [['28.09.2026', 'Продукты', 32000], ['27.09.2026', 'Зарплата', 45000], ['26.09.2026', 'Списание', 8200], ['25.09.2026', 'Аренда', 150000], ['24.09.2026', 'Продукты', 41000], ['23.09.2026', 'Коммунальные', 38000]],
+  days: [['Tue', '22.09', 72000], ['Wed', '23.09', 58000], ['Thu', '24.09', 84500], ['Fri', '25.09', 91000], ['Sat', '26.09', 95000], ['Sun', '27.09', 78000]],
+  expenses: [['28.09.2026', 'Groceries', 32000], ['27.09.2026', 'Payroll', 45000], ['26.09.2026', 'Write-offs', 8200], ['25.09.2026', 'Rent', 150000], ['24.09.2026', 'Groceries', 41000], ['23.09.2026', 'Utilities', 38000]],
   month30: [49, 53, 57, 52, 60, 63, 68, 61, 66, 70, 74, 69, 77, 81, 86, 72, 79, 83, 88, 76, 84, 89, 93, 80, 72, 58, 84.5, 91, 95, 78],
 };
-const SM = { new: ['Новый', ''], confirm: ['Принят', ''], cooking: ['Готовится', 'warn'], ready: ['Готово', 'pos'], done: ['Выдано', ''], cancel: ['Отменён', 'neg'] };
-const NEXT = { new: ['confirm', 'Принять'], confirm: ['cooking', 'На кухню'], cooking: ['ready', 'Готово'], ready: ['done', 'Выдать'] };
+const SM = { new: ['New', ''], confirm: ['Accepted', ''], cooking: ['Cooking', 'warn'], ready: ['Ready', 'pos'], done: ['Served', ''], cancel: ['Cancelled', 'neg'] };
+const NEXT = { new: ['confirm', 'Accept'], confirm: ['cooking', 'To kitchen'], cooking: ['ready', 'Ready'], ready: ['done', 'Serve'] };
 const total = (o) => o.items.reduce((s, i) => s + i.p * i.q, 0);
 const live = () => S.orders.filter((o) => o.status !== 'cancel');
 const revenueToday = () => live().reduce((s, o) => s + total(o), 0);
@@ -171,17 +171,17 @@ const mins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m
 const wait = (o) => mins(NOW) - mins(o.time);
 const tg = (n) => fmt(n) + ' ₸';
 const week = () => S.days.reduce((s, d) => s + d[2], 0) + revenueToday();
-console.assert(revenueToday() === 41900 && S.orders.length === 10, 'orders total'); // 4 700 − 4 100: Харчо + 10 манты + 2 чая = 4 500
+console.assert(revenueToday() === 41900 && S.orders.length === 10, 'orders total'); // 4 700 − 4 100: Kharcho + 10 manti + 2 teas = 4 500
 
 /* ── shell ────────────────────────────────────────────── */
-const PAGES = { dashboard: ['Дашборд', 'home'], orders: ['Заказы', 'bag'], menu: ['Меню', 'utensils'], guests: ['Гости', 'users'], staff: ['Персонал', 'calendar'], finance: ['Финансы', 'coin'], analytics: ['Аналитика', 'chart'] };
+const PAGES = { dashboard: ['Dashboard', 'home'], orders: ['Orders', 'bag'], menu: ['Menu', 'utensils'], guests: ['Guests', 'users'], staff: ['Staff', 'calendar'], finance: ['Finance', 'coin'], analytics: ['Analytics', 'chart'] };
 let page = 'dashboard', ordFilter = 'all', guestQ = '', guestL = 'all';
 const newCount = () => S.orders.filter((o) => o.status === 'new').length;
 
 function chrome() {
   const n = newCount();
   const item = (k, extra = '') => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${extra}</a>`;
-  $('#nav').innerHTML = item('dashboard') + item('orders', n ? `<span class="count" title="Новых заказов">${n}</span>` : '') + item('menu') + `<div class="nav-label">Люди</div>` + item('guests') + item('staff') + `<div class="nav-label">Деньги</div>` + item('finance') + item('analytics');
+  $('#nav').innerHTML = item('dashboard') + item('orders', n ? `<span class="count" title="New orders">${n}</span>` : '') + item('menu') + `<div class="nav-label">People</div>` + item('guests') + item('staff') + `<div class="nav-label">Money</div>` + item('finance') + item('analytics');
   const tabs = ['dashboard', 'orders', 'menu', 'guests', 'finance'];
   $('#tabbar').innerHTML = tabs.map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'orders' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
   setNav(page);
@@ -193,7 +193,7 @@ document.addEventListener('click', (e) => {
   const adv = e.target.closest('[data-adv]'); if (adv) return advance(adv.dataset.adv);
   const op = e.target.closest('[data-order]'); if (op && !e.target.closest('button')) return openOrder(op.dataset.order);
   const f = e.target.closest('[data-filter]'); if (f) { ordFilter = f.dataset.filter; return render(); }
-  const sw = e.target.closest('[data-dish]'); if (sw) { const d = S.menu[+sw.dataset.dish]; d.a = !d.a; toast(d.a ? `${d.n} вернули в меню` : `${d.n} в стоп-листе`); return render(); }
+  const sw = e.target.closest('[data-dish]'); if (sw) { const d = S.menu[+sw.dataset.dish]; d.a = !d.a; toast(d.a ? `${d.n} back on the menu` : `${d.n} added to stop-list`); return render(); }
   const act = e.target.closest('[data-act]'); if (act) ACT[act.dataset.act](act.dataset);
 });
 document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
@@ -213,66 +213,66 @@ function ticket(o) {
   const w = wait(o), late = o.status !== 'ready' && w >= 12;
   const nx = NEXT[o.status];
   return `<article class="ticket${late ? ' late' : ''}${o.id === FRESH ? ' fresh' : ''}" data-order="${o.id}" style="cursor:pointer">
-    <div class="t-top"><span class="tt"><span class="thumb">${dishArt(o.items[0].n, cat(o.items[0].n))}</span><b>${esc(o.table)} <span>${o.id}</span></b></span><span class="${late ? 'late' : ''}">${w} мин</span></div>
-    <ul class="t-items">${o.items.slice(0, 3).map((i) => `<li><span>${esc(i.n)}${i.q > 1 ? ' × ' + i.q : ''}</span></li>`).join('')}${o.items.length > 3 ? `<li><span>и ещё ${o.items.length - 3}</span></li>` : ''}</ul>
+    <div class="t-top"><span class="tt"><span class="thumb">${dishArt(o.items[0].n, cat(o.items[0].n))}</span><b>${esc(o.table)} <span>${o.id}</span></b></span><span class="${late ? 'late' : ''}">${w} min</span></div>
+    <ul class="t-items">${o.items.slice(0, 3).map((i) => `<li><span>${esc(i.n)}${i.q > 1 ? ' × ' + i.q : ''}</span></li>`).join('')}${o.items.length > 3 ? `<li><span>+${o.items.length - 3} more</span></li>` : ''}</ul>
     <div class="t-foot"><b>${tg(total(o))}</b><button class="btn sm ${o.status === 'new' ? 'primary' : ''}" data-adv="${o.id}">${nx[1]}</button></div></article>`;
 }
 function dashboard() {
-  const col = (title, sts) => { const l = S.orders.filter((o) => sts.includes(o.status)).sort((a, b) => mins(a.time) - mins(b.time)); return `<section><div class="col-h"><h2>${title}</h2><span>${l.length}</span></div><div class="tickets">${l.length ? l.map(ticket).join('') : '<div class="none">Пусто</div>'}</div></section>`; };
+  const col = (title, sts) => { const l = S.orders.filter((o) => sts.includes(o.status)).sort((a, b) => mins(a.time) - mins(b.time)); return `<section><div class="col-h"><h2>${title}</h2><span>${l.length}</span></div><div class="tickets">${l.length ? l.map(ticket).join('') : '<div class="none">Empty</div>'}</div></section>`; };
   const waiting = S.orders.filter((o) => o.status === 'new').sort((a, b) => mins(a.time) - mins(b.time))[0];
   const stop = S.menu.filter((m) => !m.a).map((m) => m.n);
   const conflict = S.orders.filter((o) => !['done', 'cancel'].includes(o.status) && o.items.some((i) => stop.includes(i.n)))[0];
   const avg = revenueToday() / live().length;
-  const finding = conflict ? `<div class="finding">${ic('alert')}<span>В заказе ${conflict.id} есть «${esc(conflict.items.find((i) => stop.includes(i.n)).n)}», а блюдо в стоп-листе. Позвоните гостю до отправки на кухню.</span><button class="btn sm" data-order="${conflict.id}">Открыть заказ</button></div>`
-    : waiting && wait(waiting) >= 10 ? `<div class="finding">${ic('clock')}<span>${esc(waiting.table)} ждёт ${wait(waiting)} мин: заказ ${waiting.id} ещё не принят.</span><button class="btn sm primary" data-adv="${waiting.id}">Принять</button></div>` : '';
-  return head('Дашборд', `${TODAY} · <span class="liveclock"><i></i>${NOW}, смена идёт</span>`, `<button class="btn primary" data-act="newOrder">${ic('plus')}Новый заказ</button>`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${fmt(revenueToday())}<small>₸</small></b><span>Выручка за день на ${NOW}</span></div>
-      <div class="kpi"><b>${live().length}</b><span>Заказов, ${S.orders.length - live().length} отменён</span></div>
-      <div class="kpi"><b>${fmt(avg)}<small>₸</small></b><span>Средний чек</span></div>
-      <div class="kpi"><b>${S.orders.filter((o) => o.status === 'done').length}</b><span>Выдано гостям</span></div></div>
-    <div class="board">${col('Новые', ['new', 'confirm'])}${col('На кухне', ['cooking'])}${col('Готово к выдаче', ['ready'])}</div>`;
+  const finding = conflict ? `<div class="finding">${ic('alert')}<span>Order ${conflict.id} includes “${esc(conflict.items.find((i) => stop.includes(i.n)).n)}”, which is on the stop-list. Call the guest before sending it to the kitchen.</span><button class="btn sm" data-order="${conflict.id}">Open order</button></div>`
+    : waiting && wait(waiting) >= 10 ? `<div class="finding">${ic('clock')}<span>${esc(waiting.table)} has waited ${wait(waiting)} min: order ${waiting.id} is not accepted yet.</span><button class="btn sm primary" data-adv="${waiting.id}">Accept</button></div>` : '';
+  return head('Dashboard', `${TODAY} · <span class="liveclock"><i></i>${NOW}, shift in progress</span>`, `<button class="btn primary" data-act="newOrder">${ic('plus')}New order</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${fmt(revenueToday())}<small>₸</small></b><span>Revenue today as of ${NOW}</span></div>
+      <div class="kpi"><b>${live().length}</b><span>Orders, ${S.orders.length - live().length} cancelled</span></div>
+      <div class="kpi"><b>${fmt(avg)}<small>₸</small></b><span>Average check</span></div>
+      <div class="kpi"><b>${S.orders.filter((o) => o.status === 'done').length}</b><span>Served to guests</span></div></div>
+    <div class="board">${col('New', ['new', 'confirm'])}${col('In the kitchen', ['cooking'])}${col('Ready to serve', ['ready'])}</div>`;
 }
 
 function orders() {
   const f = ordFilter;
   const list = S.orders.filter((o) => f === 'all' || o.status === f);
   const tab = (k, t) => `<button data-filter="${k}" class="${f === k ? 'on' : ''}">${t}</button>`;
-  return head('Заказы', `${S.orders.length} за сегодня · ${tg(revenueToday())}`, `<button class="btn primary" data-act="newOrder">${ic('plus')}Новый заказ</button>`) +
-    `<div class="tabs">${tab('all', 'Все')}${tab('new', 'Новые')}${tab('cooking', 'На кухне')}${tab('ready', 'Готово')}${tab('done', 'Выдано')}${tab('cancel', 'Отменены')}</div>
+  return head('Orders', `${S.orders.length} today · ${tg(revenueToday())}`, `<button class="btn primary" data-act="newOrder">${ic('plus')}New order</button>`) +
+    `<div class="tabs">${tab('all', 'All')}${tab('new', 'New')}${tab('cooking', 'In kitchen')}${tab('ready', 'Ready')}${tab('done', 'Served')}${tab('cancel', 'Cancelled')}</div>
     <div class="card">${list.length ? `<div class="tbl" style="--cols:70px 1.2fr 1fr 70px 110px 100px;--colsm:60px 1fr 90px">
-      <div class="tr th"><span>№</span><span>Стол и гость</span><span class="hm">Состав</span><span class="hm r">Время</span><span class="r">Сумма</span><span class="r hm">Статус</span></div>
-      ${list.map((o) => `<div class="tr" data-order="${o.id}" data-open style="cursor:pointer"><span class="muted">${o.id}</span><span class="cell-main"><b>${esc(o.table)}</b><span>${esc(o.guest)}</span></span><span class="hm muted">${esc(o.items.map((i) => i.n).slice(0, 2).join(', '))}${o.items.length > 2 ? '…' : ''}</span><span class="hm r muted">${o.time}</span><span class="r">${tg(total(o))}</span><span class="r hm">${pill(o.status)}</span></div>`).join('')}</div>` : '<div class="empty">Заказов с таким статусом нет.</div>'}</div>`;
+      <div class="tr th"><span>№</span><span>Table & guest</span><span class="hm">Items</span><span class="hm r">Time</span><span class="r">Total</span><span class="r hm">Status</span></div>
+      ${list.map((o) => `<div class="tr" data-order="${o.id}" data-open style="cursor:pointer"><span class="muted">${o.id}</span><span class="cell-main"><b>${esc(o.table)}</b><span>${esc(o.guest)}</span></span><span class="hm muted">${esc(o.items.map((i) => i.n).slice(0, 2).join(', '))}${o.items.length > 2 ? '…' : ''}</span><span class="hm r muted">${o.time}</span><span class="r">${tg(total(o))}</span><span class="r hm">${pill(o.status)}</span></div>`).join('')}</div>` : '<div class="empty">No orders with this status.</div>'}</div>`;
 }
 
 function menu() {
   const stop = S.menu.filter((m) => !m.a).length;
-  return head('Меню', `${S.menu.length} позиций · ${stop ? stop + ' в стоп-листе' : 'стоп-лист пуст'}`, `<button class="btn primary" data-act="newDish">${ic('plus')}Новое блюдо</button>`) +
-    Object.entries(CATS).map(([k, name]) => { const items = S.menu.map((m, i) => ({ ...m, i })).filter((m) => m.c === k); if (!items.length) return ''; return `<section class="menu-grp"><h2>${name}</h2><div class="dgrid">${items.map((m) => `<article class="dcard ${m.a ? '' : 'off'}"><span class="dart">${dishArt(m.n, m.c)}</span><div class="dbody"><b>${esc(m.n)}</b><div class="dfoot"><span>${tg(m.p)}</span><button class="sw" data-dish="${m.i}" aria-pressed="${m.a}" aria-label="${esc(m.n)}: ${m.a ? 'в меню' : 'в стоп-листе'}"></button></div></div></article>`).join('')}</div></section>`; }).join('');
+  return head('Menu', `${S.menu.length} items · ${stop ? stop + ' on stop-list' : 'stop-list empty'}`, `<button class="btn primary" data-act="newDish">${ic('plus')}New dish</button>`) +
+    Object.entries(CATS).map(([k, name]) => { const items = S.menu.map((m, i) => ({ ...m, i })).filter((m) => m.c === k); if (!items.length) return ''; return `<section class="menu-grp"><h2>${name}</h2><div class="dgrid">${items.map((m) => `<article class="dcard ${m.a ? '' : 'off'}"><span class="dart">${dishArt(m.n, m.c)}</span><div class="dbody"><b>${esc(m.n)}</b><div class="dfoot"><span>${tg(m.p)}</span><button class="sw" data-dish="${m.i}" aria-pressed="${m.a}" aria-label="${esc(m.n)}: ${m.a ? 'on menu' : 'on stop-list'}"></button></div></div></article>`).join('')}</div></section>`; }).join('');
 }
 
 function guests() {
   const l = S.guests.filter((g) => (!guestQ || g.name.toLowerCase().includes(guestQ) || g.phone.includes(guestQ)) && (guestL === 'all' || g.lvl === guestL));
-  const LV = { vip: ['VIP', 'warn'], regular: ['Постоянный', ''], new: ['Новый', 'pos'] };
-  return head('Гости', `${S.guests.length} в базе · баллы: 1 за каждые 100 ₸`) +
-    `<div class="filters"><input id="g-q" type="search" placeholder="Имя или телефон" value="${esc(guestQ)}" aria-label="Поиск"><select id="g-l" aria-label="Уровень"><option value="all">Все уровни</option>${Object.entries(LV).map(([k, v]) => `<option value="${k}" ${guestL === k ? 'selected' : ''}>${v[0]}</option>`).join('')}</select></div>
-    <div class="card">${l.length ? `<div class="tbl" style="--cols:1.4fr 150px 70px 110px 80px 110px;--colsm:1.4fr 90px"><div class="tr th"><span>Гость</span><span class="hm">Телефон</span><span class="hm r">Визитов</span><span class="hm r">Потрачено</span><span class="hm r">Баллы</span><span class="r">Уровень</span></div>
-      ${l.map((g) => `<div class="tr"><span class="cell-main"><b>${esc(g.name)}</b><span>был ${g.last}</span></span><span class="hm muted">${esc(g.phone)}</span><span class="hm r">${g.visits}</span><span class="hm r">${tg(g.spent)}</span><span class="hm r">${fmt(g.spent / 100)}</span><span class="r"><span class="pill ${LV[g.lvl][1]}">${LV[g.lvl][0]}</span></span></div>`).join('')}</div>` : '<div class="empty">Никого не нашли. Попробуйте другое имя.</div>'}</div>`;
+  const LV = { vip: ['VIP', 'warn'], regular: ['Regular', ''], new: ['New', 'pos'] };
+  return head('Guests', `${S.guests.length} in database · points: 1 per 100 ₸`) +
+    `<div class="filters"><input id="g-q" type="search" placeholder="Name or phone" value="${esc(guestQ)}" aria-label="Search"><select id="g-l" aria-label="Level"><option value="all">All levels</option>${Object.entries(LV).map(([k, v]) => `<option value="${k}" ${guestL === k ? 'selected' : ''}>${v[0]}</option>`).join('')}</select></div>
+    <div class="card">${l.length ? `<div class="tbl" style="--cols:1.4fr 150px 70px 110px 80px 110px;--colsm:1.4fr 90px"><div class="tr th"><span>Guest</span><span class="hm">Phone</span><span class="hm r">Visits</span><span class="hm r">Spent</span><span class="hm r">Points</span><span class="r">Level</span></div>
+      ${l.map((g) => `<div class="tr"><span class="cell-main"><b>${esc(g.name)}</b><span>last visit ${g.last}</span></span><span class="hm muted">${esc(g.phone)}</span><span class="hm r">${g.visits}</span><span class="hm r">${tg(g.spent)}</span><span class="hm r">${fmt(g.spent / 100)}</span><span class="r"><span class="pill ${LV[g.lvl][1]}">${LV[g.lvl][0]}</span></span></div>`).join('')}</div>` : '<div class="empty">No guests found. Try a different name.</div>'}</div>`;
 }
 
 function staff() {
   const on = S.staff.filter((s) => s.on).length;
-  return head('Персонал', `${on} из ${S.staff.length} на смене сейчас`) +
-    `<div class="card"><div class="tbl" style="--cols:1.4fr 1fr 120px 110px 90px;--colsm:1.3fr 110px"><div class="tr th"><span>Сотрудник</span><span class="hm">Роль</span><span class="hm">Смена</span><span class="hm r">Рейтинг</span><span class="r">Статус</span></div>
-    ${S.staff.map((s) => `<div class="tr"><span class="cell-main"><b>${esc(s.name)}</b><span>${s.shifts} смен в сентябре</span></span><span class="hm">${s.role}</span><span class="hm muted">${s.on ? '10:00–22:00' : 'выходной'}</span><span class="hm r"><span class="stars">${'★'.repeat(Math.round(s.rating))}</span> ${fmtD(s.rating)}</span><span class="r"><span class="pill ${s.on ? 'pos' : ''}"><i></i>${s.on ? 'На смене' : 'Не на смене'}</span></span></div>`).join('')}</div></div>`;
+  return head('Staff', `${on} of ${S.staff.length} on shift now`) +
+    `<div class="card"><div class="tbl" style="--cols:1.4fr 1fr 120px 110px 90px;--colsm:1.3fr 110px"><div class="tr th"><span>Employee</span><span class="hm">Role</span><span class="hm">Shift</span><span class="hm r">Rating</span><span class="r">Status</span></div>
+    ${S.staff.map((s) => `<div class="tr"><span class="cell-main"><b>${esc(s.name)}</b><span>${s.shifts} shifts in September</span></span><span class="hm">${s.role}</span><span class="hm muted">${s.on ? '10:00–22:00' : 'day off'}</span><span class="hm r"><span class="stars">${'★'.repeat(Math.round(s.rating))}</span> ${fmtD(s.rating)}</span><span class="r"><span class="pill ${s.on ? 'pos' : ''}"><i></i>${s.on ? 'On shift' : 'Off shift'}</span></span></div>`).join('')}</div></div>`;
 }
 
 function finance() {
   const exp = S.expenses.reduce((s, e) => s + e[2], 0), rev = week();
-  const rows = [...S.days.map((d) => [d[1] + '.2026', 'Выручка', 'Зал и доставка', d[2]]), [TODAY, 'Выручка', `Зал и доставка (на ${NOW})`, revenueToday()], ...S.expenses.map((e) => [e[0], 'Расход', e[1], -e[2]])]
+  const rows = [...S.days.map((d) => [d[1] + '.2026', 'Revenue', 'Dine-in & delivery', d[2]]), [TODAY, 'Revenue', `Dine-in & delivery (as of ${NOW})`, revenueToday()], ...S.expenses.map((e) => [e[0], 'Expense', e[1], -e[2]])]
     .sort((a, b) => b[0].split('.').reverse().join('').localeCompare(a[0].split('.').reverse().join('')));
-  return head('Финансы', '22–28 сентября 2026') +
-    `<div class="kpis"><div class="kpi"><b>${fmt(rev)}<small>₸</small></b><span>Выручка за 7 дней</span></div><div class="kpi"><b>${fmt(exp)}<small>₸</small></b><span>Расходы</span></div><div class="kpi"><b class="${rev - exp >= 0 ? 'pos' : 'neg'}">${signed(rev - exp)}<small>₸</small></b><span>Результат (${Math.round(((rev - exp) / rev) * 100)}% от выручки)</span></div></div>
-    <div class="card"><div class="tbl" style="--cols:110px 1fr 1.2fr 140px;--colsm:90px 1fr 100px"><div class="tr th"><span>Дата</span><span>Тип</span><span class="hm">Категория</span><span class="r">Сумма</span></div>
+  return head('Finance', '22–28 September 2026') +
+    `<div class="kpis"><div class="kpi"><b>${fmt(rev)}<small>₸</small></b><span>Revenue, 7 days</span></div><div class="kpi"><b>${fmt(exp)}<small>₸</small></b><span>Expenses</span></div><div class="kpi"><b class="${rev - exp >= 0 ? 'pos' : 'neg'}">${signed(rev - exp)}<small>₸</small></b><span>Net result (${Math.round(((rev - exp) / rev) * 100)}% of revenue)</span></div></div>
+    <div class="card"><div class="tbl" style="--cols:110px 1fr 1.2fr 140px;--colsm:90px 1fr 100px"><div class="tr th"><span>Date</span><span>Type</span><span class="hm">Category</span><span class="r">Total</span></div>
     ${rows.map((r) => `<div class="tr"><span class="muted">${r[0].slice(0, 5)}</span><span>${r[1]}</span><span class="hm muted">${esc(r[2])}</span><span class="r ${r[3] > 0 ? 'pos' : ''}">${signed(r[3], (v) => fmt(v) + ' ₸')}</span></div>`).join('')}</div></div>`;
 }
 
@@ -280,14 +280,14 @@ function analytics() {
   const byCat = {}; live().forEach((o) => o.items.forEach((i) => { byCat[cat(i.n)] = (byCat[cat(i.n)] || 0) + i.p * i.q; }));
   const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]), t = rows.reduce((s, r) => s + r[1], 0);
   const best = S.days.reduce((a, b) => (b[2] > a[2] ? b : a));
-  return head('Аналитика', 'Выручка и структура продаж') +
-    `<div class="kpis"><div class="kpi"><b>${fmt(best[2] / 1000)}<small>тыс. ₸</small></b><span>Лучший день недели: ${best[0]}, ${best[1]}</span></div><div class="kpi"><b>${fmt(rows.length ? t / live().length : 0)}<small>₸</small></b><span>Средний чек сегодня</span></div></div>
-    <div class="grid"><section class="card c7"><div class="card-h"><h2>Выручка по дням, тыс. ₸</h2><span>сегодня — на ${NOW}</span></div><div id="ch-days"></div></section>
-    <section class="card c5"><div class="card-h"><h2>Структура продаж сегодня</h2><span>доля выручки</span></div>${rows.map(([k, v]) => barRow(CATS[k], (v / t) * 100, Math.round((v / t) * 100) + '%', tg(v))).join('')}</section>
-    <section class="card c12"><div class="card-h"><h2>Выручка за 30 дней, тыс. ₸</h2></div><div id="ch-30"></div></section></div>`;
+  return head('Analytics', 'Revenue and sales mix') +
+    `<div class="kpis"><div class="kpi"><b>${fmt(best[2] / 1000)}<small>k ₸</small></b><span>Best day of the week: ${best[0]}, ${best[1]}</span></div><div class="kpi"><b>${fmt(rows.length ? t / live().length : 0)}<small>₸</small></b><span>Average check today</span></div></div>
+    <div class="grid"><section class="card c7"><div class="card-h"><h2>Daily revenue, ₸ thousand</h2><span>today — as of ${NOW}</span></div><div id="ch-days"></div></section>
+    <section class="card c5"><div class="card-h"><h2>Sales mix today</h2><span>share of revenue</span></div>${rows.map(([k, v]) => barRow(CATS[k], (v / t) * 100, Math.round((v / t) * 100) + '%', tg(v))).join('')}</section>
+    <section class="card c12"><div class="card-h"><h2>30-day revenue, ₸ thousand</h2></div><div id="ch-30"></div></section></div>`;
 }
 function mount() {
-  const a = $('#ch-days'); if (a) { const labels = [...S.days.map((d) => d[0]), 'Пн'], vals = [...S.days.map((d) => d[2] / 1000), revenueToday() / 1000]; chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (v) => fmtD(v, v % 1 ? 1 : 0), unit: 'тыс. ₸' })); }
+  const a = $('#ch-days'); if (a) { const labels = [...S.days.map((d) => d[0]), 'Mon'], vals = [...S.days.map((d) => d[2] / 1000), revenueToday() / 1000]; chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (v) => fmtD(v, v % 1 ? 1 : 0), unit: 'k ₸' })); }
   const b = $('#ch-30'); if (b) { const v = S.month30, labels = v.map((_, i) => i + 1 + ''); chart(b, (w) => lineSVG(w, { labels, values: v, xAt: [0, 7, 14, 21, 29], fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) })); }
 }
 
@@ -295,50 +295,50 @@ function mount() {
 const ACT = {
   newOrder() {
     const avail = S.menu.filter((m) => m.a);
-    modal(`<h2>Новый заказ</h2><p>Попадёт в колонку «Новые».</p>
-      <div class="field"><label>Стол</label><select id="o-t">${[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `<option>Стол ${n}</option>`).join('')}<option>Доставка</option></select></div>
-      <div class="field"><label>Блюдо</label><select id="o-d">${avail.map((m) => `<option>${esc(m.n)} · ${fmt(m.p)} ₸</option>`).join('')}</select></div>
-      <div class="field"><label>Количество</label><input id="o-q" type="number" min="1" max="20" value="1"></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="o-ok">Создать</button></div>`, () => {
+    modal(`<h2>New order</h2><p>It will appear in the “New” column.</p>
+      <div class="field"><label>Table</label><select id="o-t">${[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `<option>Table ${n}</option>`).join('')}<option>Delivery</option></select></div>
+      <div class="field"><label>Dish</label><select id="o-d">${avail.map((m) => `<option>${esc(m.n)} · ${fmt(m.p)} ₸</option>`).join('')}</select></div>
+      <div class="field"><label>Quantity</label><input id="o-q" type="number" min="1" max="20" value="1"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="o-ok">Create</button></div>`, () => {
       $('#o-ok').onclick = () => {
         const name = $('#o-d').value.split(' · ')[0], q = Math.max(1, +$('#o-q').value || 1), t = $('#o-t').value;
-        S.orders.unshift(O('#' + (1043 + S.orders.length - 10), t, t === 'Доставка' ? 'Доставка' : 'Зал', 'Гость', [[name, q]], 'new', NOW));
-        closeModal(); toast('Заказ создан'); render();
+        S.orders.unshift(O('#' + (1043 + S.orders.length - 10), t, t === 'Delivery' ? 'Delivery' : 'Dine-in', 'Guest', [[name, q]], 'new', NOW));
+        closeModal(); toast('Order created'); render();
       };
     });
   },
   newDish() {
-    modal(`<h2>Новое блюдо</h2><p>Появится в меню сразу.</p><div class="field"><label>Название</label><input id="d-n" placeholder="Например, Баурсаки"></div>
-      <div class="field"><label>Раздел</label><select id="d-c">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div><div class="field"><label>Цена, ₸</label><input id="d-p" type="number" min="0" value="1000"></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn primary" id="d-ok">Добавить</button></div>`, () => {
-      $('#d-ok').onclick = () => { const n = $('#d-n').value.trim(); if (!n) { $('#d-n').focus(); return; } S.menu.push({ n, c: $('#d-c').value, p: +$('#d-p').value || 0, a: true }); closeModal(); toast(`${n} добавлено в меню`); render(); };
+    modal(`<h2>New dish</h2><p>It will appear on the menu right away.</p><div class="field"><label>Name</label><input id="d-n" placeholder="E.g. Baursak"></div>
+      <div class="field"><label>Category</label><select id="d-c">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div><div class="field"><label>Price, ₸</label><input id="d-p" type="number" min="0" value="1000"></div>
+      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="d-ok">Add</button></div>`, () => {
+      $('#d-ok').onclick = () => { const n = $('#d-n').value.trim(); if (!n) { $('#d-n').focus(); return; } S.menu.push({ n, c: $('#d-c').value, p: +$('#d-p').value || 0, a: true }); closeModal(); toast(`${n} added to the menu`); render(); };
     });
   },
 };
 function openOrder(id) {
   const o = S.orders.find((x) => x.id === id), stop = S.menu.filter((m) => !m.a).map((m) => m.n), nx = NEXT[o.status];
-  modal(`<h2>${o.id} · ${esc(o.table)}</h2><p>${esc(o.guest)} · принят в ${o.time} · ${pill(o.status)}</p>
-    ${o.items.map((i) => `<div class="trip" style="grid-template-columns:1fr auto;padding:8px 0;display:grid"><span>${esc(i.n)} × ${i.q}${stop.includes(i.n) ? ' <span class="pill neg">в стоп-листе</span>' : ''}</span><b>${tg(i.p * i.q)}</b></div>`).join('')}
-    <div class="trip" style="grid-template-columns:1fr auto;display:grid;border-top:1px solid var(--border);margin-top:6px;padding-top:12px"><b>Итого</b><b>${tg(total(o))}</b></div>
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">Закрыть</button>${nx ? `<button class="btn primary" id="adv">${nx[1]}</button>` : ''}${nx && o.status !== 'ready' ? '' : ''}</div>`, () => { const b = $('#adv'); if (b) b.onclick = () => { closeModal(); advance(id); }; });
+  modal(`<h2>${o.id} · ${esc(o.table)}</h2><p>${esc(o.guest)} · accepted at ${o.time} · ${pill(o.status)}</p>
+    ${o.items.map((i) => `<div class="trip" style="grid-template-columns:1fr auto;padding:8px 0;display:grid"><span>${esc(i.n)} × ${i.q}${stop.includes(i.n) ? ' <span class="pill neg">on stop-list</span>' : ''}</span><b>${tg(i.p * i.q)}</b></div>`).join('')}
+    <div class="trip" style="grid-template-columns:1fr auto;display:grid;border-top:1px solid var(--border);margin-top:6px;padding-top:12px"><b>Total</b><b>${tg(total(o))}</b></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button>${nx ? `<button class="btn primary" id="adv">${nx[1]}</button>` : ''}${nx && o.status !== 'ready' ? '' : ''}</div>`, () => { const b = $('#adv'); if (b) b.onclick = () => { closeModal(); advance(id); }; });
 }
 /* ── live kitchen: the clock runs, orders keep arriving, the pass marks dishes ready ─ */
 let FRESH = null, beat = 0;
-const WHO = ['Айбек Т.', 'Мадина Р.', 'Тимур С.', 'Лейла К.', 'Ерлан Ж.', 'Асель Б.', 'Данияр М.', 'Сауле Н.'];
-const WHERE = ['Стол 1', 'Стол 3', 'Стол 6', 'Стол 2', 'Стол 4', 'Стол 8', 'Доставка'];
+const WHO = ['Aibek T.', 'Madina R.', 'Timur S.', 'Leila K.', 'Yerlan Zh.', 'Assel B.', 'Daniyar M.', 'Saule N.'];
+const WHERE = ['Table 1', 'Table 3', 'Table 6', 'Table 2', 'Table 4', 'Table 8', 'Delivery'];
 const hm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 function spawn() {
   const avail = S.menu.filter((m) => m.a), pick = () => avail[Math.floor(Math.random() * avail.length)].n, items = new Map();
   for (let k = 0, n = 1 + Math.floor(Math.random() * 3); k < n; k++) items.set(pick(), 1 + Math.floor(Math.random() * 2));
   const id = '#' + (Math.max(...S.orders.map((o) => +o.id.slice(1))) + 1), where = WHERE[Math.floor(Math.random() * WHERE.length)];
-  S.orders.unshift(O(id, where, where === 'Доставка' ? 'Доставка' : 'Зал', WHO[Math.floor(Math.random() * WHO.length)], [...items], 'new', NOW));
-  FRESH = id; toast(`Новый заказ ${id} · ${where}`);
+  S.orders.unshift(O(id, where, where === 'Delivery' ? 'Delivery' : 'Dine-in', WHO[Math.floor(Math.random() * WHO.length)], [...items], 'new', NOW));
+  FRESH = id; toast(`New order ${id} · ${where}`);
 }
 setInterval(() => {
   if (document.hidden) return;
   beat++; NOW = hm(mins(NOW) + 1);
   if (beat % 3 === 0) spawn();
-  else if (beat % 4 === 0) { const c = S.orders.find((o) => o.status === 'cooking'); if (c) { c.status = 'ready'; toast(`${c.id} готов к выдаче`); } }
+  else if (beat % 4 === 0) { const c = S.orders.find((o) => o.status === 'cooking'); if (c) { c.status = 'ready'; toast(`${c.id} is ready to serve`); } }
   if (['dashboard', 'orders', 'analytics', 'finance'].includes(page) && !$('#scrim')) { render(); FRESH = null; }
 }, 5000);
 render();
