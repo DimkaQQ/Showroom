@@ -66,6 +66,31 @@ export function Eggs({ lang }: { lang: Lang }) {
     const mark = document.querySelector<HTMLElement>(".hero .wordmark");
     mark?.addEventListener("click", wave);
 
+    // Touch equivalents (no keyboard on a phone): 5 taps on the first stat = Konami, 3 taps on the last = 404,
+    // press and hold the wordmark = sudo.
+    const stats = document.querySelectorAll<HTMLElement>(".hero-stats dd");
+    const tapTimes = (el: HTMLElement | undefined, n: number, ms: number, fn: () => void) => {
+      if (!el) return () => {};
+      let hits: number[] = [];
+      const on = () => {
+        const now = Date.now();
+        hits = [...hits.filter((h) => now - h < ms), now];
+        if (hits.length >= n) { hits = []; fn(); }
+      };
+      el.addEventListener("click", on);
+      return () => el.removeEventListener("click", on);
+    };
+    const goTo404 = () => { say(t.four04); later(() => location.assign(pathFor(lang) + "this-page-does-not-exist/"), 900); };
+    const offTaps = [
+      tapTimes(stats[0], 5, 2500, () => { say(t.konami); rain(); }),
+      tapTimes(stats[2], 3, 1200, goTo404),
+    ];
+    let hold = 0;
+    const holdStart = () => { hold = window.setTimeout(() => say(t.sudo), 800); };
+    const holdEnd = () => window.clearTimeout(hold);
+    mark?.addEventListener("pointerdown", holdStart);
+    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => mark?.addEventListener(ev, holdEnd));
+
     const original = document.title;
     const onVisibility = () => { document.title = document.hidden ? t.away : original; };
     document.addEventListener("visibilitychange", onVisibility);
@@ -81,7 +106,7 @@ export function Eggs({ lang }: { lang: Lang }) {
       typed = (typed + (k.length === 1 ? k : "")).slice(-8);
       if (keys.join() === KONAMI.join()) { say(t.konami); rain(); }
       else if (typed.endsWith("sudo")) say(t.sudo);
-      else if (typed.endsWith("404")) { typed = ""; say(t.four04); later(() => location.assign(pathFor(lang) + "this-page-does-not-exist/"), 900); }
+      else if (typed.endsWith("404")) { typed = ""; goTo404(); }
     };
     addEventListener("keydown", onKey);
 
@@ -89,6 +114,10 @@ export function Eggs({ lang }: { lang: Lang }) {
       removeEventListener("keydown", onKey);
       document.removeEventListener("visibilitychange", onVisibility);
       mark?.removeEventListener("click", wave);
+      mark?.removeEventListener("pointerdown", holdStart);
+      ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => mark?.removeEventListener(ev, holdEnd));
+      offTaps.forEach((off) => off());
+      window.clearTimeout(hold);
       timers.forEach(window.clearTimeout);
       window.clearTimeout(msgTimer);
       msg?.remove();

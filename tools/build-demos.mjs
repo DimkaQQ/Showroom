@@ -21,8 +21,10 @@ const icon = (id) => {
   return `<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,${encodeURIComponent(svg)}">`;
 };
 
+const only = process.argv.slice(2);
 for (const f of readdirSync(src).filter((n) => n.endsWith(".html"))) {
   const id = f.replace(/\.html$/, "");
+  if (only.length && !only.includes(id)) continue;
   const html = readFileSync(join(src, f), "utf8")
     .replace("/*@kit.css*/", () => kitCss)
     .replace("/*@kit.js*/", () => kitJs)
