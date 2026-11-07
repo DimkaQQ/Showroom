@@ -4,6 +4,7 @@ import { locales, pathFor, langName, type Lang } from "@/lib/i18n";
 import { Enhance } from "@/components/enhance";
 import { Eggs } from "@/components/eggs";
 import { Logo } from "@/components/logo";
+import { Connect } from "@/components/connect";
 import { LangMenu } from "@/components/lang-menu";
 import { ContactForm } from "@/components/contact-form";
 import { testimonials } from "@/lib/testimonials";
@@ -73,16 +74,7 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
   const [first, second] = siteConfig.name.split(" ");
   return (
     <header className="hero" id="top">
-      <div className="reel" aria-hidden="true">
-        <div className="reel-track">
-          {[...projects, ...projects].map((p, i) => (
-            <a key={i} className="reel-item" href={`#${p.id}`} tabIndex={-1} style={{ background: p.stage }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/shots/${p.id}-s.webp`} width={720} height={450} alt="" loading={i < 3 ? "eager" : "lazy"} decoding="async" />
-            </a>
-          ))}
-        </div>
-      </div>
+      <Connect lang={lang} />
 
       <div className="hero-mid">
         <div className="hero-copy rise rise-1">

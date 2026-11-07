@@ -314,6 +314,26 @@ img { display: block; max-width: 100%; height: auto; }
 .faq-item[open] summary::after { transform: rotate(45deg); }
 .faq-item p { padding: 0 40px 28px 0; max-width: 64ch; color: var(--mute); }
 
+/* ── Hero scene ─────────────────────────────────────────── */
+.connect { flex: 1 1 auto; margin: clamp(20px, 5svh, 56px) 0 0; }
+.connect svg { display: block; overflow: visible; max-width: 100%; }
+.cn-line { fill: none; stroke: #343a42; stroke-width: 2; stroke-dasharray: 3 7; transition: stroke 400ms; }
+.cn-line.on { stroke: var(--lime); stroke-dasharray: 7 9; animation: flow 1.1s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -16; } }
+.cn-hub { fill: #12151a; stroke: #343a42; stroke-width: 2; transition: stroke 400ms, filter 400ms; }
+.cn-hub.on { stroke: var(--lime); filter: drop-shadow(0 0 18px rgba(242,181,68,.35)); }
+.cn-chip rect { fill: #12151a; stroke: #343a42; stroke-width: 1.5; transition: stroke 300ms, fill 300ms; }
+.cn-chip text { fill: var(--ink); font-family: var(--font-text), system-ui, sans-serif; font-weight: 600; dominant-baseline: central; pointer-events: none; }
+.cn-chip:not(.out) { cursor: pointer; outline: none; }
+.cn-chip:not(.out):hover rect { stroke: #6b7280; }
+.cn-chip.on rect { stroke: var(--lime); fill: rgba(242,181,68,.1); }
+.cn-chip:focus-visible rect { stroke: #fff; stroke-width: 2.5; }
+.cn-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+.cn-foot span:nth-child(2) { color: var(--lime); text-align: center; }
+.cn-hint { margin-top: 6px; font-size: 14px; color: var(--mute); text-align: center; }
+@media (max-width: 639px) { .cn-foot span:first-child, .cn-foot span:last-child { display: none; } .cn-foot { justify-content: center; } }
+@media (prefers-reduced-motion: reduce) { .cn-line.on { animation: none; } }
+
 /* ── Hidden things ──────────────────────────────────────── */
 .hero .wordmark { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 .egg-msg { position: fixed; left: 16px; bottom: 16px; z-index: 90; max-width: min(420px, calc(100vw - 32px)); padding: 12px 16px; background: var(--lime); color: var(--bg); font-weight: 600; font-size: 16px; opacity: 0; transform: translateY(10px); transition: opacity .2s, transform .25s var(--ease-out); pointer-events: none; }

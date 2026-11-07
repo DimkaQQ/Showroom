@@ -186,6 +186,14 @@ const en = {
     four04: "You asked for it.",
     console: "You read the console, so we should talk. Try the Konami code. Or type 404.",
   },
+  connect: {
+    left: ["ERP", "CRM", "Accounting", "Payments", "Telegram", "Spreadsheets"],
+    right: ["Web platform", "Mini App", "Dashboard", "Automation"],
+    yours: "Your systems",
+    builds: "What gets built",
+    hint: "Tap a system to connect or disconnect it",
+    count: "{n} of {m} connected",
+  },
   case: {
     back: "All work",
     what: "What it does",
@@ -467,6 +475,14 @@ const ru: Translations = {
     sudo: "mirelli отсутствует в файле sudoers. Об этом инциденте будет сообщено.",
     four04: "Сам напросился.",
     console: "Раз вы открыли консоль, давайте поговорим. Попробуйте код Konami. Или наберите 404.",
+  },
+  connect: {
+    left: ["ERP", "CRM", "Бухгалтерия", "Платежи", "Telegram", "Таблицы"],
+    right: ["Веб-платформа", "Mini App", "Дашборд", "Автоматизация"],
+    yours: "Ваши системы",
+    builds: "Что получается",
+    hint: "Нажмите на систему, чтобы подключить или отключить",
+    count: "Подключено {n} из {m}",
   },
   case: {
     back: "Все работы",
