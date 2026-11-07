@@ -5,13 +5,16 @@ import { locales, defaultLang, pathFor } from "@/lib/i18n";
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const languages: Record<string, string> = Object.fromEntries(locales.map((l) => [l, siteConfig.url + pathFor(l)]));
-  languages["x-default"] = siteConfig.url + pathFor(defaultLang);
-  return locales.map((l) => ({
-    url: siteConfig.url + pathFor(l),
-    lastModified: new Date(),
-    changeFrequency: "monthly",
-    priority: l === defaultLang ? 1 : 0.8,
-    alternates: { languages },
-  }));
+  const page = (sub: string, priority: number) => {
+    const languages: Record<string, string> = Object.fromEntries(locales.map((l) => [l, siteConfig.url + pathFor(l) + sub]));
+    languages["x-default"] = siteConfig.url + pathFor(defaultLang) + sub;
+    return locales.map((l) => ({
+      url: siteConfig.url + pathFor(l) + sub,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: l === defaultLang ? priority : priority - 0.2,
+      alternates: { languages },
+    }));
+  };
+  return [...page("", 1), ...page("privacy/", 0.3)];
 }

@@ -1,7 +1,8 @@
-// Re-shoots public/shots/<id>.jpg (1440x900) from demos/<id>/index.html. Run after tools/build-demos.mjs.
+// Screenshots every demo (1440x900) into tools/.shots/<id>.png. Run after tools/build-demos.mjs,
+// then tools/optimize-shots.mjs to produce the WebP files the site uses.
 import { createRequire } from "node:module";
 import { createServer } from "node:http";
-import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync, mkdirSync } from "node:fs";
 import { join, extname, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -17,6 +18,7 @@ const server = createServer((req, res) => {
   res.end(readFileSync(f));
 }).listen(4174);
 
+mkdirSync(join(root, "tools", ".shots"), { recursive: true });
 const ids = process.argv.slice(2).length ? process.argv.slice(2) : readdirSync(join(root, "demos"), { withFileTypes: true }).filter((d) => d.isDirectory() && d.name !== "cv").map((d) => d.name);
 const browser = await chromium.launch();
 for (const id of ids) {
@@ -25,7 +27,7 @@ for (const id of ids) {
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(`http://localhost:4174/${id}/`, { waitUntil: "networkidle" }).catch(() => {});
   await page.waitForTimeout(1200);
-  await page.screenshot({ path: join(root, "public", "shots", `${id}.jpg`), type: "jpeg", quality: 82 });
+  await page.screenshot({ path: join(root, "tools", ".shots", `${id}.png`) });
   console.log(id, errors.length ? "PAGE ERRORS: " + errors.join(" | ") : "ok");
   await page.close();
 }

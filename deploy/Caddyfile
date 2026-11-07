@@ -10,6 +10,7 @@
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
 		Strict-Transport-Security "max-age=31536000"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 		-Server
 	}
 	header Cache-Control "no-cache"
@@ -30,9 +31,12 @@ dimkaprojects.xyz {
 	import common
 	root * /opt/docker/showroom/out
 	file_server
-	handle_errors {
-		rewrite * /404.html
-		file_server
+	@missing expression {err.status_code} == 404
+	handle_errors @missing {
+		rewrite * /not-found.html
+		file_server {
+			status 404
+		}
 	}
 }
 

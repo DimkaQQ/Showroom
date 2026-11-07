@@ -148,8 +148,48 @@ const en = {
     email: "Email",
   },
   footer: {
+    privacy: "Privacy",
     rights: "All rights reserved.",
     built: "Built with Next.js",
+  },
+  privacy: {
+    metaTitle: "Privacy — Mirelli Studio",
+    metaDescription: "What this website and its demos do with your data: no cookies, no analytics, no third-party requests.",
+    title: "Privacy",
+    back: "Back to the home page",
+    updated: "Last updated: November 2026",
+    sections: [
+      {
+        title: "Short version",
+        body: [
+          "This website and the live demos set no cookies, run no analytics and load nothing from third-party servers. Fonts and images are served from this site.",
+        ],
+      },
+      {
+        title: "What the website does",
+        body: [
+          "It is a static site. Pages are delivered as files and the server keeps no access logs. The demos run in your browser with invented sample data. They store nothing on your device and send nothing anywhere.",
+        ],
+      },
+      {
+        title: "If you contact me",
+        body: [
+          "If you write by email or Telegram, I receive your message, your address or username, and whatever you choose to share. I use it to reply and to run the project we discuss, and I keep it only as long as that needs, or as the law requires for contracts and invoices. I do not pass it on or sell it.",
+        ],
+      },
+      {
+        title: "Who is responsible",
+        body: [
+          "Mirelli Studio, run by Darian Mirelli. Contact: darian.mirelli@gmail.com.",
+        ],
+      },
+      {
+        title: "Your rights",
+        body: [
+          "You can ask to see, correct or delete what I hold about you, and you can complain to the data protection authority in your country. Write to the address above.",
+        ],
+      },
+    ],
   },
 };
 
@@ -303,8 +343,48 @@ const ru: Translations = {
     email: "Почта",
   },
   footer: {
+    privacy: "Конфиденциальность",
     rights: "Все права защищены.",
     built: "Создано на Next.js",
+  },
+  privacy: {
+    metaTitle: "Конфиденциальность — Mirelli Studio",
+    metaDescription: "Что сайт и демо делают с вашими данными: без cookie, без аналитики, без запросов к сторонним серверам.",
+    title: "Конфиденциальность",
+    back: "На главную",
+    updated: "Обновлено: ноябрь 2026",
+    sections: [
+      {
+        title: "Коротко",
+        body: [
+          "Сайт и живые демо не ставят cookie, не ведут аналитику и ничего не загружают со сторонних серверов. Шрифты и изображения отдаются с этого же сайта.",
+        ],
+      },
+      {
+        title: "Что делает сайт",
+        body: [
+          "Это статический сайт. Страницы отдаются как файлы, сервер не хранит журналы посещений. Демо работают в вашем браузере на вымышленных данных, ничего не сохраняют на устройстве и никуда не отправляют.",
+        ],
+      },
+      {
+        title: "Если вы со мной свяжетесь",
+        body: [
+          "Если вы напишете на почту или в Telegram, я получу ваше сообщение, ваш адрес или имя пользователя и то, что вы решите рассказать. Я использую это, чтобы ответить и вести обсуждаемый проект, и храню столько, сколько для этого нужно или сколько требует закон для договоров и счетов. Я не передаю данные третьим лицам и не продаю их.",
+        ],
+      },
+      {
+        title: "Кто отвечает",
+        body: [
+          "Mirelli Studio, ведёт Darian Mirelli. Контакт: darian.mirelli@gmail.com.",
+        ],
+      },
+      {
+        title: "Ваши права",
+        body: [
+          "Вы можете попросить показать, исправить или удалить данные о вас и пожаловаться в орган по защите данных вашей страны. Напишите на адрес выше.",
+        ],
+      },
+    ],
   },
 };
 

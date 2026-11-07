@@ -6,6 +6,7 @@ git pull --ff-only
 npm ci --no-audit --no-fund
 node tools/build-demos.mjs
 npm run build
+caddy validate --config deploy/Caddyfile --adapter caddyfile
 sudo cp deploy/Caddyfile /etc/caddy/Caddyfile
 sudo systemctl reload caddy
 echo "deployed"

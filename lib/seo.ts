@@ -5,10 +5,15 @@ import { translations } from "./translations";
 
 const abs = (path: string) => new URL(path, siteConfig.url).toString();
 
-export function metadataFor(lang: Lang): Metadata {
-  const t = translations[lang].meta;
-  const languages: Record<string, string> = Object.fromEntries(locales.map((l) => [l, abs(pathFor(l))]));
-  languages["x-default"] = abs(pathFor(defaultLang));
+export type Page = "home" | "privacy";
+const sub = (page: Page) => (page === "privacy" ? "privacy/" : "");
+const urlOf = (lang: Lang, page: Page) => abs(pathFor(lang) + sub(page));
+
+export function metadataFor(lang: Lang, page: Page = "home"): Metadata {
+  const tr = translations[lang];
+  const t = page === "privacy" ? { ...tr.meta, title: tr.privacy.metaTitle, description: tr.privacy.metaDescription } : tr.meta;
+  const languages: Record<string, string> = Object.fromEntries(locales.map((l) => [l, urlOf(l, page)]));
+  languages["x-default"] = urlOf(defaultLang, page);
 
   return {
     metadataBase: new URL(siteConfig.url),
@@ -16,7 +21,7 @@ export function metadataFor(lang: Lang): Metadata {
     description: t.description,
     applicationName: siteConfig.name,
     authors: [{ name: siteConfig.name, url: siteConfig.url }],
-    alternates: { canonical: abs(pathFor(lang)), languages },
+    alternates: { canonical: urlOf(lang, page), languages },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
     icons: {
       icon: [
@@ -29,7 +34,7 @@ export function metadataFor(lang: Lang): Metadata {
     manifest: "/site.webmanifest",
     openGraph: {
       type: "website",
-      url: abs(pathFor(lang)),
+      url: urlOf(lang, page),
       siteName: siteConfig.name,
       title: t.title,
       description: t.description,

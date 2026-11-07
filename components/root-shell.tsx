@@ -1,7 +1,6 @@
 import { Onest, Unbounded } from "next/font/google";
 import "@/app/globals.css";
 import type { Lang } from "@/lib/i18n";
-import { jsonLdFor } from "@/lib/seo";
 
 const onest = Onest({ subsets: ["latin", "cyrillic"], variable: "--font-text", display: "swap" });
 const unbounded = Unbounded({ subsets: ["latin", "cyrillic"], weight: ["800"], variable: "--font-display", display: "swap" });
@@ -14,7 +13,6 @@ export function RootShell({ lang, children }: { lang: Lang; children: React.Reac
     <html lang={lang} className={`${onest.variable} ${unbounded.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: boot }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFor(lang)) }} />
       </head>
       <body>{children}</body>
     </html>

@@ -2,11 +2,13 @@ import { projects, services, siteConfig } from "@/lib/data";
 import { translations } from "@/lib/translations";
 import { locales, pathFor, langName, type Lang } from "@/lib/i18n";
 import { Enhance } from "@/components/enhance";
+import { jsonLdFor } from "@/lib/seo";
 
 export function Home({ lang }: { lang: Lang }) {
   const t = translations[lang];
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFor(lang)) }} />
       <Hero lang={lang} t={t} />
       <main>
         <Work t={t} />
@@ -15,7 +17,7 @@ export function Home({ lang }: { lang: Lang }) {
       </main>
       <Stack />
       <Contact t={t} />
-      <Footer t={t} />
+      <Footer lang={lang} t={t} />
       <Enhance />
     </>
   );
@@ -70,7 +72,7 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
           {[...projects, ...projects].map((p, i) => (
             <span key={i} className="reel-item" style={{ background: p.stage }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/shots/${p.id}.jpg`} width={1440} height={900} alt="" loading={i < 4 ? "eager" : "lazy"} />
+              <img src={`/shots/${p.id}-s.webp`} width={720} height={450} alt="" loading={i < 4 ? "eager" : "lazy"} />
             </span>
           ))}
         </div>
@@ -110,7 +112,7 @@ function Work({ t }: { t: T }) {
             <div key={p.id} className={`frame${i === 0 ? " is-active" : ""}`} data-frame={p.id} style={{ background: p.stage }}>
               <div className="win" data-win>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/shots/${p.id}.jpg`} width={1440} height={900} alt={`${p.name} — ${t.showroom.projects[i].tagline}`} loading={i < 2 ? "eager" : "lazy"} />
+                <img src={`/shots/${p.id}.webp`} width={1440} height={900} alt={`${p.name} — ${t.showroom.projects[i].tagline}`} loading={i < 2 ? "eager" : "lazy"} />
                 <iframe title={p.name} data-src={`https://${p.subdomain}.${siteConfig.domain}`} tabIndex={-1} allow="fullscreen" />
               </div>
               <button type="button" className="try" data-try aria-pressed="false">
@@ -128,7 +130,7 @@ function Work({ t }: { t: T }) {
               <li key={p.id} className="project" data-project={p.id} id={p.id}>
                 <a className="inline-shot" href={href} target="_blank" rel="noopener noreferrer" style={{ background: p.stage }} tabIndex={-1} aria-hidden="true">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/shots/${p.id}.jpg`} width={1440} height={900} alt="" loading="lazy" />
+                  <img src={`/shots/${p.id}-s.webp`} width={720} height={450} alt="" loading="lazy" />
                 </a>
                 <div className="project-text">
                   <h3>{p.name}</h3>
@@ -222,12 +224,13 @@ function Contact({ t }: { t: T }) {
   );
 }
 
-function Footer({ t }: { t: T }) {
+function Footer({ lang, t }: { lang: Lang; t: T }) {
   const [first, second] = siteConfig.name.split(" ");
   return (
     <footer className="foot">
       <p className="foot-note">
-        © {new Date().getFullYear()} {siteConfig.name}. {t.footer.rights} {t.footer.built}.
+        © {new Date().getFullYear()} {siteConfig.name}. {t.footer.rights} {t.footer.built}.{" "}
+        <a href={`${pathFor(lang)}privacy/`}>{t.footer.privacy}</a>
       </p>
       <p className="wordmark wordmark-foot" aria-hidden="true">
         <span>{first}</span> <span>{second}</span>
