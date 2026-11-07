@@ -1,0 +1,99 @@
+"use client";
+
+import { useEffect } from "react";
+import { siteConfig } from "@/lib/data";
+import { pathFor, type Lang } from "@/lib/i18n";
+import { translations } from "@/lib/translations";
+
+const KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"];
+const GLYPHS = ["404", "{ }", "</>", "€", "0", "418"];
+
+// Hidden things, all optional: the page works the same without them.
+export function Eggs({ lang }: { lang: Lang }) {
+  useEffect(() => {
+    const t = translations[lang].eggs;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timers: number[] = [];
+    const later = (fn: () => void, ms: number) => { timers.push(window.setTimeout(fn, ms)); };
+
+    console.log("%cMirelli Studio", "font:800 28px system-ui;color:#c8f03c;background:#0e0f0c;padding:8px 14px");
+    console.log(`${t.console}\n${siteConfig.email}`);
+
+    let msg: HTMLDivElement | null = null;
+    let msgTimer = 0;
+    const say = (text: string) => {
+      if (!msg) {
+        msg = document.createElement("div");
+        msg.className = "egg-msg";
+        msg.setAttribute("role", "status");
+        document.body.appendChild(msg);
+      }
+      msg.textContent = text;
+      void msg.offsetWidth;
+      msg.classList.add("show");
+      window.clearTimeout(msgTimer);
+      msgTimer = window.setTimeout(() => msg?.classList.remove("show"), 4200);
+    };
+
+    const rain = () => {
+      if (reduce) return;
+      const host = document.createElement("div");
+      host.className = "egg-rain";
+      host.setAttribute("aria-hidden", "true");
+      for (let i = 0; i < 48; i++) {
+        const s = document.createElement("span");
+        s.textContent = GLYPHS[i % GLYPHS.length];
+        s.style.left = Math.random() * 100 + "vw";
+        s.style.fontSize = 16 + Math.random() * 30 + "px";
+        s.style.animationDuration = 2.4 + Math.random() * 2.4 + "s";
+        s.style.animationDelay = Math.random() * 0.9 + "s";
+        s.style.setProperty("--r", Math.random() * 720 - 360 + "deg");
+        host.appendChild(s);
+      }
+      document.body.appendChild(host);
+      later(() => host.remove(), 6200);
+    };
+
+    const wave = () => {
+      if (reduce) return;
+      document.querySelectorAll<HTMLElement>(".hero .wordmark .ch").forEach((el, i) =>
+        el.animate(
+          [{ transform: "translateY(0)" }, { transform: "translateY(-16%)" }, { transform: "translateY(0)" }],
+          { duration: 640, delay: i * 48, easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
+        )
+      );
+    };
+    const mark = document.querySelector<HTMLElement>(".hero .wordmark");
+    mark?.addEventListener("click", wave);
+
+    const original = document.title;
+    const onVisibility = () => { document.title = document.hidden ? t.away : original; };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    let keys: string[] = [];
+    let typed = "";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const el = e.target as HTMLElement | null;
+      if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+      const k = e.key.toLowerCase();
+      keys = [...keys, k].slice(-KONAMI.length);
+      typed = (typed + (k.length === 1 ? k : "")).slice(-8);
+      if (keys.join() === KONAMI.join()) { say(t.konami); rain(); }
+      else if (typed.endsWith("sudo")) say(t.sudo);
+      else if (typed.endsWith("404")) { typed = ""; say(t.four04); later(() => location.assign(pathFor(lang) + "this-page-does-not-exist/"), 900); }
+    };
+    addEventListener("keydown", onKey);
+
+    return () => {
+      removeEventListener("keydown", onKey);
+      document.removeEventListener("visibilitychange", onVisibility);
+      mark?.removeEventListener("click", wave);
+      timers.forEach(window.clearTimeout);
+      window.clearTimeout(msgTimer);
+      msg?.remove();
+    };
+  }, [lang]);
+
+  return null;
+}

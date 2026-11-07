@@ -2,6 +2,7 @@ import { projects, services, siteConfig } from "@/lib/data";
 import { translations } from "@/lib/translations";
 import { locales, pathFor, langName, type Lang } from "@/lib/i18n";
 import { Enhance } from "@/components/enhance";
+import { Eggs } from "@/components/eggs";
 import { jsonLdFor } from "@/lib/seo";
 
 export function Home({ lang }: { lang: Lang }) {
@@ -19,6 +20,7 @@ export function Home({ lang }: { lang: Lang }) {
       <Contact t={t} />
       <Footer lang={lang} t={t} />
       <Enhance />
+      <Eggs lang={lang} />
     </>
   );
 }

@@ -4,30 +4,225 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Page not found — Mirelli Studio</title>
+<title>404 — This page went to production without tests</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
-:root { --bg: #0e0f0c; --ink: #e9ebe6; --mute: #a9a89f; --lime: #c8f03c; }
+:root { --bg: #0e0f0c; --ink: #e9ebe6; --mute: #a9a89f; --lime: #c8f03c; --line: #2a2b26; --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
 * { box-sizing: border-box; }
-body { margin: 0; min-height: 100svh; display: grid; align-content: space-between; padding: 28px 32px; background: var(--bg); color: var(--ink); font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; min-height: 100svh; background: var(--bg); color: var(--ink); font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 a { color: inherit; }
-.top { display: flex; justify-content: space-between; gap: 16px; font-size: 16px; }
-main { padding: 8vh 0; }
-h1 { margin: 0; font-size: clamp(88px, 22vw, 300px); font-weight: 800; letter-spacing: -0.05em; line-height: .85; text-transform: uppercase; }
-p { max-width: 520px; color: var(--mute); margin: 24px 0 32px; }
-.btn { display: inline-block; background: var(--lime); color: var(--bg); padding: 16px 28px; font-weight: 500; text-decoration: none; }
-.btn:hover { background: #d8ff4a; }
 :focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
-@media (max-width: 600px) { body { padding: 20px 16px; } }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.wrap { min-height: 100svh; display: flex; flex-direction: column; padding: 24px 32px 28px; }
+.top { display: flex; justify-content: space-between; gap: 16px; font-size: 16px; }
+.top a { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; text-decoration-color: transparent; padding-block: 8px; transition: text-decoration-color 160ms; }
+.top a:hover { text-decoration-color: currentColor; }
+
+.term { margin-top: 28px; font: 14px/1.6 var(--mono); color: var(--lime); min-height: 6.4em; white-space: pre-wrap; overflow-wrap: anywhere; }
+.term .dim { color: var(--mute); }
+.caret { display: inline-block; width: .6em; height: 1.1em; vertical-align: -0.2em; background: var(--lime); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 3vh 0; }
+h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-spacing: -0.06em; line-height: .8; display: flex; align-items: baseline; user-select: none; }
+#slot { color: transparent; }
+.lead { margin: 28px 0 0; font-size: clamp(22px, 3.2vw, 36px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; max-width: 22ch; text-wrap: balance; }
+.say { margin: 14px 0 0; min-height: 3.2em; color: var(--mute); max-width: 52ch; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; align-items: center; }
+.btn { font: inherit; font-weight: 500; border: 0; cursor: pointer; padding: 15px 26px; text-decoration: none; display: inline-block; transition: transform 160ms cubic-bezier(.23,1,.32,1), background-color 160ms; }
+.btn:active { transform: scale(.97); }
+.btn-lime { background: var(--lime); color: var(--bg); } .btn-lime:hover { background: #d8ff4a; }
+.btn-ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); } .btn-ghost:hover { background: rgba(233,235,230,.08); }
+.report { margin-top: 18px; font-size: 15px; color: var(--mute); }
+.report a { color: var(--ink); text-underline-offset: 4px; }
+.stats { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 28px; display: flex; flex-wrap: wrap; gap: 6px 22px; font: 13px/1.5 var(--mono); color: var(--mute); }
+.hint { font-size: 14px; color: var(--mute); margin-top: 6px; }
+
+.ball { position: fixed; left: 0; top: 0; z-index: 1; margin: 0; padding: 0; border: 0; background: none; font: 900 clamp(110px, 31vw, 400px)/.8 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; letter-spacing: -0.06em; color: var(--lime); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; will-change: transform; opacity: 0; }
+.ball.ready { opacity: 1; pointer-events: auto; }
+/* The 0 rolls behind the page: text lets pointers through, buttons and links stay on top and clickable. */
+.term, .stats, .lead, .say, .hint, h1, .report, .wrap > main { pointer-events: none; }
+.top a, .actions .btn, .report a { position: relative; z-index: 2; pointer-events: auto; }
+.actions { pointer-events: none; }
+.ball.drag { cursor: grabbing; }
+
+.rain { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 20; }
+.rain span { position: absolute; top: -10vh; font: 800 28px var(--mono); color: var(--lime); animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(118vh) rotate(var(--r)); } }
+
+@media (max-width: 600px) { .wrap { padding: 18px 16px 22px; } .btn { padding: 14px 22px; } }
+@media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
 </style>
 </head>
 <body>
-<div class="top"><a href="/">Mirelli Studio</a><a href="/ru/">RU</a></div>
-<main>
-  <h1>404</h1>
-  <p>This page does not exist or has moved. The work is on the home page.</p>
-  <a class="btn" href="/">Back to the home page</a>
-</main>
-<div></div>
+<div class="wrap">
+  <div class="top"><a href="/" id="home1">Mirelli Studio</a><a href="/ru/" id="swap">RU</a></div>
+  <div class="term" id="term" aria-hidden="true"></div>
+
+  <main>
+    <h1 aria-label="404"><span>4</span><span id="slot">0</span><span>4</span></h1>
+    <button class="ball" id="ball" type="button" tabindex="-1" aria-hidden="true">0</button>
+    <p class="lead" id="lead">This page went to production without tests.</p>
+    <p class="say" id="say" aria-live="polite"></p>
+    <div class="actions">
+      <a class="btn btn-lime" href="/" id="home2">Back to the home page</a>
+      <button class="btn btn-ghost" type="button" id="why">Why is it missing?</button>
+    </div>
+    <p class="report"><a id="rep" href="mailto:darian.mirelli@gmail.com">Report it to the developer</a> <span id="repnote">(he is also the designer, the QA and the coffee machine)</span></p>
+    <p class="hint" id="hint">Psst: the big 0 can be grabbed. Throw it around.</p>
+  </main>
+
+  <div class="stats" aria-hidden="true"><span id="s1"></span><span id="s2"></span><span id="s3"></span></div>
+</div>
+<div class="rain" id="rain" aria-hidden="true"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ru = location.pathname.startsWith("/ru");
+  const path = location.pathname + location.search;
+
+  const T = ru ? {
+    title: "404 — Эта страница ушла в продакшен без тестов",
+    lead: "Эта страница ушла в продакшен без тестов.",
+    home: "На главную", why: "Почему её нет?", rep: "Сообщить разработчику", repnote: "(он же дизайнер, тестировщик и кофемашина)",
+    hint: "Подсказка: большой ноль можно хватать и бросать.", swap: "EN", swapHref: "/",
+    term: ["HTTP/2 404", "content-type: text/plain; charset=настроение", "x-page-status: пропала, предположительно весело"],
+    s1: (n) => "Найдено страниц сегодня: 0", s2: (n) => `Отскоков: ${n}`, s3: (n, m) => `Отговорок: ${n}/${m}`,
+    out: "Отговорки кончились. Честно, я тоже не знаю.",
+    ex: ["У меня на машине работает.", "Секунду назад была тут. Клянусь.", "Кто-то выкатил в пятницу.", "Это не баг, это недокументированное отсутствие.", "Стажёр удалил. Правда, у нас нет стажёра.", "Страница в другом замке.", "В адресе опечатка. Не будем показывать пальцем.", "Это кеш. Очистите кеш. И ожидания.", "Мы её переехали и забыли сообщить странице.", "Страница попросила прибавку и ушла.", "Точка с запятой съела.", "А вы пробовали выключить и включить интернет?"],
+    bounce: { 5: "Ноль чувствует себя лучше, чем страница.", 15: "Хватит мучить ноль. Он и так потерял свою страницу.", 30: "Это уже спортивный интерес.", 60: "Ты точно не работаешь? Ладно." },
+    snap: "Починено. Всё ещё 404, но красиво.",
+    sudo: "mirelli отсутствует в файле sudoers. Об этом инциденте будет сообщено.",
+    konami: "Нашёл. Скидка: нет. Уважение: безграничное.",
+    subject: "404 на сайте: ",
+  } : {
+    title: "404 — This page went to production without tests",
+    lead: "This page went to production without tests.",
+    home: "Back to the home page", why: "Why is it missing?", rep: "Report it to the developer", repnote: "(he is also the designer, the QA and the coffee machine)",
+    hint: "Psst: the big 0 can be grabbed. Throw it around.", swap: "RU", swapHref: "/ru/",
+    term: ["HTTP/2 404", "content-type: text/plain; charset=vibes", "x-page-status: missing, presumed fun"],
+    s1: () => "Pages found today: 0", s2: (n) => `Bounces: ${n}`, s3: (n, m) => `Excuses used: ${n}/${m}`,
+    out: "Out of excuses. Honestly, I don't know either.",
+    ex: ["It works on my machine.", "The page was here a second ago. I swear.", "Someone deployed on a Friday.", "It's not a bug, it's an undocumented absence.", "The intern deleted it. We don't have an intern.", "This page is in another castle.", "The URL has a typo. Not saying whose.", "It's cached. Clear your cache. And your expectations.", "We moved it. We forgot to tell the page.", "The page asked for a raise and left.", "A semicolon ate it.", "Have you tried turning the internet off and on again?"],
+    bounce: { 5: "The 0 is coping better than the page.", 15: "Stop bullying the 0. It already lost its page.", 30: "This has become a sport.", 60: "Are you sure you're not supposed to be working? Fine." },
+    snap: "Fixed. Still a 404, but it looks right.",
+    sudo: "mirelli is not in the sudoers file. This incident will be reported.",
+    konami: "You found it. Discount: none. Respect: unlimited.",
+    subject: "404 on the site: ",
+  };
+
+  document.documentElement.lang = ru ? "ru" : "en";
+  document.title = T.title;
+  $("lead").textContent = T.lead; $("home1").textContent = "Mirelli Studio"; $("home1").href = ru ? "/ru/" : "/";
+  $("home2").textContent = T.home; $("home2").href = ru ? "/ru/" : "/";
+  $("why").textContent = T.why; $("rep").textContent = T.rep; $("repnote").textContent = T.repnote; $("hint").textContent = T.hint;
+  $("swap").textContent = T.swap; $("swap").href = T.swapHref;
+  $("rep").href = "mailto:darian.mirelli@gmail.com?subject=" + encodeURIComponent(T.subject + path);
+
+  // ── Terminal that types the failed request
+  const lines = [`$ curl -i ${location.host}${path.length > 40 ? path.slice(0, 37) + "..." : path}`, ...T.term];
+  const term = $("term");
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const render = (text, caret) => term.innerHTML = text.split("\n").map((l, k) => (k === 0 ? esc(l) : `<span class="dim">${esc(l)}</span>`)).join("\n") + (caret ? '<span class="caret"></span>' : "");
+  const plain = lines.join("\n");
+  if (reduce) render(plain, false);
+  else { let i = 0; (function tick() { render(plain.slice(0, ++i), true); if (i < plain.length) setTimeout(tick, plain[i - 1] === "\n" ? 260 : 22); })(); }
+
+  // ── Stats
+  let bounces = 0, used = 0; const order = T.ex.map((_, i) => i).sort(() => Math.random() - 0.5);
+  const paintStats = () => { $("s1").textContent = T.s1(); $("s2").textContent = T.s2(bounces); $("s3").textContent = T.s3(used, T.ex.length); };
+  paintStats();
+  const say = (m) => { $("say").textContent = m; };
+
+  // ── Excuses
+  $("why").addEventListener("click", () => {
+    if (used >= T.ex.length) { say(T.out); return; }
+    say(T.ex[order[used++]]); paintStats();
+    if (used === T.ex.length) $("why").textContent = "…";
+  });
+
+  // ── The 0 is a ball
+  const ball = $("ball"), slot = $("slot");
+  let x = 0, y = 0, vx = 0, vy = 0, w = 0, h = 0, ang = 0, drag = false, home = true, awake = false, last = 0, snapped = false;
+  const G = 2600, REST = 0.68;
+  const slotPos = () => { const r = slot.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const measure = () => { w = ball.offsetWidth; h = ball.offsetHeight; };
+  const place = () => { ball.style.transform = `translate3d(${x}px,${y}px,0) rotate(${ang}rad)`; };
+  const bounds = () => ({ maxX: innerWidth - w, maxY: innerHeight - h });
+  function toSlot() { const s = slotPos(); measure(); x = s.x; y = s.y + (s.h - h) / 2 - 0; vx = vy = 0; ang = 0; home = true; place(); }
+  function wake() { if (!awake) { awake = true; last = performance.now(); requestAnimationFrame(loop); } }
+  function loop(t) {
+    if (!awake) return;
+    const dt = Math.min(0.032, (t - last) / 1000); last = t;
+    if (!drag && !home) {
+      const b = bounds();
+      vy += G * dt; x += vx * dt; y += vy * dt; ang += (vx * dt) / (h * 0.32);
+      if (x < 0) { x = 0; vx = Math.abs(vx) * REST; hit(vx); } else if (x > b.maxX) { x = b.maxX; vx = -Math.abs(vx) * REST; hit(vx); }
+      if (y < 0) { y = 0; vy = Math.abs(vy) * REST; hit(vy); }
+      if (y > b.maxY) { y = b.maxY; if (Math.abs(vy) > 260) hit(vy); vy = -Math.abs(vy) * REST; if (Math.abs(vy) < 140) vy = 0; vx *= 0.985; }
+      if (y >= b.maxY - 0.5) vx *= 0.992;
+      if (y >= b.maxY - 0.5 && Math.abs(vx) < 6 && Math.abs(vy) < 1) { vx = vy = 0; awake = false; }
+    }
+    place();
+    if (awake) requestAnimationFrame(loop);
+  }
+  function hit(v) {
+    if (Math.abs(v) < 220) return;
+    bounces++; paintStats();
+    const m = T.bounce[bounces]; if (m) say(m);
+  }
+  function release() {
+    drag = false; ball.classList.remove("drag");
+    const s = slotPos(), cx = x + w / 2, cy = y + h / 2, sx = s.x + s.w / 2, sy = s.y + s.h / 2;
+    if (Math.hypot(cx - sx, cy - sy) < Math.max(w, h) * 0.45) { toSlot(); awake = false; if (!snapped) { snapped = true; } say(T.snap); return; }
+    if (reduce) { vx = vy = 0; place(); return; }
+    wake();
+  }
+  let px = 0, py = 0, pt = 0, ox = 0, oy = 0;
+  ball.addEventListener("pointerdown", (e) => {
+    drag = true; home = false; ball.classList.add("drag"); ball.setPointerCapture(e.pointerId);
+    const r = ball.getBoundingClientRect(); ox = e.clientX - x; oy = e.clientY - y; px = e.clientX; py = e.clientY; pt = performance.now(); vx = vy = 0; wake();
+  });
+  ball.addEventListener("pointermove", (e) => {
+    if (!drag) return; const b = bounds();
+    x = Math.max(0, Math.min(b.maxX, e.clientX - ox)); y = Math.max(0, Math.min(b.maxY, e.clientY - oy));
+    const now = performance.now(), dt = Math.max(8, now - pt) / 1000;
+    vx = 0.6 * vx + 0.4 * ((e.clientX - px) / dt); vy = 0.6 * vy + 0.4 * ((e.clientY - py) / dt);
+    px = e.clientX; py = e.clientY; pt = now;
+  });
+  const up = () => { if (!drag) return; const lim = 3200; vx = Math.max(-lim, Math.min(lim, vx)); vy = Math.max(-lim, Math.min(lim, vy)); release(); };
+  ball.addEventListener("pointerup", up); ball.addEventListener("pointercancel", up);
+  addEventListener("resize", () => { if (home) { toSlot(); } else { measure(); const b = bounds(); x = Math.min(x, b.maxX); y = Math.min(y, b.maxY); wake(); } });
+
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => {
+    toSlot(); ball.classList.add("ready");
+    if (!reduce) setTimeout(() => { if (home && !drag) { home = false; vx = 160; vy = -520; wake(); } }, 1700);
+  });
+
+  // ── Hidden things
+  const rain = $("rain");
+  function party() {
+    say(T.konami); if (reduce) return;
+    const g = ["404", "{ }", "</>", "0", "?", "418"];
+    for (let i = 0; i < 44; i++) {
+      const s = document.createElement("span"); s.textContent = g[i % g.length];
+      s.style.left = Math.random() * 100 + "vw"; s.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
+      s.style.animationDuration = 2.2 + Math.random() * 2.2 + "s"; s.style.animationDelay = Math.random() * 0.8 + "s"; s.style.fontSize = 18 + Math.random() * 30 + "px";
+      rain.appendChild(s); setTimeout(() => s.remove(), 5600);
+    }
+  }
+  const K = ["arrowup","arrowup","arrowdown","arrowdown","arrowleft","arrowright","arrowleft","arrowright","b","a"]; let seq = [], typed = "";
+  addEventListener("keydown", (e) => {
+    const k = e.key.toLowerCase(); seq.push(k); if (seq.length > K.length) seq.shift();
+    typed = (typed + (k.length === 1 ? k : "")).slice(-8);
+    if (seq.join() === K.join()) party();
+    if (typed.endsWith("sudo")) say(T.sudo);
+  });
+})();
+</script>
 </body>
 </html>

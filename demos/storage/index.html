@@ -428,6 +428,10 @@ function setNav(page) {
   $$('[data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
 }
 
+/* Hidden: triple-click the demo bar. */
+document.addEventListener('click', (e) => { if (e.detail === 3 && e.target.closest && e.target.closest('.notice')) FX.flash('Everything here is invented. Even the profit.'); });
+console.log('%cDemo', 'font:700 14px system-ui;color:#c8f03c;background:#0e0f0c;padding:3px 8px', 'All data here is made up. The engineering is real. Say hello: darian.mirelli@gmail.com');
+
 'use strict';
 
 /* ── data ─────────────────────────────────────────────── */

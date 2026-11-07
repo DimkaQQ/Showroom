@@ -29,6 +29,17 @@
 
 dimkaprojects.xyz {
 	import common
+	handle /coffee* {
+		header Content-Type "text/plain; charset=utf-8"
+		respond <<TEXT
+			418 I'm a teapot.
+
+			This server refuses to brew coffee because it is, permanently, a teapot.
+			Try tea. It does not exist either.
+
+			(RFC 2324, section 2.3.2)
+			TEXT 418
+	}
 	root * /opt/docker/showroom/out
 	file_server
 	@missing expression {err.status_code} == 404

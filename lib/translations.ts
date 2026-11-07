@@ -152,6 +152,13 @@ const en = {
     rights: "All rights reserved.",
     built: "Built with Next.js",
   },
+  eggs: {
+    away: "Psst. Come back.",
+    konami: "You found it. Discount: none. Respect: unlimited.",
+    sudo: "mirelli is not in the sudoers file. This incident will be reported.",
+    four04: "You asked for it.",
+    console: "You read the console, so we should talk. Try the Konami code. Or type 404.",
+  },
   privacy: {
     metaTitle: "Privacy — Mirelli Studio",
     metaDescription: "What this website and its demos do with your data: no cookies, no analytics, no third-party requests.",
@@ -346,6 +353,13 @@ const ru: Translations = {
     privacy: "Конфиденциальность",
     rights: "Все права защищены.",
     built: "Создано на Next.js",
+  },
+  eggs: {
+    away: "Эй. Вернись.",
+    konami: "Нашёл. Скидка: нет. Уважение: безграничное.",
+    sudo: "mirelli отсутствует в файле sudoers. Об этом инциденте будет сообщено.",
+    four04: "Сам напросился.",
+    console: "Раз вы открыли консоль, давайте поговорим. Попробуйте код Konami. Или наберите 404.",
   },
   privacy: {
     metaTitle: "Конфиденциальность — Mirelli Studio",

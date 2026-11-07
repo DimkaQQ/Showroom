@@ -1,0 +1,12 @@
+/* TEAM */
+Developer, designer, QA and coffee machine: Darian Mirelli
+Contact: darian.mirelli@gmail.com
+
+/* SITE */
+Built with: Next.js, Caddy, vanilla JS, too much coffee
+Cookies: none. Analytics: none. Third-party requests: none.
+Fonts and images: self-hosted.
+
+/* HINTS */
+Try the Konami code. Type 404. Type sudo. Throw the 0 on the 404 page.
+Ask the server for /coffee.
