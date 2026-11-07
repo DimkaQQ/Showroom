@@ -16,7 +16,7 @@ export function Eggs({ lang }: { lang: Lang }) {
     const timers: number[] = [];
     const later = (fn: () => void, ms: number) => { timers.push(window.setTimeout(fn, ms)); };
 
-    console.log("%cMirelli Studio", "font:800 28px system-ui;color:#c8f03c;background:#0e0f0c;padding:8px 14px");
+    console.log("%cMirelli Studio", "font:800 28px system-ui;color:#f2b544;background:#0d0f12;padding:8px 14px");
     console.log(`${t.console}\n${siteConfig.email}`);
 
     let msg: HTMLDivElement | null = null;

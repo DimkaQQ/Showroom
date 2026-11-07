@@ -24,7 +24,7 @@ export const projects = [
     name: "DizelTrade",
     tags: ["FastAPI", "PostgreSQL", "JavaScript", "Python"],
     subdomain: "dizeltrade",
-    stage: "#c8f03c",
+    stage: "#181b20",
     year: "2025",
   },
   {
@@ -32,7 +32,7 @@ export const projects = [
     name: "RentoWorld",
     tags: ["HTML", "JavaScript", "CSS"],
     subdomain: "rentoworld",
-    stage: "#8fd8ec",
+    stage: "#181b20",
     year: "2025",
   },
   {
@@ -40,7 +40,7 @@ export const projects = [
     name: "TradingLearn",
     tags: ["Next.js", "FastAPI", "PostgreSQL", "TypeScript"],
     subdomain: "tradinglearn",
-    stage: "#34d399",
+    stage: "#181b20",
     year: "2026",
   },
   {
@@ -48,7 +48,7 @@ export const projects = [
     name: "Shipter",
     tags: ["Python", "HTML", "FastAPI"],
     subdomain: "shipter",
-    stage: "#ff9a4d",
+    stage: "#181b20",
     year: "2025",
   },
   {
@@ -56,7 +56,7 @@ export const projects = [
     name: "Stockroom",
     tags: ["React", "TypeScript", "Tailwind", "Vite"],
     subdomain: "storage",
-    stage: "#e6d9a8",
+    stage: "#181b20",
     year: "2026",
   },
   {
@@ -64,7 +64,7 @@ export const projects = [
     name: "CaspianFlow",
     tags: ["Python", "FastAPI", "JavaScript", "Stripe"],
     subdomain: "caspianflow",
-    stage: "#e8b84b",
+    stage: "#181b20",
     year: "2025",
   },
   {
@@ -72,7 +72,7 @@ export const projects = [
     name: "RestOS",
     tags: ["FastAPI", "HTMX", "PostgreSQL", "Python"],
     subdomain: "restaurant",
-    stage: "#f0c9a4",
+    stage: "#181b20",
     year: "2026",
   },
   {
@@ -80,7 +80,7 @@ export const projects = [
     name: "RestOS HR",
     tags: ["FastAPI", "Python", "SQLite", "PWA"],
     subdomain: "hr",
-    stage: "#d98bb8",
+    stage: "#181b20",
     year: "2026",
   },
   {
@@ -88,7 +88,7 @@ export const projects = [
     name: "BotFactory",
     tags: ["React", "TypeScript", "FastAPI", "Telegram"],
     subdomain: "botfactory",
-    stage: "#2f9be3",
+    stage: "#181b20",
     year: "2026",
   },
 ];
