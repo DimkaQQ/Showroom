@@ -3,6 +3,8 @@ import { translations } from "@/lib/translations";
 import { locales, pathFor, langName, type Lang } from "@/lib/i18n";
 import { Enhance } from "@/components/enhance";
 import { Eggs } from "@/components/eggs";
+import { Logo } from "@/components/logo";
+import { LangMenu } from "@/components/lang-menu";
 import { ContactForm } from "@/components/contact-form";
 import { testimonials } from "@/lib/testimonials";
 import { jsonLdFor } from "@/lib/seo";
@@ -13,6 +15,7 @@ export function Home({ lang }: { lang: Lang }) {
     <>
       <a className="skip" href="#main">{t.nav.skip}</a>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFor(lang)) }} />
+      <TopBar lang={lang} t={t} />
       <Hero lang={lang} t={t} />
       <main id="main" tabIndex={-1}>
         <Work lang={lang} t={t} />
@@ -42,17 +45,27 @@ function Letters({ word, from }: { word: string; from: number }) {
   );
 }
 
-function LangSwitch({ lang, t }: { lang: Lang; t: T }) {
+function TopBar({ lang, t }: { lang: Lang; t: T }) {
   return (
-    <ul className="langs" aria-label={t.nav.langLabel}>
-      {locales.map((l) => (
-        <li key={l}>
-          <a href={pathFor(l)} hrefLang={l} lang={l} title={langName[l]} aria-current={l === lang ? "true" : undefined}>
-            {l.toUpperCase()}
-          </a>
-        </li>
-      ))}
-    </ul>
+    <div className="topbar" data-topbar>
+      <nav className="bar" aria-label="Primary">
+        <a className="brand" href={pathFor(lang)} aria-label={siteConfig.name}>
+          <Logo size={32} />
+          <span>{siteConfig.name}</span>
+        </a>
+        <ul className="bar-links">
+          <li><a href="#work">{t.nav.work}</a></li>
+          <li><a href="#services">{t.nav.services}</a></li>
+          <li><a href="#process">{t.nav.process}</a></li>
+          <li><a href="#contact">{t.nav.contact}</a></li>
+        </ul>
+        <div className="bar-end">
+          <a className="bar-ext" href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
+          <a className="bar-ext" href={siteConfig.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+          <LangMenu lang={lang} />
+        </div>
+      </nav>
+    </div>
   );
 }
 
@@ -60,20 +73,6 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
   const [first, second] = siteConfig.name.split(" ");
   return (
     <header className="hero" id="top">
-      <nav className="bar" aria-label="Primary">
-        <ul>
-          <li><a href="#work">{t.nav.work}</a></li>
-          <li><a href="#services">{t.nav.services}</a></li>
-          <li><a href="#process">{t.nav.process}</a></li>
-          <li><a href="#contact">{t.nav.contact}</a></li>
-        </ul>
-        <div className="bar-end">
-          <LangSwitch lang={lang} t={t} />
-          <a href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
-          <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-        </div>
-      </nav>
-
       <div className="reel" aria-hidden="true">
         <div className="reel-track">
           {[...projects, ...projects].map((p, i) => (
@@ -89,7 +88,7 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
         <div className="hero-copy rise rise-1">
           <p className="eyebrow">{t.hero.descriptor}</p>
           <p className="lead">{t.hero.lead}</p>
-          <a className="btn" href="#work">{t.hero.viewWork}</a>
+          <div className="hero-cta"><a className="btn" href="#work">{t.hero.viewWork}</a><a className="btn btn-outline" href="#contact">{t.nav.contact}</a></div>
         </div>
         <dl className="hero-stats rise rise-2">
           <div><dt>{t.hero.statProjects}</dt><dd>9</dd></div>

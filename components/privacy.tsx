@@ -1,3 +1,5 @@
+import { Logo } from "@/components/logo";
+import { LangMenu } from "@/components/lang-menu";
 import { siteConfig } from "@/lib/data";
 import { translations } from "@/lib/translations";
 import { pathFor, locales, langName, type Lang } from "@/lib/i18n";
@@ -7,16 +9,9 @@ export function Privacy({ lang }: { lang: Lang }) {
   return (
     <main className="doc">
       <nav className="doc-bar" aria-label="Primary">
+        <a className="brand" href={pathFor(lang)} aria-label="Mirelli Studio"><Logo size={32} /></a>
         <a href={pathFor(lang)}>← {t.back}</a>
-        <ul className="langs" aria-label={translations[lang].nav.langLabel}>
-          {locales.map((l) => (
-            <li key={l}>
-              <a href={`${pathFor(l)}privacy/`} hrefLang={l} lang={l} title={langName[l]} aria-current={l === lang ? "true" : undefined}>
-                {l.toUpperCase()}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <LangMenu lang={lang} suffix={"privacy/"} />
       </nav>
       <h1>{t.title}</h1>
       <p className="doc-date">{t.updated}</p>

@@ -94,7 +94,31 @@ export function Enhance() {
     };
     mq?.addEventListener("click", onMq);
 
+    // Top bar hides while scrolling down and returns on the way up; the language menu closes on outside click / Esc.
+    const bar = document.querySelector<HTMLElement>("[data-topbar]");
+    let lastY = scrollY, tick = false;
+    const onScroll = () => {
+      if (tick) return;
+      tick = true;
+      requestAnimationFrame(() => {
+        const y = scrollY, down = y > lastY && y > 120;
+        bar?.classList.toggle("is-hidden", down && !bar.contains(document.activeElement));
+        lastY = y; tick = false;
+      });
+    };
+    const closeMenus = (e: Event) => {
+      document.querySelectorAll<HTMLDetailsElement>("details.lang-menu[open]").forEach((d) => {
+        if (e.type === "keydown" ? (e as KeyboardEvent).key === "Escape" : !d.contains(e.target as Node)) d.open = false;
+      });
+    };
+    addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("click", closeMenus);
+    document.addEventListener("keydown", closeMenus);
+
     return () => {
+      removeEventListener("scroll", onScroll);
+      document.removeEventListener("click", closeMenus);
+      document.removeEventListener("keydown", closeMenus);
       io.disconnect();
       ro.disconnect();
       document.removeEventListener("click", onTry);

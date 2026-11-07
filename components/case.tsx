@@ -1,3 +1,5 @@
+import { Logo } from "@/components/logo";
+import { LangMenu } from "@/components/lang-menu";
 import { projects, siteConfig } from "@/lib/data";
 import { cases } from "@/lib/cases";
 import { translations } from "@/lib/translations";
@@ -16,16 +18,9 @@ export function CasePage({ lang, slug }: { lang: Lang; slug: string }) {
     <main className="doc case">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(caseJsonLd(lang, slug)) }} />
       <nav className="doc-bar" aria-label="Primary">
+        <a className="brand" href={pathFor(lang)} aria-label="Mirelli Studio"><Logo size={32} /></a>
         <a href={`${pathFor(lang)}#work`}>← {t.case.back}</a>
-        <ul className="langs" aria-label={t.nav.langLabel}>
-          {locales.map((l) => (
-            <li key={l}>
-              <a href={`${pathFor(l)}work/${slug}/`} hrefLang={l} lang={l} title={langName[l]} aria-current={l === lang ? "true" : undefined}>
-                {l.toUpperCase()}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <LangMenu lang={lang} suffix={`work/${slug}/`} />
       </nav>
 
       <p className="case-meta">{t.showroom.projects[i].tagline}, {p.year}</p>
