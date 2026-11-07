@@ -48,6 +48,9 @@ dimkaprojects.xyz {
 			(RFC 2324, section 2.3.2)
 			TEXT 418
 	}
+	handle /api/contact* {
+		reverse_proxy 127.0.0.1:8787
+	}
 	handle {
 		file_server
 	}

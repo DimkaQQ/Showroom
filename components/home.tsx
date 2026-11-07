@@ -3,6 +3,8 @@ import { translations } from "@/lib/translations";
 import { locales, pathFor, langName, type Lang } from "@/lib/i18n";
 import { Enhance } from "@/components/enhance";
 import { Eggs } from "@/components/eggs";
+import { ContactForm } from "@/components/contact-form";
+import { testimonials } from "@/lib/testimonials";
 import { jsonLdFor } from "@/lib/seo";
 
 export function Home({ lang }: { lang: Lang }) {
@@ -15,11 +17,12 @@ export function Home({ lang }: { lang: Lang }) {
       <main id="main" tabIndex={-1}>
         <Work lang={lang} t={t} />
         <Services t={t} />
+        <Why lang={lang} t={t} />
         <Process t={t} />
         <Faq t={t} />
       </main>
       <Stack t={t} />
-      <Contact t={t} />
+      <Contact lang={lang} t={t} />
       <Footer lang={lang} t={t} />
       <Enhance />
       <Eggs lang={lang} />
@@ -197,6 +200,36 @@ function Services({ t }: { t: T }) {
   );
 }
 
+function Why({ lang, t }: { lang: Lang; t: T }) {
+  return (
+    <section className="why" id="why" aria-labelledby="why-h">
+      <div className="why-head">
+        <h2 id="why-h" className="reveal">{t.why.title}</h2>
+        <p className="reveal">{t.why.subtitle}</p>
+      </div>
+      <ul className="why-list">
+        {t.why.items.map((it) => (
+          <li key={it.title} className="reveal">
+            <h3>{it.title}</h3>
+            <p>{it.description}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="why-clients reveal">{t.why.clients}</p>
+      {testimonials.length > 0 && (
+        <div className="quotes">
+          {testimonials.map((q) => (
+            <figure key={q.name} className="reveal">
+              <blockquote>{q.quote[lang]}</blockquote>
+              <figcaption>{q.name}, {q.role}</figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function Process({ t }: { t: T }) {
   return (
     <section className="process" id="process" aria-labelledby="process-h">
@@ -249,20 +282,21 @@ function Stack({ t }: { t: T }) {
   );
 }
 
-function Contact({ t }: { t: T }) {
+function Contact({ lang, t }: { lang: Lang; t: T }) {
   return (
     <section className="contact" id="contact" aria-labelledby="contact-h">
       <h2 id="contact-h" className="reveal">{t.contact.title}</h2>
       <div className="contact-body">
-        <div className="reveal">
+        <div className="contact-info reveal">
           <p>{t.contact.description}</p>
           <p className="byline">{t.contact.byline}</p>
+          <div className="contact-links">
+            <a className="mail" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
+            <a href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
+            <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
         </div>
-        <div className="contact-links reveal">
-          <a className="mail" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
-          <a href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
-          <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-        </div>
+        <ContactForm lang={lang} />
       </div>
     </section>
   );

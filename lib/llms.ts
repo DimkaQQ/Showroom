@@ -17,6 +17,8 @@ export function llmsTxt(): string {
   lines.push("- One accountable engineer from the first call to a deployed, documented product");
   lines.push("- Stack: TypeScript, React, Next.js, Node.js, Python, FastAPI, PostgreSQL, Redis, Docker, Stripe, Telegram Bot API");
   lines.push("- Hosting: EU infrastructure (Frankfurt); the website and demos use no cookies, analytics or third-party requests");
+  lines.push("- Works with existing systems: builds, connects or replaces ERP, CRM, marketplaces, apps, bots and API integrations");
+  lines.push("- Small studio: built the way the client wants, directly with the engineer; clients are happy with the result and come back with new projects");
   lines.push("- Process: discovery with a written estimate, design, weekly builds on a staging URL, launch and support");
   lines.push(`- Contact: ${siteConfig.email}, Telegram ${siteConfig.telegram}, GitHub ${siteConfig.github}`, "");
 

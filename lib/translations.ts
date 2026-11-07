@@ -20,7 +20,7 @@ const en = {
   hero: {
     descriptor: "Custom software studio",
     lead:
-      "A senior-led studio building custom web platforms, internal tools and integrations for businesses in Europe. Nine real products below, each one a live demo with sample data. Open any of them.",
+      "Custom software for European businesses, built by one engineer who answers your messages. Whatever your business runs on, I can build it, connect it to what you already have, or replace it. Nine real products below, each a live demo on sample data.",
     viewWork: "See the work",
     statProjects: "Products built",
     statYears: "Years in production",
@@ -100,7 +100,7 @@ const en = {
       {
         title: "Backend & integrations",
         description:
-          "REST and GraphQL APIs, payment flows, third-party integrations and real-time systems that stay reliable under load.",
+          "Connect and automate what you already run: ERP, CRM, accounting, payment providers and legacy systems through REST and GraphQL APIs, webhooks and data imports, plus real-time systems that stay reliable under load.",
       },
       {
         title: "Telegram bots & Mini Apps",
@@ -115,7 +115,7 @@ const en = {
       {
         title: "Product design & UX",
         description:
-          "Prototypes, design systems and WCAG-aware interfaces, reviewed with you before they turn into code.",
+          "Beautiful, easy-to-use interfaces: prototypes, design systems and WCAG-aware screens, reviewed with you before they turn into code, including mobile-first apps and PWAs.",
       },
     ],
   },
@@ -148,9 +148,30 @@ const en = {
   contact: {
     title: "Have a project in mind?",
     description:
-      "Describe what you are building or what needs fixing. Every message gets a personal reply with concrete next steps.",
+      "Tell me what you want to build, connect or replace. Every message gets a personal reply with concrete next steps.",
     email: "Email",
     byline: "Mirelli Studio is run by Darian Mirelli, engineer and designer, working from the EU.",
+    form: {
+      name: "Your name",
+      email: "Email",
+      topic: "What do you need?",
+      message: "Tell me about your project",
+      send: "Send message",
+      sending: "Sending…",
+      ok: "Thank you. Your message is on its way, and I will reply personally.",
+      invalid: "Please fill in your name, a valid email and a short message.",
+      fail: "Sorry, that did not go through. Please write to me directly:",
+      consent: "I use these details only to reply to you.",
+      privacy: "Privacy",
+      topics: [
+        "A new web platform or SaaS",
+        "An internal tool or ERP",
+        "A marketplace",
+        "A Telegram bot or Mini App",
+        "Connecting or replacing an existing system",
+        "Something else",
+      ],
+    },
   },
   footer: {
     privacy: "Privacy",
@@ -163,6 +184,29 @@ const en = {
     sudo: "mirelli is not in the sudoers file. This incident will be reported.",
     four04: "You asked for it.",
     console: "You read the console, so we should talk. Try the Konami code. Or type 404.",
+  },
+  why: {
+    title: "Why a small studio",
+    subtitle: "A small studio means you get exactly what you asked for.",
+    items: [
+      {
+        title: "Built the way you want",
+        description: "No templates and no off-the-shelf compromises. The product is shaped around how your business actually works, and changed when your business changes.",
+      },
+      {
+        title: "Beautiful and easy to use",
+        description: "Interfaces people enjoy: clear, fast and designed together with you instead of handed over as a surprise.",
+      },
+      {
+        title: "A direct line to the builder",
+        description: "You talk to the engineer who writes the code. Questions go straight to the person who can answer them.",
+      },
+      {
+        title: "Any system, one partner",
+        description: "ERP, CRM, marketplace, app, bot or integration: I build it, connect it to what you already use, or replace it, so you deal with one person instead of several vendors.",
+      },
+    ],
+    clients: "Clients are happy with what they get, and they come back with new projects.",
   },
   case: {
     back: "All work",
@@ -210,6 +254,14 @@ const en = {
         a: "It depends on scope. After a short discovery call you receive a written estimate with a fixed scope, so you know what you get and what it costs before anything is built.",
       },
       {
+        q: "What kinds of systems can you build or work with?",
+        a: "ERP and internal tools, SaaS platforms, marketplaces, customer portals, mobile-first apps and PWAs, Telegram bots and Mini Apps, payment and API integrations, and automation around the systems you already run. If a business process runs on software, I can build it, connect it to your existing tools, or replace it. If something is outside my strengths, I will say so before you spend anything.",
+      },
+      {
+        q: "Do clients work with you again?",
+        a: "Yes. Clients are happy with what they get and come back with new projects. A small studio means long relationships rather than one-off hand-offs.",
+      },
+      {
         q: "Which languages do you work in?",
         a: "English and Russian. This site is available in both.",
       },
@@ -237,7 +289,7 @@ const en = {
       {
         title: "If you contact me",
         body: [
-          "If you write by email or Telegram, I receive your message, your address or username, and whatever you choose to share. I use it to reply and to run the project we discuss, and I keep it only as long as that needs, or as the law requires for contracts and invoices. I do not pass it on or sell it.",
+          "If you write by email, Telegram or the contact form, I receive your message, your address or username, and whatever you choose to share. The form sends your message through my own server straight to me on Telegram (via Telegram's Bot API); my server does not store it. I use it to reply and to run the project we discuss, and I keep it only as long as that needs, or as the law requires for contracts and invoices. I do not pass it on or sell it.",
         ],
       },
       {
@@ -278,7 +330,7 @@ const ru: Translations = {
   hero: {
     descriptor: "Студия разработки на заказ",
     lead:
-      "Студия под руководством senior-инженера: веб-платформы, внутренние системы и интеграции для бизнеса в Европе. Ниже девять реальных продуктов, каждый — живое демо на примерных данных. Откройте любой.",
+      "Заказное ПО для бизнеса в Европе от одного инженера, который отвечает на ваши сообщения. Что бы ни лежало в основе вашего бизнеса, я могу создать это, подключить к тому, что у вас уже есть, или заменить. Ниже девять реальных продуктов, у каждого живое демо на примерных данных.",
     viewWork: "Смотреть работы",
     statProjects: "Продуктов создано",
     statYears: "Лет в продакшене",
@@ -358,7 +410,7 @@ const ru: Translations = {
       {
         title: "Бэкенд и интеграции",
         description:
-          "REST и GraphQL API, платёжные потоки, интеграции с внешними сервисами и real-time системы, устойчивые под нагрузкой.",
+          "Связь и автоматизация того, что у вас уже работает: ERP, CRM, бухгалтерия, платёжные сервисы и старые системы через REST и GraphQL API, вебхуки и импорт данных, плюс real-time системы, устойчивые под нагрузкой.",
       },
       {
         title: "Telegram-боты и Mini Apps",
@@ -373,7 +425,7 @@ const ru: Translations = {
       {
         title: "Продуктовый дизайн и UX",
         description:
-          "Прототипы, дизайн-системы и интерфейсы с учётом WCAG, согласованные с вами до того, как станут кодом.",
+          "Красивые и удобные интерфейсы: прототипы, дизайн-системы и экраны с учётом WCAG, согласованные с вами до того, как станут кодом, включая mobile-first приложения и PWA.",
       },
     ],
   },
@@ -406,9 +458,30 @@ const ru: Translations = {
   contact: {
     title: "Есть проект на примете?",
     description:
-      "Опишите, что вы строите или что нужно починить. На каждое письмо приходит личный ответ с конкретными следующими шагами.",
+      "Расскажите, что вы хотите создать, подключить или заменить. На каждое сообщение приходит личный ответ с конкретными следующими шагами.",
     email: "Почта",
     byline: "Mirelli Studio ведёт Darian Mirelli, инженер и дизайнер, работает из ЕС.",
+    form: {
+      name: "Ваше имя",
+      email: "Почта",
+      topic: "Что вам нужно?",
+      message: "Расскажите о проекте",
+      send: "Отправить",
+      sending: "Отправляю…",
+      ok: "Спасибо. Сообщение отправлено, я отвечу лично.",
+      invalid: "Укажите имя, корректную почту и короткое сообщение.",
+      fail: "Не получилось отправить. Напишите мне напрямую:",
+      consent: "Эти данные я использую только для ответа вам.",
+      privacy: "Конфиденциальность",
+      topics: [
+        "Новая веб-платформа или SaaS",
+        "Внутренняя система или ERP",
+        "Маркетплейс",
+        "Telegram-бот или Mini App",
+        "Подключить или заменить существующую систему",
+        "Другое",
+      ],
+    },
   },
   footer: {
     privacy: "Конфиденциальность",
@@ -421,6 +494,29 @@ const ru: Translations = {
     sudo: "mirelli отсутствует в файле sudoers. Об этом инциденте будет сообщено.",
     four04: "Сам напросился.",
     console: "Раз вы открыли консоль, давайте поговорим. Попробуйте код Konami. Или наберите 404.",
+  },
+  why: {
+    title: "Почему маленькая студия",
+    subtitle: "Маленькая студия значит, что вы получаете ровно то, что просили.",
+    items: [
+      {
+        title: "Так, как хотите вы",
+        description: "Никаких шаблонов и компромиссов «из коробки». Продукт строится вокруг того, как на самом деле работает ваш бизнес, и меняется вместе с ним.",
+      },
+      {
+        title: "Красиво и удобно",
+        description: "Интерфейсы, которыми приятно пользоваться: понятные, быстрые и сделанные вместе с вами, а не вручённые сюрпризом.",
+      },
+      {
+        title: "Прямая связь с тем, кто делает",
+        description: "Вы общаетесь с инженером, который пишет код. Вопросы идут сразу тому, кто может на них ответить.",
+      },
+      {
+        title: "Любая система, один партнёр",
+        description: "ERP, CRM, маркетплейс, приложение, бот или интеграция: я создаю это, подключаю к тому, что вы уже используете, или заменяю, так что вы имеете дело с одним человеком, а не с несколькими подрядчиками.",
+      },
+    ],
+    clients: "Клиенты довольны результатом и возвращаются с новыми проектами.",
   },
   case: {
     back: "Все работы",
@@ -468,6 +564,14 @@ const ru: Translations = {
         a: "Зависит от объёма. После короткого разговора вы получаете письменную оценку с зафиксированным объёмом работ, поэтому до начала разработки известно, что вы получите и сколько это стоит.",
       },
       {
+        q: "С какими системами вы можете работать и что можете создать?",
+        a: "ERP и внутренние системы, SaaS-платформы, маркетплейсы, клиентские порталы, mobile-first приложения и PWA, Telegram-ботов и Mini App, платёжные и API-интеграции и автоматизацию вокруг систем, которые у вас уже работают. Если бизнес-процесс держится на программе, я могу создать её, подключить к вашим инструментам или заменить. Если задача вне моих сильных сторон, я скажу об этом до того, как вы что-то потратите.",
+      },
+      {
+        q: "Клиенты возвращаются к вам?",
+        a: "Да. Клиенты довольны результатом и возвращаются с новыми проектами. Маленькая студия означает долгие отношения, а не разовую передачу работы.",
+      },
+      {
         q: "На каких языках вы работаете?",
         a: "На английском и русском. Этот сайт доступен на обоих.",
       },
@@ -495,7 +599,7 @@ const ru: Translations = {
       {
         title: "Если вы со мной свяжетесь",
         body: [
-          "Если вы напишете на почту или в Telegram, я получу ваше сообщение, ваш адрес или имя пользователя и то, что вы решите рассказать. Я использую это, чтобы ответить и вести обсуждаемый проект, и храню столько, сколько для этого нужно или сколько требует закон для договоров и счетов. Я не передаю данные третьим лицам и не продаю их.",
+          "Если вы напишете на почту, в Telegram или через форму, я получу ваше сообщение, ваш адрес или имя пользователя и то, что вы решите рассказать. Форма отправляет сообщение через мой собственный сервер прямо мне в Telegram (через Bot API Telegram); мой сервер его не хранит. Я использую это, чтобы ответить и вести обсуждаемый проект, и храню столько, сколько для этого нужно или сколько требует закон для договоров и счетов. Я не передаю данные третьим лицам и не продаю их.",
         ],
       },
       {

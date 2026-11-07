@@ -22,5 +22,12 @@ cp -a demos "$rel/demos"
 sudo install -m 644 deploy/Caddyfile /etc/caddy/Caddyfile
 ln -sfn "$rel" "$ROOT/current"
 sudo systemctl reload caddy
+
+# Contact form endpoint (needs server/contact/.env once; without it the form shows the email fallback).
+pm2 startOrReload deploy/ecosystem.config.cjs --update-env
+pm2 save >/dev/null
+
+# Tell search engines about the new pages (never fails the deploy).
+node tools/indexnow.mjs || true
 ls -1dt "$ROOT"/releases/* | tail -n +6 | xargs -r rm -rf
 echo "deployed $rel"

@@ -17,3 +17,6 @@ out/
 *.log
 .claude/
 tsconfig.tsbuildinfo
+
+# secrets
+server/contact/.env
