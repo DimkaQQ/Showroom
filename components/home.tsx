@@ -50,7 +50,7 @@ function TopBar({ lang, t }: { lang: Lang; t: T }) {
     <div className="topbar" data-topbar>
       <nav className="bar" aria-label="Primary">
         <a className="brand" href={pathFor(lang)} aria-label={siteConfig.name}>
-          <Logo size={32} />
+          <Logo size={46} />
           <span>{siteConfig.name}</span>
         </a>
         <ul className="bar-links">

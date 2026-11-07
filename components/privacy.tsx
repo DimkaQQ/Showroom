@@ -9,7 +9,7 @@ export function Privacy({ lang }: { lang: Lang }) {
   return (
     <main className="doc">
       <nav className="doc-bar" aria-label="Primary">
-        <a className="brand" href={pathFor(lang)} aria-label="Mirelli Studio"><Logo size={32} /></a>
+        <a className="brand" href={pathFor(lang)} aria-label="Mirelli Studio"><Logo size={40} /></a>
         <a href={pathFor(lang)}>← {t.back}</a>
         <LangMenu lang={lang} suffix={"privacy/"} />
       </nav>

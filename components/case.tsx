@@ -18,7 +18,7 @@ export function CasePage({ lang, slug }: { lang: Lang; slug: string }) {
     <main className="doc case">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(caseJsonLd(lang, slug)) }} />
       <nav className="doc-bar" aria-label="Primary">
-        <a className="brand" href={pathFor(lang)} aria-label="Mirelli Studio"><Logo size={32} /></a>
+        <a className="brand" href={pathFor(lang)} aria-label="Mirelli Studio"><Logo size={40} /></a>
         <a href={`${pathFor(lang)}#work`}>← {t.case.back}</a>
         <LangMenu lang={lang} suffix={`work/${slug}/`} />
       </nav>
