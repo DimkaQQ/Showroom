@@ -19,6 +19,9 @@ a { color: inherit; }
 .top { display: flex; justify-content: space-between; gap: 16px; font-size: 16px; }
 .top a { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; text-decoration-color: transparent; padding-block: 8px; transition: text-decoration-color 160ms; }
 .top a:hover { text-decoration-color: currentColor; }
+.langs-404 { display: flex; gap: 6px; }
+.langs-404 a { min-width: 44px; text-align: center; opacity: .6; }
+.langs-404 a[aria-current="true"] { opacity: 1; text-decoration-color: currentColor; }
 
 .term { margin-top: 28px; font: 14px/1.6 var(--mono); color: var(--lime); min-height: 6.4em; white-space: pre-wrap; overflow-wrap: anywhere; }
 .term .dim { color: var(--mute); }
@@ -58,7 +61,7 @@ h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-s
 </head>
 <body>
 <div class="wrap">
-  <header class="top"><a href="/" id="home1">Mirelli Studio</a><a href="/ru/" id="swap">RU</a></header>
+  <header class="top"><a href="/" id="home1">Mirelli Studio</a><nav id="swap"></nav></header>
   <div class="term" id="term" aria-hidden="true"></div>
 
   <main>
@@ -82,10 +85,11 @@ h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-s
 (() => {
   const $ = (id) => document.getElementById(id);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const ru = /^\/ru(\/|$)/.test(location.pathname);
+  const code = (/^\/(ru|de|fr)(\/|$)/.exec(location.pathname) || [])[1] || "en";
   const path = location.pathname + location.search;
 
-  const T = ru ? {
+  const LANGS = {
+    ru: {
     title: "404 — Эта страница ушла в продакшен без тестов",
     lead: "Эта страница ушла в продакшен без тестов.",
     home: "На главную", why: "Почему её нет?", rep: "Сообщить разработчику", repnote: "",
@@ -99,7 +103,8 @@ h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-s
     sudo: "mirelli отсутствует в файле sudoers. Об этом инциденте будет сообщено.",
     konami: "Нашёл. Скидка: нет. Уважение: безграничное.",
     subject: "404 на сайте: ",
-  } : {
+    },
+    en: {
     title: "404 — This page went to production without tests",
     lead: "This page went to production without tests.",
     home: "Back to the home page", why: "Why is it missing?", rep: "Report it to the developer", repnote: "",
@@ -113,14 +118,47 @@ h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-s
     sudo: "mirelli is not in the sudoers file. This incident will be reported.",
     konami: "You found it. Discount: none. Respect: unlimited.",
     subject: "404 on the site: ",
+    },
+    de: {
+      title: "404 – Diese Seite ging ohne Tests in Produktion",
+      lead: "Diese Seite ging ohne Tests in Produktion.",
+      home: "Zur Startseite", why: "Warum fehlt sie?", rep: "Dem Entwickler melden", repnote: "",
+      hint: "Psst: Die große 0 lässt sich greifen. Werfen Sie sie herum.",
+      term: ["HTTP/2 404", "content-type: text/plain; charset=laune", "x-page-status: fehlt, vermutlich lustig"],
+      s1: () => "Heute gefundene Seiten: 0", s2: (n) => `Abpraller: ${n}`, s3: (n, m) => `Ausreden: ${n}/${m}`,
+      out: "Die Ausreden sind aufgebraucht. Ehrlich gesagt weiß es niemand.",
+      ex: ["Bei mir funktioniert es.", "Die Seite war gerade noch da. Ehrenwort.", "Jemand hat an einem Freitag deployt.", "Das ist kein Bug, sondern eine undokumentierte Abwesenheit.", "Der Praktikant hat sie gelöscht. Wir haben keinen Praktikanten.", "Diese Seite ist in einer anderen Burg.", "In der URL steckt ein Tippfehler. Wir nennen keine Namen.", "Das ist der Cache. Leeren Sie den Cache. Und Ihre Erwartungen.", "Wir haben sie verschoben und vergessen, es der Seite zu sagen.", "Die Seite wollte mehr Gehalt und ist gegangen.", "Ein Semikolon hat sie gefressen.", "Haben Sie versucht, das Internet aus- und wieder einzuschalten?"],
+      bounce: { 5: "Der 0 geht es besser als der Seite.", 15: "Lassen Sie die 0 in Ruhe. Sie hat schon ihre Seite verloren.", 30: "Das ist inzwischen ein Sport.", 60: "Sind Sie sicher, dass Sie nicht arbeiten müssten? Na gut." },
+      snap: "Repariert. Immer noch ein 404, aber es sieht richtig aus.",
+      sudo: "mirelli steht nicht in der sudoers-Datei. Dieser Vorfall wird gemeldet.",
+      konami: "Gefunden. Rabatt: keiner. Respekt: unbegrenzt.",
+      subject: "404 auf der Website: ",
+    },
+    fr: {
+      title: "404 – Cette page est partie en production sans tests",
+      lead: "Cette page est partie en production sans tests.",
+      home: "Retour à l'accueil", why: "Pourquoi est-elle absente ?", rep: "Signaler au développeur", repnote: "",
+      hint: "Psst : le grand 0 peut être attrapé. Lancez-le dans tous les sens.",
+      term: ["HTTP/2 404", "content-type: text/plain; charset=humeur", "x-page-status: absente, probablement drôle"],
+      s1: () => "Pages trouvées aujourd'hui : 0", s2: (n) => `Rebonds : ${n}`, s3: (n, m) => `Excuses : ${n}/${m}`,
+      out: "Plus d'excuses. Honnêtement, personne ne sait.",
+      ex: ["Chez moi, ça marche.", "Elle était là à l'instant. Je le jure.", "Quelqu'un a déployé un vendredi.", "Ce n'est pas un bug, c'est une absence non documentée.", "Le stagiaire l'a supprimée. Nous n'avons pas de stagiaire.", "Cette page est dans un autre château.", "L'URL contient une faute de frappe. On ne désigne personne.", "C'est le cache. Videz votre cache. Et vos attentes.", "Nous l'avons déplacée et oublié de le dire à la page.", "La page a demandé une augmentation et elle est partie.", "Un point-virgule l'a mangée.", "Avez-vous essayé d'éteindre et de rallumer Internet ?"],
+      bounce: { 5: "Le 0 va mieux que la page.", 15: "Arrêtez de harceler le 0. Il a déjà perdu sa page.", 30: "C'est devenu un sport.", 60: "Vous êtes sûr de ne pas devoir travailler ? Bon." },
+      snap: "Réparé. Toujours une 404, mais ça a l'air juste.",
+      sudo: "mirelli ne figure pas dans le fichier sudoers. Cet incident sera signalé.",
+      konami: "Trouvé. Remise : aucune. Respect : illimité.",
+      subject: "404 sur le site : ",
+    },
   };
+  const T = LANGS[code];
 
-  document.documentElement.lang = ru ? "ru" : "en";
+  const homeHref = code === "en" ? "/" : "/" + code + "/";
+  document.documentElement.lang = code;
   document.title = T.title;
-  $("lead").textContent = T.lead; $("home1").textContent = "Mirelli Studio"; $("home1").href = ru ? "/ru/" : "/";
-  $("home2").textContent = T.home; $("home2").href = ru ? "/ru/" : "/";
+  $("lead").textContent = T.lead; $("home1").textContent = "Mirelli Studio"; $("home1").href = homeHref;
+  $("home2").textContent = T.home; $("home2").href = homeHref;
   $("why").textContent = T.why; $("rep").textContent = T.rep; $("repnote").textContent = T.repnote; $("hint").textContent = T.hint;
-  $("swap").textContent = T.swap; $("swap").href = T.swapHref;
+  $("swap").replaceWith(Object.assign(document.createElement("nav"), { id: "swap", className: "langs-404", innerHTML: ["en", "ru", "de", "fr"].map((l) => `<a href="${l === "en" ? "/" : "/" + l + "/"}" lang="${l}"${l === code ? ' aria-current="true"' : ""}>${l.toUpperCase()}</a>`).join("") }));
   $("rep").href = "mailto:darian.mirelli@gmail.com?subject=" + encodeURIComponent(T.subject + path);
 
   // ── Terminal that types the failed request

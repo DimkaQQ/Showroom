@@ -1,4 +1,6 @@
 import type { Lang } from "./i18n";
+import { de } from "./translations.de";
+import { fr } from "./translations.fr";
 
 const en = {
   meta: {
@@ -29,7 +31,7 @@ const en = {
   showroom: {
     title: "Selected work",
     subtitle:
-      "Real systems I built for logistics, hospitality, trading and marketplaces. Every demo runs live with sample data in place of client data: click through it yourself.",
+      "Real systems for logistics, hospitality, trading and marketplaces. Every demo runs live with sample data in place of client data: click through it yourself.",
     explore: "Open the demo",
     caseStudy: "Read the case study",
     tryOff: "Try the demo",
@@ -235,7 +237,7 @@ const en = {
       },
       {
         q: "Which languages do you work in?",
-        a: "English and Russian. This site is available in both.",
+        a: "English and Russian. This site is available in English, Russian, German and French.",
       },
     ],
   },
@@ -311,7 +313,7 @@ const ru: Translations = {
   showroom: {
     title: "Избранные работы",
     subtitle:
-      "Реальные системы, которые я сделал для логистики, ресторанов, трейдинга и маркетплейсов. Каждое демо работает вживую на примерных данных вместо данных клиентов: кликайте сами.",
+      "Реальные системы для логистики, ресторанов, трейдинга и маркетплейсов. Каждое демо работает вживую на примерных данных вместо данных клиентов: кликайте сами.",
     explore: "Открыть демо",
     caseStudy: "Читать кейс",
     tryOff: "Потрогать демо",
@@ -517,7 +519,7 @@ const ru: Translations = {
       },
       {
         q: "На каких языках вы работаете?",
-        a: "На английском и русском. Этот сайт доступен на обоих.",
+        a: "На английском и русском. Сайт доступен на английском, русском, немецком и французском.",
       },
     ],
   },
@@ -562,4 +564,4 @@ const ru: Translations = {
   },
 };
 
-export const translations: Record<Lang, Translations> = { en, ru };
+export const translations: Record<Lang, Translations> = { en, ru, de, fr };

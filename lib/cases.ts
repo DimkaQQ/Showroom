@@ -1,4 +1,6 @@
 import type { Lang } from "./i18n";
+import { caseDe } from "./cases.de";
+import { caseFr } from "./cases.fr";
 
 // One case-study page per project at /work/<id>/ (and /ru/work/<id>/). Facts only: what the product does,
 // who it suits, how it is built. No invented clients or results.
@@ -10,7 +12,7 @@ export type CaseText = {
   audience: string;
 };
 
-export const cases: Record<string, Record<Lang, CaseText>> = {
+const base: Record<string, { en: CaseText; ru: CaseText }> = {
   dizeltrade: {
     en: {
       title: "Fuel Distribution ERP Software | DizelTrade Case Study",
@@ -282,3 +284,7 @@ export const cases: Record<string, Record<Lang, CaseText>> = {
     },
   },
 };
+
+export const cases: Record<string, Record<Lang, CaseText>> = Object.fromEntries(
+  Object.entries(base).map(([id, t]) => [id, { ...t, de: caseDe[id], fr: caseFr[id] }])
+);
