@@ -20,7 +20,7 @@ const en = {
   hero: {
     descriptor: "Custom software studio",
     lead:
-      "Custom software for European businesses, built by one engineer who answers your messages. Whatever your business runs on, I can build it, connect it to what you already have, or replace it. Nine real products below, each a live demo on sample data.",
+      "Custom software for European businesses. Whatever your business runs on, it can be built, connected to what you already have, or replaced. Nine real products below, each a live demo on sample data.",
     viewWork: "See the work",
     statProjects: "Products built",
     statYears: "Years in production",
@@ -85,7 +85,7 @@ const en = {
   services: {
     title: "Services",
     subtitle:
-      "From the first scoping call to a deployed, documented product. One person accountable for the whole thing.",
+      "From the first scoping call to a deployed, documented product.",
     items: [
       {
         title: "Web platforms & SaaS",
@@ -148,20 +148,19 @@ const en = {
   contact: {
     title: "Have a project in mind?",
     description:
-      "Tell me what you want to build, connect or replace. Every message gets a personal reply with concrete next steps.",
+      "Describe what you want to build, connect or replace. Every message gets a personal reply with concrete next steps.",
     email: "Email",
-    byline: "Mirelli Studio is run by Darian Mirelli, engineer and designer, working from the EU.",
     form: {
       name: "Your name",
       email: "Email",
       topic: "What do you need?",
-      message: "Tell me about your project",
+      message: "Describe your project",
       send: "Send message",
       sending: "Sending…",
-      ok: "Thank you. Your message is on its way, and I will reply personally.",
+      ok: "Thank you. Your message is on its way and will get a personal reply.",
       invalid: "Please fill in your name, a valid email and a short message.",
-      fail: "Sorry, that did not go through. Please write to me directly:",
-      consent: "I use these details only to reply to you.",
+      fail: "Sorry, that did not go through. Please write directly to:",
+      consent: "These details are used only to reply to you.",
       privacy: "Privacy",
       topics: [
         "A new web platform or SaaS",
@@ -185,29 +184,6 @@ const en = {
     four04: "You asked for it.",
     console: "You read the console, so we should talk. Try the Konami code. Or type 404.",
   },
-  why: {
-    title: "Why a small studio",
-    subtitle: "A small studio means you get exactly what you asked for.",
-    items: [
-      {
-        title: "Built the way you want",
-        description: "No templates and no off-the-shelf compromises. The product is shaped around how your business actually works, and changed when your business changes.",
-      },
-      {
-        title: "Beautiful and easy to use",
-        description: "Interfaces people enjoy: clear, fast and designed together with you instead of handed over as a surprise.",
-      },
-      {
-        title: "A direct line to the builder",
-        description: "You talk to the engineer who writes the code. Questions go straight to the person who can answer them.",
-      },
-      {
-        title: "Any system, one partner",
-        description: "ERP, CRM, marketplace, app, bot or integration: I build it, connect it to what you already use, or replace it, so you deal with one person instead of several vendors.",
-      },
-    ],
-    clients: "Clients are happy with what they get, and they come back with new projects.",
-  },
   case: {
     back: "All work",
     what: "What it does",
@@ -223,11 +199,7 @@ const en = {
     items: [
       {
         q: "What does Mirelli Studio do?",
-        a: "Mirelli Studio designs and builds custom software for businesses in Europe: ERP systems and internal tools, SaaS platforms, B2B marketplaces, restaurant and logistics software, and Telegram bots and Mini Apps. One engineer is accountable for the whole project, from the first call to a deployed, documented product.",
-      },
-      {
-        q: "Who is behind the studio?",
-        a: "The studio is run by Darian Mirelli, an engineer and designer working from the EU. You talk to the person who writes the code, so there are no account managers or hand-offs between teams.",
+        a: "Mirelli Studio designs and builds custom software for businesses in Europe: ERP systems and internal tools, SaaS platforms, B2B marketplaces, restaurant and logistics software, and Telegram bots and Mini Apps. Every project goes from the first call to a deployed, documented product.",
       },
       {
         q: "What kinds of products have you built?",
@@ -247,7 +219,7 @@ const en = {
       },
       {
         q: "Where is the software hosted and how is data handled?",
-        a: "This site and its demos run on infrastructure in Frankfurt and use no cookies, analytics or third-party requests. For client projects I can deploy on EU cloud infrastructure of your choice and design systems around data minimisation, with documentation so you are never locked in.",
+        a: "This site and its demos run on infrastructure in Frankfurt and use no cookies, analytics or third-party requests. For client projects, systems can be deployed on the EU cloud infrastructure of your choice and designed around data minimisation, with documentation so you are never locked in.",
       },
       {
         q: "How much does a project cost?",
@@ -255,11 +227,11 @@ const en = {
       },
       {
         q: "What kinds of systems can you build or work with?",
-        a: "ERP and internal tools, SaaS platforms, marketplaces, customer portals, mobile-first apps and PWAs, Telegram bots and Mini Apps, payment and API integrations, and automation around the systems you already run. If a business process runs on software, I can build it, connect it to your existing tools, or replace it. If something is outside my strengths, I will say so before you spend anything.",
+        a: "ERP and internal tools, SaaS platforms, marketplaces, customer portals, mobile-first apps and PWAs, Telegram bots and Mini Apps, payment and API integrations, and automation around the systems you already run. If a business process runs on software, Mirelli Studio can build it, connect it to your existing tools, or replace it. If something is outside the studio's strengths, you will hear so before you spend anything.",
       },
       {
-        q: "Do clients work with you again?",
-        a: "Yes. Clients are happy with what they get and come back with new projects. A small studio means long relationships rather than one-off hand-offs.",
+        q: "Do clients come back?",
+        a: "Yes. Clients are happy with what they get and come back with new projects.",
       },
       {
         q: "Which languages do you work in?",
@@ -287,21 +259,21 @@ const en = {
         ],
       },
       {
-        title: "If you contact me",
+        title: "If you get in touch",
         body: [
-          "If you write by email, Telegram or the contact form, I receive your message, your address or username, and whatever you choose to share. The form sends your message through my own server straight to me on Telegram (via Telegram's Bot API); my server does not store it. I use it to reply and to run the project we discuss, and I keep it only as long as that needs, or as the law requires for contracts and invoices. I do not pass it on or sell it.",
+          "If you write by email, Telegram or the contact form, Mirelli Studio receives your message, your address or username, and whatever you choose to share. The form passes your message from this site's own server to the studio's Telegram (via Telegram's Bot API); the server does not store it. The details are used to reply and to run the project you discuss, and kept only as long as that needs, or as the law requires for contracts and invoices. They are not passed on or sold.",
         ],
       },
       {
         title: "Who is responsible",
         body: [
-          "Mirelli Studio, run by Darian Mirelli. Contact: darian.mirelli@gmail.com.",
+          "Mirelli Studio, Darian Mirelli. Contact: darian.mirelli@gmail.com.",
         ],
       },
       {
         title: "Your rights",
         body: [
-          "You can ask to see, correct or delete what I hold about you, and you can complain to the data protection authority in your country. Write to the address above.",
+          "You can ask to see, correct or delete what is held about you, and you can complain to the data protection authority in your country. Write to the address above.",
         ],
       },
     ],
@@ -330,7 +302,7 @@ const ru: Translations = {
   hero: {
     descriptor: "Студия разработки на заказ",
     lead:
-      "Заказное ПО для бизнеса в Европе от одного инженера, который отвечает на ваши сообщения. Что бы ни лежало в основе вашего бизнеса, я могу создать это, подключить к тому, что у вас уже есть, или заменить. Ниже девять реальных продуктов, у каждого живое демо на примерных данных.",
+      "Заказное ПО для бизнеса в Европе. Что бы ни лежало в основе вашего бизнеса, это можно создать, подключить к тому, что у вас уже есть, или заменить. Ниже девять реальных продуктов, у каждого живое демо на примерных данных.",
     viewWork: "Смотреть работы",
     statProjects: "Продуктов создано",
     statYears: "Лет в продакшене",
@@ -395,7 +367,7 @@ const ru: Translations = {
   services: {
     title: "Услуги",
     subtitle:
-      "От первого разговора о задаче до развёрнутого и задокументированного продукта. За всё отвечает один человек.",
+      "От первого разговора о задаче до развёрнутого и задокументированного продукта.",
     items: [
       {
         title: "Веб-платформы и SaaS",
@@ -460,7 +432,6 @@ const ru: Translations = {
     description:
       "Расскажите, что вы хотите создать, подключить или заменить. На каждое сообщение приходит личный ответ с конкретными следующими шагами.",
     email: "Почта",
-    byline: "Mirelli Studio ведёт Darian Mirelli, инженер и дизайнер, работает из ЕС.",
     form: {
       name: "Ваше имя",
       email: "Почта",
@@ -468,10 +439,10 @@ const ru: Translations = {
       message: "Расскажите о проекте",
       send: "Отправить",
       sending: "Отправляю…",
-      ok: "Спасибо. Сообщение отправлено, я отвечу лично.",
+      ok: "Спасибо. Сообщение отправлено, вы получите личный ответ.",
       invalid: "Укажите имя, корректную почту и короткое сообщение.",
-      fail: "Не получилось отправить. Напишите мне напрямую:",
-      consent: "Эти данные я использую только для ответа вам.",
+      fail: "Не получилось отправить. Напишите напрямую:",
+      consent: "Эти данные используются только для ответа вам.",
       privacy: "Конфиденциальность",
       topics: [
         "Новая веб-платформа или SaaS",
@@ -495,29 +466,6 @@ const ru: Translations = {
     four04: "Сам напросился.",
     console: "Раз вы открыли консоль, давайте поговорим. Попробуйте код Konami. Или наберите 404.",
   },
-  why: {
-    title: "Почему маленькая студия",
-    subtitle: "Маленькая студия значит, что вы получаете ровно то, что просили.",
-    items: [
-      {
-        title: "Так, как хотите вы",
-        description: "Никаких шаблонов и компромиссов «из коробки». Продукт строится вокруг того, как на самом деле работает ваш бизнес, и меняется вместе с ним.",
-      },
-      {
-        title: "Красиво и удобно",
-        description: "Интерфейсы, которыми приятно пользоваться: понятные, быстрые и сделанные вместе с вами, а не вручённые сюрпризом.",
-      },
-      {
-        title: "Прямая связь с тем, кто делает",
-        description: "Вы общаетесь с инженером, который пишет код. Вопросы идут сразу тому, кто может на них ответить.",
-      },
-      {
-        title: "Любая система, один партнёр",
-        description: "ERP, CRM, маркетплейс, приложение, бот или интеграция: я создаю это, подключаю к тому, что вы уже используете, или заменяю, так что вы имеете дело с одним человеком, а не с несколькими подрядчиками.",
-      },
-    ],
-    clients: "Клиенты довольны результатом и возвращаются с новыми проектами.",
-  },
   case: {
     back: "Все работы",
     what: "Что делает",
@@ -533,11 +481,7 @@ const ru: Translations = {
     items: [
       {
         q: "Чем занимается Mirelli Studio?",
-        a: "Mirelli Studio проектирует и разрабатывает заказное программное обеспечение для бизнеса в Европе: ERP и внутренние системы, SaaS-платформы, B2B-маркетплейсы, софт для ресторанов и логистики, Telegram-ботов и Mini App. За проект отвечает один инженер: от первого разговора до запущенного и задокументированного продукта.",
-      },
-      {
-        q: "Кто стоит за студией?",
-        a: "Студию ведёт Darian Mirelli, инженер и дизайнер, работает из ЕС. Вы общаетесь с тем, кто пишет код: без аккаунт-менеджеров и передачи задач между командами.",
+        a: "Mirelli Studio проектирует и разрабатывает заказное программное обеспечение для бизнеса в Европе: ERP и внутренние системы, SaaS-платформы, B2B-маркетплейсы, софт для ресторанов и логистики, Telegram-ботов и Mini App. Каждый проект идёт от первого разговора до запущенного и задокументированного продукта.",
       },
       {
         q: "Какие продукты вы делали?",
@@ -557,7 +501,7 @@ const ru: Translations = {
       },
       {
         q: "Где хостится софт и как обрабатываются данные?",
-        a: "Этот сайт и его демо работают на инфраструктуре во Франкфурте и не используют cookie, аналитику и сторонние запросы. Для клиентских проектов я могу развернуть систему в выбранном вами облаке в ЕС и проектировать её с минимизацией данных и с документацией, чтобы вы не зависели от подрядчика.",
+        a: "Этот сайт и его демо работают на инфраструктуре во Франкфурте и не используют cookie, аналитику и сторонние запросы. Для клиентских проектов систему можно развернуть в выбранном вами облаке в ЕС и спроектировать с минимизацией данных и с документацией, чтобы вы не зависели от подрядчика.",
       },
       {
         q: "Сколько стоит проект?",
@@ -565,11 +509,11 @@ const ru: Translations = {
       },
       {
         q: "С какими системами вы можете работать и что можете создать?",
-        a: "ERP и внутренние системы, SaaS-платформы, маркетплейсы, клиентские порталы, mobile-first приложения и PWA, Telegram-ботов и Mini App, платёжные и API-интеграции и автоматизацию вокруг систем, которые у вас уже работают. Если бизнес-процесс держится на программе, я могу создать её, подключить к вашим инструментам или заменить. Если задача вне моих сильных сторон, я скажу об этом до того, как вы что-то потратите.",
+        a: "ERP и внутренние системы, SaaS-платформы, маркетплейсы, клиентские порталы, mobile-first приложения и PWA, Telegram-ботов и Mini App, платёжные и API-интеграции и автоматизацию вокруг систем, которые у вас уже работают. Если бизнес-процесс держится на программе, Mirelli Studio может создать её, подключить к вашим инструментам или заменить. Если задача вне сильных сторон студии, вы узнаете об этом до того, как что-то потратите.",
       },
       {
-        q: "Клиенты возвращаются к вам?",
-        a: "Да. Клиенты довольны результатом и возвращаются с новыми проектами. Маленькая студия означает долгие отношения, а не разовую передачу работы.",
+        q: "Клиенты возвращаются?",
+        a: "Да. Клиенты довольны результатом и возвращаются с новыми проектами.",
       },
       {
         q: "На каких языках вы работаете?",
@@ -597,15 +541,15 @@ const ru: Translations = {
         ],
       },
       {
-        title: "Если вы со мной свяжетесь",
+        title: "Если вы свяжетесь",
         body: [
-          "Если вы напишете на почту, в Telegram или через форму, я получу ваше сообщение, ваш адрес или имя пользователя и то, что вы решите рассказать. Форма отправляет сообщение через мой собственный сервер прямо мне в Telegram (через Bot API Telegram); мой сервер его не хранит. Я использую это, чтобы ответить и вести обсуждаемый проект, и храню столько, сколько для этого нужно или сколько требует закон для договоров и счетов. Я не передаю данные третьим лицам и не продаю их.",
+          "Если вы напишете на почту, в Telegram или через форму, Mirelli Studio получит ваше сообщение, ваш адрес или имя пользователя и то, что вы решите рассказать. Форма передаёт сообщение с собственного сервера этого сайта в Telegram студии (через Bot API Telegram); сервер его не хранит. Данные используются, чтобы ответить и вести обсуждаемый проект, и хранятся столько, сколько для этого нужно или сколько требует закон для договоров и счетов. Они не передаются третьим лицам и не продаются.",
         ],
       },
       {
         title: "Кто отвечает",
         body: [
-          "Mirelli Studio, ведёт Darian Mirelli. Контакт: darian.mirelli@gmail.com.",
+          "Mirelli Studio, Darian Mirelli. Контакт: darian.mirelli@gmail.com.",
         ],
       },
       {

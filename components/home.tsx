@@ -17,7 +17,7 @@ export function Home({ lang }: { lang: Lang }) {
       <main id="main" tabIndex={-1}>
         <Work lang={lang} t={t} />
         <Services t={t} />
-        <Why lang={lang} t={t} />
+        <Quotes lang={lang} />
         <Process t={t} />
         <Faq t={t} />
       </main>
@@ -200,32 +200,18 @@ function Services({ t }: { t: T }) {
   );
 }
 
-function Why({ lang, t }: { lang: Lang; t: T }) {
+function Quotes({ lang }: { lang: Lang }) {
+  if (testimonials.length === 0) return null;
   return (
-    <section className="why" id="why" aria-labelledby="why-h">
-      <div className="why-head">
-        <h2 id="why-h" className="reveal">{t.why.title}</h2>
-        <p className="reveal">{t.why.subtitle}</p>
-      </div>
-      <ul className="why-list">
-        {t.why.items.map((it) => (
-          <li key={it.title} className="reveal">
-            <h3>{it.title}</h3>
-            <p>{it.description}</p>
-          </li>
+    <section className="why" aria-label="Clients">
+      <div className="quotes">
+        {testimonials.map((q) => (
+          <figure key={q.name} className="reveal">
+            <blockquote>{q.quote[lang]}</blockquote>
+            <figcaption>{q.name}, {q.role}</figcaption>
+          </figure>
         ))}
-      </ul>
-      <p className="why-clients reveal">{t.why.clients}</p>
-      {testimonials.length > 0 && (
-        <div className="quotes">
-          {testimonials.map((q) => (
-            <figure key={q.name} className="reveal">
-              <blockquote>{q.quote[lang]}</blockquote>
-              <figcaption>{q.name}, {q.role}</figcaption>
-            </figure>
-          ))}
-        </div>
-      )}
+      </div>
     </section>
   );
 }
@@ -289,7 +275,6 @@ function Contact({ lang, t }: { lang: Lang; t: T }) {
       <div className="contact-body">
         <div className="contact-info reveal">
           <p>{t.contact.description}</p>
-          <p className="byline">{t.contact.byline}</p>
           <div className="contact-links">
             <a className="mail" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
             <a href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>

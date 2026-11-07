@@ -112,7 +112,7 @@ const person = {
   "@type": "Person",
   "@id": PERSON_ID,
   name: "Darian Mirelli",
-  jobTitle: "Software engineer and designer",
+  jobTitle: "Founder",
   worksFor: { "@id": ORG_ID },
   url: abs("/"),
   sameAs: [siteConfig.github, siteConfig.telegram],

@@ -10,15 +10,15 @@ export function llmsTxt(): string {
   const lines: string[] = [];
   lines.push(`# ${siteConfig.name}`, "");
   lines.push(
-    `> ${siteConfig.name} is a custom software studio run by Darian Mirelli, an engineer and designer working from the EU. It builds ERP systems and internal tools, SaaS platforms, B2B marketplaces, restaurant and logistics software, and Telegram bots and Mini Apps for businesses in Europe. Nine real products have a live demo running on sample data. English and Russian.`,
+    `> ${siteConfig.name} is a custom software studio working from the EU. It builds ERP systems and internal tools, SaaS platforms, B2B marketplaces, restaurant and logistics software, and Telegram bots and Mini Apps for businesses in Europe. Nine real products have a live demo running on sample data. English and Russian.`,
     ""
   );
   lines.push("Key facts:");
-  lines.push("- One accountable engineer from the first call to a deployed, documented product");
+  lines.push("- Every project goes from the first call to a deployed, documented product");
   lines.push("- Stack: TypeScript, React, Next.js, Node.js, Python, FastAPI, PostgreSQL, Redis, Docker, Stripe, Telegram Bot API");
   lines.push("- Hosting: EU infrastructure (Frankfurt); the website and demos use no cookies, analytics or third-party requests");
   lines.push("- Works with existing systems: builds, connects or replaces ERP, CRM, marketplaces, apps, bots and API integrations");
-  lines.push("- Small studio: built the way the client wants, directly with the engineer; clients are happy with the result and come back with new projects");
+  lines.push("- Built the way the client wants; clients are happy with the result and come back with new projects");
   lines.push("- Process: discovery with a written estimate, design, weekly builds on a staging URL, launch and support");
   lines.push(`- Contact: ${siteConfig.email}, Telegram ${siteConfig.telegram}, GitHub ${siteConfig.github}`, "");
 

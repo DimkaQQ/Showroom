@@ -234,7 +234,6 @@ img { display: block; max-width: 100%; height: auto; }
 }
 .contact-body { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gutter); align-items: start; }
 .contact-body p { max-width: 520px; }
-.contact-body .byline { margin-top: 16px; font-size: 16px; opacity: .8; }
 .contact-info .contact-links { margin-top: 40px; }
 .btn-dark { background: var(--bg); color: var(--lime); border: 0; cursor: pointer; font: inherit; font-weight: 500; font-size: 18px; padding: 16px 28px; }
 .btn-dark:hover { background: #1c1e18; }
@@ -250,13 +249,6 @@ img { display: block; max-width: 100%; height: auto; }
 .cform-note a, .cform-status a { text-decoration: underline; text-underline-offset: 3px; }
 .cform-status { min-height: 1.6em; font-weight: 600; max-width: none; }
 .why { background: var(--paper); color: var(--paper-ink); padding: 160px var(--gutter); }
-.why-head { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gutter); align-items: end; align-items: last baseline; margin-bottom: 72px; }
-.why h2 { font-size: var(--step-l); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; }
-.why-head p { max-width: 520px; color: #4a4a43; }
-.why-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px var(--gutter); }
-.why-list h3 { font-size: var(--step-m); font-weight: 700; letter-spacing: -0.035em; line-height: 1.05; margin-bottom: 12px; }
-.why-list p { max-width: 520px; color: #2c2c27; }
-.why-clients { margin-top: 72px; font-size: clamp(22px, 3vw, 34px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; max-width: 28ch; text-wrap: balance; }
 .quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 32px; margin-top: 56px; }
 .quotes blockquote { margin: 0 0 12px; font-size: 20px; }
 .quotes figcaption { font-size: 15px; color: #4a4a43; }
@@ -358,9 +350,6 @@ img { display: block; max-width: 100%; height: auto; }
   .wordmark > span { display: block; white-space: nowrap; }
   .work, .services, .process, .contact, .faq, .why { padding-top: 96px; }
   .services, .process, .contact, .faq, .why { padding-bottom: 96px; }
-  .why-head { grid-template-columns: 1fr; margin-bottom: 48px; }
-  .why-list { grid-template-columns: 1fr; gap: 40px; }
-  .why-clients { margin-top: 48px; }
   .faq h2 { margin-bottom: 40px; }
   .faq-item summary { font-size: 19px; }
   .steps { grid-template-columns: 1fr; gap: 40px; }
