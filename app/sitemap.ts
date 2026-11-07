@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { siteConfig } from "@/lib/data";
+import { siteConfig, projects } from "@/lib/data";
 import { locales, defaultLang, pathFor } from "@/lib/i18n";
 
 export const dynamic = "force-static";
@@ -10,10 +10,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     languages["x-default"] = siteConfig.url + pathFor(defaultLang) + sub;
     return locales.map((l) => ({
       url: siteConfig.url + pathFor(l) + sub,
-      changeFrequency: "monthly" as const,
-      priority: l === defaultLang ? priority : Math.round((priority - 0.2) * 10) / 10,
+      priority: l === defaultLang ? priority : Math.round((priority - 0.1) * 10) / 10,
       alternates: { languages },
     }));
   };
-  return [...page("", 1), ...page("privacy/", 0.3)];
+  return [...page("", 1), ...projects.flatMap((p) => page(`work/${p.id}/`, 0.8)), ...page("privacy/", 0.3)];
 }

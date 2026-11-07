@@ -2,9 +2,9 @@ import type { Lang } from "./i18n";
 
 const en = {
   meta: {
-    title: "Mirelli Studio — Custom Web Platforms & Internal Tools",
+    title: "Custom Software Development Studio in Europe | Mirelli Studio",
     description:
-      "Senior-led software studio building custom web platforms, internal tools, APIs and Telegram bots for businesses in Europe. Explore nine live products.",
+      "Mirelli Studio builds custom ERP and internal tools, SaaS platforms, B2B marketplaces and Telegram bots for European businesses. Nine live product demos. EU-hosted.",
     ogAlt: "Mirelli Studio — custom software for European businesses",
   },
   nav: {
@@ -31,6 +31,7 @@ const en = {
     subtitle:
       "Real systems I built for logistics, hospitality, trading and marketplaces. Every demo runs live with sample data in place of client data: click through it yourself.",
     explore: "Open the demo",
+    caseStudy: "Read the case study",
     tryOff: "Try the demo",
     tryOn: "Back to scrolling",
     projects: [
@@ -89,12 +90,12 @@ const en = {
       {
         title: "Web platforms & SaaS",
         description:
-          "Customer portals, marketplaces and subscription products on Next.js, React and TypeScript. Fast, accessible and built to be extended.",
+          "Customer portals, B2B and P2P marketplaces and subscription SaaS products on Next.js, React and TypeScript. Fast, accessible and built to be extended.",
       },
       {
         title: "Internal tools & ERP",
         description:
-          "Operations software that replaces spreadsheets: inventory, dispatch, procurement, scheduling and back-office workflows.",
+          "Custom ERP and operations software that replaces spreadsheets: inventory management, dispatch and logistics, procurement, scheduling and back-office workflows.",
       },
       {
         title: "Backend & integrations",
@@ -104,7 +105,7 @@ const en = {
       {
         title: "Telegram bots & Mini Apps",
         description:
-          "Bots, payments and Mini Apps for sales, support and community, with an admin side your team can actually use.",
+          "Telegram bot and Mini App development for sales, support, courses and community, with payments and an admin side your team can actually use.",
       },
       {
         title: "Infrastructure & DevOps",
@@ -163,6 +164,57 @@ const en = {
     four04: "You asked for it.",
     console: "You read the console, so we should talk. Try the Konami code. Or type 404.",
   },
+  case: {
+    back: "All work",
+    what: "What it does",
+    who: "Who it is for",
+    builtWith: "Built with",
+    tryDemo: "Open the live demo",
+    contactCta: "Discuss a similar project",
+    other: "More work",
+    sample: "The demo runs on sample data.",
+  },
+  faq: {
+    title: "Questions, answered",
+    items: [
+      {
+        q: "What does Mirelli Studio do?",
+        a: "Mirelli Studio designs and builds custom software for businesses in Europe: ERP systems and internal tools, SaaS platforms, B2B marketplaces, restaurant and logistics software, and Telegram bots and Mini Apps. One engineer is accountable for the whole project, from the first call to a deployed, documented product.",
+      },
+      {
+        q: "Who is behind the studio?",
+        a: "The studio is run by Darian Mirelli, an engineer and designer working from the EU. You talk to the person who writes the code, so there are no account managers or hand-offs between teams.",
+      },
+      {
+        q: "What kinds of products have you built?",
+        a: "Nine real products, each with a live demo on sample data: a fuel-distribution ERP, a B2B fuel trading marketplace, a restaurant operating system, restaurant inventory and purchasing, an employee onboarding app, a peer-to-peer car rental marketplace, a trading education platform with a simulator, an AI launch planner and a Telegram bot builder.",
+      },
+      {
+        q: "Which technologies do you use?",
+        a: "TypeScript, React and Next.js on the front end; Python with FastAPI, Node.js and PostgreSQL on the back end; Redis, Docker and Linux for infrastructure; Stripe for payments and the Telegram Bot API for bots. The choice follows the project, not the other way round.",
+      },
+      {
+        q: "Can you build a Telegram bot or Mini App?",
+        a: "Yes. BotFactory, one of the nine products, is a visual Telegram bot builder delivered as a Mini App, with payments, a sales funnel and a buyers dashboard. Bots for sales, support, courses and communities are a core service.",
+      },
+      {
+        q: "How does a project run?",
+        a: "Four steps: discovery with a written scope and estimate, design with clickable prototypes, build with working software on a staging URL every week, then launch and support with monitoring and documentation. You see the product grow instead of reading status reports.",
+      },
+      {
+        q: "Where is the software hosted and how is data handled?",
+        a: "This site and its demos run on infrastructure in Frankfurt and use no cookies, analytics or third-party requests. For client projects I can deploy on EU cloud infrastructure of your choice and design systems around data minimisation, with documentation so you are never locked in.",
+      },
+      {
+        q: "How much does a project cost?",
+        a: "It depends on scope. After a short discovery call you receive a written estimate with a fixed scope, so you know what you get and what it costs before anything is built.",
+      },
+      {
+        q: "Which languages do you work in?",
+        a: "English and Russian. This site is available in both.",
+      },
+    ],
+  },
   privacy: {
     metaTitle: "Privacy — Mirelli Studio",
     metaDescription: "What this website and its demos do with your data: no cookies, no analytics, no third-party requests.",
@@ -208,9 +260,9 @@ export type Translations = typeof en;
 
 const ru: Translations = {
   meta: {
-    title: "Mirelli Studio — разработка веб-платформ и внутренних систем под заказ",
+    title: "Разработка ПО на заказ в Европе: ERP, SaaS, Telegram-боты | Mirelli Studio",
     description:
-      "Студия разработки под руководством senior-инженера: веб-платформы, внутренние системы, API и Telegram-боты для бизнеса в Европе. Девять живых проектов.",
+      "Mirelli Studio разрабатывает заказные ERP и внутренние системы, SaaS-платформы, B2B-маркетплейсы и Telegram-ботов для бизнеса в Европе. Девять живых демо. Хостинг в ЕС.",
     ogAlt: "Mirelli Studio — программное обеспечение под заказ для бизнеса в Европе",
   },
   nav: {
@@ -237,6 +289,7 @@ const ru: Translations = {
     subtitle:
       "Реальные системы, которые я сделал для логистики, ресторанов, трейдинга и маркетплейсов. Каждое демо работает вживую на примерных данных вместо данных клиентов: кликайте сами.",
     explore: "Открыть демо",
+    caseStudy: "Читать кейс",
     tryOff: "Потрогать демо",
     tryOn: "Вернуть прокрутку",
     projects: [
@@ -295,12 +348,12 @@ const ru: Translations = {
       {
         title: "Веб-платформы и SaaS",
         description:
-          "Клиентские порталы, маркетплейсы и подписочные продукты на Next.js, React и TypeScript. Быстро, доступно и с запасом на развитие.",
+          "Клиентские порталы, B2B- и P2P-маркетплейсы и подписочные SaaS-продукты на Next.js, React и TypeScript. Быстро, доступно и с запасом на развитие.",
       },
       {
         title: "Внутренние системы и ERP",
         description:
-          "Софт, который заменяет таблицы: склад, диспетчеризация, закупки, расписание и бэк-офис.",
+          "Заказная ERP и операционный софт, который заменяет таблицы: складской учёт, диспетчеризация и логистика, закупки, расписание и бэк-офис.",
       },
       {
         title: "Бэкенд и интеграции",
@@ -310,7 +363,7 @@ const ru: Translations = {
       {
         title: "Telegram-боты и Mini Apps",
         description:
-          "Боты, платежи и Mini Apps для продаж, поддержки и сообществ, с админкой, которой удобно пользоваться команде.",
+          "Разработка Telegram-ботов и Mini App для продаж, поддержки, курсов и сообществ, с платежами и админкой, которой удобно пользоваться команде.",
       },
       {
         title: "Инфраструктура и DevOps",
@@ -368,6 +421,57 @@ const ru: Translations = {
     sudo: "mirelli отсутствует в файле sudoers. Об этом инциденте будет сообщено.",
     four04: "Сам напросился.",
     console: "Раз вы открыли консоль, давайте поговорим. Попробуйте код Konami. Или наберите 404.",
+  },
+  case: {
+    back: "Все работы",
+    what: "Что делает",
+    who: "Для кого",
+    builtWith: "Технологии",
+    tryDemo: "Открыть живое демо",
+    contactCta: "Обсудить похожий проект",
+    other: "Другие работы",
+    sample: "Демо работает на примерных данных.",
+  },
+  faq: {
+    title: "Вопросы и ответы",
+    items: [
+      {
+        q: "Чем занимается Mirelli Studio?",
+        a: "Mirelli Studio проектирует и разрабатывает заказное программное обеспечение для бизнеса в Европе: ERP и внутренние системы, SaaS-платформы, B2B-маркетплейсы, софт для ресторанов и логистики, Telegram-ботов и Mini App. За проект отвечает один инженер: от первого разговора до запущенного и задокументированного продукта.",
+      },
+      {
+        q: "Кто стоит за студией?",
+        a: "Студию ведёт Darian Mirelli, инженер и дизайнер, работает из ЕС. Вы общаетесь с тем, кто пишет код: без аккаунт-менеджеров и передачи задач между командами.",
+      },
+      {
+        q: "Какие продукты вы делали?",
+        a: "Девять реальных продуктов, у каждого есть живое демо на примерных данных: ERP для дистрибуции топлива, B2B-маркетплейс топлива, операционная система ресторана, склад и закупки для ресторанов, приложение для онбординга персонала, P2P-маркетплейс аренды авто, платформа обучения трейдингу с симулятором, ИИ-планировщик запуска и конструктор Telegram-ботов.",
+      },
+      {
+        q: "Какие технологии вы используете?",
+        a: "TypeScript, React и Next.js на фронтенде; Python с FastAPI, Node.js и PostgreSQL на бэкенде; Redis, Docker и Linux для инфраструктуры; Stripe для платежей и Telegram Bot API для ботов. Технологии выбираются под проект, а не наоборот.",
+      },
+      {
+        q: "Вы делаете Telegram-ботов и Mini App?",
+        a: "Да. BotFactory, один из девяти продуктов, — визуальный конструктор Telegram-ботов в формате Mini App с оплатой, воронкой продаж и панелью покупателей. Боты для продаж, поддержки, курсов и сообществ — одна из основных услуг.",
+      },
+      {
+        q: "Как идёт проект?",
+        a: "Четыре шага: погружение с письменным объёмом работ и оценкой, дизайн с кликабельными прототипами, разработка с рабочей версией на тестовом адресе каждую неделю, затем запуск и поддержка с мониторингом и документацией. Вы видите, как растёт продукт, а не отчёты о статусе.",
+      },
+      {
+        q: "Где хостится софт и как обрабатываются данные?",
+        a: "Этот сайт и его демо работают на инфраструктуре во Франкфурте и не используют cookie, аналитику и сторонние запросы. Для клиентских проектов я могу развернуть систему в выбранном вами облаке в ЕС и проектировать её с минимизацией данных и с документацией, чтобы вы не зависели от подрядчика.",
+      },
+      {
+        q: "Сколько стоит проект?",
+        a: "Зависит от объёма. После короткого разговора вы получаете письменную оценку с зафиксированным объёмом работ, поэтому до начала разработки известно, что вы получите и сколько это стоит.",
+      },
+      {
+        q: "На каких языках вы работаете?",
+        a: "На английском и русском. Этот сайт доступен на обоих.",
+      },
+    ],
   },
   privacy: {
     metaTitle: "Конфиденциальность — Mirelli Studio",

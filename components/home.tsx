@@ -13,9 +13,10 @@ export function Home({ lang }: { lang: Lang }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFor(lang)) }} />
       <Hero lang={lang} t={t} />
       <main id="main" tabIndex={-1}>
-        <Work t={t} />
+        <Work lang={lang} t={t} />
         <Services t={t} />
         <Process t={t} />
+        <Faq t={t} />
       </main>
       <Stack t={t} />
       <Contact t={t} />
@@ -102,7 +103,7 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
   );
 }
 
-function Work({ t }: { t: T }) {
+function Work({ lang, t }: { lang: Lang; t: T }) {
   return (
     <section className="work" id="work" aria-labelledby="work-h">
       <div className="work-head">
@@ -160,6 +161,10 @@ function Work({ t }: { t: T }) {
                     {t.showroom.explore}
                     <span className="sr-only"> — {p.name}</span>
                   </a>
+                  <a className="textlink" href={`${pathFor(lang)}work/${p.id}/`}>
+                    {t.showroom.caseStudy}
+                    <span className="sr-only"> — {p.name}</span>
+                  </a>
                 </div>
               </li>
             );
@@ -208,6 +213,22 @@ function Process({ t }: { t: T }) {
           </li>
         ))}
       </ol>
+    </section>
+  );
+}
+
+function Faq({ t }: { t: T }) {
+  return (
+    <section className="faq" id="faq" aria-labelledby="faq-h">
+      <h2 id="faq-h" className="reveal">{t.faq.title}</h2>
+      <div className="faq-list">
+        {t.faq.items.map((f) => (
+          <details key={f.q} className="faq-item">
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
     </section>
   );
 }

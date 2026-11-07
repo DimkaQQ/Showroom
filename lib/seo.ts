@@ -1,19 +1,31 @@
 import type { Metadata } from "next";
 import { siteConfig, projects } from "./data";
+import { cases } from "./cases";
 import { locales, defaultLang, ogLocale, pathFor, type Lang } from "./i18n";
 import { translations } from "./translations";
 
-const abs = (path: string) => new URL(path, siteConfig.url).toString();
+export const abs = (path: string) => new URL(path, siteConfig.url).toString();
 
-export type Page = "home" | "privacy";
-const sub = (page: Page) => (page === "privacy" ? "privacy/" : "");
-const urlOf = (lang: Lang, page: Page) => abs(pathFor(lang) + sub(page));
+// "home", "privacy" or "work/<project id>"
+export type Page = string;
+const sub = (page: Page) => (page === "home" ? "" : `${page}/`);
+export const urlOf = (lang: Lang, page: Page) => abs(pathFor(lang) + sub(page));
+
+function textFor(lang: Lang, page: Page) {
+  const tr = translations[lang];
+  if (page === "privacy") return { ...tr.meta, title: tr.privacy.metaTitle, description: tr.privacy.metaDescription };
+  if (page.startsWith("work/")) {
+    const c = cases[page.slice(5)]?.[lang];
+    if (c) return { ...tr.meta, title: c.title, description: c.description };
+  }
+  return tr.meta;
+}
 
 export function metadataFor(lang: Lang, page: Page = "home"): Metadata {
-  const tr = translations[lang];
-  const t = page === "privacy" ? { ...tr.meta, title: tr.privacy.metaTitle, description: tr.privacy.metaDescription } : tr.meta;
+  const t = textFor(lang, page);
   const languages: Record<string, string> = Object.fromEntries(locales.map((l) => [l, urlOf(l, page)]));
   languages["x-default"] = urlOf(defaultLang, page);
+  const image = page.startsWith("work/") ? abs(`/shots/${page.slice(5)}.webp`) : abs("/og.png");
 
   return {
     metadataBase: new URL(siteConfig.url),
@@ -40,42 +52,87 @@ export function metadataFor(lang: Lang, page: Page = "home"): Metadata {
       description: t.description,
       locale: ogLocale[lang],
       alternateLocale: locales.filter((l) => l !== lang).map((l) => ogLocale[l]),
-      images: [{ url: abs("/og.png"), width: 1200, height: 630, alt: t.ogAlt }],
+      images: [{ url: image, width: page.startsWith("work/") ? 1200 : 1200, height: page.startsWith("work/") ? 750 : 630, alt: t.ogAlt }],
     },
-    twitter: { card: "summary_large_image", title: t.title, description: t.description, images: [abs("/og.png")] },
+    twitter: { card: "summary_large_image", title: t.title, description: t.description, images: [image] },
   };
 }
+
+const ORG_ID = `${siteConfig.url}/#studio`;
+const PERSON_ID = `${siteConfig.url}/#founder`;
+
+const KNOWS_ABOUT = [
+  "Custom software development",
+  "ERP systems",
+  "Internal tools",
+  "SaaS development",
+  "B2B marketplaces",
+  "Telegram bots and Mini Apps",
+  "Restaurant management software",
+  "Logistics and fuel distribution software",
+  "Next.js",
+  "React",
+  "TypeScript",
+  "Python",
+  "FastAPI",
+  "PostgreSQL",
+];
+
+const organisation = (lang: Lang) => {
+  const t = translations[lang];
+  return {
+    "@type": "Organization",
+    "@id": ORG_ID,
+    name: siteConfig.name,
+    alternateName: "Mirelli",
+    url: abs("/"),
+    description: t.meta.description,
+    email: siteConfig.email,
+    foundingDate: siteConfig.founded,
+    logo: abs("/icon-512.png"),
+    image: abs("/og.png"),
+    founder: { "@id": PERSON_ID },
+    areaServed: [{ "@type": "Continent", name: "Europe" }],
+    knowsLanguage: locales,
+    knowsAbout: KNOWS_ABOUT,
+    sameAs: [siteConfig.github, siteConfig.telegram],
+    contactPoint: [{ "@type": "ContactPoint", contactType: "sales", email: siteConfig.email, availableLanguage: ["English", "Russian"] }],
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: t.services.title,
+      itemListElement: t.services.items.map((s) => ({
+        "@type": "Offer",
+        itemOffered: { "@type": "Service", name: s.title, description: s.description, provider: { "@id": ORG_ID } },
+      })),
+    },
+  };
+};
+
+const person = {
+  "@type": "Person",
+  "@id": PERSON_ID,
+  name: "Darian Mirelli",
+  jobTitle: "Software engineer and designer",
+  worksFor: { "@id": ORG_ID },
+  url: abs("/"),
+  sameAs: [siteConfig.github, siteConfig.telegram],
+  knowsAbout: KNOWS_ABOUT,
+};
 
 export function jsonLdFor(lang: Lang) {
   const t = translations[lang];
   return {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "Organization",
-        "@id": `${siteConfig.url}/#studio`,
-        name: siteConfig.name,
-        url: abs(pathFor(lang)),
-        description: t.meta.description,
-        email: siteConfig.email,
-        foundingDate: siteConfig.founded,
-        image: abs("/og.png"),
-        areaServed: "Europe",
-        knowsLanguage: locales,
-        sameAs: [siteConfig.github, siteConfig.telegram],
-        serviceType: t.services.items.map((s) => s.title),
-        makesOffer: t.services.items.map((s) => ({
-          "@type": "Offer",
-          itemOffered: { "@type": "Service", name: s.title, description: s.description },
-        })),
-      },
+      organisation(lang),
+      person,
       {
         "@type": "WebSite",
         "@id": `${siteConfig.url}/#website`,
-        url: siteConfig.url + "/",
+        url: abs("/"),
         name: siteConfig.name,
         inLanguage: lang,
-        publisher: { "@id": `${siteConfig.url}/#studio` },
+        publisher: { "@id": ORG_ID },
       },
       {
         "@type": "ItemList",
@@ -84,9 +141,52 @@ export function jsonLdFor(lang: Lang) {
           "@type": "ListItem",
           position: i + 1,
           name: p.name,
-          url: `https://${p.subdomain}.${siteConfig.domain}`,
+          url: urlOf(lang, `work/${p.id}`),
           description: t.showroom.projects[i].description,
         })),
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: t.faq.items.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+  };
+}
+
+export function caseJsonLd(lang: Lang, id: string) {
+  const i = projects.findIndex((p) => p.id === id);
+  const p = projects[i];
+  const t = translations[lang];
+  const c = cases[id][lang];
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CreativeWork",
+        "@id": `${urlOf(lang, `work/${id}`)}#project`,
+        name: p.name,
+        headline: c.title,
+        description: c.description,
+        url: urlOf(lang, `work/${id}`),
+        image: abs(`/shots/${id}.webp`),
+        inLanguage: lang,
+        dateCreated: p.year,
+        genre: t.showroom.projects[i].tagline,
+        keywords: p.tags.join(", "),
+        creator: { "@id": ORG_ID },
+        sameAs: `https://${p.subdomain}.${siteConfig.domain}`,
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: siteConfig.name, item: urlOf(lang, "home") },
+          { "@type": "ListItem", position: 2, name: t.case.back, item: abs(pathFor(lang) + "#work") },
+          { "@type": "ListItem", position: 3, name: p.name, item: urlOf(lang, `work/${id}`) },
+        ],
       },
     ],
   };
