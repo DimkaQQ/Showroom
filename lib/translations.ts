@@ -17,7 +17,7 @@ const en = {
   hero: {
     descriptor: "custom software studio",
     lead:
-      "A senior-led studio building custom web platforms, internal tools and integrations for businesses in Europe. Nine products below, each one a live demo. Open any of them.",
+      "A senior-led studio building custom web platforms, internal tools and integrations for businesses in Europe. Nine real products below, each one a live demo with sample data. Open any of them.",
     viewWork: "See the work",
     statProjects: "Products built",
     statYears: "Years in production",
@@ -26,7 +26,7 @@ const en = {
   showroom: {
     title: "Selected work",
     subtitle:
-      "Real systems for logistics, hospitality, trading and marketplaces. Every demo runs live with sample data: click through it yourself.",
+      "Real systems I built for logistics, hospitality, trading and marketplaces. Every demo runs live with sample data in place of client data: click through it yourself.",
     explore: "Open the demo",
     tryOff: "Try the demo",
     tryOn: "Back to scrolling",
@@ -175,7 +175,7 @@ const en = {
       {
         title: "What the website does",
         body: [
-          "It is a static site. Pages are delivered as files and the server keeps no access logs. The demos run in your browser with invented sample data. They store nothing on your device and send nothing anywhere.",
+          "It is a static site. Pages are delivered as files and the server keeps no access logs. The demos run in your browser with sample data. They store nothing on your device and send nothing anywhere.",
         ],
       },
       {
@@ -219,7 +219,7 @@ const ru: Translations = {
   hero: {
     descriptor: "студия разработки на заказ",
     lead:
-      "Студия под руководством senior-инженера: веб-платформы, внутренние системы и интеграции для бизнеса в Европе. Ниже девять продуктов, каждый — живая демо-версия. Откройте любой.",
+      "Студия под руководством senior-инженера: веб-платформы, внутренние системы и интеграции для бизнеса в Европе. Ниже девять реальных продуктов, каждый — живое демо на примерных данных. Откройте любой.",
     viewWork: "Смотреть работы",
     statProjects: "Продуктов создано",
     statYears: "Лет в продакшене",
@@ -228,7 +228,7 @@ const ru: Translations = {
   showroom: {
     title: "Избранные работы",
     subtitle:
-      "Реальные системы для логистики, ресторанов, трейдинга и маркетплейсов. Каждое демо работает вживую на тестовых данных: кликайте сами.",
+      "Реальные системы, которые я сделал для логистики, ресторанов, трейдинга и маркетплейсов. Каждое демо работает вживую на примерных данных вместо данных клиентов: кликайте сами.",
     explore: "Открыть демо",
     tryOff: "Потрогать демо",
     tryOn: "Вернуть прокрутку",
@@ -377,7 +377,7 @@ const ru: Translations = {
       {
         title: "Что делает сайт",
         body: [
-          "Это статический сайт. Страницы отдаются как файлы, сервер не хранит журналы посещений. Демо работают в вашем браузере на вымышленных данных, ничего не сохраняют на устройстве и никуда не отправляют.",
+          "Это статический сайт. Страницы отдаются как файлы, сервер не хранит журналы посещений. Демо работают в вашем браузере на примерных данных, ничего не сохраняют на устройстве и никуда не отправляют.",
         ],
       },
       {
