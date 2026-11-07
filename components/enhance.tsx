@@ -94,29 +94,47 @@ export function Enhance() {
     };
     mq?.addEventListener("click", onMq);
 
-    // Top bar hides while scrolling down and returns on the way up; the language menu closes on outside click / Esc.
+    // Top bar: full size while the hero wordmark is on screen, compact after it has scrolled away. Language menu closes on outside click / Esc.
     const bar = document.querySelector<HTMLElement>("[data-topbar]");
-    let lastY = scrollY, tick = false;
+    const wm = document.querySelector<HTMLElement>(".hero .wordmark");
+    const letters = wm ? Array.from(wm.querySelectorAll<HTMLElement>(".ch")) : [];
+    const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let tick = false, px = -999, py = -999, raf = 0;
     const onScroll = () => {
       if (tick) return;
       tick = true;
-      requestAnimationFrame(() => {
-        const y = scrollY, down = y > lastY && y > 120;
-        bar?.classList.toggle("is-hidden", down && !bar.contains(document.activeElement));
-        lastY = y; tick = false;
+      requestAnimationFrame(() => { tick = false; if (bar && wm) bar.classList.toggle("is-compact", wm.getBoundingClientRect().bottom < 90); });
+    };
+    const paint = () => {
+      raf = 0;
+      const r = wm!.getBoundingClientRect(), vis = r.bottom > 0 && r.top < innerHeight;
+      letters.forEach((el) => {
+        let k = 0;
+        if (vis) { const b = el.getBoundingClientRect(); k = Math.max(0, 1 - Math.hypot(px - (b.left + b.width / 2), py - (b.top + b.height / 2)) / 240); k *= k; }
+        el.style.setProperty("--k", k.toFixed(3));
+        el.style.translate = `0 ${(-k * 16).toFixed(1)}%`;
+        el.style.scale = String(1 + k * 0.08);
       });
     };
+    const onMove = (e: PointerEvent) => { px = e.clientX; py = e.clientY; if (!raf) raf = requestAnimationFrame(paint); };
+    const onRelease = (e: PointerEvent) => { if (e.pointerType === "touch") { px = py = -999; if (!raf) raf = requestAnimationFrame(paint); } };
     const closeMenus = (e: Event) => {
       document.querySelectorAll<HTMLDetailsElement>("details.lang-menu[open]").forEach((d) => {
         if (e.type === "keydown" ? (e as KeyboardEvent).key === "Escape" : !d.contains(e.target as Node)) d.open = false;
       });
     };
     addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    if (wm && !still) { addEventListener("pointermove", onMove, { passive: true }); addEventListener("pointerup", onRelease); addEventListener("pointercancel", onRelease); }
     document.addEventListener("click", closeMenus);
     document.addEventListener("keydown", closeMenus);
 
     return () => {
       removeEventListener("scroll", onScroll);
+      removeEventListener("pointermove", onMove);
+      removeEventListener("pointerup", onRelease);
+      removeEventListener("pointercancel", onRelease);
+      cancelAnimationFrame(raf);
       document.removeEventListener("click", closeMenus);
       document.removeEventListener("keydown", closeMenus);
       io.disconnect();

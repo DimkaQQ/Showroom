@@ -183,14 +183,6 @@ export const de: Translations = {
     four04: "Sie haben es so gewollt.",
     console: "Sie lesen die Konsole, also sollten wir reden. Probieren Sie den Konami-Code. Oder tippen Sie 404.",
   },
-  connect: {
-    left: ["ERP", "CRM", "Buchhaltung", "Zahlungen", "Telegram", "Tabellen"],
-    right: ["Webplattform", "Mini-App", "Dashboard", "Automatisierung"],
-    yours: "Ihre Systeme",
-    builds: "Was entsteht",
-    hint: "Tippen Sie auf ein System, um es zu verbinden oder zu trennen",
-    count: "{n} von {m} verbunden",
-  },
   case: {
     back: "Alle Projekte",
     what: "Was es kann",

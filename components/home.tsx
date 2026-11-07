@@ -4,7 +4,6 @@ import { locales, pathFor, langName, type Lang } from "@/lib/i18n";
 import { Enhance } from "@/components/enhance";
 import { Eggs } from "@/components/eggs";
 import { Logo } from "@/components/logo";
-import { Connect } from "@/components/connect";
 import { LangMenu } from "@/components/lang-menu";
 import { ContactForm } from "@/components/contact-form";
 import { testimonials } from "@/lib/testimonials";
@@ -63,6 +62,7 @@ function TopBar({ lang, t }: { lang: Lang; t: T }) {
         <div className="bar-end">
           <a className="bar-ext" href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
           <a className="bar-ext" href={siteConfig.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a className="bar-cta btn" href="#contact">{t.nav.contact}</a>
           <LangMenu lang={lang} />
         </div>
       </nav>
@@ -74,7 +74,16 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
   const [first, second] = siteConfig.name.split(" ");
   return (
     <header className="hero" id="top">
-      <Connect lang={lang} />
+      <div className="reel" aria-hidden="true">
+        <div className="reel-track">
+          {[...projects, ...projects].map((p, i) => (
+            <a key={i} className="reel-item" href={`#${p.id}`} tabIndex={-1} style={{ background: p.stage }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/shots/${p.id}-s.webp`} width={720} height={450} alt="" loading={i < 3 ? "eager" : "lazy"} decoding="async" />
+            </a>
+          ))}
+        </div>
+      </div>
 
       <div className="hero-mid">
         <div className="hero-copy rise rise-1">
