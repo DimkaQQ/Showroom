@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TradingLearn — trading course and simulator (demo)</title>
+<title>TradingLearn — trading academy and paper-trading simulator (demo)</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'14'%20fill%3D'%238b7bff'%2F%3E%3Ctext%20x%3D'32'%20y%3D'45'%20font-family%3D'Arial%2CHelvetica%2Csans-serif'%20font-size%3D'38'%20font-weight%3D'700'%20text-anchor%3D'middle'%20fill%3D'%230c0a1f'%3ET%3C%2Ftext%3E%3C%2Fsvg%3E">
-<meta name="description" content="Demo: learn to trade with a virtual €10,000. Live chart, orders with stop-loss, hands-on lessons, trade journal and leaderboard. Sample data shown.">
+<meta name="description" content="Demo: learn to trade with a virtual €10,000. Courses with quizzes, a paper-trading simulator with market, limit and stop orders, trade journal, achievements and leaderboard. Sample data shown.">
 <style>
 @font-face { font-family: 'Geologica'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/geologica-latin-ext-oY1l8evIr7j9P3.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'Geologica'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/geologica-latin-oY1l8evIr7j9P3.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -205,68 +205,278 @@ svg { display: block; }
   --bg: #080b10; --surface: #0f141b; --raised: #161c26; --hover: #1b2330; --border: #1f2833; --rule: #171e28;
   --text: #ecf0f6; --muted: #9aa5b5; --faint: #7a8696;
   --accent: #8b7bff; --accent-ink: #0c0a1f; --accent-bg: rgba(139,123,255,.14);
-  --pos: #25d195; --neg: #ff6b78;
+  --pos: #25d195; --neg: #ff6b78; --warn: #f0b34a;
   --font: "Geologica", system-ui, sans-serif; --display: "Geologica", system-ui, sans-serif;
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
 }
+:root[data-theme="light"] { --accent: #6a58f0; --accent-ink: #ffffff; --accent-bg: rgba(106,88,240,.1); }
 .brand-name, .head h1, .big, .kpi b { font-weight: 600; letter-spacing: -.02em; }
+.btn .ic { width: 16px; height: 16px; }
 .btn.long { background: var(--pos); color: #04150e; border-color: transparent; font-weight: 600; }
 .btn.short { background: var(--neg); color: #1c0508; border-color: transparent; font-weight: 600; }
+.btn.ghost { background: none; }
+.btn.danger { color: var(--neg); }
+.btn.busy { pointer-events: none; opacity: .75; }
+.btn.busy::before { content: ''; width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.lnk { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-size: 13px; }
+.lnk[disabled] { color: var(--faint); cursor: default; }
+kbd { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 5px; border: 1px solid var(--border); background: var(--raised); font: 500 11px var(--font); color: var(--muted); }
+.field label { display: flex; align-items: center; gap: 8px; }
+.field input[type=checkbox] { height: auto; width: auto; accent-color: var(--accent); margin: 0; }
+.field .err { color: var(--neg); font-size: 12px; }
+.field .hint { color: var(--faint); font-size: 12px; }
+.field [aria-invalid="true"] { border-color: var(--neg) !important; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ver { padding: 10px 10px 0; font-size: 11px; color: var(--faint); }
 
-.dm { display: none; } .field label { display: flex; align-items: center; } .field input[type=checkbox] { height: auto; width: auto; margin-right: 8px; accent-color: var(--accent); }
-.cover { width: 64px; height: 64px; border-radius: 16px; flex: none; overflow: hidden; } .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.course-h .ch { display: flex; align-items: center; gap: 14px; }
-.cheer { display: inline-flex; gap: 6px; align-items: center; } .delta { font-size: 12px; margin-left: 8px; }
+/* top bar */
+.top { display: flex; align-items: center; gap: 8px; margin: -10px 0 18px; min-height: 40px; }
+.top .sp { flex: 1; }
+.tb-brand { display: none; align-items: center; gap: 8px; } .tb-brand b { font-weight: 600; }
+.tb-brand .brand-mark { width: 28px; height: 28px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 17px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 13px; white-space: nowrap; cursor: pointer; transition: border-color .15s, color .15s; }
+.chip:hover { border-color: var(--faint); color: var(--text); }
+.chip b { color: var(--text); font-weight: 600; } .chip .ic { width: 16px; height: 16px; }
+.chip.flame .ic { color: var(--warn); } .chip.up { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.chip.mkt { cursor: default; } .chip.mkt:hover { border-color: var(--border); color: var(--muted); }
+.live { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); box-shadow: 0 0 0 3px var(--pos-bg); }
+.mini { width: 48px; height: 5px; border-radius: 3px; background: var(--raised); overflow: hidden; } .mini i { display: block; height: 100%; background: var(--accent); }
+.ibtn { position: relative; width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); display: grid; place-items: center; cursor: pointer; color: var(--muted); transition: color .15s, border-color .15s; flex: none; }
+.ibtn:hover { color: var(--text); border-color: var(--faint); }
+.ibtn .dot { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+.me-btn { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px 0 3px; border-radius: 18px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text); }
+.me-btn .ic { width: 14px; height: 14px; color: var(--muted); }
+.avatar { background: var(--accent-bg); color: var(--accent); }
+.avatar.sm { width: 28px; height: 28px; font-size: 11px; }
+.anchor { position: relative; }
+.pop { position: absolute; right: 0; top: calc(100% + 8px); width: 360px; max-width: calc(100vw - 24px); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 18px 44px rgba(0,0,0,.4); z-index: 35; transform-origin: top right; animation: popIn .16s var(--ease-out) both; overflow: hidden; }
+.pop.menu { width: 270px; }
+@keyframes popIn { from { opacity: 0; transform: scale(.97) translateY(-4px); } }
+.pop-h, .pop-f { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; }
+.pop-h { border-bottom: 1px solid var(--rule); } .pop-f { border-top: 1px solid var(--rule); }
+.pop-b { max-height: min(420px, 60svh); overflow: auto; }
+.ntf { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; width: 100%; text-align: left; padding: 11px 14px; border: 0; background: none; cursor: pointer; position: relative; }
+.ntf:hover { background: var(--hover); } .ntf + .ntf { border-top: 1px solid var(--rule); }
+.ntf.unread::after { content: ''; position: absolute; right: 14px; top: 16px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.ntf b { display: block; font-weight: 600; font-size: 13px; padding-right: 14px; } .ntf span.nt > span { display: block; color: var(--muted); font-size: 12.5px; } .ntf small { color: var(--faint); font-size: 11.5px; }
+.ni { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--raised); color: var(--muted); }
+.ni .ic { width: 15px; height: 15px; } .ni.good { color: var(--pos); background: var(--pos-bg); } .ni.bad { color: var(--neg); background: var(--neg-bg); } .ni.xp { color: var(--accent); background: var(--accent-bg); }
+.menu-h { display: flex; gap: 10px; padding: 14px; border-bottom: 1px solid var(--rule); } .menu-h b { display: block; } .menu-h span { display: block; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; } .menu-h .pill { display: inline-flex; margin-top: 6px; }
+.menu a, .menu button.mi { display: flex; align-items: center; gap: 10px; width: 100%; height: 38px; padding: 0 14px; border: 0; background: none; text-align: left; cursor: pointer; color: var(--text); }
+.menu a:hover, .menu button.mi:hover { background: var(--hover); } .menu .ic { width: 16px; height: 16px; color: var(--muted); }
+.menu hr { border: 0; border-top: 1px solid var(--rule); margin: 4px 0; }
+.menu-f { padding: 8px 14px 10px; font-size: 11px; color: var(--faint); }
+
+/* coach + kpis */
 .coach { display: flex; align-items: center; gap: 14px; padding: 12px 14px; margin-bottom: var(--gap); border-radius: var(--radius); background: var(--accent-bg); }
-.coach .ic { color: var(--accent); } .coach span { flex: 1; min-width: 0; }
-.lvl { display: flex; align-items: center; gap: 12px; }
-.lvl .bar { width: 120px; }
+.coach > .ic { color: var(--accent); } .coach span { flex: 1; min-width: 0; } .coach .btn { flex: none; }
+.kpis.k5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; }
+.kpi { min-width: 0; } .kpi b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi span em { font-style: normal; color: var(--faint); }
 
-.term { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--gap); align-items: start; }
-.chart-h { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+/* practice */
+.term { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--gap); align-items: start; }
+.tcol { display: flex; flex-direction: column; gap: var(--gap); min-width: 0; }
+.chart-h { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
 .chart-h .px { font: 600 28px/1 var(--display); letter-spacing: -.02em; }
-.syms { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
-.syms button { height: 28px; padding: 0 11px; border-radius: 14px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
-.syms button:hover { color: var(--text); } .syms button.on { background: var(--raised); color: var(--text); border-color: var(--faint); }
-#chart svg { display: block; width: 100%; }
+.chart-h .nm { color: var(--muted); font-size: 13px; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--raised); }
+.seg button { height: 28px; padding: 0 11px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; white-space: nowrap; }
+.seg button:hover { color: var(--text); }
+.seg button[aria-pressed="true"], .seg button.on { background: var(--surface); color: var(--text); font-weight: 500; }
+:root[data-theme="light"] .seg button[aria-pressed="true"], :root[data-theme="light"] .seg button.on { box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+.seg.full { display: grid; grid-template-columns: repeat(var(--n, 3), 1fr); width: 100%; }
+.symbar { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px 10px; padding: 2px; }
+.symbar button { flex: none; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; min-width: 96px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); background: none; cursor: pointer; text-align: left; transition: border-color .15s, background-color .15s; }
+.symbar button:hover { background: var(--hover); } .symbar button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-bg); }
+.symbar b { font-weight: 600; font-size: 13px; } .symbar small { font-size: 11.5px; }
+.ohlc { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); min-height: 18px; margin-bottom: 4px; }
+.ohlc b { color: var(--text); font-weight: 500; }
+#chart { outline: none; touch-action: pan-y; border-radius: 6px; } #chart:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+#chart svg { display: block; width: 100%; cursor: crosshair; }
 #chart text { font: 11px var(--font); fill: var(--faint); }
-.dirs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 14px; }
+#chart .grid-l { stroke: var(--rule); }
+.dirs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 12px 0 14px; }
 .dirs button { height: 38px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--muted); font-weight: 600; cursor: pointer; transition: background-color .15s, color .15s, border-color .15s; }
 .dirs button.on.l { background: var(--pos); color: #04150e; border-color: transparent; } .dirs button.on.s { background: var(--neg); color: #1c0508; border-color: transparent; }
-.quick { display: flex; gap: 6px; margin-top: 6px; } .quick button { flex: 1; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; font-size: 12px; } .quick button:hover { color: var(--text); background: var(--hover); }
-.risk { padding: 10px 12px; margin: 4px 0 14px; border-radius: 8px; background: var(--raised); color: var(--muted); font-size: 13px; } .risk b { color: var(--text); font-weight: 600; }
-.pos-row { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1fr auto; gap: 12px; align-items: center; padding: 10px 0; }
-.pos-row + .pos-row { border-top: 1px solid var(--rule); }
-.pos-row b { font-weight: 600; } .pos-row small { display: block; color: var(--muted); font-size: 12px; }
+.quick { display: flex; gap: 6px; } .quick button { flex: 1; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; font-size: 12px; } .quick button:hover { color: var(--text); background: var(--hover); }
+.risk { padding: 10px 12px; margin: 4px 0 14px; border-radius: 8px; background: var(--raised); color: var(--muted); font-size: 13px; display: grid; gap: 4px; }
+.risk div { display: flex; justify-content: space-between; gap: 10px; } .risk b { color: var(--text); font-weight: 600; } .risk .w { color: var(--warn); }
+.ob-h, .ob .lv { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 12px; }
+.ob-h { color: var(--faint); padding: 0 8px 6px; }
+.ob .lv { position: relative; width: 100%; height: 22px; align-items: center; padding: 0 8px; border: 0; background: none; cursor: pointer; border-radius: 4px; }
+.ob .lv::before { content: ''; position: absolute; top: 1px; bottom: 1px; right: 0; width: var(--d); background: var(--neg-bg); border-radius: 3px; transition: width .4s var(--ease); }
+.ob .lv.bid::before { background: var(--pos-bg); } .ob .lv:hover { outline: 1px solid var(--border); }
+.ob .lv span { position: relative; text-align: right; } .ob .lv span:first-child { text-align: left; }
+.ob .ask span:first-child { color: var(--neg); } .ob .bid span:first-child { color: var(--pos); }
+.ob .mid { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 8px; margin: 3px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.ob .mid b { font-size: 15px; font-weight: 600; } .ob .mid span { font-size: 12px; color: var(--muted); }
+.ptabs { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
 
-.course { padding: 18px 0; } .course + .course { border-top: 1px solid var(--rule); }
-.course-h { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
-.course-h h3 { font-size: 16px; font-weight: 600; }
-.lesson { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 48px; padding: 6px 0; }
-.lesson .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); display: grid; place-items: center; }
-.lesson.done .dot { background: var(--pos); border-color: var(--pos); color: #04150e; } .lesson.done .dot .ic { width: 13px; height: 13px; stroke-width: 3; }
-.lesson.lock { opacity: .5; }
-.lesson b { font-weight: 500; display: block; } .lesson small { color: var(--muted); }
+/* tables, toolbars */
+.tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.search { position: relative; flex: 1 1 220px; min-width: 0; }
+.search input { width: 100%; height: 34px; padding: 0 34px 0 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.search input:focus { border-color: var(--accent); }
+.search .ic { position: absolute; left: 10px; top: 8px; width: 17px; height: 17px; color: var(--faint); } .search kbd { position: absolute; right: 8px; top: 7px; }
+.sel { height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); padding: 0 8px; max-width: 100%; }
+.th button { background: none; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 3px; }
+.th button:hover, .th button.on { color: var(--text); } .th .ic { width: 12px; height: 12px; }
+.th .r button { margin-left: auto; } .th span.r { display: flex; justify-content: flex-end; }
+.tr.click { cursor: pointer; } .tr:focus-visible { outline-offset: -2px; }
+.tags { display: flex; gap: 4px; flex-wrap: wrap; } .tags .pill { height: 20px; font-size: 11px; padding: 0 7px; }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+.pager div { display: flex; gap: 6px; }
+.me { background: var(--accent-bg) !important; }
+.sk { display: block; height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--raised) 25%, var(--hover) 50%, var(--raised) 75%); background-size: 200% 100%; animation: shim 1.3s linear infinite; }
+@keyframes shim { to { background-position: -200% 0; } }
+.ini { width: 28px; height: 28px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 600; background: var(--raised); color: var(--muted); flex: none; }
+.who2 { display: flex; align-items: center; gap: 10px; min-width: 0; } .who2 div { min-width: 0; } .who2 b { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .who2 small { color: var(--faint); font-size: 12px; }
+.chg { font-size: 11px; display: inline-flex; align-items: center; } .chg .ic { width: 12px; height: 12px; stroke-width: 2.4; }
+
+/* drawer */
+.dscrim { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 45; animation: fade .18s ease both; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100vw); background: var(--surface); border-left: 1px solid var(--border); z-index: 46; display: flex; flex-direction: column; animation: slideIn .26s var(--ease-out) both; }
+@keyframes slideIn { from { transform: translateX(32px); opacity: 0; } }
+.drawer-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+.drawer-h h2 { font-size: 18px; letter-spacing: -.01em; } .drawer-h p { color: var(--muted); font-size: 13px; }
+.drawer-b { flex: 1; overflow: auto; padding: 20px; } .drawer-f { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; margin: 16px 0 20px; }
+.facts dt { font-size: 12px; color: var(--muted); } .facts dd { font-weight: 500; }
+.tagc { height: 28px; padding: 0 11px; border-radius: 14px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; font-size: 12.5px; transition: background-color .15s, color .15s, border-color .15s; }
+.tagc[aria-pressed="true"] { background: var(--accent-bg); color: var(--text); border-color: var(--accent); }
+.sec-t { font-size: 13px; font-weight: 600; margin: 4px 0 8px; }
+
+/* toasts */
+.tl-toasts { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 60; width: min(420px, calc(100vw - 24px)); pointer-events: none; }
+.tl-t { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 10px 8px 14px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,.3); pointer-events: auto; animation: toastIn .24s var(--ease-out) both; }
+.tl-t span { flex: 1; min-width: 0; } .tl-t button { flex: none; height: 30px; padding: 0 10px; border-radius: 6px; border: 0; background: color-mix(in srgb, var(--bg) 12%, transparent); color: inherit; font-weight: 600; cursor: pointer; }
+.tl-t.out { opacity: 0; transform: translateY(6px); transition: opacity .15s, transform .15s; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } }
+
+/* courses */
+.cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: var(--gap); }
+.ccard { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.ccov { position: relative; height: 112px; } .ccov svg { width: 100%; height: 100%; }
+.ctag { position: absolute; left: 12px; top: 12px; height: 22px; padding: 0 9px; border-radius: 11px; background: rgba(8,11,16,.65); color: #fff; font-size: 11.5px; display: inline-flex; align-items: center; gap: 4px; }
+.ctag.pro { left: auto; right: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 600; } .ctag .ic { width: 12px; height: 12px; }
+.cbody { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.cbody h3 { font-size: 16px; font-weight: 600; } .cbody p { color: var(--muted); font-size: 13px; flex: 1; }
+.cmeta { color: var(--faint); font-size: 12px; } .crow { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 4px; }
+.lesson { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 52px; padding: 6px 0; }
+.lesson + .lesson { border-top: 1px solid var(--rule); }
+.dotx { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: grid; place-items: center; font-size: 11px; color: var(--muted); }
+.dotx.done { background: var(--pos); border-color: var(--pos); color: #04150e; } .dotx .ic { width: 13px; height: 13px; stroke-width: 3; }
+.dotx.cur { border-color: var(--accent); color: var(--accent); }
+.lesson.lock { opacity: .55; } .lesson b { font-weight: 500; display: block; } .lesson small { color: var(--muted); }
+.crumbs { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.crumbs button { background: none; border: 0; padding: 0; color: var(--muted); cursor: pointer; } .crumbs button:hover { color: var(--text); }
+.chead { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.chead .ccov { width: 168px; height: 96px; border-radius: 10px; overflow: hidden; flex: none; }
+.reader { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--gap); align-items: start; }
+.video { position: relative; border-radius: var(--radius); overflow: hidden; background: #0a0e15; aspect-ratio: 16 / 9; }
+.video svg { width: 100%; height: 100%; }
+.vplay { position: absolute; inset: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.vplay i { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.92); color: #0c0a1f; display: grid; place-items: center; transition: transform .16s var(--ease-out); }
+.vplay:hover i { transform: scale(1.05); } .vplay:active i { transform: scale(.97); } .vplay i .ic { width: 26px; height: 26px; fill: currentColor; stroke: none; }
+.vplay.on i { opacity: 0; } .vplay.on:hover i, .vplay.on:focus-visible i { opacity: .85; }
+.vbar { display: flex; align-items: center; gap: 10px; padding: 10px 2px 0; font-size: 12px; color: var(--muted); }
+.vbar .bar { flex: 1; }
+.pts { display: grid; gap: 10px; } .pts li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; } .pts .ic { color: var(--accent); width: 16px; height: 16px; margin-top: 2px; }
 .opts { display: flex; flex-direction: column; gap: 8px; }
-.opts button { text-align: left; min-height: 42px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: none; cursor: pointer; transition: background-color .15s, border-color .15s; }
-.opts button:hover { background: var(--hover); border-color: var(--faint); }
-.me { background: var(--accent-bg); border-radius: 8px; }
+.opts button { display: flex; align-items: center; gap: 10px; text-align: left; min-height: 44px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: none; cursor: pointer; transition: background-color .15s, border-color .15s; }
+.opts button:hover:not([disabled]) { background: var(--hover); border-color: var(--faint); }
+.opts button[aria-checked="true"] { border-color: var(--accent); background: var(--accent-bg); }
+.opts button.ok { border-color: var(--pos); background: var(--pos-bg); } .opts button.bad { border-color: var(--neg); background: var(--neg-bg); }
+.opts button[disabled] { cursor: default; } .opts .rd { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--faint); flex: none; }
+.opts button[aria-checked="true"] .rd { border: 5px solid var(--accent); }
+.expl { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--raised); font-size: 13px; }
+.expl b { font-weight: 600; }
+.outline a { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+.outline a:hover { background: var(--hover); } .outline a.on { background: var(--raised); } .outline a.lock { opacity: .55; }
+.outline .dotx { width: 22px; height: 22px; }
+textarea.note { width: 100%; min-height: 110px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); resize: vertical; outline: none; }
+textarea.note:focus { border-color: var(--accent); }
+.cnt { font-size: 12px; color: var(--faint); } .cnt.over { color: var(--neg); }
 
-@media (max-width: 1099px) { .term { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 899px) { .dm { display: inline; } .syms { margin-left: 0; } .pos-row { grid-template-columns: 1fr 1fr auto; } .pos-row .hm { display: none; } .lvl .bar { width: 72px; } }
+/* achievements, profile, plans */
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+.badge { display: flex; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); min-width: 0; }
+.badge .bi { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-bg); color: var(--accent); flex: none; }
+.badge.off .bi { background: var(--raised); color: var(--faint); } .badge b { font-weight: 600; display: block; } .badge p { color: var(--muted); font-size: 12.5px; margin: 2px 0 8px; }
+.badge > div { flex: 1; min-width: 0; } .badge small { color: var(--faint); font-size: 12px; }
+.heat { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 280px; }
+.heat i { aspect-ratio: 1; border-radius: 4px; background: var(--raised); }
+.heat i.l1 { background: color-mix(in srgb, var(--accent) 35%, var(--raised)); } .heat i.l2 { background: color-mix(in srgb, var(--accent) 65%, var(--raised)); } .heat i.l3 { background: var(--accent); }
+.heat i.today { outline: 2px solid var(--text); outline-offset: 1px; }
+.heat-l { display: flex; align-items: center; gap: 5px; margin-top: 10px; font-size: 12px; color: var(--faint); } .heat-l i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.prof { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.prof .avatar { width: 64px; height: 64px; font-size: 22px; }
+.prof h2 { font-size: 20px; letter-spacing: -.01em; } .prof p { color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.stat { padding: 12px 14px; border-radius: 8px; background: var(--raised); } .stat b { display: block; font-size: 20px; font-weight: 600; } .stat span { color: var(--muted); font-size: 12px; }
+.plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+.plan { display: flex; flex-direction: column; gap: 12px; }
+.plan.cur { border-color: var(--accent); }
+.plan .price { font: 600 34px/1 var(--display); letter-spacing: -.02em; } .plan .price small { font-size: 14px; color: var(--muted); font-weight: 400; letter-spacing: 0; }
+.feat { display: grid; gap: 8px; } .feat li { display: flex; gap: 8px; align-items: flex-start; } .feat .ic { width: 16px; height: 16px; color: var(--pos); margin-top: 2px; } .feat li.no { color: var(--faint); } .feat li.no .ic { color: var(--faint); }
+.choice { display: grid; gap: 8px; margin: 14px 0; }
+.choice label { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer; }
+.choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-bg); }
+.choice input { accent-color: var(--accent); } .choice span { flex: 1; } .choice small { color: var(--muted); }
+.fine { font-size: 12px; color: var(--faint); margin-top: 12px; }
+.set-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; }
+.set-row + .set-row { border-top: 1px solid var(--rule); } .set-row b { font-weight: 500; display: block; } .set-row small { color: var(--muted); font-size: 12.5px; }
+.sw { position: relative; width: 38px; height: 22px; flex: none; } .sw input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.sw i { position: absolute; inset: 0; border-radius: 11px; background: var(--raised); border: 1px solid var(--border); transition: background-color .15s; }
+.sw i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: transform .18s var(--ease-out), background-color .15s; }
+.sw input:checked + i { background: var(--accent); border-color: transparent; } .sw input:checked + i::after { transform: translateX(16px); background: var(--accent-ink); }
+.sw input:focus-visible + i { outline: 2px solid var(--accent); outline-offset: 2px; }
+.savebar { position: sticky; bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 16px; margin-top: var(--gap); border-radius: 10px; background: var(--raised); border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,.25); flex-wrap: wrap; }
+.faq details { border-top: 1px solid var(--rule); padding: 10px 0; } .faq summary { cursor: pointer; font-weight: 500; } .faq p { color: var(--muted); margin-top: 6px; font-size: 13px; }
+.keys { display: grid; gap: 8px; } .keys div { display: flex; justify-content: space-between; gap: 12px; }
+.steps { display: flex; gap: 4px; margin: 6px 0 16px; } .steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--raised); } .steps i.on { background: var(--accent); }
+.result { text-align: center; padding: 8px 0; } .result .big { margin: 6px 0; }
+
+/* sign in */
+.auth { min-height: calc(100svh - 29px); display: grid; place-items: center; padding: 24px 16px; }
+.auth-card { width: 100%; max-width: 400px; padding: 28px; }
+.auth-card h1 { font-size: 22px; letter-spacing: -.02em; margin: 18px 0 4px; } .auth-card > p { color: var(--muted); margin-bottom: 20px; }
+.auth-err { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 8px; background: var(--neg-bg); color: var(--neg); font-size: 13px; margin-bottom: 14px; }
+.pw { position: relative; } .pw input { width: 100%; padding-right: 60px; } .pw button { position: absolute; right: 6px; top: 6px; height: 24px; }
+.demo-cred { margin-top: 16px; padding: 10px 12px; border-radius: 8px; background: var(--raised); font-size: 12.5px; color: var(--muted); }
+.demo-cred b { color: var(--text); font-weight: 500; }
+
+@media (hover: hover) and (pointer: fine) { .tr.click:hover { background: var(--hover); } }
+@media (max-width: 1199px) { .kpis.k5 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1099px) { .term, .reader { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 899px) {
+  .tb-brand { display: flex; } .hm2 { display: none !important; }
+  .top { margin: -4px 0 16px; } .kpis.k5 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .kpis.k5 .kpi:first-child { grid-column: span 2; }
+  .plans { grid-template-columns: minmax(0, 1fr); }
+  .tl-toasts { bottom: 84px; }
+  .coach { flex-wrap: wrap; }
+  .chart-h .px { font-size: 24px; }
+}
+@media (max-width: 520px) { .hm3 { display: none !important; } .row2 { grid-template-columns: minmax(0, 1fr); gap: 0; } .facts { grid-template-columns: 1fr 1fr; } .chead .ccov { width: 100%; height: 110px; } .tools .sel { flex: 1 1 40%; } }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
 </style>
 </head>
 <body>
-<div class="notice"><b>Demo</b> TradingLearn · training simulator, virtual money, sample data</div>
-<div class="app">
+<div class="notice"><b>Demo</b> TradingLearn · sample data</div>
+<div id="auth" hidden></div>
+<div class="app" id="app">
   <aside class="side">
     <div class="brand">
       <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 7-9M15 6h5v5"/></svg></div>
-      <div><div class="brand-name">TradingLearn</div><div class="brand-sub">Learn and practise</div></div>
+      <div><div class="brand-name">TradingLearn</div><div class="brand-sub">Academy and simulator</div></div>
     </div>
-    <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">DM</div><div class="who"><b>Darian</b><span id="side-lvl"></span></div></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="side-foot" id="side-foot"></div>
   </aside>
-  <main class="main" id="main"></main>
+  <main class="main"><div id="top"></div><div id="page"></div></main>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
@@ -453,213 +663,906 @@ function setNav(page) {
 document.addEventListener('click', (e) => { if (e.detail === 3 && e.target.closest && e.target.closest('.notice')) FX.flash('The data is sample. The code is real.'); });
 console.log('%cDemo', 'font:700 14px system-ui;color:#c8f03c;background:#0e0f0c;padding:3px 8px', 'Sample data, real engineering. Say hello: darian.mirelli@gmail.com');
 
+/* When embedded on the portfolio page: report that the demo rendered. The page keeps its screenshot until then. */
+addEventListener('load', () => { if (parent !== window) parent.postMessage({ showroom: 'ready' }, '*'); });
+
 'use strict';
-
-/* ── market data: seeded candles, so the first screen is always the same ─ */
-const SYM = { BTC: { p: 67420, vol: .004 }, ETH: { p: 3521, vol: .005 }, SOL: { p: 183, vol: .008 }, BNB: { p: 412, vol: .004 }, XRP: { p: 0.548, vol: .006 } };
-const rng = (seed) => () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
-const dec = (p) => p >= 1000 ? 0 : p >= 10 ? 2 : 4;
-const usd = (n, d = 2) => '€' + n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
-const px = (n) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: dec(n), maximumFractionDigits: dec(n) });
-const pnlF = (n) => (n >= 0 ? '+' : '−') + usd(Math.abs(n));
-const MARKET = {};
-Object.entries(SYM).forEach(([k, s], idx) => {
-  const r = rng(11 + idx * 7919), c = []; let p = s.p * 0.93;
-  for (let i = 0; i < 120; i++) { const o = p, d = (r() - .47) * s.vol * 2.4; p = o * (1 + d); const h = Math.max(o, p) * (1 + r() * s.vol * .7), l = Math.min(o, p) * (1 - r() * s.vol * .7); c.push({ o, h, l, c: p }); }
-  const k2 = s.p / p; c.forEach((x) => { x.o *= k2; x.h *= k2; x.l *= k2; x.c *= k2; });   // end exactly on today's price
-  MARKET[k] = c;
+Object.assign(ICONS, {
+  user: 'M12 12a4 4 0 100-8 4 4 0 000 8zM20 21v-1a6 6 0 00-6-6h-4a6 6 0 00-6 6v1',
+  help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9.5a2.5 2.5 0 114 2c-1 .6-1.5 1.2-1.5 2.5M12 17h.01',
+  out: 'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10',
+  dl: 'M12 4v11M7 10l5 5 5-5M5 20h14',
+  book: 'M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19V5',
+  trophy: 'M8 4h8v5a4 4 0 01-8 0zM8 6H4v1a4 4 0 004 4M16 6h4v1a4 4 0 01-4 4M12 13v4M8 21h8',
+  calc: 'M6 3h12v18H6zM9 7h6M9 11h.01M12 11h.01M15 11h.01M9 15h.01M12 15h.01M15 15h.01',
+  target: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 16a4 4 0 100-8 4 4 0 000 8zM12 12h.01',
+  back: 'M19 12H5M11 6l-6 6 6 6',
+  pause: 'M8 5h3v14H8zM13 5h3v14h-3z',
+  note: 'M5 4h14v12l-4 4H5zM15 20v-4h4M8 9h8M8 13h5',
+  key: 'M8 15a4 4 0 110-8 4 4 0 010 8zM12 11h9M18 11v3M21 11v2',
+  trend: 'M4 18l5-6 4 3 7-9M15 6h5v5',
 });
-const last = (k) => MARKET[k][MARKET[k].length - 1];
-const price = (k) => last(k).c;
 
-/* ── account: balance is always derived from the journal ─ */
+/* ── formatting ─────────────────────────────────────────── */
+const mul = (a) => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const NOW = Date.now(), H = 36e5, D = 24 * H;
+const nf = (n, d) => Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+const eur = (n, d = 2) => (n < 0 ? MINUS : '') + '€' + nf(n, d);
+const eurS = (n, d = 2) => (n >= 0 ? '+' : MINUS) + '€' + nf(n, d);
+const dec = (p) => p >= 10 ? 2 : 4;
+const px = (n) => '$' + nf(n, dec(n));
+const pxn = (n) => nf(n, dec(n));
+const pc = (n, d = 2) => (n >= 0 ? '+' : MINUS) + nf(n, d) + '%';
+const pl = (n, w, ws) => `${fmt(n)} ${n === 1 ? w : (ws || w + 's')}`;
+const cl = (n) => n >= 0 ? 'pos' : 'neg';
+const RTF = new Intl.RelativeTimeFormat('en-GB', { numeric: 'auto' });
+const DF = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+const DFY = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const DTF = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const TF = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
+const ago = (t) => { const s = (Date.now() - t) / 1000; if (s < 45) return 'just now'; if (s < 3600) return RTF.format(-Math.round(s / 60), 'minute'); if (s < 86400) return RTF.format(-Math.round(s / 3600), 'hour'); if (s < 7 * 86400) return RTF.format(-Math.round(s / 86400), 'day'); return DF.format(t); };
+const dur = (ms) => { const h = Math.round(ms / H); return h < 1 ? 'under 1 h' : h < 48 ? h + ' h' : Math.round(h / 24) + ' days'; };
+const ini = (n) => n.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+const vnum = (v) => v >= 1e9 ? '$' + fmtD(v / 1e9) + 'B' : '$' + fmtD(v / 1e6) + 'M';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+/* ── market: seeded hourly candles, two weeks per symbol ── */
+const SYM = { BTC: { n: 'Bitcoin', p: 67420.5, v: .0042, vn: 46e6 }, ETH: { n: 'Ethereum', p: 3521.4, v: .0052, vn: 22e6 }, SOL: { n: 'Solana', p: 183.24, v: .0075, vn: 7e6 }, BNB: { n: 'BNB', p: 412.6, v: .0042, vn: 3e6 }, XRP: { n: 'XRP', p: .5482, v: .006, vn: 4.4e6 }, ADA: { n: 'Cardano', p: .4613, v: .0065, vn: 1.7e6 } };
+const NC = 336, T0 = Math.floor(NOW / H) * H, MK = {};
+Object.entries(SYM).forEach(([k, s], j) => {
+  const r = mul(97 + j * 7919), c = []; let p = s.p * .93;
+  for (let i = 0; i < NC; i++) { const o = p, d = (r() - .476) * s.v * 2.3; p = o * (1 + d); c.push({ t: T0 - (NC - 1 - i) * H, o, c: p, h: Math.max(o, p) * (1 + r() * s.v * .7), l: Math.min(o, p) * (1 - r() * s.v * .7), vol: (.45 + r() * .8 + Math.abs(d) / s.v * .6) * s.vn }); }
+  const f = s.p / p; c.forEach((x) => { x.o *= f; x.h *= f; x.l *= f; x.c *= f; }); MK[k] = c;
+});
+const lastC = (k) => MK[k][MK[k].length - 1];
+const price = (k) => lastC(k).c;
+const chg24 = (k) => (price(k) / MK[k][MK[k].length - 25].c - 1) * 100;
+
+/* ── account: the balance is always derived from the journal ── */
 const START = 10000;
-const J = [   // sym, dir, size €, entry, exit, hours ago, how closed
-  ['BTC', 'long', 1500, 64200, 66100, 150, 'take'], ['ETH', 'short', 1000, 3480, 3555, 128, 'stop'], ['SOL', 'long', 800, 171, 178.5, 110, 'manual'], ['BTC', 'long', 2000, 65800, 65100, 96, 'stop'],
-  ['XRP', 'long', 600, 0.521, 0.538, 80, 'manual'], ['ETH', 'long', 1200, 3390, 3490, 70, 'take'], ['BNB', 'short', 700, 421, 418, 54, 'manual'], ['SOL', 'short', 900, 186, 189, 40, 'stop'],
-  ['BTC', 'long', 1800, 66400, 67050, 30, 'manual'], ['ETH', 'long', 1000, 3500, 3538, 20, 'manual'], ['SOL', 'long', 800, 179, 183.5, 9, 'take'], ['XRP', 'short', 500, 0.552, 0.546, 4, 'manual'],
-].map(([sym, dir, size, entry, exit, ago, how], i) => ({ id: i + 1, sym, dir, size, entry, exit, ago, how }));
+const TAGS = ['Breakout', 'Trend', 'Pullback', 'Range', 'News', 'Scalp', 'Plan followed', 'FOMO', 'Moved stop'];
+const NOTES = ['Clean break of the range high on rising volume. Followed the plan.', 'Entered too early, before the candle closed. Wait for confirmation next time.', 'Stop was too tight for the volatility. Use 1.5 × the average range.', 'Took profit at the level I marked in the morning.', 'Chased the move after missing the entry. Classic FOMO.', 'Good pullback entry into support, scaled the size from the stop.', 'News spike reversed within the hour. Avoid trading the release.', 'Held through the noise, exit at target.'];
+let J = [], POS = [], ORD = [], nid = 1000;
+(() => {
+  const r = mul(4242), ks = Object.keys(SYM);
+  for (let i = 0; i < 58; i++) {
+    const sym = ks[Math.floor(r() * (i % 4 ? 4 : 6))], closed = NOW - 46 * D * (1 - i / 58) - r() * 6 * H - 2 * H, win = r() < .56;
+    const ret = win ? .005 + r() * .034 : -(.004 + r() * .02), dir = r() < .68 ? 'long' : 'short', entry = SYM[sym].p * (.91 + .09 * i / 58 + (r() - .5) * .04);
+    const tags = [TAGS[Math.floor(r() * 6)]]; if (r() < .45) tags.push(TAGS[6 + Math.floor(r() * 3)]);
+    J.push({ id: ++nid, sym, dir, size: 400 + Math.round(r() * 40) * 50, entry, exit: dir === 'long' ? entry * (1 + ret) : entry * (1 - ret), opened: closed - (1 + r() * 40) * H, closed, how: win ? (ret > .026 ? 'take' : 'manual') : (ret < -.014 ? 'stop' : 'manual'), type: r() < .22 ? 'limit' : 'market', tags, note: i % 7 === 3 ? NOTES[(i >> 1) % NOTES.length] : '' });
+  }
+})();
 const pnlOf = (t) => (t.dir === 'long' ? t.exit / t.entry - 1 : 1 - t.exit / t.entry) * t.size;
 const realized = () => J.reduce((a, t) => a + pnlOf(t), 0);
 const balance = () => START + realized();
-let POS = [], nextPos = 1, nextJ = 13;
 const upnl = (p) => (p.dir === 'long' ? price(p.sym) / p.entry - 1 : 1 - price(p.sym) / p.entry) * p.size;
 const unreal = () => POS.reduce((a, p) => a + upnl(p), 0);
 const equity = () => balance() + unreal();
-const freeCash = () => balance() - POS.reduce((a, p) => a + p.size, 0);
-
-/* ── learning ─ */
-const LES = [
-  { id: 1, c: 1, t: 'What a candle shows', q: 'A green candle on the chart means…', o: ['Close price is above the open price', 'Price fell', 'Trading was halted'], a: 0, done: true },
-  { id: 2, c: 1, t: 'Long and short', q: 'When do you open a short?', o: ['You expect the price to rise', 'You expect the price to fall', 'You want to close a trade'], a: 1, done: true },
-  { id: 3, c: 1, t: 'Position size', q: 'What is position size?', o: ['The amount you put into a trade', 'How many times you have traded', 'Entry price'], a: 0, done: true },
-  { id: 4, c: 2, t: 'Stop-loss in practice', task: 'Open a position on the chart and set a stop-loss', done: false },
-  { id: 5, c: 2, t: 'Risk to reward', q: 'Risk €50, target €150. What is the ratio?', o: ['1 to 3', '3 to 1', '1 to 1.5'], a: 0, done: true },
-  { id: 6, c: 2, t: 'No more than 2% per trade', q: 'Deposit €10,000. What is the most you can risk on one trade under the 2% rule?', o: ['€20', '€200', '€2,000'], a: 1, done: false },
-  { id: 7, c: 3, t: 'Support and resistance', q: 'A support level is…', o: ['A zone where price often bounces up', 'The yearly high', 'The exchange fee'], a: 0, done: false },
-  { id: 8, c: 3, t: 'How to spot a trend', q: 'An uptrend is…', o: ['Every low is higher than the previous one', 'Price stays flat', 'Only red candles'], a: 0, done: false },
-  { id: 9, c: 3, t: 'Trading volume', q: 'A price rise on low volume is usually…', o: ['A weak signal', 'The strongest signal', 'Always meaningless'], a: 0, done: false },
+const reserved = () => POS.reduce((a, p) => a + p.size, 0) + ORD.reduce((a, o) => a + o.size, 0);
+const freeCash = () => balance() - reserved();
+const winRate = (ts = J) => ts.length ? ts.filter((t) => pnlOf(t) > 0).length / ts.length * 100 : 0;
+const balanceAt = (t) => START + J.filter((x) => x.closed < t).reduce((a, x) => a + pnlOf(x), 0);
+POS = [
+  { id: ++nid, sym: 'ETH', dir: 'long', size: 1200, entry: price('ETH') * .9915, sl: price('ETH') * .975, tp: price('ETH') * 1.03, opened: NOW - 5 * H, type: 'market' },
+  { id: ++nid, sym: 'SOL', dir: 'short', size: 800, entry: price('SOL') * 1.006, sl: price('SOL') * 1.03, tp: null, opened: NOW - 26 * H, type: 'market' },
 ];
-const COURSES = { 1: 'Basics', 2: 'Risk management', 3: 'Chart analysis' };
-const XP = 100, PER = 500;
-const xp = () => LES.filter((l) => l.done).length * XP, level = () => Math.floor(xp() / PER) + 1;
-const courseDone = (c) => LES.filter((l) => l.c === c).every((l) => l.done);
-const locked = (c) => c > 1 && !courseDone(c - 1);
-console.assert(xp() === 400 && level() === 1, 'xp');
+ORD = [{ id: ++nid, sym: 'BTC', dir: 'long', type: 'limit', size: 900, price: Math.round(price('BTC') * .986), sl: 2, tp: 4, placed: NOW - 3 * H }];
 
+/* ── learning ─────────────────────────────────────────── */
+const CRS = [
+  ['basics', 'Trading basics', 'Beginner', 0, 'How markets move, what a candle tells you and how to place your first paper trade.', 255],
+  ['risk', 'Risk management', 'Beginner', 0, 'Protect the account first: stops, position sizing and the maths of drawdowns.', 160],
+  ['chart', 'Chart analysis', 'Intermediate', 0, 'Read price action: levels, trends, volume, moving averages and breakouts.', 205],
+  ['orders', 'Order types', 'Intermediate', 0, 'Market, limit and stop orders, and when each one makes sense.', 25],
+  ['psych', 'Trading psychology', 'Intermediate', 1, 'Spot fear, greed and revenge trading before they cost you money.', 330],
+  ['strat', 'Building a strategy', 'Advanced', 1, 'Define an edge, test it and write a plan you can actually follow.', 105],
+].map(([id, t, lvl, pro, d, hue]) => ({ id, t, lvl, pro: !!pro, d, hue }));
+const Q = (q, o, e) => ({ q, o: o.split('|'), a: 0, e });
+const LES = [
+  ['basics', 'What a candle shows', 6, 'Each candle covers one period: on the Practice chart, one hour.|The body spans open to close; the wicks mark the high and the low.|Green means the close is above the open, red means below.', [Q('A green candle means…', 'The close is above the open|The price fell during the period|Trading was halted', 'Colour only compares close with open. A green candle can still have a long upper wick.'), Q('What do the wicks show?', 'The highest and lowest price of the period|The trading fee|The average price', 'Wicks mark the extremes reached during the period, even if price did not stay there.')]],
+  ['basics', 'Long and short', 7, 'A long position profits when the price rises.|A short position profits when the price falls.|In the simulator both draw on the same virtual balance.', [Q('When would you open a short?', 'You expect the price to fall|You expect the price to rise|You want to close a trade', 'A short gains when the price drops below your entry.'), Q('BTC rises 5% while you hold a €1,000 long. You gain…', '€50|€500|€5', '5% of €1,000 is €50. Profit is a percentage of your position size.')]],
+  ['basics', 'Position size', 5, 'Size is the amount of money you commit to a trade.|Profit and loss scale directly with size.|Start small while you are learning.', [Q('What is position size?', 'The amount you put into a trade|How many trades you made|The entry price', 'Size is the capital at work in a trade; P&L is a percentage of it.'), Q('Doubling the size of a trade…', 'Doubles both the possible gain and the possible loss|Only doubles the gain|Halves the risk', 'Size multiplies every outcome, good or bad.')]],
+  ['basics', 'Order book and spread', 8, 'The order book lists resting buy orders (bids) and sell orders (asks).|The spread is the gap between the best bid and the best ask.|Thin books move more when large orders arrive.', [Q('The spread is…', 'The gap between the best bid and the best ask|The daily price range|The exchange fee', 'You pay the spread whenever you buy at the ask and sell at the bid.'), Q('Bids in the order book are…', 'Orders waiting to buy|Orders waiting to sell|Completed trades', 'Bids wait to buy; asks wait to sell.')]],
+  ['basics', 'Fees and slippage', 6, 'Every trade pays a fee on entry and on exit.|Slippage is the gap between the expected and the filled price.|Frequent small trades are hit hardest by costs.', [Q('Slippage happens when…', 'You are filled at a worse price than expected|You forget to set a stop|The market is closed', 'Fast markets and thin books cause slippage, mostly on market orders.'), Q('Who pays the most in fees relative to profit?', 'Someone making many small trades|A long-term investor|Someone who rarely trades', 'Costs are charged per trade, so high frequency multiplies them.')]],
+  ['basics', 'Your first paper trade', 10, 'Pick a symbol and a direction in the order ticket.|Set a stop-loss before you open the trade.|Watch open P&L update live on the Practice screen.', null, 'sl', 'Open a position with a stop-loss in the simulator'],
+  ['risk', 'Why stops matter', 6, 'A stop-loss closes the trade automatically at a set loss.|It turns an unknown risk into a known one.|Decide the stop before the entry, not after.', [Q('A stop-loss should be set…', 'Before entering, as part of the plan|Only after the trade goes wrong|Never on volatile markets', 'Placing it first means emotion cannot move it later.'), Q('Without a stop, your maximum loss is…', 'The whole position|Exactly 2%|Zero', 'Nothing limits the loss, so the full size is at risk.')]],
+  ['risk', 'Risk to reward', 7, 'Compare what you can lose with what you can gain.|1 to 3 means risking €1 to make €3.|A good ratio lets you be wrong more often than right.', [Q('Risk €50, target €150. What is the ratio?', '1 to 3|3 to 1|1 to 1.5', 'You risk 50 to make 150: one part risk, three parts reward.'), Q('With 1 to 3 trades, which win rate roughly breaks even?', '25%|50%|75%', 'One win of 3 pays for three losses of 1, so 1 in 4 breaks even before costs.')]],
+  ['risk', 'The 2% rule', 5, 'Risk at most 2% of the account on a single trade.|Risk is the loss if the stop triggers, not the position size.|A losing streak then costs you little.', [Q('Account €10,000. The most you can risk on one trade under the 2% rule?', '€200|€20|€2,000', '2% of €10,000 is €200: that is the loss at your stop, not the size.'), Q('Ten losses in a row at 2% risk leave roughly…', '82% of the account|50% of the account|Nothing', 'Each loss takes 2% of what is left: 0.98 to the power of 10 is about 0.82.')]],
+  ['risk', 'Sizing from your stop', 9, 'Position size = risk amount ÷ stop distance.|A wider stop needs a smaller position.|Use the size calculator on the Practice screen.', null, 'calc', 'Use the position size calculator and apply the size'],
+  ['risk', 'Drawdowns and recovery', 6, 'A drawdown is the fall from a peak in equity.|Losses need bigger gains to recover: −50% needs +100%.|Cut size during a drawdown; never raise it.', [Q('After a 20% loss, which gain gets you back to even?', '25%|20%|15%', 'From 80 you need 20 more, which is 25% of 80.'), Q('During a drawdown it is wiser to…', 'Reduce position size|Double the size to win it back|Remove all stops', 'Smaller size protects the account while you find the cause.')]],
+  ['chart', 'Support and resistance', 8, 'Support is a zone where buyers have stepped in before.|Resistance is a zone where sellers have appeared.|Broken resistance often turns into support.', [Q('A support level is…', 'A zone where price often bounces up|The yearly high|The exchange fee', 'Support marks prices where demand has repeatedly outweighed supply.'), Q('Price breaks above resistance and pulls back. The old resistance may now act as…', 'Support|A stop order|Nothing at all', 'Levels often flip roles after a clean break.')]],
+  ['chart', 'Spotting a trend', 7, 'An uptrend makes higher highs and higher lows.|A downtrend makes lower highs and lower lows.|Trade with the trend until it is clearly broken.', [Q('An uptrend is…', 'Each low higher than the previous one|Price flat for a week|Only red candles', 'Rising lows show buyers are willing to pay more each time.'), Q('The first lower low in an uptrend is…', 'An early warning that the trend may be ending|A reason to buy more|Irrelevant', 'It breaks the pattern that defined the trend.')]],
+  ['chart', 'Trading volume', 6, 'Volume counts how much was traded in a period.|Moves on high volume carry more conviction.|Volume bars sit under the candles on the Practice chart.', [Q('A price rise on low volume is usually…', 'A weak signal|The strongest signal|Always meaningless', 'Few participants backed the move, so it is easier to reverse.'), Q('Where is volume shown on the Practice chart?', 'Bars under the candles|In the order ticket|It is not shown', 'The faint bars along the bottom of the chart are hourly volume.')]],
+  ['chart', 'Moving averages', 8, 'A moving average smooths price over N periods.|Price above a rising average suggests an uptrend.|Short averages react fast; long ones filter noise.', [Q('A 50-period moving average is…', 'The average close of the last 50 candles|The highest price in 50 days|The 50th trade of the day', 'It averages closes over a rolling window.'), Q('Which reacts faster to new prices?', 'A 20-period average|A 200-period average|They react equally', 'Fewer periods means each new candle carries more weight.')]],
+  ['chart', 'Breakouts and false breakouts', 9, 'A breakout is a close beyond a well-tested level.|False breakouts snap back inside the range.|Wait for a close, and check the volume.', [Q('A safer way to trade a breakout is to…', 'Wait for a candle to close beyond the level|Buy the first touch of the level|Ignore volume', 'A close shows the level actually gave way, not just a wick through it.'), Q('A false breakout is when price…', 'Moves beyond a level and quickly returns|Never reaches the level|Gaps overnight', 'Traders who bought the break are trapped when price falls back.')]],
+  ['chart', 'Entering on a pullback', 10, 'Instead of chasing, wait for price to come back to a level.|A limit order waits at your price.|Place a buy limit below the current price.', null, 'limit', 'Place a limit order in the simulator'],
+  ['orders', 'Market orders', 5, 'A market order fills immediately at the best available price.|You get certainty of execution, not of price.|Use them when getting in matters more than the exact price.', [Q('A market order guarantees…', 'Execution, not the exact price|The exact price|A profit', 'It takes whatever liquidity is there, so the fill can slip.'), Q('When does a market order make sense?', 'When you must enter or exit now|When you want a better price|Never', 'Speed is its main advantage.')]],
+  ['orders', 'Limit orders', 6, 'A limit order fills at your price or better.|A buy limit sits below the market, a sell limit above.|It may never fill if price does not reach it.', [Q('A buy limit order is placed…', 'Below the current price|Above the current price|Exactly at the current price', 'You only want to buy if the price comes down to you.'), Q('The main risk of a limit order is…', 'It may never fill|It always slips|It has no fee', 'If price runs away without touching your level, you miss the trade.')]],
+  ['orders', 'Stop orders', 6, 'A stop order triggers once price reaches a level.|Buy stops sit above the market, sell stops below.|They are used to enter breakouts or to exit losing trades.', [Q('A buy stop order is placed…', 'Above the current price|Below the current price|Only at weekends', 'It triggers as price rises through your level, as in a breakout.'), Q('A stop-loss on a long position works like a…', 'Sell stop below the entry|Buy limit above the entry|Market buy', 'It sells if price falls to your exit level.')]],
+  ['orders', 'Keeping a trade journal', 7, 'Record why you entered, not just the result.|Tags show which setups actually work for you.|Review the journal every week.', null, 'journal', 'Add a note to a closed trade in the journal'],
+  ['psych', 'Fear and greed', 7, 'Fear makes you close winners early.|Greed makes you hold losers and oversize.|Rules decided in advance protect you from both.', [Q('Closing a winner long before target out of worry is driven by…', 'Fear|Greed|Discipline', 'Fear of giving back profit cuts winners short.'), Q('A written plan helps mainly because…', 'Decisions are made before emotions run high|It guarantees profit|It removes all risk', 'Pre-commitment beats in-the-moment judgement.')]],
+  ['psych', 'Revenge trading', 6, 'Revenge trading is trying to win back a loss at once.|It usually means bigger size and weaker setups.|Step away after two losses in a row.', [Q('After a painful loss, a healthy next step is to…', 'Pause and review the trade|Double the next position|Trade a new symbol at once', 'A pause breaks the emotional loop.'), Q('Revenge trades are typically…', 'Larger and less planned|Smaller and more careful|Identical to normal trades', 'The goal shifts from following the plan to getting even.')]],
+  ['psych', 'Overtrading', 6, 'More trades does not mean more profit.|Costs and mistakes grow with every extra trade.|Set a daily limit on the number of trades.', [Q('A simple guard against overtrading is…', 'A daily maximum number of trades|Removing stops|Trading every candle', 'A hard limit forces you to pick only the best setups.'), Q('Overtrading most often follows…', 'Boredom or a recent loss|A well-rested morning|Reading your plan', 'Both push you to act without a setup.')]],
+  ['psych', 'Building routines', 7, 'Prepare before the session: levels, news, plan.|Trade only in your planned window.|Close the day with a short review.', [Q('A pre-session routine should include…', 'Key levels and a plan for the day|Social media tips|Nothing, to stay flexible', 'Preparation lets you react to price instead of improvising.'), Q('An end-of-day review mainly helps you…', 'Spot repeated mistakes|Increase size tomorrow|Forget the losses', 'Patterns only show up when you look back.')]],
+  ['psych', 'Reviewing your week', 8, 'Group trades by tag and setup.|Look at average win, average loss and win rate.|Change one thing at a time.', [Q('Which numbers best describe your results?', 'Win rate, average win and average loss|Only the best trade|Only the number of trades', 'Together they give your expectancy.'), Q('After a review you should change…', 'One thing at a time|Everything at once|Nothing, ever', 'Single changes show what actually made the difference.')]],
+  ['strat', 'Defining an edge', 8, 'An edge is a repeatable condition where the odds favour you.|Describe it so precisely that another trader could follow it.|No edge, no trade.', [Q('An edge is…', 'A repeatable setup with positive expectancy|A lucky trade|A tip from a friend', 'It has to repeat and pay over many trades.'), Q('A good setup description is…', 'Specific enough to follow without guessing|Vague, so it fits many cases|Kept only in your head', 'Precision is what lets you test it.')]],
+  ['strat', 'Backtesting basics', 9, 'Test the rules on past data before risking money.|Include fees and slippage.|Beware of tuning the rules to fit history.', [Q('Fitting rules too closely to past data is called…', 'Overfitting|Backtesting|Hedging', 'An overfitted system describes the past and fails on new data.'), Q('A realistic backtest includes…', 'Fees and slippage|Only winning trades|Hindsight entries', 'Ignoring costs inflates the results.')]],
+  ['strat', 'Expectancy', 8, 'Expectancy = win rate × average win − loss rate × average loss.|Positive expectancy is what makes a strategy worth trading.|Judge a strategy only after 30 or more trades.', [Q('Win rate 40%, average win €150, average loss €60. Expectancy per trade?', '+€24|−€24|+€90', '0.4 × 150 − 0.6 × 60 = 60 − 36 = €24.'), Q('How many trades before you judge a strategy?', 'At least around 30|Two or three|One good week', 'Small samples are dominated by luck.')]],
+  ['strat', 'Position management', 7, 'Decide in advance when to move a stop to break-even.|Scaling out locks in part of a winner.|Never widen a stop on a losing trade.', [Q('Moving the stop further away on a losing trade…', 'Increases risk beyond the plan|Is good risk control|Has no effect', 'It turns a planned loss into an unplanned one.'), Q('Scaling out means…', 'Closing part of a position at a target|Adding to a losing trade|Opening a hedge', 'You bank some profit and let the rest run.')]],
+  ['strat', 'Writing a trading plan', 10, 'Markets, timeframes and setups you trade.|Risk per trade, daily loss limit and maximum open positions.|How and when you review.', [Q('A daily loss limit tells you…', 'When to stop trading for the day|How much to add after a loss|Which symbol to trade', 'It caps the damage of a bad day.'), Q('A trading plan is most useful when…', 'You follow it on every trade|You read it once|It changes every day', 'Consistency is what makes results measurable.')]],
+].map(([c, t, min, pts, q, task, taskT], i) => ({ id: i + 1, c, t, min, pts: pts.split('|'), q, task, taskT, done: false, score: null, note: '', at: null, watched: 0 }));
+(() => { // shuffle answers (seeded), mark the lessons already completed
+  const r = mul(31337);
+  LES.forEach((l) => (l.q || []).forEach((x) => { const right = x.o[0]; for (let i = x.o.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [x.o[i], x.o[j]] = [x.o[j], x.o[i]]; } x.a = x.o.indexOf(right); }));
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 12].forEach((id, k) => { const l = LES[id - 1]; l.done = true; l.at = NOW - (30 - k * 2.6) * D; l.watched = 1; if (l.q) l.score = [k % 3 === 1 ? 1 : 2, 2]; });
+})();
+const XPL = 100, XPP = 25, XPB = 50, PER = 500;
+const cLes = (cid) => LES.filter((l) => l.c === cid);
+const crs = (cid) => CRS.find((c) => c.id === cid);
+const lessonsDone = () => LES.filter((l) => l.done).length;
+const perfect = () => LES.filter((l) => l.done && l.score && l.score[0] === l.score[1]).length;
+const coursesDone = () => CRS.filter((c) => cLes(c.id).every((l) => l.done)).length;
+const isPro = () => PLAN.tier === 'pro';
+const lesLocked = (l) => { const ls = cLes(l.c), i = ls.indexOf(l); return i > 0 && !ls[i - 1].done; };
+const proLocked = (l) => crs(l.c).pro && !isPro();
 
-/* course covers: photos (CC0, see demos/CREDITS.md), one per course */
-const coverImg = (c) => `<img src="img/cover-${c}.jpg" alt="" loading="lazy" decoding="async">`;
-let RIVALS = [['Lukas_M', 12840], ['mila.k', 11975], ['Matteo', 11420], ['pierre_trade', 10310], ['Hanna V.', 9870], ['Jan', 9560], ['Sofia_R', 9120], ['Elena', 8740]];
+/* streak: minutes learned per day, last 35 days (index 34 = today) */
+const ACTV = (() => { const r = mul(77), a = []; for (let i = 0; i < 35; i++) a.push(r() < .5 ? Math.round(5 + r() * 40) : 0); for (let i = 28; i < 34; i++) a[i] = a[i] || Math.round(8 + r() * 30); a[27] = 0; a[34] = 0; return a; })();
+const streak = () => { let i = ACTV[34] ? 34 : 33, n = 0; while (i >= 0 && ACTV[i]) { n++; i--; } return n; };
+const bestStreak = () => { let b = 0, c = 0; ACTV.forEach((m) => { c = m ? c + 1 : 0; b = Math.max(b, c); }); return Math.max(b, 9); };
+
+/* ── profile, plan, settings ─────────────────────────── */
+const ME = { name: 'Clara Vogel', email: 'clara.vogel@example.com', country: 'Germany', bio: 'Learning to trade with a plan. Swing setups on BTC and ETH.', since: NOW - 238 * D };
+const first = () => ME.name.trim().split(/\s+/)[0];
+const PLAN = { tier: 'free', cycle: 'year', trialEnd: null, invoices: [] };
+const PRICE = { month: 12.99, year: 99 };
+const SET = { theme: 'dark', defSize: 1000, defSl: 2, defTp: 4, confirmClose: true, nFill: true, nStreak: true, nWeekly: true, nEmail: false };
+let RISKP = null, signedIn = true, limitFills = 0, tickets = 4820;
+const PROFILES = [
+  { n: 'Conservative', risk: 1, sl: 1.5, maxPos: 3, d: 'You value protecting capital over fast growth. Keep risk small and trade fewer, cleaner setups.' },
+  { n: 'Balanced', risk: 2, sl: 2, maxPos: 5, d: 'You accept moderate swings for steady progress. The classic 2% rule fits you well.' },
+  { n: 'Growth', risk: 3, sl: 3, maxPos: 6, d: 'You are comfortable with larger swings. Keep a hard daily loss limit so a bad day stays small.' },
+];
+const RQS = [
+  ['How much trading experience do you have?', 'None, I am just starting|A few months of practice|Over a year of regular trading'],
+  ['What is your main goal with TradingLearn?', 'Understand how markets work|Build a repeatable strategy|Grow an account actively'],
+  ['Your account falls 10% in a week. What do you do?', 'Stop and review everything|Reduce size and keep following the plan|Add to positions while prices are lower'],
+  ['How long do you usually want to hold a position?', 'Days to weeks|Hours to days|Minutes to hours'],
+  ['How much of your savings would you ever put into trading?', 'Under 5%|5 to 15%|Over 15%'],
+];
+
+/* ── achievements ─────────────────────────────────────── */
+const bestRun = () => { let b = 0, c = 0; [...J].sort((a, x) => a.closed - x.closed).forEach((t) => { c = pnlOf(t) > 0 ? c + 1 : 0; b = Math.max(b, c); }); return b; };
+const noted = () => J.filter((t) => t.note.trim()).length;
+const BADGES = [
+  ['first_lesson', 'First step', 'Complete your first lesson', 'book', () => [lessonsDone(), 1]],
+  ['five', 'Diligent student', 'Complete 5 lessons', 'graduation', () => [lessonsDone(), 5]],
+  ['fifteen', 'Dedicated learner', 'Complete 15 lessons', 'graduation', () => [lessonsDone(), 15]],
+  ['course', 'Course graduate', 'Finish every lesson in a course', 'trophy', () => [coursesDone(), 1]],
+  ['perfect', 'Top marks', 'Score 100% on 5 quizzes', 'check', () => [perfect(), 5]],
+  ['risk', 'Know yourself', 'Complete the risk profile', 'shield', () => [RISKP ? 1 : 0, 1]],
+  ['first_trade', 'First trade', 'Open your first paper trade', 'chart', () => [Math.min(1, J.length + POS.length), 1]],
+  ['first_profit', 'In the green', 'Close a profitable trade', 'trend', () => [Math.min(1, J.filter((t) => pnlOf(t) > 0).length), 1]],
+  ['run3', 'Sharpshooter', 'Win 3 trades in a row', 'target', () => [bestRun(), 3]],
+  ['seventy', 'Seasoned trader', 'Close 75 trades', 'list', () => [J.length, 75]],
+  ['eq11', 'Lift-off', 'Reach €10,500 in equity', 'zap', () => [Math.floor(equity()), 10500]],
+  ['eq12', 'Market master', 'Reach €12,000 in equity', 'star', () => [Math.floor(equity()), 12000]],
+  ['streak7', 'Week on fire', 'Keep a 7-day learning streak', 'flame', () => [streak(), 7]],
+  ['journal', 'Reflective trader', 'Write notes on 10 trades', 'note', () => [noted(), 10]],
+  ['limit', 'Patient entry', 'Get a limit order filled', 'clock', () => [limitFills, 1]],
+].map(([id, t, d, icn, prog]) => ({ id, t, d, ic: icn, prog }));
+const earned = new Map();
+BADGES.forEach((b, i) => { const [c, g] = b.prog(); if (c >= g) earned.set(b.id, NOW - (40 - i * 2.3) * D); });
+const xp = () => lessonsDone() * XPL + perfect() * XPP + earned.size * XPB;
+const level = () => Math.floor(xp() / PER) + 1;
+let lastLevel = level();
+
+/* ── notifications ────────────────────────────────────── */
+let NT = [
+  ['Finish a lesson today', 'One lesson keeps your 6-day streak alive.', 'flame', 2 * H, 0, 'learn'],
+  ['New lessons in Chart analysis', 'Moving averages and Breakouts are now available.', 'book', 3 * H, 0, 'learn'],
+  ['Limit order placed', 'BTC buy limit at ' + px(ORD[0].price) + ' is waiting to fill.', 'clock', 3 * H + 60e3, 0, 'practice'],
+  ['Weekly league', 'You moved up 4 places in this month’s leaderboard.', 'users', 20 * H, 0, 'rank'],
+  ['Price alert', 'BTC crossed $67,000.', 'bell', 27 * H, 1, 'practice'],
+  ['Badge unlocked: Sharpshooter', 'Three winning trades in a row.', 'target', 2.2 * D, 1, 'awards'],
+  ['Try Pro free for 7 days', 'Unlock Trading psychology and Building a strategy.', 'zap', 4 * D, 1, 'plans'],
+].map(([title, body, icn, a, read, go], i) => ({ id: i + 1, title, body, ic: icn, t: NOW - a, read: !!read, go, kind: icn === 'flame' || icn === 'zap' ? 'xp' : 'info' }));
+const unread = () => NT.filter((n) => !n.read).length;
+function notify(title, body, icn = 'bell', go = 'practice', kind = 'info') { NT.unshift({ id: ++nid, title, body, ic: icn, t: Date.now(), read: false, go, kind }); }
+
+/* ── leaderboard ──────────────────────────────────────── */
+const LB = (() => {
+  const r = mul(9001), F = ['Lukas', 'Mila', 'Matteo', 'Sofia', 'Jan', 'Hanna', 'Elena', 'Pierre', 'Anouk', 'Tomás', 'Ingrid', 'Marco', 'Lea', 'Nils', 'Joana', 'Emil', 'Zofia', 'Bram', 'Chiara', 'Henrik', 'Amélie', 'Oskar', 'Freya', 'Luca', 'Marta', 'Viktor', 'Aino', 'Rui', 'Petra', 'Jonas', 'Inès', 'Karel', 'Sanne', 'Paolo', 'Agnieszka', 'Fynn', 'Lotte', 'Mateus', 'Ida', 'Dario', 'Eva', 'Sebastian'];
+  const L = ['Meier', 'Novak', 'Rossi', 'Dubois', 'Jensen', 'Kowalska', 'Bakker', 'Lindqvist', 'García', 'Moreau', 'Horvat', 'Schmid', 'Costa', 'Virtanen', 'Nielsen', 'Ferrari', 'Wagner', 'Janssen', 'Dvořák', 'Berg', 'Martins', 'Weber', 'Peeters', 'Laine'];
+  const C = ['DE', 'NL', 'FR', 'IT', 'ES', 'PL', 'SE', 'DK', 'AT', 'PT', 'FI', 'CZ', 'BE', 'IE'];
+  return F.map((f, i) => ({ id: i, name: f + ' ' + L[Math.floor(r() * L.length)], cc: C[Math.floor(r() * C.length)], trades: { week: Math.round(2 + r() * 18), month: Math.round(10 + r() * 50), all: Math.round(40 + r() * 260) }, wr: 38 + r() * 30, ret: { week: (r() - .4) * 14, month: (r() - .35) * 30, all: (r() - .3) * 70 }, mv: Math.round((r() - .5) * 10) }));
+})();
+const CUT = { week: NOW - 7 * D, month: NOW - 30 * D, all: 0 };
+const myRet = (per) => { const b = per === 'all' ? START : balanceAt(CUT[per]); return (equity() / b - 1) * 100; };
 
 /* ── shell ────────────────────────────────────────────── */
-const PAGES = { practice: ['Practice', 'chart'], learn: ['Courses', 'graduation'], journal: ['Journal', 'list'], rank: ['Leaderboard', 'star'] };
-let page = 'practice', sym = 'BTC', dir = 'long', sl = 2, tp = 4, useSl = true, useTp = true, size = 1000;
-const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const PAGES = { practice: ['Practice', 'chart', 'Trade'], learn: ['Courses', 'graduation', 'Learn'], journal: ['Journal', 'list', 'Journal'], awards: ['Achievements', 'star', 'Badges'], rank: ['Leaderboard', 'users', 'Ranks'], profile: ['Profile', 'user'], plans: ['Plans and billing', 'coin'], settings: ['Settings', 'sliders'] };
+const MAIN = ['practice', 'learn', 'journal', 'awards', 'rank'], ACCT = ['profile', 'plans', 'settings'];
+const VERSION = 'v2.8.1';
+let page = 'practice', CID = null, LID = null, POP = null, DRAW = null, lastFocus = null;
+const T = { sym: 'BTC', dir: 'long', type: 'market', size: SET.defSize, lim: '', sl: SET.defSl, tp: SET.defTp, useSl: true, useTp: true, err: {} };
+const CH = { range: '3D', hi: null, hy: null }; let GEO = null, PT = 'pos';
+const JF = { q: '', sym: 'all', side: 'all', res: 'all', tag: 'all', sort: 'closed', dir: -1, pg: 1 };
+const LBS = { per: 'month', q: '', pg: 1, loading: false };
+const CF = { f: 'all', q: '' }, AF = { f: 'all' };
+let QZ = null, VID = { id: null, pos: 0, playing: false }, PLANCYCLE = 'year';
+const plural = (n, w) => pl(n, w);
 
+function navHTML() {
+  const a = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'learn' ? `<span class="count" aria-label="lessons available">${LES.filter((l) => !l.done && !lesLocked(l) && !proLocked(l)).length}</span>` : ''}</a>`;
+  return MAIN.map(a).join('') + '<div class="nav-label">Account</div>' + ACCT.map(a).join('');
+}
 function chrome() {
-  $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
-  $('#tabbar').innerHTML = $('#nav').innerHTML;
-  $('#side-lvl').textContent = `Level ${level()} · ${xp()} XP`;
+  $('#nav').innerHTML = navHTML();
+  $('#tabbar').innerHTML = MAIN.map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][2]}</span></a>`).join('');
+  $('#side-foot').innerHTML = `<div class="avatar">${esc(ini(ME.name))}</div><div class="who"><b>${esc(ME.name)}</b><span>Student · ${isPro() ? 'Pro' : 'Free'} plan</span></div>`;
+  if (!$('.ver')) $('#side-foot').insertAdjacentHTML('afterend', `<div class="ver">TradingLearn ${VERSION} · <button class="lnk" data-act="help" style="font-size:11px">Help</button></div>`);
   setNav(page);
 }
-function render() { chrome(); $('#main').innerHTML = ({ practice, learn, journal, rank })[page](); mount(); }
-function go(p) { page = p; render(); window.scrollTo(0, 0); }
+function topHTML() {
+  const un = unread(), s = streak();
+  return `<div class="top"><div class="tb-brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="${ICONS.trend}"/></svg></div><b>TradingLearn</b></div>
+  <span class="chip mkt hm2"><i class="live"></i>Simulator live · prices update every 1.5 s</span><span class="sp"></span>
+  <button class="chip flame" data-page="awards" aria-label="${pl(s, 'day')} learning streak">${ic('flame')}<b>${s}</b><span class="hm3">day streak</span></button>
+  <button class="chip hm2" data-page="awards" aria-label="Level ${level()}, ${fmt(xp())} XP"><b>Lvl ${level()}</b><span class="mini"><i style="width:${xp() % PER / PER * 100}%"></i></span><span>${fmt(xp())} XP</span></button>
+  ${isPro() ? '' : `<button class="chip up hm3" data-act="paywall">${ic('zap')}Upgrade</button>`}
+  <button class="ibtn hm2" data-act="help" aria-label="Help and support">${ic('help')}</button>
+  <div class="anchor"><button class="ibtn" data-act="bell" aria-haspopup="dialog" aria-expanded="${POP === 'bell'}" aria-label="Notifications, ${un} unread">${ic('bell')}${un ? `<span class="dot">${un > 9 ? '9+' : un}</span>` : ''}</button>${POP === 'bell' ? bellHTML() : ''}</div>
+  <div class="anchor"><button class="me-btn" data-act="menu" aria-haspopup="menu" aria-expanded="${POP === 'menu'}" aria-label="Account menu"><span class="avatar sm">${esc(ini(ME.name))}</span><span class="hm3">${esc(first())}</span>${ic('down')}</button>${POP === 'menu' ? menuHTML() : ''}</div></div>`;
+}
+function bellHTML() {
+  const un = unread();
+  return `<div class="pop" role="dialog" aria-label="Notifications"><div class="pop-h"><b>Notifications</b><button class="lnk" data-act="readAll" ${un ? '' : 'disabled'}>Mark all as read</button></div>
+  <div class="pop-b">${NT.length ? NT.slice(0, 15).map((n) => `<button class="ntf ${n.read ? '' : 'unread'}" data-act="ntf" data-id="${n.id}"><span class="ni ${n.kind}">${ic(n.ic)}</span><span class="nt"><b>${esc(n.title)}</b><span>${esc(n.body)}</span><small>${ago(n.t)}</small></span></button>`).join('') : `<p class="empty">${ic('check')}You are all caught up.</p>`}</div>
+  ${NT.length ? '<div class="pop-f"><span class="muted" style="font-size:12px">' + pl(NT.length, 'notification') + '</span><button class="lnk" data-act="clearNtf">Clear all</button></div>' : ''}</div>`;
+}
+function menuHTML() {
+  return `<div class="pop menu" role="menu" aria-label="Account"><div class="menu-h"><span class="avatar">${esc(ini(ME.name))}</span><div><b>${esc(ME.name)}</b><span>${esc(ME.email)}</span><span class="pill ${isPro() ? 'pos' : ''}">Student · ${isPro() ? 'Pro' : 'Free'} plan</span></div></div>
+  <a role="menuitem" tabindex="0" data-page="profile">${ic('user')}Profile</a><a role="menuitem" tabindex="0" data-page="plans">${ic('coin')}Plans and billing</a><a role="menuitem" tabindex="0" data-page="settings">${ic('sliders')}Settings</a>
+  <button class="mi" role="menuitem" data-act="help">${ic('help')}Help and support</button><button class="mi" role="menuitem" data-act="keys">${ic('key')}Keyboard shortcuts</button><hr>
+  <button class="mi" role="menuitem" data-act="signout">${ic('out')}Sign out</button><div class="menu-f">TradingLearn ${VERSION} · Paper trading only, no real money</div></div>`;
+}
+function drawTop() { $('#top').innerHTML = topHTML(); }
+function render() {
+  if (!signedIn) return authView();
+  chrome(); drawTop();
+  const v = { practice, learn: () => LID ? lessonPage() : CID ? coursePage() : learn(), journal, awards, rank, profile, plans, settings }[page];
+  $('#page').innerHTML = v(); mount(); audit();
+}
+function go(p) { page = p; CID = null; LID = null; POP = null; QZ = null; VID.playing = false; closeDrawer(true); render(); window.scrollTo(0, 0); }
 const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
 
-document.addEventListener('click', (e) => {
-  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
-  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
-});
-document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
-document.addEventListener('input', (e) => {
-  if (e.target.id === 'f-size') { size = Math.max(0, +e.target.value || 0); drawRisk(); }
-  if (e.target.id === 'f-sl') { sl = Math.max(0.1, +e.target.value || 0.1); drawRisk(); }
-  if (e.target.id === 'f-tp') { tp = Math.max(0.1, +e.target.value || 0.1); drawRisk(); }
-});
-document.addEventListener('change', (e) => {
-  if (e.target.id === 'u-sl') { useSl = e.target.checked; drawRisk(); } if (e.target.id === 'u-tp') { useTp = e.target.checked; drawRisk(); }
-});
+/* own toast stack, so undo actions are possible (the demo keeps the kit's silent fx) */
+function say(msg, undo) {
+  let host = $('.tl-toasts'); if (!host) { host = document.createElement('div'); host.className = 'tl-toasts'; host.setAttribute('role', 'status'); host.setAttribute('aria-live', 'polite'); document.body.appendChild(host); }
+  const el = document.createElement('div'); el.className = 'tl-t'; el.innerHTML = `<span></span>${undo ? '<button type="button">Undo</button>' : ''}`; el.firstChild.textContent = msg;
+  const kill = () => { el.classList.add('out'); setTimeout(() => el.remove(), 160); };
+  if (undo) el.lastChild.onclick = () => { undo(); kill(); };
+  host.appendChild(el); while (host.children.length > 3) host.firstChild.remove();
+  setTimeout(kill, undo ? 6000 : 3200);
+}
+function confirmBox(title, body, okLabel, onOk, danger) {
+  modal(`<h2>${title}</h2><p>${body}</p><div class="modal-actions"><button class="btn" data-act="x">Cancel</button><button class="btn ${danger ? 'short' : 'primary'}" id="cf-ok">${okLabel}</button></div>`, (s) => { const b = $('#cf-ok', s); b.focus(); b.onclick = () => { closeModal(); onOk(); }; });
+}
+
+/* ── after every change: badges, level, reconciliation ── */
+function progress() {
+  BADGES.forEach((b) => { const [c, g] = b.prog(); if (!earned.has(b.id) && c >= g) { earned.set(b.id, Date.now()); notify('Badge unlocked: ' + b.t, b.d + ' · +' + XPB + ' XP', b.ic, 'awards', 'xp'); say('Badge unlocked: ' + b.t); } });
+  if (level() > lastLevel) { notify('Level ' + level() + ' reached', 'Keep going: ' + fmt(PER - xp() % PER) + ' XP to the next level.', 'star', 'awards', 'xp'); say('Level up: you reached level ' + level()); }
+  lastLevel = level();
+}
+function audit() {
+  const r = realized();
+  console.assert(Math.abs(balance() - (START + r)) < 1e-6, 'balance = start + realised P&L');
+  console.assert(Math.abs(equity() - balance() - unreal()) < 1e-6, 'equity = balance + open P&L');
+  console.assert(Math.abs(freeCash() + reserved() - balance()) < 1e-6, 'free + reserved = balance');
+  console.assert(xp() === lessonsDone() * XPL + perfect() * XPP + earned.size * XPB, 'xp reconciles');
+  const bySym = Object.values(symSums(J)).reduce((a, b) => a + b, 0); console.assert(Math.abs(bySym - r) < 1e-6, 'P&L by symbol sums to realised');
+  const curve = equityCurve(); console.assert(Math.abs(curve[curve.length - 1].v - balance()) < 1e-6, 'equity curve ends at balance');
+  console.assert(earned.size <= BADGES.length && unread() <= NT.length, 'counts');
+}
 
 /* ── practice ─────────────────────────────────────────── */
+const RANGES = { '1D': 24, '3D': 72, '1W': 168, '2W': 336 };
 function candleSVG(w) {
-  const k = MARKET[sym], v = k.slice(-72), h = 330, L = 6, R = 64, T = 10, B = 22, pw = w - L - R, ph = h - T - B;
-  const lines = POS.filter((p) => p.sym === sym).flatMap((p) => [[p.entry, 'var(--text)', 'entry'], ...(p.sl ? [[p.sl, 'var(--neg)', 'stop']] : []), ...(p.tp ? [[p.tp, 'var(--pos)', 'take']] : [])]);
-  let mn = Math.min(...v.map((x) => x.l), ...lines.map((x) => x[0])), mx = Math.max(...v.map((x) => x.h), ...lines.map((x) => x[0])); const pad = (mx - mn) * .06; mn -= pad; mx += pad;
-  const Y = (p) => T + ph - (p - mn) / (mx - mn) * ph, step = pw / v.length, bw = Math.max(2, step * .62);
-  let g = ''; for (let i = 0; i <= 4; i++) { const p = mn + (mx - mn) * i / 4, y = Y(p); g += `<line class="grid-l" x1="${L}" x2="${w - R + 4}" y1="${y}" y2="${y}"/><text x="${w - R + 10}" y="${y + 4}">${px(p).replace('$', '')}</text>`; }
-  const cs = v.map((x, i) => { const cx = L + step * i + step / 2, up = x.c >= x.o, col = up ? 'var(--pos)' : 'var(--neg)'; return `<line x1="${cx}" x2="${cx}" y1="${Y(x.h)}" y2="${Y(x.l)}" stroke="${col}" stroke-width="1.2"/><rect x="${cx - bw / 2}" y="${Y(Math.max(x.o, x.c))}" width="${bw}" height="${Math.max(1.5, Math.abs(Y(x.o) - Y(x.c)))}" fill="${col}" rx="1"/>`; }).join('');
-  const cur = price(sym), ly = Y(cur), up = last(sym).c >= last(sym).o;
-  const lv = lines.map(([p, c, n]) => `<line x1="${L}" x2="${w - R + 4}" y1="${Y(p)}" y2="${Y(p)}" stroke="${c}" stroke-width="1" stroke-dasharray="5 4" opacity=".9"/><text x="${L + 6}" y="${Y(p) - 4}" style="fill:${c}">${n} ${px(p)}</text>`).join('');
-  return `<svg viewBox="0 0 ${w} ${h}" height="${h}" role="img" aria-label="${sym} candlestick chart, price ${px(cur)}">${g}${cs}${lv}<line x1="${L}" x2="${w - R + 4}" y1="${ly}" y2="${ly}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 3"/><rect x="${w - R + 4}" y="${ly - 10}" width="${R - 4}" height="20" rx="4" fill="var(--accent)"/><text x="${w - R + 9}" y="${ly + 4}" style="fill:var(--accent-ink);font-weight:600">${px(cur).replace('$', '')}</text></svg>`;
+  const n = RANGES[CH.range], v = MK[T.sym].slice(-n), h = w < 560 ? 300 : 360, L = 4, R = 66, Tp = 10, B = 24, VH = 44, pw = w - L - R, ph = h - Tp - B - VH - 8;
+  const lines = [...POS.filter((p) => p.sym === T.sym).flatMap((p) => [[p.entry, 'var(--text)', 'Entry'], ...(p.sl ? [[p.sl, 'var(--neg)', 'Stop']] : []), ...(p.tp ? [[p.tp, 'var(--pos)', 'Take']] : [])]),
+    ...ORD.filter((o) => o.sym === T.sym).map((o) => [o.price, 'var(--accent)', (o.type === 'limit' ? 'Limit ' : 'Stop ') + (o.dir === 'long' ? 'buy' : 'sell')])];
+  let mn = Math.min(...v.map((x) => x.l)), mx = Math.max(...v.map((x) => x.h)); const span0 = mx - mn;
+  lines.forEach(([p]) => { if (p > mn - span0 * .5 && p < mx + span0 * .5) { mn = Math.min(mn, p); mx = Math.max(mx, p); } });
+  const pad = (mx - mn) * .06; mn -= pad; mx += pad;
+  const Y = (p) => Tp + ph - (p - mn) / (mx - mn) * ph, step = pw / n, bw = Math.max(1, step * .64), vb = h - B, mv = Math.max(...v.map((x) => x.vol));
+  let g = ''; for (let i = 0; i <= 4; i++) { const p = mn + (mx - mn) * i / 4, y = Y(p); g += `<line class="grid-l" x1="${L}" x2="${w - R + 4}" y1="${y}" y2="${y}"/><text x="${w - R + 10}" y="${y + 4}">${pxn(p)}</text>`; }
+  const kk = [1, 2, 3, 4, 6, 12, 24, 48, 72].find((k) => k * step >= 62) || 96;
+  v.forEach((x, i) => { const d = new Date(x.t), hr = d.getHours(); if (kk < 24 ? hr % kk === 0 : (hr === 0 && Math.round(x.t / D) % (kk / 24) === 0)) { const cx = L + step * i + step / 2; if (cx > 24 && cx < w - R - 20) g += `<line class="grid-l" x1="${cx}" x2="${cx}" y1="${Tp}" y2="${vb}" opacity=".6"/><text x="${cx}" y="${h - 7}" text-anchor="middle">${hr === 0 ? DF.format(x.t) : TF.format(x.t)}</text>`; } });
+  const cs = v.map((x, i) => { const cx = L + step * i + step / 2, up = x.c >= x.o, col = up ? 'var(--pos)' : 'var(--neg)', vh = x.vol / mv * VH;
+    return `<rect x="${cx - bw / 2}" y="${vb - vh}" width="${bw}" height="${vh}" fill="${col}" opacity=".22"/><line x1="${cx}" x2="${cx}" y1="${Y(x.h)}" y2="${Y(x.l)}" stroke="${col}" stroke-width="1"/><rect x="${cx - bw / 2}" y="${Y(Math.max(x.o, x.c))}" width="${bw}" height="${Math.max(1.2, Math.abs(Y(x.o) - Y(x.c)))}" fill="${col}" rx="${bw > 4 ? 1 : 0}"/>`; }).join('');
+  const lv = lines.filter(([p]) => p > mn && p < mx).map(([p, c, nm]) => `<line x1="${L}" x2="${w - R + 4}" y1="${Y(p)}" y2="${Y(p)}" stroke="${c}" stroke-width="1" stroke-dasharray="5 4" opacity=".85"/><text x="${L + 6}" y="${Y(p) - 4}" style="fill:${c}">${nm} ${px(p)}</text>`).join('');
+  const cur = price(T.sym), ly = clamp(Y(cur), Tp, Tp + ph);
+  let xh = '';
+  if (CH.hi != null && CH.hi < n) {
+    const x = v[CH.hi], cx = L + step * CH.hi + step / 2, hy = clamp(CH.hy, Tp, Tp + ph), hp = mn + (Tp + ph - hy) / ph * (mx - mn), lab = DTF.format(x.t), lw = lab.length * 6.2 + 12, lx = clamp(cx - lw / 2, L, w - R - lw);
+    xh = `<g class="xh" pointer-events="none"><line x1="${cx}" x2="${cx}" y1="${Tp}" y2="${vb}" stroke="var(--muted)" stroke-dasharray="3 3"/><line x1="${L}" x2="${w - R + 4}" y1="${hy}" y2="${hy}" stroke="var(--muted)" stroke-dasharray="3 3"/>
+      <rect x="${w - R + 4}" y="${hy - 10}" width="${R - 4}" height="20" rx="4" fill="var(--raised)" stroke="var(--border)"/><text x="${w - R + 9}" y="${hy + 4}" style="fill:var(--text)">${pxn(hp)}</text>
+      <rect x="${lx}" y="${h - 21}" width="${lw}" height="19" rx="4" fill="var(--raised)" stroke="var(--border)"/><text x="${lx + lw / 2}" y="${h - 7}" text-anchor="middle" style="fill:var(--text)">${lab}</text></g>`;
+  }
+  GEO = { L, R, step, n, w, Tp, ph };
+  return `<svg viewBox="0 0 ${w} ${h}" height="${h}" role="img" aria-label="${T.sym} hourly candlestick chart, last price ${px(cur)}">${g}${cs}${lv}<line x1="${L}" x2="${w - R + 4}" y1="${ly}" y2="${ly}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 3"/><rect x="${w - R + 4}" y="${ly - 10}" width="${R - 4}" height="20" rx="4" fill="var(--accent)"/><text x="${w - R + 9}" y="${ly + 4}" style="fill:var(--accent-ink);font-weight:600">${pxn(cur)}</text>${xh}</svg>`;
+}
+function ohlcHTML() {
+  const v = MK[T.sym].slice(-RANGES[CH.range]), x = CH.hi != null && v[CH.hi] ? v[CH.hi] : v[v.length - 1], ch = (x.c / x.o - 1) * 100;
+  return `<span>${CH.hi != null ? DTF.format(x.t) : 'Last hour'}</span><span>O <b>${pxn(x.o)}</b></span><span>H <b>${pxn(x.h)}</b></span><span>L <b>${pxn(x.l)}</b></span><span>C <b>${pxn(x.c)}</b></span><span class="${cl(ch)}">${pc(ch)}</span><span>Vol <b>${vnum(x.vol)}</b></span>`;
+}
+function kpisHTML() {
+  const u = unreal(), r = realized();
+  return `<div class="kpi"><b>${eur(equity())}</b><span>Equity <em>· ${pc((equity() / START - 1) * 100)} all time</em></span></div><div class="kpi"><b class="${cl(u)}">${eurS(u)}</b><span>Open P&amp;L · ${pl(POS.length, 'position')}</span></div><div class="kpi"><b class="${cl(r)}">${eurS(r)}</b><span>Realised P&amp;L</span></div><div class="kpi"><b>${eur(freeCash())}</b><span>Free funds</span></div><div class="kpi"><b>${fmtD(winRate(), 0)}<small>%</small></b><span>Win rate · ${pl(J.length, 'trade')}</span></div>`;
+}
+function coach() {
+  if (!RISKP) return `<div class="coach">${ic('shield')}<span><b>Set up your risk profile.</b> Five questions, about two minutes. We use it to suggest risk per trade and default stops.</span><button class="btn sm primary" data-act="riskq">Start</button></div>`;
+  const task = LES.find((l) => l.task && !l.done && !lesLocked(l) && !proLocked(l));
+  if (task) return `<div class="coach">${ic('zap')}<span><b>Practice task: ${task.taskT}.</b> Part of the lesson “${task.t}”, +${XPL} XP.</span><button class="btn sm primary" data-act="taskGo" data-id="${task.id}">${task.task === 'journal' ? 'Open journal' : task.task === 'calc' ? 'Open calculator' : 'Show me'}</button></div>`;
+  const nx = LES.find((l) => !l.done && !lesLocked(l) && !proLocked(l));
+  return nx ? `<div class="coach">${ic('graduation')}<span>Next lesson: <b>${nx.t}</b> · ${nx.min} min, +${XPL} XP.</span><button class="btn sm primary" data-act="lesson" data-id="${nx.id}">Continue</button></div>` : '';
 }
 function practice() {
-  const task = LES.find((l) => l.task && !l.done), quiz = LES.find((l) => l.q && !l.done && !locked(l.c));
-  const coach = task ? `<div class="coach">${ic('zap')}<span><b>Lesson “${task.t}”.</b> ${task.task}. A stop limits your loss if the price moves against you. +${XP} XP for the lesson.</span><button class="btn sm" data-act="goLearn">To lessons</button></div>`
-    : quiz ? `<div class="coach">${ic('graduation')}<span>Next lesson: “${quiz.t}”, 1 question, +${XP} XP.</span><button class="btn sm primary" data-act="quiz" data-id="${quiz.id}">Start</button></div>` : '';
-  const c = last(sym), chg = (price(sym) / MARKET[sym][MARKET[sym].length - 25].c - 1) * 100;
-  return head('Practice', `Virtual deposit. Balance ${usd(balance())}, free ${usd(freeCash())}`, `<div class="lvl"><span class="muted">Lvl ${level()}</span><div class="bar"><i style="width:${xp() % PER / PER * 100}%"></i></div><span class="muted">${xp()} XP</span></div>`) + coach +
-    `<div class="kpis"><div class="kpi"><b id="k-eq">${usd(equity())}</b><span>Equity</span></div><div class="kpi"><b id="k-un" class="${unreal() >= 0 ? 'pos' : 'neg'}">${pnlF(unreal())}</b><span>Open P&amp;L</span></div><div class="kpi"><b>${pnlF(realized())}</b><span>Realised P&amp;L</span></div></div>
-    <div class="term"><div><section class="card"><div class="chart-h"><span class="px" id="c-px">${px(price(sym))}</span><span id="c-chg" class="${chg >= 0 ? 'pos' : 'neg'}">${chg >= 0 ? '+' : '−'}${Math.abs(chg).toFixed(2)}% in 24h</span><div class="syms">${Object.keys(SYM).map((k) => `<button class="${k === sym ? 'on' : ''}" data-act="sym" data-v="${k}">${k}</button>`).join('')}</div></div><div id="chart"></div></section>
-      <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2>Open positions</h2><span>${POS.length}</span></div><div id="pos">${posHTML()}</div></section></div>
-      <aside class="card"><div class="card-h"><h2>New trade</h2><span>${sym}/USDT</span></div>
-        <div class="dirs"><button class="l ${dir === 'long' ? 'on' : ''}" data-act="dir" data-v="long">Long</button><button class="s ${dir === 'short' ? 'on' : ''}" data-act="dir" data-v="short">Short</button></div>
-        <div class="field"><label for="f-size">Size, €</label><input id="f-size" type="number" min="1" value="${size}"><div class="quick">${[10, 25, 50].map((p) => `<button data-act="pct" data-v="${p}">${p}%</button>`).join('')}</div></div>
-        <div class="field"><label><input type="checkbox" id="u-sl" ${useSl ? 'checked' : ''}> Stop-loss, %</label><input id="f-sl" type="number" step="0.1" min="0.1" value="${sl}" ${useSl ? '' : 'disabled'}></div>
-        <div class="field"><label><input type="checkbox" id="u-tp" ${useTp ? 'checked' : ''}> Take-profit, %</label><input id="f-tp" type="number" step="0.1" min="0.1" value="${tp}" ${useTp ? '' : 'disabled'}></div>
-        <div class="risk" id="risk"></div><button class="btn ${dir === 'long' ? 'long' : 'short'}" style="width:100%;height:42px" data-act="open">${dir === 'long' ? 'Buy' : 'Sell'} ${sym}</button></aside></div>`;
+  const ch = chg24(T.sym);
+  return head('Practice', `Paper trading account · virtual ${eur(START, 0)} starting balance`, `<button class="btn" data-act="calc">${ic('calc')}Size calculator</button><button class="btn" data-act="reset">Reset account</button>`) + coach() +
+    `<div class="kpis k5" id="kpis">${kpisHTML()}</div>
+    <div class="term"><div class="tcol"><section class="card" aria-label="Chart">
+      <div class="symbar" role="group" aria-label="Symbol">${Object.keys(SYM).map((k) => `<button data-act="sym" data-v="${k}" aria-pressed="${k === T.sym}"><b>${k}/USDT</b><small class="${cl(chg24(k))}" data-chg="${k}">${pxn(price(k))} · ${pc(chg24(k))}</small></button>`).join('')}</div>
+      <div class="chart-h"><span class="px" id="c-px">${px(price(T.sym))}</span><span id="c-chg" class="${cl(ch)}">${pc(ch)} 24 h</span><span class="nm">${SYM[T.sym].n} · 1 h candles</span><span style="margin-left:auto" class="seg" role="group" aria-label="Range">${Object.keys(RANGES).map((r) => `<button data-act="range" data-v="${r}" aria-pressed="${r === CH.range}">${r}</button>`).join('')}</span></div>
+      <div class="ohlc" id="ohlc">${ohlcHTML()}</div><div id="chart" tabindex="0" aria-label="Chart. Use the left and right arrow keys to inspect candles."></div></section>
+      <section class="card"><div class="ptabs"><div class="seg" role="tablist"><button role="tab" data-act="ptab" data-v="pos" aria-selected="${PT === 'pos'}" aria-pressed="${PT === 'pos'}">Positions · ${POS.length}</button><button role="tab" data-act="ptab" data-v="ord" aria-selected="${PT === 'ord'}" aria-pressed="${PT === 'ord'}">Open orders · ${ORD.length}</button></div><span class="muted" style="font-size:12px">Reserved ${eur(reserved())}</span></div><div id="pos">${posHTML()}</div></section></div>
+    <div class="tcol"><section class="card" id="ticket" aria-label="Order ticket">${ticketHTML()}</section><section class="card ob" id="ob" aria-label="Order book">${obHTML()}</section></div></div>`;
 }
 function posHTML() {
-  if (!POS.length) return '<p class="empty">No positions. Open a trade on the right.</p>';
-  return POS.map((p) => { const u = upnl(p); return `<div class="pos-row"><div><b>${p.sym} ${p.dir === 'long' ? 'long' : 'short'}</b><small>${usd(p.size, 0)} · entry ${px(p.entry)}</small></div><div class="hm"><small>Stop</small>${p.sl ? px(p.sl) : '—'}</div><div class="hm"><small>Take</small>${p.tp ? px(p.tp) : '—'}</div><div><b class="${u >= 0 ? 'pos' : 'neg'}">${pnlF(u)}</b><small>${(u / p.size * 100).toFixed(2)}%</small></div><button class="btn sm" data-act="close" data-id="${p.id}">Close</button></div>`; }).join('');
+  if (PT === 'ord') {
+    if (!ORD.length) return `<p class="empty">No open orders. Choose Limit or Stop in the order ticket to wait for a better price.</p>`;
+    return `<div class="tbl"><div class="tr th" style="--cols:1.3fr .8fr 1fr 1fr .9fr auto;--colsm:1fr auto"><span>Order</span><span class="hm r">Size</span><span class="hm r">Price</span><span class="hm r">From market</span><span class="hm">Placed</span><span></span></div>` + ORD.map((o) => { const d = (o.price / price(o.sym) - 1) * 100;
+      return `<div class="tr" style="--cols:1.3fr .8fr 1fr 1fr .9fr auto;--colsm:1fr auto"><div class="cell-main"><b>${o.sym} ${o.type} ${o.dir === 'long' ? 'buy' : 'sell'}</b><span>${eur(o.size, 0)} at ${px(o.price)}<span class="dm"> · ${pc(d)}</span></span></div><span class="hm r">${eur(o.size, 0)}</span><span class="hm r">${px(o.price)}</span><span class="hm r ${cl(-Math.abs(d))}">${pc(d)}</span><span class="hm muted">${ago(o.placed)}</span><button class="btn sm" data-act="cancelOrd" data-id="${o.id}">Cancel</button></div>`; }).join('') + '</div>';
+  }
+  if (!POS.length) return `<p class="empty">No open positions. Use the order ticket to open a paper trade.</p>`;
+  return `<div class="tbl"><div class="tr th" style="--cols:1.2fr .8fr 1fr 1fr 1.1fr 1fr auto;--colsm:1fr auto auto"><span>Position</span><span class="hm r">Size</span><span class="hm r">Entry</span><span class="hm r">Mark</span><span class="hm r">Stop / Take</span><span class="r">P&amp;L</span><span></span></div>` + POS.map((p) => { const u = upnl(p);
+    return `<div class="tr" style="--cols:1.2fr .8fr 1fr 1fr 1.1fr 1fr auto;--colsm:1fr auto auto"><div class="cell-main"><b>${p.sym} ${p.dir}</b><span>opened ${ago(p.opened)}<span class="dm"> · ${eur(p.size, 0)}</span></span></div><span class="hm r">${eur(p.size, 0)}</span><span class="hm r">${px(p.entry)}</span><span class="hm r">${px(price(p.sym))}</span><span class="hm r">${p.sl ? px(p.sl) : '—'} / ${p.tp ? px(p.tp) : '—'}</span><div class="r"><b class="${cl(u)}">${eurS(u)}</b><div class="muted" style="font-size:12px">${pc(u / p.size * 100)}</div></div><button class="btn sm" data-act="close" data-id="${p.id}">Close</button></div>`; }).join('') + '</div>';
 }
-function drawRisk() {
-  const el = $('#risk'); if (!el) return;
-  const cash = freeCash(), risk = useSl ? size * sl / 100 : size, gain = useTp ? size * tp / 100 : null;
-  el.innerHTML = `${useSl ? `If the stop triggers, you lose <b>${usd(risk)}</b> (${fmtD(risk / balance() * 100)}% of the deposit).` : '<b>Without a stop</b> you risk the whole trade amount.'}${gain !== null ? ` Take-profit earns <b>${usd(gain)}</b>${useSl ? `, that is 1 to ${fmtD(gain / risk)}` : ''}.` : ''}${size > cash ? ` <b class="neg">Not enough free funds: ${usd(cash)}.</b>` : ''}`;
+function ticketHTML() {
+  const e = T.err, cur = price(T.sym), lab = T.type === 'limit' ? 'Limit price, $' : 'Trigger price, $';
+  const btn = T.type === 'market' ? `${T.dir === 'long' ? 'Buy' : 'Sell'} ${T.sym} at market` : `Place ${T.type} ${T.dir === 'long' ? 'buy' : 'sell'}`;
+  const f = (id, label, val, extra = '', err) => `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="number" inputmode="decimal" value="${val}" ${extra} ${err ? `aria-invalid="true" aria-describedby="${id}-e"` : ''}>${err ? `<span class="err" id="${id}-e">${err}</span>` : ''}`;
+  return `<div class="card-h"><h2>New order</h2><span>${T.sym}/USDT · ${px(cur)}</span></div>
+  <div class="seg full" role="group" aria-label="Order type">${['market', 'limit', 'stop'].map((t) => `<button data-act="otype" data-v="${t}" aria-pressed="${T.type === t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div>
+  <div class="dirs"><button class="l ${T.dir === 'long' ? 'on' : ''}" data-act="dir" data-v="long" aria-pressed="${T.dir === 'long'}">Buy · Long</button><button class="s ${T.dir === 'short' ? 'on' : ''}" data-act="dir" data-v="short" aria-pressed="${T.dir === 'short'}">Sell · Short</button></div>
+  ${T.type !== 'market' ? f('f-lim', lab, T.lim, 'step="any" min="0"', e.lim) + `<span class="hint">${T.type === 'limit' ? (T.dir === 'long' ? 'Fills when the price falls to this level or lower.' : 'Fills when the price rises to this level or higher.') : (T.dir === 'long' ? 'Buys once the price rises through this level.' : 'Sells once the price falls through this level.')}</span></div>` : ''}
+  ${f('f-size', 'Size, €', T.size, 'min="10" step="10"', e.size)}<div class="quick">${[10, 25, 50, 100].map((p) => `<button data-act="pct" data-v="${p}">${p === 100 ? 'Max' : p + '%'}</button>`).join('')}</div></div>
+  <div class="row2"><div class="field"><label><input type="checkbox" id="u-sl" ${T.useSl ? 'checked' : ''}> Stop-loss, %</label><input id="f-sl" type="number" step="0.1" min="0.1" value="${T.sl}" ${T.useSl ? '' : 'disabled'} aria-label="Stop-loss percent" ${e.sl ? 'aria-invalid="true"' : ''}>${e.sl ? `<span class="err">${e.sl}</span>` : ''}</div>
+  <div class="field"><label><input type="checkbox" id="u-tp" ${T.useTp ? 'checked' : ''}> Take-profit, %</label><input id="f-tp" type="number" step="0.1" min="0.1" value="${T.tp}" ${T.useTp ? '' : 'disabled'} aria-label="Take-profit percent" ${e.tp ? 'aria-invalid="true"' : ''}>${e.tp ? `<span class="err">${e.tp}</span>` : ''}</div></div>
+  <div class="risk" id="risk">${riskHTML()}</div>
+  <button class="btn ${T.dir === 'long' ? 'long' : 'short'}" style="width:100%;height:42px" data-act="submit">${btn}</button>
+  <button class="lnk" style="margin-top:10px" data-act="calc">${'Not sure about size? Use the calculator'}</button>`;
 }
+function riskHTML() {
+  const cur = price(T.sym), entry = T.type === 'market' ? cur : (+T.lim || cur), long = T.dir === 'long', size = +T.size || 0, units = size / entry;
+  const risk = T.useSl ? size * T.sl / 100 : size, gain = T.useTp ? size * T.tp / 100 : null, rp = risk / balance() * 100, lim = RISKP ? RISKP.risk : 2;
+  return `<div><span>Entry ${T.type === 'market' ? '≈' : 'at'}</span><b>${px(entry)}</b></div><div><span>Quantity</span><b>${fmtD(units, units < 1 ? 4 : 2)} ${T.sym}</b></div>
+  ${T.useSl ? `<div><span>Stop ${px(entry * (1 + (long ? -1 : 1) * T.sl / 100))}</span><b class="neg">${eurS(-risk)}</b></div>` : `<div><span>No stop-loss</span><b class="neg">whole size at risk</b></div>`}
+  ${gain !== null ? `<div><span>Target ${px(entry * (1 + (long ? 1 : -1) * T.tp / 100))}</span><b class="pos">${eurS(gain)}</b></div>` : ''}
+  <div><span>Risk of balance${T.useSl && gain !== null ? ' · reward 1 : ' + fmtD(gain / risk) : ''}</span><b class="${rp > lim ? 'w' : ''}">${fmtD(rp, 2)}%</b></div>
+  ${rp > lim ? `<div class="w">Above your ${lim}% risk limit${RISKP ? ' (' + RISKP.n.toLowerCase() + ' profile)' : ''}.</div>` : ''}${size > freeCash() ? `<div class="w">Only ${eur(freeCash())} free.</div>` : ''}`;
+}
+function obHTML() {
+  const p = price(T.sym), tick = p * .00018, r = Math.random, asks = [], bids = [];
+  for (let i = 7; i >= 1; i--) asks.push([p + tick * (i - .5), .2 + r() * 2.4 + i * .25]);
+  for (let i = 1; i <= 7; i++) bids.push([p - tick * (i - .5), .2 + r() * 2.4 + i * .25]);
+  const mx = Math.max(...asks.map((a) => a[1]), ...bids.map((b) => b[1])), u = 4000 / p;
+  const row = ([q, s], k) => `<button class="lv ${k}" style="--d:${s / mx * 100}%" data-act="obp" data-v="${q}" aria-label="${k === 'ask' ? 'Ask' : 'Bid'} ${px(q)}, use as limit price"><span>${pxn(q)}</span><span>${fmtD(s * u, s * u < 10 ? 3 : 1)}</span><span>${fmt(s * 4000)}</span></button>`;
+  return `<div class="card-h"><h2>Order book</h2><span>Tap a level to set a limit price</span></div><div class="ob-h"><span>Price, $</span><span class="r">Size, ${T.sym}</span><span class="r">Total, €</span></div>${asks.map((a) => row(a, 'ask')).join('')}
+  <div class="mid"><b class="${cl(chg24(T.sym))}">${px(p)}</b><span>Spread ${pxn(tick)} · ${fmtD(tick / p * 100, 3)}%</span></div>${bids.map((b) => row(b, 'bid')).join('')}`;
+}
+function drawChart() { const c = $('#chart'); if (c) c.innerHTML = candleSVG(Math.max(160, c.clientWidth)); const o = $('#ohlc'); if (o) o.innerHTML = ohlcHTML(); }
+let chartRaf = 0;
 function mount() {
   if (page !== 'practice') return;
-  const c = $('#chart'); chart(c, (w) => candleSVG(w)); drawRisk();
+  const c = $('#chart'); chart(c, (w) => candleSVG(w));
+  const hover = (e) => { const s = $('svg', c); if (!s || !GEO) return; const b = s.getBoundingClientRect(), k = GEO.w / b.width, x = (e.clientX - b.left) * k;
+    CH.hi = clamp(Math.floor((x - GEO.L) / GEO.step), 0, GEO.n - 1); CH.hy = (e.clientY - b.top) * k; cancelAnimationFrame(chartRaf); chartRaf = requestAnimationFrame(drawChart); };
+  c.addEventListener('pointermove', hover); c.addEventListener('pointerdown', hover);
+  c.addEventListener('pointerleave', () => { CH.hi = null; drawChart(); });
+  c.addEventListener('keydown', (e) => { if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return; e.preventDefault(); const n = RANGES[CH.range]; CH.hi = clamp((CH.hi ?? n - 1) + (e.key === 'ArrowLeft' ? -1 : 1), 0, n - 1); const x = MK[T.sym].slice(-n)[CH.hi]; CH.hy = GEO ? GEO.Tp + GEO.ph / 2 : 100; if (GEO) { drawChart(); } $('#ohlc').innerHTML = ohlcHTML(); });
+  c.addEventListener('blur', () => { CH.hi = null; drawChart(); });
 }
 
-/* live market: only the chart, price and open P&L repaint; the form is never touched */
+/* live market: chart, prices, open P&L, book; the form is never re-rendered */
 setInterval(() => {
-  if (!document.hidden) {
-    for (const [k, s] of Object.entries(SYM)) { const cd = last(k); cd.c *= 1 + (Math.random() - .495) * s.vol * .45; cd.h = Math.max(cd.h, cd.c); cd.l = Math.min(cd.l, cd.c); }
-    checkExits();
-    if (page === 'practice') {
-      const c = $('#chart'); if (c) c.innerHTML = candleSVG(Math.max(160, c.clientWidth));
-      const chg = (price(sym) / MARKET[sym][MARKET[sym].length - 25].c - 1) * 100;
-      $('#c-px').textContent = px(price(sym)); $('#c-chg').textContent = `${chg >= 0 ? '+' : '−'}${Math.abs(chg).toFixed(2)}% in 24h`; $('#c-chg').className = chg >= 0 ? 'pos' : 'neg';
-      $('#k-eq').textContent = usd(equity()); $('#k-un').textContent = pnlF(unreal()); $('#k-un').className = unreal() >= 0 ? 'pos' : 'neg'; $('#pos').innerHTML = posHTML();
-    }
-  }
+  if (document.hidden) return;
+  for (const [k, s] of Object.entries(SYM)) { const cd = lastC(k); cd.c *= 1 + (Math.random() - .496) * s.v * .45; cd.h = Math.max(cd.h, cd.c); cd.l = Math.min(cd.l, cd.c); cd.vol += s.vn * .01 * Math.random(); }
+  const changed = checkFills() + checkExits();
+  if (!signedIn) return;
+  if (page === 'practice') {
+    if (changed) return render();
+    drawChart(); const ch = chg24(T.sym);
+    $('#c-px').textContent = px(price(T.sym)); const cc = $('#c-chg'); cc.textContent = pc(ch) + ' 24 h'; cc.className = cl(ch);
+    $$('[data-chg]').forEach((el) => { const k = el.dataset.chg; el.textContent = `${pxn(price(k))} · ${pc(chg24(k))}`; el.className = cl(chg24(k)); });
+    $('#kpis').innerHTML = kpisHTML(); $('#pos').innerHTML = posHTML(); $('#ob').innerHTML = obHTML();
+    const rk = $('#risk'); if (rk) rk.innerHTML = riskHTML();
+  } else if (changed) render();
 }, 1500);
-setInterval(() => { if (!document.hidden) for (const k of Object.keys(SYM)) { const cd = last(k); MARKET[k].push({ o: cd.c, h: cd.c, l: cd.c, c: cd.c }); MARKET[k].shift(); } }, 12000);
 
 function closePos(p, how, at) {
   const exit = at ?? price(p.sym);
-  J.unshift({ id: nextJ++, sym: p.sym, dir: p.dir, size: p.size, entry: p.entry, exit, ago: 0, how }); POS = POS.filter((x) => x !== p);
-  const t = J[0], r = pnlOf(t); toast(`${p.sym} closed (${how}): ${pnlF(r)}`);
+  J.unshift({ id: ++nid, sym: p.sym, dir: p.dir, size: p.size, entry: p.entry, exit, opened: p.opened, closed: Date.now(), how, type: p.type || 'market', tags: [], note: '' }); POS = POS.filter((x) => x !== p);
+  const r = pnlOf(J[0]);
+  if (how !== 'manual' && SET.nFill) notify(`${how === 'stop' ? 'Stop-loss' : 'Take-profit'} hit: ${p.sym} ${p.dir}`, `Closed at ${px(exit)} · ${eurS(r)}`, how === 'stop' ? 'alert' : 'check', 'journal', how === 'stop' ? 'bad' : 'good');
+  say(`${p.sym} ${p.dir} closed${how === 'manual' ? '' : ' by ' + (how === 'stop' ? 'stop-loss' : 'take-profit')}: ${eurS(r)}`);
+  progress(); return r;
 }
 function checkExits() {
+  let n = 0;
   [...POS].forEach((p) => { const cur = price(p.sym), long = p.dir === 'long';
-    if (p.sl && (long ? cur <= p.sl : cur >= p.sl)) { closePos(p, 'stop', p.sl); if (page === 'practice') render(); }
-    else if (p.tp && (long ? cur >= p.tp : cur <= p.tp)) { closePos(p, 'take', p.tp); if (page === 'practice') render(); } });
+    if (p.sl && (long ? cur <= p.sl : cur >= p.sl)) { closePos(p, 'stop', p.sl); n++; }
+    else if (p.tp && (long ? cur >= p.tp : cur <= p.tp)) { closePos(p, 'take', p.tp); n++; } });
+  return n;
+}
+function openPos(o, entry) {
+  const long = o.dir === 'long', f = (pc2) => entry * (1 + (long ? 1 : -1) * pc2 / 100);
+  POS.push({ id: ++nid, sym: o.sym, dir: o.dir, size: o.size, entry, sl: o.sl ? f(-o.sl) : null, tp: o.tp ? f(o.tp) : null, opened: Date.now(), type: o.type });
+}
+function checkFills() {
+  let n = 0;
+  [...ORD].forEach((o) => { const cur = price(o.sym), long = o.dir === 'long';
+    const hit = o.type === 'limit' ? (long ? cur <= o.price : cur >= o.price) : (long ? cur >= o.price : cur <= o.price);
+    if (!hit) return; ORD = ORD.filter((x) => x !== o); openPos(o, o.price); n++; if (o.type === 'limit') limitFills++;
+    if (SET.nFill) notify(`${o.type === 'limit' ? 'Limit' : 'Stop'} order filled`, `${o.sym} ${o.dir} ${eur(o.size, 0)} at ${px(o.price)}`, 'check', 'practice', 'good');
+    say(`${o.sym} ${o.type} order filled at ${px(o.price)}`); progress(); });
+  return n;
+}
+function validateTicket() {
+  const e = {}, cur = price(T.sym), size = +T.size, lim = +T.lim, long = T.dir === 'long';
+  if (!(size > 0)) e.size = 'Enter a size in euros.'; else if (size < 10) e.size = 'The minimum order size is €10.'; else if (size > freeCash()) e.size = `Not enough free funds: ${eur(freeCash())} available.`;
+  if (T.useSl && !(T.sl >= .1 && T.sl <= 50)) e.sl = 'Use 0.1 to 50%.';
+  if (T.useTp && !(T.tp >= .1 && T.tp <= 200)) e.tp = 'Use 0.1 to 200%.';
+  if (T.type !== 'market') {
+    if (!(lim > 0)) e.lim = 'Enter a price.';
+    else if (T.type === 'limit' && (long ? lim >= cur : lim <= cur)) e.lim = `A ${long ? 'buy' : 'sell'} limit must be ${long ? 'below' : 'above'} the current price ${px(cur)}.`;
+    else if (T.type === 'stop' && (long ? lim <= cur : lim >= cur)) e.lim = `A ${long ? 'buy' : 'sell'} stop must be ${long ? 'above' : 'below'} the current price ${px(cur)}.`;
+    else if (Math.abs(lim / cur - 1) > .25) e.lim = 'Keep the price within 25% of the market.';
+  }
+  return e;
+}
+function taskDone(key) { const l = LES.find((x) => x.task === key && !x.done && !lesLocked(x) && !proLocked(x)); if (l) completeLesson(l); }
+function completeLesson(l, score) {
+  const lv = level(); if (score) l.score = score; if (l.done) return progress();
+  l.done = true; l.at = Date.now(); const before = streak(); ACTV[34] += l.min;
+  notify('Lesson complete: ' + l.t, `+${XPL} XP${score && score[0] === score[1] ? ' and +' + XPP + ' for a perfect quiz' : ''}`, 'graduation', 'learn', 'xp');
+  if (SET.nStreak && streak() > before) notify(`Streak extended to ${pl(streak(), 'day')}`, 'Come back tomorrow to keep it going.', 'flame', 'awards', 'xp');
+  say(`Lesson complete: +${XPL} XP`); progress();
 }
 
-/* ── learn ────────────────────────────────────────────── */
+/* ── calculator + risk profile + help + paywall (modals) ── */
+const CALC = { risk: 1, stop: 2 };
+function calcBody() {
+  const bal = balance(), amt = bal * CALC.risk / 100, size = CALC.stop > 0 ? amt / (CALC.stop / 100) : 0, cap = Math.min(size, Math.max(0, freeCash())), cur = price(T.sym), e = [];
+  if (!(CALC.risk >= .1 && CALC.risk <= 10)) e.push('Risk per trade must be between 0.1 and 10%.'); if (!(CALC.stop >= .1 && CALC.stop <= 50)) e.push('Stop distance must be between 0.1 and 50%.');
+  return { html: `<div class="risk"><div><span>Amount at risk</span><b>${eur(amt)}</b></div><div><span>Position size</span><b>${eur(size)}</b></div><div><span>Quantity</span><b>${fmtD(size / cur, 4)} ${T.sym}</b></div><div><span>Stop price (${T.dir})</span><b>${px(cur * (1 + (T.dir === 'long' ? -1 : 1) * CALC.stop / 100))}</b></div>${size > freeCash() ? `<div class="w">Larger than your free funds; it will be capped at ${eur(cap, 0)}.</div>` : ''}${e.map((x) => `<div class="neg">${x}</div>`).join('')}</div>`, ok: !e.length, size: Math.floor(cap / 10) * 10 };
+}
+function openCalc() {
+  CALC.risk = RISKP ? RISKP.risk : 1; CALC.stop = T.sl;
+  modal(`<h2>Position size calculator</h2><p>Size the trade from the loss you accept, not from a feeling. Balance ${eur(balance())}.</p>
+  <div class="row2"><div class="field"><label for="c-risk">Risk per trade, %</label><input id="c-risk" type="number" step="0.1" min="0.1" value="${CALC.risk}"></div><div class="field"><label for="c-stop">Stop distance, %</label><input id="c-stop" type="number" step="0.1" min="0.1" value="${CALC.stop}"></div></div>
+  <div id="c-out">${calcBody().html}</div><p class="fine">${RISKP ? `Risk prefilled from your ${RISKP.n.toLowerCase()} profile.` : 'Tip: complete the risk profile to prefill your risk per trade.'}</p>
+  <div class="modal-actions"><button class="btn" data-act="x">Cancel</button><button class="btn primary" data-act="calcApply">Apply to order</button></div>`);
+}
+let RQ = { i: 0, a: [] };
+function rqBody() {
+  if (RQ.i >= RQS.length) {
+    const s = RQ.a.reduce((x, y) => x + y + 1, 0), p = PROFILES[s <= 7 ? 0 : s <= 11 ? 1 : 2];
+    return `<div class="result"><span class="pill">Your risk profile</span><div class="big">${p.n}</div><p class="muted">${p.d}</p></div>
+    <div class="risk" style="margin-top:16px"><div><span>Risk per trade</span><b>${p.risk}%</b></div><div><span>Default stop-loss</span><b>${p.sl}%</b></div><div><span>Max open positions</span><b>${p.maxPos}</b></div></div>
+    <div class="modal-actions"><button class="btn" data-act="rqBack">Back</button><button class="btn primary" data-act="rqApply" data-v="${PROFILES.indexOf(p)}">Apply to simulator</button></div>`;
+  }
+  const [q, o] = RQS[RQ.i];
+  return `<span class="muted" style="font-size:12px">Question ${RQ.i + 1} of ${RQS.length}</span><div class="steps">${RQS.map((_, i) => `<i class="${i <= RQ.i ? 'on' : ''}"></i>`).join('')}</div><h2 id="rq-t">${q}</h2>
+  <div class="opts" role="radiogroup" aria-labelledby="rq-t" style="margin-top:14px">${o.split('|').map((t, i) => `<button role="radio" aria-checked="${RQ.a[RQ.i] === i}" data-act="rqPick" data-v="${i}"><span class="rd"></span>${t}</button>`).join('')}</div>
+  <div class="modal-actions"><button class="btn" data-act="${RQ.i ? 'rqBack' : 'x'}">${RQ.i ? 'Back' : 'Cancel'}</button><button class="btn primary" data-act="rqNext" ${RQ.a[RQ.i] == null ? 'disabled' : ''}>${RQ.i === RQS.length - 1 ? 'See my profile' : 'Next'}</button></div>`;
+}
+const rqDraw = () => { const m = $('#scrim .modal'); if (m) m.innerHTML = rqBody(); else modal(rqBody()); };
+function helpModal(tab = 'faq') {
+  const faq = [['Is any real money involved?', 'No. TradingLearn is a paper-trading simulator. Your €10,000 balance is virtual and nothing is ever sent to an exchange.'], ['Where do prices come from?', 'The simulator replays a realistic market feed for six crypto pairs, updated every 1.5 seconds.'], ['How is XP calculated?', `Each lesson gives ${XPL} XP, a perfect quiz ${XPP} XP more and every badge ${XPB} XP. Every ${PER} XP is a new level.`], ['How do I keep my streak?', 'Complete at least one lesson per calendar day. Missing a day resets the streak to zero.'], ['Can I cancel Pro?', 'Yes, at any time from Plans and billing. You keep Pro until the end of the period you paid for.']];
+  modal(`<h2>Help and support</h2><p>Guides, shortcuts and a direct line to the TradingLearn team.</p><div class="seg full" style="--n:3;margin-bottom:14px" role="tablist">${[['faq', 'FAQ'], ['keys', 'Shortcuts'], ['contact', 'Contact us']].map(([k, t]) => `<button role="tab" aria-selected="${tab === k}" aria-pressed="${tab === k}" data-act="helpTab" data-v="${k}">${t}</button>`).join('')}</div>
+  ${tab === 'faq' ? `<div class="faq">${faq.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>` : tab === 'keys' ? `<div class="keys">${[['/', 'Focus search'], ['?', 'Open shortcuts'], ['Esc', 'Close dialog, drawer or menu'], ['← →', 'Move the chart crosshair'], ['B / S', 'Buy or sell side on Practice']].map(([k, d]) => `<div><span>${d}</span><span>${k.split(' ').map((x) => `<kbd>${x}</kbd>`).join(' ')}</span></div>`).join('')}</div>`
+    : `<form id="contact" novalidate><div class="field"><label for="h-topic">Topic</label><select id="h-topic"><option value="">Choose a topic</option><option>Courses and lessons</option><option>Simulator and orders</option><option>Billing and plans</option><option>Something else</option></select></div><div class="field"><label for="h-msg">Message</label><textarea id="h-msg" maxlength="1000" placeholder="Tell us what happened and what you expected."></textarea></div><div id="h-err"></div><p class="fine">We reply to ${esc(ME.email)}, usually within one working day.</p><div class="modal-actions"><button type="button" class="btn" data-act="x">Close</button><button class="btn primary" type="submit">Send message</button></div></form>`}
+  ${tab !== 'contact' ? '<div class="modal-actions"><button class="btn" data-act="x">Close</button></div>' : ''}`);
+}
+function paywall(why) {
+  modal(`<span class="pill" style="background:var(--accent-bg);color:var(--accent)">${ic('zap')}TradingLearn Pro</span><h2 style="margin-top:12px">Unlock every course and review tool</h2><p>${why || 'Go further with the psychology and strategy tracks.'}</p>
+  <ul class="feat">${['Trading psychology and Building a strategy (10 more lessons)', 'Weekly performance review in your journal', 'Certificates for completed courses', 'Priority support from the coaching team'].map((f) => `<li>${ic('check')}${f}</li>`).join('')}</ul>
+  <div class="choice" role="radiogroup" aria-label="Billing period"><label><input type="radio" name="cyc" value="year" ${PLANCYCLE === 'year' ? 'checked' : ''}><span><b>Yearly</b><br><small>${eur(PRICE.year)} per year · ${eur(PRICE.year / 12)} per month</small></span><span class="pill pos">Save 36%</span></label><label><input type="radio" name="cyc" value="month" ${PLANCYCLE === 'month' ? 'checked' : ''}><span><b>Monthly</b><br><small>${eur(PRICE.month)} per month</small></span></label></div>
+  <div class="modal-actions"><button class="btn" data-act="x">Not now</button><button class="btn primary" data-act="trial">Start 7-day free trial</button></div><p class="fine">Demo: no payment is taken and no card details are collected. Cancel any time.</p>`);
+}
+
+/* ── courses ─────────────────────────────────────────── */
+let gid = 0;
+function cover(c) { const r = mul(c.hue * 13 + 7), id = 'cg' + (++gid); let b = '', y = 60;
+  for (let i = 0; i < 15; i++) { y = clamp(y + (r() - .52) * 18, 22, 88); const hh = 8 + r() * 22, up = r() > .42; b += `<line x1="${18 + i * 20 + 4.5}" x2="${18 + i * 20 + 4.5}" y1="${y - hh / 2 - 6}" y2="${y + hh / 2 + 6}" stroke="rgba(255,255,255,.35)"/><rect x="${18 + i * 20}" y="${y - hh / 2}" width="9" height="${hh}" rx="1.5" fill="rgba(255,255,255,${up ? .7 : .3})"/>`; }
+  return `<svg viewBox="0 0 320 112" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${c.hue} 50% 20%)"/><stop offset="1" stop-color="hsl(${c.hue + 35} 62% 40%)"/></linearGradient></defs><rect width="320" height="112" fill="url(#${id})"/>${b}</svg>`; }
+const cStat = (c) => { const ls = cLes(c.id), d = ls.filter((l) => l.done).length; return { ls, d, n: ls.length, min: ls.reduce((a, l) => a + l.min, 0) }; };
 function learn() {
-  const body = [1, 2, 3].map((c) => { const ls = LES.filter((l) => l.c === c), d = ls.filter((l) => l.done).length, lk = locked(c);
-    return `<section class="course"><div class="course-h"><span class="ch"><span class="cover">${coverImg(c)}</span><h3>${c}. ${COURSES[c]}</h3></span><span class="muted">${lk ? 'Unlocks after course ' + (c - 1) : `${d} of ${ls.length}`}</span></div><div class="bar" style="margin-bottom:8px"><i style="width:${d / ls.length * 100}%"></i></div>
-    ${ls.map((l) => `<div class="lesson ${l.done ? 'done' : ''} ${lk ? 'lock' : ''}"><span class="dot">${l.done ? ic('check') : ''}</span><div><b>${l.t}</b><small>${l.task ? 'Chart practice' : 'Question · 1 min'}</small></div>${l.done ? '<span class="pill pos">+' + XP + ' XP</span>' : lk ? ic('lock') : l.task ? '<button class="btn sm primary" data-act="goPractice">Try it</button>' : `<button class="btn sm primary" data-act="quiz" data-id="${l.id}">Start</button>`}</div>`).join('')}</section>`; }).join('');
-  return head('Courses', `${LES.filter((l) => l.done).length} of ${LES.length} lessons. Every ${PER} XP unlocks a new level.`) + `<section class="card">${body}</section>`;
+  const counts = { all: CRS.length, progress: 0, done: 0, new: 0 }; CRS.forEach((c) => { const s = cStat(c); if (s.d === s.n) counts.done++; else if (s.d) counts.progress++; else counts.new++; });
+  const list = CRS.filter((c) => { const s = cStat(c); const st = s.d === s.n ? 'done' : s.d ? 'progress' : 'new'; return (CF.f === 'all' || CF.f === st) && (!CF.q || (c.t + ' ' + c.d + ' ' + s.ls.map((l) => l.t).join(' ')).toLowerCase().includes(CF.q.toLowerCase())); });
+  return head('Courses', `${lessonsDone()} of ${LES.length} lessons complete · ${fmt(xp())} XP · level ${level()}`, `<button class="btn" data-act="riskq">${ic('shield')}${RISKP ? 'Retake risk profile' : 'Risk profile'}</button>`) +
+    `<div class="tools"><div class="seg" role="group" aria-label="Filter courses">${[['all', 'All'], ['progress', 'In progress'], ['done', 'Completed'], ['new', 'Not started']].map(([k, t]) => `<button data-act="cf" data-v="${k}" aria-pressed="${CF.f === k}">${t} <span class="muted">${counts[k]}</span></button>`).join('')}</div>
+    <label class="search"><span class="sr">Search courses and lessons</span>${ic('search')}<input data-search id="cq" value="${esc(CF.q)}" placeholder="Search courses and lessons"><kbd>/</kbd></label></div>` +
+    (list.length ? `<div class="cgrid">${list.map((c) => { const s = cStat(c), lk = c.pro && !isPro(), nx = s.ls.find((l) => !l.done);
+      return `<article class="card ccard"><div class="ccov">${cover(c)}<span class="ctag">${c.lvl}</span>${c.pro ? `<span class="ctag pro">${lk ? ic('lock') : ''}Pro</span>` : ''}</div><div class="cbody"><h3>${c.t}</h3><p>${c.d}</p><div class="cmeta">${pl(s.n, 'lesson')} · ${s.min} min · ${pl(s.ls.filter((l) => l.q).length, 'quiz', 'quizzes')}</div>
+      <div class="bar" role="progressbar" aria-label="${c.t} progress" aria-valuenow="${s.d}" aria-valuemin="0" aria-valuemax="${s.n}"><i style="width:${s.d / s.n * 100}%"></i></div>
+      <div class="crow"><span class="muted">${s.d === s.n ? 'Completed' : s.d ? `${s.d} of ${s.n} done` : 'Not started'}</span>${lk ? `<button class="btn sm" data-act="paywall" data-v="${c.t}">${ic('lock')}Unlock</button>` : `<button class="btn sm ${s.d === s.n ? '' : 'primary'}" data-act="course" data-id="${c.id}">${s.d === s.n ? 'Review' : s.d ? 'Continue' : 'Start'}</button>`}</div></div></article>`; }).join('')}</div>`
+      : `<section class="card"><p class="empty">No courses match “${esc(CF.q)}”. <button class="lnk" data-act="cfClear">Clear filters</button></p></section>`);
+}
+function lessonRow(l, i) {
+  const lk = lesLocked(l), pk = proLocked(l), meta = l.task ? 'Practice task · ' + l.min + ' min' : `Video and quiz · ${l.min} min${l.score ? ' · quiz ' + l.score[0] + '/' + l.score[1] : ''}`;
+  return `<div class="lesson ${lk || pk ? 'lock' : ''}"><span class="dotx ${l.done ? 'done' : (!lk && !pk ? 'cur' : '')}">${l.done ? ic('check') : i + 1}</span><div><b>${l.t}</b><small>${meta}</small></div>
+  ${l.done ? `<button class="btn sm" data-act="lesson" data-id="${l.id}">Review</button>` : pk ? `<button class="btn sm" data-act="paywall" data-v="${crs(l.c).t}">${ic('lock')}Pro</button>` : lk ? `<span class="muted" style="font-size:12px">${ic('lock')}</span>` : `<button class="btn sm primary" data-act="lesson" data-id="${l.id}">Start</button>`}</div>`;
+}
+function coursePage() {
+  const c = crs(CID), s = cStat(c), nx = s.ls.find((l) => !l.done && !lesLocked(l));
+  return `<nav class="crumbs" aria-label="Breadcrumb"><button data-act="toLearn">Courses</button><span>/</span><span>${c.t}</span></nav>` +
+    `<section class="card" style="margin-bottom:var(--gap)"><div class="chead"><div class="ccov">${cover(c)}</div><div style="flex:1;min-width:220px"><span class="pill">${c.lvl}${c.pro ? ' · Pro' : ''}</span><h1 style="font-size:22px;margin:8px 0 4px;letter-spacing:-.02em">${c.t}</h1><p class="muted">${c.d}</p><div class="cmeta" style="margin-top:6px">${pl(s.n, 'lesson')} · ${s.min} min · ${s.d} of ${s.n} complete</div></div>
+    ${c.pro && !isPro() ? `<button class="btn primary" data-act="paywall" data-v="${c.t}">${ic('lock')}Unlock with Pro</button>` : nx ? `<button class="btn primary" data-act="lesson" data-id="${nx.id}">${s.d ? 'Continue' : 'Start course'}</button>` : `<span class="pill pos">${ic('check')}Completed</span>`}</div>
+    <div class="bar" style="margin-top:16px"><i style="width:${s.d / s.n * 100}%"></i></div></section><section class="card"><div class="card-h"><h2>Lessons</h2><span>${pl(s.d * XPL, 'XP', 'XP')} earned of ${fmt(s.n * XPL)}</span></div>${s.ls.map(lessonRow).join('')}</section>`;
+}
+const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+function videoSVG(l) {
+  const r = mul(l.id * 101), c = crs(l.c); let p = '', y = 230;
+  for (let i = 0; i < 26; i++) { y = clamp(y + (r() - .55) * 28, 90, 290); const x = 40 + i * 22, hh = 10 + r() * 30; p += `<rect x="${x}" y="${y - hh / 2}" width="12" height="${hh}" rx="2" fill="${r() > .45 ? 'rgba(37,209,149,.55)' : 'rgba(255,107,120,.5)'}"/>`; }
+  return `<svg viewBox="0 0 640 360" aria-hidden="true"><defs><linearGradient id="vg${l.id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${c.hue} 45% 12%)"/><stop offset="1" stop-color="hsl(${c.hue + 30} 50% 22%)"/></linearGradient></defs><rect width="640" height="360" fill="url(#vg${l.id})"/>
+  ${[90, 150, 210, 270].map((v) => `<line x1="0" x2="640" y1="${v}" y2="${v}" stroke="rgba(255,255,255,.06)"/>`).join('')}${p}<text x="28" y="44" style="font:600 13px var(--font);fill:rgba(255,255,255,.7)">${esc(c.t.toUpperCase())} · LESSON ${cLes(l.c).indexOf(l) + 1}</text><text x="28" y="72" style="font:600 22px var(--font);fill:#fff">${esc(l.t)}</text></svg>`;
+}
+function lessonPage() {
+  const l = LES.find((x) => x.id === LID), c = crs(l.c), ls = cLes(l.c), i = ls.indexOf(l), nx = ls[i + 1], total = l.min * 60 - 17;
+  if (VID.id !== l.id) VID = { id: l.id, pos: l.watched ? total : 0, playing: false };
+  const media = l.task ? `<section class="card"><div class="card-h"><h2>Practice task</h2>${l.done ? `<span class="pill pos">${ic('check')}Done</span>` : '<span class="pill warn">To do</span>'}</div><p style="margin-bottom:14px"><b>${l.taskT}.</b> It completes automatically when you do it in the ${l.task === 'journal' ? 'trade journal' : 'simulator'}.</p><button class="btn primary" data-act="taskGo" data-id="${l.id}">${l.task === 'journal' ? 'Open journal' : 'Open simulator'}</button></section>`
+    : `<section class="card"><div class="video">${videoSVG(l)}<button class="vplay ${VID.playing ? 'on' : ''}" data-act="play" aria-label="${VID.playing ? 'Pause' : 'Play'} video"><i>${ic(VID.playing ? 'pause' : 'play')}</i></button></div>
+      <div class="vbar"><span id="v-t">${mmss(VID.pos)}</span><div class="bar"><i id="v-bar" style="width:${VID.pos / total * 100}%"></i></div><span>${mmss(total)}</span><span class="pill">Subtitles: English</span></div></section>`;
+  return `<nav class="crumbs" aria-label="Breadcrumb"><button data-act="toLearn">Courses</button><span>/</span><button data-act="course" data-id="${c.id}">${c.t}</button><span>/</span><span>Lesson ${i + 1}</span></nav>` +
+    head(l.t, `${c.t} · lesson ${i + 1} of ${ls.length} · ${l.min} min · +${XPL} XP`, l.done ? `<span class="pill pos">${ic('check')}Completed ${ago(l.at)}</span>` : '') +
+    `<div class="reader"><div class="tcol">${media}
+    <section class="card"><div class="card-h"><h2>Key points</h2></div><ul class="pts">${l.pts.map((p) => `<li>${ic('check')}<span>${p}</span></li>`).join('')}</ul></section>
+    ${l.q ? `<section class="card" id="quiz">${quizHTML(l)}</section>` : ''}
+    <section class="card"><div class="card-h"><h2>My notes</h2><span id="n-cnt" class="cnt">${l.note.length} / 1,000</span></div><label class="sr" for="l-note">Notes for this lesson</label><textarea class="note" id="l-note" maxlength="1000" placeholder="Write down what you want to remember. Notes stay with this lesson.">${esc(l.note)}</textarea><div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn" data-act="saveNote">Save notes</button></div></section></div>
+    <aside class="card outline"><div class="card-h"><h2>Course outline</h2><span>${cStat(c).d} of ${ls.length}</span></div>${ls.map((x, k) => `<a data-act="lesson" data-id="${x.id}" tabindex="0" class="${x === l ? 'on' : ''} ${lesLocked(x) ? 'lock' : ''}"><span class="dotx ${x.done ? 'done' : x === l ? 'cur' : ''}">${x.done ? ic('check') : k + 1}</span><span>${x.t}</span></a>`).join('')}
+    ${nx ? `<button class="btn" style="width:100%;margin-top:12px" data-act="lesson" data-id="${nx.id}" ${l.done ? '' : 'disabled'}>Next: ${nx.t}</button>${l.done ? '' : '<p class="fine">Finish this lesson to unlock the next one.</p>'}` : `<button class="btn" style="width:100%;margin-top:12px" data-act="toLearn">Back to courses</button>`}</aside></div>`;
+}
+function quizHTML(l) {
+  if (!QZ || QZ.lid !== l.id) QZ = { lid: l.id, i: 0, pick: null, checked: false, right: 0, review: l.done };
+  if (QZ.review) return `<div class="card-h"><h2>Quiz</h2><span class="pill pos">${ic('check')}Passed · ${l.score[0]} of ${l.score[1]}</span></div><p class="muted" style="margin-bottom:12px">${l.score[0] === l.score[1] ? 'Perfect score. ' : ''}You can retake the quiz at any time; your best result counts.</p><button class="btn" data-act="qRetake">Retake quiz</button>`;
+  const n = l.q.length;
+  if (QZ.i >= n) { const pass = QZ.right / n >= .5;
+    return `<div class="card-h"><h2>Quiz result</h2><span>${QZ.right} of ${n} correct</span></div><div class="result"><div class="big ${pass ? 'pos' : 'neg'}">${Math.round(QZ.right / n * 100)}%</div><p class="muted">${pass ? (QZ.right === n ? `Perfect. +${XPL + XPP} XP.` : `Passed. +${XPL} XP.`) : 'Not quite. Review the key points and try again.'}</p></div><div class="modal-actions">${pass ? '' : '<button class="btn primary" data-act="qRetake">Try again</button>'}</div>`; }
+  const q = l.q[QZ.i];
+  return `<div class="card-h"><h2>Quiz</h2><span>Question ${QZ.i + 1} of ${n}</span></div><p style="margin-bottom:12px;font-weight:500" id="qq">${q.q}</p>
+  <div class="opts" role="radiogroup" aria-labelledby="qq">${q.o.map((o, k) => `<button role="radio" aria-checked="${QZ.pick === k}" data-act="qPick" data-v="${k}" ${QZ.checked ? 'disabled' : ''} class="${QZ.checked ? (k === q.a ? 'ok' : k === QZ.pick ? 'bad' : '') : ''}"><span class="rd"></span>${o}</button>`).join('')}</div>
+  ${QZ.checked ? `<div class="expl" role="status"><b class="${QZ.pick === q.a ? 'pos' : 'neg'}">${QZ.pick === q.a ? 'Correct.' : 'Not quite.'}</b> ${q.e}</div>` : ''}
+  <div class="modal-actions">${QZ.checked ? `<button class="btn primary" data-act="qNext">${QZ.i === n - 1 ? 'See result' : 'Next question'}</button>` : `<button class="btn primary" data-act="qCheck" ${QZ.pick == null ? 'disabled' : ''}>Check answer</button>`}</div>`;
+}
+setInterval(() => {
+  if (!VID.playing || page !== 'learn' || !LID) return;
+  const l = LES.find((x) => x.id === LID), total = l.min * 60 - 17; VID.pos = Math.min(total, VID.pos + 4);
+  const b = $('#v-bar'), t = $('#v-t'); if (b) b.style.width = VID.pos / total * 100 + '%'; if (t) t.textContent = mmss(VID.pos);
+  if (VID.pos >= total) { VID.playing = false; l.watched = 1; render(); }
+}, 250);
+
+/* ── journal ─────────────────────────────────────────── */
+const symSums = (ts) => { const s = {}; ts.forEach((t) => { s[t.sym] = (s[t.sym] || 0) + pnlOf(t); }); return s; };
+const equityCurve = () => { let b = START; return [{ t: Math.min(NOW - 47 * D, ...J.map((x) => x.opened)), v: b }, ...[...J].sort((a, x) => a.closed - x.closed).map((t) => ({ t: t.closed, v: b += pnlOf(t) }))]; };
+function curveSVG(w) {
+  const pts = equityCurve(), h = 220, L = 58, R = 12, Tp = 12, B = 26, pw = w - L - R, ph = h - Tp - B;
+  if (pts.length < 2) return `<svg viewBox="0 0 ${w} ${h}" height="${h}"><text x="${w / 2}" y="${h / 2}" text-anchor="middle" style="fill:var(--muted)">Close a trade to start your equity curve</text></svg>`;
+  const t0 = pts[0].t, t1 = Math.max(pts[pts.length - 1].t, t0 + 1); let mn = Math.min(...pts.map((p) => p.v), START), mx = Math.max(...pts.map((p) => p.v), START); const pad = (mx - mn) * .1 || 50; mn -= pad; mx += pad;
+  const X = (t) => L + (t - t0) / (t1 - t0) * pw, Y = (v) => Tp + ph - (v - mn) / (mx - mn) * ph;
+  let g = ''; for (let i = 0; i <= 3; i++) { const v = mn + (mx - mn) * i / 3; g += `<line class="grid-l" x1="${L}" x2="${w - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${eur(v, 0)}</text>`; }
+  for (let i = 0; i <= 4; i++) { const t = t0 + (t1 - t0) * i / 4; g += `<text x="${clamp(X(t), L + 16, w - R - 22)}" y="${h - 6}" text-anchor="middle">${DF.format(t)}</text>`; }
+  const d = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.t).toFixed(1)},${Y(p.v).toFixed(1)}`).join(''), last = pts[pts.length - 1];
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" height="${h}" role="img" aria-label="Equity curve from ${eur(START, 0)} to ${eur(last.v)}"><defs><linearGradient id="eqg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".28"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>${g}
+  <line x1="${L}" x2="${w - R}" y1="${Y(START)}" y2="${Y(START)}" stroke="var(--faint)" stroke-dasharray="3 4"/><path d="${d}L${X(last.t)},${Tp + ph}L${L},${Tp + ph}Z" fill="url(#eqg)"/><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/><circle cx="${X(last.t)}" cy="${Y(last.v)}" r="3.5" fill="var(--accent)"/></svg>`;
+}
+function jRows() {
+  const q = JF.q.trim().toLowerCase();
+  const rows = J.filter((t) => (JF.sym === 'all' || t.sym === JF.sym) && (JF.side === 'all' || t.dir === JF.side) && (JF.res === 'all' || (JF.res === 'win') === (pnlOf(t) > 0)) && (JF.tag === 'all' || t.tags.includes(JF.tag)) &&
+    (!q || `t-${t.id} ${t.sym} ${t.dir} ${t.how} ${t.tags.join(' ')} ${t.note}`.toLowerCase().includes(q)));
+  const key = { closed: (t) => t.closed, sym: (t) => t.sym, size: (t) => t.size, pnl: pnlOf, ret: (t) => pnlOf(t) / t.size }[JF.sort];
+  return rows.sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * JF.dir);
+}
+const PERP = 12;
+function journal() {
+  const res = J.map(pnlOf), w = res.filter((r) => r > 0), lo = res.filter((r) => r < 0), gw = w.reduce((a, b) => a + b, 0), gl = -lo.reduce((a, b) => a + b, 0);
+  const sums = symSums(J), mxs = Math.max(1, ...Object.values(sums).map(Math.abs));
+  const bySym = Object.keys(sums).length ? Object.entries(sums).sort((a, b) => b[1] - a[1]).map(([k, v]) => barRow(k, Math.abs(v) / mxs * 100, `<span class="${cl(v)}">${eurS(v)}</span>`, pl(J.filter((t) => t.sym === k).length, 'trade'))).join('') : '<p class="empty">No closed trades yet.</p>';
+  const rows = jRows(), pages = Math.max(1, Math.ceil(rows.length / PERP)); JF.pg = clamp(JF.pg, 1, pages);
+  const shown = rows.slice((JF.pg - 1) * PERP, JF.pg * PERP), net = rows.reduce((a, t) => a + pnlOf(t), 0);
+  const sh = (k, t, r) => `<span class="${r ? 'r ' : ''}${k === 'size' || k === 'ret' ? 'hm' : ''}"><button data-act="jsort" data-v="${k}" class="${JF.sort === k ? 'on' : ''}" aria-sort="${JF.sort === k ? (JF.dir > 0 ? 'ascending' : 'descending') : 'none'}">${t}${JF.sort === k ? ic(JF.dir > 0 ? 'up' : 'down') : ''}</button></span>`;
+  const cols = '--cols:1.25fr .9fr .8fr 1fr 1fr 1.1fr .9fr;--colsm:1fr auto';
+  const opt = (v, cur, label) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${label}</option>`;
+  return head('Trade journal', `${pl(J.length, 'closed trade')} · balance ${eur(balance())} = ${eur(START, 0)} ${realized() >= 0 ? '+' : MINUS} ${eur(Math.abs(realized()))}`, `<button class="btn" data-act="csv">${ic('dl')}Export CSV</button>`) +
+    `<div class="kpis k5"><div class="kpi"><b class="${cl(realized())}">${eurS(realized())}</b><span>Net P&amp;L</span></div><div class="kpi"><b>${fmtD(winRate(), 0)}<small>%</small></b><span>Win rate · ${w.length} of ${J.length}</span></div><div class="kpi"><b>${gl ? fmtD(gw / gl, 2) : '—'}</b><span>Profit factor</span></div><div class="kpi"><b class="pos">${eurS(gw / (w.length || 1))}</b><span>Average win</span></div><div class="kpi"><b class="neg">${eurS(-gl / (lo.length || 1))}</b><span>Average loss</span></div></div>
+    <div class="grid" style="margin-bottom:var(--gap)"><section class="card c8"><div class="card-h"><h2>Equity curve</h2><span>Closed trades only · from ${eur(START, 0)}</span></div><div id="curve"></div></section><section class="card c4"><div class="card-h"><h2>P&amp;L by symbol</h2><span>All time</span></div>${bySym}</section></div>
+    <section class="card"><div class="card-h"><h2>Trades</h2><span>${pl(noted(), 'note')} written</span></div>
+    <div class="tools"><label class="search"><span class="sr">Search trades</span>${ic('search')}<input data-search id="jq" value="${esc(JF.q)}" placeholder="Search by symbol, tag, note or ID"><kbd>/</kbd></label>
+    <select class="sel" id="jsym" aria-label="Symbol">${opt('all', JF.sym, 'All symbols')}${Object.keys(SYM).map((k) => opt(k, JF.sym, k)).join('')}</select>
+    <select class="sel" id="jside" aria-label="Side">${opt('all', JF.side, 'Long and short')}${opt('long', JF.side, 'Long only')}${opt('short', JF.side, 'Short only')}</select>
+    <select class="sel" id="jres" aria-label="Result">${opt('all', JF.res, 'Wins and losses')}${opt('win', JF.res, 'Wins')}${opt('loss', JF.res, 'Losses')}</select>
+    <select class="sel" id="jtag" aria-label="Tag">${opt('all', JF.tag, 'Any tag')}${TAGS.map((t) => opt(t, JF.tag, t)).join('')}</select></div>
+    ${rows.length ? `<div class="tbl" role="table"><div class="tr th" style="${cols}">${sh('sym', 'Trade')}${sh('closed', 'Closed')}${sh('size', 'Size', 1)}<span class="hm r">Entry → exit</span><span class="hm">Tags</span>${sh('pnl', 'Result', 1)}${sh('ret', 'Return', 1)}</div>
+    ${shown.map((t) => { const r = pnlOf(t); return `<div class="tr click" style="${cols}" data-act="trade" data-id="${t.id}" tabindex="0" role="button" aria-label="Trade T-${t.id}, ${t.sym} ${t.dir}, ${eurS(r)}"><div class="cell-main"><b>${t.sym} ${t.dir}${t.note ? ' ' + ic('note') : ''}</b><span>T-${t.id} · ${t.how === 'take' ? 'take-profit' : t.how === 'stop' ? 'stop-loss' : 'manual'}<span class="dm"> · ${ago(t.closed)}</span></span></div><span class="hm muted">${ago(t.closed)}</span><span class="hm r">${eur(t.size, 0)}</span><span class="hm r" style="font-size:12.5px">${pxn(t.entry)} → ${pxn(t.exit)}</span><span class="hm"><span class="tags">${t.tags.slice(0, 2).map((x) => `<span class="pill">${x}</span>`).join('')}${t.tags.length > 2 ? `<span class="pill">+${t.tags.length - 2}</span>` : ''}</span></span><b class="r ${cl(r)}">${eurS(r)}</b><span class="hm r ${cl(r)}">${pc(r / t.size * 100)}</span></div>`; }).join('')}</div>
+    <div class="pager"><span>Showing ${(JF.pg - 1) * PERP + 1}–${(JF.pg - 1) * PERP + shown.length} of ${rows.length} · net ${eurS(net)}</span><div><button class="btn sm" data-act="jpg" data-v="-1" ${JF.pg <= 1 ? 'disabled' : ''} aria-label="Previous page">${ic('back')}</button><span style="align-self:center">Page ${JF.pg} of ${pages}</span><button class="btn sm" data-act="jpg" data-v="1" ${JF.pg >= pages ? 'disabled' : ''} aria-label="Next page">${ic('arrow')}</button></div></div>`
+    : J.length ? `<p class="empty">No trades match these filters. <button class="lnk" data-act="jclear">Clear filters</button></p>` : `<p class="empty">Your journal is empty. Close a trade on the Practice screen and it appears here.</p>`}</section>`;
+}
+function tradeDrawer(t) {
+  const r = pnlOf(t);
+  return `<div class="drawer-h"><div><h2>${t.sym} ${t.dir} · T-${t.id}</h2><p>Closed ${DTF.format(t.closed)} · ${t.type} order</p></div><button class="ibtn" data-act="dclose" aria-label="Close details">${ic('x')}</button></div>
+  <div class="drawer-b"><div class="big ${cl(r)}">${eurS(r)}<small>${pc(r / t.size * 100)}</small></div>
+  <dl class="facts"><div><dt>Size</dt><dd>${eur(t.size)}</dd></div><div><dt>Quantity</dt><dd>${fmtD(t.size / t.entry, 4)} ${t.sym}</dd></div><div><dt>Entry</dt><dd>${px(t.entry)}</dd></div><div><dt>Exit</dt><dd>${px(t.exit)}</dd></div><div><dt>Opened</dt><dd>${DTF.format(t.opened)}</dd></div><div><dt>Held</dt><dd>${dur(t.closed - t.opened)}</dd></div><div><dt>Closed by</dt><dd><span class="pill ${t.how === 'stop' ? 'neg' : t.how === 'take' ? 'pos' : ''}">${t.how === 'take' ? 'Take-profit' : t.how === 'stop' ? 'Stop-loss' : 'Manual'}</span></dd></div><div><dt>Share of balance</dt><dd>${fmtD(t.size / balance() * 100)}%</dd></div></dl>
+  <div class="sec-t" id="tg-l">Tags</div><div class="tags" role="group" aria-labelledby="tg-l" style="gap:6px">${TAGS.map((x) => `<button class="tagc" data-act="dtag" data-v="${x}" aria-pressed="${DRAW.tags.includes(x)}">${x}</button>`).join('')}</div>
+  <div class="field" style="margin-top:18px"><label for="d-note">Notes</label><textarea id="d-note" maxlength="600" placeholder="Why did you enter? What would you do differently?" style="height:120px">${esc(DRAW.note)}</textarea><span class="cnt" id="d-cnt">${DRAW.note.length} / 500</span></div></div>
+  <div class="drawer-f"><button class="btn" data-act="dclose">Cancel</button><button class="btn primary" data-act="dsave">Save entry</button></div>`;
+}
+function openDrawer(html) {
+  closeDrawer(true); lastFocus = document.activeElement;
+  const s = document.createElement('div'); s.className = 'dscrim'; s.id = 'dscrim'; s.addEventListener('mousedown', () => closeDrawer());
+  const d = document.createElement('aside'); d.className = 'drawer'; d.id = 'drawer'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.innerHTML = html;
+  document.body.append(s, d); const b = $('[data-act=dclose]', d); if (b) b.focus();
+}
+function closeDrawer(silent) { const a = $('#drawer'), s = $('#dscrim'); if (a) a.remove(); if (s) s.remove(); DRAW = null; if (!silent && lastFocus && document.contains(lastFocus)) lastFocus.focus(); }
+function csv() {
+  const rows = jRows(), q = (v) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : v, iso = (t) => new Date(t).toISOString().slice(0, 16).replace('T', ' ');
+  const out = [['id', 'opened_utc', 'closed_utc', 'symbol', 'side', 'order_type', 'size_eur', 'entry_usd', 'exit_usd', 'pnl_eur', 'return_pct', 'closed_by', 'tags', 'note'].join(',')].concat(rows.map((t) => [
+    'T-' + t.id, iso(t.opened), iso(t.closed), t.sym + '/USDT', t.dir, t.type, t.size.toFixed(2), t.entry.toFixed(dec(t.entry)), t.exit.toFixed(dec(t.exit)), pnlOf(t).toFixed(2), (pnlOf(t) / t.size * 100).toFixed(2), t.how, t.tags.join('; '), t.note].map(q).join(','))).join('\n');
+  const url = URL.createObjectURL(new Blob(['﻿' + out], { type: 'text/csv;charset=utf-8' })), a = document.createElement('a');
+  a.href = url; a.download = `tradinglearn-journal-${new Date().toISOString().slice(0, 10)}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+  say(`Exported ${pl(rows.length, 'trade')} to CSV`);
 }
 
-/* ── journal ──────────────────────────────────────────── */
-function journal() {
-  const ts = [...J].sort((a, b) => a.ago - b.ago), res = ts.map(pnlOf), wins = res.filter((r) => r > 0), loss = res.filter((r) => r < 0);
-  const sums = {}; J.forEach((t) => { sums[t.sym] = (sums[t.sym] || 0) + pnlOf(t); }); const mxs = Math.max(...Object.values(sums).map(Math.abs));
-  const bySym = Object.entries(sums).sort((a, b) => b[1] - a[1]).map(([k, v]) => barRow(k, Math.abs(v) / mxs * 100, `<span class="${v >= 0 ? 'pos' : 'neg'}">${pnlF(v)}</span>`, (n => n + ' ' + (n === 1 ? 'trade' : 'trades'))(J.filter((t) => t.sym === k).length))).join('');
-  const rows = ts.map((t) => { const r = pnlOf(t); return `<div class="tr" style="--cols:1fr .8fr 1fr 1fr 1fr .8fr;--colsm:1fr auto"><div class="cell-main"><b>${t.sym} ${t.dir === 'long' ? 'long' : 'short'}</b><span>${t.ago === 0 ? 'just now' : t.ago < 24 ? t.ago + ' h ago' : Math.round(t.ago / 24) + ' d ago'}<span class="dm"> · ${t.how}</span></span></div><span class="hm r">${usd(t.size, 0)}</span><span class="hm r">${px(t.entry)}</span><span class="hm r">${px(t.exit)}</span><span class="hm"><span class="pill ${t.how === 'stop' ? 'neg' : ''}">${t.how}</span></span><b class="r ${r >= 0 ? 'pos' : 'neg'}">${pnlF(r)}</b></div>`; }).join('');
-  return head('Trade journal', `${J.length} closed trades. Balance ${usd(balance())} = ${usd(START, 0)} ${realized() >= 0 ? '+' : '−'} ${usd(Math.abs(realized()))}`) +
-    `<div class="kpis"><div class="kpi"><b>${Math.round(wins.length / res.length * 100)}<small>%</small></b><span>Winning trades</span></div><div class="kpi"><b class="pos">${pnlF(wins.reduce((a, b) => a + b, 0) / (wins.length || 1))}</b><span>Average win</span></div><div class="kpi"><b class="neg">${pnlF(loss.reduce((a, b) => a + b, 0) / (loss.length || 1))}</b><span>Average loss</span></div><div class="kpi"><b class="${realized() >= 0 ? 'pos' : 'neg'}">${pnlF(realized())}</b><span>Total</span></div></div>
-    <div class="grid"><section class="card c4"><div class="card-h"><h2>Result by symbol</h2></div>${bySym}</section><section class="card c8"><div class="card-h"><h2>Trades</h2></div><div class="tbl"><div class="tr th" style="--cols:1fr .8fr 1fr 1fr 1fr .8fr;--colsm:1fr auto"><span>Trade</span><span class="hm r">Size</span><span class="hm r">Entry</span><span class="hm r">Exit</span><span class="hm">Closed by</span><span class="r">Result</span></div>${rows}</div></section></div>`
-;
+/* ── achievements ─────────────────────────────────────── */
+function awards() {
+  const list = BADGES.filter((b) => AF.f === 'all' || (AF.f === 'earned') === earned.has(b.id)), s = streak(), lv = level();
+  const heat = ACTV.map((m, i) => `<i class="${m ? (m > 30 ? 'l3' : m > 15 ? 'l2' : 'l1') : ''} ${i === 34 ? 'today' : ''}" title="${DF.format(NOW - (34 - i) * D)}: ${m ? m + ' min' : 'no activity'}"></i>`).join('');
+  return head('Achievements', `${earned.size} of ${BADGES.length} badges · level ${lv} · ${fmt(xp())} XP`) +
+    `<div class="grid" style="margin-bottom:var(--gap)"><section class="card c4"><div class="card-h"><h2>Level</h2><span>${fmt(PER - xp() % PER)} XP to level ${lv + 1}</span></div><div style="display:flex;gap:18px;align-items:center">${ringSVG(120, { value: xp() % PER / PER, label: String(lv), sub: 'level' })}<div class="risk" style="flex:1;margin:0"><div><span>Lessons</span><b>${fmt(lessonsDone() * XPL)}</b></div><div><span>Perfect quizzes</span><b>${fmt(perfect() * XPP)}</b></div><div><span>Badges</span><b>${fmt(earned.size * XPB)}</b></div><div><span>Total XP</span><b>${fmt(xp())}</b></div></div></div></section>
+    <section class="card c4"><div class="card-h"><h2>Learning streak</h2><span>Best ${pl(bestStreak(), 'day')}</span></div><div class="kpi" style="margin-bottom:12px"><b class="warn">${pl(s, 'day')}</b><span>${ACTV[34] ? 'Today counts. See you tomorrow.' : 'Finish a lesson today to keep it going.'}</span></div>${ACTV[34] ? '' : '<button class="btn sm primary" data-act="nextLesson">Continue learning</button>'}</section>
+    <section class="card c4"><div class="card-h"><h2>Last 5 weeks</h2><span>${ACTV.filter(Boolean).length} active days</span></div><div class="heat" role="img" aria-label="Activity over the last 35 days">${heat}</div><div class="heat-l">Less <i style="background:var(--raised)"></i><i class="l1" style="background:color-mix(in srgb,var(--accent) 35%,var(--raised))"></i><i style="background:color-mix(in srgb,var(--accent) 65%,var(--raised))"></i><i style="background:var(--accent)"></i> More</div></section></div>
+    <div class="tools"><div class="seg" role="group" aria-label="Filter badges">${[['all', 'All', BADGES.length], ['earned', 'Earned', earned.size], ['locked', 'Locked', BADGES.length - earned.size]].map(([k, t, n]) => `<button data-act="af" data-v="${k}" aria-pressed="${AF.f === k}">${t} <span class="muted">${n}</span></button>`).join('')}</div></div>
+    ${list.length ? `<div class="badges">${list.map((b) => { const [c, g] = b.prog(), on = earned.has(b.id), money = g >= 1000;
+      return `<div class="badge ${on ? '' : 'off'}"><span class="bi">${ic(on ? b.ic : 'lock')}</span><div><b>${b.t}</b><p>${b.d}</p>${on ? `<small>Earned ${ago(earned.get(b.id))} · +${XPB} XP</small>` : `<div class="bar"><i style="width:${clamp(c / g, 0, 1) * 100}%"></i></div><small>${money ? eur(Math.min(c, g), 0) + ' of ' + eur(g, 0) : fmt(Math.min(c, g)) + ' of ' + fmt(g)}</small>`}</div></div>`; }).join('')}</div>` : '<section class="card"><p class="empty">Every badge is unlocked. Impressive.</p></section>'}`;
 }
-/* ── rank ─────────────────────────────────────────────── */
+
+/* ── leaderboard ──────────────────────────────────────── */
 function rank() {
-  const me = ['You', Math.round(equity())], all = [...RIVALS, me].sort((a, b) => b[1] - a[1]), pos = all.findIndex((x) => x === me) + 1;
-  return head('Leaderboard', `You are ranked ${pos} of ${all.length} by equity this month`) + `<section class="card"><div class="tbl">${all.map((x, i) => `<div class="tr ${x === me ? 'me' : ''}" style="--cols:48px 1fr auto"><b>${i + 1}</b><span>${x === me ? '<b>You</b>' : esc(x[0])}</span><b class="r">${usd(x[1], 0)}</b></div>`).join('')}</div></section>`;
+  const per = LBS.per, mine = J.filter((t) => t.closed >= CUT[per]);
+  const me = { id: 'me', name: ME.name, cc: 'DE', trades: { [per]: mine.length }, wr: winRate(mine), ret: { [per]: myRet(per) }, mv: 2, me: true };
+  const all = [...LB, me].sort((a, b) => b.ret[per] - a.ret[per]); all.forEach((x, i) => { x.rk = i + 1; });
+  const q = LBS.q.trim().toLowerCase(), rows = q ? all.filter((x) => x.name.toLowerCase().includes(q) || x.cc.toLowerCase() === q) : all, per2 = 15, pages = Math.max(1, Math.ceil(rows.length / per2)); LBS.pg = clamp(LBS.pg, 1, pages);
+  const shown = rows.slice((LBS.pg - 1) * per2, LBS.pg * per2), cols = '--cols:52px minmax(0,1.6fr) .7fr .8fr 1fr;--colsm:40px minmax(0,1fr) auto', lbl = { week: 'this week', month: 'this month', all: 'all time' }[per];
+  const body = LBS.loading ? Array.from({ length: 8 }, () => `<div class="tr" style="${cols}"><span class="sk" style="width:20px"></span><span class="who2"><span class="ini"></span><span class="sk" style="width:60%"></span></span><span class="sk hm"></span><span class="sk hm"></span><span class="sk"></span></div>`).join('')
+    : shown.length ? shown.map((x) => `<div class="tr ${x.me ? 'me' : ''}" style="${cols}"><b>${x.rk}</b><span class="who2"><span class="ini">${esc(ini(x.name))}</span><div><b>${x.me ? 'You · ' + esc(x.name) : esc(x.name)}</b><small>${x.cc}${per === 'week' && x.mv ? ` · <span class="chg ${cl(x.mv)}">${ic(x.mv > 0 ? 'up' : 'down')}${Math.abs(x.mv)}</span>` : ''}</small></div></span><span class="hm r">${fmt(x.trades[per])}</span><span class="hm r">${fmtD(x.wr, 0)}%</span><b class="r ${cl(x.ret[per])}">${pc(x.ret[per], 1)}</b></div>`).join('')
+    : `<p class="empty">No traders match “${esc(LBS.q)}”.</p>`;
+  return head('Leaderboard', `You are ranked ${me.rk} of ${all.length} by return ${lbl}`, `<div class="seg" role="group" aria-label="Period">${[['week', 'Week'], ['month', 'Month'], ['all', 'All time']].map(([k, t]) => `<button data-act="lbper" data-v="${k}" aria-pressed="${per === k}">${t}</button>`).join('')}</div>`) +
+    `<div class="kpis k5" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))"><div class="kpi"><b>#${me.rk}</b><span>Your rank ${lbl}</span></div><div class="kpi"><b class="${cl(me.ret[per])}">${pc(me.ret[per])}</b><span>Your return</span></div><div class="kpi"><b>${fmt(mine.length)}</b><span>Trades closed</span></div><div class="kpi"><b>${pc(all[0].ret[per], 1)}</b><span>Leader: ${esc(all[0].me ? 'you' : all[0].name)}</span></div></div>
+    <section class="card"><div class="tools"><label class="search"><span class="sr">Search traders</span>${ic('search')}<input data-search id="lq" value="${esc(LBS.q)}" placeholder="Search traders or country code"><kbd>/</kbd></label><button class="btn" data-act="lbme">Jump to my rank</button></div>
+    <div class="tbl" aria-busy="${LBS.loading}"><div class="tr th" style="${cols}"><span>#</span><span>Trader</span><span class="hm r">Trades</span><span class="hm r">Win rate</span><span class="r">Return</span></div>${body}</div>
+    ${!LBS.loading && rows.length ? `<div class="pager"><span>Showing ${(LBS.pg - 1) * per2 + 1}–${(LBS.pg - 1) * per2 + shown.length} of ${rows.length} · return on equity, paper accounts only</span><div><button class="btn sm" data-act="lbpg" data-v="-1" ${LBS.pg <= 1 ? 'disabled' : ''} aria-label="Previous page">${ic('back')}</button><span style="align-self:center">Page ${LBS.pg} of ${pages}</span><button class="btn sm" data-act="lbpg" data-v="1" ${LBS.pg >= pages ? 'disabled' : ''} aria-label="Next page">${ic('arrow')}</button></div></div>` : ''}</section>`;
+}
+
+/* ── profile, plans, settings ─────────────────────────── */
+function profile() {
+  return head('Profile', 'How other students see you, and your learning record', `<button class="btn" data-act="editProfile">${ic('edit')}Edit profile</button>`) +
+    `<div class="grid"><section class="card c8"><div class="prof"><span class="avatar">${esc(ini(ME.name))}</span><div style="flex:1;min-width:0"><h2>${esc(ME.name)}</h2><p style="overflow-wrap:anywhere">${esc(ME.email)} · ${esc(ME.country)}</p><p>Student since ${DFY.format(ME.since)}</p></div><span class="pill ${isPro() ? 'pos' : ''}">${isPro() ? 'Pro' : 'Free'} plan</span></div>${ME.bio ? `<p style="margin-top:14px">${esc(ME.bio)}</p>` : ''}
+    <div class="stats" style="margin-top:18px"><div class="stat"><b>${lessonsDone()}</b><span>Lessons complete</span></div><div class="stat"><b>${coursesDone()}</b><span>Courses finished</span></div><div class="stat"><b>${fmt(xp())}</b><span>XP · level ${level()}</span></div><div class="stat"><b>${pl(streak(), 'day')}</b><span>Current streak</span></div><div class="stat"><b>${fmt(J.length)}</b><span>Trades closed</span></div><div class="stat"><b class="${cl(equity() - START)}">${pc((equity() / START - 1) * 100)}</b><span>Return all time</span></div></div></section>
+    <section class="card c4"><div class="card-h"><h2>Risk profile</h2>${RISKP ? `<span class="pill">${RISKP.n}</span>` : ''}</div>${RISKP ? `<p class="muted" style="margin-bottom:12px">${RISKP.d}</p><div class="risk"><div><span>Risk per trade</span><b>${RISKP.risk}%</b></div><div><span>Default stop</span><b>${RISKP.sl}%</b></div><div><span>Max open positions</span><b>${RISKP.maxPos}</b></div></div><button class="btn" data-act="riskq">Retake questionnaire</button>`
+      : `<p class="muted" style="margin-bottom:14px">Not set yet. Five quick questions tell us how much risk per trade suits you.</p><button class="btn primary" data-act="riskq">Start questionnaire</button>`}</section>
+    <section class="card c12"><div class="card-h"><h2>Recent badges</h2><button class="lnk" data-page="awards">All achievements</button></div><div class="badges">${[...earned.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([id, t]) => { const b = BADGES.find((x) => x.id === id); return `<div class="badge"><span class="bi">${ic(b.ic)}</span><div><b>${b.t}</b><p>${b.d}</p><small>${ago(t)}</small></div></div>`; }).join('')}</div></section></div>`;
+}
+function editProfile() {
+  modal(`<h2>Edit profile</h2><p>Your name and country appear on the leaderboard.</p><form id="pform" novalidate>
+  <div class="field"><label for="p-name">Full name</label><input id="p-name" value="${esc(ME.name)}" autocomplete="name" maxlength="60"></div>
+  <div class="field"><label for="p-email">Email</label><input id="p-email" type="email" value="${esc(ME.email)}" autocomplete="email"></div>
+  <div class="field"><label for="p-country">Country</label><select id="p-country">${['Austria', 'Belgium', 'Czechia', 'Denmark', 'Finland', 'France', 'Germany', 'Ireland', 'Italy', 'Netherlands', 'Poland', 'Portugal', 'Spain', 'Sweden'].map((c) => `<option ${c === ME.country ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+  <div class="field"><label for="p-bio">About you</label><textarea id="p-bio" maxlength="200">${esc(ME.bio)}</textarea><span class="hint">Up to 160 characters.</span></div>
+  <div class="modal-actions"><button type="button" class="btn" data-act="x">Cancel</button><button class="btn primary" type="submit">Save changes</button></div></form>`);
+}
+function plans() {
+  const pro = isPro(), pm = PLANCYCLE === 'year' ? PRICE.year / 12 : PRICE.month;
+  return head('Plans and billing', pro ? `Pro trial · ends ${DFY.format(PLAN.trialEnd)}, then ${PLAN.cycle === 'year' ? eur(PRICE.year) + ' per year' : eur(PRICE.month) + ' per month'}` : 'You are on the Free plan', `<div class="seg" role="group" aria-label="Billing period"><button data-act="cyc" data-v="month" aria-pressed="${PLANCYCLE === 'month'}">Monthly</button><button data-act="cyc" data-v="year" aria-pressed="${PLANCYCLE === 'year'}">Yearly · save 36%</button></div>`) +
+    `<div class="plans" style="margin-bottom:var(--gap)"><section class="card plan ${pro ? '' : 'cur'}"><div class="card-h"><h2>Free</h2>${pro ? '' : '<span class="pill">Current plan</span>'}</div><div class="price">€0<small> forever</small></div><p class="muted">Everything you need to learn the basics and practise safely.</p>
+    <ul class="feat">${[['First 4 courses, 21 lessons', 1], ['Paper trading with €10,000', 1], ['Trade journal with CSV export', 1], ['Leaderboard and achievements', 1], ['Psychology and strategy courses', 0], ['Certificates', 0]].map(([f, y]) => `<li class="${y ? '' : 'no'}">${ic(y ? 'check' : 'x')}${f}</li>`).join('')}</ul></section>
+    <section class="card plan ${pro ? 'cur' : ''}"><div class="card-h"><h2>Pro</h2>${pro ? '<span class="pill pos">Current plan · trial</span>' : '<span class="pill" style="background:var(--accent-bg);color:var(--accent)">Most popular</span>'}</div><div class="price">${eur(pm)}<small> per month${PLANCYCLE === 'year' ? ', billed ' + eur(PRICE.year) + ' yearly' : ''}</small></div><p class="muted">The full academy, plus tools to review and improve every week.</p>
+    <ul class="feat">${['All 6 courses, 31 lessons', 'Psychology and strategy tracks', 'Weekly performance review', 'Course certificates', 'Priority support'].map((f) => `<li>${ic('check')}${f}</li>`).join('')}</ul>
+    <div style="margin-top:auto">${pro ? '<button class="btn danger" data-act="cancelPro">Cancel subscription</button>' : '<button class="btn primary" style="width:100%" data-act="paywall">Start 7-day free trial</button>'}</div></section></div>
+    <section class="card"><div class="card-h"><h2>Billing history</h2><span>${pl(PLAN.invoices.length, 'invoice')}</span></div>${PLAN.invoices.length ? `<div class="tbl"><div class="tr th" style="--cols:1fr 1fr 1.4fr .8fr .8fr;--colsm:1fr auto"><span>Invoice</span><span class="hm">Date</span><span class="hm">Description</span><span class="r">Amount</span><span class="hm">Status</span></div>${PLAN.invoices.map((v) => `<div class="tr" style="--cols:1fr 1fr 1.4fr .8fr .8fr;--colsm:1fr auto"><span class="cell-main"><b>${v.id}</b><span class="dm">${DFY.format(v.t)}</span></span><span class="hm">${DFY.format(v.t)}</span><span class="hm">${v.d}</span><b class="r">${eur(v.amt)}</b><span class="hm"><span class="pill pos">${v.s}</span></span></div>`).join('')}</div>` : '<p class="empty">No invoices yet. Upgrades and receipts will appear here.</p>'}</section>`;
+}
+let SD = null;
+function settings() {
+  if (!SD) SD = { ...SET };
+  const dirty = Object.keys(SET).some((k) => SET[k] !== SD[k]), e = SD.err || {};
+  const sw = (k, t, s) => `<div class="set-row"><div><b id="l-${k}">${t}</b><small>${s}</small></div><span class="sw"><input type="checkbox" data-set="${k}" aria-labelledby="l-${k}" ${SD[k] ? 'checked' : ''}><i></i></span></div>`;
+  const num = (k, t, step, err) => `<div class="field"><label for="s-${k}">${t}</label><input id="s-${k}" data-set="${k}" type="number" step="${step}" value="${SD[k]}" ${err ? 'aria-invalid="true"' : ''}>${err ? `<span class="err">${err}</span>` : ''}</div>`;
+  return head('Settings', 'Preferences for this device and your account') +
+    `<div class="grid"><section class="card c6"><div class="card-h"><h2>Appearance</h2></div><div class="set-row"><div><b>Theme</b><small>Applies immediately.</small></div><div class="seg" role="group" aria-label="Theme">${[['dark', 'Dark'], ['light', 'Light']].map(([k, t]) => `<button data-act="theme" data-v="${k}" aria-pressed="${SET.theme === k}">${t}</button>`).join('')}</div></div>
+      <div class="set-row"><div><b>Language</b><small>More languages are on the roadmap.</small></div><select class="sel" disabled aria-label="Language"><option>English (UK)</option></select></div><div class="set-row"><div><b>Account currency</b><small>Virtual balance and P&amp;L.</small></div><span class="pill">EUR · €</span></div></section>
+    <section class="card c6"><div class="card-h"><h2>Simulator defaults</h2><span>Used for new orders</span></div>${num('defSize', 'Default order size, €', 10, e.defSize)}<div class="row2">${num('defSl', 'Default stop-loss, %', .1, e.defSl)}${num('defTp', 'Default take-profit, %', .1, e.defTp)}</div>${sw('confirmClose', 'Confirm before closing positions', 'Ask before a manual close realises P&L.')}</section>
+    <section class="card c6"><div class="card-h"><h2>Notifications</h2></div>${sw('nFill', 'Order fills and stops', 'When an order fills or a stop or target triggers.')}${sw('nStreak', 'Streak reminders', 'A nudge in the evening if you have not learned today.')}${sw('nWeekly', 'Weekly league summary', 'Your leaderboard movement every Monday.')}${sw('nEmail', 'Email copies', 'Also send these to ' + esc(ME.email) + '.')}</section>
+    <section class="card c6"><div class="card-h"><h2>Account</h2></div><div class="set-row"><div><b>Reset paper account</b><small>Closes positions, cancels orders and clears the journal. Courses and XP are kept.</small></div><button class="btn danger" data-act="reset">Reset</button></div>
+      <div class="set-row"><div><b>Delete account</b><small>For your security, deletion is handled by support within 30 days.</small></div><button class="btn" disabled title="Contact support to delete your account">${ic('lock')}Delete</button></div><div class="set-row"><div><b>Sign out</b><small>Signed in as ${esc(ME.email)}.</small></div><button class="btn" data-act="signout">Sign out</button></div></section></div>
+    ${dirty ? `<div class="savebar" role="region" aria-label="Unsaved changes"><span>You have unsaved changes.</span><div style="display:flex;gap:8px"><button class="btn" data-act="sDiscard">Discard</button><button class="btn primary" data-act="sSave">Save settings</button></div></div>` : ''}`;
+}
+
+/* ── sign in ─────────────────────────────────────────── */
+const DEMO_PW = 'paper-trade-2026';
+function authView(err = '') {
+  $('#app').hidden = true; $('#tabbar').hidden = true; const a = $('#auth'); a.hidden = false;
+  a.innerHTML = `<div class="auth"><section class="card auth-card"><div class="brand" style="padding:0"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="${ICONS.trend}"/></svg></div><div><div class="brand-name">TradingLearn</div><div class="brand-sub">Academy and simulator</div></div></div>
+  <h1>Sign in</h1><p>Welcome back. Your paper account, courses and streak are waiting.</p>${err ? `<div class="auth-err" role="alert">${ic('alert')}<span>${err}</span></div>` : ''}
+  <form id="signin" novalidate><div class="field"><label for="a-email">Email</label><input id="a-email" type="email" autocomplete="username" value="${esc(ME.email)}"></div>
+  <div class="field"><label for="a-pw">Password</label><div class="pw"><input id="a-pw" type="password" autocomplete="current-password" value="${DEMO_PW}"><button type="button" class="btn sm ghost" data-act="pwShow" aria-label="Show password">Show</button></div></div>
+  <div class="field"><label><input type="checkbox" checked> Keep me signed in on this device</label></div><button class="btn primary" id="a-go" type="submit" style="width:100%;height:42px">Sign in</button></form>
+  <div style="display:flex;justify-content:space-between;margin-top:14px"><button class="lnk" data-act="forgot">Forgot password?</button><span class="muted" style="font-size:12px">${VERSION}</span></div>
+  <div class="demo-cred">Demo credentials are prefilled: <b>${esc(ME.email)}</b> · <b>${DEMO_PW}</b></div></section></div>`;
+  $('#a-go').focus();
 }
 
 /* ── actions ──────────────────────────────────────────── */
-const levelBefore = () => level();
-function finishLesson(l) { const lv = levelBefore(); l.done = true; toast(level() > lv ? `Lesson complete! New level: ${level()}` : `Lesson complete: +${XP} XP`); }
+const reRenderTicket = () => { const t = $('#ticket'); if (t) t.innerHTML = ticketHTML(); };
 const ACT = {
-  sym(d) { sym = d.v; render(); }, dir(d) { dir = d.v; render(); }, goLearn() { go('learn'); }, goPractice() { go('practice'); },
-  pct(d) { size = Math.floor(freeCash() * +d.v / 100); $('#f-size').value = size; drawRisk(); },
-  open() {
-    if (!(size >= 1)) return toast('Enter a trade size');
-    if (size > freeCash()) return toast('Not enough free funds');
-    const cur = price(sym), long = dir === 'long', f = (pc) => cur * (1 + (long ? 1 : -1) * pc / 100);
-    POS.push({ id: nextPos++, sym, dir, size, entry: cur, sl: useSl ? f(-sl) : null, tp: useTp ? f(tp) : null });
-    const task = LES.find((l) => l.task && !l.done); if (task && useSl) finishLesson(task); else toast(`${sym}: position opened`);
-    render();
+  x() { closeModal(); },
+  sym(d) { T.sym = d.v; T.lim = ''; T.err = {}; CH.hi = null; render(); },
+  range(d) { CH.range = d.v; CH.hi = null; render(); },
+  dir(d) { T.dir = d.v; T.err = {}; reRenderTicket(); },
+  otype(d) { T.type = d.v; T.err = {}; if (d.v !== 'market' && !T.lim) { const p = price(T.sym), long = T.dir === 'long', s = d.v === 'limit' ? (long ? -1 : 1) : (long ? 1 : -1); T.lim = +(p * (1 + s * .005)).toFixed(dec(p)); } reRenderTicket(); },
+  pct(d) { T.size = Math.max(0, Math.floor(freeCash() * +d.v / 100 / 10) * 10); T.err = {}; reRenderTicket(); },
+  obp(d) { const p = +d.v, cur = price(T.sym); T.type = 'limit'; T.dir = p < cur ? 'long' : 'short'; T.lim = +p.toFixed(dec(p)); T.err = {}; reRenderTicket(); say(`Limit price set to ${px(p)}`); },
+  ptab(d) { PT = d.v; render(); },
+  submit() {
+    T.err = validateTicket(); if (Object.keys(T.err).length) { reRenderTicket(); const f = $('#ticket [aria-invalid=true]'); if (f) f.focus(); return; }
+    const o = { sym: T.sym, dir: T.dir, type: T.type, size: +T.size, sl: T.useSl ? +T.sl : 0, tp: T.useTp ? +T.tp : 0 };
+    if (T.type === 'market') { openPos(o, price(T.sym)); say(`${T.sym} ${T.dir} opened at ${px(price(T.sym))}`); if (T.useSl) taskDone('sl'); }
+    else { ORD.push({ ...o, id: ++nid, price: +T.lim, placed: Date.now() }); PT = 'ord'; say(`${T.type === 'limit' ? 'Limit' : 'Stop'} order placed at ${px(+T.lim)}`); if (T.type === 'limit') taskDone('limit'); T.lim = ''; T.type = 'market'; }
+    progress(); render();
   },
-  close(d) { closePos(POS.find((p) => p.id === +d.id), 'manual'); render(); },
-  quiz(d) {
-    const l = LES.find((x) => x.id === +d.id);
-    modal(`<h2>${l.t}</h2><p>${l.q}</p><div class="opts">${l.o.map((o, i) => `<button data-act="ans" data-id="${l.id}" data-i="${i}">${o}</button>`).join('')}</div>`);
+  close(d) {
+    const p = POS.find((x) => x.id === +d.id); if (!p) return;
+    const doIt = () => { closePos(p, 'manual'); render(); };
+    if (SET.confirmClose) confirmBox(`Close ${p.sym} ${p.dir}?`, `The position closes at the market price, about ${px(price(p.sym))}. Current result: <b class="${cl(upnl(p))}">${eurS(upnl(p))}</b>.`, 'Close position', doIt); else doIt();
   },
-  ans(d) { const l = LES.find((x) => x.id === +d.id); if (+d.i === l.a) { closeModal(); finishLesson(l); render(); } else toast('Not quite. Try again'); },
+  cancelOrd(d) { const o = ORD.find((x) => x.id === +d.id), i = ORD.indexOf(o); if (!o) return; ORD.splice(i, 1); render(); say(`${o.sym} ${o.type} order cancelled`, () => { ORD.splice(i, 0, o); render(); }); },
+  calc() { openCalc(); },
+  calcApply() { const r = calcBody(); if (!r.ok) return; if (r.size < 10) return say('Not enough free funds for this size'); T.size = r.size; T.sl = CALC.stop; T.useSl = true; T.err = {}; closeModal(); if (page !== 'practice') go('practice'); else reRenderTicket(); taskDone('calc'); render(); say(`Size set to ${eur(T.size, 0)} with a ${CALC.stop}% stop`); },
+  reset() {
+    confirmBox('Reset the paper account?', `Open positions close without a result, ${pl(ORD.length, 'order')} ${ORD.length === 1 ? 'is' : 'are'} cancelled and ${pl(J.length, 'journal entry', 'journal entries')} ${J.length === 1 ? 'is' : 'are'} cleared. The balance returns to ${eur(START, 0)}. Courses, XP and badges are kept.`, 'Reset account', () => {
+      const snap = { J, POS, ORD }; J = []; POS = []; ORD = []; render(); say('Paper account reset to €10,000', () => { ({ J, POS, ORD } = snap); render(); });
+    }, true);
+  },
+  riskq() { RQ = { i: 0, a: [] }; modal(rqBody()); },
+  rqPick(d) { RQ.a[RQ.i] = +d.v; rqDraw(); },
+  rqNext() { if (RQ.a[RQ.i] == null) return; RQ.i++; rqDraw(); },
+  rqBack() { RQ.i = Math.max(0, RQ.i - 1); rqDraw(); },
+  rqApply(d) { RISKP = PROFILES[+d.v]; SET.defSl = RISKP.sl; T.sl = RISKP.sl; SD = null; closeModal(); notify('Risk profile: ' + RISKP.n, `Risk per trade ${RISKP.risk}%, default stop ${RISKP.sl}%.`, 'shield', 'profile', 'xp'); say(`Risk profile saved: ${RISKP.n}`); progress(); render(); },
+  taskGo(d) { const l = LES.find((x) => x.id === +d.id); if (l.task === 'journal') { go('journal'); return say('Open any trade and add a note'); } if (l.task === 'calc') { if (page !== 'practice') go('practice'); return openCalc(); } if (l.task === 'limit') { T.type = 'market'; go('practice'); ACT.otype({ v: 'limit' }); return say('Limit price prefilled below the market'); } go('practice'); const f = $('#f-size'); if (f) f.focus(); },
+  toLearn() { go('learn'); },
+  course(d) { CID = d.id; LID = null; render(); window.scrollTo(0, 0); },
+  lesson(d) { const l = LES.find((x) => x.id === +d.id); if (proLocked(l)) return paywall(`${crs(l.c).t} is part of Pro.`); if (lesLocked(l)) return say('Finish the previous lesson first'); page = 'learn'; CID = l.c; LID = l.id; QZ = null; POP = null; render(); window.scrollTo(0, 0); },
+  nextLesson() { const l = LES.find((x) => !x.done && !lesLocked(x) && !proLocked(x)); if (l) ACT.lesson({ id: l.id }); },
+  cf(d) { CF.f = d.v; render(); }, cfClear() { CF.f = 'all'; CF.q = ''; render(); },
+  play() { const l = LES.find((x) => x.id === LID), total = l.min * 60 - 17; if (VID.pos >= total) VID.pos = 0; VID.playing = !VID.playing; const b = $('.vplay'); if (b) { b.classList.toggle('on', VID.playing); b.setAttribute('aria-label', (VID.playing ? 'Pause' : 'Play') + ' video'); b.innerHTML = `<i>${ic(VID.playing ? 'pause' : 'play')}</i>`; } },
+  saveNote() { const l = LES.find((x) => x.id === LID); l.note = $('#l-note').value.slice(0, 1000); say(l.note ? 'Notes saved' : 'Notes cleared'); },
+  qPick(d) { QZ.pick = +d.v; $('#quiz').innerHTML = quizHTML(LES.find((x) => x.id === LID)); },
+  qCheck() { const l = LES.find((x) => x.id === LID); if (QZ.pick == null) return; QZ.checked = true; if (QZ.pick === l.q[QZ.i].a) QZ.right++; $('#quiz').innerHTML = quizHTML(l); },
+  qNext() { const l = LES.find((x) => x.id === LID); QZ.i++; QZ.pick = null; QZ.checked = false;
+    if (QZ.i >= l.q.length) { const sc = [QZ.right, l.q.length]; if (sc[0] / sc[1] >= .5) { const best = !l.score || sc[0] >= l.score[0] ? sc : l.score; completeLesson(l, best); return render(); } }
+    $('#quiz').innerHTML = quizHTML(l); },
+  qRetake() { QZ = { lid: LID, i: 0, pick: null, checked: false, right: 0, review: false }; $('#quiz').innerHTML = quizHTML(LES.find((x) => x.id === LID)); },
+  jsort(d) { if (JF.sort === d.v) JF.dir *= -1; else { JF.sort = d.v; JF.dir = d.v === 'sym' ? 1 : -1; } render(); },
+  jpg(d) { JF.pg += +d.v; render(); }, jclear() { Object.assign(JF, { q: '', sym: 'all', side: 'all', res: 'all', tag: 'all', pg: 1 }); render(); },
+  trade(d) { const t = J.find((x) => x.id === +d.id); if (!t) return; DRAW = { id: t.id, tags: [...t.tags], note: t.note }; openDrawer(tradeDrawer(t)); DRAW = { id: t.id, tags: [...t.tags], note: t.note }; },
+  dtag(d) { const i = DRAW.tags.indexOf(d.v); if (i >= 0) DRAW.tags.splice(i, 1); else DRAW.tags.push(d.v); $$('#drawer .tagc').forEach((b) => b.setAttribute('aria-pressed', DRAW.tags.includes(b.dataset.v))); },
+  dclose() { closeDrawer(); },
+  dsave() { const t = J.find((x) => x.id === DRAW.id), note = $('#d-note').value.trim();
+    if (note.length > 500) { const c = $('#d-cnt'); c.textContent = `${note.length} / 500 · shorten the note by ${note.length - 500} characters`; c.classList.add('over'); $('#d-note').setAttribute('aria-invalid', 'true'); $('#d-note').focus(); return; }
+    const prev = { tags: t.tags, note: t.note }; t.tags = [...DRAW.tags]; t.note = note; closeDrawer(); if (note) taskDone('journal'); progress(); render(); say(`Journal entry T-${t.id} saved`, () => { Object.assign(t, prev); render(); }); },
+  csv() { csv(); },
+  af(d) { AF.f = d.v; render(); },
+  lbper(d) { LBS.per = d.v; LBS.pg = 1; LBS.loading = true; render(); setTimeout(() => { LBS.loading = false; if (page === 'rank') render(); }, 450); },
+  lbpg(d) { LBS.pg += +d.v; render(); },
+  lbme() { LBS.q = ''; const per = LBS.per, mine = [...LB.map((x) => x.ret[per]), myRet(per)].sort((a, b) => b - a).indexOf(myRet(per)); LBS.pg = Math.floor(mine / 15) + 1; render(); const m = $('.tr.me'); if (m) m.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); },
+  editProfile() { editProfile(); },
+  paywall(d) { paywall(d && d.v ? `${d.v} is part of Pro.` : ''); },
+  trial(d) {
+    const btn = $('[data-act=trial]'); const c = $('input[name=cyc]:checked'); PLANCYCLE = c ? c.value : PLANCYCLE; btn.classList.add('busy'); btn.textContent = 'Starting trial';
+    setTimeout(() => { PLAN.tier = 'pro'; PLAN.cycle = PLANCYCLE; PLAN.trialEnd = Date.now() + 7 * D; PLAN.invoices.unshift({ id: 'INV-2026-0' + (142 + PLAN.invoices.length), t: Date.now(), d: `Pro ${PLANCYCLE === 'year' ? 'yearly' : 'monthly'} · 7-day trial`, amt: 0, s: 'Paid' });
+      closeModal(); notify('Welcome to Pro', 'Trading psychology and Building a strategy are unlocked.', 'zap', 'learn', 'xp'); say('Pro trial started. All courses unlocked'); render(); }, 800);
+  },
+  cyc(d) { PLANCYCLE = d.v; render(); },
+  cancelPro() { confirmBox('Cancel your Pro trial?', 'You lose access to the psychology and strategy courses straight away. Your progress in them is kept if you return.', 'Cancel subscription', () => { PLAN.tier = 'free'; PLAN.trialEnd = null; render(); say('Subscription cancelled. You are on the Free plan'); }, true); },
+  theme(d) { SET.theme = d.v; if (SD) SD.theme = d.v; document.documentElement.dataset.theme = d.v; render(); },
+  sDiscard() { SD = null; render(); },
+  sSave() {
+    const e = {}; if (!(SD.defSize >= 10 && SD.defSize <= 100000)) e.defSize = 'Enter an amount from €10 to €100,000.'; if (!(SD.defSl >= .1 && SD.defSl <= 50)) e.defSl = 'Use 0.1 to 50%.'; if (!(SD.defTp >= .1 && SD.defTp <= 200)) e.defTp = 'Use 0.1 to 200%.';
+    if (Object.keys(e).length) { SD.err = e; render(); return; } delete SD.err;
+    Object.assign(SET, SD); T.size = SET.defSize; T.sl = SET.defSl; T.tp = SET.defTp; SD = null; render(); say('Settings saved');
+  },
+  bell() { POP = POP === 'bell' ? null : 'bell'; drawTop(); },
+  menu() { POP = POP === 'menu' ? null : 'menu'; drawTop(); const f = $('.pop.menu [role=menuitem]'); if (f) f.focus(); },
+  readAll() { const was = NT.filter((n) => !n.read); was.forEach((n) => { n.read = true; }); drawTop(); say(`${pl(was.length, 'notification')} marked as read`, () => { was.forEach((n) => { n.read = false; }); drawTop(); }); },
+  clearNtf() { const was = NT; NT = []; drawTop(); say('Notifications cleared', () => { NT = was; drawTop(); }); },
+  ntf(d) { const n = NT.find((x) => x.id === +d.id); n.read = true; go(n.go); },
+  help() { POP = null; drawTop(); helpModal(); }, keys() { POP = null; drawTop(); helpModal('keys'); }, helpTab(d) { helpModal(d.v); },
+  signout() { closeModal(); POP = null; closeDrawer(true); signedIn = false; authView(); },
+  pwShow() { const i = $('#a-pw'), b = $('[data-act=pwShow]'); const sh = i.type === 'password'; i.type = sh ? 'text' : 'password'; b.textContent = sh ? 'Hide' : 'Show'; b.setAttribute('aria-label', sh ? 'Hide password' : 'Show password'); },
+  forgot() { authView(''); const e = $('.auth-card > p'); e.innerHTML = `We would email a reset link to <b>${esc($('#a-email').value || ME.email)}</b>. In this demo, just use the prefilled password.`; },
 };
-setInterval(() => {
-  if (document.hidden) return;
-  RIVALS.forEach((r) => { r[1] = Math.max(1000, Math.round(r[1] * (1 + (Math.random() - .48) * .004))); });
-  if (page === 'rank' && !$('#scrim')) render();
-}, 3000);
+
+/* ── events ───────────────────────────────────────────── */
+document.addEventListener('click', (e) => {
+  if (POP && !e.target.closest('.anchor')) { POP = null; drawTop(); }
+  const a = e.target.closest('[data-page]'); if (a) { e.preventDefault(); return go(a.dataset.page); }
+  const act = e.target.closest('[data-act]'); if (act && ACT[act.dataset.act] && !act.disabled) ACT[act.dataset.act](act.dataset);
+});
+document.addEventListener('keydown', (e) => {
+  const typing = e.target.matches('input, textarea, select');
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page], .tr.click, .outline a') && !typing) { e.preventDefault(); e.target.click(); return; }
+  if (e.key === 'Escape') { if ($('#scrim')) return; if (POP) { POP = null; drawTop(); return; } if ($('#drawer')) return closeDrawer(); if (typing) e.target.blur(); return; }
+  if (typing || e.metaKey || e.ctrlKey || e.altKey || !signedIn || $('#scrim') || $('#drawer')) return;
+  if (e.key === '/') { const s = $('[data-search]'); if (s) { e.preventDefault(); s.focus(); s.select(); } }
+  if (e.key === '?') { e.preventDefault(); helpModal('keys'); }
+  if (page === 'practice' && (e.key === 'b' || e.key === 's')) { T.dir = e.key === 'b' ? 'long' : 'short'; reRenderTicket(); }
+}, true);
+let qT;
+document.addEventListener('input', (e) => {
+  const id = e.target.id, v = e.target.value;
+  if (id === 'f-size' || id === 'f-lim' || id === 'f-sl' || id === 'f-tp') { const k = { 'f-size': 'size', 'f-lim': 'lim', 'f-sl': 'sl', 'f-tp': 'tp' }[id]; T[k] = k === 'lim' ? v : +v; if (T.err[k]) { delete T.err[k]; e.target.removeAttribute('aria-invalid'); const er = e.target.parentNode.querySelector('.err'); if (er) er.remove(); } const r = $('#risk'); if (r) r.innerHTML = riskHTML(); }
+  if (id === 'c-risk' || id === 'c-stop') { CALC[id === 'c-risk' ? 'risk' : 'stop'] = +v; $('#c-out').innerHTML = calcBody().html; }
+  if (id === 'l-note') { const c = $('#n-cnt'); c.textContent = `${fmt(v.length)} / 1,000`; }
+  if (id === 'd-note') { DRAW.note = v; const c = $('#d-cnt'); c.textContent = `${v.length} / 500`; c.classList.toggle('over', v.length > 500); }
+  if (id === 'jq' || id === 'lq' || id === 'cq') { clearTimeout(qT); qT = setTimeout(() => { if (id === 'jq') { JF.q = v; JF.pg = 1; } else if (id === 'lq') { LBS.q = v; LBS.pg = 1; } else CF.q = v; render(); const s = $('#' + id); if (s) { s.focus(); s.setSelectionRange(v.length, v.length); } }, 160); }
+  if (e.target.dataset.set && e.target.type === 'number') { SD[e.target.dataset.set] = +v; if (SD.err) delete SD.err[e.target.dataset.set]; const dirty = Object.keys(SET).some((k) => SET[k] !== SD[k]); if (!!$('.savebar') !== dirty) { render(); const f = $('#' + id); if (f) { f.focus(); } } }
+});
+document.addEventListener('change', (e) => {
+  const id = e.target.id;
+  if (id === 'u-sl' || id === 'u-tp') { T[id === 'u-sl' ? 'useSl' : 'useTp'] = e.target.checked; reRenderTicket(); }
+  if (['jsym', 'jside', 'jres', 'jtag'].includes(id)) { JF[id.slice(1)] = e.target.value; JF.pg = 1; render(); }
+  if (e.target.dataset.set && e.target.type === 'checkbox') { SD[e.target.dataset.set] = e.target.checked; render(); }
+  if (e.target.name === 'cyc') PLANCYCLE = e.target.value;
+});
+document.addEventListener('submit', (e) => {
+  e.preventDefault(); const f = e.target;
+  const mark = (inp, msg) => { inp.setAttribute('aria-invalid', 'true'); const s = document.createElement('span'); s.className = 'err'; s.textContent = msg; inp.closest('.field').appendChild(s); };
+  $$('.err', f).forEach((x) => x.remove()); $$('[aria-invalid]', f).forEach((x) => x.removeAttribute('aria-invalid'));
+  if (f.id === 'signin') {
+    const em = $('#a-email'), pw = $('#a-pw'); let bad = false;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())) { mark(em, 'Enter a valid email address.'); bad = true; }
+    if (pw.value.length < 8) { mark(pw.closest('.pw'), 'The password has at least 8 characters.'); bad = true; }
+    if (bad) return $('[aria-invalid]', f).focus();
+    const b = $('#a-go'); b.classList.add('busy'); b.textContent = 'Signing in';
+    setTimeout(() => { if (em.value.trim().toLowerCase() !== ME.email || pw.value !== DEMO_PW) return authView('Incorrect email or password. Use the demo credentials below.');
+      signedIn = true; $('#auth').hidden = true; $('#auth').innerHTML = ''; $('#app').hidden = false; $('#tabbar').hidden = false; page = 'practice'; CID = LID = null; render(); }, 700);
+  }
+  if (f.id === 'pform') {
+    const n = $('#p-name'), em = $('#p-email'), bio = $('#p-bio'); let bad = false;
+    if (n.value.trim().length < 2) { mark(n, 'Enter your name (at least 2 characters).'); bad = true; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value.trim())) { mark(em, 'Enter a valid email address, for example name@example.com.'); bad = true; }
+    if (bio.value.length > 160) { mark(bio, `Shorten this by ${bio.value.length - 160} characters.`); bad = true; }
+    if (bad) return $('[aria-invalid]', f).focus();
+    ME.name = n.value.trim().replace(/\s+/g, ' '); ME.email = em.value.trim(); ME.country = $('#p-country').value; ME.bio = bio.value.trim(); closeModal(); render(); say('Profile updated');
+  }
+  if (f.id === 'contact') {
+    const t = $('#h-topic'), m = $('#h-msg'); let bad = false;
+    if (!t.value) { mark(t, 'Choose a topic.'); bad = true; } if (m.value.trim().length < 20) { mark(m, `Add a little more detail (at least 20 characters, ${m.value.trim().length} so far).`); bad = true; }
+    if (bad) return $('[aria-invalid]', f).focus();
+    closeModal(); const id = 'TL-' + (++tickets); notify('Support request ' + id + ' received', 'We will reply to ' + ME.email + ' within one working day.', 'chat', 'practice'); say(`Message sent. Ticket ${id}`);
+  }
+});
+document.documentElement.dataset.theme = SET.theme;
 render();
 </script>
 </body>

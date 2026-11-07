@@ -54,8 +54,11 @@ export function Eggs({ lang }: { lang: Lang }) {
       later(() => host.remove(), 6200);
     };
 
+    let waving = false;
     const wave = () => {
-      if (reduce) return;
+      if (reduce || waving) return;
+      waving = true;
+      later(() => { waving = false; }, 1400);
       document.querySelectorAll<HTMLElement>(".hero .wordmark .ch").forEach((el, i) =>
         el.animate(
           [{ transform: "translateY(0)" }, { transform: "translateY(-16%)" }, { transform: "translateY(0)" }],
@@ -66,7 +69,7 @@ export function Eggs({ lang }: { lang: Lang }) {
     const mark = document.querySelector<HTMLElement>(".hero .wordmark");
     mark?.addEventListener("click", wave);
 
-    // Touch equivalents (no keyboard on a phone): 5 taps on the first stat = Konami, 3 taps on the last = 404,
+    // Touch equivalents (no keyboard on a phone): 5 taps on the first stat = Konami, 5 taps on the last = 404,
     // press and hold the wordmark = sudo.
     const stats = document.querySelectorAll<HTMLElement>(".hero-stats dd");
     const tapTimes = (el: HTMLElement | undefined, n: number, ms: number, fn: () => void) => {
@@ -83,7 +86,7 @@ export function Eggs({ lang }: { lang: Lang }) {
     const goTo404 = () => { say(t.four04); later(() => location.assign(pathFor(lang) + "this-page-does-not-exist/"), 900); };
     const offTaps = [
       tapTimes(stats[0], 5, 2500, () => { say(t.konami); rain(); }),
-      tapTimes(stats[2], 3, 1200, goTo404),
+      tapTimes(stats[2], 5, 2000, goTo404),
     ];
     let hold = 0;
     const holdStart = () => { hold = window.setTimeout(() => say(t.sudo), 800); };
@@ -105,7 +108,7 @@ export function Eggs({ lang }: { lang: Lang }) {
       keys = [...keys, k].slice(-KONAMI.length);
       typed = (typed + (k.length === 1 ? k : "")).slice(-8);
       if (keys.join() === KONAMI.join()) { say(t.konami); rain(); }
-      else if (typed.endsWith("sudo")) say(t.sudo);
+      else if (typed.endsWith("sudo")) { typed = ""; say(t.sudo); }
       else if (typed.endsWith("404")) { typed = ""; goTo404(); }
     };
     addEventListener("keydown", onKey);

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RestOS HR — staff onboarding (demo)</title>
-<meta name="description" content="Demo: a new-hire app for restaurant staff with a learning path, quizzes, manager chat and checklists. The manager view is on the right. Sample data shown.">
+<meta name="description" content="Demo: a new-hire app for restaurant staff with learning paths, quizzes, certificates, shift checklists, e-signature and a manager console. Sample data shown.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -15,243 +15,1209 @@
   --accent: #b02a73; --accent-ink: #ffffff; --accent-bg: #f9e3ef;
   --pos: #1b7a4a; --neg: #b3302b; --warn: #8a5a0a;
   --font: "Nunito", system-ui, sans-serif; --display: "Nunito", system-ui, sans-serif;
+  --e-out: cubic-bezier(.23, 1, .32, 1); --e-drawer: cubic-bezier(.32, .72, 0, 1);
+  --shadow: 0 12px 32px rgba(40, 14, 40, .14);
 }
-body { font-size: 15px; font-weight: 500; }
+body { font-size: 15px; font-weight: 500; overflow-x: hidden; }
 .brand-name, .head h1, .big, .kpi b { font-weight: 800; }
-.wrap { display: grid; grid-template-columns: minmax(0, 360px) 420px; gap: 32px; justify-content: center; align-items: start; padding: 24px 16px 32px; }
-.phone { height: min(820px, calc(100svh - 80px)); min-height: 560px; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 34px; overflow: hidden; position: relative; }
-.scr { flex: 1; overflow: auto; padding: 20px 18px 24px; scroll-behavior: smooth; }
-.pnav { display: flex; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--surface); }
-.pnav button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; border: 0; background: none; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; position: relative; transition: color .15s; }
-.pnav button.on { color: var(--accent); } .pnav button .badge { position: absolute; top: 0; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; display: grid; place-items: center; }
-.hero { border-radius: 20px; overflow: hidden; margin: 0 0 16px; } .hero img { width: 100%; aspect-ratio: 380 / 130; object-fit: cover; display: block; }
-.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
-.top h1 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; } .top p { color: var(--muted); font-size: 13px; }
-.xp { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--accent-bg); color: var(--accent); font-weight: 800; }
-.xp .ic { width: 15px; height: 15px; }
+.btn { font-weight: 700; } .btn.primary { font-weight: 800; }
+.btn.danger { background: var(--neg); color: #fff; border-color: transparent; }
+.btn.ghost { background: none; border-color: transparent; } .btn.ghost:hover { background: var(--hover); }
+.btn .ic { width: 16px; height: 16px; }
+.ibtn { width: 38px; height: 38px; border-radius: 10px; border: 0; background: none; display: grid; place-items: center; cursor: pointer; color: var(--muted); position: relative; transition: background-color .15s, color .15s; }
+.ibtn:hover { background: var(--hover); color: var(--text); } .ibtn:active { transform: scale(.96); }
+.dotc { position: absolute; top: 4px; right: 3px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--accent); color: #fff; font: 800 11px/17px var(--font); text-align: center; }
+.tag { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px; border-radius: 6px; font-size: 11.5px; font-weight: 700; background: var(--raised); color: var(--muted); white-space: nowrap; }
+.tag .ic { width: 12px; height: 12px; } .tag.acc { background: var(--accent-bg); color: var(--accent); } .tag.neg { background: var(--neg-bg); color: var(--neg); } .tag.pos { background: var(--pos-bg); color: var(--pos); } .tag.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.acc { background: var(--accent-bg); color: var(--accent); }
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 12.5px; font-weight: 800; flex: none; }
+.err { display: block; color: var(--neg); font-size: 12.5px; font-weight: 700; min-height: 0; }
+.field input[aria-invalid="true"], .field textarea[aria-invalid="true"], .field select[aria-invalid="true"] { border-color: var(--neg); }
+.field .hint { font-size: 12px; color: var(--faint); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sk { background: linear-gradient(90deg, var(--raised) 0, var(--hover) 50%, var(--raised) 100%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; border-radius: 6px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.scrim { z-index: 80; } .modal { max-width: 480px; } .modal.wide { max-width: 560px; }
+.modal h2 { font-weight: 800; }
 
-/* the learning path */
+/* header */
+.hdr { position: sticky; top: 0; z-index: 30; height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0; min-width: 0; }
+.brand-mark { border-radius: 9px; }
+.ver { font-size: 11px; font-weight: 800; color: var(--muted); background: var(--raised); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; }
+.venue { display: flex; align-items: center; gap: 6px; color: var(--muted); font-weight: 700; font-size: 13.5px; padding-left: 14px; margin-left: 4px; border-left: 1px solid var(--border); white-space: nowrap; }
+.venue .ic { width: 15px; height: 15px; }
+.hsp { flex: 1; }
+.ubtn { display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 8px 0 4px; border: 0; border-radius: 12px; background: none; cursor: pointer; text-align: left; }
+.ubtn:hover { background: var(--hover); } .ubtn b { display: block; font-size: 13.5px; font-weight: 800; line-height: 1.2; } .ubtn span { font-size: 12px; color: var(--muted); }
+.menu { position: absolute; top: 52px; right: 12px; width: 300px; max-width: calc(100vw - 24px); background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: 6px; z-index: 50; transform-origin: top right; animation: menuIn .16s var(--e-out) both; }
+@keyframes menuIn { from { opacity: 0; transform: scale(.96) translateY(-4px); } }
+.menu.bell { width: 380px; padding: 0; }
+.mi { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 0 10px; border: 0; border-radius: 9px; background: none; cursor: pointer; font-weight: 700; color: var(--text); text-align: left; }
+.mi:hover, .mi:focus-visible { background: var(--hover); } .mi .ic { color: var(--muted); } .mi small { margin-left: auto; color: var(--faint); font-size: 12px; }
+.msep { height: 1px; background: var(--rule); margin: 6px 4px; }
+.mwho { display: flex; gap: 10px; align-items: center; padding: 10px; } .mwho b { display: block; font-weight: 800; } .mwho span { color: var(--muted); font-size: 12.5px; word-break: break-all; }
+.nh { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 8px; } .nh b { font-weight: 800; font-size: 15px; }
+.nh button { border: 0; background: none; color: var(--accent); font-weight: 800; cursor: pointer; font-size: 13px; padding: 4px; border-radius: 6px; }
+.nlist { max-height: min(440px, 60svh); overflow: auto; padding: 0 6px 6px; }
+.ni { display: grid; grid-template-columns: 34px minmax(0, 1fr) 8px; gap: 10px; align-items: start; width: 100%; padding: 10px 8px; border: 0; border-radius: 10px; background: none; cursor: pointer; text-align: left; }
+.ni:hover { background: var(--hover); } .ni .nic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--raised); color: var(--muted); } .ni .nic .ic { width: 17px; height: 17px; }
+.ni p { font-size: 13.5px; line-height: 1.35; color: var(--muted); } .ni p b { color: var(--text); font-weight: 800; } .ni small { color: var(--faint); font-size: 12px; }
+.ni i { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; } .ni.un i { background: var(--accent); } .ni.un .nic { background: var(--accent-bg); color: var(--accent); }
+
+/* layout */
+.wrap { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; max-width: 1440px; margin: 0 auto; align-items: start; padding: 22px 24px 32px; }
+.wrap.employee { grid-template-columns: 400px; justify-content: center; }
+.pcol { position: sticky; top: 78px; }
+.plabel { display: flex; align-items: center; gap: 8px; justify-content: center; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+.plabel i { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); box-shadow: 0 0 0 3px var(--pos-bg); }
+.phone { height: min(800px, calc(100svh - 150px)); min-height: 560px; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 34px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(60, 20, 60, .08); }
+.scr { flex: 1; overflow: auto; padding: 18px 18px 24px; overscroll-behavior: contain; }
+.offline { display: none; padding: 8px 14px; background: var(--warn-bg); color: var(--warn); font-size: 13px; font-weight: 700; text-align: center; }
+.offline.on { display: block; }
+.pnav { display: flex; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--surface); }
+.pnav button { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; border: 0; background: none; color: var(--muted); font-size: 11.5px; font-weight: 700; cursor: pointer; position: relative; transition: color .15s; border-radius: 10px; }
+.pnav button.on { color: var(--accent); } .pnav button .ic { width: 21px; height: 21px; }
+.pnav .badge { position: absolute; top: 0; left: calc(50% + 5px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; display: grid; place-items: center; }
+
+/* employee app */
+.hero { border-radius: 20px; overflow: hidden; margin: 0 0 16px; position: relative; } .hero img { width: 100%; aspect-ratio: 380 / 130; object-fit: cover; display: block; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+.top h1 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; } .top p { color: var(--muted); font-size: 13px; }
+.xp { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--accent-bg); color: var(--accent); font-weight: 800; white-space: nowrap; flex: none; }
+.xp .ic { width: 15px; height: 15px; }
+.lvl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 12px 14px; border-radius: 16px; background: var(--raised); margin-bottom: 12px; }
+.lvl b { font-weight: 800; font-size: 14px; } .lvl span { color: var(--muted); font-size: 12.5px; font-weight: 700; display: inline-flex; gap: 4px; align-items: center; } .lvl .bar { grid-column: 1 / -1; height: 8px; background: var(--border); }
+.lvl .ic { width: 15px; height: 15px; color: #d0661c; }
+.banner { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border-radius: 16px; border: 1.5px dashed var(--accent); background: var(--accent-bg); color: var(--text); cursor: pointer; text-align: left; margin-bottom: 12px; }
+.banner b { display: block; font-weight: 800; font-size: 14px; } .banner span { font-size: 12.5px; color: var(--muted); } .banner > .ic { color: var(--accent); width: 22px; height: 22px; } .banner .ic:last-child { margin-left: auto; color: var(--muted); }
+.lead { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin: 16px 0 6px; font-weight: 800; }
 .path { position: relative; display: flex; flex-direction: column; gap: 6px; }
-.node { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px 6px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: 16px; position: relative; transition: background-color .15s; }
+.node { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; align-items: center; padding: 10px 6px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: 16px; position: relative; transition: background-color .15s; width: 100%; }
 .node:hover:not(:disabled) { background: var(--raised); } .node:disabled { cursor: default; }
-.node:not(:last-child)::after { content: ""; position: absolute; left: 33px; top: 62px; width: 4px; height: 22px; border-radius: 2px; background: var(--border); }
+.node:not(:last-child)::after { content: ""; position: absolute; left: 32px; top: 64px; width: 4px; height: 20px; border-radius: 2px; background: var(--border); }
 .node.done:not(:last-child)::after { background: var(--pos); }
-.dot { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--raised); color: var(--faint); border: 3px solid var(--border); }
+.dot { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--raised); color: var(--faint); border: 3px solid var(--border); position: relative; }
 .dot .ic { width: 24px; height: 24px; stroke-width: 2.2; }
 .node.done .dot { background: var(--pos); border-color: var(--pos); color: #fff; }
 .node.cur .dot { background: var(--accent); border-color: var(--accent); color: #fff; animation: ring 2.2s ease-in-out infinite; }
 @keyframes ring { 0%,100% { box-shadow: 0 0 0 0 rgba(176,42,115,.35); } 50% { box-shadow: 0 0 0 8px rgba(176,42,115,0); } }
-.node b { display: block; font-size: 16px; font-weight: 800; } .node span { color: var(--muted); font-size: 13px; }
+.node b { display: block; font-size: 16px; font-weight: 800; line-height: 1.25; } .node span { color: var(--muted); font-size: 13px; }
 .node.lock b { color: var(--faint); }
-.lead { font-size: 13px; color: var(--muted); margin: 18px 0 8px; font-weight: 700; }
-
-.learn h2 { font-size: 22px; font-weight: 800; line-height: 1.2; margin: 14px 0 10px; letter-spacing: -.01em; } .learn p.body { font-size: 16px; line-height: 1.6; color: var(--text); }
-.pbar { display: flex; gap: 4px; margin: 4px 0 6px; } .pbar i { flex: 1; height: 6px; border-radius: 3px; background: var(--border); } .pbar i.on { background: var(--accent); }
-.back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--muted); font-weight: 700; cursor: pointer; padding: 4px 0; }
-.cta { width: 100%; height: 50px; border-radius: 14px; font-size: 16px; font-weight: 800; margin-top: 22px; }
-.opt { display: block; width: 100%; text-align: left; min-height: 52px; padding: 12px 16px; margin-bottom: 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); font-weight: 700; cursor: pointer; transition: border-color .15s, background-color .15s; }
-.opt:hover:not(:disabled) { border-color: var(--faint); } .opt.ok { border-color: var(--pos); background: var(--pos-bg); } .opt.bad { border-color: var(--neg); background: var(--neg-bg); }
-.fb { min-height: 24px; margin-top: 8px; font-weight: 700; } .fb.ok { color: var(--pos); } .fb.bad { color: var(--neg); }
-.cert { margin: 16px 0; padding: 22px 18px; border: 2px solid var(--accent); border-radius: 18px; text-align: center; background: var(--accent-bg); }
-.cert small { color: var(--accent); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; } .cert h3 { font-size: 22px; font-weight: 800; margin: 8px 0 4px; } .cert p { color: var(--muted); }
+.node .mini { display: block; height: 4px; border-radius: 2px; background: var(--border); margin-top: 6px; overflow: hidden; } .node .mini i { display: block; height: 100%; background: var(--accent); }
+.back { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--muted); font-weight: 800; cursor: pointer; padding: 4px 6px 4px 0; border-radius: 6px; }
+.back .ic { width: 16px; height: 16px; }
+.learn h2 { font-size: 22px; font-weight: 800; line-height: 1.2; margin: 12px 0 10px; letter-spacing: -.01em; } .learn p.body { font-size: 16px; line-height: 1.6; }
+.pbar { display: flex; gap: 4px; margin: 10px 0 8px; } .pbar i { flex: 1; height: 6px; border-radius: 3px; background: var(--border); transition: background-color .2s; } .pbar i.on { background: var(--accent); }
+.meta { font-size: 13px; color: var(--muted); font-weight: 700; }
+.cta { width: 100%; height: 50px; border-radius: 14px; font-size: 16px; margin-top: 20px; }
+.cta2 { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 20px; } .cta2 .btn { height: 50px; border-radius: 14px; font-size: 15px; }
+.mhero { display: flex; gap: 14px; align-items: center; margin: 12px 0 6px; } .mhero .dot { background: var(--accent-bg); border-color: var(--accent-bg); color: var(--accent); }
+.mhero h2 { font-size: 21px; font-weight: 800; line-height: 1.2; }
+.ls { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; width: 100%; min-height: 50px; padding: 6px 8px; border: 0; border-radius: 12px; background: none; text-align: left; cursor: pointer; }
+.ls:hover:not(:disabled) { background: var(--raised); } .ls:disabled { cursor: default; color: var(--faint); }
+.ls .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--raised); font-size: 12.5px; font-weight: 800; color: var(--muted); }
+.ls.ok .n { background: var(--pos); color: #fff; } .ls .n .ic { width: 15px; height: 15px; stroke-width: 3; } .ls b { font-weight: 700; } .ls small { color: var(--faint); font-size: 12px; }
+.qcard { border: 1.5px solid var(--border); border-radius: 16px; padding: 14px; margin-top: 12px; } .qcard b { font-weight: 800; } .qcard p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.opt { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; min-height: 52px; padding: 12px 14px; margin-bottom: 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); font-weight: 700; cursor: pointer; transition: border-color .15s, background-color .15s; }
+.opt:hover:not(:disabled) { border-color: var(--faint); } .opt:disabled { cursor: default; } .opt .k { width: 26px; height: 26px; flex: none; border-radius: 8px; background: var(--raised); display: grid; place-items: center; font-size: 12.5px; color: var(--muted); }
+.opt.ok { border-color: var(--pos); background: var(--pos-bg); } .opt.bad { border-color: var(--neg); background: var(--neg-bg); } .opt.dim { opacity: .55; }
+.fb { margin-top: 6px; padding: 12px 14px; border-radius: 14px; font-size: 14px; line-height: 1.45; animation: pop .2s var(--e-out) both; } .fb b { display: block; font-weight: 800; } .fb.ok { background: var(--pos-bg); } .fb.ok b { color: var(--pos); } .fb.bad { background: var(--neg-bg); } .fb.bad b { color: var(--neg); }
+.score { display: grid; place-items: center; margin: 14px 0 4px; } .score svg text { font-family: var(--display); }
+.res { text-align: center; } .res h2 { font-size: 22px; font-weight: 800; margin-top: 4px; } .res p { color: var(--muted); }
+.rq { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; text-align: left; padding: 9px 0; border-top: 1px solid var(--rule); font-size: 14px; } .rq .ic { width: 18px; height: 18px; stroke-width: 2.6; }
+.certc { margin: 14px 0 0; padding: 16px; border: 2px solid var(--accent); border-radius: 16px; background: var(--accent-bg); text-align: left; display: flex; gap: 12px; align-items: center; width: 100%; cursor: pointer; }
+.certc small { color: var(--accent); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; } .certc b { display: block; font-weight: 800; font-size: 16px; } .certc span { color: var(--muted); font-size: 12.5px; } .certc .ic { width: 26px; height: 26px; color: var(--accent); flex: none; }
 .big-xp { font: 900 54px/1 var(--display); color: var(--accent); text-align: center; margin: 10px 0 0; }
 
 /* chat */
 .msgs { display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
-.m { max-width: 82%; padding: 10px 14px; border-radius: 18px; background: var(--raised); border-bottom-left-radius: 6px; animation: pop .2s var(--ease) both; line-height: 1.4; }
+.day { align-self: center; font-size: 12px; font-weight: 800; color: var(--faint); margin: 4px 0; }
+.m { max-width: 82%; padding: 10px 14px; border-radius: 18px; background: var(--raised); border-bottom-left-radius: 6px; line-height: 1.4; overflow-wrap: anywhere; }
+.m.new { animation: pop .2s var(--e-out) both; }
 .m.me { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-left-radius: 18px; border-bottom-right-radius: 6px; }
-.m small { display: block; font-size: 11px; opacity: .7; margin-top: 3px; }
-.typing { align-self: flex-start; color: var(--faint); font-size: 13px; padding: 2px 6px; }
+.m small { display: block; font-size: 11px; opacity: .75; margin-top: 3px; }
+.typing { align-self: flex-start; color: var(--faint); font-size: 13px; padding: 2px 6px; font-weight: 700; }
 .quick { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; } .quick button { padding: 7px 12px; border-radius: 16px; border: 1.5px solid var(--border); background: none; font-weight: 700; color: var(--accent); cursor: pointer; } .quick button:hover { background: var(--accent-bg); }
 .cform { display: flex; gap: 8px; padding: 10px 14px; border-top: 1px solid var(--border); } .cform input { flex: 1; min-width: 0; height: 42px; border-radius: 21px; border: 1.5px solid var(--border); padding: 0 16px; outline: none; background: var(--bg); } .cform input:focus { border-color: var(--accent); }
-.cform button { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; display: grid; place-items: center; cursor: pointer; }
+.cform button { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; display: grid; place-items: center; cursor: pointer; flex: none; }
+.chead { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; } .chead b { display: block; font-weight: 800; font-size: 17px; } .chead span { font-size: 12.5px; color: var(--muted); }
 
 /* checklists */
-.cl h3 { font-size: 16px; font-weight: 800; margin: 18px 0 4px; display: flex; justify-content: space-between; align-items: baseline; } .cl h3 span { font-size: 13px; color: var(--muted); font-weight: 700; }
-.ck { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 52px; padding: 4px 0; border-top: 1px solid var(--rule); width: 100%; background: none; border-left: 0; border-right: 0; border-bottom: 0; text-align: left; cursor: pointer; }
+.shead { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; padding: 14px; border-radius: 18px; background: var(--raised); margin-bottom: 6px; }
+.shead b { display: block; font-weight: 800; font-size: 16px; } .shead span { display: block; font-size: 12.5px; color: var(--muted); }
+.cl h3 { font-size: 15px; font-weight: 800; margin: 18px 0 4px; display: flex; justify-content: space-between; align-items: baseline; } .cl h3 span { font-size: 12.5px; color: var(--muted); font-weight: 700; }
+.ckr { border-top: 1px solid var(--rule); padding: 4px 0; }
+.ck { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 50px; padding: 4px 0; width: 100%; background: none; border: 0; text-align: left; cursor: pointer; border-radius: 8px; }
 .ck .bx { width: 26px; height: 26px; border-radius: 8px; border: 2.5px solid var(--border); display: grid; place-items: center; color: #fff; transition: background-color .15s, border-color .15s; } .ck .bx .ic { width: 16px; height: 16px; stroke-width: 3.2; }
-.ck.done .bx { background: var(--pos); border-color: var(--pos); } .ck.done b { color: var(--faint); text-decoration: line-through; } .ck b { font-weight: 700; } .ck small { color: var(--muted); }
+.ck.done .bx { background: var(--pos); border-color: var(--pos); } .ck.done b { color: var(--faint); text-decoration: line-through; } .ck b { font-weight: 700; display: block; line-height: 1.3; } .ck small { color: var(--muted); font-size: 12.5px; font-weight: 700; }
+.ck .tg { display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+.ckx { padding: 0 0 8px 40px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.photo { position: relative; width: 92px; height: 64px; border-radius: 10px; overflow: hidden; background: linear-gradient(135deg, #6d5a4b, #b49579 55%, #e2cfb5); color: #fff; display: flex; align-items: flex-end; padding: 5px 7px; font-size: 11px; font-weight: 800; }
+.photo::before { content: ""; position: absolute; inset: 14px 18px auto auto; width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,.35); box-shadow: -34px 14px 0 4px rgba(40,24,16,.25); }
+.photo.v1 { background: linear-gradient(160deg, #39505a, #7c97a0 60%, #d6e1e2); } .photo.v2 { background: linear-gradient(120deg, #5a3a46, #a87986 55%, #ecd3d9); }
+.photo span { position: relative; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.photo.sk { background-size: 200% 100%; }
+.tform { display: flex; gap: 6px; align-items: center; } .tform input { width: 84px; height: 34px; border-radius: 8px; border: 1.5px solid var(--border); padding: 0 8px; background: var(--bg); outline: none; } .tform input:focus { border-color: var(--accent); }
+.hist { display: flex; gap: 6px; align-items: flex-end; height: 70px; margin-top: 8px; } .hist div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.hist i { width: 100%; max-width: 26px; border-radius: 5px 5px 2px 2px; background: var(--accent); opacity: .4; min-height: 3px; } .hist div.on i { opacity: 1; } .hist small { font-size: 11px; color: var(--faint); font-weight: 700; }
 
-/* manager side */
-.mgr { position: sticky; top: 24px; }
-.mgr h2 { font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
-.mgr h1 { font-size: 24px; font-weight: 800; line-height: 1.15; letter-spacing: -.01em; margin-bottom: 8px; } .mgr > p { color: var(--muted); margin-bottom: 18px; }
-.member { display: grid; grid-template-columns: 1fr 90px 34px; gap: 12px; align-items: center; padding: 9px 0; } .member + .member { border-top: 1px solid var(--rule); }
-.member.me { color: var(--accent); font-weight: 800; } .member b { text-align: right; font-weight: 800; }
-.feed li { padding: 7px 0; color: var(--muted); font-size: 13.5px; } .feed li + li { border-top: 1px solid var(--rule); } .feed li b { color: var(--text); font-weight: 700; } .feed li:first-child { animation: pop .3s var(--ease) both; }
-@media (max-width: 899px) { .wrap { display: block; padding: 0; } .mgr { display: none; } .phone { height: calc(100svh - 29px); border: 0; border-radius: 0; } }
+/* news */
+.news { border: 1.5px solid var(--border); border-radius: 16px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: border-color .15s; width: 100%; text-align: left; background: var(--surface); display: block; }
+.news:hover { border-color: var(--faint); } .news.un { border-color: var(--accent); }
+.news h3 { font-size: 15px; font-weight: 800; line-height: 1.3; display: flex; gap: 8px; align-items: flex-start; } .news h3 i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; margin-top: 6px; }
+.news .by { font-size: 12.5px; color: var(--muted); margin: 3px 0 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.news p { font-size: 14px; line-height: 1.5; color: var(--text); } .news p.clip { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--muted); }
+.ackd { display: inline-flex; gap: 6px; align-items: center; color: var(--pos); font-weight: 800; font-size: 13px; margin-top: 10px; } .ackd .ic { width: 16px; height: 16px; stroke-width: 2.6; }
+
+/* profile */
+.prof { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; } .prof .av { width: 60px; height: 60px; font-size: 20px; }
+.prof h1 { font-size: 21px; font-weight: 800; line-height: 1.2; } .prof p { color: var(--muted); font-size: 13px; }
+.stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 6px; } .stats3 div { padding: 10px; border-radius: 14px; background: var(--raised); text-align: center; } .stats3 b { display: block; font: 800 20px/1.2 var(--display); } .stats3 span { font-size: 11.5px; color: var(--muted); font-weight: 700; }
+.badges { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.bdg { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px; border-radius: 14px; background: var(--raised); text-align: center; border: 0; cursor: pointer; }
+.bdg .bi { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--border); color: var(--faint); } .bdg .bi .ic { width: 22px; height: 22px; stroke-width: 2; }
+.bdg b { font-size: 12px; font-weight: 800; line-height: 1.2; color: var(--faint); } .bdg.on .bi { background: linear-gradient(140deg, #d24d93, var(--accent)); color: #fff; } .bdg.on b { color: var(--text); }
+.bdg.fresh .bi { animation: pulse .9s var(--e-out) 2; } @keyframes pulse { 50% { transform: scale(1.12); } }
+.drow { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--rule); }
+.drow .di { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--raised); color: var(--muted); }
+.drow b { display: block; font-weight: 800; font-size: 14px; line-height: 1.3; } .drow span { font-size: 12.5px; color: var(--muted); } .drow img { height: 30px; max-width: 90px; }
+.team li { display: grid; grid-template-columns: 22px 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 0; } .team li + li { border-top: 1px solid var(--rule); } .team .av { width: 30px; height: 30px; font-size: 11px; } .team li.me b { color: var(--accent); } .team em { font-style: normal; color: var(--faint); font-weight: 800; font-size: 13px; }
+
+/* sign doc */
+.docbody { max-height: 160px; overflow: auto; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--raised); font-size: 13.5px; line-height: 1.55; margin-bottom: 14px; }
+.docbody p + p { margin-top: 8px; }
+.sigwrap { position: relative; border: 1.5px dashed var(--faint); border-radius: 12px; background: #fffdfb; }
+.sigwrap canvas { display: block; width: 100%; height: 150px; touch-action: none; cursor: crosshair; border-radius: 12px; }
+.sigwrap .line { position: absolute; left: 18px; right: 18px; bottom: 34px; border-top: 1px solid var(--border); pointer-events: none; }
+.sigwrap .ph { position: absolute; left: 18px; bottom: 12px; font-size: 12px; color: var(--faint); pointer-events: none; }
+.sigtools { display: flex; justify-content: flex-end; gap: 6px; margin: 6px 0 12px; }
+.chk { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer; } .chk input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+
+/* certificate */
+.cert { position: relative; padding: 30px 26px; border-radius: 6px; background: #fffaf6; color: #2a1f2c; text-align: center; border: 2px solid #c79a62; outline: 6px double #e9d7bd; outline-offset: -14px; }
+.cert .cb { display: flex; justify-content: center; align-items: center; gap: 8px; font-weight: 800; color: var(--accent); }
+.cert small { display: block; letter-spacing: .14em; text-transform: uppercase; font-size: 11px; font-weight: 800; color: #8b6a43; margin-top: 16px; }
+.cert h3 { font-size: 26px; font-weight: 900; margin: 6px 0 2px; line-height: 1.15; } .cert .to { color: #6b5a6e; font-size: 14px; } .cert .mod { font-size: 18px; font-weight: 800; color: var(--accent); margin: 4px 0 14px; }
+.cert .sg { display: flex; justify-content: space-between; gap: 16px; margin-top: 18px; text-align: left; font-size: 12px; color: #6b5a6e; } .cert .sg b { display: block; font-style: italic; font-size: 17px; color: #2a1f2c; font-weight: 700; border-bottom: 1px solid #d9c6ad; padding-bottom: 2px; margin-bottom: 2px; }
+.seal { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto; display: grid; place-items: center; background: radial-gradient(circle, #e3b878, #b98744); color: #fff; box-shadow: 0 0 0 4px #f3e2c4; } .seal .ic { width: 30px; height: 30px; stroke-width: 2; }
+
+/* manager console */
+.mgr { min-width: 0; container-type: inline-size; }
+.mhead { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.mhead h1 { font-size: 26px; font-weight: 800; letter-spacing: -.015em; line-height: 1.15; } .mhead p { color: var(--muted); }
+.mtabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; }
+.mtabs button { height: 42px; padding: 0 14px; border: 0; background: none; color: var(--muted); font-weight: 800; cursor: pointer; border-bottom: 2.5px solid transparent; margin-bottom: -1px; white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; border-radius: 6px 6px 0 0; }
+.mtabs button:hover { color: var(--text); } .mtabs button.on { color: var(--accent); border-bottom-color: var(--accent); }
+.mtabs .c { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--raised); color: var(--muted); font-size: 11.5px; display: grid; place-items: center; } .mtabs .c.neg { background: var(--neg-bg); color: var(--neg); }
+.kpis4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.kpi4 { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; min-width: 0; }
+.kpi4 span { font-size: 12.5px; color: var(--muted); font-weight: 700; } .kpi4 b { display: block; font: 800 28px/1.15 var(--display); letter-spacing: -.02em; margin: 2px 0; } .kpi4 b small { font-size: 14px; color: var(--muted); font-weight: 700; margin-left: 3px; } .kpi4 em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--faint); }
+.g2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 16px; margin-bottom: 16px; }
+.card-h h2 { font-weight: 800; } .card-h .btn { flex: none; }
+.fun { display: grid; grid-template-columns: 112px minmax(0, 1fr) 46px 48px; gap: 10px; align-items: center; padding: 6px 0; font-size: 13.5px; }
+.fun span { font-weight: 700; } .fun .fb2 { height: 26px; border-radius: 6px; background: var(--raised); overflow: hidden; } .fun .fb2 i { display: block; height: 100%; background: var(--accent); border-radius: 6px; transition: width .5s var(--e-out); }
+.fun b { text-align: right; font-weight: 800; } .fun em { font-style: normal; text-align: right; color: var(--faint); font-size: 12px; font-weight: 700; }
+.ovr { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; } .ovr + .ovr { border-top: 1px solid var(--rule); } .ovr .av { width: 32px; height: 32px; font-size: 11.5px; }
+.ovr b { display: block; font-weight: 800; font-size: 14px; } .ovr span { font-size: 12.5px; color: var(--muted); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); font-weight: 700; margin-bottom: 6px; } .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.feed li { padding: 8px 0; color: var(--muted); font-size: 13.5px; display: flex; justify-content: space-between; gap: 12px; } .feed li + li { border-top: 1px solid var(--rule); } .feed li b { color: var(--text); font-weight: 800; } .feed li small { color: var(--faint); white-space: nowrap; font-size: 12px; }
+.feed li.new { animation: pop .3s var(--e-out) both; }
+.tool { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.srch { position: relative; flex: 1 1 220px; min-width: 0; } .srch .ic { position: absolute; left: 10px; top: 9px; width: 16px; height: 16px; color: var(--faint); }
+.srch input { width: 100%; height: 34px; padding: 0 34px 0 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); outline: none; } .srch input:focus { border-color: var(--accent); }
+.srch kbd { position: absolute; right: 8px; top: 7px; font: 700 11px/18px var(--font); padding: 0 6px; border-radius: 5px; border: 1px solid var(--border); color: var(--faint); background: var(--raised); }
+.sel { height: 34px; padding: 0 28px 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-weight: 700; cursor: pointer; }
+.lt { --cols: minmax(0, 2.3fr) minmax(0, 1.2fr) 92px minmax(0, 1.4fr) 64px 104px 108px; }
+.lt .tr { margin: 0; padding: 6px 14px; border-radius: 0; }
+.lt .th { background: var(--raised); border-bottom: 1px solid var(--border); }
+.lt .th button { border: 0; background: none; padding: 0; color: inherit; font: inherit; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; text-align: left; }
+.lt .th button .ic { width: 13px; height: 13px; } .lt .th button[aria-sort="none"] .ic { opacity: 0; } .lt .th button:hover .ic { opacity: .6; }
+.lt .tr[data-open]:focus-visible { outline-offset: -2px; }
+.lt .nm { display: flex; gap: 10px; align-items: center; min-width: 0; } .lt .nm div { min-width: 0; } .lt .nm b { display: block; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .lt .nm span { font-size: 12.5px; color: var(--muted); }
+.lt .pg { display: flex; flex-direction: column; gap: 4px; } .lt .pg span { font-size: 12px; color: var(--muted); font-weight: 700; }
+.lt .cellm { font-size: 13.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tcard { padding: 0; overflow: hidden; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); font-weight: 700; }
+.pager div { display: flex; gap: 4px; } .pager button { min-width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-weight: 800; cursor: pointer; display: grid; place-items: center; } .pager button.on { background: var(--accent); color: #fff; border-color: transparent; } .pager button:disabled { opacity: .4; cursor: default; }
+.pager button .ic { width: 15px; height: 15px; }
+.me-tag { font-size: 11px; font-weight: 800; color: var(--accent); background: var(--accent-bg); padding: 1px 6px; border-radius: 5px; margin-left: 4px; }
+@container (max-width: 760px) { .lt { --cols: minmax(0, 1.6fr) minmax(0, 1.2fr) 108px; } .lt .hc { display: none; } .kpis4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 470px) { .lt { --cols: minmax(0, 1fr) auto; } .lt .hc2 { display: none; } .fun { grid-template-columns: 92px minmax(0, 1fr) 40px; } .fun em { display: none; } }
+/* builder */
+.bld { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 16px; align-items: start; }
+@container (max-width: 700px) { .bld { grid-template-columns: minmax(0, 1fr); } }
+.bmods { display: flex; flex-direction: column; gap: 6px; }
+.bm { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: center; width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); text-align: left; cursor: pointer; transition: border-color .15s; }
+.bm:hover { border-color: var(--faint); } .bm.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.bm .bi { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-bg); color: var(--accent); } .bm b { display: block; font-weight: 800; font-size: 14px; line-height: 1.25; } .bm span { font-size: 12px; color: var(--muted); }
+.bl { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; } .bl + .bl { border-top: 1px solid var(--rule); }
+.bl .n { width: 26px; height: 26px; border-radius: 8px; background: var(--raised); display: grid; place-items: center; font-weight: 800; font-size: 12px; color: var(--muted); }
+.bl b { display: block; font-weight: 800; font-size: 14px; } .bl span { display: block; font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bl .acts { display: flex; gap: 2px; } .bl .acts .ibtn { width: 32px; height: 32px; } .bl .acts .ibtn .ic { width: 16px; height: 16px; }
+.bh { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; } .bh h2 { font-size: 19px; font-weight: 800; } .bh p { color: var(--muted); font-size: 13px; }
+.sub { font-size: 13px; font-weight: 800; color: var(--muted); margin: 18px 0 4px; display: flex; justify-content: space-between; align-items: center; }
+.optrow { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; margin-bottom: 6px; } .optrow input[type=radio] { width: 18px; height: 18px; accent-color: var(--pos); }
+.optrow input[type=text] { height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; width: 100%; } .optrow input[type=text]:focus { border-color: var(--accent); }
+.ann { padding: 16px 18px; } .ann + .ann { margin-top: 12px; }
+.ann h3 { font-size: 16px; font-weight: 800; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } .ann p { color: var(--muted); font-size: 14px; margin: 4px 0 12px; line-height: 1.5; }
+.ann .st { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+.ann .brow-t span { font-size: 12.5px; font-weight: 700; color: var(--muted); } .ann .brow-t b { font-size: 12.5px; }
+.lock { text-align: center; padding: 40px 20px; } .lock .li { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 12px; background: var(--raised); color: var(--muted); } .lock .li .ic { width: 26px; height: 26px; }
+.lock h3 { font-size: 18px; font-weight: 800; } .lock p { color: var(--muted); max-width: 340px; margin: 6px auto 16px; }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 6px; } .empty b { color: var(--text); font-weight: 800; } .empty .ic { width: 26px; height: 26px; color: var(--faint); }
+
+/* drawer */
+.dscrim { position: fixed; inset: 0; background: rgba(31, 23, 34, .35); z-index: 60; animation: fade .2s ease both; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100vw); background: var(--surface); z-index: 61; box-shadow: -20px 0 50px rgba(40, 14, 40, .18); display: flex; flex-direction: column; animation: din .32s var(--e-drawer) both; }
+@keyframes din { from { transform: translateX(100%); } }
+.dh { display: flex; gap: 12px; align-items: center; padding: 18px 20px 14px; border-bottom: 1px solid var(--border); } .dh .av { width: 48px; height: 48px; font-size: 16px; } .dh h2 { font-size: 19px; font-weight: 800; line-height: 1.2; } .dh p { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; } .dh .ibtn { margin-left: auto; align-self: flex-start; }
+.db { flex: 1; overflow: auto; padding: 16px 20px 24px; }
+.dstats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 10px 0 4px; } .dstats div { padding: 10px 12px; border-radius: 10px; background: var(--raised); } .dstats span { font-size: 12px; color: var(--muted); font-weight: 700; } .dstats b { display: block; font-weight: 800; font-size: 17px; }
+.dmod { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 0; font-size: 14px; } .dmod + .dmod { border-top: 1px solid var(--rule); } .dmod .ic { width: 18px; height: 18px; stroke-width: 2.4; } .dmod em { font-style: normal; font-size: 12.5px; color: var(--muted); font-weight: 700; }
+.df { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 20px; border-top: 1px solid var(--border); }
+.undo { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; z-index: 90; display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 16px; border-radius: 12px; background: var(--text); color: #fff; font-weight: 700; box-shadow: var(--shadow); transition: opacity .2s, transform .25s var(--e-out); pointer-events: none; max-width: calc(100vw - 32px); }
+.undo.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; } .undo button { border: 0; background: rgba(255,255,255,.14); color: #fff; font-weight: 800; height: 32px; padding: 0 12px; border-radius: 8px; cursor: pointer; }
+
+/* sign-in */
+.auth { min-height: calc(100svh - 29px); display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.auth-art { position: relative; overflow: hidden; } .auth-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.auth-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(40, 10, 30, .1), rgba(40, 10, 30, .78)); }
+.auth-art div { position: absolute; left: 40px; right: 40px; bottom: 40px; color: #fff; z-index: 1; } .auth-art h2 { font-size: 30px; font-weight: 900; line-height: 1.15; letter-spacing: -.01em; } .auth-art p { opacity: .85; margin-top: 8px; max-width: 420px; }
+.auth-f { display: grid; place-items: center; padding: 32px 20px; background: var(--surface); }
+.auth-f form { width: 100%; max-width: 380px; } .auth-f h1 { font-size: 26px; font-weight: 900; margin: 22px 0 4px; } .auth-f > form > p { color: var(--muted); margin-bottom: 20px; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--raised); margin-bottom: 18px; }
+.seg button { height: 38px; border: 0; border-radius: 9px; background: none; font-weight: 800; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; } .seg button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.auth .field input { height: 42px; } .auth .cta { margin-top: 6px; }
+.demo-creds { margin-top: 16px; padding: 10px 12px; border-radius: 10px; background: var(--accent-bg); font-size: 13px; color: var(--text); } .demo-creds b { font-weight: 800; }
+.afoot { margin-top: 22px; font-size: 12px; color: var(--faint); display: flex; justify-content: space-between; gap: 10px; }
+.linkb { border: 0; background: none; color: var(--accent); font-weight: 800; cursor: pointer; padding: 2px; border-radius: 4px; }
+.spin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,.4); border-top-color: #fff; animation: rot .7s linear infinite; } @keyframes rot { to { transform: rotate(360deg); } }
+.help dt { font-weight: 800; margin-top: 10px; } .help dd { color: var(--muted); font-size: 14px; } .keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; margin: 8px 0 4px; } .keys kbd { font: 800 12px/22px var(--font); padding: 0 7px; border-radius: 6px; border: 1px solid var(--border); background: var(--raised); text-align: center; }
+
+@media (max-width: 1100px) { .wrap { grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; padding: 18px 16px 28px; } .venue { display: none; } }
+@media (max-width: 899px) {
+  .wrap, .wrap.employee { display: block; padding: 0; }
+  .wrap.manager { padding: 16px 16px 40px; } .wrap.manager .pcol { display: none; }
+  .pcol { position: static; } .plabel { display: none; }
+  .phone { height: calc(100svh - 29px - 56px); min-height: 480px; border: 0; border-radius: 0; box-shadow: none; }
+  .hdr { padding: 0 8px 0 12px; gap: 4px; } .ubtn .who, .ver, .hhelp { display: none; }
+  .menu.bell { right: 8px; }
+  .auth { grid-template-columns: 1fr; } .auth-art { min-height: 170px; } .auth-art div { left: 20px; right: 20px; bottom: 18px; } .auth-art h2 { font-size: 21px; } .auth-art p { display: none; }
+  .mhead h1 { font-size: 22px; }
+  .undo { bottom: 84px; }
+  .row2 { grid-template-columns: 1fr; gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .node.cur .dot, .sk { animation: none !important; } }
+@media print {
+  body > *:not(#scrim) { display: none !important; }
+  body { background: #fff; } .scrim { position: static; background: none; padding: 0; display: block; animation: none; }
+  .modal { max-width: none; border: 0; box-shadow: none; padding: 0; animation: none; max-height: none; overflow: visible; }
+  .modal > *:not(.cert) { display: none !important; } .cert { margin: 40px auto; max-width: 640px; }
+}
 </style>
 </head>
 <body>
 <div class="notice"><b>Demo</b> RestOS HR · sample data</div>
-<div class="wrap">
-  <aside class="mgr" id="mgr"></aside>
-  <div class="phone"><div class="scr" id="scr"></div><div id="foot"></div><nav class="pnav" id="pnav" aria-label="Sections"></nav></div>
-</div>
+<div id="root"></div>
+<div class="undo" id="undo" role="status" aria-live="polite"></div>
 
 <script>
 /*@kit.js*/
 'use strict';
+Object.assign(ICONS, {
+  camera: 'M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z',
+  download: 'M12 4v11M7 10l5 5 5-5M5 20h14',
+  logout: 'M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10',
+  help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9.5a2.5 2.5 0 114 2c-1 .6-1.5 1.2-1.5 2.5M12 17h.01',
+  printer: 'M7 9V4h10v5M7 17H5v-6h14v6h-2M7 14h10v6H7z',
+  pen: 'M4 20l4-1L19 8l-3-3L5 16zM14 7l3 3',
+  thermo: 'M10 14V5a2 2 0 014 0v9a4 4 0 11-4 0z',
+  mega: 'M4 10v4h3l7 4V6L7 10zM17 9a4 4 0 010 6',
+  award: 'M12 15a6 6 0 100-12 6 6 0 000 12zM8.5 14L7 21l5-3 5 3-1.5-7',
+  book: 'M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19V5',
+  left: 'M15 6l-6 6 6 6', right: 'M9 6l6 6-6 6',
+  wine: 'M8 3h8l-1 7a3 3 0 01-6 0zM12 13v7M8 21h8',
+  user: 'M12 12a4 4 0 100-8 4 4 0 000 8zM5 21a7 7 0 0114 0',
+  swap: 'M4 8h13l-3-3M20 16H7l3 3',
+});
+
+/* ── time, format, random ─────────────────────────────── */
+const T0 = Date.now(), NOW0 = new Date(2026, 8, 28, 14, 20), DAY = 864e5;
+const now = () => new Date(NOW0.getTime() + (Date.now() - T0));
+const ago = (d, h = 0, m = 0) => new Date(NOW0.getTime() - d * DAY - h * 36e5 - m * 6e4);
+const RTF = new Intl.RelativeTimeFormat('en-GB', { numeric: 'auto' });
+const DF = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const DFs = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+const DFw = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+const TF = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
+const DN = new Intl.DateTimeFormat('en-GB');
+function rel(d) {
+  if (!d) return 'Never';
+  const s = (now() - d) / 1000;
+  if (s < 45) return 'just now';
+  if (s < 3600) return RTF.format(-Math.round(s / 60), 'minute');
+  if (s < 86400 && d.getDate() === now().getDate()) return RTF.format(-Math.round(s / 3600), 'hour');
+  const dd = Math.round((new Date(now()).setHours(0, 0, 0, 0) - new Date(d).setHours(0, 0, 0, 0)) / DAY);
+  if (dd < 7) return RTF.format(-dd, 'day');
+  return DFs.format(d);
+}
+function dueIn(d) {
+  const dd = Math.round((new Date(d).setHours(0, 0, 0, 0) - new Date(NOW0).setHours(0, 0, 0, 0)) / DAY);
+  if (dd < 0) return pl(-dd, 'day') + ' overdue';
+  if (dd === 0) return 'due today';
+  return 'due ' + RTF.format(dd, 'day');
+}
+const pl = (n, w, ws = w + 's') => `${fmt(n)} ${n === 1 ? w : ws}`;
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function prng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const initials = (n) => { const p = String(n).trim().split(/\s+/).filter(Boolean); const f = (s) => Array.from(s)[0] || ''; return ((f(p[0] || '?')) + (p.length > 1 ? f(p[p.length - 1]) : '')).toUpperCase(); };
+const AVC = [['#f9e3ef', '#8c1f5b'], ['#e2effa', '#1d5a8a'], ['#e3f4e8', '#1b6a40'], ['#fdeedd', '#8a4b0a'], ['#ece6fb', '#523a9c'], ['#e0f3f3', '#17666a']];
+const avc = (n) => { let h = 0; for (const c of String(n)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return AVC[h % AVC.length]; };
+const av = (n, cls = '') => { const [b, f] = avc(n); return `<span class="av ${cls}" style="background:${b};color:${f}" aria-hidden="true">${esc(initials(n))}</span>`; };
+const uid = (() => { let i = 100; return (p) => p + (++i); })();
 
 /* ── content ──────────────────────────────────────────── */
 const MODS = [
-  { t: 'Introduction', sub: '4 steps', xp: 100, icon: 'star', steps: [
-    ['Welcome to RestOS', 'Welcome to the team! Here you will find everything you need to get up to speed: training, a chat with your manager and shift checklists.'],
+  { t: 'Introduction', d: 'Who is who, how shifts work and what to expect on your first day.', xp: 100, icon: 'star', pub: true, steps: [
+    ['Welcome to Lindenhof', 'Welcome to the team! Here you will find everything you need to get up to speed: training, a chat with your manager, shift checklists and announcements from the restaurant.'],
     ['Team structure', 'The restaurant is run by a general manager, sous chefs, cooks, servers and hosts. Everyone knows their role, and that is the foundation of smooth teamwork.'],
     ['Work schedule', 'Shifts are planned every week. The schedule arrives 5 days ahead, and any shift swap must be agreed with your manager at least a day in advance.'],
     ['Your first day', 'The shift manager will greet you, show you the dining room and kitchen, and introduce you to the team. Your access and uniform are prepared in advance; bring your food hygiene certificate.'],
   ], quiz: [] },
-  { t: 'Kitchen safety', sub: '5 steps', xp: 140, icon: 'shield', steps: [
+  { t: 'Kitchen safety', d: 'Hygiene, HACCP temperature control, equipment and what to do after an accident.', xp: 140, icon: 'shield', pub: true, steps: [
     ['Personal hygiene', 'Wear a clean uniform and wash your hands before touching any food. Jewellery, watches and phones are not allowed in the kitchen.'],
     ['Temperature control', 'Cold dishes are stored at 0–4 °C, hot dishes at 65 °C or above. A reading is taken every 2 hours and recorded in the HACCP log.'],
     ['Equipment', 'Read the instructions on each appliance before use. Faulty equipment is taken out of service and tagged with a red sticker.'],
     ['Fire safety', 'Keep exits clear at all times. The fire extinguisher is by the kitchen entrance and the evacuation plan is by the changing room.'],
     ['Injuries and incidents', 'Record any cut or burn in the accident log immediately. The first-aid kit is at the manager station; for a serious injury call 112.'],
-  ], quiz: [] },
-  { t: 'Guest service', sub: '4 steps and a quiz', xp: 180, icon: 'heart', steps: [
+  ], quiz: [
+    { q: 'At what temperature must chilled dishes be stored?', o: ['0–4 °C', '5–8 °C', 'Room temperature', 'Below −18 °C'], a: 0, why: 'Chilled food stays at 0–4 °C. −18 °C is the freezer, not the fridge.' },
+    { q: 'How often is the fridge temperature recorded in the HACCP log?', o: ['Once per shift', 'Every 2 hours', 'Only when it looks wrong', 'Once a week'], a: 1, why: 'A reading every 2 hours means a fault is caught before food is at risk.' },
+    { q: 'A blender sparks when you switch it on. What do you do?', o: ['Try again, carefully', 'Unplug it, tag it with a red sticker and tell the manager', 'Ask a colleague to try it', 'Put it back on the shelf'], a: 1, why: 'Faulty equipment is taken out of service and tagged so nobody else uses it.' },
+    { q: 'A colleague has a deep cut that will not stop bleeding. What comes first?', o: ['Finish the order, then help', 'Call 112 and fetch the first-aid kit', 'Post it in the team chat', 'Send them home'], a: 1, why: 'For a serious injury call 112 straight away; the accident log comes after.' },
+  ] },
+  { t: 'Guest service', d: 'Greeting, taking orders, serving and handling complaints the Lindenhof way.', xp: 180, icon: 'heart', pub: true, steps: [
     ['Greeting guests', 'Greet every guest within 30 seconds. A smile, eye contact and a "Welcome!" set the tone for the whole evening. If you are busy, nod and say "I will be right with you."'],
     ['Taking the order', 'Give guests 2–3 minutes to decide. Confirm how the dish should be cooked, any allergies and drink details. Repeat the order back aloud.'],
     ['Table service', 'Serve dishes from the left and drinks from the right. Name each dish as you serve it and, after 2 minutes, ask: "Is everything alright?"'],
     ['Complaints', 'Listen without interrupting and apologise, even if it is not your fault. Offer a solution: a replacement, a discount or a complimentary item. Tell the manager about every complaint.'],
   ], quiz: [
-    { q: 'How quickly should you greet a guest?', o: ['When you are free', 'Within 30 seconds', 'Within 2 minutes', 'Once they sit down'], a: 1, why: 'The first 30 seconds shape the impression.' },
-    { q: 'What should you do when a guest complains?', o: ['Explain that it is not your fault', 'Call the manager and walk away', 'Listen and offer a solution', 'Give a discount without a word'], a: 2, why: 'Listen first, then resolve.' },
+    { q: 'How quickly should you greet a guest?', o: ['When you are free', 'Within 30 seconds', 'Within 2 minutes', 'Once they sit down'], a: 1, why: 'The first 30 seconds shape the impression of the whole visit.' },
+    { q: 'What should you do when a guest complains?', o: ['Explain that it is not your fault', 'Call the manager and walk away', 'Listen and offer a solution', 'Give a discount without a word'], a: 2, why: 'Listen first, then resolve, then tell the manager.' },
     { q: 'Which side do you serve drinks from?', o: ['Left', 'Right', 'Either side', 'Only from the end of the table'], a: 1, why: 'Dishes from the left, drinks from the right.' },
+    { q: 'How long should guests get to decide before you take the order?', o: ['30 seconds', '2–3 minutes', '10 minutes', 'Until they wave'], a: 1, why: 'Two to three minutes is enough to choose without feeling forgotten.' },
   ] },
-  { t: 'Menu and allergens', sub: '3 steps and a quiz', xp: 120, icon: 'utensils', steps: [
-    ['The 14 main allergens', 'Gluten, milk, eggs, tree nuts, peanuts, fish, molluscs, soya, celery, mustard, sesame, lupin and more. This follows the EU allergen regulation. The full list is kept at the pass.'],
+  { t: 'Menu and allergens', d: 'The 14 allergens under the EU regulation, ingredient questions and the 86 list.', xp: 120, icon: 'utensils', pub: true, steps: [
+    ['The 14 main allergens', 'Cereals containing gluten, crustaceans, eggs, fish, peanuts, soya, milk, tree nuts, celery, mustard, sesame, sulphites, lupin and molluscs. This follows the EU allergen regulation. The allergen matrix is kept at the pass.'],
     ['Answering questions about ingredients', 'Never guess. If you are not sure, say "I will check with the chef" and come back with an exact answer. Tell the kitchen about any allergy straight away.'],
     ['86 list', 'When a dish runs out, it appears on the 86 list. Check it before recommending a dish to a guest.'],
   ], quiz: [
-    { q: 'You are not sure whether a dish contains nuts. What do you tell the guest?', o: ['Probably not', 'I will check with the chef and come back', 'Ask the next table', 'Better not to order it'], a: 1, why: 'Guessing is dangerous with allergies.' },
-    { q: 'When should you check the 86 list?', o: ['Once a week', 'Before recommending a dish', 'Only at opening', 'No need'], a: 1, why: 'The dish may have run out a minute ago.' },
+    { q: 'You are not sure whether a dish contains nuts. What do you tell the guest?', o: ['Probably not', 'I will check with the chef and come back', 'Ask the next table', 'Better not to order it'], a: 1, why: 'Guessing is dangerous with allergies. Always check.' },
+    { q: 'When should you check the 86 list?', o: ['Once a week', 'Before recommending a dish', 'Only at opening', 'There is no need'], a: 1, why: 'A dish may have run out a minute ago.' },
+    { q: 'How many allergens must be declared under the EU allergen regulation?', o: ['8', '10', '14', '20'], a: 2, why: 'The regulation lists 14 allergens that must be declared to guests.' },
+    { q: 'A guest with coeliac disease asks about the bread. Which allergen matters?', o: ['Gluten', 'Lupin', 'Sesame', 'Mustard'], a: 0, why: 'Coeliac disease is a reaction to gluten in wheat, rye and barley.' },
   ] },
-  { t: 'Till and payments', sub: 'Coming soon', xp: 150, icon: 'coin', steps: [], quiz: [] },
+  { t: 'Responsible alcohol service', d: 'Checking ID, spotting intoxication and refusing service politely.', xp: 120, icon: 'wine', pub: true, steps: [
+    ['Checking ID', 'Ask for photo ID from anyone who looks under 25. Accept ID cards, passports and driving licences. If in doubt, do not serve.'],
+    ['Spotting intoxication', 'Watch for slurred speech, loud behaviour, unsteadiness and spilled drinks. Offer water and food, and let the shift manager know.'],
+    ['Refusing service', 'Be calm and discreet: "I am sorry, I cannot serve you another drink tonight. Can I get you a water or a coffee?" Never argue at the table.'],
+  ], quiz: [
+    { q: 'A guest looks about 20 and orders a gin and tonic. What do you do?', o: ['Serve it, they look old enough', 'Ask for photo ID', 'Serve a single, not a double', 'Ask their friends'], a: 1, why: 'Anyone who looks under 25 is asked for photo ID.' },
+    { q: 'Which ID can you accept?', o: ['A student card without a photo', 'A photo of an ID on a phone', 'A passport', 'A gym card'], a: 2, why: 'Only physical photo ID: ID card, passport or driving licence.' },
+    { q: 'A guest is unsteady and slurring. What is the best first step?', o: ['Serve one last drink', 'Offer water and food and tell the shift manager', 'Ask them to leave loudly', 'Ignore it'], a: 1, why: 'Slow things down and involve the manager.' },
+    { q: 'How do you refuse service?', o: ['Calmly and discreetly, offering an alternative', 'In front of the whole table', 'By ignoring the guest', 'By calling security first'], a: 0, why: 'Discretion keeps the guest calm and the room relaxed.' },
+  ] },
+  { t: 'Till and payments', d: 'Opening a check, splitting bills, card terminals and closing out.', xp: 150, icon: 'coin', pub: false, steps: [], quiz: [] },
 ];
+const PASS = 70;
 const CHECK = [
-  ['Before the shift', [['Put on a clean uniform and name badge', '09:45'], ['Check the 86 list at the pass', '09:50'], ['Wipe and set your assigned tables', '10:00'], ['Attend the briefing with the manager', '10:15']]],
-  ['After the shift', [['Hand in tips and close out checks', '22:30'], ['Clean your station and take out the trash', '22:45'], ['Write your notes in the log', '22:55']]],
+  ['Opening', [['Put on a clean uniform and name badge', '09:45'], ['Record the walk-in fridge temperature', '09:50', 'temp'], ['Check the 86 list at the pass', '09:50'], ['Wipe and set your assigned tables', '10:00', 'photo'], ['Attend the briefing with the manager', '10:15']]],
+  ['During service', [['Check the allergen matrix for today\'s specials', '12:00'], ['Restroom check and restock', '15:00', 'photo']]],
+  ['Closing', [['Hand in tips and close out checks', '22:30'], ['Clean your station and take out the rubbish', '22:45', 'photo'], ['Write your notes in the shift log', '22:55']]],
 ];
-const TEAM = [['Lena K.', 4], ['Jonas B.', 3], ['Elena S.', 3], ['Matteo N.', 1]];
+const ckTotal = () => CHECK.reduce((a, [, l]) => a + l.length, 0);
 const REPLY = [
   [/schedule|shift|swap/i, 'The weekly schedule is already published. If you need a swap, message me at least a day ahead.'],
   [/uniform|dress|wear/i, 'Black trousers and an apron are issued by the host desk; bring your own white shirt.'],
   [/salary|pay|advance/i, 'Pay is transferred on the last working day of the month. Your rate and tips are in your contract.'],
   [/thanks|thank you|\bok\b|got it/i, 'Great! Message me if you need anything.'],
 ];
+const DOCS = [
+  { id: 'contract', t: 'Employment contract', s: 'Server, 30 hours a week, 6-month probation', body: ['This contract sets out your role as Server at Lindenhof Mitte, your weekly hours, hourly rate, tip pooling and the 6-month probation period.', 'Either side may end the contract during probation with two weeks’ notice. Holiday entitlement is 26 working days a year, pro rata.'] },
+  { id: 'handbook', t: 'Staff handbook acknowledgement', s: 'Conduct, uniform, breaks and shift swaps', body: ['I confirm that I have received and read the Lindenhof staff handbook, including the rules on conduct, uniform, breaks, shift swaps and the use of phones on the floor.', 'I understand that the handbook may be updated and that I will be informed of changes through RestOS HR.'] },
+  { id: 'haccp', t: 'Food hygiene declaration', s: 'HACCP and fitness-to-work declaration', body: ['I will follow the HACCP procedures of the restaurant, including hand washing, temperature logging and allergen handling.', 'I will tell my manager before my shift if I have symptoms of vomiting, diarrhoea, fever or an infected wound, and I will not handle food until cleared.'] },
+];
+const BADGES = [
+  ['first', 'First steps', 'Complete your first module', 'star'],
+  ['safety', 'Safety first', 'Pass Kitchen safety', 'shield'],
+  ['guest', 'Guest favourite', 'Pass Guest service', 'heart'],
+  ['allergen', 'Allergen aware', 'Pass Menu and allergens', 'utensils'],
+  ['perfect', 'Perfect score', 'Score 100% on any quiz', 'zap'],
+  ['paper', 'Paperwork done', 'Sign all your documents', 'pen'],
+  ['shift', 'Shift star', 'Finish every checklist item in a shift', 'check'],
+  ['streak', 'Week streak', 'Learn 7 days in a row', 'flame'],
+  ['cert', 'Fully certified', 'Complete every published module', 'award'],
+];
+const VENUES = ['Mitte', 'Prenzlauer Berg', 'HafenCity', 'Neubau'];
+const VCITY = { Mitte: 'Berlin', 'Prenzlauer Berg': 'Berlin', HafenCity: 'Hamburg', Neubau: 'Vienna' };
+const ROLES = ['Server', 'Bartender', 'Line cook', 'Host', 'Runner', 'Kitchen porter', 'Commis chef'];
+const STAT = { done: ['Completed', 'pos'], track: ['On track', 'acc'], new: ['Not started', ''], overdue: ['Overdue', 'neg'] };
 
-
-/* hero photo (CC0, see demos/CREDITS.md) */
-const heroImg = () => `<img src="img/hero.jpg" alt="" decoding="async">`;
+/* sample learners, generated deterministically */
+function genLearners() {
+  const R = prng(280926), L = [], used = new Set();
+  const FIRST = ['Anna', 'Lukas', 'Marie', 'Felix', 'Clara', 'Noah', 'Emma', 'Paul', 'Hanna', 'Leon', 'Mia', 'Tobias', 'Julia', 'Finn', 'Laura', 'David', 'Nina', 'Samuel', 'Ida', 'Oskar', 'Chiara', 'Luca', 'Giulia', 'Pablo', 'Lucía', 'Mateo', 'Inès', 'Hugo', 'Léa', 'Tomasz', 'Zofia', 'Kasper', 'Freya', 'Milan', 'Petra', 'Aleksander', 'Sara', 'Jan', 'Eva', 'Niklas'];
+  const LAST = ['Müller', 'Schneider', 'Fischer', 'Wagner', 'Hoffmann', 'Schulz', 'Keller', 'Vogel', 'Rossi', 'Bianchi', 'Romano', 'García', 'Fernández', 'Moreau', 'Laurent', 'Dubois', 'Nowak', 'Kowalska', 'Jensen', 'Larsen', 'Horvat', 'Janssen', 'de Vries', 'Bauer', 'Lang', 'Wolf', 'Kaiser', 'Hartmann', 'Peeters', 'Wiśniewska-Kowalczyk'];
+  const mail = (n) => n.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l').replace(/ś/g, 's').replace(/[^a-z ]/g, '').trim().replace(/\s+/g, '.') + '@lindenhof.example';
+  const add = (o) => { used.add(o.name); const l = Object.assign({ id: 'L-' + (1041 + L.length), email: mail(o.name), reminded: null, removed: false, quiz: null, lessons: 0, docs: 0, active: null }, o); l.due = l.due || new Date(l.start.getTime() + 28 * DAY); L.push(l); return l; };
+  add({ name: 'Sofia Weber', role: 'Server', venue: 'Mitte', start: ago(7, 5), due: ago(-21, 5), me: true });
+  [['Lena Krämer', 'Server', 34, 4, 91], ['Jonas Brandt', 'Bartender', 26, 3, 84], ['Elena Silva', 'Host', 22, 3, 78], ['Matteo Neri', 'Runner', 12, 1, 72]].forEach(([n, r, d, done, q], i) =>
+    add({ name: n, role: r, venue: 'Mitte', start: ago(d, 3), done, quiz: q, docs: 3, lessons: i % 2 + 1, active: ago(0, 2 + i * 3), team: true }));
+  while (L.length < 47) {
+    let n; do { n = FIRST[R() * FIRST.length | 0] + ' ' + LAST[R() * LAST.length | 0]; } while (used.has(n));
+    const d = R() * 56 | 0, start = ago(d, R() * 8 | 0), fr = d / 28 * (.45 + R() * .95);
+    let done = Math.max(0, Math.min(5, Math.floor(fr * 5)));
+    const fresh = d < 3 && R() < .6; if (fresh) done = 0;
+    const lessons = done < 5 && !fresh ? R() * 4 | 0 : 0;
+    add({ name: n, role: ROLES[R() * ROLES.length | 0], venue: VENUES[R() * VENUES.length | 0], start, done,
+      quiz: done > 1 ? 64 + (R() * 36 | 0) : null, lessons, docs: done > 0 ? 3 : fresh ? 0 : 1 + (R() * 2 | 0),
+      active: done || lessons ? ago(Math.min(d, R() * 9 | 0), R() * 9 | 0, R() * 50 | 0) : null });
+  }
+  return L;
+}
 
 /* ── state ────────────────────────────────────────────── */
-const S = { done: new Set([0, 1]), tab: 'path', view: 'path', mod: 2, step: 0, qi: 0, picked: null, ticks: new Set(['0-0']), unread: 3, feed: ['<b>Marek</b> assigned Sofia a mentor for the first week'],
-  chat: [{ me: false, t: 'Hi Sofia! I am Marek, the general manager. Glad to have you with us.', ts: '09:12' }, { me: false, t: 'Finish the training by Friday and ask any questions here.', ts: '09:13' }, { me: false, t: 'Your first day is Monday, please arrive by 9:45.', ts: '09:13' }] };
-const xp = () => [...S.done].reduce((a, i) => a + MODS[i].xp, 0);
-const cur = () => { for (let i = 0; i < MODS.length; i++) if (!S.done.has(i)) return i; return -1; };
-const playable = (i) => MODS[i].steps.length > 0 && (i === 0 || S.done.has(i - 1));
-console.assert(xp() === 240, 'xp 100+140');
-const ckTotal = () => CHECK.reduce((a, [, l]) => a + l.length, 0);
-
-/* ── render ───────────────────────────────────────────── */
-const nav = () => {
-  const T = { path: ['Path', 'map'], chat: ['Chat', 'chat'], list: ['Checklists', 'check'], me: ['Profile', 'users'] };
-  $('#pnav').innerHTML = Object.entries(T).map(([k, v]) => `<button data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${ic(v[1])}${v[0]}${k === 'chat' && S.unread ? `<b class="badge">${S.unread}</b>` : ''}</button>`).join('');
+const S = {
+  auth: true, role: innerWidth >= 900 ? 'manager' : 'employee', menu: null, signRole: 'employee', signing: false,
+  done: new Set([0, 1]), read: { 0: new Set([0, 1, 2, 3]), 1: new Set([0, 1, 2, 3, 4]), 2: new Set([0]) },
+  att: { 1: [{ score: 75, at: ago(3, 4) }] }, perfect: new Set(), certAt: { 0: ago(4, 6), 1: ago(3, 4) },
+  tab: 'path', view: 'path', mod: 2, step: 0, qz: null,
+  ticks: new Set(['0-0']), photos: {}, temps: {}, ckErr: {}, loadingPhoto: null,
+  chat: [{ me: false, t: 'Hi Sofia! I am Marek, the general manager. Glad to have you with us.', at: ago(0, 5, 8) }, { me: false, t: 'Finish the training by Friday and ask any questions here.', at: ago(0, 5, 7) }, { me: false, t: 'Your first day is Monday, please arrive by 9:45.', at: ago(0, 5, 7) }],
+  unread: 3, typing: false, seenChat: 3,
+  docs: { contract: { at: ago(7, 3), sig: null } }, streak: 6, activeToday: false, lastActive: ago(1, 3), fresh: new Set(),
+  newsOpen: null,
+  mtab: 'overview', loaded: { overview: true }, q: '', fVenue: 'all', fStatus: 'all', sort: ['progress', -1], page: 0, drawer: null, bsel: 5, feedNew: 0,
 };
-function render() {
-  nav(); $('#foot').innerHTML = '';
-  const html = ({ path: pathScreen, chat: chatScreen, list: listScreen, me: meScreen })[S.tab]();
-  $('#scr').innerHTML = html; if (S.tab === 'chat') chatMount();
-  mgr();
+S.learners = genLearners();
+S.news = [
+  { id: 'n1', t: 'Autumn menu tasting on Thursday', b: 'The new autumn menu goes live on 5 October. Join the tasting on Thursday at 15:00 in the main dining room: the chef will walk through each dish and its allergens. Attendance counts as paid time.', at: ago(0, 2, 10), pin: true, ack: true, aud: 'All venues', reads: 31, acks: 24, mineRead: false, mineAck: false },
+  { id: 'n2', t: 'New HACCP log sheets at the pass', b: 'From today the temperature log is on the new green sheets at the pass. Record the walk-in fridge every 2 hours and sign each entry. Old sheets go to the office.', at: ago(1, 4), pin: false, ack: true, aud: 'Mitte', reads: 9, acks: 7, mineRead: false, mineAck: false },
+  { id: 'n3', t: 'Staff meal times from October', b: 'Staff meal moves to 11:30 and 17:15 from 1 October, so the lunch rush is fully covered. Vegetarian and vegan options are always available.', at: ago(2, 6), pin: false, ack: false, aud: 'All venues', reads: 38, acks: 0, mineRead: true, mineAck: false },
+  { id: 'n4', t: 'Welcome Sofia Weber to the Mitte team', b: 'Please welcome Sofia, who joins us as a server. Lena Krämer is her mentor for the first two weeks. Say hello at the briefing!', at: ago(7, 2), pin: false, ack: false, aud: 'Mitte', reads: 11, acks: 0, mineRead: true, mineAck: false },
+];
+S.notes = {
+  employee: [
+    { id: 'e1', ic: 'mega', t: '<b>Marek</b> posted “Autumn menu tasting on Thursday”', at: ago(0, 2, 10), go: 'news', un: true },
+    { id: 'e2', ic: 'clock', t: 'Finish <b>Guest service</b> by Friday to stay on track', at: ago(0, 5), go: 'path', un: true },
+    { id: 'e3', ic: 'pen', t: '<b>2 documents</b> are waiting for your signature', at: ago(1, 2), go: 'docs', un: false },
+    { id: 'e4', ic: 'award', t: 'You earned the <b>Safety first</b> badge', at: ago(3, 4), go: 'me', un: false },
+    { id: 'e5', ic: 'calendar', t: 'Your schedule for week 40 is published', at: ago(3, 7), go: 'chat', un: false },
+  ],
+  manager: [
+    { id: 'm1', ic: 'thermo', t: 'Walk-in fridge at <b>HafenCity</b> logged at 6 °C', at: ago(0, 3, 40), go: 'overview', un: true },
+    { id: 'm2', ic: 'swap', t: '<b>Jonas Brandt</b> asked to swap Saturday’s late shift', at: ago(0, 6), go: 'learners', un: true },
+    { id: 'm3', ic: 'alert', t: 'Overdue learners need a reminder', at: ago(1, 1), go: 'overdue', un: false },
+    { id: 'm4', ic: 'award', t: '<b>Sofia Weber</b> passed Kitchen safety (75%)', at: ago(3, 4), go: 'sofia', un: false },
+    { id: 'm5', ic: 'chart', t: 'The weekly onboarding report is ready', at: ago(5, 2), go: 'overview', un: false },
+  ],
+};
+S.feed = [
+  { t: '<b>Marek</b> posted “Autumn menu tasting on Thursday”', at: ago(0, 2, 10) },
+  { t: '<b>Lena Krämer</b> completed Responsible alcohol service', at: ago(0, 4) },
+  { t: '<b>Marek</b> assigned Lena Krämer as Sofia’s mentor', at: ago(1, 3) },
+  { t: '<b>Sofia Weber</b> passed Kitchen safety with 75%', at: ago(3, 4) },
+];
+
+/* derived */
+const P = () => MODS.filter((m) => m.pub).length;
+const pubIdx = () => MODS.map((m, i) => (m.pub ? i : -1)).filter((i) => i >= 0);
+const me = () => S.learners.find((l) => l.me);
+const active = () => S.learners.filter((l) => !l.removed);
+const best = (i) => (S.att[i] || []).reduce((a, x) => Math.max(a, x.score), -1);
+const xp = () => [...S.done].reduce((a, i) => a + MODS[i].xp, 0) + S.perfect.size * 25;
+const level = (x = xp()) => { const L = [[0, 'Trainee'], [200, 'Team member'], [500, 'Floor pro'], [800, 'Expert'], [1100, 'Lindenhof legend']]; let i = 0; while (i < L.length - 1 && x >= L[i + 1][0]) i++; return { n: i + 1, name: L[i][1], from: L[i][0], to: (L[i + 1] || [L[i][0] + 300])[0] }; };
+const signedN = () => DOCS.filter((d) => S.docs[d.id]).length;
+const doneOf = (l) => (l.me ? pubIdx().filter((i) => S.done.has(i)).length : Math.min(l.done, P()));
+function status(l) { const d = doneOf(l); if (d >= P()) return 'done'; if (l.due < NOW0) return 'overdue'; if (d === 0 && !l.lessons) return 'new'; return 'track'; }
+const pct = (l) => Math.round(doneOf(l) / Math.max(1, P()) * 100);
+function cur() { for (const i of pubIdx()) if (!S.done.has(i)) return i; return -1; }
+const playable = (i) => MODS[i].pub && MODS[i].steps.length > 0 && pubIdx().filter((j) => j < i).every((j) => S.done.has(j));
+function syncMe() {
+  const l = me(); l.lessons = S.read[cur()] ? S.read[cur()].size : 0;
+  const bs = Object.keys(S.att).map((k) => best(+k)).filter((v) => v >= 0);
+  l.quiz = bs.length ? Math.round(bs.reduce((a, b) => a + b, 0) / bs.length) : null;
+  l.docs = signedN(); l.active = S.lastActive;
 }
+function badges() {
+  const passed = (i) => S.done.has(i);
+  return { first: S.done.size > 0, safety: passed(1), guest: passed(2), allergen: passed(3), perfect: S.perfect.size > 0, paper: signedN() === DOCS.length,
+    shift: S.ticks.size === ckTotal(), streak: S.streak >= 7, cert: cur() === -1 };
+}
+console.assert(xp() === 240, 'xp 100+140');
+
+/* ── notifications, feed, activity ─────────────────────── */
+function notify(role, ic, t, go) { S.notes[role].unshift({ id: uid('n'), ic, t, at: now(), go, un: true }); }
+function feed(t) { S.feed.unshift({ t, at: now() }); S.feedNew = 1; }
+function touch() {
+  S.lastActive = now();
+  if (!S.activeToday) {
+    S.activeToday = true; S.streak++;
+    if (S.streak >= 7) { notify('employee', 'flame', 'You unlocked <b>Week streak</b>: 7 days in a row', 'me'); S.fresh.add('streak'); }
+  }
+}
+let prevBadges = null;
+function checkBadges() {
+  const b = badges();
+  if (prevBadges) for (const [k, n] of BADGES) if (b[k] && !prevBadges[k] && k !== 'streak') { S.fresh.add(k); notify('employee', 'award', `You earned the <b>${n}</b> badge`, 'me'); toast(`Badge unlocked: ${n}`); }
+  prevBadges = b;
+}
+
+/* ── rendering helpers ─────────────────────────────────── */
+function paint(el, html) {
+  if (!el) return;
+  const a = document.activeElement, id = a && a.id && el.contains(a) ? a.id : null;
+  let ss = null, se = null; if (id) { try { ss = a.selectionStart; se = a.selectionEnd; } catch (e) { /* not a text field */ } }
+  el.innerHTML = html;
+  if (id) { const n = document.getElementById(id); if (n) { n.focus({ preventScroll: true }); try { if (ss != null) n.setSelectionRange(ss, se); } catch (e) { /* not a text field */ } } }
+}
+const statusPill = (s) => `<span class="pill ${STAT[s][1]}"><i></i>${STAT[s][0]}</span>`;
+const empty = (icon, t, s, btn = '') => `<div class="empty">${ic(icon)}<b>${t}</b><span>${s}</span>${btn}</div>`;
+
+function shell() {
+  const r = $('#root'); closeModal(); S.drawer = null; S.menu = null;
+  if (!S.auth) { r.innerHTML = signInHTML(); bindSignIn(); return; }
+  r.innerHTML = `<header class="hdr" id="hdr"></header><main class="wrap ${S.role}" id="wrap">${S.role === 'manager' ? '<section class="mgr" id="mgr" aria-label="Manager console"></section>' : ''}
+    <div class="pcol"><p class="plabel"><i></i>Employee app · live preview as Sofia Weber</p><div class="phone"><div class="offline${navigator.onLine === false ? ' on' : ''}" id="offline" role="status">You are offline. Changes will sync when you reconnect.</div><div class="scr" id="scr"></div><div id="foot"></div><nav class="pnav" id="pnav" aria-label="App sections" role="tablist"></nav></div></div></main><div id="drawer"></div>`;
+  render();
+}
+function render() {
+  if (!S.auth) return;
+  syncMe(); checkBadges();
+  header(); phone(); if (S.role === 'manager') { mgr(); drawer(); }
+}
+
+/* ── header ─────────────────────────────────────────────── */
+function header() {
+  const isM = S.role === 'manager', notes = S.notes[S.role], un = notes.filter((n) => n.un).length;
+  const name = isM ? 'Marek Novák' : 'Sofia Weber', role = isM ? 'General manager' : 'Server · trainee';
+  let menu = '';
+  if (S.menu === 'user') menu = `<div class="menu" role="menu" aria-label="Account"><div class="mwho">${av(name)}<div><b>${name}</b><span>${isM ? 'marek.novak' : 'sofia.weber'}@lindenhof.example</span></div></div>
+    <div style="padding:0 10px 8px"><span class="pill ${isM ? 'acc' : ''}">${isM ? 'Manager' : 'Employee'} · Lindenhof Mitte</span></div><div class="msep"></div>
+    <button class="mi" role="menuitem" data-act="switchRole">${ic('swap')}Switch to ${isM ? 'employee' : 'manager'} view</button>
+    ${isM ? '' : `<button class="mi" role="menuitem" data-act="denied">${ic('lock')}Manager console</button>`}
+    <button class="mi" role="menuitem" data-act="help">${ic('help')}Help and support<small>?</small></button><div class="msep"></div>
+    <button class="mi" role="menuitem" data-act="signOut">${ic('logout')}Sign out</button></div>`;
+  if (S.menu === 'bell') menu = `<div class="menu bell" role="dialog" aria-label="Notifications"><div class="nh"><b>Notifications</b>${un ? '<button data-act="readAll">Mark all as read</button>' : ''}</div>
+    <div class="nlist">${notes.length ? notes.slice(0, 12).map((n) => `<button class="ni ${n.un ? 'un' : ''}" data-act="note" data-id="${n.id}"><span class="nic">${ic(n.ic)}</span><span><p>${n.t}</p><small>${rel(n.at)}</small></span><i></i></button>`).join('') : `<div class="empty">${ic('bell')}<b>You are all caught up</b><span>New activity will show up here.</span></div>`}</div></div>`;
+  paint($('#hdr'), `<div class="brand"><span class="brand-mark">${ic('graduation')}</span><span class="brand-name">RestOS HR</span><span class="ver" title="Release 2.8.1">v2.8.1</span></div>
+    <span class="venue">${ic('pin')}Lindenhof Mitte · Berlin</span><span class="hsp"></span>
+    <button class="ibtn hhelp" data-act="help" aria-label="Help and support" title="Help (?)">${ic('help')}</button>
+    <button class="ibtn" data-act="menu" data-m="bell" id="bellBtn" aria-label="Notifications, ${pl(un, 'unread')}" aria-expanded="${S.menu === 'bell'}">${ic('bell')}${un ? `<b class="dotc">${un}</b>` : ''}</button>
+    <button class="ubtn" data-act="menu" data-m="user" id="userBtn" aria-haspopup="menu" aria-expanded="${S.menu === 'user'}">${av(name)}<span class="who"><b>${name}</b><span>${role}</span></span>${ic('down')}</button>${menu}`);
+}
+
+/* ── employee app ───────────────────────────────────────── */
+function phone() {
+  const T = { path: ['Learn', 'map'], shift: ['Shift', 'check'], chat: ['Chat', 'chat'], news: ['News', 'mega'], me: ['Profile', 'user'] };
+  const newsUn = S.news.filter((n) => !n.mineRead).length;
+  const bdg = { chat: S.unread, news: newsUn };
+  $('#pnav').innerHTML = Object.entries(T).map(([k, v]) => `<button role="tab" aria-selected="${S.tab === k}" data-tab="${k}" class="${S.tab === k ? 'on' : ''}">${ic(v[1])}${v[0]}${bdg[k] ? `<b class="badge" aria-label="${bdg[k]} new">${bdg[k]}</b>` : ''}</button>`).join('');
+  if (S.tab === 'chat') { S.unread = 0; S.seenChat = S.chat.length; $('#pnav .on .badge')?.remove(); }
+  paint($('#scr'), ({ path: pathScreen, shift: shiftScreen, chat: chatScreen, news: newsScreen, me: meScreen })[S.tab]());
+  const f = $('#foot');
+  if (S.tab === 'chat') {
+    if (!$('#cf')) {
+      f.innerHTML = `<form class="cform" id="cf"><input id="ci" placeholder="Message Marek" autocomplete="off" aria-label="Message" maxlength="500"><button aria-label="Send">${ic('arrow')}</button></form>`;
+      $('#cf').onsubmit = (e) => { e.preventDefault(); const v = $('#ci').value.trim(); if (v) { $('#ci').value = ''; say(v); } };
+    }
+  } else f.innerHTML = '';
+  if (S.view === 'docs' && S.tab === 'path') { /* nothing extra */ }
+}
+const go = (tab, view = 'path') => { S.tab = tab; S.view = view; render(); const s = $('#scr'); if (s) s.scrollTop = 0; };
+const heroImg = () => `<img src="img/hero.jpg" alt="" decoding="async" width="380" height="130">`;
+
 function pathScreen() {
-  if (S.view === 'learn') return learnScreen();
-  if (S.view === 'quiz') return quizScreen();
-  if (S.view === 'done') return doneScreen();
-  const c = cur();
-  return `<div class="hero">${heroImg()}</div><div class="top"><div><h1>Hi, Sofia!</h1><p>${c === -1 ? 'Path completed' : `Up next: ${MODS[c].t}`}</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
-    <div class="path">${MODS.map((m, i) => { const d = S.done.has(i), cu = i === c, lock = !playable(i) && !d; return `<button class="node ${d ? 'done' : ''} ${cu && !lock ? 'cur' : ''} ${lock ? 'lock' : ''}" data-act="open" data-i="${i}" ${lock ? 'disabled' : ''}><span class="dot">${ic(d ? 'check' : lock ? 'lock' : m.icon)}</span><div><b>${m.t}</b><span>${d ? `Completed · +${m.xp} XP` : lock ? (m.steps.length ? 'Unlocks after the previous module' : 'Coming soon') : `${m.sub} · +${m.xp} XP`}</span></div></button>`; }).join('')}</div>`;
+  const V = { mod: modScreen, learn: learnScreen, quiz: quizScreen, result: resultScreen, docs: docsScreen }[S.view];
+  if (V) return V();
+  const c = cur(), lv = level(), pend = DOCS.length - signedN(), pi = pubIdx(), dn = pi.filter((i) => S.done.has(i)).length;
+  return `<div class="hero">${heroImg()}</div><div class="top"><div><h1>Hi, Sofia!</h1><p>${c === -1 ? 'Path completed. Well done!' : `Up next: ${esc(MODS[c].t)} · ${dueIn(me().due)}`}</p></div><span class="xp" aria-label="${xp()} experience points">${ic('zap')}${fmt(xp())} XP</span></div>
+    <div class="lvl"><b>Level ${lv.n} · ${lv.name}</b><span>${ic('flame')}${pl(S.streak, 'day')} streak</span><div class="bar" role="progressbar" aria-label="Progress to next level" aria-valuenow="${xp() - lv.from}" aria-valuemax="${lv.to - lv.from}"><i style="width:${Math.min(100, (xp() - lv.from) / (lv.to - lv.from) * 100)}%"></i></div><span>${fmt(lv.to - xp())} XP to level ${lv.n + 1}</span></div>
+    ${pend ? `<button class="banner" data-act="view" data-v="docs">${ic('pen')}<span><b>${pl(pend, 'document needs', 'documents need')} your signature</b><span>Sign before your first shift</span></span>${ic('right')}</button>` : ''}
+    <p class="lead"><span>Your learning path</span><span>${dn} of ${pl(pi.length, 'module')}</span></p>
+    <div class="path">${MODS.map((m, i) => {
+      const d = S.done.has(i) && m.pub, cu = i === c, lock = !playable(i) && !d, rd = (S.read[i] || new Set()).size, tot = m.steps.length;
+      const sub = d ? `Completed · +${m.xp} XP${best(i) >= 0 ? ` · ${best(i)}%` : ''}` : !m.pub ? 'Coming soon' : lock ? 'Unlocks after the previous module' : `${pl(tot, 'lesson')}${m.quiz.length ? ' · quiz' : ''} · +${m.xp} XP`;
+      return `<button class="node ${d ? 'done' : ''} ${cu && !lock ? 'cur' : ''} ${lock ? 'lock' : ''}" data-act="open" data-i="${i}" ${lock ? 'disabled' : ''}><span class="dot">${ic(d ? 'check' : lock ? 'lock' : m.icon)}</span><span><b>${esc(m.t)}</b><span>${sub}</span>${cu && !lock && rd ? `<span class="mini"><i style="width:${rd / tot * 100}%"></i></span>` : ''}</span></button>`;
+    }).join('')}</div>`;
+}
+function modScreen() {
+  const i = S.mod, m = MODS[i], rd = S.read[i] || new Set(), all = rd.size >= m.steps.length, d = S.done.has(i), at = S.att[i] || [];
+  const next = m.steps.findIndex((_, k) => !rd.has(k));
+  return `<button class="back" data-act="exit">${ic('left')}Learning path</button>
+    <div class="mhero"><span class="dot">${ic(m.icon)}</span><div><h2>${esc(m.t)}</h2><span class="meta">${pl(m.steps.length, 'lesson')}${m.quiz.length ? ` · ${pl(m.quiz.length, 'question')}` : ''} · +${m.xp} XP</span></div></div>
+    <p class="muted" style="font-size:14px">${esc(m.d)}</p>
+    <div class="pbar">${m.steps.map((_, k) => `<i class="${rd.has(k) ? 'on' : ''}"></i>`).join('')}</div>
+    <p class="lead"><span>Lessons</span><span>${rd.size} of ${m.steps.length} read</span></p>
+    ${m.steps.map((s, k) => { const ok = rd.has(k), open = ok || k === next || k === 0; return `<button class="ls ${ok ? 'ok' : ''}" data-act="lesson" data-i="${k}" ${open ? '' : 'disabled'}><span class="n">${ok ? ic('check') : k + 1}</span><span><b>${esc(s[0])}</b><br><small>${Math.max(1, Math.round(s[1].split(' ').length / 120))} min read</small></span>${open ? ic('right') : ic('lock')}</button>`; }).join('')}
+    ${m.quiz.length ? `<div class="qcard"><b>Quiz · ${pl(m.quiz.length, 'question')}</b><p>Pass mark ${PASS}%. ${at.length ? `${pl(at.length, 'attempt')} so far, best ${best(i)}%.` : 'Unlimited retries, each with explanations.'}</p>
+      <button class="btn ${all ? 'primary' : ''}" style="margin-top:10px;width:100%" data-act="quiz" ${all ? '' : 'disabled'}>${!all ? 'Read all lessons to unlock' : d ? 'Retake quiz' : at.length ? 'Retry quiz' : 'Start quiz'}</button></div>` : ''}
+    ${d ? `<button class="certc" data-act="cert" data-i="${i}">${ic('award')}<span><small>Certificate</small><b>${esc(m.t)}</b><span>Issued ${DF.format(S.certAt[i] || now())} · View and print</span></span></button>` : ''}
+    ${!d && next >= 0 ? `<button class="btn primary cta" data-act="lesson" data-i="${next}">${rd.size ? 'Continue' : 'Start'}: lesson ${next + 1}</button>` : ''}
+    ${!d && next < 0 && !m.quiz.length ? `<button class="btn primary cta" data-act="complete">Complete module</button>` : ''}`;
 }
 function learnScreen() {
-  const m = MODS[S.mod], st = m.steps[S.step], last = S.step === m.steps.length - 1, review = S.done.has(S.mod);
-  return `<button class="back" data-act="exit">← Back to path</button><div class="learn"><div class="pbar">${m.steps.map((_, i) => `<i class="${i <= S.step ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">${m.t} · step ${S.step + 1} of ${m.steps.length}</span><h2>${st[0]}</h2><p class="body">${st[1]}</p>
-    <button class="btn primary cta" data-act="next">${last ? (m.quiz.length && !review ? 'Take the quiz' : review ? 'Done' : `Complete module`) : 'Next'}</button></div>`;
+  const m = MODS[S.mod], st = m.steps[S.step], last = S.step === m.steps.length - 1, d = S.done.has(S.mod);
+  return `<button class="back" data-act="view" data-v="mod">${ic('left')}${esc(m.t)}</button><div class="learn"><div class="pbar">${m.steps.map((_, i) => `<i class="${i <= S.step ? 'on' : ''}"></i>`).join('')}</div><span class="meta">Lesson ${S.step + 1} of ${m.steps.length}</span><h2>${esc(st[0])}</h2><p class="body">${esc(st[1])}</p>
+    <div class="cta2"><button class="btn" data-act="prev" ${S.step ? '' : 'disabled'}>Back</button><button class="btn primary" data-act="next">${last ? (m.quiz.length && !d ? 'Take the quiz' : d ? 'Done' : 'Complete module') : 'Next lesson'}</button></div></div>`;
 }
 function quizScreen() {
-  const m = MODS[S.mod], q = m.quiz[S.qi];
-  return `<button class="back" data-act="exit">← Back to path</button><div class="learn"><div class="pbar">${m.quiz.map((_, i) => `<i class="${i <= S.qi ? 'on' : ''}"></i>`).join('')}</div><span class="muted" style="font-size:13px;font-weight:700">Question ${S.qi + 1} of ${m.quiz.length}</span><h2>${q.q}</h2>
-    ${q.o.map((o, i) => `<button class="opt ${S.picked === i ? (i === q.a ? 'ok' : 'bad') : ''}" data-act="pick" data-i="${i}" ${S.picked === q.a ? 'disabled' : ''}>${o}</button>`).join('')}
-    <div class="fb ${S.picked === null ? '' : S.picked === q.a ? 'ok' : 'bad'}" role="status">${S.picked === null ? '' : S.picked === q.a ? 'Correct. ' + q.why : 'Not quite, try again'}</div>
-    ${S.picked === q.a ? `<button class="btn primary cta" data-act="qnext">${S.qi === m.quiz.length - 1 ? 'Finish' : 'Next question'}</button>` : ''}</div>`;
+  const z = S.qz, m = MODS[z.mod], qi = z.order[z.i], q = m.quiz[qi], p = z.picks[z.i], ans = p != null;
+  return `<button class="back" data-act="leaveQuiz">${ic('x')}Leave quiz</button><div class="learn"><div class="pbar">${z.order.map((_, i) => `<i class="${i <= z.i ? 'on' : ''}"></i>`).join('')}</div><span class="meta">Question ${z.i + 1} of ${z.order.length} · attempt ${z.n}</span><h2>${esc(q.q)}</h2>
+    <div role="radiogroup" aria-label="Answers">${q.o.map((o, i) => `<button class="opt ${ans ? (i === q.a ? 'ok' : i === p ? 'bad' : 'dim') : ''}" role="radio" aria-checked="${p === i}" data-act="pick" data-i="${i}" ${ans ? 'disabled' : ''}><span class="k">${'ABCD'[i]}</span>${esc(o)}</button>`).join('')}</div>
+    ${ans ? `<div class="fb ${p === q.a ? 'ok' : 'bad'}" role="status"><b>${p === q.a ? 'Correct' : 'Not quite'}</b>${esc(q.why)}</div><button class="btn primary cta" data-act="qnext" id="qnext">${z.i === z.order.length - 1 ? 'See results' : 'Next question'}</button>` : ''}</div>`;
 }
-function doneScreen() {
-  const m = MODS[S.mod], nx = S.mod + 1 < MODS.length && playable(S.mod + 1);
-  return `<div class="learn" style="text-align:center;padding-top:20px"><div class="big-xp">+${m.xp}</div><p class="muted" style="font-weight:800">XP for this module</p><div class="cert"><small>Certificate</small><h3>${m.t}</h3><p>Sofia Weber · 28/09/2026</p></div>
-    <p class="muted">${xp()} XP in total, ${S.done.size} of ${MODS.length} modules completed</p><button class="btn primary cta" data-act="exit">${nx ? 'Go to next module' : 'Back to path'}</button></div>`;
+function resultScreen() {
+  const z = S.qz, m = MODS[z.mod];
+  if (!z.order.length) return `<div class="learn res" style="padding-top:20px"><div class="big-xp">+${m.xp}</div><p style="font-weight:800">XP for this module</p><h2>${esc(m.t)} completed</h2>
+    <button class="certc" data-act="cert" data-i="${z.mod}">${ic('award')}<span><small>Certificate</small><b>${esc(m.t)}</b><span>Sofia Weber · ${DF.format(S.certAt[z.mod] || now())}</span></span></button>
+    <p class="muted" style="margin-top:14px">${fmt(xp())} XP in total, ${S.done.size} of ${pl(P(), 'module')} completed</p><button class="btn primary cta" data-act="exit">Back to learning path</button></div>`;
+  const ok = z.order.filter((qi, k) => z.picks[k] === m.quiz[qi].a).length, sc = Math.round(ok / z.order.length * 100), pass = sc >= PASS;
+  const ringC = pass ? 'var(--pos)' : 'var(--neg)', r = 52, C = 2 * Math.PI * r;
+  return `<div class="learn res"><div class="score"><svg width="132" height="132" viewBox="0 0 132 132" role="img" aria-label="Score ${sc}%"><circle cx="66" cy="66" r="${r}" fill="none" stroke="var(--raised)" stroke-width="10"/><circle cx="66" cy="66" r="${r}" fill="none" stroke="${ringC}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C * sc / 100} ${C}" transform="rotate(-90 66 66)"/><text x="66" y="72" text-anchor="middle" style="font-weight:900;font-size:30px;fill:var(--text)">${sc}%</text></svg></div>
+    <h2>${pass ? (sc === 100 ? 'Perfect score!' : 'You passed') : 'Not passed yet'}</h2><p>${ok} of ${z.order.length} correct · pass mark ${PASS}%${z.gain ? ` · <b class="acc">+${z.gain} XP</b>` : ''}</p>
+    <div style="margin-top:14px">${z.order.map((qi, k) => { const q = m.quiz[qi], g = z.picks[k] === q.a; return `<div class="rq"><span class="${g ? 'pos' : 'neg'}">${ic(g ? 'check' : 'x')}</span><span><b>${esc(q.q)}</b><br><span class="muted">${g ? 'Correct' : `Answer: ${esc(q.o[q.a])}`}</span></span></div>`; }).join('')}</div>
+    ${pass ? `<button class="certc" data-act="cert" data-i="${z.mod}">${ic('award')}<span><small>Certificate</small><b>${esc(m.t)}</b><span>View, download or print</span></span></button><button class="btn primary cta" data-act="exit">Back to learning path</button>`
+      : `<p class="muted" style="margin-top:12px;font-size:14px">Review the lessons you missed and try again. There is no limit on retries.</p><div class="cta2"><button class="btn" data-act="view" data-v="mod">Review</button><button class="btn primary" data-act="quiz">Retry quiz</button></div>`}</div>`;
+}
+function docsScreen() {
+  return `<button class="back" data-act="exit">${ic('left')}Learning path</button><h2 style="font-size:21px;font-weight:800;margin:10px 0 4px">Documents</h2><p class="muted" style="font-size:14px;margin-bottom:8px">${signedN()} of ${DOCS.length} signed. Signatures are legally binding e-signatures, timestamped and stored with your HR record.</p>${docRows()}`;
+}
+function docRows() {
+  return DOCS.map((d) => { const s = S.docs[d.id]; return `<div class="drow"><span class="di">${ic('file')}</span><span><b>${d.t}</b><span>${s ? `Signed ${DF.format(s.at)}, ${TF.format(s.at)}` : d.s}</span></span>${s ? (s.sig ? `<img src="${s.sig}" alt="Your signature">` : '<span class="tag pos">' + ic('check') + 'Signed</span>') : `<button class="btn sm primary" data-act="sign" data-id="${d.id}">${ic('pen')}Sign</button>`}</div>`; }).join('');
 }
 function chatScreen() {
-  return `<div class="top"><div><h1>Marek</h1><p>General manager · usually replies within 5 minutes</p></div></div><div class="msgs" id="msgs">${S.chat.map((m) => `<div class="m ${m.me ? 'me' : ''}">${esc(m.t)}<small>${m.ts}</small></div>`).join('')}</div><div class="quick">${['When is my schedule?', 'What is the uniform?', 'How do I swap a shift?'].map((q) => `<button data-act="say" data-t="${q}">${q}</button>`).join('')}</div>`;
-}
-function chatMount() {
-  S.unread = 0; nav();
-  $('#foot').innerHTML = `<form class="cform" id="cf"><input id="ci" placeholder="Message" autocomplete="off" aria-label="Message"><button aria-label="Send">${ic('arrow')}</button></form>`;
-  $('#cf').onsubmit = (e) => { e.preventDefault(); const v = $('#ci').value.trim(); if (v) say(v); };
-  const s = $('#scr'); s.scrollTop = s.scrollHeight;
+  let lastDay = '';
+  const msgs = S.chat.map((m, i) => { const dl = rel(m.at).match(/minute|hour|now/) ? 'Today' : DFw.format(m.at), day = dl !== lastDay ? `<div class="day">${dl}</div>` : ''; lastDay = dl; return `${day}<div class="m ${m.me ? 'me' : ''} ${i >= S.chatAnim ? 'new' : ''}">${esc(m.t)}<small>${TF.format(m.at)}${m.me ? ' · Read' : ''}</small></div>`; }).join('');
+  S.chatAnim = S.chat.length;
+  return `<div class="chead">${av('Marek Novák')}<div><b>Marek Novák</b><span>General manager · usually replies within 5 minutes</span></div></div><div class="msgs" id="msgs" aria-live="polite">${msgs}${S.typing ? '<div class="typing">Marek is typing…</div>' : ''}</div><div class="quick">${['When is my schedule?', 'What is the uniform?', 'How do I swap a shift?'].map((q) => `<button data-act="say" data-t="${q}">${q}</button>`).join('')}</div>`;
 }
 function say(text) {
-  const t = new Date(2026, 8, 28, 14, 20 + S.chat.length % 30), ts = '14:' + String(20 + S.chat.length % 30).padStart(2, '0');
-  S.chat.push({ me: true, t: text, ts }); render();
-  const m = $('#msgs'); m.insertAdjacentHTML('beforeend', '<div class="typing" id="typing">Marek is typing…</div>'); $('#scr').scrollTop = 1e6;
-  setTimeout(() => { const r = REPLY.find(([re]) => re.test(text)); S.chat.push({ me: false, t: r ? r[1] : 'Got it, I will reply within the hour.', ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); } }, 1100);
+  S.chat.push({ me: true, t: text, at: now() }); S.typing = true; render(); const s = $('#scr'); if (s) s.scrollTop = 1e6;
+  setTimeout(() => { const r = REPLY.find(([re]) => re.test(text)); S.typing = false; S.chat.push({ me: false, t: r ? r[1] : 'Got it, I will reply within the hour.', at: now() }); if (S.tab !== 'chat') { S.unread++; } render(); const s2 = $('#scr'); if (S.tab === 'chat' && s2) s2.scrollTop = 1e6; }, 1100);
 }
-function listScreen() {
-  const n = S.ticks.size;
-  return `<div class="top"><div><h1>Checklists</h1><p>${n} of ${ckTotal()} done today</p></div></div><div class="pbar" style="margin-bottom:6px">${Array.from({ length: ckTotal() }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div><div class="cl">${CHECK.map(([t, l], li) => `<h3>${t}<span>${l.filter((_, i) => S.ticks.has(li + '-' + i)).length} of ${l.length}</span></h3>${l.map(([x, tm], i) => { const k = li + '-' + i, d = S.ticks.has(k); return `<button class="ck ${d ? 'done' : ''}" data-act="tick" data-k="${k}" role="checkbox" aria-checked="${d}"><span class="bx">${d ? ic('check') : ''}</span><b>${x}</b><small>${tm}</small></button>`; }).join('')}`).join('')}</div>`;
+function shiftScreen() {
+  const n = S.ticks.size, T = ckTotal(), r = 24, C = 2 * Math.PI * r;
+  const hist = [86, 100, 92, 70, 100, 95].map((v, i) => [DFw.format(ago(6 - i)).split(' ')[0], v]); hist.push(['Today', Math.round(n / T * 100)]);
+  return `<div class="top"><div><h1>Today’s shift</h1><p>${DFw.format(NOW0)} · 09:45–23:00 · Dining room</p></div></div>
+    <div class="shead"><svg width="60" height="60" viewBox="0 0 60 60" role="img" aria-label="${n} of ${T} done"><circle cx="30" cy="30" r="${r}" fill="none" stroke="var(--border)" stroke-width="6"/><circle cx="30" cy="30" r="${r}" fill="none" stroke="var(--pos)" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C * n / T} ${C}" transform="rotate(-90 30 30)"/><text x="30" y="35" text-anchor="middle" style="font:800 14px var(--font);fill:var(--text)">${Math.round(n / T * 100)}%</text></svg>
+      <div><b>${n} of ${T} items done</b><span>${n === T ? 'All checklists completed. Great shift!' : `${pl(T - n, 'item')} left · photos go to your manager`}</span></div></div>
+    <div class="cl">${CHECK.map(([t, l], li) => `<h3>${t}<span>${l.filter((_, i) => S.ticks.has(li + '-' + i)).length} of ${l.length}</span></h3>${l.map(([x, tm, kind], i) => {
+      const k = li + '-' + i, d = S.ticks.has(k), ph = S.photos[k], tp = S.temps[k], er = S.ckErr[k];
+      const tags = kind === 'photo' ? `<span class="tag ${ph ? 'pos' : ''}">${ic('camera')}${ph ? 'Photo added' : 'Photo required'}</span>` : kind === 'temp' ? `<span class="tag ${tp != null && tp > 4 ? 'neg' : tp != null ? 'pos' : ''}">${ic('thermo')}${tp != null ? `${fmtD(tp)} °C` : 'Reading required'}</span>` : '';
+      let x2 = '';
+      if (kind === 'photo') x2 = S.loadingPhoto === k ? '<div class="photo sk" aria-label="Uploading photo"></div><span class="meta">Uploading…</span>' : ph ? `<div class="photo v${i % 3}"><span>${ph}</span></div><button class="btn sm ghost" data-act="rmPhoto" data-k="${k}">${ic('trash')}Remove</button>` : `<button class="btn sm" data-act="photo" data-k="${k}">${ic('camera')}Add photo</button>`;
+      if (kind === 'temp' && !d) x2 = `<form class="tform" data-k="${k}" data-form="temp"><input id="tmp-${k}" inputmode="decimal" placeholder="e.g. 3.5" aria-label="Fridge temperature in °C" aria-invalid="${!!er}"><span class="meta">°C</span><button class="btn sm primary">Save</button></form>`;
+      if (kind === 'temp' && d && tp > 4) x2 = `<span class="meta neg">Above 4 °C. Your manager has been alerted.</span>`;
+      return `<div class="ckr"><button class="ck ${d ? 'done' : ''}" data-act="tick" data-k="${k}" role="checkbox" aria-checked="${d}"><span class="bx">${d ? ic('check') : ''}</span><span><b>${esc(x)}</b>${tags ? `<span class="tg">${tags}</span>` : ''}</span><small>${tm}</small></button>${x2 ? `<div class="ckx">${x2}</div>` : ''}${er ? `<div class="ckx"><span class="err" role="alert">${er}</span></div>` : ''}</div>`;
+    }).join('')}`).join('')}</div>
+    <p class="lead"><span>Last 7 shifts</span><span>completion</span></p><div class="hist" role="img" aria-label="Checklist completion for the last 7 shifts">${hist.map(([d, v], i) => `<div class="${i === 6 ? 'on' : ''}" title="${d}: ${v}%"><i style="height:${Math.max(4, v * .5)}px"></i><small>${d}</small></div>`).join('')}</div>`;
+}
+function newsScreen() {
+  const L = [...S.news].sort((a, b) => (b.pin - a.pin) || (b.at - a.at));
+  return `<div class="top"><div><h1>News</h1><p>From your managers · ${pl(S.news.filter((n) => !n.mineRead).length, 'unread')}</p></div></div>${L.length ? L.map((n) => { const o = S.newsOpen === n.id;
+    return `<div class="news ${n.mineRead ? '' : 'un'}" data-act="openNews" data-id="${n.id}" role="button" tabindex="0" aria-expanded="${o}"><h3>${n.mineRead ? '' : '<i aria-label="Unread"></i>'}${esc(n.t)}</h3><div class="by">Marek Novák · ${rel(n.at)}${n.pin ? ` <span class="tag acc">${ic('pin')}Pinned</span>` : ''}${n.ack && !n.mineAck ? ' <span class="tag warn">Please confirm</span>' : ''}</div><p class="${o ? '' : 'clip'}">${esc(n.b)}</p>
+      ${o && n.ack ? (n.mineAck ? `<span class="ackd">${ic('check')}You confirmed ${rel(n.mineAck)}</span>` : `<button class="btn primary sm" style="margin-top:10px" data-act="ack" data-id="${n.id}">I have read this</button>`) : ''}</div>`; }).join('') : `<div class="empty">${ic('mega')}<b>No announcements yet</b><span>News from your managers will appear here.</span></div>`}`;
 }
 function meScreen() {
-  return `<div class="top"><div><h1>Sofia Weber</h1><p>Server · on probation</p></div><span class="xp">${ic('zap')}${xp()} XP</span></div>
-    <p class="lead">Certificates</p>${[...S.done].sort().map((i) => `<div class="cert" style="margin:0 0 10px;text-align:left"><small>Certificate</small><h3 style="font-size:17px">${MODS[i].t}</h3><p>Issued 28/09/2026 · +${MODS[i].xp} XP</p></div>`).join('')}
-    <p class="lead">Streak</p><p style="font-size:15px">6 days in a row. One more day and your streak becomes a week.</p>`;
-}
-function mgr() {
-  const me = ['Sofia W.', S.done.size], all = [...TEAM, me].sort((a, b) => b[1] - a[1]);
-  $('#mgr').innerHTML = `<h2>What the manager sees</h2><h1>Team training</h1><p>The employee app is on the right. Complete modules and this view updates on its own.</p>
-    <section class="card"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Modules completed</h2><span>of ${MODS.length}</span></div>${all.map((x) => `<div class="member ${x === me ? 'me' : ''}"><span>${x[0]}</span><div class="bar"><i style="width:${x[1] / MODS.length * 100}%"></i></div><b>${x[1]}</b></div>`).join('')}</section>
-    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Checklists today</h2><span>Sofia</span></div><div class="kpi"><b>${S.ticks.size}<small>of ${ckTotal()}</small></b><span>Items ticked this shift</span></div></section>
-    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2 style="text-transform:none;letter-spacing:0;color:var(--text);font-size:15px">Activity</h2></div><ul class="feed">${S.feed.slice(0, 5).map((f) => `<li>${f}</li>`).join('')}</ul></section>`;
+  const lv = level(), b = badges(), nb = BADGES.filter(([k]) => b[k]).length, l = me();
+  const team = active().filter((x) => x.team || x.me).map((x) => [x.name, doneOf(x), x.me]).sort((a, c) => c[1] - a[1]);
+  const certs = [...S.done].filter((i) => MODS[i].pub).sort((a, c) => a - c);
+  return `<div class="prof">${av('Sofia Weber')}<div><h1>Sofia Weber</h1><p>Server · Lindenhof Mitte · on probation</p><p>Started ${DF.format(l.start)} · mentor Lena Krämer</p></div></div>
+    <div class="stats3"><div><b>${fmt(xp())}</b><span>XP · level ${lv.n}</span></div><div><b>${S.streak}</b><span>day streak</span></div><div><b>${l.quiz == null ? '–' : l.quiz + '%'}</b><span>quiz average</span></div></div>
+    <p class="lead"><span>Achievements</span><span>${nb} of ${BADGES.length}</span></p><div class="badges">${BADGES.map(([k, n, d, icn]) => `<button class="bdg ${b[k] ? 'on' : ''} ${S.fresh.has(k) && b[k] ? 'fresh' : ''}" data-act="badge" data-k="${k}" aria-label="${n}: ${b[k] ? 'unlocked' : 'locked'}. ${d}"><span class="bi">${ic(b[k] ? icn : 'lock')}</span><b>${n}</b></button>`).join('')}</div>
+    <p class="lead"><span>Certificates</span><span>${certs.length}</span></p>${certs.length ? certs.map((i) => `<div class="drow"><span class="di">${ic('award')}</span><span><b>${esc(MODS[i].t)}</b><span>Issued ${DF.format(S.certAt[i] || now())}${best(i) >= 0 ? ` · ${best(i)}%` : ''}</span></span><button class="btn sm" data-act="cert" data-i="${i}">View</button></div>`).join('') : '<p class="muted">Complete a module to earn your first certificate.</p>'}
+    <p class="lead"><span>Documents</span><span>${signedN()} of ${DOCS.length} signed</span></p>${docRows()}
+    <p class="lead"><span>Your team</span><span>modules done</span></p><ol class="team">${team.map(([n, d, m], i) => `<li class="${m ? 'me' : ''}"><em>${i + 1}</em>${av(n)}<b>${esc(n)}${m ? ' (you)' : ''}</b><span class="meta">${d} of ${P()}</span></li>`).join('')}</ol>
+    <button class="btn" style="width:100%;margin-top:18px;height:44px" data-act="signOut">${ic('logout')}Sign out</button>`;
 }
 
+/* ── manager console ────────────────────────────────────── */
+function mgr() {
+  const A = active(), od = A.filter((l) => status(l) === 'overdue').length;
+  const T = { overview: ['Overview', ''], learners: ['Learners', A.length], builder: ['Course builder', ''], news: ['Announcements', S.news.length] };
+  const body = S.loaded[S.mtab] ? { overview: mOverview, learners: mLearners, builder: mBuilder, news: mNews }[S.mtab]() : skeleton();
+  paint($('#mgr'), `<div class="mhead"><div><h1>Onboarding</h1><p>Lindenhof Restaurant Group · ${pl(VENUES.length, 'venue')} · ${pl(A.length, 'learner')}${od ? ` · <span class="neg">${od} overdue</span>` : ''}</p></div>
+    <div class="head-actions"><button class="btn" data-act="csv">${ic('download')}Export CSV</button><button class="btn primary" data-act="addLearner">${ic('plus')}Add learner</button></div></div>
+    <div class="mtabs" role="tablist" aria-label="Manager sections">${Object.entries(T).map(([k, [t, c]]) => `<button role="tab" aria-selected="${S.mtab === k}" data-mtab="${k}" class="${S.mtab === k ? 'on' : ''}">${t}${c !== '' ? `<span class="c">${c}</span>` : ''}</button>`).join('')}</div><div id="mbody">${body}</div>`);
+  drawCharts();
+  S.feedNew = 0;
+}
+function skeleton() {
+  return `<div aria-busy="true" aria-label="Loading"><div class="kpis4">${'<div class="kpi4"><div class="sk" style="height:12px;width:60%"></div><div class="sk" style="height:26px;width:45%;margin-top:10px"></div></div>'.repeat(4)}</div><div class="card">${'<div style="display:flex;gap:12px;align-items:center;padding:10px 0"><div class="sk" style="width:34px;height:34px;border-radius:50%"></div><div style="flex:1"><div class="sk" style="height:12px;width:40%"></div><div class="sk" style="height:10px;width:25%;margin-top:6px"></div></div><div class="sk" style="height:12px;width:18%"></div></div>'.repeat(6)}</div></div>`;
+}
+function funnel() {
+  const A = active(), p = P(), st = [['Invited', A.length], ['Started', A.filter((l) => doneOf(l) > 0 || l.lessons > 0).length], ['Halfway', A.filter((l) => doneOf(l) >= Math.ceil(p / 2)).length], ['Completed', A.filter((l) => doneOf(l) >= p).length]];
+  for (let i = 1; i < st.length; i++) console.assert(st[i][1] <= st[i - 1][1], 'funnel must narrow', st);
+  return st;
+}
+function mOverview() {
+  const A = active(), cnt = { done: 0, track: 0, new: 0, overdue: 0 }; A.forEach((l) => cnt[status(l)]++);
+  console.assert(cnt.done + cnt.track + cnt.new + cnt.overdue === A.length, 'status counts reconcile');
+  const avg = Math.round(A.reduce((a, l) => a + pct(l), 0) / Math.max(1, A.length));
+  const qs = A.filter((l) => l.quiz != null), qa = qs.length ? Math.round(qs.reduce((a, l) => a + l.quiz, 0) / qs.length) : 0;
+  const F = funnel(), od = A.filter((l) => status(l) === 'overdue').sort((a, b) => a.due - b.due);
+  const ck = S.ticks.size, temps = Object.values(S.temps).filter((v) => v > 4).length;
+  return `<div class="kpis4"><div class="kpi4"><span>In onboarding</span><b>${cnt.track + cnt.new + cnt.overdue}<small>of ${A.length}</small></b><em>${pl(cnt.new, 'not started yet', 'not started yet')}</em></div>
+    <div class="kpi4"><span>Average completion</span><b>${avg}<small>%</small></b><em>of ${pl(P(), 'published module')}</em></div>
+    <div class="kpi4"><span>Overdue</span><b class="${cnt.overdue ? 'neg' : ''}">${cnt.overdue}</b><em>past the 4-week target</em></div>
+    <div class="kpi4"><span>Quiz average</span><b>${qa}<small>%</small></b><em>pass mark ${PASS}%</em></div></div>
+    <div class="g2"><section class="card"><div class="card-h"><h2>Completion funnel</h2><span>all venues</span></div>${F.map(([t, v], i) => `<div class="fun"><span>${t}</span><div class="fb2" role="img" aria-label="${t}: ${v}"><i style="width:${v / Math.max(1, F[0][1]) * 100}%;opacity:${1 - i * .17}"></i></div><b>${v}</b><em>${i ? Math.round(v / Math.max(1, F[i - 1][1]) * 100) + '%' : ''}</em></div>`).join('')}
+      <p class="muted" style="font-size:12.5px;margin-top:10px">Percentages show conversion from the previous step.</p></section>
+    <section class="card" id="overdue"><div class="card-h"><h2>Overdue learners</h2><span>${od.length}</span></div>${od.length ? od.slice(0, 5).map((l) => { const rem = l.reminded && now() - l.reminded < DAY; return `<div class="ovr">${av(l.name)}<div><b>${esc(l.name)}</b><span>${esc(l.role)} · ${l.venue} · ${dueIn(l.due)} · ${doneOf(l)} of ${P()}</span></div><button class="btn sm" data-act="remind" data-id="${l.id}" ${rem ? 'disabled' : ''}>${rem ? 'Reminded' : 'Remind'}</button></div>`; }).join('') + (od.length > 5 ? `<button class="btn sm ghost" style="margin-top:8px" data-act="showOverdue">View all ${od.length}</button>` : '') : empty('check', 'Nobody is overdue', 'Everyone is within the 4-week target.')}</section></div>
+    <div class="g2"><section class="card"><div class="card-h"><h2>Cohorts by start week</h2><span>status today</span></div><div class="legend">${['done', 'track', 'new', 'overdue'].map((k) => `<span><i style="background:${SC[k]}"></i>${STAT[k][0]}</span>`).join('')}</div><div data-chart="cohort" style="min-height:200px"></div></section>
+    <section class="card"><div class="card-h"><h2>Activity</h2><span>live</span></div><ul class="feed">${S.feed.slice(0, 6).map((f, i) => `<li class="${i === 0 && S.feedNew ? 'new' : ''}"><span>${f.t}</span><small>${rel(f.at)}</small></li>`).join('')}</ul>
+      <div class="msep" style="margin:10px 0"></div><div style="display:flex;gap:20px;flex-wrap:wrap"><div class="kpi"><b>${ck}<small>of ${ckTotal()}</small></b><span>Sofia’s checklist today</span></div><div class="kpi"><b class="${temps ? 'neg' : ''}">${temps}</b><span>temperature ${temps === 1 ? 'alert' : 'alerts'} today</span></div></div></section></div>`;
+}
+const SC = { done: 'var(--pos)', track: 'var(--accent)', new: '#c9bccf', overdue: 'var(--neg)' };
+function cohortSVG(w) {
+  const mon = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x.getTime(); };
+  const weeks = []; for (let i = 8; i >= 0; i--) weeks.push(mon(ago(i * 7)));
+  const rows = weeks.map((wk) => { const c = { done: 0, track: 0, new: 0, overdue: 0 }; active().filter((l) => mon(l.start) === wk).forEach((l) => c[status(l)]++); return c; });
+  const tot = rows.map((c) => c.done + c.track + c.new + c.overdue), h = 200, L = 28, B = 24, T = 10, ph = h - B - T, pw = w - L - 4, max = niceMax(Math.max(4, ...tot)), step = pw / weeks.length, bw = Math.min(34, step * .6);
+  let g = ''; for (let i = 0; i <= 3; i++) { const v = max / 3 * i, y = T + ph - v / max * ph; g += `<line class="grid-l" x1="${L}" x2="${w}" y1="${y}" y2="${y}"/><text x="${L - 6}" y="${y + 4}" text-anchor="end">${Math.round(v)}</text>`; }
+  const bars = rows.map((c, i) => { let y = T + ph; const x = L + step * i + (step - bw) / 2; return ['done', 'track', 'new', 'overdue'].map((k) => { if (!c[k]) return ''; const hh = c[k] / max * ph; y -= hh; return `<rect x="${x}" y="${y}" width="${bw}" height="${Math.max(1, hh - 1)}" rx="2" fill="${SC[k]}"><title>w/c ${DFs.format(weeks[i])}: ${c[k]} ${STAT[k][0].toLowerCase()}</title></rect>`; }).join('') + ((w > 420 || i % 2 === 0) ? `<text x="${x + bw / 2}" y="${h - 6}" text-anchor="middle">${DFs.format(weeks[i])}</text>` : ''); }).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Learners by start week: ${tot.join(', ')}">${g}${bars}</svg>`;
+}
+function drawCharts() { $$('[data-chart="cohort"]').forEach((el) => { el.innerHTML = cohortSVG(Math.max(240, el.clientWidth)); }); }
+let rzT; addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(drawCharts, 120); });
+
+function rowsFiltered() {
+  const q = S.q.trim().toLowerCase();
+  let L = active().filter((l) => (S.fVenue === 'all' || l.venue === S.fVenue) && (S.fStatus === 'all' || status(l) === S.fStatus) && (!q || (l.name + ' ' + l.email + ' ' + l.role + ' ' + l.id).toLowerCase().includes(q)));
+  const [k, dir] = S.sort, key = { name: (l) => l.name, venue: (l) => l.venue, start: (l) => l.start.getTime(), progress: (l) => pct(l) * 1000 + (l.lessons || 0), quiz: (l) => l.quiz ?? -1, active: (l) => (l.active ? l.active.getTime() : 0), status: (l) => ['overdue', 'new', 'track', 'done'].indexOf(status(l)) }[k];
+  return L.sort((a, b) => { const x = key(a), y = key(b); return (x < y ? -1 : x > y ? 1 : a.name.localeCompare(b.name)) * dir; });
+}
+const PER = 10;
+function mLearners() {
+  const L = rowsFiltered(), pages = Math.max(1, Math.ceil(L.length / PER)); S.page = Math.min(S.page, pages - 1);
+  const rows = L.slice(S.page * PER, S.page * PER + PER);
+  const th = (k, t, cls = '') => { const on = S.sort[0] === k; return `<span class="${cls}"><button data-act="sort" data-k="${k}" aria-sort="${on ? (S.sort[1] > 0 ? 'ascending' : 'descending') : 'none'}">${t}${ic(on && S.sort[1] > 0 ? 'up' : 'down')}</button></span>`; };
+  const filt = S.q || S.fVenue !== 'all' || S.fStatus !== 'all';
+  return `<div class="tool"><label class="srch">${ic('search')}<span class="sr">Search learners</span><input id="lq" type="search" placeholder="Search name, email, role or ID" value="${esc(S.q)}" data-in="q" autocomplete="off"><kbd aria-hidden="true">/</kbd></label>
+    <select class="sel" id="fv" data-in="fVenue" aria-label="Filter by venue"><option value="all">All venues</option>${VENUES.map((v) => `<option ${S.fVenue === v ? 'selected' : ''} value="${v}">${v}</option>`).join('')}</select>
+    <select class="sel" id="fs" data-in="fStatus" aria-label="Filter by status"><option value="all">All statuses</option>${Object.entries(STAT).map(([k, [t]]) => `<option ${S.fStatus === k ? 'selected' : ''} value="${k}">${t}</option>`).join('')}</select></div>
+    <section class="card tcard"><div class="tbl lt" role="table" aria-label="Learners"><div class="tr th" role="row">${th('name', 'Learner')}${th('venue', 'Venue', 'hc')}${th('start', 'Started', 'hc')}${th('progress', 'Progress', 'hc2')}${th('quiz', 'Quiz', 'hc')}${th('active', 'Last active', 'hc')}${th('status', 'Status')}</div>
+    ${rows.length ? rows.map((l) => { const s = status(l), d = doneOf(l); return `<div class="tr" role="row" tabindex="0" data-open="${l.id}" data-act="openL" data-id="${l.id}" aria-label="${esc(l.name)}, ${STAT[s][0]}"><div class="nm">${av(l.name)}<div><b>${esc(l.name)}${l.me ? '<span class="me-tag">Live</span>' : ''}</b><span>${esc(l.role)} · ${l.id}</span></div></div>
+      <span class="cellm hc">${l.venue}</span><span class="cellm hc">${DFs.format(l.start)}</span><div class="pg hc2"><div class="bar"><i style="width:${pct(l)}%"></i></div><span>${d} of ${P()} · ${pct(l)}%</span></div><span class="cellm hc">${l.quiz == null ? '–' : l.quiz + '%'}</span><span class="cellm hc">${rel(l.active)}</span><span>${statusPill(s)}</span></div>`; }).join('')
+      : `<div style="padding:10px">${empty('search', filt ? 'No learners match these filters' : 'No learners yet', filt ? (S.q ? `Nothing found for “${esc(S.q)}”.` : 'Try another venue or status.') : 'Add your first learner to start onboarding.', filt ? '<button class="btn sm" data-act="clearF" style="margin-top:6px">Clear filters</button>' : '')}</div>`}</div>
+    <div class="pager"><span>${L.length ? `Showing ${S.page * PER + 1}–${S.page * PER + rows.length} of ${L.length}` : 'Showing 0 of 0'}</span><div><button data-act="page" data-p="${S.page - 1}" ${S.page ? '' : 'disabled'} aria-label="Previous page">${ic('left')}</button>${Array.from({ length: pages }, (_, i) => `<button data-act="page" data-p="${i}" class="${i === S.page ? 'on' : ''}" aria-label="Page ${i + 1}" ${i === S.page ? 'aria-current="page"' : ''}>${i + 1}</button>`).join('')}<button data-act="page" data-p="${S.page + 1}" ${S.page < pages - 1 ? '' : 'disabled'} aria-label="Next page">${ic('right')}</button></div></div></section>`;
+}
+function drawer() {
+  const host = $('#drawer'); if (!host) return;
+  const l = S.drawer && S.learners.find((x) => x.id === S.drawer && !x.removed);
+  if (!l) { host.innerHTML = ''; return; }
+  const s = status(l), d = doneOf(l), first = !host.firstChild;
+  const mods = pubIdx().map((i, k) => { const ok = l.me ? S.done.has(i) : k < d, cu = !ok && k === d; return `<div class="dmod"><span class="${ok ? 'pos' : cu ? 'acc' : 'muted'}">${ic(ok ? 'check' : cu ? 'play' : 'lock')}</span><span>${esc(MODS[i].t)}</span><em>${ok ? (l.me && best(i) >= 0 ? best(i) + '%' : 'Done') : cu ? (l.lessons ? `${l.lessons} of ${MODS[i].steps.length} lessons` : 'Next') : ''}</em></div>`; }).join('');
+  const rem = l.reminded && now() - l.reminded < DAY;
+  paint(host, `<div class="dscrim" data-act="closeDrawer"></div><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dtitle" ${first ? '' : 'style="animation:none"'}><div class="dh">${av(l.name)}<div><h2 id="dtitle">${esc(l.name)}</h2><p>${esc(l.role)} · Lindenhof ${l.venue}, ${VCITY[l.venue]}</p><p>${esc(l.email)}</p></div><button class="ibtn" data-act="closeDrawer" id="dclose" aria-label="Close">${ic('x')}</button></div>
+    <div class="db">${statusPill(s)} <span class="meta">&nbsp;${l.id} · started ${DF.format(l.start)} · ${dueIn(l.due)}${s === 'done' ? '' : ''}</span>
+    <div class="dstats"><div><span>Path progress</span><b>${pct(l)}%</b></div><div><span>Quiz average</span><b>${l.quiz == null ? '–' : l.quiz + '%'}</b></div><div><span>Documents signed</span><b>${l.docs} of ${DOCS.length}</b></div><div><span>Last active</span><b>${rel(l.active)}</b></div></div>
+    <p class="sub">Modules <span>${d} of ${P()}</span></p>${mods}
+    ${l.me ? `<p class="sub">Shift checklist today <span>${S.ticks.size} of ${ckTotal()}</span></p><div class="bar"><i style="width:${S.ticks.size / ckTotal() * 100}%"></i></div>` : ''}
+    ${l.reminded ? `<p class="meta" style="margin-top:14px">Last reminder sent ${rel(l.reminded)}</p>` : ''}</div>
+    <div class="df"><button class="btn primary" data-act="remind" data-id="${l.id}" ${rem || s === 'done' ? 'disabled' : ''}>${ic('bell')}${rem ? 'Reminder sent' : 'Send reminder'}</button><button class="btn" data-act="extend" data-id="${l.id}" ${s === 'done' ? 'disabled' : ''}>${ic('calendar')}Extend 7 days</button>${l.me ? '' : `<button class="btn ghost neg" data-act="removeL" data-id="${l.id}">${ic('trash')}Remove</button>`}</div></aside>`);
+  if (first) setTimeout(() => $('#dclose')?.focus(), 30);
+}
+function mBuilder() {
+  const i = Math.min(S.bsel, MODS.length - 1), m = MODS[i];
+  return `<div class="bld"><div><div class="bmods">${MODS.map((x, k) => `<button class="bm ${k === i ? 'on' : ''}" data-act="bsel" data-i="${k}"><span class="bi">${ic(x.icon)}</span><span><b>${esc(x.t)}</b><span>${x.pub ? 'Published' : 'Draft'} · ${pl(x.steps.length, 'lesson')} · ${pl(x.quiz.length, 'question')}</span></span></button>`).join('')}</div>
+    <button class="btn" style="width:100%;margin-top:8px" data-act="newMod">${ic('plus')}New module</button></div>
+    <section class="card"><div class="bh"><div><h2>${esc(m.t)} <span class="pill ${m.pub ? 'pos' : 'warn'}"><i></i>${m.pub ? 'Published' : 'Draft'}</span></h2><p>${esc(m.d)}</p><p>+${m.xp} XP · pass mark ${PASS}% · position ${i + 1} of ${MODS.length}</p></div>
+      <div class="head-actions"><button class="btn sm" data-act="editMod">${ic('edit')}Edit details</button>${m.pub ? '' : `<button class="btn sm primary" data-act="publish">Publish</button><button class="btn sm ghost" data-act="delMod" aria-label="Delete draft module">${ic('trash')}</button>`}</div></div>
+      <p class="sub">Lessons <button class="btn sm" data-act="addLesson">${ic('plus')}Add lesson</button></p>
+      ${m.steps.length ? m.steps.map((s, k) => `<div class="bl"><span class="n">${k + 1}</span><div style="min-width:0"><b>${esc(s[0])}</b><span>${esc(s[1])}</span></div><div class="acts"><button class="ibtn" data-act="mvLesson" data-i="${k}" data-d="-1" aria-label="Move up" ${k ? '' : 'disabled'}>${ic('up')}</button><button class="ibtn" data-act="mvLesson" data-i="${k}" data-d="1" aria-label="Move down" ${k < m.steps.length - 1 ? '' : 'disabled'}>${ic('down')}</button><button class="ibtn" data-act="addLesson" data-i="${k}" aria-label="Edit lesson">${ic('edit')}</button><button class="ibtn" data-act="delLesson" data-i="${k}" aria-label="Delete lesson">${ic('trash')}</button></div></div>`).join('') : empty('book', 'No lessons yet', 'Add the first lesson to be able to publish this module.')}
+      <p class="sub">Quiz questions <button class="btn sm" data-act="addQ">${ic('plus')}Add question</button></p>
+      ${m.quiz.length ? m.quiz.map((q, k) => `<div class="bl"><span class="n">Q${k + 1}</span><div style="min-width:0"><b>${esc(q.q)}</b><span class="pos">Answer: ${esc(q.o[q.a])}</span></div><div class="acts"><button class="ibtn" data-act="addQ" data-i="${k}" aria-label="Edit question">${ic('edit')}</button><button class="ibtn" data-act="delQ" data-i="${k}" aria-label="Delete question">${ic('trash')}</button></div></div>`).join('') : `<p class="muted" style="font-size:13.5px;padding:6px 0">No quiz. Learners complete this module by reading every lesson.</p>`}</section></div>`;
+}
+function mNews() {
+  const aud = (n) => (n.aud === 'Mitte' ? active().filter((l) => l.venue === 'Mitte').length : active().length);
+  return `<div class="tool" style="justify-content:space-between"><p class="muted">${pl(S.news.length, 'announcement')} · employees see them in the News tab</p><button class="btn primary" data-act="compose">${ic('mega')}New announcement</button></div>
+    ${S.news.length ? [...S.news].sort((a, b) => (b.pin - a.pin) || (b.at - a.at)).map((n) => { const A = aud(n), r = Math.min(A, n.reads), a = Math.min(A, n.acks); return `<section class="card ann"><h3>${esc(n.t)}${n.pin ? `<span class="tag acc">${ic('pin')}Pinned</span>` : ''}${n.ack ? '<span class="tag warn">Needs confirmation</span>' : ''}</h3><p>${esc(n.b)}</p>
+      <div class="st"><div>${barRow('Read', r / A * 100, `${r} of ${A}`)}</div>${n.ack ? `<div>${barRow('Confirmed', a / A * 100, `${a} of ${A}`)}</div>` : ''}<div class="meta" style="align-self:end">${n.aud === 'Mitte' ? 'Lindenhof Mitte' : 'All venues'} · ${rel(n.at)}<br><button class="linkb" data-act="pin" data-id="${n.id}">${n.pin ? 'Unpin' : 'Pin to top'}</button> · <button class="linkb" data-act="delNews" data-id="${n.id}">Delete</button></div></div></section>`; }).join('') : `<section class="card">${empty('mega', 'No announcements', 'Post one to reach every venue at once.')}</section>`}`;
+}
+
+/* ── modals ─────────────────────────────────────────────── */
+const fld = (id, label, input, hint = '') => `<div class="field"><label for="${id}">${label}</label>${input}${hint ? `<span class="hint">${hint}</span>` : ''}<span class="err" id="${id}-e" role="alert"></span></div>`;
+function errs(form, E) {
+  $$('[aria-invalid]', form).forEach((x) => x.setAttribute('aria-invalid', 'false')); $$('.err', form).forEach((x) => { x.textContent = ''; });
+  let first = null;
+  for (const [id, msg] of Object.entries(E)) { const x = $('#' + id, form), e = $('#' + id + '-e', form); if (x) { x.setAttribute('aria-invalid', 'true'); x.setAttribute('aria-describedby', id + '-e'); first = first || x; } if (e) e.textContent = msg; }
+  if (first) first.focus(); return !first;
+}
+function confirmBox(title, body, ok, fn, danger) {
+  modal(`<h2>${title}</h2><p>${body}</p><div class="modal-actions"><button class="btn" data-act="mclose" id="mcancel">Cancel</button><button class="btn ${danger ? 'danger' : 'primary'}" id="mok">${ok}</button></div>`, (s) => { $('#mok', s).onclick = () => { closeModal(); fn(); }; (danger ? $('#mcancel', s) : $('#mok', s)).focus(); });
+}
+let undoT;
+function undoToast(msg, fn) {
+  const u = $('#undo'); u.innerHTML = `<span></span><button type="button">Undo</button>`; u.firstChild.textContent = msg;
+  u.lastChild.onclick = () => { clearTimeout(undoT); u.classList.remove('show'); fn(); toast('Change undone'); };
+  u.classList.add('show'); clearTimeout(undoT); undoT = setTimeout(() => u.classList.remove('show'), 5000);
+}
+function certModal(i) {
+  const m = MODS[i], at = S.certAt[i] || now(), id = `RHR-${at.getFullYear()}-${String(1041 * 7 + i * 131).padStart(4, '0')}-${i + 1}`;
+  modal(`<h2 class="sr">Certificate</h2><div class="cert"><div class="cb">${ic('graduation')}RestOS HR · Lindenhof Restaurant Group</div><small>Certificate of completion</small><div class="to">This certifies that</div><h3>Sofia Weber</h3><div class="to">has successfully completed</div><div class="mod">${esc(m.t)}</div><div class="seal">${ic('award')}</div>
+    <div class="sg"><div><b>Marek Novák</b>General manager</div><div style="text-align:right"><b style="font-style:normal">${DF.format(at)}</b>${best(i) >= 0 ? `Score ${best(i)}% · ` : ''}ID ${id}</div></div></div>
+    <div class="modal-actions"><button class="btn" data-act="mclose">Close</button><button class="btn primary" data-act="print">${ic('printer')}Print or save as PDF</button></div>`);
+  $('.modal').classList.add('wide');
+}
+function signModal(id) {
+  const d = DOCS.find((x) => x.id === id);
+  modal(`<h2>${d.t}</h2><p>Read the document, then sign with your finger, mouse or by typing your name.</p><div class="docbody" tabindex="0" aria-label="Document text">${d.body.map((p) => `<p>${p}</p>`).join('')}</div>
+    <form id="sf" novalidate>${fld('sname', 'Full name', '<input id="sname" autocomplete="name" placeholder="As on your contract">')}
+    <label class="sr" for="sig">Signature</label><div class="sigwrap"><canvas id="sig" aria-label="Signature pad. Draw your signature, or use Type instead."></canvas><span class="line"></span><span class="ph">Sign above the line</span></div>
+    <div class="sigtools"><button type="button" class="btn sm ghost" id="stype">${ic('edit')}Type instead</button><button type="button" class="btn sm ghost" id="sclear">Clear</button></div><span class="err" id="sig-e" role="alert"></span>
+    <label class="chk"><input type="checkbox" id="sagree"> <span>I have read and agree to this document, and I accept an electronic signature as binding.</span></label><span class="err" id="sagree-e" role="alert"></span>
+    <div class="modal-actions"><button type="button" class="btn" data-act="mclose">Cancel</button><button class="btn primary">${ic('pen')}Sign document</button></div></form>`, (s) => {
+    const c = $('#sig', s), r = c.getBoundingClientRect(), dpr = devicePixelRatio || 1; c.width = r.width * dpr; c.height = r.height * dpr;
+    const x = c.getContext('2d'); x.scale(dpr, dpr); x.lineWidth = 2.4; x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = '#2a1f2c'; x.fillStyle = '#2a1f2c';
+    let on = false, ink = 0, last; const pt = (e) => { const b = c.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
+    c.onpointerdown = (e) => { on = true; c.setPointerCapture?.(e.pointerId); last = pt(e); x.beginPath(); x.arc(last.x, last.y, 1.2, 0, 7); x.fill(); ink += 1; };
+    c.onpointermove = (e) => { if (!on) return; const p = pt(e); x.beginPath(); x.moveTo(last.x, last.y); x.lineTo(p.x, p.y); x.stroke(); ink += Math.hypot(p.x - last.x, p.y - last.y); last = p; };
+    c.onpointerup = c.onpointercancel = () => { on = false; };
+    const clear = () => { x.clearRect(0, 0, r.width, r.height); ink = 0; };
+    $('#sclear', s).onclick = clear;
+    $('#stype', s).onclick = () => { const n = $('#sname', s).value.trim(); if (!n) return errs($('#sf', s), { sname: 'Type your full name first, then press Type instead' }); clear(); x.font = 'italic 700 34px Nunito, system-ui'; x.fillText(n, 20, r.height - 46, r.width - 40); ink = 100; };
+    $('#sf', s).onsubmit = (e) => {
+      e.preventDefault(); const E = {}, n = $('#sname', s).value.trim().replace(/\s+/g, ' ');
+      if (!n) E.sname = 'Enter your full name'; else if (n.toLowerCase() !== 'sofia weber') E.sname = 'The name must match your contract: Sofia Weber';
+      if (ink < 25) E.sig = 'Draw your signature in the box, or use Type instead';
+      if (!$('#sagree', s).checked) E.sagree = 'Confirm that you have read and agree to the document';
+      if (!errs($('#sf', s), E)) return;
+      S.docs[id] = { at: now(), sig: c.toDataURL('image/png') }; closeModal(); touch();
+      feed(`<b>Sofia Weber</b> signed the ${d.t.toLowerCase()}`); notify('manager', 'pen', `<b>Sofia Weber</b> signed the ${d.t.toLowerCase()}`, 'sofia');
+      toast(`${d.t} signed`); render();
+    };
+  });
+}
+function learnerForm() {
+  modal(`<h2>Add learner</h2><p>They get an invitation email and appear in the learning path today.</p><form id="lf" novalidate>
+    ${fld('lname', 'Full name', '<input id="lname" autocomplete="off" maxlength="80" placeholder="e.g. Clara Hoffmann">')}
+    ${fld('lmail', 'Work email', '<input id="lmail" type="email" autocomplete="off" placeholder="name@lindenhof.example">')}
+    <div class="row2">${fld('lrole', 'Role', `<select id="lrole"><option value="">Choose a role</option>${ROLES.map((r) => `<option>${r}</option>`).join('')}</select>`)}${fld('lven', 'Venue', `<select id="lven">${VENUES.map((v) => `<option>${v}</option>`).join('')}</select>`)}</div>
+    <div class="row2">${fld('lstart', 'Start date', `<input id="lstart" type="date" value="${iso(NOW0)}">`)}${fld('ldue', 'Target', '<select id="ldue"><option value="14">2 weeks</option><option value="21">3 weeks</option><option value="28" selected>4 weeks</option></select>')}</div>
+    <div class="modal-actions"><button type="button" class="btn" data-act="mclose">Cancel</button><button class="btn primary">Send invitation</button></div></form>`, (s) => {
+    $('#lf', s).onsubmit = (e) => {
+      e.preventDefault(); const E = {}, n = $('#lname', s).value.trim().replace(/\s+/g, ' '), m = $('#lmail', s).value.trim().toLowerCase(), role = $('#lrole', s).value, st = $('#lstart', s).value;
+      if (!n) E.lname = 'Enter the learner’s full name'; else if (n.split(' ').length < 2) E.lname = 'Enter both first and last name';
+      if (!m) E.lmail = 'Enter a work email'; else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m)) E.lmail = 'Enter a valid email, like name@lindenhof.example'; else if (S.learners.some((l) => !l.removed && l.email === m)) E.lmail = 'A learner with this email already exists';
+      if (!role) E.lrole = 'Choose a role';
+      const sd = st ? new Date(st + 'T09:00') : null;
+      if (!sd || isNaN(sd)) E.lstart = 'Choose a start date'; else if (sd < ago(30) || sd > ago(-90)) E.lstart = 'Choose a date within the last 30 or next 90 days';
+      if (!errs($('#lf', s), E)) return;
+      const l = { id: 'L-' + (1041 + S.learners.length), name: n, email: m, role, venue: $('#lven', s).value, start: sd, due: new Date(sd.getTime() + +$('#ldue', s).value * DAY), done: 0, lessons: 0, quiz: null, docs: 0, active: null, reminded: null, removed: false };
+      S.learners.push(l); closeModal(); feed(`<b>Marek</b> invited ${esc(n)} (${esc(role)}, ${l.venue})`);
+      toast(`Invitation sent to ${m}`); S.q = ''; S.fVenue = 'all'; S.fStatus = 'all'; S.sort = ['start', -1]; S.page = 0; S.mtab = 'learners'; S.loaded.learners = true; render();
+    };
+  });
+}
+function lessonForm(k) {
+  const m = MODS[S.bsel], ed = k != null && m.steps[k];
+  modal(`<h2>${ed ? 'Edit lesson' : 'Add lesson'}</h2><p>${esc(m.t)} · lesson ${ed ? k + 1 : m.steps.length + 1}</p><form id="lsf" novalidate>
+    ${fld('lt', 'Title', `<input id="lt" maxlength="60" value="${ed ? esc(ed[0]) : ''}" placeholder="e.g. Splitting a bill">`)}
+    ${fld('lb', 'Lesson text', `<textarea id="lb" maxlength="600" style="height:130px" placeholder="What should a new hire know? Keep it short and practical.">${ed ? esc(ed[1]) : ''}</textarea>`, '<span id="lbc">0</span> of 600 characters · at least 40')}
+    <div class="modal-actions"><button type="button" class="btn" data-act="mclose">Cancel</button><button class="btn primary">${ed ? 'Save lesson' : 'Add lesson'}</button></div></form>`, (s) => {
+    const cnt = () => { $('#lbc', s).textContent = fmt($('#lb', s).value.length); }; cnt(); $('#lb', s).oninput = cnt;
+    $('#lsf', s).onsubmit = (e) => {
+      e.preventDefault(); const t = $('#lt', s).value.trim(), b = $('#lb', s).value.trim(), E = {};
+      if (!t) E.lt = 'Give the lesson a title'; else if (m.steps.some((x, j) => j !== k && x[0].toLowerCase() === t.toLowerCase())) E.lt = 'This module already has a lesson with that title';
+      if (b.length < 40) E.lb = `Write at least 40 characters so the lesson is useful (${b.length} so far)`;
+      if (!errs($('#lsf', s), E)) return;
+      if (ed) m.steps[k] = [t, b]; else m.steps.push([t, b]);
+      closeModal(); toast(ed ? 'Lesson saved' : `Lesson added to ${m.t}`); if (!ed && m.pub) feed(`<b>Marek</b> added the lesson “${esc(t)}” to ${esc(m.t)}`); render();
+    };
+  });
+}
+function questionForm(k) {
+  const m = MODS[S.bsel], ed = k != null && m.quiz[k];
+  modal(`<h2>${ed ? 'Edit question' : 'Add question'}</h2><p>${esc(m.t)} · multiple choice, one correct answer</p><form id="qf" novalidate>
+    ${fld('qq', 'Question', `<input id="qq" maxlength="140" value="${ed ? esc(ed.q) : ''}" placeholder="e.g. How do you split a bill three ways?">`)}
+    <div class="field"><label id="qol">Answers · select the correct one</label><div role="radiogroup" aria-labelledby="qol">${[0, 1, 2, 3].map((i) => `<div class="optrow"><input type="radio" name="qa" value="${i}" aria-label="Answer ${'ABCD'[i]} is correct" ${ed && ed.a === i ? 'checked' : ''}><input type="text" id="qo${i}" maxlength="90" placeholder="Answer ${'ABCD'[i]}" value="${ed ? esc(ed.o[i]) : ''}"></div>`).join('')}</div><span class="err" id="qo-e" role="alert"></span></div>
+    ${fld('qw', 'Explanation', `<input id="qw" maxlength="160" value="${ed ? esc(ed.why) : ''}" placeholder="Shown after the learner answers">`)}
+    <div class="modal-actions"><button type="button" class="btn" data-act="mclose">Cancel</button><button class="btn primary">${ed ? 'Save question' : 'Add question'}</button></div></form>`, (s) => {
+    $('#qf', s).onsubmit = (e) => {
+      e.preventDefault(); const E = {}, q = $('#qq', s).value.trim(), o = [0, 1, 2, 3].map((i) => $('#qo' + i, s).value.trim()), a = $('input[name=qa]:checked', s), w = $('#qw', s).value.trim();
+      if (q.length < 10) E.qq = 'Write a question of at least 10 characters';
+      if (o.some((x) => !x)) E.qo = 'Fill in all four answers'; else if (new Set(o.map((x) => x.toLowerCase())).size < 4) E.qo = 'Each answer must be different'; else if (!a) E.qo = 'Select the correct answer';
+      if (!w) E.qw = 'Explain the right answer. Learners see this after answering';
+      if (E.qo) { const f = $('#qo0', s); E.qo0 = E.qo; delete E.qo; $('#qo-e', s).textContent = E.qo0; f.id = 'qo0'; }
+      const ok = errs($('#qf', s), E); if (E.qo0) $('#qo-e', s).textContent = E.qo0; if (!ok) return;
+      const item = { q, o, a: +a.value, why: w }; if (ed) m.quiz[k] = item; else m.quiz.push(item);
+      closeModal(); toast(ed ? 'Question saved' : `Question added · ${pl(m.quiz.length, 'question')} in the quiz`); render();
+    };
+  });
+}
+function moduleForm(isNew) {
+  const m = isNew ? null : MODS[S.bsel], icons = ['book', 'coin', 'wine', 'utensils', 'shield', 'heart', 'star', 'users'];
+  modal(`<h2>${isNew ? 'New module' : 'Edit module'}</h2><p>${isNew ? 'New modules start as drafts. Learners see them once you publish.' : 'Changes show up in the learning path straight away.'}</p><form id="mf" novalidate>
+    ${fld('mt', 'Title', `<input id="mt" maxlength="40" value="${m ? esc(m.t) : ''}" placeholder="e.g. Wine basics">`)}
+    ${fld('md', 'Short description', `<input id="md" maxlength="120" value="${m ? esc(m.d) : ''}" placeholder="One sentence shown on the module page">`)}
+    <div class="row2">${fld('mx', 'XP reward', `<input id="mx" type="number" min="50" max="300" step="10" value="${m ? m.xp : 100}">`, '50 to 300')}${fld('mi', 'Icon', `<select id="mi">${icons.map((x) => `<option ${m && m.icon === x ? 'selected' : ''} value="${x}">${x[0].toUpperCase() + x.slice(1)}</option>`).join('')}</select>`)}</div>
+    <div class="modal-actions"><button type="button" class="btn" data-act="mclose">Cancel</button><button class="btn primary">${isNew ? 'Create draft' : 'Save'}</button></div></form>`, (s) => {
+    $('#mf', s).onsubmit = (e) => {
+      e.preventDefault(); const E = {}, t = $('#mt', s).value.trim(), dsc = $('#md', s).value.trim(), x = +$('#mx', s).value;
+      if (t.length < 3) E.mt = 'Enter a title of at least 3 characters'; else if (MODS.some((y) => y !== m && y.t.toLowerCase() === t.toLowerCase())) E.mt = 'A module with this title already exists';
+      if (!dsc) E.md = 'Add a short description';
+      if (!Number.isFinite(x) || x < 50 || x > 300 || x % 10) E.mx = 'Enter a multiple of 10 between 50 and 300';
+      if (!errs($('#mf', s), E)) return;
+      if (isNew) { MODS.push({ t, d: dsc, xp: x, icon: $('#mi', s).value, pub: false, steps: [], quiz: [] }); S.bsel = MODS.length - 1; } else Object.assign(m, { t, d: dsc, xp: x, icon: $('#mi', s).value });
+      closeModal(); toast(isNew ? `Draft “${t}” created` : 'Module saved'); render();
+    };
+  });
+}
+function composeForm() {
+  modal(`<h2>New announcement</h2><p>Sent as a push notification and shown in the News tab.</p><form id="nf" novalidate>
+    ${fld('nt', 'Title', '<input id="nt" maxlength="80" placeholder="e.g. Deep clean on Sunday">')}
+    ${fld('nb', 'Message', '<textarea id="nb" maxlength="600" style="height:110px" placeholder="What do people need to know, and by when?"></textarea>')}
+    ${fld('na', 'Audience', '<select id="na"><option value="All venues">All venues</option><option value="Mitte">Lindenhof Mitte only</option></select>')}
+    <label class="chk" style="margin-bottom:8px"><input type="checkbox" id="nk" checked> <span>Ask staff to confirm they have read it</span></label><label class="chk"><input type="checkbox" id="np"> <span>Pin to the top</span></label>
+    <div class="modal-actions"><button type="button" class="btn" data-act="mclose">Cancel</button><button class="btn primary">Post announcement</button></div></form>`, (s) => {
+    $('#nf', s).onsubmit = (e) => {
+      e.preventDefault(); const E = {}, t = $('#nt', s).value.trim(), b = $('#nb', s).value.trim();
+      if (t.length < 4) E.nt = 'Enter a title of at least 4 characters';
+      if (b.length < 20) E.nb = `Write at least 20 characters (${b.length} so far)`;
+      if (!errs($('#nf', s), E)) return;
+      const n = { id: uid('n'), t, b, at: now(), pin: $('#np', s).checked, ack: $('#nk', s).checked, aud: $('#na', s).value, reads: 0, acks: 0, mineRead: false, mineAck: false };
+      S.news.unshift(n); closeModal(); feed(`<b>Marek</b> posted “${esc(t)}”`); notify('employee', 'mega', `<b>Marek</b> posted “${esc(t)}”`, 'news');
+      toast('Announcement posted'); S.mtab = 'news'; render();
+    };
+  });
+}
+function helpModal() {
+  modal(`<h2>Help and support</h2><p>RestOS HR v2.8.1 · release of 21 Sept 2026</p>
+    <div class="keys"><kbd>/</kbd><span>Search learners</span><kbd>Esc</kbd><span>Close a dialog, drawer or menu</span><kbd>?</kbd><span>Open this help</span></div>
+    <dl class="help"><dt>A learner did not get the invitation</dt><dd>Open the learner, check the email address and send a reminder. Invitations expire after 14 days.</dd>
+    <dt>How are quizzes scored?</dt><dd>Each module quiz needs ${PASS}% to pass. Learners can retry as often as they need; the best score counts.</dd>
+    <dt>Contact support</dt><dd>support@restos.example · Monday to Friday, 08:00–18:00 CET. Average first reply: 2 hours.</dd></dl>
+    <div class="modal-actions"><button class="btn primary" data-act="mclose">Done</button></div>`);
+}
+
+/* ── sign-in ────────────────────────────────────────────── */
+const CREDS = { employee: 'sofia.weber@lindenhof.example', manager: 'marek.novak@lindenhof.example' };
+function signInHTML() {
+  const r = S.signRole;
+  return `<div class="auth"><div class="auth-art">${heroImg()}<div><h2>Onboard every new hire in days, not weeks.</h2><p>Training, checklists, documents and team chat for restaurant staff, on any phone.</p></div></div>
+    <div class="auth-f"><form id="af" novalidate><div class="brand"><span class="brand-mark">${ic('graduation')}</span><span class="brand-name">RestOS HR</span></div><h1>Sign in</h1><p>Lindenhof Restaurant Group workspace</p>
+    <div class="seg" role="tablist" aria-label="Account type"><button type="button" role="tab" aria-selected="${r === 'employee'}" class="${r === 'employee' ? 'on' : ''}" data-act="signRole" data-r="employee">${ic('user')}Employee</button><button type="button" role="tab" aria-selected="${r === 'manager'}" class="${r === 'manager' ? 'on' : ''}" data-act="signRole" data-r="manager">${ic('users')}Manager</button></div>
+    ${fld('aem', 'Email', `<input id="aem" type="email" autocomplete="username" value="${CREDS[r]}">`)}
+    ${fld('apw', 'Password', '<input id="apw" type="password" autocomplete="current-password" value="demo2026">')}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:-4px 0 14px"><label class="chk" style="font-size:13.5px"><input type="checkbox" checked> <span>Keep me signed in</span></label><button type="button" class="linkb" data-act="forgot">Forgot password?</button></div>
+    <button class="btn primary cta" id="abtn" ${S.signing ? 'disabled' : ''}>${S.signing ? '<span class="spin"></span>Signing in…' : 'Sign in'}</button>
+    <div class="demo-creds"><b>Demo account</b> · the password is <b>demo2026</b>. Switch between Employee and Manager above.</div>
+    <div class="afoot"><span>RestOS HR v2.8.1</span><span>GDPR · data hosted in the EU</span></div></form></div></div>`;
+}
+function bindSignIn() {
+  $('#af').onsubmit = (e) => {
+    e.preventDefault(); if (S.signing) return;
+    const m = $('#aem').value.trim().toLowerCase(), p = $('#apw').value, E = {};
+    if (!m) E.aem = 'Enter your email'; else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(m)) E.aem = 'Enter a valid email address';
+    if (!p) E.apw = 'Enter your password';
+    if (!errs($('#af'), E)) return;
+    const role = Object.keys(CREDS).find((k) => CREDS[k] === m);
+    if (!role || p !== 'demo2026') return errs($('#af'), { apw: 'Incorrect email or password. The demo password is demo2026' });
+    S.signing = true; const b = $('#abtn'); b.disabled = true; b.innerHTML = '<span class="spin"></span>Signing in…';
+    setTimeout(() => { S.signing = false; S.auth = true; S.role = role; S.tab = 'path'; S.view = 'path'; S.mtab = 'overview'; S.loaded = { overview: true }; shell(); toast(`Signed in as ${role === 'manager' ? 'Marek Novák' : 'Sofia Weber'}`); }, 700);
+  };
+}
+
+/* ── events ─────────────────────────────────────────────── */
 document.addEventListener('click', (e) => {
-  const t = e.target.closest('[data-tab]'); if (t) { S.tab = t.dataset.tab; return render(); }
-  const a = e.target.closest('[data-act]'); if (a) ACT[a.dataset.act](a.dataset);
+  if (S.menu && !e.target.closest('.menu') && !e.target.closest('[data-act="menu"]')) { S.menu = null; header(); }
+  const t = e.target.closest('[data-tab]'); if (t) { go(t.dataset.tab); return; }
+  const mt = e.target.closest('[data-mtab]'); if (mt) return mtab(mt.dataset.mtab);
+  const a = e.target.closest('[data-act]'); if (a && ACT[a.dataset.act]) ACT[a.dataset.act](a.dataset, e, a);
 });
+document.addEventListener('submit', (e) => {
+  const f = e.target.closest('[data-form="temp"]'); if (!f) return; e.preventDefault();
+  const k = f.dataset.k, raw = $('input', f).value.trim().replace(',', '.'), v = parseFloat(raw);
+  if (!raw) S.ckErr[k] = 'Enter the reading in °C'; else if (!/^-?\d+(\.\d+)?$/.test(raw) || v < -10 || v > 20) S.ckErr[k] = 'Enter a number between −10 and 20 °C';
+  else { delete S.ckErr[k]; S.temps[k] = v; tickOn(k); if (v > 4) { notify('manager', 'thermo', `Walk-in fridge at <b>Mitte</b> logged at ${fmtD(v)} °C by Sofia`, 'overview'); feed(`<b>Sofia Weber</b> logged the walk-in fridge at <span class="neg">${fmtD(v)} °C</span>`); toast('Reading saved. Above 4 °C, your manager has been alerted'); } else toast(`Reading saved: ${fmtD(v)} °C`); }
+  render();
+});
+document.addEventListener('input', (e) => {
+  const k = e.target.dataset && e.target.dataset.in; if (!k) return;
+  S[k] = e.target.value; S.page = 0; mgr();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if ($('#scrim')) return;
+    if (S.menu) { const m = S.menu; S.menu = null; header(); $(m === 'bell' ? '#bellBtn' : '#userBtn')?.focus(); return; }
+    if (S.drawer) { const id = S.drawer; S.drawer = null; drawer(); $(`[data-open="${id}"]`)?.focus(); }
+    return;
+  }
+  const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
+  if (e.key === '/' && !typing && S.auth && S.role === 'manager' && !$('#scrim')) { e.preventDefault(); if (S.mtab !== 'learners') { S.mtab = 'learners'; S.loaded.learners = true; S.drawer = null; render(); } $('#lq')?.focus(); }
+  if (e.key === '?' && !typing && S.auth && !$('#scrim')) { e.preventDefault(); helpModal(); }
+  if ((e.key === 'Enter' || e.key === ' ') && !typing && e.target.matches('[data-act="openL"], .news[data-act]')) { e.preventDefault(); e.target.click(); }
+}, true);
+addEventListener('online', () => $('#offline')?.classList.remove('on'));
+addEventListener('offline', () => $('#offline')?.classList.add('on'));
+
+function mtab(k) {
+  S.mtab = k; S.drawer = null;
+  if (!S.loaded[k]) { setTimeout(() => { S.loaded[k] = true; if (S.mtab === k) render(); }, 450); }
+  render();
+}
+function tickOn(k) { if (!S.ticks.has(k)) { S.ticks.add(k); touch(); if (S.ticks.size === ckTotal()) { feed('<b>Sofia Weber</b> completed all shift checklists'); notify('manager', 'check', '<b>Sofia Weber</b> completed every checklist item today', 'sofia'); toast('All checklists completed'); } } }
+function startQuiz(i) {
+  const m = MODS[i], n = (S.att[i] || []).length + 1, order = m.quiz.map((_, k) => k); for (let r = 0; r < (n - 1) % Math.max(1, order.length); r++) order.push(order.shift());
+  S.qz = { mod: i, i: 0, picks: [], order, n, gain: 0 }; S.view = 'quiz'; render(); $('#scr').scrollTop = 0;
+}
+function finish(i, score) {
+  const m = MODS[i], first = !S.done.has(i); let gain = 0;
+  if (score != null) { (S.att[i] = S.att[i] || []).push({ score, at: now() }); }
+  if (score != null && score < PASS) { feed(`<b>Sofia Weber</b> scored ${score}% on ${esc(m.t)} (attempt ${S.att[i].length})`); return 0; }
+  if (score === 100 && !S.perfect.has(i)) { S.perfect.add(i); gain += 25; }
+  if (first) {
+    S.done.add(i); gain += m.xp; S.certAt[i] = now(); delete S.read[i + 1]; S.read[i + 1] = S.read[i + 1] || new Set();
+    feed(`<b>Sofia Weber</b> completed ${esc(m.t)}${score != null ? ` with ${score}%` : ''}, +${m.xp} XP`);
+    notify('manager', 'award', `<b>Sofia Weber</b> completed ${esc(m.t)}${score != null ? ` (${score}%)` : ''}`, 'sofia');
+    notify('employee', 'award', `Certificate issued: <b>${esc(m.t)}</b>`, 'me');
+  }
+  touch(); return gain;
+}
 const ACT = {
-  open(d) { const i = +d.i; S.mod = i; S.step = 0; S.qi = 0; S.picked = null; S.view = 'learn'; render(); },
-  exit() { S.view = 'path'; render(); },
-  next() {
-    const m = MODS[S.mod];
-    if (S.step < m.steps.length - 1) { S.step++; return render(); }
-    if (m.quiz.length && !S.done.has(S.mod)) { S.view = 'quiz'; S.qi = 0; S.picked = null; return render(); }
-    if (S.done.has(S.mod)) { S.view = 'path'; return render(); }
-    finish();
+  menu(d) { S.menu = S.menu === d.m ? null : d.m; header(); const f = $('.menu .mi, .menu .ni, .menu .nh button'); if (S.menu && f) f.focus(); },
+  readAll() { S.notes[S.role].forEach((n) => { n.un = false; }); header(); },
+  note(d) {
+    const n = S.notes[S.role].find((x) => x.id === d.id); if (!n) return; n.un = false; S.menu = null;
+    const g = n.go;
+    if (S.role === 'employee' || ['news', 'path', 'docs', 'me', 'chat'].includes(g)) { if (g === 'docs') go('path', 'docs'); else if (['news', 'path', 'me', 'chat'].includes(g)) go(g); else render(); if (S.role === 'employee' || ['news', 'path', 'docs', 'me', 'chat'].includes(g)) return; }
+    if (g === 'sofia') { S.mtab = 'learners'; S.loaded.learners = true; S.drawer = me().id; render(); return; }
+    if (g === 'overdue') { S.mtab = 'learners'; S.loaded.learners = true; S.fStatus = 'overdue'; S.page = 0; render(); return; }
+    mtab(g === 'learners' ? 'learners' : 'overview');
   },
-  pick(d) { S.picked = +d.i; render(); },
-  qnext() { const m = MODS[S.mod]; if (S.qi < m.quiz.length - 1) { S.qi++; S.picked = null; return render(); } finish(); },
-  tick(d) { S.ticks.has(d.k) ? S.ticks.delete(d.k) : S.ticks.add(d.k); if (S.ticks.size === ckTotal()) { S.feed.unshift('<b>Sofia</b> completed all shift checklists'); toast('All checklists completed'); } render(); },
+  help() { S.menu = null; header(); helpModal(); },
+  denied() { S.menu = null; header(); modal(`<div class="lock"><div class="li">${ic('lock')}</div><h3>Manager access required</h3><p>Your account (Sofia Weber, Server) cannot open the manager console. Sign in with a manager account, or ask Marek Novák to change your role.</p><div style="display:flex;gap:8px;justify-content:center"><button class="btn" data-act="mclose">Close</button><button class="btn primary" data-act="signAsMgr">Sign in as manager</button></div></div>`); },
+  signAsMgr() { closeModal(); S.auth = false; S.signRole = 'manager'; shell(); },
+  switchRole() { S.role = S.role === 'manager' ? 'employee' : 'manager'; S.tab = 'path'; S.view = 'path'; shell(); toast(`Switched to the ${S.role} view`); },
+  signOut() { S.auth = false; S.signRole = S.role; S.menu = null; shell(); toast('You have been signed out'); },
+  signRole(d) { S.signRole = d.r; const em = $('#aem'); if (em) em.value = CREDS[d.r]; $$('.seg button').forEach((b) => { const on = b.dataset.r === d.r; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }); errs($('#af'), {}); },
+  forgot() { toast('Ask your general manager to reset your password'); },
+  mclose() { closeModal(); },
+  view(d) { S.view = d.v; render(); $('#scr').scrollTop = 0; },
+  open(d) { S.mod = +d.i; S.view = 'mod'; render(); $('#scr').scrollTop = 0; },
+  exit() { S.view = 'path'; S.qz = null; render(); $('#scr').scrollTop = 0; },
+  lesson(d) { S.step = +d.i; (S.read[S.mod] = S.read[S.mod] || new Set()).add(S.step); S.view = 'learn'; touch(); render(); $('#scr').scrollTop = 0; },
+  prev() { if (S.step) { S.step--; render(); $('#scr').scrollTop = 0; } },
+  next() {
+    const m = MODS[S.mod], rd = (S.read[S.mod] = S.read[S.mod] || new Set());
+    if (S.step < m.steps.length - 1) { S.step++; rd.add(S.step); render(); $('#scr').scrollTop = 0; return; }
+    if (S.done.has(S.mod)) { S.view = 'mod'; render(); return; }
+    if (m.quiz.length) return startQuiz(S.mod);
+    ACT.complete();
+  },
+  complete() { const g = finish(S.mod, null); S.qz = { mod: S.mod, order: [], picks: [], gain: g }; S.view = 'result'; render(); $('#scr').scrollTop = 0; },
+  quiz() { startQuiz(S.mod); },
+  leaveQuiz() { if (!S.qz || !S.qz.picks.length) return ACT.view({ v: 'mod' }); confirmBox('Leave the quiz?', 'Your answers in this attempt will not be saved.', 'Leave quiz', () => { S.qz = null; S.view = 'mod'; render(); }, true); },
+  pick(d) { const z = S.qz; if (z.picks[z.i] != null) return; z.picks[z.i] = +d.i; render(); $('#qnext')?.focus({ preventScroll: true }); const s = $('#scr'); s.scrollTop = s.scrollHeight; },
+  qnext() {
+    const z = S.qz, m = MODS[z.mod];
+    if (z.i < z.order.length - 1) { z.i++; render(); $('#scr').scrollTop = 0; return; }
+    const ok = z.order.filter((qi, k) => z.picks[k] === m.quiz[qi].a).length, sc = Math.round(ok / z.order.length * 100);
+    z.gain = finish(z.mod, sc); S.view = 'result'; render(); $('#scr').scrollTop = 0;
+  },
+  cert(d) { certModal(+d.i); },
+  print() { setTimeout(() => window.print(), 50); },
+  sign(d) { signModal(d.id); },
+  tick(d) {
+    const k = d.k, [li, i] = k.split('-').map(Number), kind = CHECK[li][1][i][2];
+    if (S.ticks.has(k)) { S.ticks.delete(k); if (kind === 'temp') delete S.temps[k]; render(); return; }
+    if (kind === 'photo' && !S.photos[k]) { S.ckErr[k] = 'Add a photo to complete this item'; render(); return; }
+    if (kind === 'temp') { S.ckErr[k] = 'Enter the reading below and press Save'; render(); $(`#tmp-${k}`)?.focus(); return; }
+    delete S.ckErr[k]; tickOn(k); render();
+  },
+  photo(d) {
+    const k = d.k; S.loadingPhoto = k; delete S.ckErr[k]; render();
+    setTimeout(() => { if (S.loadingPhoto !== k) return; S.loadingPhoto = null; S.photos[k] = 'IMG ' + TF.format(now()); tickOn(k); toast('Photo uploaded'); render(); }, 700);
+  },
+  rmPhoto(d) { delete S.photos[d.k]; S.ticks.delete(d.k); render(); },
   say(d) { say(d.t); },
+  openNews(d, e) {
+    if (e.target.closest('[data-act="ack"]')) return;
+    const n = S.news.find((x) => x.id === d.id); S.newsOpen = S.newsOpen === d.id ? null : d.id;
+    if (n && !n.mineRead) { n.mineRead = true; n.reads++; }
+    render();
+  },
+  ack(d) { const n = S.news.find((x) => x.id === d.id); if (!n || n.mineAck) return; n.mineAck = now(); n.acks++; if (!n.mineRead) { n.mineRead = true; n.reads++; } feed(`<b>Sofia Weber</b> confirmed “${esc(n.t)}”`); toast('Thanks, your manager can see you have read it'); render(); },
+  badge(d) { const b = BADGES.find(([k]) => k === d.k), on = badges()[d.k]; toast(`${b[1]}: ${on ? 'unlocked' : b[2]}`); },
+  /* manager */
+  sort(d) { S.sort = [d.k, S.sort[0] === d.k ? -S.sort[1] : (d.k === 'name' || d.k === 'venue' ? 1 : -1)]; S.page = 0; mgr(); },
+  page(d) { S.page = +d.p; mgr(); },
+  clearF() { S.q = ''; S.fVenue = 'all'; S.fStatus = 'all'; S.page = 0; mgr(); },
+  openL(d) { S.drawer = d.id; drawer(); },
+  closeDrawer() { const id = S.drawer; S.drawer = null; drawer(); $(`[data-open="${id}"]`)?.focus(); },
+  showOverdue() { S.fStatus = 'overdue'; S.page = 0; mtab('learners'); },
+  remind(d) { const l = S.learners.find((x) => x.id === d.id); l.reminded = now(); feed(`<b>Marek</b> sent a reminder to ${esc(l.name)}`); if (l.me) notify('employee', 'bell', '<b>Marek</b> reminded you to keep going with your training', 'path'); toast(`Reminder sent to ${l.name}`); render(); },
+  extend(d) { const l = S.learners.find((x) => x.id === d.id), old = l.due; l.due = new Date(Math.max(l.due, NOW0) + 7 * DAY); feed(`<b>Marek</b> extended ${esc(l.name)}’s target to ${DFs.format(l.due)}`); render(); undoToast(`Target moved to ${DF.format(l.due)}`, () => { l.due = old; render(); }); },
+  removeL(d) {
+    const l = S.learners.find((x) => x.id === d.id);
+    confirmBox(`Remove ${esc(l.name)}?`, 'They lose access to RestOS HR and leave every report. Their training record is kept for 12 months for compliance.', 'Remove learner', () => { l.removed = true; S.drawer = null; render(); undoToast(`${l.name} removed`, () => { l.removed = false; render(); }); }, true);
+  },
+  addLearner() { if (S.role !== 'manager') return; learnerForm(); },
+  csv() {
+    const L = S.mtab === 'learners' ? rowsFiltered() : active(), q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const head = ['ID', 'Name', 'Email', 'Role', 'Venue', 'Start date', 'Target date', 'Modules completed', 'Modules published', 'Progress %', 'Quiz average %', 'Documents signed', 'Last active', 'Status'];
+    const rows = L.map((l) => [l.id, l.name, l.email, l.role, 'Lindenhof ' + l.venue, iso(l.start), iso(l.due), doneOf(l), P(), pct(l), l.quiz ?? '', l.docs, l.active ? l.active.toISOString() : '', STAT[status(l)][0]]);
+    const csv = '﻿' + [head, ...rows].map((r) => r.map(q).join(',')).join('\r\n');
+    const u = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })), a = document.createElement('a');
+    a.href = u; a.download = `restos-hr-learners-${iso(NOW0)}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000);
+    toast(`Exported ${pl(L.length, 'learner')} to CSV`);
+  },
+  bsel(d) { S.bsel = +d.i; mgr(); },
+  newMod() { moduleForm(true); },
+  editMod() { moduleForm(false); },
+  addLesson(d) { lessonForm(d.i != null ? +d.i : null); },
+  addQ(d) { questionForm(d.i != null ? +d.i : null); },
+  mvLesson(d) { const m = MODS[S.bsel], k = +d.i, j = k + +d.d; if (j < 0 || j >= m.steps.length) return; [m.steps[k], m.steps[j]] = [m.steps[j], m.steps[k]]; render(); },
+  delLesson(d) {
+    const m = MODS[S.bsel], k = +d.i;
+    if (m.pub && m.steps.length === 1) return toast('Only one lesson left. A published module needs at least one lesson');
+    confirmBox('Delete this lesson?', `“${esc(m.steps[k][0])}” will be removed from ${esc(m.t)}.`, 'Delete lesson', () => { const [x] = m.steps.splice(k, 1); render(); undoToast('Lesson deleted', () => { m.steps.splice(k, 0, x); render(); }); }, true);
+  },
+  delQ(d) { const m = MODS[S.bsel], k = +d.i; confirmBox('Delete this question?', `It will no longer appear in the ${esc(m.t)} quiz.`, 'Delete question', () => { const [x] = m.quiz.splice(k, 1); render(); undoToast('Question deleted', () => { m.quiz.splice(k, 0, x); render(); }); }, true); },
+  publish() {
+    const m = MODS[S.bsel]; if (!m.steps.length) return toast('Only published modules reach staff. Add at least one lesson first');
+    const done = active().filter((l) => status(l) === 'done').length;
+    confirmBox(`Publish “${esc(m.t)}”?`, `${pl(active().length, 'learner')} will see it in their path.${done ? ` ${pl(done, 'learner')} who finished the path will be back in progress.` : ''}`, 'Publish', () => {
+      m.pub = true; feed(`<b>Marek</b> published ${esc(m.t)}`); notify('employee', 'book', `New module: <b>${esc(m.t)}</b>`, 'path'); toast(`${m.t} is live`); render();
+    });
+  },
+  delMod() { const k = S.bsel, m = MODS[k]; confirmBox(`Delete “${esc(m.t)}”?`, 'This draft and its lessons will be deleted.', 'Delete draft', () => { MODS.splice(k, 1); S.bsel = Math.max(0, k - 1); render(); undoToast('Draft deleted', () => { MODS.splice(k, 0, m); S.bsel = k; render(); }); }, true); },
+  compose() { composeForm(); },
+  pin(d) { const n = S.news.find((x) => x.id === d.id); n.pin = !n.pin; render(); },
+  delNews(d) { const k = S.news.findIndex((x) => x.id === d.id), n = S.news[k]; confirmBox('Delete this announcement?', `“${esc(n.t)}” will disappear from everyone’s News tab.`, 'Delete', () => { S.news.splice(k, 1); render(); undoToast('Announcement deleted', () => { S.news.splice(k, 0, n); render(); }); }, true); },
 };
-function finish() { S.done.add(S.mod); S.feed.unshift(`<b>Sofia</b> completed the module "${MODS[S.mod].t}", +${MODS[S.mod].xp} XP`); S.view = 'done'; render(); }
-/* ── live: the manager writes, colleagues move through modules, the feed fills up ─ */
-const PINGS = ['Don\'t forget the briefing at 9:45', 'Has anyone seen the new aprons? They are at the host desk', 'Menu quiz again tomorrow, review the allergens', 'Great work yesterday, guests were praising you'];
-const NAMES_T = ['Matteo N.', 'Elena S.', 'Jonas B.'];
-let beatHR = 0;
+
+/* ── live: the manager writes, colleagues move through modules ── */
+const PINGS = ['Don’t forget the briefing at 9:45', 'Has anyone seen the new aprons? They are at the host desk', 'Menu quiz again tomorrow, review the allergens', 'Great work yesterday, guests were praising you'];
+let beat = 0;
 setInterval(() => {
-  if (document.hidden) return;
-  beatHR++;
-  if (beatHR % 3 === 0) { const w = TEAM.find((x) => x[0] === NAMES_T[beatHR % 3 === 0 ? (beatHR / 3) % 3 : 0]) || TEAM[3]; if (w[1] < 4) { w[1]++; S.feed.unshift(`<b>${w[0]}</b> completed a module, now ${w[1]} of ${MODS.length}`); mgr(); } }
-  if (beatHR % 5 === 0 && S.chat.length < 14) { const ts = '14:' + String(30 + (beatHR % 25)).padStart(2, '0'); S.chat.push({ me: false, t: PINGS[(beatHR / 5) % PINGS.length | 0], ts }); if (S.tab === 'chat') render(); else { S.unread++; nav(); toast('Marek sent you a message'); } }
+  if (document.hidden || !S.auth) return;
+  beat++;
+  if (beat % 3 === 0) {
+    const pool = active().filter((l) => !l.me && doneOf(l) < P() && l.active), team = pool.filter((l) => l.team), w = (team.length ? team : pool)[beat % Math.max(1, (team.length ? team : pool).length)];
+    if (w) { w.done = doneOf(w) + 1; w.lessons = 0; w.active = now(); w.quiz = Math.min(100, (w.quiz || 70) + 1); feed(`<b>${esc(w.name)}</b> completed ${esc(MODS[pubIdx()[w.done - 1]].t)}, now ${w.done} of ${P()}`); }
+    const n = S.news.find((x) => x.reads < active().length * .9); if (n) { n.reads++; if (n.ack && n.acks < n.reads - 2) n.acks++; }
+    render();
+  }
+  if (beat % 5 === 0 && S.chat.length < 14) { S.chat.push({ me: false, t: PINGS[(beat / 5 - 1) % PINGS.length], at: now() }); if (S.tab !== 'chat') { S.unread++; toast('Marek sent you a message'); } render(); if (S.tab === 'chat') { const s = $('#scr'); s.scrollTop = 1e6; } }
 }, 6000);
-render();
+
+shell();
+console.assert(me().done === undefined && doneOf(me()) === 2, 'Sofia reconciles with the path');
+console.assert(funnel()[0][1] === active().length, 'funnel top equals learners');
 </script>
 </body>
 </html>

@@ -1,34 +1,42 @@
-# Single public entry point for the VPS: serves the site, every demo subdomain and BotFactory.
-# Install: sudo cp deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
+# Single public entry point: the site, every demo subdomain and BotFactory.
+# deploy/deploy.sh validates this file, installs it and switches the release symlink.
 {
 	email darian.mirelli@gmail.com
 }
 
-(common) {
+(security) {
 	encode zstd gzip
 	header {
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
-		Strict-Transport-Security "max-age=31536000"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 		-Server
 	}
-	header Cache-Control "no-cache"
+}
+
+# Cache rules. Caddy runs several `header` lines in order of matcher specificity, so the catch-all uses `?`
+# (set only if nothing more specific already did).
+(static) {
+	import security
 	@hashed path /_next/static/*
 	header @hashed Cache-Control "public, max-age=31536000, immutable"
-	@media path *.jpg *.jpeg *.png *.svg *.webp *.woff2
+	@media path *.jpg *.jpeg *.png *.svg *.webp *.woff2 *.ico
 	header @media Cache-Control "public, max-age=600"
+	header ?Cache-Control "no-cache"
 }
 
 (demo) {
-	import common
-	root * /opt/docker/showroom/demos/{args[0]}
+	import static
+	root * /var/www/mirelli/current/demos/{args[0]}
 	header Content-Security-Policy "frame-ancestors 'self' https://dimkaprojects.xyz"
+	header X-Robots-Tag "noindex, follow"
 	file_server
 }
 
 dimkaprojects.xyz {
-	import common
+	import static
+	root * /var/www/mirelli/current/site
 	handle /coffee* {
 		header Content-Type "text/plain; charset=utf-8"
 		respond <<TEXT
@@ -40,18 +48,22 @@ dimkaprojects.xyz {
 			(RFC 2324, section 2.3.2)
 			TEXT 418
 	}
-	root * /opt/docker/showroom/out
-	file_server
-	@missing expression {err.status_code} == 404
-	handle_errors @missing {
-		rewrite * /not-found.html
-		file_server {
-			status 404
+	handle {
+		file_server
+	}
+	handle_errors {
+		@missing expression {err.status_code} == 404
+		handle @missing {
+			rewrite * /not-found.html
+			file_server {
+				status 404
+			}
 		}
 	}
 }
 
 www.dimkaprojects.xyz {
+	import security
 	redir https://dimkaprojects.xyz{uri} permanent
 }
 
@@ -84,6 +96,6 @@ botfactory.dimkaprojects.xyz {
 }
 
 bot.dimkaprojects.xyz {
-	import common
+	import security
 	reverse_proxy 127.0.0.1:8010
 }

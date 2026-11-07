@@ -9,14 +9,15 @@ export function Home({ lang }: { lang: Lang }) {
   const t = translations[lang];
   return (
     <>
+      <a className="skip" href="#main">{t.nav.skip}</a>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFor(lang)) }} />
       <Hero lang={lang} t={t} />
-      <main>
+      <main id="main" tabIndex={-1}>
         <Work t={t} />
         <Services t={t} />
         <Process t={t} />
       </main>
-      <Stack />
+      <Stack t={t} />
       <Contact t={t} />
       <Footer lang={lang} t={t} />
       <Enhance />
@@ -72,23 +73,24 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
       <div className="reel" aria-hidden="true">
         <div className="reel-track">
           {[...projects, ...projects].map((p, i) => (
-            <span key={i} className="reel-item" style={{ background: p.stage }}>
+            <a key={i} className="reel-item" href={`#${p.id}`} tabIndex={-1} style={{ background: p.stage }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/shots/${p.id}-s.webp`} width={720} height={450} alt="" loading={i < 4 ? "eager" : "lazy"} />
-            </span>
+              <img src={`/shots/${p.id}-s.webp`} width={720} height={450} alt="" loading={i < 3 ? "eager" : "lazy"} decoding="async" />
+            </a>
           ))}
         </div>
       </div>
 
       <div className="hero-mid">
         <div className="hero-copy rise rise-1">
+          <p className="eyebrow">{t.hero.descriptor}</p>
           <p className="lead">{t.hero.lead}</p>
           <a className="btn" href="#work">{t.hero.viewWork}</a>
         </div>
         <dl className="hero-stats rise rise-2">
           <div><dt>{t.hero.statProjects}</dt><dd>9</dd></div>
           <div><dt>{t.hero.statYears}</dt><dd>3+</dd></div>
-          <div><dt>{t.hero.statTech}</dt><dd>15+</dd></div>
+          <div><dt>{t.hero.statTech}</dt><dd>EU</dd></div>
         </dl>
       </div>
 
@@ -112,15 +114,30 @@ function Work({ t }: { t: T }) {
         <div className="stage">
           {projects.map((p, i) => (
             <div key={p.id} className={`frame${i === 0 ? " is-active" : ""}`} data-frame={p.id} style={{ background: p.stage }}>
-              <div className="win" data-win>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/shots/${p.id}.webp`} width={1440} height={900} alt={`${p.name} — ${t.showroom.projects[i].tagline}`} loading={i < 2 ? "eager" : "lazy"} />
-                <iframe title={p.name} data-src={`https://${p.subdomain}.${siteConfig.domain}`} tabIndex={-1} allow="fullscreen" />
+              <div className="frame-in">
+                <div className="win" data-win>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    {...(i === 0 ? { src: `/shots/${p.id}.webp` } : { "data-src": `/shots/${p.id}.webp` })}
+                    width={1200}
+                    height={750}
+                    alt={`${p.name} — ${t.showroom.projects[i].tagline}`}
+                    decoding="async"
+                  />
+                  <iframe
+                    title={p.name}
+                    data-src={`https://${p.subdomain}.${siteConfig.domain}`}
+                    tabIndex={-1}
+                    allow="fullscreen"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
+                </div>
+                <button type="button" className="try" data-try aria-pressed="false">
+                  <span className="try-off">{t.showroom.tryOff}</span>
+                  <span className="try-on">{t.showroom.tryOn}</span>
+                </button>
               </div>
-              <button type="button" className="try" data-try aria-pressed="false">
-                <span className="try-off">{t.showroom.tryOff}</span>
-                <span className="try-on">{t.showroom.tryOn}</span>
-              </button>
             </div>
           ))}
         </div>
@@ -141,7 +158,7 @@ function Work({ t }: { t: T }) {
                   <p className="tags">{p.tags.join(", ")}</p>
                   <a className="btn btn-light" href={href} target="_blank" rel="noopener noreferrer">
                     {t.showroom.explore}
-                    <span className="sr-only"> — {p.name}</span> →
+                    <span className="sr-only"> — {p.name}</span>
                   </a>
                 </div>
               </li>
@@ -197,9 +214,10 @@ function Process({ t }: { t: T }) {
 
 const STACK = ["TypeScript", "React", "Next.js", "Node.js", "Python", "FastAPI", "PostgreSQL", "Redis", "Docker", "Stripe", "Telegram", "Tailwind"];
 
-function Stack() {
+function Stack({ t }: { t: T }) {
   return (
     <section className="stack" aria-label="Stack">
+      <button type="button" className="mq-toggle" data-mq aria-pressed="false" data-on={t.nav.pause} data-off={t.nav.play}>{t.nav.pause}</button>
       <p className="sr-only">{STACK.join(", ")}</p>
       <div className="stack-track" aria-hidden="true">
         {[...STACK, ...STACK].map((s, i) => (
@@ -215,7 +233,10 @@ function Contact({ t }: { t: T }) {
     <section className="contact" id="contact" aria-labelledby="contact-h">
       <h2 id="contact-h" className="reveal">{t.contact.title}</h2>
       <div className="contact-body">
-        <p className="reveal">{t.contact.description}</p>
+        <div className="reveal">
+          <p>{t.contact.description}</p>
+          <p className="byline">{t.contact.byline}</p>
+        </div>
         <div className="contact-links reveal">
           <a className="mail" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
           <a href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Shipter — product launch planner (demo)</title>
-<meta name="description" content="Demo: AI builds a distribution plan for a digital product, and the launch board walks you through the tasks. Plans with generation limits. Sample data shown.">
+<meta name="description" content="Demo: Shipter turns a product brief into a week-by-week launch plan, then runs it on a task board with tracked links, templates, team roles and billing. Sample data shown.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -15,235 +15,1229 @@
   --accent: #ff7a45; --accent-ink: #1d0a02; --accent-bg: rgba(255,122,69,.13);
   --pos: #5fd39a; --neg: #ff6b6b; --warn: #f0b95a;
   --font: "Sofia Sans", system-ui, sans-serif; --display: "Sofia Sans", system-ui, sans-serif;
+  --ease-out: cubic-bezier(.23, 1, .32, 1); --ease-drawer: cubic-bezier(.32, .72, 0, 1);
 }
 body { font-size: 15px; }
 .brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
 .head h1 { font-size: 28px; }
 .nav .count { background: var(--accent); color: var(--accent-ink); }
-
-.cvr { width: 72px; height: 72px; border-radius: 16px; overflow: hidden; flex: none; } .cvr img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.proj { grid-template-columns: 72px minmax(0, 1fr) 200px auto !important; }
-.vis { font: 800 22px var(--display); } .vis small { font: 500 13px var(--font); color: var(--muted); margin-left: 6px; }
-.livedot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--pos); margin-right: 6px; animation: pulse2 1.8s ease-in-out infinite; } @keyframes pulse2 { 50% { opacity: .3; } }
-@media (max-width: 899px) { .proj { grid-template-columns: 72px minmax(0, 1fr) !important; } .proj .prog, .proj > .btn { grid-column: 1 / -1; } }
-.checks li { list-style: none; }
-.task { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 44px; padding: 4px 0; }
+.nav .count.neg { background: var(--neg-bg); color: var(--neg); }
+.app { min-height: calc(100svh - 29px); }
+.colm { min-width: 0; display: flex; flex-direction: column; }
+.side { overflow-y: auto; }
+.nav-label { padding: 14px 10px 4px; }
+.sfoot { margin-top: auto; padding: 14px 8px 0; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+.sfoot .bar { margin: 6px 0 10px; }
+.sfoot .ver { display: flex; justify-content: space-between; gap: 8px; color: var(--faint); }
+.lnk { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font: inherit; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+/* top bar */
+.top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; height: 58px; padding: 0 var(--pad); border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--bg) 90%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.tb-brand { display: none; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; }
+.tb-brand .brand-mark { width: 28px; height: 28px; }
+.gs { position: relative; flex: 1; max-width: 440px; }
+.gs input { width: 100%; height: 36px; padding: 0 44px 0 36px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); outline: none; transition: border-color .15s; }
+.gs input:focus { border-color: var(--accent); }
+.gs > .ic { position: absolute; left: 11px; top: 9px; color: var(--faint); pointer-events: none; }
+.gs kbd { position: absolute; right: 9px; top: 8px; }
+kbd { display: inline-block; min-width: 20px; text-align: center; font: 600 11px/18px var(--font); padding: 0 5px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; color: var(--muted); background: var(--raised); }
+.spacer { flex: 1; }
+.ib { position: relative; width: 38px; height: 38px; border-radius: 9px; border: 0; background: none; display: grid; place-items: center; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s, transform .12s var(--ease-out); flex: none; }
+.ib:hover { background: var(--hover); color: var(--text); } .ib:active { transform: scale(.95); }
+.ib .dot { position: absolute; top: 3px; right: 2px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-size: 10.5px; font-weight: 800; display: grid; place-items: center; border: 2px solid var(--bg); }
+.me { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 10px 0 4px; border-radius: 19px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; flex: none; }
+.me:hover { border-color: var(--faint); }
+.me .nm { font-weight: 600; font-size: 13px; line-height: 1.1; text-align: left; } .me .nm small { display: block; font-weight: 500; color: var(--muted); font-size: 11.5px; }
+.av { width: 28px; height: 28px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; font-weight: 700; background: hsl(var(--h, 20) 38% 30%); color: #fff; flex: none; letter-spacing: .02em; }
+.av.sm { width: 22px; height: 22px; font-size: 9.5px; }
+.av.lg { width: 40px; height: 40px; font-size: 14px; }
+.av.none { background: var(--raised); color: var(--faint); border: 1px dashed var(--border); }
+.tile { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #fff; background: linear-gradient(140deg, hsl(var(--h) 72% 54%), hsl(calc(var(--h) + 38) 58% 30%)); flex: none; letter-spacing: -.01em; }
+.tile.sm { width: 22px; height: 22px; border-radius: 6px; font-size: 9.5px; } .tile.lg { width: 54px; height: 54px; border-radius: 14px; font-size: 19px; }
+.ro-bar { display: flex; align-items: center; gap: 10px; padding: 9px var(--pad); background: var(--warn-bg); font-size: 13.5px; }
+.ro-bar .ic { color: var(--warn); } .ro-bar span { flex: 1; }
+.ro [data-w] { opacity: .5; }
+/* popovers, drawers, snack */
+.pop { position: fixed; z-index: 50; width: 300px; max-width: calc(100vw - 16px); max-height: min(520px, calc(100svh - 80px)); overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 18px 44px rgba(0,0,0,.45); padding: 6px; animation: popin .16s var(--ease-out) both; transform-origin: var(--to, top right); }
+@keyframes popin { from { opacity: 0; transform: scale(.97) translateY(-4px); } }
+.pop-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px 6px; font-weight: 700; }
+.pop-h small { font-weight: 500; color: var(--muted); }
+.mi { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 38px; padding: 6px 10px; border: 0; border-radius: 8px; background: none; text-align: left; cursor: pointer; color: var(--text); font-size: 14px; }
+.mi:hover, .mi:focus-visible { background: var(--hover); outline: none; }
+.mi .ic { color: var(--muted); } .mi.danger, .mi.danger .ic { color: var(--neg); }
+.mi .r { margin-left: auto; color: var(--faint); font-size: 12px; }
+.mi[aria-checked="true"] .r { color: var(--accent); }
+.sep { height: 1px; background: var(--border); margin: 6px 4px; }
+.nt { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 10px; align-items: start; width: 100%; padding: 9px 10px; border: 0; border-radius: 8px; background: none; text-align: left; cursor: pointer; color: var(--text); }
+.nt:hover { background: var(--hover); } .nt i { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: transparent; } .nt.unread i { background: var(--accent); }
+.nt span { font-size: 13.5px; } .nt small { display: block; color: var(--faint); font-size: 12px; margin-top: 2px; }
+.dscrim { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 44; animation: fade .2s ease both; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(500px, 100vw); z-index: 45; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; animation: slidein .3s var(--ease-drawer) both; box-shadow: -20px 0 50px rgba(0,0,0,.35); }
+@keyframes slidein { from { transform: translateX(100%); } }
+.dh { display: flex; align-items: flex-start; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+.dh h2 { font-size: 19px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; } .dh p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.dh > div { flex: 1; min-width: 0; }
+.db { flex: 1; overflow: auto; padding: 18px 20px; }
+.df { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.df .l { margin-right: auto; }
+.usnack { position: fixed; left: 20px; bottom: 20px; z-index: 65; display: flex; align-items: center; gap: 12px; max-width: min(420px, calc(100vw - 32px)); padding: 10px 10px 10px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,.35); transition: opacity .2s, transform .25s var(--ease-out); }
+.usnack.out { opacity: 0; transform: translateY(12px); pointer-events: none; }
+.usnack span { flex: 1; min-width: 0; }
+.usnack button { flex: none; height: 30px; padding: 0 12px; border-radius: 7px; border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 700; cursor: pointer; }
+/* buttons, fields */
+.btn.danger { background: var(--neg); color: #1c0606; border-color: transparent; font-weight: 600; }
+.btn.ghost { background: none; border-color: transparent; color: var(--muted); } .btn.ghost:hover { color: var(--text); background: var(--hover); }
+.btn .ic { width: 16px; height: 16px; }
+.field .hint { font-size: 12px; color: var(--faint); }
+.err { color: var(--neg); font-size: 12.5px; display: flex; gap: 6px; align-items: center; }
+.err:empty { display: none; }
+.field [aria-invalid="true"] { border-color: var(--neg) !important; }
+.frow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+.fbox { padding: 12px 14px; border-radius: 10px; background: var(--neg-bg); color: var(--text); font-size: 13.5px; margin-bottom: 14px; display: flex; gap: 10px; align-items: flex-start; }
+.fbox .ic { color: var(--neg); margin-top: 1px; }
+.fbox.info { background: var(--accent-bg); } .fbox.info .ic { color: var(--accent); }
+.fbox.ok { background: var(--pos-bg); } .fbox.ok .ic { color: var(--pos); }
+input[type="checkbox"].chk { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip2 { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; font-size: 13.5px; transition: border-color .15s, background-color .15s; user-select: none; }
+.chip2:hover { border-color: var(--faint); }
+.chip2:has(input:checked) { border-color: var(--accent); background: var(--accent-bg); }
+.chip2 input { accent-color: var(--accent); margin: 0; }
+.chip2 small { color: var(--faint); }
+.pill.acc { background: var(--accent-bg); color: var(--accent); }
+/* tables and toolbars */
+.tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.tools .tabs { margin-bottom: 0; flex-wrap: wrap; }
+.srch { position: relative; flex: 1; min-width: 180px; max-width: 320px; }
+.srch input { width: 100%; height: 34px; padding: 0 10px 0 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; }
+.srch input:focus { border-color: var(--accent); }
+.srch .ic { position: absolute; left: 10px; top: 8px; width: 17px; height: 17px; color: var(--faint); }
+.sel { height: 34px; padding: 0 30px 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); max-width: 100%; }
+.tabs button .n { margin-left: 6px; font-size: 12px; color: var(--faint); }
+.th button { background: none; border: 0; padding: 0; color: inherit; cursor: pointer; font: inherit; display: inline-flex; align-items: center; gap: 4px; }
+.th button:hover, .th button.on { color: var(--text); }
+.th .ic { width: 13px; height: 13px; }
+.tr.selr { background: var(--accent-bg); }
+.tr .tcell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pmain { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.pmain > div { min-width: 0; } .pmain b { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .pmain span { display: block; font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 14px; color: var(--muted); font-size: 13px; flex-wrap: wrap; }
+.pager div { display: flex; gap: 6px; }
+.bulk { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 12px; margin-bottom: 12px; border-radius: 10px; background: var(--accent-bg); font-size: 13.5px; }
+.bulk b { margin-right: auto; }
+.mini { display: flex; align-items: center; gap: 8px; } .mini .bar { flex: 1; min-width: 40px; } .mini small { color: var(--muted); font-size: 12px; min-width: 34px; text-align: right; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; }
+.ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.empty .ic { width: 32px; height: 32px; margin: 0 auto 10px; color: var(--faint); }
+.empty b { display: block; color: var(--text); margin-bottom: 4px; }
+.empty .btn { margin-top: 14px; }
+/* skeleton */
+.sk { border-radius: 8px; background: linear-gradient(90deg, var(--raised) 25%, var(--hover) 50%, var(--raised) 75%); background-size: 200% 100%; animation: shim 1.3s linear infinite; }
+@keyframes shim { to { background-position: -200% 0; } }
+/* launch board */
+.kpis { gap: 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; min-width: 0; }
+.kpi b { font-size: 28px; } .kpi span { display: flex; align-items: center; } .kpi em { display: block; font-style: normal; font-size: 12px; color: var(--faint); margin-top: 4px; }
+.livedot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--pos); margin-right: 6px; animation: pulse2 1.8s ease-in-out infinite; flex: none; } @keyframes pulse2 { 50% { opacity: .3; } }
+.task { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 46px; padding: 5px 0; }
 .task + .task { border-top: 1px solid var(--rule); }
-.cb { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); background: none; cursor: pointer; display: grid; place-items: center; color: var(--accent-ink); transition: background-color .15s, border-color .15s; padding: 0; }
-.cb:hover { border-color: var(--accent); } .cb[aria-checked="true"] { background: var(--accent); border-color: var(--accent); } .cb .ic { width: 14px; height: 14px; stroke-width: 3; }
+.cb { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); background: none; cursor: pointer; display: grid; place-items: center; color: var(--accent-ink); transition: background-color .15s, border-color .15s, transform .12s var(--ease-out); padding: 0; }
+.cb:hover { border-color: var(--accent); } .cb:active { transform: scale(.9); } .cb[aria-checked="true"] { background: var(--accent); border-color: var(--accent); } .cb .ic { width: 14px; height: 14px; stroke-width: 3; }
+.cb[aria-checked="mixed"] { border-color: var(--warn); }
 .task.done .t { color: var(--faint); text-decoration: line-through; }
-.task .w { color: var(--muted); font-size: 13px; }
-.proj { display: grid; grid-template-columns: minmax(0, 1fr) 200px auto; gap: 20px; align-items: center; padding: 16px 0; cursor: pointer; }
-.proj + .proj { border-top: 1px solid var(--rule); }
-.proj h3 { font-size: 17px; font-weight: 700; } .proj p { color: var(--muted); margin-top: 2px; }
-.proj .meta { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-.prog { font-size: 13px; color: var(--muted); } .prog .bar { margin-top: 6px; }
-.week { padding: 16px 0; } .week + .week { border-top: 1px solid var(--rule); }
-.week-h { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; } .week-h b { font-size: 16px; font-weight: 700; } .week-h span { color: var(--muted); font-size: 13px; }
-.gen { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: var(--gap); align-items: start; }
-.out-h { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
-.cursor::after { content: ""; display: inline-block; width: 8px; height: 1em; margin-left: 3px; vertical-align: -2px; background: var(--accent); animation: blink 1s steps(1) infinite; }
+.task .w { color: var(--muted); font-size: 12.5px; margin-top: 1px; }
+.task .t { min-width: 0; }
+.task .rt { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+.due-late { color: var(--neg) !important; }
+.feed li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; padding: 8px 0; font-size: 13.5px; } .feed li + li { border-top: 1px solid var(--rule); }
+.feed small { display: block; color: var(--faint); font-size: 12px; }
+.ul-rows > * { display: flex; align-items: center; gap: 12px; padding: 9px 0; } .ul-rows > * + * { border-top: 1px solid var(--rule); }
+.cd { text-align: right; flex: none; } .cd b { display: block; font-size: 15px; } .cd span { font-size: 12px; color: var(--muted); }
+/* project page */
+.week { padding: 14px 0; } .week + .week { border-top: 1px solid var(--rule); }
+.week-h { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 2px; } .week-h b { font-size: 16px; font-weight: 800; } .week-h span { color: var(--muted); font-size: 13px; }
+.chh { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; font-weight: 700; }
+.chh .muted { font-weight: 500; font-size: 13px; }
+.kv { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px 12px; font-size: 14px; } .kv dt { color: var(--muted); } .kv dd { min-width: 0; overflow-wrap: anywhere; }
+.win { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 10px 0; } .win + .win { border-top: 1px solid var(--rule); } .win small { grid-column: 1 / -1; color: var(--muted); font-size: 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+/* generator */
+.gen { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: var(--gap); align-items: start; }
+.out-h { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 12px; }
+.steps li { display: flex; align-items: center; gap: 10px; padding: 7px 0; color: var(--faint); font-size: 14px; transition: color .2s; }
+.steps li.on { color: var(--text); } .steps li.ok { color: var(--muted); }
+.steps .st { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); display: grid; place-items: center; flex: none; }
+.steps li.ok .st { background: var(--pos); border-color: var(--pos); color: #06180e; } .steps li.ok .st .ic { width: 12px; height: 12px; stroke-width: 3; }
+.steps li.on .st { border-color: var(--accent); border-top-color: transparent; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.stream { margin-top: 14px; padding: 14px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--muted); min-height: 72px; font-size: 14px; }
+.cursor::after { content: ""; display: inline-block; width: 7px; height: 1em; margin-left: 2px; vertical-align: -2px; background: var(--accent); animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
-.reveal { animation: pop .3s var(--ease) both; }
+.reveal { animation: pop .3s var(--ease-out) both; }
+.ech { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-top: 10px; background: var(--bg); }
+.ech-h { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } .ech-h b { flex: 1; min-width: 140px; }
+.etask { display: grid; grid-template-columns: minmax(0, 1fr) 110px 32px; gap: 6px; margin-top: 6px; }
+.etask input, .etask select, .ech select { height: 32px; padding: 0 8px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface); outline: none; min-width: 0; }
+.etask input:focus { border-color: var(--accent); } .etask input[aria-invalid="true"] { border-color: var(--neg); }
+.ib.sm { width: 32px; height: 32px; } .ib.sm .ic { width: 16px; height: 16px; }
+.summary { padding: 14px; border-radius: 10px; background: var(--accent-bg); font-size: 14px; margin-bottom: 6px; }
+/* kanban */
+.kb { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); align-items: start; }
+.kcol { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); min-width: 0; display: flex; flex-direction: column; max-height: calc(100svh - 250px); min-height: 280px; }
+.kcol header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--border); font-weight: 700; }
+.kcol header i { width: 9px; height: 9px; border-radius: 50%; }
+.kcol header span { color: var(--muted); font-weight: 500; font-size: 13px; }
+.kcol header .btn { margin-left: auto; }
+.klist { flex: 1; overflow: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; transition: background-color .15s; border-radius: 0 0 var(--radius) var(--radius); }
+.klist.over { background: var(--accent-bg); }
+.kc { position: relative; background: var(--raised); border: 1px solid var(--border); border-radius: 9px; padding: 10px 40px 10px 12px; cursor: grab; transition: border-color .15s, transform .15s var(--ease-out), opacity .15s; }
+.kc:hover { border-color: var(--faint); } .kc:focus-visible { outline-offset: 1px; }
+.kc.drag { opacity: .4; }
+.kc h4 { font-size: 14px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.kc.done h4 { color: var(--muted); }
+.kc .km { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.kc .km .av { margin-left: auto; }
+.kc .ib { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; }
+.kc .pill { height: 20px; font-size: 11.5px; padding: 0 7px; }
+.kmore { margin: 2px auto 4px; }
+/* cards grids */
+.gal { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
+.gcard { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; transition: border-color .15s; }
+.gcard:hover { border-color: var(--faint); }
+.gcard h3 { font-size: 16px; font-weight: 800; letter-spacing: -.01em; } .gcard p { color: var(--muted); font-size: 13.5px; flex: 1; }
+.gcard .meta { display: flex; gap: 6px; flex-wrap: wrap; }
+.gcard .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.chic { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--accent-bg); color: var(--accent); flex: none; }
+.dots { display: inline-flex; gap: 3px; vertical-align: middle; } .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--border); } .dots i.on { background: var(--accent); }
+.stats3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 12px; color: var(--muted); } .stats3 b { display: block; color: var(--text); font-size: 13.5px; font-weight: 600; }
+.tprev { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 10px; border-radius: 9px; background: var(--bg); border: 1px solid var(--rule); }
+.tprev div { display: flex; flex-direction: column; gap: 3px; } .tprev small { font-size: 10.5px; color: var(--faint); }
+.tprev i { height: 7px; border-radius: 3px; background: var(--accent); opacity: .85; } .tprev i.p { background: var(--warn); }
+.pb li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; padding: 10px 0; } .pb li + li { border-top: 1px solid var(--rule); }
+.pb .n { width: 24px; height: 24px; border-radius: 50%; background: var(--raised); display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--muted); }
+/* links */
+.utm-out { padding: 12px; border-radius: 9px; background: var(--bg); border: 1px solid var(--border); font-size: 12.5px; overflow-wrap: anywhere; margin-bottom: 12px; }
+.utm-out b { display: block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 4px; font-family: var(--font); }
+.utm-out .acc { font-weight: 600; }
+/* billing */
 .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
 .plan { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; }
 .plan.cur { border-color: var(--accent); }
-.plan h3 { font-size: 15px; color: var(--muted); font-weight: 600; } .plan .pr { font: 800 40px/1.1 var(--display); letter-spacing: -.02em; margin: 6px 0 2px; } .plan .pr small { font-size: 15px; color: var(--muted); font-weight: 500; }
+.plan h3 { font-size: 15px; color: var(--muted); font-weight: 600; display: flex; gap: 8px; align-items: center; } .plan .pr { font: 800 40px/1.1 var(--display); letter-spacing: -.02em; margin: 6px 0 2px; } .plan .pr small { font-size: 15px; color: var(--muted); font-weight: 500; }
 .plan ul { margin: 16px 0 20px; flex: 1; } .plan li { display: flex; gap: 8px; padding: 5px 0; } .plan li .ic { color: var(--accent); width: 16px; height: 16px; margin-top: 3px; stroke-width: 2.4; } .plan li.off { color: var(--faint); } .plan li.off .ic { color: var(--faint); }
-.meter { margin-bottom: var(--gap); }
-@media (max-width: 1099px) { .gen { grid-template-columns: minmax(0, 1fr); } .plans { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 899px) { .proj { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
+.meters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.meters .bar { margin-top: 8px; } .meters .bar.hi i { background: var(--warn); } .meters .bar.full i { background: var(--neg); }
+.meters small { display: block; color: var(--faint); font-size: 12px; margin-top: 6px; }
+.cardline { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.cc { width: 46px; height: 32px; border-radius: 6px; background: linear-gradient(135deg, #2f3a8f, #1b2160); color: #fff; font: 800 11px var(--font); display: grid; place-items: center; letter-spacing: .04em; flex: none; }
+/* stepper */
+.modal.wide { max-width: 640px; }
+.stepper { display: flex; gap: 6px; margin: 4px 0 18px; }
+.stepper div { flex: 1; min-width: 0; } .stepper i { display: block; height: 4px; border-radius: 2px; background: var(--raised); } .stepper div.on i, .stepper div.ok i { background: var(--accent); }
+.stepper span { display: block; font-size: 12px; color: var(--faint); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .stepper div.on span { color: var(--text); font-weight: 600; }
+/* help */
+.sc { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 8px 0; font-size: 14px; } .sc + .sc { border-top: 1px solid var(--rule); }
+details { border-top: 1px solid var(--rule); padding: 10px 0; } details summary { cursor: pointer; font-weight: 600; list-style-position: outside; } details p { color: var(--muted); margin-top: 6px; font-size: 14px; }
+.h3 { font-size: 13px; color: var(--faint); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin: 20px 0 8px; }
+.h3:first-child { margin-top: 0; }
+/* sign in */
+.signin { position: fixed; inset: 29px 0 0; z-index: 80; background: radial-gradient(800px 400px at 50% -10%, var(--accent-bg), transparent), var(--bg); display: grid; place-items: center; padding: 20px 16px; overflow: auto; }
+.signin[hidden] { display: none; }
+.sbox { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; animation: pop .3s var(--ease-out) both; }
+.sbox .brand { padding: 0 0 18px; }
+.sbox h1 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; } .sbox > p { color: var(--muted); margin: 4px 0 20px; }
+.sbox .btn.primary { width: 100%; height: 42px; }
+.sbox .demo { margin-top: 16px; font-size: 12.5px; color: var(--faint); text-align: center; }
+.spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: spin .7s linear infinite; }
+@media (hover: hover) and (pointer: fine) { .kc:hover { transform: translateY(-1px); } }
+@media (max-width: 1199px) { .gal { grid-template-columns: repeat(2, minmax(0, 1fr)); } .meters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1099px) { .gen { grid-template-columns: minmax(0, 1fr); } .plans { grid-template-columns: minmax(0, 1fr); } .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 899px) {
+  .top { padding: 0 12px; gap: 4px; height: 54px; }
+  .tb-brand { display: flex; }
+  .gs { display: none; }
+  .me { padding: 0; border: 0; background: none; } .me .nm { display: none; }
+  .kpis { gap: 10px; } .kpi { padding: 12px; } .kpi b { font-size: 22px; } .kpi span { font-size: 12.5px; }
+  .gal { grid-template-columns: minmax(0, 1fr); }
+  .kb { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin: 0 -16px; padding: 0 16px 6px; scrollbar-width: none; }
+  .kcol { flex: 0 0 86%; scroll-snap-align: center; max-height: none; }
+  .frow { grid-template-columns: minmax(0, 1fr); }
+  .srch { max-width: none; min-width: 0; flex: 1 1 100%; }
+  .tools .sel { flex: 1 1 0; min-width: 0; }
+  .usnack { left: 12px; right: 12px; bottom: 80px; max-width: none; }
+  .ro-bar { padding: 9px 16px; }
+  .etask { grid-template-columns: minmax(0, 1fr) 32px; } .etask select { grid-column: 1; grid-row: 2; }
+  .tabbar a { min-width: 0; }
+  .meters { grid-template-columns: minmax(0, 1fr); }
+  .head-actions { width: 100%; } .head-actions .btn { flex: 1 1 auto; }
+  .kv { grid-template-columns: 96px minmax(0, 1fr); }
+  .signin { inset: 0; }
+}
+@media (max-width: 420px) { .stepper span { display: none; } .stepper div.on span { display: block; } }
+@media (prefers-reduced-motion: reduce) { .steps li.on .st { animation: none; border-top-color: var(--accent); } .sk { animation: none; } }
 </style>
 </head>
 <body>
-<div class="notice"><b>Demo</b> Shipter · plans are built from templates, sample data</div>
-<div class="app">
-  <aside class="side">
+<div class="notice"><b>Demo</b> Shipter · sample data</div>
+<div class="app" id="app">
+  <aside class="side" aria-label="Main navigation">
     <div class="brand">
-      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11a2.8 2.8 0 00-4-4L4 15zM13 6l5 5"/></svg></div>
-      <div><div class="brand-name">Shipter</div><div class="brand-sub" id="side-plan"></div></div>
+      <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11a2.8 2.8 0 00-4-4L4 15zM13 6l5 5"/></svg></div>
+      <div><div class="brand-name">Shipter</div><div class="brand-sub">Northlight Studio</div></div>
     </div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">EM</div><div class="who"><b>Elena Marchetti</b><span id="side-who"></span></div></div>
+    <div class="sfoot" id="sfoot"></div>
   </aside>
-  <main class="main" id="main"></main>
+  <div class="colm">
+    <header class="top" id="top"></header>
+    <div id="robar"></div>
+    <main class="main" id="main" tabindex="-1"></main>
+  </div>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+<div class="signin" id="signin" hidden></div>
+<div class="sr" aria-live="polite" id="live"></div>
 
 <script>
 /*@kit.js*/
 'use strict';
+ICONS.link = 'M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1';
+ICONS.layers = 'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5';
+ICONS.kanban = 'M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v7h-4z';
+ICONS.help = 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9.5a2.5 2.5 0 114 2c-1 .6-1.5 1.2-1.5 2.3M12 17h.01';
+ICONS.out = 'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11';
+ICONS.dl = 'M12 4v11M7 10l5 5 5-5M5 20h14';
+ICONS.card = 'M3 6h18v12H3zM3 10h18M7 15h3';
+ICONS.megaphone = 'M4 10v4h3l7 4V6L7 10zM17 9a3 3 0 010 6';
+ICONS.left = 'M15 6l-6 6 6 6';
+ICONS.right = 'M9 6l6 6-6 6';
 
-/* ── catalog the planner picks from ───────────────────── */
+/* ── deterministic sample data (seeded PRNG) ──────────── */
+let SEED = 20261107;
+const rnd = () => { SEED = SEED + 0x6D2B79F5 | 0; let t = Math.imul(SEED ^ SEED >>> 15, 1 | SEED); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+const pick = (a) => a[Math.floor(rnd() * a.length)];
+const hash = (s) => { let h = 2166136261; for (const ch of String(s)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return (h >>> 0) / 4294967296; };
+const DAY = 864e5, NOW = Date.now(), T0 = new Date().setHours(0, 0, 0, 0);
+const day = (n) => T0 + n * DAY;
+const DFm = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }), DFy = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const fD = (ts, y) => (y ? DFy : DFm).format(ts);
+const RTF = new Intl.RelativeTimeFormat('en-GB', { numeric: 'auto' });
+const dayDiff = (ts) => Math.round((new Date(ts).setHours(0, 0, 0, 0) - T0) / DAY);
+const relDay = (ts) => { const d = dayDiff(ts); return Math.abs(d) <= 6 ? RTF.format(d, 'day') : fD(ts, Math.abs(d) > 200); };
+const ago = (ts) => { const s = (ts - Date.now()) / 1000, a = Math.abs(s); if (a < 50) return 'just now'; if (a < 3600) return RTF.format(Math.round(s / 60), 'minute'); if (a < 86400) return RTF.format(Math.round(s / 3600), 'hour'); return relDay(ts); };
+const EUR = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR' }), EUR0 = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+const pl = (n, w, ws = w + 's') => `${fmt(n)} ${n === 1 ? w : ws}`;
+const inits = (n) => { const w = String(n || '').trim().split(/\s+/).filter(Boolean); if (!w.length) return '?'; const f = (x) => Array.from(x)[0].toUpperCase(); return w.length > 1 ? f(w[0]) + f(w[w.length - 1]) : f(w[0]); };
+const isoD = (ts) => { const d = new Date(ts); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const fromIso = (s) => { const [y, m, d] = String(s).split('-').map(Number); return y && m && d ? new Date(y, m - 1, d).getTime() : NaN; };
+const ascii = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const MARKETS = { dach: 'DACH', eu: 'Europe', uk: 'UK & Ireland', global: 'Global' };
+const TYPES = ['SaaS', 'App', 'Game', 'Bot', 'Template', 'Content', 'Service'];
+const GOALS = { users: 'First 100 active users', revenue: 'First €1,000 MRR', waitlist: 'A 500-person waitlist' };
+const STATUS = { planning: ['Planning', ''], active: ['Launching', 'acc'], launched: ['Launched', 'pos'], paused: ['Paused', 'warn'] };
+const CATS = { setup: 'Setup', content: 'Content', outreach: 'Outreach', analytics: 'Analytics' };
+const COLS = { todo: ['To do', 'var(--faint)'], doing: ['In progress', 'var(--warn)'], done: ['Done', 'var(--pos)'] };
+const ROLES = { owner: 'Owner', admin: 'Admin', editor: 'Editor', viewer: 'Viewer' };
+const ROLE_D = { owner: 'Everything, including billing and deleting the workspace', admin: 'Manage members, billing and every project', editor: 'Create projects, generate plans, edit tasks and links', viewer: 'Read-only access to plans, boards and link stats' };
+const KINDS = { launch: ['Launch platform', 'megaphone'], community: ['Community', 'users'], content: ['Content', 'file'], outreach: ['Outreach', 'chat'], owned: ['Owned', 'heart'], paid: ['Paid', 'coin'], partner: ['Partnerships', 'link'] };
+
+/* channel library: what the planner picks from; steps are [category, task] */
 const CH = [
-  { id: 'nl',   n: 'Newsletters and Slack communities your audience follows', m: ['dach'], paid: false, lo: 2, hi: 6, tasks: ['List 15 newsletters and communities where your audience hangs out', 'Secure 3 reviews or mentions'] },
-  { id: 'pr',   n: 'Heise, Sifted and dev.to', m: ['dach'], paid: false, lo: 3, hi: 9, tasks: ['Write a 1,000-word "how we built it" breakdown', 'Reply to comments within the first 2 hours of publishing'] },
-  { id: 'ph',   n: 'Product Hunt', m: ['global', 'eu', 'uk'], paid: false, lo: 2, hi: 8, tasks: ['Prepare the page, 4 screenshots and a short video', 'Schedule the launch for a Tuesday and ask 20 friends to support it'] },
-  { id: 'rd',   n: 'Reddit, Hacker News and Indie Hackers', m: ['global', 'eu', 'uk'], paid: false, lo: 1, hi: 5, tasks: ['Find 5 communities that discuss your problem', 'Help in replies for two weeks, then show your product'] },
-  { id: 'dm',   n: 'Direct messages to first customers', m: ['dach', 'global', 'eu', 'uk'], paid: false, lo: 0.1, hi: 0.4, tasks: ['List 30 people who have this pain', 'Message each one personally and offer a free trial'] },
-  { id: 'em',   n: 'Email campaign to your list', m: ['dach', 'global', 'eu', 'uk'], paid: false, lo: 0.5, hi: 2, tasks: ['Add a signup form to your landing page', 'Send 3 emails: story, value, offer'] },
-  { id: 'inf',  n: 'Creators and partners', m: ['dach', 'global', 'eu', 'uk'], paid: true, lo: 5, hi: 15, tasks: ['Pick 5 creators with an engaged audience in your niche', 'Offer a sales commission instead of a flat fee'] },
-  { id: 'ads',  n: 'LinkedIn Ads or Google Ads', m: ['dach', 'global', 'eu', 'uk'], paid: true, lo: 8, hi: 20, tasks: ['Run 3 ads with different headlines at €5 a day', 'After 4 days, keep the one that brought leads at the lowest cost'] },
+  { id: 'ph', n: 'Product Hunt', k: 'launch', paid: 0, cost: [0, 0], eff: 3, reach: [2, 8], wk: 3, src: 'producthunt', med: 'launch', ttr: 'Launch day', metric: 'Upvotes, comments and launch-day signups', tip: 'Launch on a Tuesday or Wednesday. Weekend launches get less traffic but are easier to win.', steps: [['setup', 'Build the launch page: tagline, 4 screenshots and a 40-second demo video'], ['outreach', 'Line up a hunter and 20 supporters who will leave genuine comments'], ['content', 'Write the maker comment: why you built it and what is free'], ['outreach', 'Launch at 00:01 PT and reply to every comment within an hour'], ['analytics', 'Compare launch-day signups by source and note what converted']] },
+  { id: 'hn', n: 'Show HN', k: 'community', paid: 0, cost: [0, 0], eff: 2, reach: [1, 12], wk: 3, src: 'hackernews', med: 'referral', t: ['SaaS', 'App', 'Bot', 'Template', 'Content'], ttr: '1 day', metric: 'Front-page time and signups from the thread', tip: 'Plain, technical titles win. No superlatives, no marketing language.', steps: [['content', 'Write a plain Show HN title and a first comment on how it works'], ['setup', 'Make the landing page fast and usable without signup'], ['outreach', 'Post between 14:00 and 16:00 CET and stay online for 3 hours'], ['analytics', 'Turn the 3 most common questions into FAQ entries']] },
+  { id: 'rd', n: 'Reddit communities', k: 'community', paid: 0, cost: [0, 0], eff: 2, reach: [1, 5], wk: 2, src: 'reddit', med: 'social', ttr: '2–3 weeks', metric: 'Upvotes, comments and DMs per subreddit', tip: 'Read each subreddit’s rules first. Many ban links in posts but allow them in comments.', steps: [['setup', 'Find 5 subreddits where people describe the problem you solve'], ['outreach', 'Answer questions for two weeks before mentioning the product'], ['content', 'Write a value-first post that shares numbers or a lesson learned'], ['analytics', 'Track replies per subreddit and drop the weakest two']] },
+  { id: 'ih', n: 'Indie Hackers', k: 'community', paid: 0, cost: [0, 0], eff: 1, reach: [0.5, 3], wk: 2, src: 'indiehackers', med: 'referral', ttr: '1–2 weeks', metric: 'Profile visits and replies from other makers', tip: 'Real numbers get read. Revenue screenshots outperform feature lists.', steps: [['content', 'Publish a milestone post with real revenue or user numbers'], ['outreach', 'Comment helpfully on 10 threads in your category'], ['content', 'Share a monthly progress update with one lesson learned']] },
+  { id: 'nl', n: 'Newsletter sponsorships', k: 'paid', paid: 1, cost: [150, 900], eff: 1, reach: [4, 20], wk: 3, src: 'newsletter', med: 'email', ttr: '1 week', metric: 'Cost per signup per issue', tip: 'Ask for the last three issues’ click data before you pay. Open rates alone say little.', steps: [['setup', 'Shortlist 8 newsletters your audience already reads'], ['outreach', 'Request media kits and book 2 test slots'], ['content', 'Write 3 ad variants that lead with the problem, not the product'], ['analytics', 'Compare cost per signup and rebook only the winner']] },
+  { id: 'cm', n: 'Slack and Discord communities', k: 'community', paid: 0, cost: [0, 0], eff: 2, reach: [0.5, 3], wk: 1, src: 'community', med: 'social', ttr: '3–4 weeks', metric: 'Mentions and invites from members', tip: 'Be useful in the help channels first. Self-promotion channels rarely convert.', steps: [['setup', 'Join 6 communities and read the self-promotion rules'], ['outreach', 'Answer 3 questions a week in the help channels'], ['content', 'Share a free resource such as a checklist or template']] },
+  { id: 'li', n: 'LinkedIn founder posts', k: 'content', paid: 0, cost: [0, 0], eff: 2, reach: [2, 10], wk: 2, src: 'linkedin', med: 'social', t: ['SaaS', 'Service', 'Template', 'Bot', 'Content'], ttr: '2–4 weeks', metric: 'Impressions, profile visits and inbound DMs', tip: 'Personal profiles reach 5–10 times more people than company pages.', steps: [['content', 'Write 6 posts: story, problem, demo, lesson, customer quote and launch'], ['setup', 'Update the founder headline and featured section'], ['outreach', 'Comment on 5 posts a day from people in your audience'], ['analytics', 'Review impressions and profile visits every Friday']] },
+  { id: 'x', n: 'Build in public on X', k: 'content', paid: 0, cost: [0, 0], eff: 2, reach: [1, 6], wk: 1, src: 'x', med: 'social', ttr: '3–6 weeks', metric: 'Follower growth and replies from target users', tip: 'Screenshots and numbers outperform opinions. Post at the same time each day.', steps: [['content', 'Share one metric, screenshot or lesson every weekday'], ['outreach', 'Reply to 10 makers a day in your niche'], ['content', 'Write a launch thread with a 30-second demo clip']] },
+  { id: 'dm', n: 'Direct outreach', k: 'outreach', paid: 0, cost: [0, 0], eff: 2, reach: [0.1, 0.4], wk: 1, src: 'outreach', med: 'email', t: ['SaaS', 'Service', 'Template', 'Bot'], ttr: '1 week', metric: 'Reply rate and booked calls', tip: 'Ten personal messages beat a hundred templates. Name their situation in the first line.', steps: [['setup', 'List 40 people who have the pain, with a reason for each'], ['content', 'Write a 4-sentence message that names their situation'], ['outreach', 'Send 10 personal messages a day and offer a free onboarding call'], ['analytics', 'Log replies and follow up once after 4 days']] },
+  { id: 'em', n: 'Email list', k: 'owned', paid: 0, cost: [0, 0], eff: 1, reach: [0.5, 2], wk: 1, src: 'email', med: 'email', ttr: 'Ongoing', metric: 'Open rate, click rate and replies', tip: 'Send from a person, not a brand. Plain-text emails get more replies.', steps: [['setup', 'Add a signup form with a clear promise to the landing page'], ['content', 'Write a 3-email sequence: story, value, offer'], ['analytics', 'Check open and click rates after 7 days and fix the weakest subject line']] },
+  { id: 'seo', n: 'SEO content', k: 'content', paid: 0, cost: [0, 0], eff: 3, reach: [1, 15], wk: 1, src: 'google', med: 'organic', t: ['SaaS', 'Template', 'Content', 'Service', 'App'], ttr: '3–6 months', metric: 'Impressions and clicks in Search Console', tip: 'Comparison pages convert best. Target searches where the reader wants a tool, not an essay.', steps: [['setup', 'Pick 10 keywords where the searcher wants a tool, not an article'], ['content', 'Publish 2 comparison pages: you versus the usual alternatives'], ['content', 'Write one in-depth guide that answers the question in the first paragraph'], ['analytics', 'Update pages that rank between 8 and 20 every two weeks']] },
+  { id: 'pr', n: 'Tech press (Sifted, t3n, dev.to)', k: 'outreach', paid: 0, cost: [0, 0], eff: 3, reach: [3, 9], wk: 3, src: 'press', med: 'referral', ttr: '2–6 weeks', metric: 'Articles published and referral signups', tip: 'Journalists want a story, not a product. Lead with the data or the unusual founder angle.', steps: [['content', 'Write a 1,000-word “how we built it” article for dev.to'], ['setup', 'Prepare a press kit: logo, screenshots, founder photo and a one-line pitch'], ['outreach', 'Pitch 8 journalists who covered a similar product this year']] },
+  { id: 'inf', n: 'Creators and affiliates', k: 'paid', paid: 1, cost: [200, 1500], eff: 2, reach: [5, 15], wk: 4, src: 'creator', med: 'affiliate', ttr: '3–8 weeks', metric: 'Sales per creator and payout per sale', tip: 'Revenue share keeps incentives aligned. Avoid flat fees until a creator has proven sales.', steps: [['setup', 'Pick 5 creators with an engaged audience in your niche'], ['outreach', 'Offer a 30% revenue share instead of a flat fee'], ['setup', 'Give each creator a tracked link and a coupon code'], ['analytics', 'Drop creators with no sales after 60 days']] },
+  { id: 'ads', n: 'Paid search and social', k: 'paid', paid: 1, cost: [300, 2500], eff: 2, reach: [8, 20], wk: 4, src: 'google', med: 'cpc', ttr: '1–2 weeks', metric: 'Cost per signup and cost per paying customer', tip: 'Cap the daily budget and kill ads early. Most tests are decided in the first 500 clicks.', steps: [['setup', 'Set up conversion tracking on signup and on paid upgrade'], ['content', 'Write 3 ads with different headlines and a €10 daily cap'], ['analytics', 'After 5 days keep the ad with the lowest cost per signup']] },
+  { id: 'aso', n: 'App Store optimisation', k: 'launch', paid: 0, cost: [0, 0], eff: 2, reach: [2, 10], wk: 2, src: 'appstore', med: 'organic', t: ['App', 'Game'], ttr: '2–4 weeks', metric: 'Store impressions, page views and installs', tip: 'The first three screenshots do most of the work. Show the outcome, not the settings.', steps: [['setup', 'Research 20 keywords and rewrite the subtitle and keyword field'], ['content', 'Redesign the first 3 screenshots to show the outcome'], ['outreach', 'Ask happy users for a rating after their third session']] },
+  { id: 'pt', n: 'Partnerships and integrations', k: 'partner', paid: 0, cost: [0, 0], eff: 3, reach: [1, 6], wk: 4, src: 'partner', med: 'referral', t: ['SaaS', 'Service', 'Template', 'Bot'], ttr: '1–3 months', metric: 'Referral signups per partner', tip: 'Pick partners whose users already pay. Co-marketing works best with a concrete joint asset.', steps: [['setup', 'List 10 tools your users already pay for'], ['outreach', 'Propose a co-marketing swap: a guest post or a joint webinar'], ['content', 'Build one integration page for each partner']] },
 ];
-const MARKETS = { dach: 'DACH', global: 'Global', eu: 'Europe', uk: 'UK & Ireland' };
-const BUDGETS = [['0', 'No budget'], ['100', '€100–500 per month'], ['500', '€500–2000 per month'], ['2000', '€2000+ per month']];
-const LIM = { trial: 10, starter: 200, pro: Infinity };
-const PLAN_N = { trial: 'Trial', starter: 'Starter', pro: 'Pro' };
-
-/* the planner: same inputs, same plan. Free channels first; paid ones only when there is a budget */
-function makePlan(market, budget) {
-  const pick = CH.filter((c) => c.m.includes(market) && (!c.paid || +budget >= 100)).sort((a, b) => (+a.paid - +b.paid) || b.hi - a.hi).slice(0, +budget >= 500 ? 6 : 5);
-  const ch = pick.map((c, i) => ({ id: c.id, week: Math.min(4, 1 + Math.floor(i * 4 / pick.length)), tasks: c.tasks.map((t) => ({ t, done: false })) }));
-  return ch;
-}
 const catOf = (id) => CH.find((c) => c.id === id);
-const reach = (plan) => plan.reduce((a, c) => [a[0] + catOf(c.id).lo, a[1] + catOf(c.id).hi], [0, 0]);
-const taskCount = (p) => p.plan.reduce((a, c) => a + c.tasks.length, 0), doneCount = (p) => p.plan.reduce((a, c) => a + c.tasks.filter((t) => t.done).length, 0);
+const GOALB = { users: ['ph', 'hn', 'rd', 'aso'], revenue: ['dm', 'nl', 'ads', 'pt', 'li'], waitlist: ['em', 'x', 'ih', 'rd'] };
+const MK_NOTE = { dach: 'Buyers in DACH compare several tools and expect German-language pages, clear pricing and an imprint.', eu: 'Across Europe, local communities beat broad campaigns, and clear GDPR answers build trust early.', uk: 'UK buyers respond to plain, specific claims and real customer quotes.', global: 'A global audience is easiest to reach through English-speaking maker and developer communities.' };
+const GOAL_NOTE = { users: 'Measure success by activated accounts, not signups.', revenue: 'Ask for payment from the first conversations; a pilot price beats a free trial here.', waitlist: 'Every channel points to one waitlist page with a referral link.' };
+const reachOf = (ids) => ids.reduce((a, id) => [a[0] + catOf(id).reach[0], a[1] + catOf(id).reach[1]], [0, 0]);
+const fmtReach = ([a, b]) => `${fmtD(a, a % 1 ? 1 : 0)}–${fmtD(b, b % 1 ? 1 : 0)}k`;
+const costTxt = (c) => c.paid ? `${EUR0.format(c.cost[0])}–${EUR0.format(c.cost[1])}/mo` : 'Free';
 
-
-/* cover photos (CC0, see demos/CREDITS.md): three images, cycled by project id */
-const coverImg = (id) => `<img src="img/cover-${(id - 1) % 3 + 1}.jpg" alt="" loading="lazy" decoding="async">`;
-const visits = (p) => p.vis ?? 0;
-const S = {
-  plan: 'trial', used: 7, trialDays: 5,
-  projects: [
-    { id: 1, name: 'Invoicely Pro', type: 'SaaS', desc: 'A platform where freelancers send invoices, collect SEPA and card payments, and track cash flow.', aud: 'Freelancers and consultants in Germany, Austria and Switzerland', market: 'dach', budget: '0' },
-    { id: 2, name: 'SaaS Landing Kit', type: 'Landing', desc: 'A set of ready-made landing pages for SaaS startups.', aud: 'B2B SaaS founders', market: 'global', budget: '100' },
-    { id: 3, name: 'GameApp Store', type: 'App', desc: 'A mini-game catalogue with one-tap purchase.', aud: 'Players aged 18–30', market: 'uk', budget: '500' },
-  ],
-};
-S.projects.forEach((p, i) => { p.plan = makePlan(p.market, p.budget); p.vis = [214, 96, 41][i]; });
-{ // seed some progress so the board has something to show
-  const mark = (p, n) => { let k = 0; for (const c of p.plan) for (const t of c.tasks) if (k++ < n) t.done = true; };
-  mark(S.projects[0], 4); mark(S.projects[1], 2); mark(S.projects[2], 0);
+/* the planner: same brief, same plan */
+function makePlan(inp) {
+  const sd = inp.name + inp.aud + inp.market + inp.budget + inp.goal + (inp.v || 0);
+  let chosen;
+  if (inp.force && inp.force.length) chosen = inp.force.map(catOf).filter(Boolean);
+  else {
+    const sc = CH.map((c) => {
+      let s = (c.reach[0] + c.reach[1]) / 2 + 3;
+      if (c.t && !c.t.includes(inp.type)) s *= .25;
+      if (c.paid && inp.budget < c.cost[0]) s = -1;
+      if ((GOALB[inp.goal] || []).includes(c.id)) s *= 1.6;
+      return { c, s: s * (.75 + .5 * hash(c.id + sd)) };
+    }).filter((x) => x.s > 0).sort((a, b) => b.s - a.s);
+    const n = inp.budget >= 1000 ? 7 : inp.budget >= 300 ? 6 : 5; let spend = 0; chosen = [];
+    for (const { c } of sc) { if (chosen.length >= n) break; if (c.paid) { if (spend + c.cost[0] > inp.budget) continue; spend += c.cost[0]; } chosen.push(c); }
+  }
+  chosen.sort((a, b) => a.wk - b.wk);
+  const chs = chosen.map((c) => ({ id: c.id, week: c.wk, tasks: c.steps.slice(0, 3 + (hash(c.id + sd + 'n') > .55 && c.steps.length > 3 ? 1 : 0)).map(([cat, title]) => ({ title, cat })) }));
+  const free = chosen.filter((c) => !c.paid).length, paid = chosen.length - free;
+  const top = chosen.slice().sort((a, b) => b.reach[1] - a.reach[1])[0];
+  const summary = chosen.length ? `${inp.name} is aimed at ${inp.aud.charAt(0).toLowerCase() + inp.aud.slice(1)}. ${MK_NOTE[inp.market]} With ${inp.budget ? EUR0.format(inp.budget) + ' a month' : 'no paid budget'}, the plan uses ${pl(free, 'free channel')}${paid ? ` and ${pl(paid, 'paid test')}` : ''}, moving from groundwork in week 1 to the main push in week 3. Expect the biggest spike from ${top.n}. ${GOAL_NOTE[inp.goal]}` : '';
+  const easy = chs.flatMap((c) => c.tasks.map((t) => ({ t: t.title, c: catOf(c.id) }))).filter((x) => x.c.eff <= 2);
+  const wins = easy.filter((_, i) => i % 2 === 0).slice(0, 3).map((x, i) => ({ t: x.t, impact: i === 0 ? 'High' : 'Medium', effort: x.c.eff === 1 ? 'Low' : 'Medium', time: ['2 hours', 'Half a day', '1 day'][i] }));
+  return { chs, summary, wins };
 }
-console.assert(S.projects[0].plan.length === 4 && taskCount(S.projects[0]) === 8 && doneCount(S.projects[0]) === 4, 'plan');
-const limit = () => LIM[S.plan], left = () => limit() - S.used;
-const fmtReach = ([a, b]) => `${fmtD(a, a % 1 ? 1 : 0)}–${fmtD(b, b % 1 ? 1 : 0)} k`;
 
-/* ── shell ────────────────────────────────────────────── */
-const PAGES = { dash: ['Launch', 'home'], projects: ['Projects', 'list'], gen: ['AI plan', 'zap'], pricing: ['Pricing', 'coin'] };
-let page = 'dash', openId = null, filter = 'all', timers = [], genState = null;
+/* ── state ──────────────────────────────────────────────── */
+const PLANS = {
+  trial: { n: 'Trial', price: 0, gen: 10, proj: 3, seats: 2, links: 10 },
+  starter: { n: 'Starter', price: 29, gen: 200, proj: 20, seats: 10, links: 50 },
+  pro: { n: 'Pro', price: 79, gen: 1000, proj: Infinity, seats: 25, links: Infinity },
+};
+const VAT = 0.21;
+const S = { plan: 'starter', gen: 168, renew: new Date(new Date(T0).getFullYear(), new Date(T0).getMonth() + 1, 1).getTime(), viewer: false, card: { brand: 'VISA', last4: '4242', exp: '08/28', name: 'Northlight Studio B.V.' }, team: [], projects: [], tasks: [], links: [], invoices: [], notes: [], act: [], tickets: 4817 };
+let uid = 1000; const nid = () => ++uid;
+
+S.team = [['Elena Marchetti', 'owner'], ['Jonas Weber', 'admin'], ['Sofia Lindqvist', 'editor'], ['Mateo Ruiz', 'editor'], ['Aoife Byrne', 'editor'], ['Zofia Wiśniewska-Kowalczyk', 'editor'], ['Lukas Novák', 'viewer'], ['Pieter de Vries', 'viewer'], ['Camille Dubois', 'editor', 1]].map(([name, role, inv], i) => ({
+  id: i + 1, name, role, st: inv ? 'invited' : 'active', email: ascii(name.split(' ')[0]).toLowerCase() + (i === 5 ? '.wk' : '') + '@northlight.example', hue: Math.floor(hash(name) * 360), last: inv ? 0 : NOW - (i === 0 ? 0 : ri(4, 60 * 24 * 4) * 60e3), joined: day(-ri(40, 420)), exp: inv ? day(5) : 0,
+}));
+const ME = S.team[0];
+const member = (id) => S.team.find((m) => m.id === id);
+const doers = () => S.team.filter((m) => m.st === 'active' && m.role !== 'viewer');
+
+const PROJ = [
+  ['Invoicely Pro', 'SaaS', 'dach', 'active', 0, 9, 'revenue', 'Invoicing for freelancers: send invoices, collect SEPA and card payments, and track cash flow.', 'Freelancers and consultants in Germany, Austria and Switzerland', 'Chasing late payments by hand takes hours every month', 'invoicely.example'],
+  ['SaaS Landing Kit', 'Template', 'global', 'launched', 150, -24, 'revenue', 'Ready-made landing pages and sections for SaaS startups, built for Webflow and Framer.', 'B2B SaaS founders before their first funding round', 'Founders lose weeks designing a landing page from scratch', 'landingkit.example'],
+  ['GameApp Store', 'Game', 'uk', 'active', 400, 16, 'users', 'A catalogue of mini-games with one-tap purchase and family sharing.', 'Casual players aged 18 to 30 in the UK and Ireland', 'Good indie games are buried in the big app stores', 'gameapp.example'],
+  ['Tidepool Notes', 'App', 'eu', 'active', 0, 4, 'users', 'Note-taking for researchers with citations, PDFs and offline sync.', 'PhD students and academic researchers across Europe', 'Notes, PDFs and references live in three different tools', 'tidepool.example'],
+  ['Ledgerline', 'SaaS', 'uk', 'launched', 600, -41, 'revenue', 'Bookkeeping for small agencies with automatic bank feeds and VAT returns.', 'Agencies with 2 to 20 people in the UK', 'Month-end close takes two days of spreadsheet work', 'ledgerline.example'],
+  ['Fernway Habits', 'App', 'global', 'planning', 0, 38, 'waitlist', 'A calm habit tracker with weekly reviews and no streak anxiety.', 'Knowledge workers who burned out on gamified trackers', 'Habit apps punish missed days, so people quit', 'fernway.example'],
+  ['Quillbox', 'SaaS', 'eu', 'active', 250, 12, 'revenue', 'A newsletter editor with paid tiers, EU hosting and GDPR-ready analytics.', 'Independent writers moving off US newsletter platforms', 'Writers want EU data hosting without losing paid subscriptions', 'quillbox.example'],
+  ['Atlas Uptime', 'SaaS', 'global', 'launched', 1200, -12, 'users', 'Uptime and SSL monitoring with status pages and on-call alerts.', 'Small DevOps teams and solo developers', 'Enterprise monitoring tools are too expensive for small teams', 'atlasuptime.example'],
+  ['Sundial Booking', 'SaaS', 'dach', 'active', 300, 21, 'revenue', 'Online booking and reminders for salons and therapists.', 'Salon owners and independent therapists in DACH', 'No-shows cost small salons up to a fifth of their revenue', 'sundial.example'],
+  ['Parcelpoint Bot', 'Bot', 'eu', 'paused', 0, 55, 'users', 'A chat bot that tracks parcels across 40 European carriers.', 'Online shoppers who order from several EU stores', 'Tracking numbers from different carriers live in different apps', 'parcelpoint.example'],
+  ['Mosaic Type', 'Content', 'global', 'launched', 0, -63, 'revenue', 'A small type foundry selling variable fonts with simple licences.', 'Designers and front-end developers at small studios', 'Font licences are confusing and expensive for small studios', 'mosaictype.example'],
+  ['Kiln Analytics', 'SaaS', 'eu', 'active', 800, 6, 'users', 'Privacy-first web analytics without cookies or consent banners.', 'Marketing teams at EU companies with strict privacy rules', 'Cookie banners hurt conversion and analytics accuracy', 'kiln.example'],
+  ['Harbor Forms', 'SaaS', 'eu', 'planning', 150, 45, 'waitlist', 'GDPR-compliant forms and surveys hosted in Frankfurt.', 'Public-sector teams and NGOs in the EU', 'Teams cannot use US form builders for personal data', 'harborforms.example'],
+  ['Lumen Study', 'App', 'global', 'active', 500, 27, 'users', 'Spaced-repetition flashcards for language learners, with audio by native speakers.', 'Adult learners preparing for B1 and B2 exams', 'Generic flashcard apps lack good audio and exam focus', 'lumenstudy.example'],
+  ['Brightdesk', 'Service', 'dach', 'planning', 0, 60, 'revenue', 'Desk and room booking for hybrid offices with 20 to 200 people.', 'Office managers at mid-sized companies', 'Hybrid teams arrive to find no free desks or rooms', 'brightdesk.example'],
+  ['Orbit Changelog', 'SaaS', 'global', 'planning', 0, 74, 'waitlist', 'An embeddable changelog widget with release notes and feedback.', 'Product teams at early-stage SaaS companies', 'Users miss new features because release notes go unread', 'orbitlog.example'],
+];
 const proj = (id) => S.projects.find((p) => p.id === id);
+const projTasks = (pid) => S.tasks.filter((t) => t.pid === pid);
+const doneOf = (pid) => S.tasks.filter((t) => t.pid === pid && t.st === 'done').length;
 
-function chrome() {
-  $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
-  $('#tabbar').innerHTML = $('#nav').innerHTML;
-  $('#side-plan').textContent = S.plan === 'trial' ? `Trial · ${S.trialDays} days` : `${PLAN_N[S.plan]} plan`;
-  $('#side-who').textContent = S.plan === 'pro' ? 'Unlimited generations' : `Generations: ${left()} of ${limit()}`;
-  setNav(page === 'project' ? 'projects' : page);
+function addTasksFromPlan(p, out, keepDone = []) {
+  const start = p.launch - 21 * DAY, ppl = doers(); let k = 0;
+  out.chs.forEach((c) => c.tasks.forEach((t, i) => {
+    if (keepDone.includes(t.title)) return;
+    S.tasks.push({ id: nid(), pid: p.id, ch: c.id, wk: c.week, title: t.title, cat: t.cat, st: 'todo', due: start + ((c.week - 1) * 7 + i * 2 + 1) * DAY, who: ppl[(p.id + k++) % ppl.length].id, notes: '' });
+  }));
 }
-function render() { timers.forEach(clearTimeout); timers = []; chrome(); $('#main').innerHTML = ({ dash, projects, project: projectPage, gen, pricing })[page](); }
-function go(p, id) { page = p; if (id !== undefined) openId = id; render(); window.scrollTo(0, 0); }
-const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
-
-document.addEventListener('click', (e) => {
-  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
-  const o = e.target.closest('[data-open]'); if (o && !e.target.closest('button,input')) return go('project', +o.dataset.open);
-  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
+PROJ.forEach((r, i) => {
+  const [name, type, market, st, budget, lo, goal, desc, aud, problem, site] = r;
+  const p = { id: i + 1, name, type, market, st, budget, launch: day(lo), goal, desc, aud, problem, site: 'https://' + site, owner: [1, 2, 3, 4, 5, 3, 2, 1, 4, 6, 5, 1, 2, 3, 4, 1][i], created: day(lo - ri(30, 70)), hue: Math.floor(hash(name + 'h') * 360), plan: null, archived: false };
+  S.projects.push(p);
+  if (i === 15) return;
+  const out = makePlan(p); p.plan = { chs: out.chs.map((c) => ({ id: c.id, week: c.week })), summary: out.summary, wins: out.wins, at: p.created + ri(1, 4) * DAY, v: 1 };
+  addTasksFromPlan(p, out);
+  const ts = projTasks(p.id).sort((a, b) => a.due - b.due), frac = { launched: .9 + rnd() * .1, active: .3 + rnd() * .35, planning: rnd() * .12, paused: .2 + rnd() * .15 }[st];
+  const nd = Math.round(ts.length * frac);
+  ts.forEach((t, j) => { t.st = j < nd ? 'done' : j < nd + (st === 'active' ? ri(1, 3) : st === 'planning' ? ri(0, 1) : 0) ? 'doing' : 'todo'; });
 });
-document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
+/* tracked links with 30 days of daily clicks (oldest first, ending yesterday) plus today's live count */
+const slugOf = (p, src) => ascii(p.name.split(' ')[0]).toLowerCase().slice(0, 7) + '-' + src.slice(0, 6);
+S.projects.forEach((p) => {
+  if (!p.plan) return;
+  const n = p.st === 'planning' ? 1 : Math.min(p.plan.chs.length, ri(2, 4));
+  const base = { launched: ri(14, 40), active: ri(3, 14), planning: ri(0, 2), paused: 1 }[p.st], lday = dayDiff(p.launch);
+  p.plan.chs.slice(0, n).forEach((c, j) => {
+    const ch = catOf(c.id), w = (n - j) / n;
+    const daily = Array.from({ length: 30 }, (_, d) => { const off = d - 30, dow = new Date(day(off)).getDay(), spike = Math.abs(off - lday) <= 1 && lday < 0 ? Math.round(base * 9 * w * (off === lday ? 1 : .35)) : 0; return Math.max(0, Math.round(base * w * (.55 + rnd() * .9) * (dow === 0 || dow === 6 ? .6 : 1)) + spike); });
+    S.links.push({ id: nid(), pid: p.id, slug: slugOf(p, ch.src), src: ch.src, med: ch.med, camp: p.st === 'launched' ? 'launch-' + new Date(p.launch).toLocaleString('en-GB', { month: 'short' }).toLowerCase() : 'prelaunch', content: '', dest: p.site + '/', created: Math.min(p.plan.at + j * DAY, day(-1)), daily, today: Math.round(base * w * .4 + rnd() * 3) });
+  });
+});
+/* invoices: monthly Starter plus one credit pack */
+for (let m = 10; m >= 1; m--) {
+  const d = new Date(S.renew); d.setMonth(d.getMonth() - m); const yr = d.getFullYear();
+  S.invoices.push({ id: `INV-${yr}-0${142 + (10 - m) * 5}`, date: d.getTime(), item: 'Starter plan, monthly', net: 29, st: 'paid' });
+  if (m === 4) S.invoices.push({ id: `INV-${yr}-0${144 + (10 - m) * 5}`, date: d.getTime() + 12 * DAY, item: 'Extra 100 generations', net: 12, st: 'paid' });
+}
+S.invoices.reverse();
+const invTotal = (i) => Math.round(i.net * (1 + VAT) * 100) / 100;
+S.notes = [
+  ['Kiln Analytics has 3 tasks due tomorrow', 'tasks', 35, 0],
+  ['Jonas Weber moved “Write the maker comment” to Done', 'tasks', 140, 0],
+  ['Atlas Uptime links passed 1,000 clicks this month', 'links', 60 * 5, 0],
+  ['Camille Dubois has not accepted the invite yet', 'team', 60 * 26, 1],
+  [`Invoice ${S.invoices[0].id} paid: ${EUR.format(invTotal(S.invoices[0]))}`, 'billing', 60 * 24 * 6, 1],
+  ['AI plan ready for Quillbox', 'project:7', 60 * 24 * 8, 1],
+  ['84% of this cycle’s AI generations used', 'billing', 60 * 24 * 9, 1],
+].map(([t, go, min, read]) => ({ id: nid(), t, go, ts: NOW - min * 60e3, read: !!read }));
+S.act = [
+  [2, 'completed “Set up conversion tracking on signup and on paid upgrade”', 'Kiln Analytics', 18],
+  [4, 'created tracked link go.shipter.app/lumen-reddit', 'Lumen Study', 52],
+  [1, 'regenerated the plan', 'Quillbox', 60 * 3],
+  [3, 'moved “Find 5 subreddits” to In progress', 'GameApp Store', 60 * 5],
+  [5, 'commented on “Write the launch thread”', 'Tidepool Notes', 60 * 20],
+  [2, 'changed the launch date to ' + fD(day(21)), 'Sundial Booking', 60 * 27],
+].map(([who, t, p, min]) => ({ who, t, p, ts: NOW - min * 60e3 }));
 
-const cb = (done, attrs) => `<button class="cb" role="checkbox" aria-checked="${done}" ${attrs}>${done ? ic('check') : ''}</button>`;
+/* ── derived numbers (one source for every screen) ───────── */
+const LIM = () => PLANS[S.plan];
+const live = () => S.projects.filter((p) => !p.archived);
+const sum = (a) => a.reduce((x, y) => x + y, 0);
+const l30 = (l) => sum(l.daily);
+const visToday = (pid) => sum(S.links.filter((l) => pid == null || l.pid === pid).map((l) => l.today));
+const vis30 = (pid) => sum(S.links.filter((l) => pid == null || l.pid === pid).map(l30));
+const usage = () => ({ gen: S.gen, proj: live().length, seats: S.team.length, links: S.links.length });
+const openTasks = () => S.tasks.filter((t) => t.st !== 'done' && !proj(t.pid).archived);
+const overdue = () => openTasks().filter((t) => t.due < T0);
+function reconcile() {
+  const by = { todo: 0, doing: 0, done: 0 }; S.tasks.forEach((t) => by[t.st]++);
+  console.assert(by.todo + by.doing + by.done === S.tasks.length, 'task statuses add up');
+  console.assert(sum(S.projects.map((p) => projTasks(p.id).length)) === S.tasks.length, 'every task belongs to a project');
+  console.assert(sum(S.projects.map((p) => visToday(p.id))) === visToday(), 'visits today add up');
+  console.assert(sum(S.projects.map((p) => vis30(p.id))) === vis30(), 'visits 30d add up');
+  console.assert(S.tasks.every((t) => t.who == null || member(t.who)), 'assignees exist');
+  console.assert(S.gen <= LIM().gen, 'generations within limit');
+}
+reconcile();
+console.assert(S.projects.length === 16 && S.links.length > 30 && S.tasks.length > 150, 'seed volume');
 
-/* ── dashboard ────────────────────────────────────────── */
-function dash() {
-  const all = S.projects.reduce((a, p) => a + taskCount(p), 0), done = S.projects.reduce((a, p) => a + doneCount(p), 0);
-  const today = S.projects.flatMap((p) => p.plan.filter((c) => c.week === 1).flatMap((c) => c.tasks.map((t, ti) => ({ p, c, t, ti })))).filter((x) => !x.t.done).slice(0, 5);
-  const finding = S.plan === 'trial' ? `<div class="finding">${ic('clock')}<span>Trial ends in ${S.trialDays} days, ${left()} of ${limit()} ${left() === 1 ? 'generation' : 'generations'} left.</span><button class="btn sm primary" data-page="pricing">Choose a plan</button></div>` : '';
-  return head('Launch board', 'What to do today to get your products in front of first customers', `<button class="btn primary" data-act="newProject">${ic('plus')}New project</button>`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${S.projects.length}</b><span>Active projects</span></div><div class="kpi"><b>${done}<small>of ${all}</small></b><span>Tasks done</span></div><div class="kpi"><b data-vis="all">${fmt(S.projects.reduce((a, p) => a + visits(p), 0))}</b><span><i class="livedot"></i>Link visits today</span></div><div class="kpi"><b>${S.used}${S.plan === 'pro' ? '' : `<small>of ${limit()}</small>`}</b><span>Generations used</span></div></div>
-    <div class="grid"><section class="card c7"><div class="card-h"><h2>Do in week one</h2><span>${today.length ? 'tick when done' : 'all done'}</span></div>${today.map((x) => `<div class="task"><span>${cb(false, `data-act="tick" data-p="${x.p.id}" data-c="${x.c.id}" data-i="${x.ti}" aria-label="Mark done: ${esc(x.t.t)}"`)}</span><div class="t">${esc(x.t.t)}<div class="w">${esc(x.p.name)} · ${catOf(x.c.id).n}</div></div></div>`).join('') || '<p class="empty">No tasks for week one.</p>'}</section>
-    <section class="card c5"><div class="card-h"><h2>Progress by project</h2></div>${S.projects.map((p) => barRow(esc(p.name), taskCount(p) ? doneCount(p) / taskCount(p) * 100 : 0, `${doneCount(p)} of ${taskCount(p)}`)).join('')}</section></div>`;
-}
-
-/* ── projects ─────────────────────────────────────────── */
-function projects() {
-  const types = ['all', ...new Set(S.projects.map((p) => p.type))], list = S.projects.filter((p) => filter === 'all' || p.type === filter);
-  return head('Projects', `${S.projects.length} ${S.projects.length === 1 ? 'product' : 'products'}. Open a project to see its plan and tick off tasks.`, `<button class="btn primary" data-act="newProject">${ic('plus')}New project</button>`) +
-    `<div class="tabs">${types.map((t) => `<button class="${filter === t ? 'on' : ''}" data-act="filter" data-v="${t}">${t === 'all' ? 'All' : t}</button>`).join('')}</div>
-    <section class="card">${list.map((p) => { const t = taskCount(p), d = doneCount(p); return `<div class="proj" data-open="${p.id}"><span class="cvr">${coverImg(p.id)}</span><div><h3>${esc(p.name)}</h3><p>${esc(p.desc)}</p><div class="meta"><span class="pill">${p.type}</span><span class="pill">${MARKETS[p.market]}</span></div></div><div class="prog">${t ? `${d} of ${t} tasks` : 'No plan yet'}<div class="bar"><i style="width:${t ? d / t * 100 : 0}%"></i></div></div><button class="btn sm" data-act="${t ? 'open' : 'planFor'}" data-id="${p.id}">${t ? 'Open' : 'Build plan'}</button></div>`; }).join('') || '<p class="empty">Nothing here yet.</p>'}</section>`;
-}
-function projectPage() {
-  const p = proj(openId), t = taskCount(p), d = doneCount(p), r = reach(p.plan);
-  const weeks = [1, 2, 3, 4].map((w) => ({ w, cs: p.plan.filter((c) => c.week === w) })).filter((x) => x.cs.length);
-  return head(esc(p.name), `${esc(p.aud)} · ${MARKETS[p.market]} · ${BUDGETS.find((b) => b[0] === p.budget)[1].toLowerCase()}`, `<button class="btn" data-page="projects">${ic('arrow')}Back to projects</button><button class="btn" data-act="planFor" data-id="${p.id}">Rebuild plan</button>`) +
-    `<div class="kpis"><div class="kpi"><b>${d}<small>of ${t}</small></b><span>Tasks done</span></div><div class="kpi"><b data-vis="${p.id}">${fmt(visits(p))}</b><span><i class="livedot"></i>Visits today</span></div><div class="kpi"><b>${p.plan.length}</b><span>Channels in plan</span></div><div class="kpi"><b>${t ? fmtReach(r) : '—'}</b><span>Estimated monthly reach</span></div></div>
-    <section class="card">${weeks.map(({ w, cs }) => `<div class="week"><div class="week-h"><b>Week ${w}</b></div>${cs.map((c) => `<div style="margin-top:12px"><b>${catOf(c.id).n}</b> <span class="muted">· ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · paid' : ''}</span>${c.tasks.map((tk, i) => `<div class="task ${tk.done ? 'done' : ''}"><span>${cb(tk.done, `data-act="tick" data-p="${p.id}" data-c="${c.id}" data-i="${i}" aria-label="${esc(tk.t)}"`)}</span><div class="t">${esc(tk.t)}</div></div>`).join('')}</div>`).join('')}</div>`).join('') || '<p class="empty">No plan yet. Click “Rebuild plan”.</p>'}</section>`;
-}
-
-/* ── generator ────────────────────────────────────────── */
-function meterHTML() {
-  return S.plan === 'pro' ? '' : `<div class="meter"><div class="brow-t"><span>Generations</span><b>${S.used} of ${limit()}</b></div><div class="bar thick"><i style="width:${S.used / limit() * 100}%"></i></div></div>`;
-}
-function gen() {
-  const g = genState || { pid: 1, aud: S.projects[0].aud, market: S.projects[0].market, budget: S.projects[0].budget, out: null };
-  genState = g;
-  return head('AI plan', 'Tell us about your product and get a week-by-week channel plan with tasks') + `<div class="gen"><section class="card">${meterHTML()}
-    <div class="field"><label for="g-p">Project</label><select id="g-p" onchange="genState.pid=+this.value;const p=proj(genState.pid);genState.aud=p.aud;genState.market=p.market;genState.budget=p.budget;render()">${S.projects.map((p) => `<option value="${p.id}" ${g.pid === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
-    <div class="field"><label for="g-a">Target audience</label><input id="g-a" value="${esc(g.aud)}" oninput="genState.aud=this.value"></div>
-    <div class="field"><label for="g-m">Market</label><select id="g-m" onchange="genState.market=this.value">${Object.entries(MARKETS).map(([k, v]) => `<option value="${k}" ${g.market === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
-    <div class="field"><label for="g-b">Promotion budget</label><select id="g-b" onchange="genState.budget=this.value">${BUDGETS.map(([k, v]) => `<option value="${k}" ${g.budget === k ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
-    <button class="btn primary" style="width:100%;height:42px" data-act="run" id="g-run">${ic('zap')}Build plan</button></section>
-    <section class="card" id="g-out" aria-live="polite">${g.out ? outHTML(g.out) : `<p class="empty" style="padding:60px 12px">Nothing yet. Fill in the settings on the left and click “Build plan”. Results are built from templates; this is a demo.</p>`}</section></div>`;
-}
-function outHTML(o) {
-  const r = reach(o.plan);
-  return `<div class="out-h"><div><h2 style="font-size:18px;font-weight:700">4-week plan for “${esc(proj(o.pid).name)}”</h2><p class="muted">${o.plan.length} ${o.plan.length === 1 ? 'channel' : 'channels'} · estimated reach ${fmtReach(r)} per month</p></div><button class="btn primary" data-act="save">Save to project</button></div>`
-    + o.plan.map((c) => `<div class="week reveal"><div class="week-h"><b>${catOf(c.id).n}</b><span>week ${c.week} · ${fmtReach([catOf(c.id).lo, catOf(c.id).hi])}${catOf(c.id).paid ? ' · paid' : ''}</span></div><ul class="checks">${c.tasks.map((t) => `<li class="muted" style="padding:3px 0">— ${esc(t.t)}</li>`).join('')}</ul></div>`).join('');
-}
-
-/* ── pricing ──────────────────────────────────────────── */
-function pricing() {
-  const P = [['trial', 'Trial', '€0', '7 days free', ['Up to 3 projects', '10 generations', 'Basic channel plan'], ['Multiple projects', 'Priority support']],
-    ['starter', 'Starter', '€9', 'per month, cancel anytime', ['Up to 10 projects', '200 generations per month', 'Full plan with tasks', 'Email support'], ['API access']],
-    ['pro', 'Pro', '€29', 'per month, cancel anytime', ['Unlimited projects', 'Unlimited generations', 'API access', '24/7 support'], []]];
-  return head('Pricing', 'The generation limit changes as soon as you pick a plan. Payments (Stripe, SEPA, PayPal) are not connected in this demo.') +
-    `<div class="plans">${P.map(([k, n, pr, per, yes, no]) => `<article class="plan ${S.plan === k ? 'cur' : ''}"><h3>${n}${S.plan === k ? ' · your plan' : ''}</h3><div class="pr">${pr}<small> ${k === 'trial' ? '' : '/ mo'}</small></div><p class="muted">${per}</p><ul>${yes.map((y) => `<li>${ic('check')}${y}</li>`).join('')}${no.map((y) => `<li class="off">${ic('x')}${y}</li>`).join('')}</ul><button class="btn ${S.plan === k ? '' : 'primary'}" data-act="plan" data-v="${k}" ${S.plan === k ? 'disabled' : ''}>${S.plan === k ? 'Current plan' : 'Choose ' + n}</button></article>`).join('')}</div>`;
-}
-
-/* ── actions ──────────────────────────────────────────── */
-const ACT = {
-  filter(d) { filter = d.v; render(); }, open(d) { go('project', +d.id); },
-  tick(d) { const c = proj(+d.p).plan.find((x) => x.id === d.c), t = c.tasks[+d.i]; t.done = !t.done; render(); if (t.done) toast('Done'); },
-  plan(d) { S.plan = d.v; if (d.v !== 'trial') S.trialDays = 0; toast(`${PLAN_N[d.v]} plan: ${d.v === 'pro' ? 'no limit' : 'limit ' + LIM[d.v] + ' generations'}`); render(); },
-  planFor(d) { genState = null; const p = proj(+d.id); genState = { pid: p.id, aud: p.aud, market: p.market, budget: p.budget, out: null }; go('gen'); },
-  run() {
-    if (left() <= 0) { toast('Generation limit reached. Choose a plan'); return go('pricing'); }
-    const g = genState; if (!g.aud.trim()) return toast('Describe your audience');
-    S.used++; g.out = null; chrome();
-    const out = $('#g-out'), btn = $('#g-run'); btn.disabled = true;
-    out.innerHTML = `<p class="cursor" style="padding:40px 4px;color:var(--muted)">Analysing audience “${esc(g.aud)}” and the ${esc(MARKETS[g.market])} market</p>`;
-    const plan = makePlan(g.market, g.budget); const res = { pid: g.pid, plan };
-    timers.push(setTimeout(() => {
-      plan.forEach((_, i) => timers.push(setTimeout(() => {
-        out.innerHTML = outHTML({ ...res, plan: plan.slice(0, i + 1) });
-        if (i === plan.length - 1) { g.out = res; $('#g-run').disabled = false; }
-      }, 380 * i)));
-    }, 900));
-    const m = $('.meter'); if (m) m.outerHTML = meterHTML();
-  },
-  save() { const g = genState, p = proj(g.pid); p.aud = g.aud; p.market = g.market; p.budget = g.budget; const was = new Set(p.plan.flatMap((c) => c.tasks.filter((t) => t.done).map((t) => t.t))); p.plan = g.out.plan.map((c) => ({ ...c, tasks: c.tasks.map((t) => ({ t: t.t, done: was.has(t.t) })) })); toast('Plan saved to project'); go('project', p.id); },
-  newProject() {
-    modal(`<h2>New project</h2><p>You will build the plan in the next step.</p><div class="field"><label for="n-n">Name</label><input id="n-n" placeholder="e.g. My SaaS"></div>
-      <div class="field"><label for="n-t">Type</label><select id="n-t"><option>SaaS</option><option>App</option><option>Game</option><option>Landing</option><option>Bot</option></select></div><div class="field"><label for="n-d">Description</label><textarea id="n-d" placeholder="What the product does"></textarea></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="n-ok">Create</button></div>`, () => {
-      $('#n-ok').onclick = () => {
-        const n = $('#n-n').value.trim(); if (!n) return $('#n-n').focus();
-        if (S.projects.length >= { trial: 3, starter: 10, pro: 999 }[S.plan]) { closeModal(); toast('Project limit reached on this plan'); return go('pricing'); }
-        const id = Math.max(...S.projects.map((x) => x.id)) + 1; S.projects.push({ id, name: n, type: $('#n-t').value, desc: $('#n-d').value.trim() || 'No description', aud: 'Your audience', market: 'dach', budget: '0', plan: [] });
-        closeModal(); toast('Project created'); render();
-      };
-    });
-  },
+/* ── shell ──────────────────────────────────────────────── */
+const PAGES = {
+  dash: ['Launch board', 'home', 'Plan'], projects: ['Projects', 'layers', 'Plan'], gen: ['AI plan', 'zap', 'Plan'], tasks: ['Tasks', 'kanban', 'Plan'],
+  channels: ['Channels', 'megaphone', 'Grow'], links: ['Links', 'link', 'Grow'], templates: ['Templates', 'grid', 'Grow'],
+  team: ['Team', 'users', 'Workspace'], billing: ['Billing', 'card', 'Workspace'],
 };
-/* live traffic: visits trickle in from the channels in each plan */
+const TABS = ['dash', 'projects', 'tasks', 'gen'];
+let page = 'dash', openId = null, timers = [];
+const seen = new Set(['dash']);
+const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+const navItem = (k) => { const c = k === 'tasks' ? overdue().length : 0; return `<a data-page="${k}" href="#${k}" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${c ? `<span class="count neg" aria-label="${pl(c, 'overdue task')}">${c}</span>` : ''}</a>`; };
+function chrome() {
+  let g = '', h = '';
+  for (const k of Object.keys(PAGES)) { if (PAGES[k][2] !== g) { g = PAGES[k][2]; h += `<div class="nav-label">${g}</div>`; } h += navItem(k); }
+  $('#nav').innerHTML = h;
+  $('#tabbar').innerHTML = TABS.map(navItem).join('') + `<a data-act="more" role="button" tabindex="0" aria-haspopup="menu" id="morebtn">${ic('more')}<span>More</span></a>`;
+  const u = usage(), L = LIM();
+  $('#sfoot').innerHTML = `<div class="brow-t"><span>AI generations</span><b>${fmt(u.gen)} / ${fmt(L.gen)}</b></div><div class="bar"><i style="width:${u.gen / L.gen * 100}%"></i></div><div class="ver"><span>${PLANS[S.plan].n} plan</span><button class="lnk" data-act="help" data-tab="new">v4.12.0</button></div>`;
+  const unread = S.notes.filter((n) => !n.read).length;
+  $('#top').innerHTML = `<div class="tb-brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11a2.8 2.8 0 00-4-4L4 15zM13 6l5 5"/></svg></div>Shipter</div>
+    <div class="gs" role="search">${ic('search')}<input id="gq" type="search" placeholder="Search projects, tasks, links…" autocomplete="off" aria-label="Search the workspace" data-in="gq"><kbd>/</kbd></div><div class="spacer"></div>
+    <button class="ib" data-act="help" aria-label="Help and support">${ic('help')}</button>
+    <button class="ib" data-act="bell" id="bell" aria-label="Notifications${unread ? `, ${unread} unread` : ''}" aria-haspopup="true">${ic('bell')}${unread ? `<span class="dot">${unread}</span>` : ''}</button>
+    <button class="me" data-act="menu" id="mebtn" aria-haspopup="menu" aria-label="Account menu"><span class="av" style="--h:${ME.hue}">${inits(ME.name)}</span><span class="nm">${esc(ME.name)}<small>${S.viewer ? 'Viewer (preview)' : 'Owner'} · Northlight Studio</small></span></button>`;
+  $('#robar').innerHTML = S.viewer ? `<div class="ro-bar" role="status">${ic('eye')}<span>You are previewing Shipter as a Viewer. Editing is turned off.</span><button class="btn sm" data-act="viewer">Back to Owner</button></div>` : '';
+  document.documentElement.classList.toggle('ro', S.viewer);
+  setNav(page === 'project' ? 'projects' : page);
+  $$('#tabbar [data-page]').forEach((a) => a.classList.toggle('on', a.dataset.page === (page === 'project' ? 'projects' : page)));
+  if (!TABS.includes(page) && page !== 'project') $('#morebtn').classList.add('on');
+}
+const VIEWS = {};
+function render() {
+  timers.forEach(clearTimeout); timers = [];
+  const ae = document.activeElement, keep = ae && ae.id && ae.closest('#main') && ae.matches('input,textarea') ? [ae.id, ae.selectionStart] : null;
+  chrome();
+  const m = $('#main');
+  if (!seen.has(page) && ['projects', 'links', 'tasks', 'billing'].includes(page)) { seen.add(page); m.innerHTML = skeleton(); later(render, 420); return; }
+  seen.add(page);
+  m.innerHTML = VIEWS[page]();
+  $$('[data-chart]', m).forEach((el) => chart(el, CHARTS[el.dataset.chart]));
+  if (keep) { const el = document.getElementById(keep[0]); if (el) { el.focus(); try { el.setSelectionRange(keep[1], keep[1]); } catch (e) { /* not a text field */ } } }
+  reconcile();
+}
+function go(p, id) { closePop(); closeDrawer(); if (id !== undefined) openId = id; page = p; render(); window.scrollTo(0, 0); }
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+const skeleton = () => `<div class="sk" style="width:220px;height:30px;margin-bottom:10px"></div><div class="sk" style="width:min(420px,80%);height:16px;margin-bottom:26px"></div><div class="kpis">${'<div class="kpi"><div class="sk" style="height:28px;width:60%"></div><div class="sk" style="height:12px;width:80%;margin-top:10px"></div></div>'.repeat(4)}</div><section class="card" style="margin-top:16px">${'<div class="sk" style="height:18px;margin:14px 0"></div>'.repeat(7)}</section>`;
+const emptyState = (icon, title, text, btn = '') => `<div class="empty">${ic(icon)}<b>${title}</b>${text}${btn ? `<div>${btn}</div>` : ''}</div>`;
+const say = (msg) => { $('#live').textContent = msg; };
+
+/* ── popovers, drawers, dialogs, undo ───────────────────── */
+let popEl = null, popFor = null;
+function openPop(trigger, html, w) {
+  const again = popFor === trigger; closePop(); if (again) return;
+  const r = trigger.getBoundingClientRect(), p = document.createElement('div');
+  p.className = 'pop'; p.innerHTML = html; if (w) p.style.width = w + 'px';
+  document.body.appendChild(p);
+  const pw = p.offsetWidth, ph = p.offsetHeight, below = r.bottom + 6 + ph < innerHeight;
+  p.style.left = Math.max(8, Math.min(innerWidth - pw - 8, r.right - pw)) + 'px';
+  p.style.top = (below ? r.bottom + 6 : Math.max(8, r.top - 6 - ph)) + 'px';
+  p.style.setProperty('--to', `${below ? 'top' : 'bottom'} ${r.right - pw > 8 ? 'right' : 'left'}`);
+  popEl = p; popFor = trigger; trigger.setAttribute('aria-expanded', 'true');
+  const f = $('.mi, .nt, button', p); if (f && !trigger.matches('input')) f.focus({ preventScroll: true });
+}
+function closePop() { if (popEl) { popEl.remove(); popEl = null; } if (popFor) { popFor.setAttribute('aria-expanded', 'false'); popFor = null; } }
+let drawerBack = null;
+function drawer(html) {
+  closeDrawer(); drawerBack = document.activeElement;
+  const s = document.createElement('div'); s.className = 'dscrim'; s.id = 'dscrim'; s.addEventListener('mousedown', closeDrawer);
+  const d = document.createElement('aside'); d.className = 'drawer'; d.id = 'drawer'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.innerHTML = html;
+  document.body.append(s, d); const h = $('h2', d); if (h) { h.id = 'dtitle'; d.setAttribute('aria-labelledby', 'dtitle'); }
+  ($('[data-autofocus]', d) || $('.dh .ib', d) || d).focus();
+}
+function closeDrawer() { const d = $('#drawer'); if (!d) return; d.remove(); $('#dscrim')?.remove(); if (drawerBack && document.contains(drawerBack)) drawerBack.focus({ preventScroll: true }); drawerBack = null; }
+const dHead = (title, sub, lead = '') => `<div class="dh">${lead}<div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ''}</div><button class="ib" data-act="closeDrawer" aria-label="Close">${ic('x')}</button></div>`;
+function confirmDlg({ title, body, ok, danger }, onOk) {
+  modal(`<h2>${title}</h2><p>${body}</p><div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn ${danger ? 'danger' : 'primary'}" id="cf-ok">${ok}</button></div>`, () => { const b = $('#cf-ok'); b.focus(); b.onclick = () => { closeModal(); onOk(); }; });
+  $('#scrim .modal').setAttribute('aria-label', title.replace(/<[^>]+>/g, ''));
+}
+let undoT;
+function undoSnack(msg, fn) {
+  let s = $('.usnack'); if (!s) { s = document.createElement('div'); s.className = 'usnack out'; s.setAttribute('role', 'status'); document.body.appendChild(s); }
+  s.innerHTML = '<span></span><button type="button">Undo</button>'; s.firstChild.textContent = msg;
+  s.lastChild.onclick = () => { fn(); s.classList.add('out'); clearTimeout(undoT); toast('Restored'); };
+  requestAnimationFrame(() => s.classList.remove('out')); clearTimeout(undoT); undoT = setTimeout(() => s.classList.add('out'), 6000);
+}
+function dl(name, text, mime) {
+  const url = URL.createObjectURL(new Blob([text], { type: mime + ';charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500); toast(`Downloaded ${name}`);
+}
+const csvCell = (v) => { const s = String(v ?? ''); return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const toCSV = (head, rows) => '﻿' + [head, ...rows].map((r) => r.map(csvCell).join(',')).join('\r\n');
+function note(t, goTo) { S.notes.unshift({ id: nid(), t, go: goTo, ts: Date.now(), read: false }); }
+function log(t, p) { S.act.unshift({ who: ME.id, t, p, ts: Date.now() }); }
+const setErr = (id, msg) => { const f = document.getElementById(id), e = document.getElementById('e-' + id); if (f) f.setAttribute('aria-invalid', msg ? 'true' : 'false'); if (e) e.innerHTML = msg ? ic('alert') + esc(msg) : ''; return !msg; };
+const fld = (id, label, input, hint = '') => `<div class="field"><label for="${id}">${label}</label>${input}${hint ? `<span class="hint">${hint}</span>` : ''}<span class="err" id="e-${id}" aria-live="polite"></span></div>`;
+const val = (id) => (document.getElementById(id)?.value ?? '').trim();
+const opts = (o, cur) => Object.entries(o).map(([k, v]) => `<option value="${k}" ${String(cur) === String(k) ? 'selected' : ''}>${esc(v)}</option>`).join('');
+const URL_RE = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+(\/[^\s]*)?$/i, EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+
+/* ── shared table: search / sort / filter / pagination / bulk ─ */
+const TS = {};
+const tst = (k, sort, dir = 1, per = 10) => TS[k] || (TS[k] = { q: '', sort, dir, page: 0, per, sel: new Set(), f: 'all', f2: 'all' });
+function table(k, { cols, rows, colsm, empty, bulk, rowAct }) {
+  const st = TS[k], c = cols.find((x) => x.k === st.sort);
+  if (c && c.v) rows = rows.slice().sort((a, b) => { const x = c.v(a), y = c.v(b); return (typeof x === 'string' ? x.localeCompare(y, 'en-GB') : x - y) * st.dir; });
+  const pages = Math.max(1, Math.ceil(rows.length / st.per)); st.page = Math.min(st.page, pages - 1);
+  const vis = rows.slice(st.page * st.per, st.page * st.per + st.per);
+  for (const id of [...st.sel]) if (!rows.some((r) => r.id === id)) st.sel.delete(id);
+  const all = vis.length && vis.every((r) => st.sel.has(r.id));
+  const grid = (bulk ? '28px ' : '') + cols.map((x) => x.w).join(' '), gridm = (bulk ? '28px ' : '') + (colsm || cols.filter((x) => !x.hm).map((x) => x.w).join(' '));
+  const th = cols.map((x) => `<div class="${x.hm ? 'hm' : ''} ${x.r ? 'r' : ''}" ${x.v ? `aria-sort="${st.sort === x.k ? (st.dir > 0 ? 'ascending' : 'descending') : 'none'}"` : ''}>${x.v ? `<button class="${st.sort === x.k ? 'on' : ''}" data-act="sort" data-t="${k}" data-k="${x.k}">${x.l}${st.sort === x.k ? ic(st.dir > 0 ? 'up' : 'down') : ''}</button>` : x.l}</div>`).join('');
+  const bar = bulk && st.sel.size ? `<div class="bulk" role="region" aria-label="Bulk actions"><b>${fmt(st.sel.size)} selected</b>${bulk}<button class="btn sm ghost" data-act="selClear" data-t="${k}">Clear</button></div>` : '';
+  const body = vis.map((r) => `<div class="tr ${st.sel.has(r.id) ? 'selr' : ''}" ${rowAct ? `data-act="${rowAct}" data-id="${r.id}" tabindex="0" role="link" aria-label="Open ${esc(r.name || r.slug || r.id)}"` : ''} style="${rowAct ? 'cursor:pointer' : ''}">${bulk ? `<div><input type="checkbox" class="chk" data-act="sel" data-t="${k}" data-id="${r.id}" ${st.sel.has(r.id) ? 'checked' : ''} aria-label="Select ${esc(r.name || r.slug || r.id)}"></div>` : ''}${cols.map((x) => `<div class="tcell ${x.hm ? 'hm' : ''} ${x.r ? 'r' : ''}">${x.c(r)}</div>`).join('')}</div>`).join('');
+  const from = rows.length ? st.page * st.per + 1 : 0, to = Math.min(rows.length, (st.page + 1) * st.per);
+  return `${bar}<div class="tbl" role="table" style="--cols:${grid};--colsm:${gridm}"><div class="tr th" role="row">${bulk ? `<div><input type="checkbox" class="chk" data-act="selAll" data-t="${k}" ${all ? 'checked' : ''} aria-label="Select all on this page"></div>` : ''}${th}</div>${body || `<div style="padding:4px 0">${empty}</div>`}</div>
+    ${rows.length > st.per ? `<div class="pager"><span>Showing ${fmt(from)}–${fmt(to)} of ${fmt(rows.length)}</span><div><button class="btn sm" data-act="pg" data-t="${k}" data-d="-1" ${st.page === 0 ? 'disabled' : ''} aria-label="Previous page">${ic('left')}Previous</button><button class="btn sm" data-act="pg" data-t="${k}" data-d="1" ${st.page >= pages - 1 ? 'disabled' : ''} aria-label="Next page">Next${ic('right')}</button></div></div>` : rows.length ? `<div class="pager"><span>${pl(rows.length, 'result')}</span></div>` : ''}`;
+}
+const srch = (k, ph) => `<label class="srch">${ic('search')}<span class="sr">${ph}</span><input id="q-${k}" type="search" data-search data-in="q" data-t="${k}" value="${esc(TS[k].q)}" placeholder="${ph}" autocomplete="off"></label>`;
+const match = (q, ...f) => !q || f.some((x) => String(x ?? '').toLowerCase().includes(q.toLowerCase()));
+
+/* ── small renderers ───────────────────────────────────── */
+const tile = (p, cls = '') => `<span class="tile ${cls}" style="--h:${p.hue}" aria-hidden="true">${esc(inits(p.name))}</span>`;
+const avatar = (m, cls = '') => m ? `<span class="av ${cls}" style="--h:${m.hue}" title="${esc(m.name)}">${esc(inits(m.name))}</span>` : `<span class="av none ${cls}" title="Unassigned">–</span>`;
+const stPill = (st) => `<span class="pill ${STATUS[st][1]}"><i></i>${STATUS[st][0]}</span>`;
+const cb = (done, attrs) => `<button class="cb" role="checkbox" aria-checked="${done}" data-w ${attrs}>${done ? ic('check') : ''}</button>`;
+const dueTxt = (t) => { const late = t.st !== 'done' && t.due < T0; return `<span class="${late ? 'due-late' : ''}">${late ? 'Overdue · ' : ''}${relDay(t.due)}</span>`; };
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const short = (l) => `go.shipter.app/${l.slug}`;
+const utmUrl = (l) => `${l.dest}${l.dest.includes('?') ? '&' : '?'}utm_source=${encodeURIComponent(l.src)}&utm_medium=${encodeURIComponent(l.med)}&utm_campaign=${encodeURIComponent(l.camp)}${l.content ? '&utm_content=' + encodeURIComponent(l.content) : ''}`;
+const dayLabels = (n) => Array.from({ length: n }, (_, i) => fD(day(i - n)));
+const series = (pid, n = 30) => Array.from({ length: n }, (_, i) => sum(S.links.filter((l) => pid === 'all' || l.pid === +pid).map((l) => l.daily[30 - n + i])));
+const CHARTS = {
+  dash14: (w) => { const v = series('all', 14), lab = dayLabels(14); return barsSVG(w, { labels: lab.map((x, i) => i % 2 ? '' : x), values: v, h: 200, mark: [13] }); },
+  links30: (w) => { const v = series(LF.pid), lab = dayLabels(30); return v.some(Boolean) ? lineSVG(w, { labels: lab, values: v, h: 230, xAt: [0, 7, 14, 21, 29] }) : `<div class="empty" style="height:230px;display:grid;place-content:center">${ic('chart')}<b>No clicks yet</b>Share a tracked link to start collecting data.</div>`; },
+};
+
+/* ── launch board ──────────────────────────────────────── */
+VIEWS.dash = () => {
+  const act = live().filter((p) => p.st === 'active' || p.st === 'planning'), actIds = new Set(act.map((p) => p.id));
+  const ts = S.tasks.filter((t) => actIds.has(t.pid)), done = ts.filter((t) => t.st === 'done').length;
+  const next = ts.filter((t) => t.st !== 'done').sort((a, b) => a.due - b.due).slice(0, 7);
+  const od = overdue().length, u = usage(), L = LIM();
+  const up = live().filter((p) => p.launch >= T0 && p.st !== 'paused').sort((a, b) => a.launch - b.launch).slice(0, 5);
+  const hr = new Date().getHours(), greet = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
+  const finding = od ? `<div class="finding">${ic('alert')}<span>${pl(od, 'task is', 'tasks are')} overdue across your launches. Clear them before the next launch on ${fD(up[0] ? up[0].launch : T0)}.</span><button class="btn sm primary" data-page="tasks">Open board</button></div>` : u.gen / L.gen > .8 ? `<div class="finding">${ic('zap')}<span>${pct(u.gen, L.gen)}% of this cycle’s AI generations used. The limit resets on ${fD(S.renew)}.</span><button class="btn sm primary" data-page="billing">See plans</button></div>` : '';
+  return head('Launch board', `${greet}, ${esc(ME.name.split(' ')[0])}. Here is what moves your launches forward today.`, `<button class="btn" data-page="gen">${ic('zap')}Generate plan</button><button class="btn primary" data-act="wizard" data-w>${ic('plus')}New project</button>`) + finding +
+    `<div class="kpis"><div class="kpi"><b>${act.length}</b><span>Launches in progress</span><em>${pl(live().filter((p) => p.st === 'launched').length, 'product')} already launched</em></div>
+    <div class="kpi"><b>${fmt(done)}<small>of ${fmt(ts.length)}</small></b><span>Tasks done</span><em>${pct(done, ts.length)}% of active plans</em></div>
+    <div class="kpi"><b data-vis="all">${fmt(visToday())}</b><span><i class="livedot"></i>Link clicks today</span><em>${fmt(vis30())} in the last 30 days</em></div>
+    <div class="kpi"><b>${fmt(u.gen)}<small>of ${fmt(L.gen)}</small></b><span>AI generations</span><em>Resets ${relDay(S.renew)}</em></div></div>
+    <div class="grid" style="margin-top:16px"><section class="card c7"><div class="card-h"><h2>Next up</h2><button class="lnk" data-page="tasks">Open task board</button></div>${next.map((t) => { const p = proj(t.pid); return `<div class="task"><span>${cb(false, `data-act="tick" data-id="${t.id}" aria-label="Mark done: ${esc(t.title)}"`)}</span><div class="t"><div class="ell" title="${esc(t.title)}">${esc(t.title)}</div><div class="w ell">${esc(p.name)} · ${esc(catOf(t.ch).n)}</div></div><div class="rt">${dueTxt(t)}${avatar(member(t.who), 'sm')}</div></div>`; }).join('') || emptyState('check', 'All clear', 'No open tasks in your active launches.')}</section>
+    <section class="card c5"><div class="card-h"><h2>Link clicks, last 14 days</h2><span>All projects</span></div><div data-chart="dash14"></div></section>
+    <section class="card c5"><div class="card-h"><h2>Upcoming launches</h2><button class="lnk" data-page="projects">All projects</button></div><div class="ul-rows">${up.map((p) => `<div style="cursor:pointer" data-act="openProj" data-id="${p.id}">${tile(p)}<div style="flex:1;min-width:0"><b class="ell" style="display:block">${esc(p.name)}</b><span class="muted" style="font-size:12.5px">${doneOf(p.id)} of ${projTasks(p.id).length} tasks · ${MARKETS[p.market]}</span></div><div class="cd"><b>${dayDiff(p.launch) === 0 ? 'Today' : pl(dayDiff(p.launch), 'day')}</b><span>${fD(p.launch)}</span></div></div>`).join('') || emptyState('calendar', 'Nothing scheduled', 'Set a launch date on a project to see it here.')}</div></section>
+    <section class="card c7"><div class="card-h"><h2>Progress by project</h2><span>Active plans</span></div>${act.filter((p) => p.plan).slice(0, 6).map((p) => barRow(esc(p.name), pct(doneOf(p.id), projTasks(p.id).length), `${doneOf(p.id)} of ${projTasks(p.id).length}`)).join('')}</section>
+    <section class="card c12"><div class="card-h"><h2>Recent activity</h2><span>Everyone in Northlight Studio</span></div><ul class="feed">${S.act.slice(0, 6).map((a) => `<li>${avatar(member(a.who))}<div><b>${esc(member(a.who)?.name || 'Former member')}</b> ${esc(a.t)}${a.p ? ` <span class="muted">in ${esc(a.p)}</span>` : ''}<small>${ago(a.ts)}</small></div></li>`).join('')}</ul></section></div>`;
+};
+
+/* ── projects list ─────────────────────────────────────── */
+tst('projects', 'launch', 1, 8);
+VIEWS.projects = () => {
+  const st = TS.projects, all = live();
+  const cnt = (f) => f === 'all' ? all.length : all.filter((p) => p.st === f).length;
+  const rows = all.filter((p) => (st.f === 'all' || p.st === st.f) && (st.f2 === 'all' || p.type === st.f2) && match(st.q, p.name, p.desc, p.aud, MARKETS[p.market]));
+  const cols = [
+    { k: 'name', l: 'Project', w: 'minmax(0,2.4fr)', v: (p) => p.name, c: (p) => `<div class="pmain">${tile(p)}<div><b>${esc(p.name)}</b><span>${p.type} · ${esc(p.desc)}</span></div></div>` },
+    { k: 'st', l: 'Status', w: '112px', v: (p) => Object.keys(STATUS).indexOf(p.st), c: (p) => stPill(p.st) },
+    { k: 'mk', l: 'Market', w: '100px', hm: 1, v: (p) => MARKETS[p.market], c: (p) => MARKETS[p.market] },
+    { k: 'own', l: 'Owner', w: '150px', hm: 1, v: (p) => member(p.owner)?.name || '', c: (p) => `<span class="mini">${avatar(member(p.owner), 'sm')}<span class="ell">${esc(member(p.owner)?.name.split(' ')[0] || 'Unassigned')}</span></span>` },
+    { k: 'prog', l: 'Progress', w: '150px', hm: 1, v: (p) => pct(doneOf(p.id), projTasks(p.id).length), c: (p) => p.plan ? `<div class="mini"><div class="bar"><i style="width:${pct(doneOf(p.id), projTasks(p.id).length)}%"></i></div><small>${pct(doneOf(p.id), projTasks(p.id).length)}%</small></div>` : '<span class="muted">No plan yet</span>' },
+    { k: 'launch', l: 'Launch', w: '110px', hm: 1, v: (p) => p.launch, c: (p) => `<span title="${fD(p.launch, 1)}">${relDay(p.launch)}</span>` },
+    { k: 'vis', l: 'Clicks 30d', w: '96px', hm: 1, r: 1, v: (p) => vis30(p.id), c: (p) => fmt(vis30(p.id)) },
+  ];
+  return head('Projects', `${pl(all.length, 'product')} in Northlight Studio · ${fmt(usage().proj)} of ${LIM().proj === Infinity ? 'unlimited' : LIM().proj} on the ${PLANS[S.plan].n} plan`, `<button class="btn" data-act="exportProjects">${ic('dl')}Export CSV</button><button class="btn primary" data-act="wizard" data-w>${ic('plus')}New project</button>`) +
+    `<div class="tools"><div class="tabs" role="tablist" aria-label="Filter by status">${['all', ...Object.keys(STATUS)].map((f) => `<button role="tab" aria-selected="${st.f === f}" class="${st.f === f ? 'on' : ''}" data-act="tf" data-t="projects" data-v="${f}">${f === 'all' ? 'All' : STATUS[f][0]}<span class="n">${cnt(f)}</span></button>`).join('')}</div>${srch('projects', 'Search projects')}<select class="sel" aria-label="Filter by type" data-chg="tf2" data-t="projects"><option value="all">All types</option>${TYPES.map((t) => `<option ${st.f2 === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+    <section class="card">${table('projects', { cols, rows, colsm: 'minmax(0,1fr) 104px', rowAct: 'openProj', bulk: `<button class="btn sm" data-act="bulkProjCsv">${ic('dl')}Export</button><button class="btn sm" data-act="bulkPause" data-w>Pause</button><button class="btn sm danger" data-act="bulkArchive" data-w>${ic('trash')}Archive</button>`, empty: emptyState('search', 'No projects match', st.q ? `Nothing matches “${esc(st.q)}”. Try a shorter search or clear the filters.` : 'No projects with this status yet.', '<button class="btn sm" data-act="clearFilters" data-t="projects">Clear filters</button>') })}</section>`;
+};
+
+/* ── project detail ────────────────────────────────────── */
+VIEWS.project = () => {
+  const p = proj(openId); if (!p || p.archived) { page = 'projects'; return VIEWS.projects(); }
+  const ts = projTasks(p.id), d = ts.filter((t) => t.st === 'done').length;
+  const weeks = p.plan ? [1, 2, 3, 4].map((w) => ({ w, cs: p.plan.chs.filter((c) => c.week === w) })).filter((x) => x.cs.length) : [];
+  const links = S.links.filter((l) => l.pid === p.id), r = p.plan ? reachOf(p.plan.chs.map((c) => c.id)) : null;
+  const wkRange = (w) => `${fD(p.launch - (21 - (w - 1) * 7) * DAY)} – ${fD(p.launch - (15 - (w - 1) * 7) * DAY)}`;
+  return `<button class="btn ghost sm" data-page="projects" style="margin:-6px 0 12px -10px">${ic('left')}All projects</button>` + head(`<span style="display:inline-flex;gap:14px;align-items:center">${tile(p, 'lg')}<span>${esc(p.name)}</span></span>`, `${stPill(p.st)} &nbsp;${p.type} · ${MARKETS[p.market]} · ${p.budget ? EUR0.format(p.budget) + '/mo budget' : 'no paid budget'} · launch ${fD(p.launch, 1)}`,
+    `<button class="btn" data-act="editProj" data-id="${p.id}" data-w>${ic('edit')}Edit</button><button class="btn" data-act="exportMenu" data-id="${p.id}" aria-haspopup="menu">${ic('dl')}Export</button><button class="btn primary" data-act="planFor" data-id="${p.id}" data-w>${ic('zap')}${p.plan ? 'Regenerate plan' : 'Generate plan'}</button>`) +
+    `<div class="kpis"><div class="kpi"><b>${d}<small>of ${ts.length}</small></b><span>Tasks done</span><em>${pct(d, ts.length)}% complete</em></div><div class="kpi"><b data-vis="p${p.id}">${fmt(visToday(p.id))}</b><span><i class="livedot"></i>Clicks today</span><em>${fmt(vis30(p.id))} in 30 days</em></div><div class="kpi"><b>${p.plan ? p.plan.chs.length : 0}</b><span>Channels in plan</span><em>${p.plan ? `Plan v${p.plan.v} · ${ago(p.plan.at)}` : 'No plan yet'}</em></div><div class="kpi"><b>${r ? fmtReach(r) : '–'}</b><span>Estimated monthly reach</span><em>People who may see the launch</em></div></div>
+    <div class="grid" style="margin-top:16px"><section class="card c8"><div class="card-h"><h2>Launch plan</h2><span>${p.plan ? 'Tick tasks as you go' : ''}</span></div>${p.plan ? weeks.map(({ w, cs }) => `<div class="week"><div class="week-h"><b>Week ${w}</b><span>${wkRange(w)}</span></div>${cs.map((c) => { const ch = catOf(c.id), ct = ts.filter((t) => t.ch === c.id); return `<div class="chh">${esc(ch.n)} <span class="muted">· ${fmtReach(ch.reach)} reach · ${costTxt(ch)} · ${ct.filter((t) => t.st === 'done').length}/${ct.length} done</span></div>${ct.map((t) => `<div class="task ${t.st === 'done' ? 'done' : ''}"><span>${cb(t.st === 'done', `data-act="tick" data-id="${t.id}" aria-label="${esc(t.title)}"`)}</span><div class="t" style="cursor:pointer" data-act="openTask" data-id="${t.id}">${esc(t.title)}<div class="w">${CATS[t.cat]}${t.st === 'doing' ? ' · <span class="warn">In progress</span>' : ''}</div></div><div class="rt">${dueTxt(t)}${avatar(member(t.who), 'sm')}</div></div>`).join('')}`; }).join('')}</div>`).join('') : emptyState('zap', 'No plan yet', 'Generate a 4-week plan from this brief. It uses 1 AI generation.', `<button class="btn primary" data-act="planFor" data-id="${p.id}" data-w>${ic('zap')}Generate plan</button>`)}</section>
+    <div class="c4" style="display:flex;flex-direction:column;gap:var(--gap)"><section class="card"><div class="card-h"><h2>Brief</h2><button class="lnk" data-act="editProj" data-id="${p.id}">Edit</button></div><dl class="kv"><dt>Product</dt><dd>${esc(p.desc)}</dd><dt>Audience</dt><dd>${esc(p.aud)}</dd><dt>Problem</dt><dd>${esc(p.problem || '–')}</dd><dt>Goal</dt><dd>${GOALS[p.goal]}</dd><dt>Website</dt><dd>${esc(p.site.replace('https://', ''))}</dd><dt>Owner</dt><dd>${esc(member(p.owner)?.name || 'Unassigned')}</dd></dl></section>
+    ${p.plan && p.plan.wins.length ? `<section class="card"><div class="card-h"><h2>Quick wins</h2><span>From the AI plan</span></div>${p.plan.wins.map((w) => `<div class="win"><span>${esc(w.t)}</span><small><span class="pill ${w.impact === 'High' ? 'pos' : ''}">${w.impact} impact</span><span class="pill">${w.effort} effort</span><span class="pill">${w.time}</span></small></div>`).join('')}</section>` : ''}
+    <section class="card"><div class="card-h"><h2>Tracked links</h2><button class="lnk" data-act="linksFor" data-id="${p.id}">Manage</button></div>${links.length ? links.map((l) => `<div class="brow-t" style="padding:6px 0"><span class="mono ell">${esc(short(l))}</span><b>${fmt(l30(l))}</b></div>`).join('') : emptyState('link', 'No links yet', 'Create a tracked link to see where clicks come from.')}</div></section></div>
+    <div style="margin-top:20px;display:flex;justify-content:flex-end"><button class="btn ghost" data-act="archiveProj" data-id="${p.id}" data-w>${ic('trash')}Archive project</button></div>`;
+};
+
+/* ── AI plan generator ─────────────────────────────────── */
+const G = { st: 'idle', step: 0, text: '', out: null, t: [], form: null, err: '' };
+const GSTEPS = ['Reading the product brief', 'Profiling the audience', `Scoring ${CH.length} channels for market and budget`, 'Drafting the 4-week sequence', 'Writing tasks and quick wins', 'Estimating reach'];
+const formFrom = (p) => ({ pid: p.id, aud: p.aud, problem: p.problem, market: p.market, budget: p.budget, goal: p.goal, launch: isoD(p.launch) });
+VIEWS.gen = () => {
+  if (!G.form) G.form = formFrom(live()[0]);
+  const f = G.form, u = usage(), L = LIM(), left = L.gen - u.gen, busy = G.st === 'running';
+  return head('AI plan', 'Describe the launch and get a week-by-week channel plan with tasks you can edit before saving.') + `<div class="gen"><section class="card"><div class="meter" style="margin-bottom:18px"><div class="brow-t"><span>AI generations this cycle</span><b>${fmt(u.gen)} of ${fmt(L.gen)}</b></div><div class="bar thick"><i style="width:${u.gen / L.gen * 100}%"></i></div><p class="muted" style="font-size:12.5px;margin-top:6px">${left > 0 ? `${pl(left, 'generation')} left · resets ${fD(S.renew)}` : 'Limit reached. Upgrade or wait for the reset.'}</p></div>
+    <form id="gform" novalidate>${fld('g-p', 'Project', `<select id="g-p" data-chg="gproj" ${busy ? 'disabled' : ''}>${live().map((p) => `<option value="${p.id}" ${f.pid === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select>`)}
+    ${fld('g-a', 'Target audience', `<textarea id="g-a" data-in="gf" data-k="aud" rows="2" maxlength="200" ${busy ? 'disabled' : ''} aria-describedby="e-g-a">${esc(f.aud)}</textarea>`, 'Who has the problem? Be specific: role, size, place.')}
+    ${fld('g-pr', 'Problem it solves', `<input id="g-pr" data-in="gf" data-k="problem" value="${esc(f.problem)}" maxlength="160" ${busy ? 'disabled' : ''}>`)}
+    <div class="frow">${fld('g-m', 'Market', `<select id="g-m" data-chg="gf" data-k="market" ${busy ? 'disabled' : ''}>${opts(MARKETS, f.market)}</select>`)}${fld('g-b', 'Budget, € per month', `<input id="g-b" type="number" inputmode="numeric" min="0" max="50000" step="50" data-in="gf" data-k="budget" value="${f.budget}" ${busy ? 'disabled' : ''} aria-describedby="e-g-b">`)}</div>
+    <div class="frow">${fld('g-g', 'Goal', `<select id="g-g" data-chg="gf" data-k="goal" ${busy ? 'disabled' : ''}>${opts(GOALS, f.goal)}</select>`)}${fld('g-l', 'Launch date', `<input id="g-l" type="date" data-in="gf" data-k="launch" value="${f.launch}" ${busy ? 'disabled' : ''}>`)}</div>
+    ${busy ? `<button type="button" class="btn" style="width:100%;height:42px" data-act="genCancel">${ic('x')}Cancel generation</button>` : `<button type="submit" class="btn primary" style="width:100%;height:42px" data-w>${ic('zap')}${G.out ? 'Generate again' : 'Generate plan'} · 1 credit</button>`}</form></section>
+    <section class="card" id="g-out" aria-live="polite" aria-busy="${busy}">${genOut()}</section></div>`;
+};
+function genOut() {
+  if (G.st === 'running') return `<div class="out-h"><div><h2 style="font-size:18px;font-weight:800">Building the plan for “${esc(proj(G.form.pid).name)}”</h2><p class="muted">Usually takes about 5 seconds. You can leave this page; we will notify you.</p></div></div><div class="bar thick"><i style="width:${Math.round(G.step / GSTEPS.length * 100)}%"></i></div><ul class="steps" style="margin-top:14px">${GSTEPS.map((s, i) => `<li class="${i < G.step ? 'ok' : i === G.step ? 'on' : ''}"><span class="st">${i < G.step ? ic('check') : ''}</span>${s}${i === 1 ? `: <span class="ell" style="max-width:280px">${esc(G.form.aud)}</span>` : ''}</li>`).join('')}</ul><div class="stream ${G.step >= 3 ? 'cursor' : ''}" id="g-stream">${esc(G.text) || '<span class="muted">The analysis appears here as it is written.</span>'}</div>`;
+  if (G.err) return `<div class="fbox">${ic('alert')}<div><b>${esc(G.err)}</b><br><span class="muted">No credit was used.</span></div></div><button class="btn" data-act="genRun">Try again</button>`;
+  if (!G.out) return emptyState('zap', 'No plan generated yet', 'Fill in the brief on the left and press “Generate plan”. Plans are built from Shipter’s channel playbooks and your inputs.');
+  const o = G.out, r = reachOf(o.chs.map((c) => c.id)), n = sum(o.chs.map((c) => c.tasks.length));
+  return `<div class="out-h"><div><h2 style="font-size:18px;font-weight:800">4-week plan for “${esc(proj(o.pid).name)}”</h2><p class="muted">${pl(o.chs.length, 'channel')} · ${pl(n, 'task')} · estimated reach ${fmtReach(r)} people a month</p></div><div class="head-actions"><button class="btn sm" data-act="genExport" data-f="csv">${ic('dl')}CSV</button><button class="btn sm" data-act="genExport" data-f="md">${ic('dl')}Markdown</button><button class="btn sm primary" data-act="genSave" data-w>Save to project</button></div></div>
+    <p class="summary">${esc(o.summary)}</p><span class="err" id="e-gsave"></span>
+    ${o.chs.map((c, ci) => { const ch = catOf(c.id); return `<div class="ech reveal" style="animation-delay:${reduced ? 0 : ci * 60}ms"><div class="ech-h"><b>${esc(ch.n)}</b><span class="muted" style="font-size:12.5px">${costTxt(ch)} · ${fmtReach(ch.reach)}</span><select aria-label="Week for ${esc(ch.n)}" data-chg="gweek" data-c="${ci}">${[1, 2, 3, 4].map((w) => `<option value="${w}" ${c.week === w ? 'selected' : ''}>Week ${w}</option>`).join('')}</select><button class="ib sm" data-act="gDelCh" data-c="${ci}" aria-label="Remove ${esc(ch.n)} from the plan">${ic('trash')}</button></div>
+      ${c.tasks.map((t, ti) => `<div class="etask"><input id="gt-${ci}-${ti}" value="${esc(t.title)}" data-in="gt" data-c="${ci}" data-i="${ti}" aria-label="Task ${ti + 1} for ${esc(ch.n)}" maxlength="140"><select aria-label="Category" data-chg="gcat" data-c="${ci}" data-i="${ti}">${opts(CATS, t.cat)}</select><button class="ib sm" data-act="gDelTask" data-c="${ci}" data-i="${ti}" aria-label="Remove task">${ic('x')}</button></div>`).join('')}
+      <button class="btn sm ghost" style="margin-top:6px" data-act="gAddTask" data-c="${ci}">${ic('plus')}Add task</button></div>`; }).join('')}
+    ${o.chs.length ? '' : emptyState('layers', 'Every channel was removed', 'Generate again or undo to get channels back.')}`;
+}
+function genValidate() {
+  const f = G.form, a = setErr('g-a', f.aud.trim().length < 10 ? 'Describe the audience in at least 10 characters.' : ''), b = +f.budget, bOk = setErr('g-b', f.budget === '' || isNaN(b) || b < 0 || b > 50000 ? 'Enter a monthly budget between €0 and €50,000.' : ''), lt = fromIso(f.launch), lOk = setErr('g-l', isNaN(lt) ? 'Pick a launch date.' : lt < T0 ? 'The launch date is in the past.' : '');
+  return a && bOk && lOk;
+}
+function genRun() {
+  if (G.st === 'running') return;
+  if (page === 'gen' && !genValidate()) { $('[aria-invalid="true"]')?.focus(); return; }
+  if (S.gen >= LIM().gen) { toast('Generation limit reached. Choose a plan with more generations'); return go('billing'); }
+  const f = G.form, p = proj(f.pid);
+  G.st = 'running'; G.step = 0; G.text = ''; G.out = null; G.err = ''; S.gen++;
+  const inp = { name: p.name, type: p.type, aud: f.aud.trim(), market: f.market, budget: +f.budget, goal: f.goal, v: (p.plan ? p.plan.v : 0) + (G.runs = (G.runs || 0) + 1) };
+  const res = makePlan(inp), full = res.summary, sp = reduced ? 0.25 : 1;
+  const upd = () => { if (page === 'gen') { const o = $('#g-out'); if (o) { o.innerHTML = genOut(); o.setAttribute('aria-busy', G.st === 'running'); } } };
+  if (page === 'gen') render();
+  const T = (fn, ms) => G.t.push(setTimeout(fn, ms * sp));
+  let at = 450;
+  [1, 2, 3].forEach((s) => { T(() => { G.step = s; upd(); }, at); at += 650; });
+  const chunks = Math.ceil(full.length / 6);
+  for (let i = 1; i <= chunks; i++) T(() => { G.text = full.slice(0, i * 6); const el = page === 'gen' && $('#g-stream'); if (el) el.textContent = G.text; }, at + i * 22);
+  at += chunks * 22 + 200;
+  T(() => { G.step = 4; upd(); }, at); at += 600;
+  T(() => { G.step = 5; upd(); }, at); at += 500;
+  T(() => {
+    G.st = 'done'; G.t = []; G.out = { pid: p.id, ...res, inp }; G.undo = null;
+    if (page === 'gen') render(); else { note(`AI plan ready for ${p.name}`, 'gen'); chrome(); toast(`Plan ready for ${p.name}`); }
+  }, at);
+}
+function planRows(name, chs) { return chs.flatMap((c) => c.tasks.map((t) => [name, 'Week ' + c.week, catOf(c.id).n, CATS[t.cat], t.title, t.st ? COLS[t.st][0] : 'To do', t.due ? isoD(t.due) : '', t.who ? member(t.who)?.name || '' : ''])); }
+function planMd(p, chs, summary, wins) {
+  let s = `# Launch plan: ${p.name}\n\n${p.desc}\n\n- **Audience:** ${p.aud}\n- **Market:** ${MARKETS[p.market]}\n- **Budget:** ${p.budget ? EUR0.format(p.budget) + ' per month' : 'No paid budget'}\n- **Launch:** ${fD(p.launch, 1)}\n\n`;
+  if (summary) s += `## Summary\n\n${summary}\n\n`;
+  if (wins && wins.length) s += `## Quick wins\n\n${wins.map((w) => `- ${w.t} (${w.impact.toLowerCase()} impact, ${w.time})`).join('\n')}\n\n`;
+  for (const w of [1, 2, 3, 4]) { const cs = chs.filter((c) => c.week === w); if (!cs.length) continue; s += `## Week ${w}\n\n`; for (const c of cs) s += `### ${catOf(c.id).n}\n\n${c.tasks.map((t) => `- [${t.st === 'done' ? 'x' : ' '}] ${t.title}`).join('\n')}\n\n`; }
+  return s + `_Exported from Shipter on ${fD(Date.now(), 1)}._\n`;
+}
+const fileBase = (p) => ascii(p.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-launch-plan';
+const projChs = (p) => (p.plan ? p.plan.chs : []).map((c) => ({ ...c, tasks: projTasks(p.id).filter((t) => t.ch === c.id) }));
+
+/* ── tasks (kanban) ─────────────────────────────────────── */
+const KF = { q: '', pid: 'active', who: 'all', cat: 'all', lim: { todo: 25, doing: 25, done: 15 } };
+const taskVisible = (t) => { const p = proj(t.pid); if (p.archived) return false; if (KF.pid === 'active' ? !['active', 'planning'].includes(p.st) : KF.pid !== 'all' && t.pid !== +KF.pid) return false; if (KF.who === 'me' ? t.who !== ME.id : KF.who === 'none' ? t.who != null : KF.who !== 'all' && t.who !== +KF.who) return false; if (KF.cat !== 'all' && t.cat !== KF.cat) return false; return match(KF.q, t.title, p.name, catOf(t.ch).n); };
+VIEWS.tasks = () => {
+  const vis = S.tasks.filter(taskVisible);
+  const col = (k) => { const all = vis.filter((t) => t.st === k).sort((a, b) => k === 'done' ? b.due - a.due : a.due - b.due), sh = all.slice(0, KF.lim[k]); return `<section class="kcol" aria-label="${COLS[k][0]}, ${pl(all.length, 'task')}"><header><i style="background:${COLS[k][1]}"></i>${COLS[k][0]}<span>${all.length}</span>${k === 'todo' ? `<button class="btn sm ghost" data-act="newTask" data-w aria-label="Add a task">${ic('plus')}</button>` : ''}</header><div class="klist" data-drop="${k}">${sh.map(card).join('') || `<p class="empty" style="padding:24px 8px;font-size:13.5px">${KF.q || KF.who !== 'all' || KF.cat !== 'all' ? 'No tasks match the filters.' : k === 'doing' ? 'Drag a task here when you start it.' : k === 'done' ? 'Finished tasks land here.' : 'Nothing to do. Nice.'}</p>`}${all.length > sh.length ? `<button class="btn sm kmore" data-act="kmore" data-k="${k}">Show ${Math.min(25, all.length - sh.length)} more of ${all.length - sh.length}</button>` : ''}</div></section>`; };
+  return head('Tasks', `${pl(vis.length, 'task')} on the board · ${pl(vis.filter((t) => t.st !== 'done' && t.due < T0).length, 'overdue task')}. Drag cards between columns, or focus a card and use the arrow keys.`, `<button class="btn" data-act="exportTasks">${ic('dl')}Export CSV</button><button class="btn primary" data-act="newTask" data-w>${ic('plus')}New task</button>`) +
+    `<div class="tools"><label class="srch">${ic('search')}<span class="sr">Search tasks</span><input id="q-tasks" type="search" data-search data-in="kq" value="${esc(KF.q)}" placeholder="Search tasks" autocomplete="off"></label>
+    <select class="sel" aria-label="Project" data-chg="kf" data-k="pid"><option value="active" ${KF.pid === 'active' ? 'selected' : ''}>Active launches</option><option value="all" ${KF.pid === 'all' ? 'selected' : ''}>All projects</option>${live().filter((p) => p.plan).map((p) => `<option value="${p.id}" ${KF.pid == p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select>
+    <select class="sel" aria-label="Assignee" data-chg="kf" data-k="who"><option value="all">Everyone</option><option value="me" ${KF.who === 'me' ? 'selected' : ''}>Assigned to me</option><option value="none" ${KF.who === 'none' ? 'selected' : ''}>Unassigned</option>${S.team.filter((m) => m.st === 'active' && m.id !== ME.id).map((m) => `<option value="${m.id}" ${KF.who == m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>
+    <select class="sel" aria-label="Category" data-chg="kf" data-k="cat"><option value="all">All categories</option>${opts(CATS, KF.cat)}</select></div>
+    <div class="kb" id="kb">${Object.keys(COLS).map(col).join('')}</div><p class="muted" style="font-size:12.5px;margin-top:10px">Keyboard: <kbd>←</kbd> <kbd>→</kbd> move a focused card between columns, <kbd>↑</kbd> <kbd>↓</kbd> move focus, <kbd>Enter</kbd> opens it.</p>`;
+};
+function card(t) {
+  const p = proj(t.pid);
+  return `<article class="kc ${t.st === 'done' ? 'done' : ''}" draggable="${!S.viewer}" tabindex="0" data-task="${t.id}" aria-label="${esc(t.title)}. ${esc(p.name)}. ${COLS[t.st][0]}. Due ${relDay(t.due)}." aria-roledescription="draggable card"><h4>${esc(t.title)}</h4><div class="km">${tile(p, 'sm')}<span class="ell" style="max-width:120px">${esc(p.name)}</span><span class="pill">${CATS[t.cat]}</span>${dueTxt(t)}${avatar(member(t.who), 'sm')}</div><button class="ib" data-act="tmenu" data-id="${t.id}" aria-label="Actions for ${esc(t.title)}" aria-haspopup="menu" tabindex="-1">${ic('more')}</button></article>`;
+}
+function moveTask(id, st, viaKey) {
+  const t = S.tasks.find((x) => x.id === id); if (!t || t.st === st) return;
+  if (S.viewer) return deny();
+  const prev = t.st; t.st = st; log(`moved “${t.title}” to ${COLS[st][0]}`, proj(t.pid).name);
+  render(); say(`${t.title} moved to ${COLS[st][0]}`);
+  if (viaKey) $(`[data-task="${id}"]`)?.focus();
+  if (st === 'done') undoSnack(`Marked done: ${t.title}`, () => { t.st = prev; S.act.shift(); render(); });
+  else toast(`Moved to ${COLS[st][0]}`);
+}
+function taskForm(t, isNew) {
+  const pid = t.pid || (KF.pid !== 'active' && KF.pid !== 'all' ? +KF.pid : live().find((p) => p.plan)?.id);
+  const p = proj(pid), chs = p && p.plan ? p.plan.chs.map((c) => c.id) : CH.map((c) => c.id);
+  return `${fld('t-title', 'Task', `<input id="t-title" value="${esc(t.title || '')}" maxlength="140" data-autofocus placeholder="e.g. Write the launch-day email">`)}
+    <div class="frow">${fld('t-p', 'Project', `<select id="t-p" ${isNew ? '' : 'disabled'} data-chg="tproj">${live().map((x) => `<option value="${x.id}" ${x.id === pid ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>`)}${fld('t-ch', 'Channel', `<select id="t-ch">${chs.map((id) => `<option value="${id}" ${t.ch === id ? 'selected' : ''}>${esc(catOf(id).n)}</option>`).join('')}</select>`)}</div>
+    <div class="frow">${fld('t-st', 'Status', `<select id="t-st">${Object.entries(COLS).map(([k, v]) => `<option value="${k}" ${(t.st || 'todo') === k ? 'selected' : ''}>${v[0]}</option>`).join('')}</select>`)}${fld('t-cat', 'Category', `<select id="t-cat">${opts(CATS, t.cat || 'content')}</select>`)}</div>
+    <div class="frow">${fld('t-who', 'Assignee', `<select id="t-who"><option value="">Unassigned</option>${doers().map((m) => `<option value="${m.id}" ${t.who === m.id ? 'selected' : ''}>${esc(m.name)}${m.id === ME.id ? ' (you)' : ''}</option>`).join('')}</select>`)}${fld('t-due', 'Due date', `<input id="t-due" type="date" value="${t.due ? isoD(t.due) : isoD(day(3))}">`)}</div>
+    ${fld('t-notes', 'Notes', `<textarea id="t-notes" maxlength="1000" placeholder="Links, drafts, who to ask">${esc(t.notes || '')}</textarea>`)}`;
+}
+function readTask() {
+  const title = val('t-title'), due = fromIso(val('t-due'));
+  const ok = [setErr('t-title', !title ? 'Give the task a title.' : title.length < 4 ? 'Use at least 4 characters.' : ''), setErr('t-due', isNaN(due) ? 'Pick a due date.' : '')].every(Boolean);
+  if (!ok) { $('[aria-invalid="true"]')?.focus(); return null; }
+  return { title, pid: +val('t-p'), ch: val('t-ch'), st: val('t-st'), cat: val('t-cat'), who: val('t-who') ? +val('t-who') : null, due, notes: val('t-notes') };
+}
+
+/* ── channel library ───────────────────────────────────── */
+tst('channels', 'name');
+VIEWS.channels = () => {
+  const st = TS.channels, inPlans = (id) => live().filter((p) => p.plan && p.plan.chs.some((c) => c.id === id)).length;
+  const list = CH.filter((c) => (st.f === 'all' || c.k === st.f) && match(st.q, c.n, KINDS[c.k][0], c.metric));
+  return head('Channels', `${CH.length} channel playbooks the planner draws from. Open one to see the steps, or add it to a project.`) +
+    `<div class="tools"><div class="tabs" role="tablist" aria-label="Filter by kind">${['all', ...Object.keys(KINDS)].filter((k) => k === 'all' || CH.some((c) => c.k === k)).map((k) => `<button role="tab" aria-selected="${st.f === k}" class="${st.f === k ? 'on' : ''}" data-act="tf" data-t="channels" data-v="${k}">${k === 'all' ? 'All' : KINDS[k][0]}</button>`).join('')}</div>${srch('channels', 'Search channels')}</div>
+    ${list.length ? `<div class="gal">${list.map((c) => `<article class="gcard"><div style="display:flex;gap:12px;align-items:center"><span class="chic">${ic(KINDS[c.k][1])}</span><div style="min-width:0"><h3 class="ell">${esc(c.n)}</h3><span class="muted" style="font-size:12.5px">${KINDS[c.k][0]} · results in ${c.ttr.toLowerCase()}</span></div></div>
+      <div class="stats3"><div><b>${costTxt(c)}</b>Cost</div><div><b>${fmtReach(c.reach)}</b>Reach / mo</div><div><b><span class="dots" aria-label="Effort ${c.eff} of 3">${[1, 2, 3].map((i) => `<i class="${i <= c.eff ? 'on' : ''}"></i>`).join('')}</span></b>Effort</div></div>
+      <p>${esc(c.metric)}.</p><div class="acts"><button class="btn sm" data-act="playbook" data-id="${c.id}">Open playbook</button><span class="muted" style="font-size:12.5px;align-self:center;margin-left:auto">In ${pl(inPlans(c.id), 'plan')}</span></div></article>`).join('')}</div>` : `<section class="card">${emptyState('search', 'No channels match', `Nothing matches “${esc(st.q)}”.`, '<button class="btn sm" data-act="clearFilters" data-t="channels">Clear filters</button>')}</section>`}`;
+};
+
+/* ── links ─────────────────────────────────────────────── */
+tst('links', 'clicks', -1, 10);
+const LF = { pid: 'all' };
+const B = { pid: 1, dest: 'https://invoicely.example/pricing', src: 'linkedin', med: 'social', camp: 'launch-week', content: '', slug: '' };
+VIEWS.links = () => {
+  const st = TS.links, L = LIM(), srcs = [...new Set(S.links.map((l) => l.src))].sort();
+  const rows = S.links.filter((l) => !proj(l.pid).archived && (st.f === 'all' || l.src === st.f) && (LF.pid === 'all' || l.pid === +LF.pid) && match(st.q, l.slug, l.camp, l.src, proj(l.pid).name));
+  const bySrc = {}; S.links.forEach((l) => { bySrc[l.src] = (bySrc[l.src] || 0) + l30(l); }); const top = Object.entries(bySrc).sort((a, b) => b[1] - a[1])[0];
+  const cols = [
+    { k: 'slug', l: 'Link', w: 'minmax(0,2fr)', v: (l) => l.slug, c: (l) => `<div class="pmain">${tile(proj(l.pid), 'sm')}<div><b class="mono">${esc(short(l))}</b><span>${esc(proj(l.pid).name)} · ${esc(l.camp)}</span></div></div>` },
+    { k: 'src', l: 'Source / medium', w: '170px', hm: 1, v: (l) => l.src, c: (l) => `${esc(l.src)} <span class="muted">/ ${esc(l.med)}</span>` },
+    { k: 'today', l: 'Today', w: '70px', r: 1, hm: 1, v: (l) => l.today, c: (l) => `<span data-vis="l${l.id}">${fmt(l.today)}</span>` },
+    { k: 'clicks', l: 'Clicks 30d', w: '96px', r: 1, v: l30, c: (l) => `<b>${fmt(l30(l))}</b>` },
+    { k: 'created', l: 'Created', w: '100px', hm: 1, v: (l) => l.created, c: (l) => relDay(l.created) },
+    { k: 'cp', l: '', w: '40px', c: (l) => `<button class="ib sm" data-act="copyLink" data-id="${l.id}" aria-label="Copy ${esc(short(l))}">${ic('copy')}</button>` },
+  ];
+  return head('Links', 'Tracked short links with UTM tags. Every click is counted by source, so you can see which channel is working.', `<button class="btn" data-act="exportLinks">${ic('dl')}Export CSV</button><button class="btn primary" data-act="focusBuilder" data-w>${ic('plus')}New link</button>`) +
+    `<div class="kpis"><div class="kpi"><b data-vis="all">${fmt(visToday())}</b><span><i class="livedot"></i>Clicks today</span><em>Updates live</em></div><div class="kpi"><b>${fmt(vis30())}</b><span>Clicks, last 30 days</span><em>Across ${pl(S.links.length, 'link')}</em></div><div class="kpi"><b>${top ? esc(top[0]) : '–'}</b><span>Top source</span><em>${top ? fmt(top[1]) + ' clicks in 30 days' : 'No clicks yet'}</em></div><div class="kpi"><b>${fmt(S.links.length)}<small>of ${L.links === Infinity ? 'unlimited' : L.links}</small></b><span>Tracked links</span><em>${PLANS[S.plan].n} plan limit</em></div></div>
+    <div class="grid" style="margin-top:16px"><section class="card c8"><div class="card-h"><h2>Clicks per day</h2><select class="sel" aria-label="Project for the chart" data-chg="lfp"><option value="all">All projects</option>${live().filter((p) => S.links.some((l) => l.pid === p.id)).map((p) => `<option value="${p.id}" ${LF.pid == p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div><div data-chart="links30"></div><p class="muted" style="font-size:12.5px;margin-top:6px">Last 30 complete days. Today’s clicks are counted live above.</p></section>
+    <section class="card c4" id="builder"><div class="card-h"><h2>UTM builder</h2><span>Creates a tracked link</span></div><form id="bform" novalidate>${builderForm()}</form></section></div>
+    <section class="card" style="margin-top:16px"><div class="tools">${srch('links', 'Search links')}<select class="sel" aria-label="Filter by source" data-chg="tf" data-t="links"><option value="all">All sources</option>${srcs.map((s) => `<option ${st.f === s ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select></div>
+    ${table('links', { cols, rows, colsm: 'minmax(0,1fr) 80px 40px', rowAct: 'openLink', bulk: `<button class="btn sm" data-act="bulkLinkCsv">${ic('dl')}Export</button><button class="btn sm danger" data-act="bulkLinkDel" data-w>${ic('trash')}Delete</button>`, empty: emptyState('link', 'No links match', 'Try another search or source.', '<button class="btn sm" data-act="clearFilters" data-t="links">Clear filters</button>') })}</section>`;
+};
+const autoSlug = () => B.slug || (proj(B.pid) ? slugOf(proj(B.pid), B.src || 'link') : '');
+const builderForm = () => `${fld('b-p', 'Project', `<select id="b-p" data-chg="bp">${live().map((p) => `<option value="${p.id}" ${B.pid === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select>`)}
+  ${fld('b-dest', 'Destination URL', `<input id="b-dest" type="url" data-in="b" data-k="dest" value="${esc(B.dest)}" placeholder="https://" inputmode="url">`)}
+  <div class="frow">${fld('b-src', 'Source', `<input id="b-src" data-in="b" data-k="src" value="${esc(B.src)}" placeholder="linkedin" list="srcs"><datalist id="srcs">${[...new Set(CH.map((c) => c.src))].map((s) => `<option value="${s}">`).join('')}</datalist>`)}${fld('b-med', 'Medium', `<input id="b-med" data-in="b" data-k="med" value="${esc(B.med)}" placeholder="social">`)}</div>
+  <div class="frow">${fld('b-camp', 'Campaign', `<input id="b-camp" data-in="b" data-k="camp" value="${esc(B.camp)}" placeholder="launch-week">`)}${fld('b-slug', 'Short link', `<input id="b-slug" data-in="b" data-k="slug" value="${esc(B.slug)}" placeholder="${esc(autoSlug())}">`)}</div>
+  <div class="utm-out" id="b-out">${builderOut()}</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn" data-act="copyUtm">${ic('copy')}Copy URL</button><button type="submit" class="btn primary" style="flex:1" data-w>Create link</button></div>`;
+const builderOut = () => { const l = { ...B, slug: autoSlug(), src: B.src || 'source', med: B.med || 'medium', camp: B.camp || 'campaign', dest: B.dest || 'https://…' }; return `<b>Tagged URL</b><span class="mono">${esc(utmUrl(l))}</span><b style="margin-top:8px">Short link</b><span class="mono acc">${esc(short(l))}</span>`; };
+function builderValidate() {
+  const tag = /^[a-z0-9][a-z0-9_-]{1,39}$/, sl = autoSlug();
+  const r = [
+    setErr('b-dest', !B.dest ? 'Enter the page the link should open.' : !URL_RE.test(B.dest) ? 'Use a full https:// address, for example https://example.com/pricing.' : ''),
+    setErr('b-src', !tag.test(B.src) ? 'Use 2–40 lowercase letters, digits, - or _.' : ''),
+    setErr('b-med', !tag.test(B.med) ? 'Use 2–40 lowercase letters, digits, - or _.' : ''),
+    setErr('b-camp', !tag.test(B.camp) ? 'Use 2–40 lowercase letters, digits, - or _.' : ''),
+    setErr('b-slug', !/^[a-z0-9-]{3,40}$/.test(sl) ? 'Use 3–40 lowercase letters, digits or hyphens.' : S.links.some((l) => l.slug === sl) ? `go.shipter.app/${sl} is already taken. Try another ending.` : ''),
+  ];
+  return r.every(Boolean);
+}
+
+/* ── templates ─────────────────────────────────────────── */
+const TPL = [
+  ['Product Hunt launch in 30 days', 'Warm up an audience for three weeks, then go for a top-5 finish on launch day.', ['em', 'x', 'li', 'ph', 'hn'], 0, 'users', 'App'],
+  ['B2B SaaS: first 10 customers', 'Founder-led outreach and LinkedIn content that turns conversations into paid pilots.', ['dm', 'li', 'cm', 'em', 'pt'], 0, 'revenue', 'SaaS'],
+  ['Community-led launch', 'Earn trust in the places your users already talk, then show the product.', ['rd', 'ih', 'cm', 'hn', 'x'], 0, 'users', 'SaaS'],
+  ['Mobile app soft launch', 'Store optimisation, creators and a capped ads test before the big push.', ['aso', 'rd', 'inf', 'x', 'ads'], 800, 'users', 'App'],
+  ['Newsletter sponsorship sprint', 'Test 2 newsletters, keep the winner and grow your own list alongside.', ['nl', 'em', 'li', 'x'], 600, 'revenue', 'SaaS'],
+  ['SEO and content engine', 'Comparison pages, one deep guide and press coverage that compounds for months.', ['seo', 'pr', 'li', 'em', 'pt'], 0, 'users', 'Template'],
+  ['€300 paid acquisition test', 'Find out in two weeks whether paid channels can be profitable for you.', ['ads', 'em', 'dm'], 300, 'revenue', 'SaaS'],
+  ['Waitlist to beta in 3 weeks', 'Collect 500 sign-ups with a referral waitlist and build-in-public posts.', ['em', 'x', 'ih', 'dm', 'rd'], 0, 'waitlist', 'App'],
+].map(([n, d, chs, budget, goal, type], i) => ({ id: i + 1, n, d, chs, budget, goal, type, used: Math.round(80 + hash(n) * 1900) }));
+VIEWS.templates = () => head('Templates', 'Proven launch playbooks. Start a project from one and the wizard fills in the channels for you.') +
+  `<div class="gal">${TPL.map((t) => { const n = sum(t.chs.map((id) => Math.min(3, catOf(id).steps.length))); return `<article class="gcard"><div class="tprev" aria-hidden="true">${[1, 2, 3, 4].map((w) => `<div><small>Week ${w}</small>${t.chs.filter((id) => catOf(id).wk === w).map((id) => `<i class="${catOf(id).paid ? 'p' : ''}" style="width:${50 + hash(id + t.n) * 50}%"></i>`).join('') || '<i style="opacity:.15;width:40%"></i>'}</div>`).join('')}</div>
+    <h3>${esc(t.n)}</h3><p>${esc(t.d)}</p><div class="meta"><span class="pill">4 weeks</span><span class="pill">${pl(t.chs.length, 'channel')}</span><span class="pill">${pl(n, 'task')}</span><span class="pill ${t.budget ? 'warn' : 'pos'}">${t.budget ? EUR0.format(t.budget) + '/mo' : 'No budget'}</span></div>
+    <div class="acts"><button class="btn sm primary" data-act="useTpl" data-id="${t.id}" data-w>Use template</button><button class="btn sm" data-act="tplPreview" data-id="${t.id}">Preview</button><span class="muted" style="font-size:12px;align-self:center;margin-left:auto">Used ${fmt(t.used)} times</span></div></article>`; }).join('')}</div>`;
+
+/* ── team ──────────────────────────────────────────────── */
+tst('team', 'name', 1, 10);
+VIEWS.team = () => {
+  const st = TS.team, L = LIM();
+  const rows = S.team.filter((m) => (st.f === 'all' || m.role === st.f) && match(st.q, m.name, m.email));
+  const cols = [
+    { k: 'name', l: 'Member', w: 'minmax(0,2fr)', v: (m) => m.name, c: (m) => `<div class="pmain">${avatar(m)}<div><b>${esc(m.name)}${m.id === ME.id ? ' <span class="pill" style="height:18px">You</span>' : ''}</b><span>${esc(m.email)}</span></div></div>` },
+    { k: 'role', l: 'Role', w: '140px', v: (m) => Object.keys(ROLES).indexOf(m.role), c: (m) => m.role === 'owner' ? '<span class="pill acc">Owner</span>' : `<select class="sel" style="height:30px" data-chg="role" data-id="${m.id}" aria-label="Role for ${esc(m.name)}" ${S.viewer ? 'disabled' : ''}>${opts({ admin: 'Admin', editor: 'Editor', viewer: 'Viewer' }, m.role)}</select>` },
+    { k: 'st', l: 'Status', w: '170px', hm: 1, v: (m) => m.st, c: (m) => m.st === 'invited' ? `<span class="pill warn"><i></i>Invited · expires ${relDay(m.exp)}</span>` : '<span class="pill pos"><i></i>Active</span>' },
+    { k: 'tasks', l: 'Open tasks', w: '90px', hm: 1, r: 1, v: (m) => S.tasks.filter((t) => t.who === m.id && t.st !== 'done').length, c: (m) => fmt(S.tasks.filter((t) => t.who === m.id && t.st !== 'done').length) },
+    { k: 'last', l: 'Last active', w: '120px', hm: 1, v: (m) => m.last, c: (m) => m.id === ME.id ? 'Now' : m.last ? ago(m.last) : '<span class="muted">Never</span>' },
+    { k: 'x', l: '', w: '40px', c: (m) => m.role === 'owner' ? '' : `<button class="ib sm" data-act="memberMenu" data-id="${m.id}" aria-label="More for ${esc(m.name)}" aria-haspopup="menu">${ic('more')}</button>` },
+  ];
+  return head('Team', `${pl(S.team.length, 'seat')} used of ${L.seats} on the ${PLANS[S.plan].n} plan. Invited people count towards seats.`, `<button class="btn primary" data-act="invite" data-w>${ic('plus')}Invite member</button>`) +
+    `<div class="grid"><section class="card c8"><div class="tools"><div class="tabs" role="tablist" aria-label="Filter by role">${['all', ...Object.keys(ROLES)].map((f) => `<button role="tab" aria-selected="${st.f === f}" class="${st.f === f ? 'on' : ''}" data-act="tf" data-t="team" data-v="${f}">${f === 'all' ? 'All' : ROLES[f]}<span class="n">${f === 'all' ? S.team.length : S.team.filter((m) => m.role === f).length}</span></button>`).join('')}</div>${srch('team', 'Search people')}</div>
+    ${table('team', { cols, rows, colsm: 'minmax(0,1fr) 112px 40px', empty: emptyState('users', 'Nobody matches', 'Try another name or role.') })}</section>
+    <section class="card c4"><div class="card-h"><h2>Roles</h2></div>${Object.entries(ROLE_D).map(([k, d]) => `<div class="win"><b>${ROLES[k]}</b><span class="muted" style="font-size:12.5px">${S.team.filter((m) => m.role === k).length}</span><small>${d}</small></div>`).join('')}<div class="brow" style="margin-top:14px"><div class="brow-t"><span>Seats</span><b>${S.team.length} of ${L.seats}</b></div><div class="bar"><i style="width:${S.team.length / L.seats * 100}%"></i></div></div></section></div>`;
+};
+
+/* ── billing ───────────────────────────────────────────── */
+tst('inv', 'date', -1, 6);
+VIEWS.billing = () => {
+  const P = PLANS[S.plan], u = usage(), L = LIM();
+  const meter = (label, a, b, note) => { const r = b === Infinity ? 0 : a / b; return `<div><div class="brow-t"><span>${label}</span><b>${fmt(a)} <span class="muted" style="font-weight:500">of ${b === Infinity ? 'unlimited' : fmt(b)}</span></b></div><div class="bar thick ${r >= 1 ? 'full' : r > .8 ? 'hi' : ''}" role="meter" aria-label="${label}" aria-valuemin="0" aria-valuemax="${b === Infinity ? a : b}" aria-valuenow="${a}"><i style="width:${Math.min(100, r * 100)}%"></i></div><small>${note}</small></div>`; };
+  const feats = { trial: [['Up to 3 projects', 1], ['10 AI generations', 1], ['2 seats', 1], ['10 tracked links', 1], ['CSV and Markdown export', 0], ['Priority support', 0]], starter: [['Up to 20 projects', 1], ['200 AI generations a month', 1], ['10 seats', 1], ['50 tracked links', 1], ['CSV and Markdown export', 1], ['Priority support', 0]], pro: [['Unlimited projects', 1], ['1,000 AI generations a month', 1], ['25 seats', 1], ['Unlimited tracked links', 1], ['CSV and Markdown export', 1], ['Priority support and API access', 1]] };
+  const cols = [
+    { k: 'id', l: 'Invoice', w: 'minmax(0,1.2fr)', v: (i) => i.id, c: (i) => `<span class="mono">${i.id}</span>` },
+    { k: 'date', l: 'Date', w: '120px', v: (i) => i.date, c: (i) => fD(i.date, 1) },
+    { k: 'item', l: 'Description', w: 'minmax(0,1.6fr)', hm: 1, c: (i) => esc(i.item) },
+    { k: 'tot', l: 'Total', w: '100px', r: 1, v: invTotal, c: (i) => `<b>${EUR.format(invTotal(i))}</b>` },
+    { k: 'st', l: 'Status', w: '80px', hm: 1, c: () => '<span class="pill pos">Paid</span>' },
+    { k: 'dl', l: '', w: '40px', c: (i) => `<button class="ib sm" data-act="invDl" data-id="${i.id}" aria-label="Download ${i.id}">${ic('dl')}</button>` },
+  ];
+  return head('Billing', 'Plan, usage and invoices for Northlight Studio B.V. Prices exclude 21% VAT.', `<button class="btn" data-act="exportInv">${ic('dl')}Export invoices</button>`) +
+    `<section class="card"><div class="card-h"><h2>${P.n} plan · ${EUR0.format(P.price)} per month</h2><span>Renews ${fD(S.renew, 1)} · next invoice ${EUR.format(Math.round(P.price * (1 + VAT) * 100) / 100)}</span></div><div class="meters">${meter('AI generations', u.gen, L.gen, `Resets ${fD(S.renew)}`)}${meter('Projects', u.proj, L.proj, 'Archived projects do not count')}${meter('Seats', u.seats, L.seats, 'Includes pending invites')}${meter('Tracked links', u.links, L.links, 'Across all projects')}</div></section>
+    <h2 style="font-size:17px;font-weight:800;margin:26px 0 12px">Plans</h2><div class="plans">${Object.entries(PLANS).map(([k, x]) => `<article class="plan ${S.plan === k ? 'cur' : ''}"><h3>${x.n}${S.plan === k ? '<span class="pill acc">Current plan</span>' : k === 'pro' ? '<span class="pill">Most teams</span>' : ''}</h3><div class="pr">${EUR0.format(x.price)}<small> ${k === 'trial' ? 'for 14 days' : '/ month'}</small></div><p class="muted">${k === 'trial' ? 'One-time trial for new workspaces' : 'Billed monthly, cancel anytime'}</p><ul>${feats[k].map(([f, on]) => `<li class="${on ? '' : 'off'}">${ic(on ? 'check' : 'x')}${f}</li>`).join('')}</ul><button class="btn ${S.plan === k || k === 'trial' ? '' : 'primary'}" data-act="plan" data-v="${k}" data-w ${S.plan === k || k === 'trial' ? 'disabled' : ''}>${S.plan === k ? 'Current plan' : k === 'trial' ? 'Trial already used' : (x.price > P.price ? 'Upgrade to ' : 'Switch to ') + x.n}</button></article>`).join('')}</div>
+    <div class="grid" style="margin-top:16px"><section class="card c4"><div class="card-h"><h2>Payment method</h2></div><div class="cardline"><span class="cc">${S.card.brand}</span><div style="flex:1;min-width:0"><b>${S.card.brand === 'VISA' ? 'Visa' : 'Mastercard'} ending ${S.card.last4}</b><div class="muted" style="font-size:12.5px">Expires ${S.card.exp} · ${esc(S.card.name)}</div></div></div><button class="btn sm" style="margin-top:14px" data-act="card" data-w>Update card</button><p class="muted" style="font-size:12.5px;margin-top:14px">Billing email: billing@northlight.example<br>VAT ID: NL 8241 0937 5B01</p></section>
+    <section class="card c8"><div class="card-h"><h2>Invoices</h2><span>${pl(S.invoices.length, 'invoice')} · ${EUR.format(sum(S.invoices.map(invTotal)))} paid in total</span></div>${table('inv', { cols: cols.map((c) => c.k === 'item' ? c : c), rows: S.invoices, colsm: 'minmax(0,1fr) 100px 92px 40px', empty: emptyState('file', 'No invoices yet', 'Your first invoice appears after the trial.') })}</section></div>`;
+};
+
+/* ── overlays: notifications, menu, help, search ───────── */
+function bellHTML() {
+  const un = S.notes.filter((n) => !n.read).length;
+  return `<div class="pop-h"><span>Notifications ${un ? `<small>· ${un} unread</small>` : ''}</span>${un ? '<button class="lnk" data-act="readAll">Mark all as read</button>' : ''}</div>${S.notes.length ? S.notes.slice(0, 10).map((n) => `<button class="nt ${n.read ? '' : 'unread'}" data-act="openNote" data-id="${n.id}"><i></i><span>${esc(n.t)}<small>${ago(n.ts)}</small></span></button>`).join('') : emptyState('bell', 'You are all caught up', 'New activity shows up here.')}`;
+}
+function menuHTML() {
+  return `<div style="display:flex;gap:10px;align-items:center;padding:10px"><span class="av lg" style="--h:${ME.hue}">${inits(ME.name)}</span><div style="min-width:0"><b class="ell" style="display:block">${esc(ME.name)}</b><span class="muted ell" style="display:block;font-size:12.5px">${esc(ME.email)}</span><span class="pill acc" style="margin-top:4px">${S.viewer ? 'Viewer (preview)' : 'Owner'}</span></div></div><div class="sep"></div>
+    <button class="mi" data-page="team">${ic('users')}Team and roles</button><button class="mi" data-page="billing">${ic('card')}Billing<span class="r">${PLANS[S.plan].n}</span></button><button class="mi" role="menuitemcheckbox" aria-checked="${S.viewer}" data-act="viewer">${ic('eye')}Preview as Viewer<span class="r">${S.viewer ? 'On' : 'Off'}</span></button><button class="mi" data-act="help" data-tab="keys">${ic('grid')}Keyboard shortcuts<span class="r"><kbd>?</kbd></span></button><div class="sep"></div><button class="mi danger" data-act="signOut">${ic('out')}Sign out</button>`;
+}
+function helpHTML(tab) {
+  return dHead('Help and support', 'Shipter 4.12.0 · All systems operational') + `<div class="db">
+    ${tab === 'new' ? `<h3 class="h3">What’s new in 4.12</h3><ul class="pb">${['Edit AI plans before saving: rename tasks, move channels between weeks, remove what you do not need.', 'Kanban keyboard support: arrow keys move cards between columns.', 'UTM builder checks for taken short links before you create one.', 'Export any plan to Markdown for Notion or GitHub.'].map((x, i) => `<li><span class="n">${i + 1}</span><span>${x}</span></li>`).join('')}</ul>` : ''}
+    <h3 class="h3">Keyboard shortcuts</h3>${[['Search the current page', '/'], ['Open this help panel', '?'], ['Close a dialog, drawer or menu', 'Esc'], ['Move a focused card between columns', '← →'], ['Move focus between cards', '↑ ↓'], ['Open the focused card', 'Enter']].map(([a, k]) => `<div class="sc"><span>${a}</span><span>${k.split(' ').map((x) => `<kbd>${x}</kbd>`).join(' ')}</span></div>`).join('')}
+    <h3 class="h3">Common questions</h3>
+    <details><summary>How does Shipter build a plan?</summary><p>It scores ${CH.length} channel playbooks against your audience, market, goal and budget, then orders the best ones into four weeks. Free channels come first; paid ones only appear when the budget covers them.</p></details>
+    <details><summary>Does regenerating a plan delete finished work?</summary><p>No. Tasks you already marked done are kept. Open tasks are replaced by the new plan.</p></details>
+    <details><summary>When do AI generations reset?</summary><p>On your renewal date, ${fD(S.renew, 1)}. Unused generations do not roll over.</p></details>
+    <details><summary>Where is our data stored?</summary><p>In the EU (Frankfurt). Link clicks are counted without cookies and IP addresses are discarded after geolocation.</p></details>
+    <h3 class="h3">Contact support</h3><form id="sform" novalidate>${fld('s-topic', 'Topic', `<select id="s-topic"><option>Plans and AI generations</option><option>Billing and invoices</option><option>Tracked links</option><option>Something is broken</option></select>`)}${fld('s-msg', 'Message', '<textarea id="s-msg" rows="4" maxlength="2000" placeholder="What happened, and what did you expect?"></textarea>', 'We reply within one business day, Monday to Friday, 09:00–18:00 CET.')}<button class="btn primary" type="submit">Send message</button></form></div>`;
+}
+function searchResults(q) {
+  if (!q) return '';
+  const P = live().filter((p) => match(q, p.name, p.desc)).slice(0, 4).map((p) => [`project:${p.id}`, tile(p, 'sm'), p.name, STATUS[p.st][0]]);
+  const T = S.tasks.filter((t) => !proj(t.pid).archived && match(q, t.title)).slice(0, 4).map((t) => [`task:${t.id}`, ic('check'), t.title, proj(t.pid).name]);
+  const Lk = S.links.filter((l) => match(q, l.slug, l.camp)).slice(0, 3).map((l) => ['links', ic('link'), short(l), proj(l.pid).name]);
+  const C = CH.filter((c) => match(q, c.n)).slice(0, 3).map((c) => [`channel:${c.id}`, ic(KINDS[c.k][1]), c.n, 'Channel']);
+  const grp = (n, a) => a.length ? `<div class="pop-h" style="font-size:12px;color:var(--faint);font-weight:600">${n}</div>${a.map(([g, i, t, s]) => `<button class="mi" data-act="gsGo" data-g="${g}">${i}<span class="ell">${esc(t)}</span><span class="r ell" style="max-width:110px">${esc(s)}</span></button>`).join('')}` : '';
+  return grp('Projects', P) + grp('Tasks', T) + grp('Links', Lk) + grp('Channels', C) || emptyState('search', 'No results', `Nothing matches “${esc(q)}”.`);
+}
+
+/* ── wizard (new project) ──────────────────────────────── */
+let W = null;
+const WSTEPS = ['Product', 'Audience', 'Budget and timing', 'Channels'];
+function wizard(tpl) {
+  if (live().length >= LIM().proj) return confirmDlg({ title: 'Project limit reached', body: `The ${PLANS[S.plan].n} plan includes ${LIM().proj} projects. Archive a project or upgrade to Pro for unlimited projects.`, ok: 'See plans' }, () => go('billing'));
+  W = { step: 0, name: '', type: tpl ? tpl.type : 'SaaS', desc: '', site: '', aud: '', problem: '', market: 'eu', budget: tpl ? tpl.budget : 0, goal: tpl ? tpl.goal : 'users', launch: isoD(day(30)), chs: tpl ? [...tpl.chs] : null, tpl: tpl ? tpl.n : '', gen: true };
+  modal('<div id="wiz"></div>', (s) => { $('.modal', s).classList.add('wide'); $('.modal', s).setAttribute('aria-labelledby', 'wiz-h'); wizDraw(); });
+}
+function wizDraw() {
+  const w = W, s = w.step; let body = '';
+  if (s === 0) body = fld('w-name', 'Product name', `<input id="w-name" value="${esc(w.name)}" maxlength="60" placeholder="e.g. Tidepool Notes">`) + `<div class="frow">${fld('w-type', 'Type', `<select id="w-type">${TYPES.map((t) => `<option ${w.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>`)}${fld('w-site', 'Website (optional)', `<input id="w-site" type="url" value="${esc(w.site)}" placeholder="https://" inputmode="url">`)}</div>` + fld('w-desc', 'What does it do?', `<textarea id="w-desc" maxlength="300" placeholder="One or two sentences, as you would tell a customer.">${esc(w.desc)}</textarea>`, 'At least 20 characters. The planner reads this.');
+  if (s === 1) body = fld('w-aud', 'Who is it for?', `<textarea id="w-aud" maxlength="200" rows="2" placeholder="e.g. Freelance designers in the Netherlands and Belgium">${esc(w.aud)}</textarea>`, 'Role, company size and place work best.') + fld('w-prob', 'Problem it solves (optional)', `<input id="w-prob" value="${esc(w.problem)}" maxlength="160">`) + fld('w-mk', 'Main market', `<select id="w-mk">${opts(MARKETS, w.market)}</select>`);
+  if (s === 2) body = `<div class="frow">${fld('w-bud', 'Promotion budget, € per month', `<input id="w-bud" type="number" min="0" max="50000" step="50" inputmode="numeric" value="${w.budget}">`, '0 is fine: the plan will use free channels only.')}${fld('w-launch', 'Launch date', `<input id="w-launch" type="date" value="${w.launch}">`)}</div>` + fld('w-goal', 'Goal for the first month', `<select id="w-goal">${opts(GOALS, w.goal)}</select>`);
+  if (s === 3) {
+    if (!w.chs) w.chs = makePlan({ name: w.name, type: w.type, aud: w.aud, market: w.market, budget: +w.budget, goal: w.goal }).chs.map((c) => c.id);
+    const paid = w.chs.map(catOf).filter((c) => c.paid), need = sum(paid.map((c) => c.cost[0]));
+    body = `${w.tpl ? `<div class="fbox info">${ic('grid')}<span>Channels from the template “${esc(w.tpl)}”. Change them as you like.</span></div>` : '<p class="muted" style="margin-bottom:12px">Recommended for your brief are already ticked. Pick 2 to 8.</p>'}<fieldset style="border:0;padding:0;margin:0"><legend class="sr">Channels</legend><div class="chips">${CH.map((c) => `<label class="chip2"><input type="checkbox" value="${c.id}" ${w.chs.includes(c.id) ? 'checked' : ''} data-chg="wch">${esc(c.n)} <small>${c.paid ? EUR0.format(c.cost[0]) + '+' : 'free'}</small></label>`).join('')}</div></fieldset><span class="err" id="e-w-chs" style="margin-top:10px">${need > +w.budget ? ic('alert') + `Paid channels need at least ${EUR0.format(need)} a month, above your ${EUR0.format(+w.budget)} budget.` : ''}</span>
+      <label style="display:flex;gap:10px;align-items:center;margin-top:16px;font-size:14px"><input type="checkbox" class="chk" id="w-gen" ${w.gen ? 'checked' : ''}>Generate the AI plan right away (uses 1 of ${fmt(LIM().gen - S.gen)} generations left)</label>`;
+  }
+  $('#wiz').innerHTML = `<h2 id="wiz-h">${w.tpl ? 'New project from template' : 'New project'}</h2><p>Step ${s + 1} of 4 · ${WSTEPS[s]}</p><div class="stepper" aria-hidden="true">${WSTEPS.map((x, i) => `<div class="${i < s ? 'ok' : i === s ? 'on' : ''}"><i></i><span>${x}</span></div>`).join('')}</div><form id="wform" novalidate>${body}<div class="modal-actions">${s ? '<button type="button" class="btn" data-act="wizBack">Back</button>' : '<button type="button" class="btn" data-act="closeModal">Cancel</button>'}<button type="submit" class="btn primary">${s < 3 ? 'Continue' : 'Create project'}</button></div></form>`;
+  const f = $('#wiz input:not([type=checkbox]), #wiz textarea'); if (f) f.focus();
+}
+function wizCollect() {
+  const w = W, s = w.step;
+  if (s === 0) { w.name = val('w-name'); w.type = val('w-type'); w.site = val('w-site'); w.desc = val('w-desc');
+    return [setErr('w-name', !w.name ? 'Give your product a name.' : w.name.length < 2 ? 'Use at least 2 characters.' : S.projects.some((p) => !p.archived && p.name.toLowerCase() === w.name.toLowerCase()) ? `A project called “${w.name}” already exists.` : ''), setErr('w-site', w.site && !URL_RE.test(w.site) ? 'Use a full https:// address, or leave it empty.' : ''), setErr('w-desc', w.desc.length < 20 ? `Describe the product in at least 20 characters (${w.desc.length} so far).` : '')].every(Boolean); }
+  if (s === 1) { w.aud = val('w-aud'); w.problem = val('w-prob'); w.market = val('w-mk'); return setErr('w-aud', w.aud.length < 10 ? 'Describe the audience in at least 10 characters.' : ''); }
+  if (s === 2) { const b = val('w-bud'), lt = fromIso(val('w-launch')); w.budget = b; w.launch = val('w-launch'); w.goal = val('w-goal'); if (!w.tpl) w.chs = null;
+    return [setErr('w-bud', b === '' || isNaN(+b) || +b < 0 || +b > 50000 ? 'Enter a budget between €0 and €50,000.' : ''), setErr('w-launch', isNaN(lt) ? 'Pick a launch date.' : lt < T0 ? 'The launch date cannot be in the past.' : lt > day(365) ? 'Pick a date within the next 12 months.' : '')].every(Boolean); }
+  w.gen = $('#w-gen').checked; const n = w.chs.length;
+  const e = n < 2 ? 'Pick at least 2 channels.' : n > 8 ? `Pick at most 8 channels (${n} selected).` : '';
+  $('#e-w-chs').innerHTML = e ? ic('alert') + e : $('#e-w-chs').innerHTML; return !e;
+}
+function wizFinish() {
+  const w = W, id = Math.max(...S.projects.map((p) => p.id)) + 1;
+  const p = { id, name: w.name, type: w.type, market: w.market, st: 'planning', budget: +w.budget, launch: fromIso(w.launch), goal: w.goal, desc: w.desc, aud: w.aud, problem: w.problem, site: w.site || `https://${ascii(w.name).toLowerCase().replace(/[^a-z0-9]+/g, '')}.example`, owner: ME.id, created: Date.now(), hue: Math.floor(hash(w.name + 'h') * 360), plan: null, archived: false, prefer: w.chs };
+  S.projects.push(p); log('created the project', p.name); closeModal();
+  if (w.gen && S.gen < LIM().gen) { G.form = formFrom(p); G.force = w.chs; G.out = null; G.err = ''; page = 'gen'; toast(`Project created. Generating the plan for ${p.name}`); genRunForced(); }
+  else { toast(`Project created: ${p.name}`); go('project', p.id); }
+}
+function genRunForced() { const f = G.force; G.force = null; const orig = makePlan; window.__force = f; genRun(); window.__force = null; void orig; }
+
+/* ── actions ───────────────────────────────────────────── */
+const WRITE = new Set(['wizard', 'tick', 'genRun', 'genSave', 'newTask', 'saveTask', 'delTask', 'editProj', 'archiveProj', 'bulkPause', 'bulkArchive', 'bulkLinkDel', 'planFor', 'useTpl', 'invite', 'memberRemove', 'plan', 'card', 'addToProject', 'tmove', 'gDelCh', 'gDelTask', 'gAddTask']);
+const deny = () => toast('Only editors can do this. Ask an owner for Editor access');
+const ACT = {
+  closeModal, closeDrawer,
+  more(d, el) { openPop(el, ['gen', 'channels', 'links', 'templates', 'team', 'billing'].filter((k) => !TABS.includes(k)).map((k) => `<button class="mi" data-page="${k}">${ic(PAGES[k][1])}${PAGES[k][0]}</button>`).join('') + `<div class="sep"></div><button class="mi" data-act="help">${ic('help')}Help and support</button>`, 240); },
+  bell(d, el) { openPop(el, bellHTML(), 340); },
+  menu(d, el) { openPop(el, menuHTML(), 290); },
+  readAll() { S.notes.forEach((n) => { n.read = true; }); chrome(); toast('All notifications marked as read'); },
+  openNote(d) { const n = S.notes.find((x) => x.id === +d.id); n.read = true; closePop(); const [pg, id] = n.go.split(':'); go(pg, id ? +id : undefined); },
+  help(d) { closePop(); drawer(helpHTML(d.tab)); },
+  viewer() { S.viewer = !S.viewer; closePop(); render(); toast(S.viewer ? 'Previewing as a Viewer' : 'Back to Owner'); },
+  signOut() { closePop(); closeDrawer(); confirmDlg({ title: 'Sign out of Shipter?', body: 'You will need to sign in again to see Northlight Studio.', ok: 'Sign out' }, signOut); },
+  sort(d) { const st = TS[d.t]; if (st.sort === d.k) st.dir *= -1; else { st.sort = d.k; st.dir = 1; } st.page = 0; render(); },
+  pg(d) { TS[d.t].page += +d.d; render(); $('#main .tbl')?.scrollIntoView({ block: 'nearest' }); },
+  tf(d) { const st = TS[d.t]; st.f = d.v; st.page = 0; render(); },
+  sel(d, el) { const st = TS[d.t], id = isNaN(+d.id) ? d.id : +d.id; el.checked ? st.sel.add(id) : st.sel.delete(id); render(); },
+  selAll(d, el) { const st = TS[d.t]; $$(`[data-act="sel"][data-t="${d.t}"]`).forEach((c) => { const id = isNaN(+c.dataset.id) ? c.dataset.id : +c.dataset.id; el.checked ? st.sel.add(id) : st.sel.delete(id); }); render(); },
+  selClear(d) { TS[d.t].sel.clear(); render(); },
+  clearFilters(d) { Object.assign(TS[d.t], { q: '', f: 'all', f2: 'all', page: 0 }); render(); },
+  openProj(d) { go('project', +d.id); },
+  wizard() { wizard(); },
+  wizBack() { W.step--; wizDraw(); },
+  tick(d) { const t = S.tasks.find((x) => x.id === +d.id), prev = t.st; t.st = t.st === 'done' ? 'todo' : 'done'; if (t.st === 'done') { log(`completed “${t.title}”`, proj(t.pid).name); render(); undoSnack(`Done: ${t.title}`, () => { t.st = prev; S.act.shift(); render(); }); } else { render(); toast('Task reopened'); } },
+  openTask(d) { const t = S.tasks.find((x) => x.id === +d.id); if (!t) return; const p = proj(t.pid); closePop();
+    drawer(dHead(esc(t.title), `${esc(p.name)} · ${esc(catOf(t.ch).n)} · week ${t.wk || 1}`) + `<form class="db" id="tform" data-id="${t.id}" novalidate>${taskForm(t)}<p class="muted" style="font-size:12.5px">${t.st === 'done' ? 'Completed' : 'Created by the AI plan'} · ${COLS[t.st][0]}</p></form><div class="df"><button class="btn ghost l" data-act="delTask" data-id="${t.id}" data-w>${ic('trash')}Delete</button><button class="btn" data-act="closeDrawer">Cancel</button><button class="btn primary" data-act="saveTask" data-id="${t.id}" data-w>Save changes</button></div>`); },
+  saveTask(d) { const v = readTask(); if (!v) return; const t = S.tasks.find((x) => x.id === +d.id); Object.assign(t, { title: v.title, ch: v.ch, st: v.st, cat: v.cat, who: v.who, due: v.due, notes: v.notes }); closeDrawer(); render(); toast('Task saved'); },
+  delTask(d) { const t = S.tasks.find((x) => x.id === +d.id); confirmDlg({ title: 'Delete this task?', body: `“${esc(t.title)}” will be removed from ${esc(proj(t.pid).name)}.`, ok: 'Delete task', danger: 1 }, () => { const i = S.tasks.indexOf(t); S.tasks.splice(i, 1); closeDrawer(); render(); undoSnack('Task deleted', () => { S.tasks.splice(i, 0, t); render(); }); }); },
+  newTask() { modal(`<h2>New task</h2><p>Add a task to a launch plan.</p><form id="ntform" novalidate>${taskForm({}, true)}<div class="modal-actions"><button type="button" class="btn" data-act="closeModal">Cancel</button><button class="btn primary" type="submit">Add task</button></div></form>`, (s) => $('.modal', s).classList.add('wide')); },
+  tmenu(d, el) { const t = S.tasks.find((x) => x.id === +d.id); openPop(el, `<div class="pop-h" style="font-size:12px;color:var(--faint);font-weight:600">Move to</div>${Object.entries(COLS).map(([k, v]) => `<button class="mi" data-act="tmove" data-id="${t.id}" data-v="${k}" ${t.st === k ? 'disabled aria-disabled="true" style="opacity:.5"' : ''}><i style="width:9px;height:9px;border-radius:50%;background:${v[1]}"></i>${v[0]}${t.st === k ? '<span class="r">Current</span>' : ''}</button>`).join('')}<div class="sep"></div><button class="mi" data-act="openTask" data-id="${t.id}">${ic('edit')}Edit details</button><button class="mi danger" data-act="delTask" data-id="${t.id}">${ic('trash')}Delete</button>`, 220); },
+  tmove(d) { closePop(); moveTask(+d.id, d.v); },
+  kmore(d) { KF.lim[d.k] += 25; render(); },
+  exportTasks() { const ts = S.tasks.filter(taskVisible); dl('shipter-tasks.csv', toCSV(['Project', 'Task', 'Channel', 'Category', 'Status', 'Due', 'Assignee'], ts.map((t) => [proj(t.pid).name, t.title, catOf(t.ch).n, CATS[t.cat], COLS[t.st][0], isoD(t.due), member(t.who)?.name || ''])), 'text/csv'); },
+  exportProjects() { expProjects(live()); },
+  bulkProjCsv() { expProjects(live().filter((p) => TS.projects.sel.has(p.id))); },
+  bulkPause() { const ps = live().filter((p) => TS.projects.sel.has(p.id) && p.st !== 'paused'); if (!ps.length) return toast('The selected projects are already paused'); const prev = ps.map((p) => p.st); ps.forEach((p) => { p.st = 'paused'; }); TS.projects.sel.clear(); render(); undoSnack(`${pl(ps.length, 'project')} paused`, () => { ps.forEach((p, i) => { p.st = prev[i]; }); render(); }); },
+  bulkArchive() { const ps = live().filter((p) => TS.projects.sel.has(p.id)); confirmDlg({ title: `Archive ${pl(ps.length, 'project')}?`, body: 'Archived projects leave the board, stop counting towards your plan limit and their links stop redirecting. You can undo this right after.', ok: 'Archive', danger: 1 }, () => { ps.forEach((p) => { p.archived = true; }); TS.projects.sel.clear(); render(); undoSnack(`${pl(ps.length, 'project')} archived`, () => { ps.forEach((p) => { p.archived = false; }); render(); }); }); },
+  archiveProj(d) { const p = proj(+d.id); confirmDlg({ title: `Archive ${esc(p.name)}?`, body: `Its ${pl(projTasks(p.id).length, 'task')} leave the board and its links stop redirecting.`, ok: 'Archive project', danger: 1 }, () => { p.archived = true; go('projects'); undoSnack(`${p.name} archived`, () => { p.archived = false; render(); }); }); },
+  editProj(d) { const p = proj(+d.id); modal(`<h2>Edit project</h2><p>Changes apply to the brief. Regenerate the plan to use them.</p><form id="epform" data-id="${p.id}" novalidate>${fld('ep-name', 'Name', `<input id="ep-name" value="${esc(p.name)}" maxlength="60">`)}<div class="frow">${fld('ep-st', 'Status', `<select id="ep-st">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${p.st === k ? 'selected' : ''}>${v[0]}</option>`).join('')}</select>`)}${fld('ep-launch', 'Launch date', `<input id="ep-launch" type="date" value="${isoD(p.launch)}">`)}</div>${fld('ep-desc', 'Description', `<textarea id="ep-desc" maxlength="300">${esc(p.desc)}</textarea>`)}${fld('ep-aud', 'Audience', `<input id="ep-aud" value="${esc(p.aud)}" maxlength="200">`)}<div class="frow">${fld('ep-bud', 'Budget, € per month', `<input id="ep-bud" type="number" min="0" max="50000" value="${p.budget}">`)}${fld('ep-own', 'Owner', `<select id="ep-own">${doers().map((m) => `<option value="${m.id}" ${p.owner === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>`)}</div><div class="modal-actions"><button type="button" class="btn" data-act="closeModal">Cancel</button><button class="btn primary" type="submit">Save changes</button></div></form>`, (s) => $('.modal', s).classList.add('wide')); },
+  exportMenu(d, el) { openPop(el, `<button class="mi" data-act="projExport" data-id="${d.id}" data-f="csv">${ic('file')}Plan as CSV<span class="r">Excel, Sheets</span></button><button class="mi" data-act="projExport" data-id="${d.id}" data-f="md">${ic('file')}Plan as Markdown<span class="r">Notion, GitHub</span></button>`, 260); },
+  projExport(d) { closePop(); const p = proj(+d.id); if (!p.plan) return toast('Generate a plan first, then export it'); const chs = projChs(p); d.f === 'csv' ? dl(fileBase(p) + '.csv', toCSV(['Project', 'Week', 'Channel', 'Category', 'Task', 'Status', 'Due', 'Assignee'], planRows(p.name, chs)), 'text/csv') : dl(fileBase(p) + '.md', planMd(p, chs, p.plan.summary, p.plan.wins), 'text/markdown'); },
+  planFor(d) { const p = proj(+d.id); G.form = formFrom(p); if (G.st !== 'running') { G.out = null; G.err = ''; } go('gen'); },
+  genRun() { genRun(); },
+  genCancel() { G.t.forEach(clearTimeout); G.t = []; G.st = 'idle'; G.step = 0; G.text = ''; S.gen--; render(); toast('Generation cancelled. The credit was refunded'); },
+  genExport(d) { const o = G.out, p = proj(o.pid); d.f === 'csv' ? dl(fileBase(p) + '-draft.csv', toCSV(['Project', 'Week', 'Channel', 'Category', 'Task', 'Status', 'Due', 'Assignee'], planRows(p.name, o.chs)), 'text/csv') : dl(fileBase(p) + '-draft.md', planMd({ ...p, aud: o.inp.aud, market: o.inp.market, budget: o.inp.budget }, o.chs, o.summary, o.wins), 'text/markdown'); },
+  genSave() {
+    const o = G.out, p = proj(o.pid), empty = o.chs.flatMap((c, ci) => c.tasks.map((t, ti) => [ci, ti, t])).filter((x) => x[2].title.trim().length < 4);
+    $$('#g-out .etask input').forEach((i) => i.setAttribute('aria-invalid', 'false'));
+    if (!o.chs.length) return setErr('gsave', 'The plan has no channels. Generate again or undo the removal.');
+    if (empty.length) { empty.forEach(([ci, ti]) => $(`#gt-${ci}-${ti}`)?.setAttribute('aria-invalid', 'true')); setErr('gsave', `${pl(empty.length, 'task needs', 'tasks need')} a title of at least 4 characters.`); $(`#gt-${empty[0][0]}-${empty[0][1]}`)?.focus(); return; }
+    const old = projTasks(p.id), openN = old.filter((t) => t.st !== 'done').length, done = old.filter((t) => t.st === 'done');
+    const apply = () => {
+      const snap = { tasks: S.tasks.slice(), plan: p.plan, inp: { aud: p.aud, market: p.market, budget: p.budget, goal: p.goal, launch: p.launch, problem: p.problem } };
+      Object.assign(p, { aud: o.inp.aud, market: o.inp.market, budget: o.inp.budget, goal: o.inp.goal, problem: G.form.problem, launch: fromIso(G.form.launch) });
+      S.tasks = S.tasks.filter((t) => t.pid !== p.id || t.st === 'done');
+      p.plan = { chs: o.chs.map((c) => ({ id: c.id, week: c.week })), summary: o.summary, wins: o.wins, at: Date.now(), v: (p.plan ? p.plan.v : 0) + 1 };
+      done.forEach((t) => { if (!p.plan.chs.some((c) => c.id === t.ch)) p.plan.chs.push({ id: t.ch, week: t.wk || 1 }); });
+      addTasksFromPlan(p, o, done.map((t) => t.title)); if (p.st === 'planning' && p.launch - T0 < 30 * DAY) p.st = 'active';
+      log(`saved plan v${p.plan.v}`, p.name); G.out = null; go('project', p.id);
+      undoSnack(`Plan saved to ${p.name}`, () => { S.tasks = snap.tasks; p.plan = snap.plan; Object.assign(p, snap.inp); S.act.shift(); render(); });
+    };
+    if (old.length) confirmDlg({ title: `Replace the plan for ${esc(p.name)}?`, body: `${pl(openN, 'open task')} will be replaced by ${pl(sum(o.chs.map((c) => c.tasks.length)), 'new task')}. ${done.length ? `${pl(done.length, 'finished task')} ${done.length === 1 ? 'is' : 'are'} kept.` : ''}`, ok: 'Replace plan' }, apply); else apply();
+  },
+  gDelCh(d) { const c = G.out.chs.splice(+d.c, 1)[0]; $('#g-out').innerHTML = genOut(); undoSnack(`Removed ${catOf(c.id).n}`, () => { G.out.chs.splice(+d.c, 0, c); if (page === 'gen') $('#g-out').innerHTML = genOut(); }); },
+  gDelTask(d) { G.out.chs[+d.c].tasks.splice(+d.i, 1); $('#g-out').innerHTML = genOut(); },
+  gAddTask(d) { const c = G.out.chs[+d.c]; c.tasks.push({ title: '', cat: 'content' }); $('#g-out').innerHTML = genOut(); $(`#gt-${d.c}-${c.tasks.length - 1}`)?.focus(); },
+  playbook(d) { const c = catOf(d.id), ps = live().filter((p) => p.plan && !p.plan.chs.some((x) => x.id === c.id));
+    drawer(dHead(esc(c.n), `${KINDS[c.k][0]} · ${costTxt(c)} · results in ${c.ttr.toLowerCase()}`, `<span class="chic">${ic(KINDS[c.k][1])}</span>`) + `<div class="db"><div class="stats3" style="margin-bottom:18px"><div><b>${fmtReach(c.reach)}</b>Reach / month</div><div><b>${['', 'Low', 'Medium', 'High'][c.eff]}</b>Effort</div><div><b>${c.paid ? 'Paid' : 'Free'}</b>Cost</div></div><h3 class="h3">Playbook</h3><ol class="pb">${c.steps.map(([cat, t], i) => `<li><span class="n">${i + 1}</span><div>${esc(t)}<div class="muted" style="font-size:12.5px">${CATS[cat]}</div></div></li>`).join('')}</ol><h3 class="h3">Watch this number</h3><p>${esc(c.metric)}.</p><h3 class="h3">Tip</h3><p class="muted">${esc(c.tip)}</p>
+      <h3 class="h3">Add to a project</h3>${ps.length ? `<form id="atp" data-id="${c.id}" novalidate><div class="frow">${fld('atp-p', 'Project', `<select id="atp-p">${ps.map((p) => `<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select>`)}${fld('atp-w', 'Week', `<select id="atp-w">${[1, 2, 3, 4].map((w) => `<option ${w === c.wk ? 'selected' : ''}>${w}</option>`).join('')}</select>`)}</div><button class="btn primary" type="submit" data-w>${ic('plus')}Add ${pl(c.steps.length, 'task')}</button></form>` : '<p class="muted">Every project with a plan already uses this channel.</p>'}</div>`); },
+  focusBuilder() { const b = $('#builder'); b.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' }); $('#b-dest').focus({ preventScroll: true }); },
+  copyUtm() { if (!builderValidate()) return; copy(utmUrl({ ...B, slug: autoSlug() })); },
+  copyLink(d) { const l = S.links.find((x) => x.id === +d.id); copy('https://' + short(l)); },
+  openLink(d) { const l = S.links.find((x) => x.id === +d.id), p = proj(l.pid), v = l.daily.slice(-14);
+    drawer(dHead(`<span class="mono">${esc(short(l))}</span>`, `${esc(p.name)} · created ${fD(l.created, 1)}`) + `<div class="db"><div class="stats3" style="margin-bottom:16px"><div><b>${fmt(l.today)}</b>Today</div><div><b>${fmt(l30(l))}</b>Last 30 days</div><div><b>${fmt(Math.round(l30(l) / 30))}</b>Daily average</div></div><div id="lchart"></div><h3 class="h3" style="margin-top:18px">Tags</h3><dl class="kv"><dt>Source</dt><dd>${esc(l.src)}</dd><dt>Medium</dt><dd>${esc(l.med)}</dd><dt>Campaign</dt><dd>${esc(l.camp)}</dd><dt>Opens</dt><dd class="mono">${esc(utmUrl(l))}</dd></dl></div><div class="df"><button class="btn ghost l" data-act="delLink" data-id="${l.id}" data-w>${ic('trash')}Delete</button><button class="btn" data-act="copyLink" data-id="${l.id}">${ic('copy')}Copy short link</button></div>`);
+    chart($('#lchart'), (w) => barsSVG(w, { labels: dayLabels(14).map((x, i) => i % 3 ? '' : x), values: v, h: 170, mark: [13] })); },
+  delLink(d) { delLinks([+d.id]); },
+  bulkLinkDel() { delLinks([...TS.links.sel]); },
+  bulkLinkCsv() { expLinks(S.links.filter((l) => TS.links.sel.has(l.id))); },
+  exportLinks() { expLinks(S.links.filter((l) => !proj(l.pid).archived)); },
+  linksFor(d) { LF.pid = String(d.id); B.pid = +d.id; go('links'); },
+  useTpl(d) { wizard(TPL.find((t) => t.id === +d.id)); },
+  tplPreview(d) { const t = TPL.find((x) => x.id === +d.id);
+    drawer(dHead(esc(t.n), esc(t.d)) + `<div class="db">${[1, 2, 3, 4].map((w) => { const cs = t.chs.filter((id) => catOf(id).wk === w); return cs.length ? `<h3 class="h3">Week ${w}</h3>${cs.map((id) => `<div class="chh" style="margin-top:6px">${esc(catOf(id).n)} <span class="muted">· ${costTxt(catOf(id))}</span></div><ul class="pb">${catOf(id).steps.slice(0, 3).map(([, s], i) => `<li><span class="n">${i + 1}</span><span>${esc(s)}</span></li>`).join('')}</ul>`).join('')}` : ''; }).join('')}</div><div class="df"><button class="btn" data-act="closeDrawer">Close</button><button class="btn primary" data-act="useTpl" data-id="${t.id}" data-w>Use template</button></div>`); },
+  invite() { const L = LIM(); if (S.team.length >= L.seats) return confirmDlg({ title: 'All seats are in use', body: `The ${PLANS[S.plan].n} plan includes ${L.seats} seats and all of them are taken. Remove a member or upgrade to Pro for ${PLANS.pro.seats} seats.`, ok: 'See plans' }, () => go('billing'));
+    modal(`<h2>Invite a team member</h2><p>They get an email with a link that is valid for 7 days. ${pl(L.seats - S.team.length, 'seat')} left.</p><form id="invform" novalidate>${fld('i-name', 'Full name', '<input id="i-name" maxlength="80" autocomplete="off">')}${fld('i-email', 'Work email', '<input id="i-email" type="email" maxlength="120" autocomplete="off" placeholder="name@company.eu">')}${fld('i-role', 'Role', `<select id="i-role">${opts({ editor: 'Editor: plans, tasks and links', admin: 'Admin: also members and billing', viewer: 'Viewer: read-only' }, 'editor')}</select>`)}<div class="modal-actions"><button type="button" class="btn" data-act="closeModal">Cancel</button><button type="submit" class="btn primary">Send invite</button></div></form>`); },
+  memberMenu(d, el) { const m = member(+d.id); openPop(el, `${m.st === 'invited' ? `<button class="mi" data-act="resend" data-id="${m.id}">${ic('arrow')}Resend invite</button>` : ''}<button class="mi" data-act="memberTasks" data-id="${m.id}">${ic('kanban')}View open tasks</button><div class="sep"></div><button class="mi danger" data-act="memberRemove" data-id="${m.id}">${ic('trash')}${m.st === 'invited' ? 'Revoke invite' : 'Remove from workspace'}</button>`, 240); },
+  resend(d) { closePop(); const m = member(+d.id); m.exp = day(7); render(); toast(`Invite sent again to ${m.email}`); },
+  memberTasks(d) { closePop(); KF.who = d.id; KF.pid = 'all'; go('tasks'); },
+  memberRemove(d) { closePop(); const m = member(+d.id), n = S.tasks.filter((t) => t.who === m.id && t.st !== 'done').length;
+    confirmDlg({ title: m.st === 'invited' ? `Revoke the invite for ${esc(m.name)}?` : `Remove ${esc(m.name)}?`, body: m.st === 'invited' ? 'The invite link stops working and the seat is freed.' : `They lose access to Northlight Studio right away. ${n ? `Their ${pl(n, 'open task')} become unassigned.` : ''}`, ok: m.st === 'invited' ? 'Revoke invite' : 'Remove member', danger: 1 }, () => {
+      const i = S.team.indexOf(m), mine = S.tasks.filter((t) => t.who === m.id); S.team.splice(i, 1); mine.forEach((t) => { t.who = null; }); render();
+      undoSnack(`${m.name} removed`, () => { S.team.splice(i, 0, m); mine.forEach((t) => { t.who = m.id; }); render(); }); }); },
+  plan(d) { const to = PLANS[d.v], u = usage(), over = [u.proj > to.proj && `${u.proj} projects (limit ${to.proj})`, u.seats > to.seats && `${u.seats} seats (limit ${to.seats})`, u.links > to.links && `${u.links} links (limit ${to.links})`, u.gen > to.gen && `${u.gen} generations used (limit ${to.gen})`].filter(Boolean);
+    if (over.length) return confirmDlg({ title: `You are over the ${to.n} limits`, body: `Reduce usage first: ${over.join(', ')}.`, ok: 'OK' }, () => {});
+    const up = to.price > PLANS[S.plan].price, days = dayDiff(S.renew), pro = Math.round((to.price - PLANS[S.plan].price) * days / 30 * 100) / 100;
+    confirmDlg({ title: `${up ? 'Upgrade' : 'Switch'} to ${to.n}?`, body: up ? `You pay ${EUR.format(pro)} plus VAT today for the ${pl(days, 'day')} left in this cycle, then ${EUR0.format(to.price)} a month. Limits go up immediately.` : `The change applies now. From ${fD(S.renew)} you pay ${EUR0.format(to.price)} a month plus VAT.`, ok: `${up ? 'Upgrade' : 'Switch'} to ${to.n}` }, () => {
+      const was = S.plan; S.plan = d.v;
+      if (up) S.invoices.unshift({ id: `INV-${new Date().getFullYear()}-0${200 + S.invoices.length}`, date: Date.now(), item: `${to.n} plan, prorated ${pl(days, 'day')}`, net: pro, st: 'paid' });
+      note(`Plan changed from ${PLANS[was].n} to ${to.n}`, 'billing'); render(); toast(`You are on the ${to.n} plan`); }); },
+  card() { modal(`<h2>Update payment method</h2><p>Payments are processed by our payment provider. Card details never touch Shipter’s servers.</p><form id="cardform" novalidate><div id="card-err"></div>${fld('c-name', 'Name on card', `<input id="c-name" value="${esc(S.card.name)}" autocomplete="cc-name">`)}${fld('c-num', 'Card number', '<input id="c-num" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234" maxlength="23">', 'Demo: any valid test number works; 4000 0000 0000 0002 is declined.')}<div class="frow">${fld('c-exp', 'Expiry', '<input id="c-exp" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp">')}${fld('c-cvc', 'CVC', '<input id="c-cvc" inputmode="numeric" maxlength="4" autocomplete="cc-csc">')}</div><div class="modal-actions"><button type="button" class="btn" data-act="closeModal">Cancel</button><button class="btn primary" type="submit" id="c-ok">Save card</button></div></form>`); },
+  invDl(d) { const i = S.invoices.find((x) => x.id === d.id), vat = Math.round(i.net * VAT * 100) / 100;
+    dl(`${i.id}.html`, `<!doctype html><meta charset="utf-8"><title>${i.id}</title><body style="font:14px system-ui;max-width:640px;margin:40px auto"><h1>Invoice ${i.id}</h1><p>Shipter (sample issuer)<br>Date: ${fD(i.date, 1)}</p><p>Billed to: Northlight Studio B.V., Amsterdam, NL<br>VAT ID NL 8241 0937 5B01</p><table style="width:100%;border-collapse:collapse"><tr><td>${esc(i.item)}</td><td style="text-align:right">${EUR.format(i.net)}</td></tr><tr><td>VAT 21%</td><td style="text-align:right">${EUR.format(vat)}</td></tr><tr><th style="text-align:left">Total</th><th style="text-align:right">${EUR.format(invTotal(i))}</th></tr></table><p>Paid by card ending ${S.card.last4}. Sample document.</p></body>`, 'text/html'); },
+  exportInv() { dl('shipter-invoices.csv', toCSV(['Invoice', 'Date', 'Description', 'Net (EUR)', 'VAT (EUR)', 'Total (EUR)', 'Status'], S.invoices.map((i) => [i.id, isoD(i.date), i.item, i.net.toFixed(2), (invTotal(i) - i.net).toFixed(2), invTotal(i).toFixed(2), 'Paid'])), 'text/csv'); },
+  gsGo(d) { closePop(); $('#gq').value = ''; const [k, id] = d.g.split(':'); if (k === 'project') go('project', +id); else if (k === 'task') { const t = S.tasks.find((x) => x.id === +id); KF.pid = 'all'; KF.q = ''; go('tasks'); ACT.openTask({ id }); void t; } else if (k === 'channel') { go('channels'); ACT.playbook({ id }); } else go(k); },
+};
+function expProjects(ps) { dl('shipter-projects.csv', toCSV(['Project', 'Type', 'Status', 'Market', 'Budget (EUR/mo)', 'Launch', 'Owner', 'Tasks', 'Done', 'Clicks 30d'], ps.map((p) => [p.name, p.type, STATUS[p.st][0], MARKETS[p.market], p.budget, isoD(p.launch), member(p.owner)?.name || '', projTasks(p.id).length, doneOf(p.id), vis30(p.id)])), 'text/csv'); }
+function expLinks(ls) { dl('shipter-links.csv', toCSV(['Short link', 'Project', 'Source', 'Medium', 'Campaign', 'Destination', 'Clicks today', 'Clicks 30d', 'Created'], ls.map((l) => ['https://' + short(l), proj(l.pid).name, l.src, l.med, l.camp, utmUrl(l), l.today, l30(l), isoD(l.created)])), 'text/csv'); }
+function delLinks(ids) {
+  if (S.viewer) return deny();
+  const ls = S.links.filter((l) => ids.includes(l.id));
+  confirmDlg({ title: ls.length === 1 ? `Delete ${esc(short(ls[0]))}?` : `Delete ${pl(ls.length, 'link')}?`, body: `People who open ${ls.length === 1 ? 'it' : 'them'} will see a “link not found” page. Their ${fmt(sum(ls.map(l30)))} clicks from the last 30 days leave your totals.`, ok: 'Delete', danger: 1 }, () => {
+    const snap = S.links.slice(); S.links = S.links.filter((l) => !ids.includes(l.id)); TS.links.sel.clear(); closeDrawer(); render();
+    undoSnack(`${pl(ls.length, 'link')} deleted`, () => { S.links = snap; render(); });
+  });
+}
+async function copy(text) { try { await navigator.clipboard.writeText(text); toast('Copied to clipboard'); } catch (e) { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (er) { ok = false; } t.remove(); toast(ok ? 'Copied to clipboard' : 'Copy is blocked here. Select the text and copy it by hand'); } }
+
+/* form submissions */
+const SUBMIT = {
+  gform() { if (S.viewer) return deny(); genRun(); },
+  wform() { if (!wizCollect()) { $('#wiz [aria-invalid="true"]')?.focus(); return; } if (W.step < 3) { W.step++; wizDraw(); } else wizFinish(); },
+  ntform() { const v = readTask(); if (!v) return; const p = proj(v.pid); if (!p.plan) p.plan = { chs: [], summary: '', wins: [], at: Date.now(), v: 0 }; if (!p.plan.chs.some((c) => c.id === v.ch)) p.plan.chs.push({ id: v.ch, week: 1 }); S.tasks.push({ id: nid(), pid: v.pid, ch: v.ch, wk: p.plan.chs.find((c) => c.id === v.ch).week, title: v.title, cat: v.cat, st: v.st, due: v.due, who: v.who, notes: v.notes }); log(`added “${v.title}”`, p.name); closeModal(); render(); toast('Task added'); },
+  tform() { ACT.saveTask({ id: $('#tform').dataset.id }); },
+  epform() { const p = proj(+$('#epform').dataset.id), n = val('ep-name'), lt = fromIso(val('ep-launch')), b = val('ep-bud');
+    const ok = [setErr('ep-name', n.length < 2 ? 'Use at least 2 characters.' : S.projects.some((x) => x !== p && !x.archived && x.name.toLowerCase() === n.toLowerCase()) ? 'Another project already has this name.' : ''), setErr('ep-launch', isNaN(lt) ? 'Pick a launch date.' : ''), setErr('ep-desc', val('ep-desc').length < 20 ? 'Use at least 20 characters.' : ''), setErr('ep-aud', val('ep-aud').length < 10 ? 'Use at least 10 characters.' : ''), setErr('ep-bud', b === '' || +b < 0 || +b > 50000 ? 'Enter a budget between €0 and €50,000.' : '')].every(Boolean);
+    if (!ok) return $('#epform [aria-invalid="true"]')?.focus();
+    Object.assign(p, { name: n, st: val('ep-st'), launch: lt, desc: val('ep-desc'), aud: val('ep-aud'), budget: +b, owner: +val('ep-own') }); log('edited the brief', p.name); closeModal(); render(); toast('Project updated'); },
+  invform() { const n = val('i-name'), e = val('i-email').toLowerCase();
+    const ok = [setErr('i-name', n.length < 2 ? 'Enter their full name.' : ''), setErr('i-email', !e ? 'Enter an email address.' : !EMAIL_RE.test(e) ? 'This does not look like an email address.' : S.team.some((m) => m.email === e) ? 'This person is already in the workspace.' : '')].every(Boolean);
+    if (!ok) return $('#invform [aria-invalid="true"]')?.focus();
+    S.team.push({ id: nid(), name: n, email: e, role: val('i-role'), st: 'invited', hue: Math.floor(hash(n) * 360), last: 0, joined: Date.now(), exp: day(7) }); closeModal(); render(); toast(`Invite sent to ${e}`); },
+  cardform() { const num = val('c-num').replace(/\s+/g, ''), exp = val('c-exp'), m = /^(0[1-9]|1[0-2])\/(\d{2})$/.exec(exp), cvc = val('c-cvc');
+    const luhn = (s) => { let t = 0; [...s].reverse().forEach((c, i) => { let d = +c; if (i % 2) { d *= 2; if (d > 9) d -= 9; } t += d; }); return t % 10 === 0; };
+    const ok = [setErr('c-name', val('c-name').length < 2 ? 'Enter the name on the card.' : ''), setErr('c-num', !/^\d{13,19}$/.test(num) ? 'Enter the full card number.' : !luhn(num) ? 'This card number is not valid. Check for typos.' : ''), setErr('c-exp', !m ? 'Use the format MM/YY.' : new Date(2000 + +m[2], +m[1], 1) <= new Date() ? 'This card has expired.' : ''), setErr('c-cvc', !/^\d{3,4}$/.test(cvc) ? 'Enter the 3 or 4 digits on the back.' : '')].every(Boolean);
+    if (!ok) return $('#cardform [aria-invalid="true"]')?.focus();
+    const b = $('#c-ok'); b.disabled = true; b.innerHTML = '<span class="spin"></span>Checking card';
+    setTimeout(() => { if (!$('#cardform')) return; if (num === '4000000000000002') { b.disabled = false; b.textContent = 'Save card'; $('#card-err').innerHTML = `<div class="fbox">${ic('alert')}<span><b>Your card was declined.</b> Your bank did not approve the check. Try another card or contact your bank.</span></div>`; return; }
+      S.card = { brand: num[0] === '5' ? 'MC' : 'VISA', last4: num.slice(-4), exp, name: val('c-name') }; closeModal(); render(); toast('Card saved. Future invoices will be charged to it'); }, reduced ? 200 : 900); },
+  sform() { const msg = val('s-msg'); if (!setErr('s-msg', msg.length < 20 ? `Tell us a bit more: at least 20 characters (${msg.length} so far).` : '')) return $('#s-msg').focus();
+    const n = ++S.tickets; closeDrawer(); note(`Support ticket #${n} opened: ${val('s-topic') || 'Question'}`, 'dash'); chrome(); toast(`Ticket #${n} opened. We reply within one business day`); },
+  bform() { if (S.viewer) return deny(); if (!builderValidate()) return $('#bform [aria-invalid="true"]')?.focus();
+    if (S.links.length >= LIM().links) return confirmDlg({ title: 'Link limit reached', body: `The ${PLANS[S.plan].n} plan includes ${LIM().links} tracked links. Delete old links or upgrade to Pro for unlimited links.`, ok: 'See plans' }, () => go('billing'));
+    const l = { id: nid(), pid: B.pid, slug: autoSlug(), src: B.src, med: B.med, camp: B.camp, content: '', dest: B.dest, created: Date.now(), daily: Array(30).fill(0), today: 0 };
+    S.links.unshift(l); log(`created tracked link ${short(l)}`, proj(l.pid).name); B.slug = ''; TS.links.sort = 'created'; TS.links.dir = -1; TS.links.page = 0; render(); toast(`Created ${short(l)}`); },
+  atp() { const id = $('#atp').dataset.id, p = proj(+val('atp-p')), w = +val('atp-w'), c = catOf(id);
+    p.plan.chs.push({ id, week: w }); addTasksFromPlan(p, { chs: [{ id, week: w, tasks: c.steps.map(([cat, title]) => ({ title, cat })) }] }); log(`added ${c.n} to the plan`, p.name); closeDrawer(); render(); toast(`${pl(c.steps.length, 'task')} added to ${p.name}`); },
+};
+/* the wizard's channel choice is passed to the planner */
+const _makePlan = makePlan;
+// eslint-disable-next-line no-func-assign
+makePlan = (inp) => _makePlan(window.__force ? { ...inp, force: window.__force } : inp);
+const CHG = {
+  tf2(el) { TS[el.dataset.t].f2 = el.value; TS[el.dataset.t].page = 0; render(); },
+  tf(el) { TS[el.dataset.t].f = el.value; TS[el.dataset.t].page = 0; render(); },
+  gproj(el) { G.form = formFrom(proj(+el.value)); if (G.st !== 'running') G.out = null; render(); },
+  gf(el) { G.form[el.dataset.k] = el.value; },
+  gweek(el) { G.out.chs[+el.dataset.c].week = +el.value; },
+  gcat(el) { G.out.chs[+el.dataset.c].tasks[+el.dataset.i].cat = el.value; },
+  kf(el) { KF[el.dataset.k] = el.value; render(); },
+  lfp(el) { LF.pid = el.value; render(); },
+  bp(el) { B.pid = +el.value; B.dest = proj(B.pid).site + '/'; B.slug = ''; $('#bform').innerHTML = builderForm(); },
+  role(el) { const m = member(+el.dataset.id), was = m.role; m.role = el.value; render(); toast(`${m.name} is now ${/^[aeiou]/i.test(ROLES[m.role]) ? 'an' : 'a'} ${ROLES[m.role]}`); void was; },
+  wch(el) { W.chs = $$('#wiz .chips input:checked').map((i) => i.value); const paid = W.chs.map(catOf).filter((c) => c.paid), need = sum(paid.map((c) => c.cost[0])); $('#e-w-chs').innerHTML = W.chs.length > 8 ? ic('alert') + `Pick at most 8 channels (${W.chs.length} selected).` : need > +W.budget ? ic('alert') + `Paid channels need at least ${EUR0.format(need)} a month, above your ${EUR0.format(+W.budget)} budget.` : ''; },
+  tproj(el) { const p = proj(+el.value), s = $('#t-ch'); s.innerHTML = (p.plan && p.plan.chs.length ? p.plan.chs.map((c) => c.id) : CH.map((c) => c.id)).map((id) => `<option value="${id}">${esc(catOf(id).n)}</option>`).join(''); },
+};
+const INP = {
+  q(el) { TS[el.dataset.t].q = el.value; TS[el.dataset.t].page = 0; render(); },
+  kq(el) { KF.q = el.value; render(); },
+  gf(el) { G.form[el.dataset.k] = el.value; if (el.getAttribute('aria-invalid') === 'true') genValidate(); },
+  gt(el) { G.out.chs[+el.dataset.c].tasks[+el.dataset.i].title = el.value; if (el.value.trim().length >= 4) el.setAttribute('aria-invalid', 'false'); },
+  b(el) { B[el.dataset.k] = el.dataset.k === 'dest' ? el.value.trim() : el.value.trim().toLowerCase(); $('#b-out').innerHTML = builderOut(); if (el.dataset.k !== 'slug') $('#b-slug').placeholder = autoSlug(); if (el.getAttribute('aria-invalid') === 'true') builderValidate(); },
+  gq(el) { const q = el.value.trim(); if (!q) return closePop(); const html = searchResults(q); if (popFor === el && popEl) popEl.innerHTML = html; else { closePop(); openPop(el, html, Math.max(320, el.offsetWidth)); } },
+};
+
+/* ── events ────────────────────────────────────────────── */
+document.addEventListener('click', (e) => {
+  if (popEl && !popEl.contains(e.target) && !(popFor && popFor.contains(e.target))) closePop();
+  const pg = e.target.closest('[data-page]'); if (pg) { e.preventDefault(); return go(pg.dataset.page); }
+  const a = e.target.closest('[data-act]'); if (!a || a.disabled) return;
+  const name = a.dataset.act;
+  if (a.matches('.tr') && e.target.closest('button, input, select, a, label')) return;
+  if (S.viewer && WRITE.has(name)) { e.preventDefault(); return deny(); }
+  if (ACT[name]) { if (a.matches('button[type=submit]')) return; ACT[name](a.dataset, a); }
+});
+document.addEventListener('submit', (e) => { e.preventDefault(); const f = SUBMIT[e.target.id]; if (f) f(); });
+document.addEventListener('change', (e) => { const el = e.target.closest('[data-chg]'); if (el && CHG[el.dataset.chg]) { if (S.viewer && el.dataset.chg === 'role') return deny(); CHG[el.dataset.chg](el); } });
+document.addEventListener('input', (e) => { const el = e.target.closest('[data-in]'); if (el && INP[el.dataset.in]) INP[el.dataset.in](el); if (e.target.getAttribute('aria-invalid') === 'true' && !el) setErr(e.target.id, ''); });
+document.addEventListener('keydown', (e) => {
+  const typing = e.target.matches('input, textarea, select, [contenteditable]');
+  if (e.key === 'Escape') { if (popEl) { const f = popFor; closePop(); f?.focus(); e.stopImmediatePropagation(); return; } if ($('#drawer') && !$('#scrim')) { closeDrawer(); return; } if (typing && e.target.type === 'search' && e.target.value) { e.target.value = ''; e.target.dispatchEvent(new Event('input', { bubbles: true })); } return; }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.tr[data-act], [role=button][data-act]')) { e.preventDefault(); return ACT[e.target.dataset.act](e.target.dataset, e.target); }
+  if (e.key === 'Enter' && e.target.id === 'gq' && popEl) { const f = $('.mi', popEl); if (f) { e.preventDefault(); f.click(); } return; }
+  if (e.key === 'ArrowDown' && e.target.id === 'gq' && popEl) { e.preventDefault(); $('.mi', popEl)?.focus(); return; }
+  if (popEl && popEl.contains(e.target) && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); const it = $$('.mi:not([disabled]), .nt', popEl), i = it.indexOf(e.target); it[(i + (e.key === 'ArrowDown' ? 1 : -1) + it.length) % it.length]?.focus(); return; }
+  const kc = e.target.closest && e.target.closest('.kc');
+  if (kc && e.target === kc) {
+    const id = +kc.dataset.task, t = S.tasks.find((x) => x.id === id), order = Object.keys(COLS), i = order.indexOf(t.st);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const j = i + (e.key === 'ArrowRight' ? 1 : -1); if (j >= 0 && j < 3) moveTask(id, order[j], true); return; }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const sib = e.key === 'ArrowDown' ? kc.nextElementSibling : kc.previousElementSibling; if (sib && sib.matches('.kc')) sib.focus(); return; }
+    if (e.key === 'Enter') { e.preventDefault(); return ACT.openTask({ id }); }
+  }
+  if (typing || e.metaKey || e.ctrlKey || e.altKey || $('#scrim') || !$('#signin').hidden) return;
+  if (e.key === '/') { e.preventDefault(); const s = $('#main [data-search]') || (getComputedStyle($('.gs')).display !== 'none' ? $('#gq') : null); if (s) { s.focus(); s.select(); } }
+  else if (e.key === '?') { e.preventDefault(); ACT.help({ tab: 'keys' }); }
+}, true);
+/* drag and drop between kanban columns */
+let dragId = null;
+document.addEventListener('dragstart', (e) => { const c = e.target.closest && e.target.closest('.kc'); if (!c) return; if (S.viewer) { e.preventDefault(); return deny(); } dragId = +c.dataset.task; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(dragId)); requestAnimationFrame(() => c.classList.add('drag')); });
+document.addEventListener('dragend', () => { $$('.kc.drag').forEach((c) => c.classList.remove('drag')); $$('.klist.over').forEach((l) => l.classList.remove('over')); dragId = null; });
+document.addEventListener('dragover', (e) => { const l = e.target.closest && e.target.closest('.klist'); if (!l || dragId == null) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; $$('.klist.over').forEach((x) => x !== l && x.classList.remove('over')); l.classList.add('over'); });
+document.addEventListener('drop', (e) => { const l = e.target.closest && e.target.closest('.klist'); if (!l || dragId == null) return; e.preventDefault(); const id = dragId; dragId = null; moveTask(id, l.dataset.drop); });
+addEventListener('resize', () => closePop());
+addEventListener('scroll', () => { if (popEl && !popEl.contains(document.activeElement)) closePop(); }, { passive: true });
+
+/* ── sign in / out ─────────────────────────────────────── */
+function signOut() {
+  closeDrawer(); closePop(); $('#app').hidden = true; $('#tabbar').hidden = true;
+  const s = $('#signin'); s.hidden = false;
+  s.innerHTML = `<div class="sbox"><div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11a2.8 2.8 0 00-4-4L4 15zM13 6l5 5"/></svg></div><div class="brand-name">Shipter</div></div><h1>Sign in</h1><p>Plan, run and measure your product launches.</p>
+    <div class="fbox ok">${ic('check')}<span>You have been signed out.</span></div>
+    <form id="siform" novalidate>${fld('si-email', 'Email', `<input id="si-email" type="email" autocomplete="username" value="${esc(ME.email)}">`)}${fld('si-pw', 'Password', '<input id="si-pw" type="password" autocomplete="current-password" value="launch-demo-2026">')}<button class="btn primary" type="submit" id="si-ok">Sign in</button></form>
+    <p class="demo">Demo credentials are filled in. <button class="lnk" type="button" data-act="forgot">Forgot password?</button></p></div>`;
+  $('#si-ok').focus();
+}
+SUBMIT.siform = () => {
+  const e = val('si-email'), p = $('#si-pw').value;
+  const ok = [setErr('si-email', !EMAIL_RE.test(e) ? 'Enter the email you signed up with.' : ''), setErr('si-pw', p.length < 8 ? 'The password has at least 8 characters.' : '')].every(Boolean);
+  if (!ok) return;
+  const b = $('#si-ok'); b.disabled = true; b.innerHTML = '<span class="spin"></span>Signing in';
+  setTimeout(() => { $('#signin').hidden = true; $('#app').hidden = false; $('#tabbar').hidden = false; S.viewer = false; go('dash'); toast(`Welcome back, ${ME.name.split(' ')[0]}`); }, reduced ? 150 : 700);
+};
+ACT.forgot = () => toast(`We sent a reset link to ${ME.email}`);
+
+/* live clicks trickle in on launched and launching projects */
 setInterval(() => {
-  if (document.hidden) return;
-  const p = S.projects[Math.floor(Math.random() * S.projects.length)]; p.vis += 1 + Math.floor(Math.random() * 3);
-  const all = $('[data-vis="all"]'); if (all) all.textContent = fmt(S.projects.reduce((a, x) => a + visits(x), 0));
-  const one = $(`[data-vis="${p.id}"]`); if (one) one.textContent = fmt(visits(p));
-}, 1800);
+  if (document.hidden || !S.links.length) return;
+  const pool = S.links.filter((l) => ['launched', 'active'].includes(proj(l.pid).st) && !proj(l.pid).archived); if (!pool.length) return;
+  const l = pool[Math.floor(Math.random() * pool.length)]; l.today += 1 + Math.floor(Math.random() * 2);
+  for (const [k, v] of [['all', visToday()], ['p' + l.pid, visToday(l.pid)], ['l' + l.id, l.today]]) $$(`[data-vis="${k}"]`).forEach((el) => { el.textContent = fmt(v); });
+}, 2200);
 render();
 </script>
 </body>

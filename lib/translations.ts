@@ -13,15 +13,18 @@ const en = {
     process: "Process",
     contact: "Contact",
     langLabel: "Language",
+    skip: "Skip to content",
+    pause: "Pause motion",
+    play: "Resume motion",
   },
   hero: {
-    descriptor: "custom software studio",
+    descriptor: "Custom software studio",
     lead:
       "A senior-led studio building custom web platforms, internal tools and integrations for businesses in Europe. Nine real products below, each one a live demo with sample data. Open any of them.",
     viewWork: "See the work",
     statProjects: "Products built",
     statYears: "Years in production",
-    statTech: "Technologies",
+    statTech: "Hosted in Frankfurt",
   },
   showroom: {
     title: "Selected work",
@@ -146,6 +149,7 @@ const en = {
     description:
       "Describe what you are building or what needs fixing. Every message gets a personal reply with concrete next steps.",
     email: "Email",
+    byline: "Mirelli Studio is run by Darian Mirelli, engineer and designer, working from the EU.",
   },
   footer: {
     privacy: "Privacy",
@@ -215,15 +219,18 @@ const ru: Translations = {
     process: "Процесс",
     contact: "Контакт",
     langLabel: "Язык",
+    skip: "К содержимому",
+    pause: "Остановить движение",
+    play: "Возобновить движение",
   },
   hero: {
-    descriptor: "студия разработки на заказ",
+    descriptor: "Студия разработки на заказ",
     lead:
       "Студия под руководством senior-инженера: веб-платформы, внутренние системы и интеграции для бизнеса в Европе. Ниже девять реальных продуктов, каждый — живое демо на примерных данных. Откройте любой.",
     viewWork: "Смотреть работы",
     statProjects: "Продуктов создано",
     statYears: "Лет в продакшене",
-    statTech: "Технологий",
+    statTech: "Хостинг во Франкфурте",
   },
   showroom: {
     title: "Избранные работы",
@@ -348,6 +355,7 @@ const ru: Translations = {
     description:
       "Опишите, что вы строите или что нужно починить. На каждое письмо приходит личный ответ с конкретными следующими шагами.",
     email: "Почта",
+    byline: "Mirelli Studio ведёт Darian Mirelli, инженер и дизайнер, работает из ЕС.",
   },
   footer: {
     privacy: "Конфиденциальность",

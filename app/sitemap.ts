@@ -10,9 +10,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     languages["x-default"] = siteConfig.url + pathFor(defaultLang) + sub;
     return locales.map((l) => ({
       url: siteConfig.url + pathFor(l) + sub,
-      lastModified: new Date(),
       changeFrequency: "monthly" as const,
-      priority: l === defaultLang ? priority : priority - 0.2,
+      priority: l === defaultLang ? priority : Math.round((priority - 0.2) * 10) / 10,
       alternates: { languages },
     }));
   };

@@ -80,7 +80,7 @@ export const projects = [
     name: "RestOS HR",
     tags: ["FastAPI", "Python", "SQLite", "PWA"],
     subdomain: "hr",
-    stage: "#3d8bff",
+    stage: "#d98bb8",
     year: "2026",
   },
   {

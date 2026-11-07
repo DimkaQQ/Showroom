@@ -58,7 +58,7 @@ h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-s
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><a href="/" id="home1">Mirelli Studio</a><a href="/ru/" id="swap">RU</a></div>
+  <header class="top"><a href="/" id="home1">Mirelli Studio</a><a href="/ru/" id="swap">RU</a></header>
   <div class="term" id="term" aria-hidden="true"></div>
 
   <main>
@@ -74,7 +74,7 @@ h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-s
     <p class="hint" id="hint">Psst: the big 0 can be grabbed. Throw it around.</p>
   </main>
 
-  <div class="stats" aria-hidden="true"><span id="s1"></span><span id="s2"></span><span id="s3"></span></div>
+  <footer class="stats" aria-hidden="true"><span id="s1"></span><span id="s2"></span><span id="s3"></span></footer>
 </div>
 <div class="rain" id="rain" aria-hidden="true"></div>
 
@@ -82,7 +82,7 @@ h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-s
 (() => {
   const $ = (id) => document.getElementById(id);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const ru = location.pathname.startsWith("/ru");
+  const ru = /^\/ru(\/|$)/.test(location.pathname);
   const path = location.pathname + location.search;
 
   const T = ru ? {
@@ -165,7 +165,7 @@ h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-s
       if (y < 0) { y = 0; vy = Math.abs(vy) * REST; hit(vy); }
       if (y > b.maxY) { y = b.maxY; if (Math.abs(vy) > 260) hit(vy); vy = -Math.abs(vy) * REST; if (Math.abs(vy) < 140) vy = 0; vx *= 0.985; }
       if (y >= b.maxY - 0.5) vx *= 0.992;
-      if (y >= b.maxY - 0.5 && Math.abs(vx) < 6 && Math.abs(vy) < 1) { vx = vy = 0; awake = false; }
+      if (y >= b.maxY - 0.5 && Math.abs(vx) < 20 && Math.abs(vy) < 1) { vx = vy = 0; awake = false; }
     }
     place();
     if (awake) requestAnimationFrame(loop);
@@ -200,7 +200,7 @@ h1 { margin: 0; font-size: clamp(110px, 31vw, 400px); font-weight: 900; letter-s
 
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => {
     toSlot(); ball.classList.add("ready");
-    if (!reduce) setTimeout(() => { if (home && !drag) { home = false; vx = 160; vy = -520; wake(); } }, 1700);
+    if (!reduce && innerHeight >= 700) setTimeout(() => { if (home && !drag) { home = false; vx = 160; vy = -520; wake(); } }, 1700);
   });
 
   // ── Hidden things

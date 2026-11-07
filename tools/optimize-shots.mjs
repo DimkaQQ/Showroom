@@ -1,4 +1,4 @@
-// Turns the PNG screenshots from tools/shoot.mjs (tools/.shots) into public/shots/<id>.webp (1440w)
+// Turns the PNG screenshots from tools/shoot.mjs (tools/.shots) into public/shots/<id>.webp (1200w)
 // and <id>-s.webp (720w). Needs sharp, which is not a project dependency: `npm i --no-save sharp` first.
 import { createRequire } from "node:module";
 import { readdirSync, mkdirSync } from "node:fs";
@@ -13,7 +13,7 @@ mkdirSync(to, { recursive: true });
 for (const f of readdirSync(from).filter((n) => n.endsWith(".png"))) {
   const id = f.replace(/\.png$/, "");
   const img = sharp(join(from, f));
-  const a = await img.clone().webp({ quality: 78, effort: 6 }).toFile(join(to, `${id}.webp`));
+  const a = await img.clone().webp({ quality: 72, effort: 6 }).toFile(join(to, `${id}.webp`));
   const b = await img.clone().resize(720).webp({ quality: 76, effort: 6 }).toFile(join(to, `${id}-s.webp`));
   console.log(id.padEnd(13), Math.round(a.size / 1024) + " KB", Math.round(b.size / 1024) + " KB");
 }

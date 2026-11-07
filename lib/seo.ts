@@ -52,7 +52,7 @@ export function jsonLdFor(lang: Lang) {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "ProfessionalService",
+        "@type": "Organization",
         "@id": `${siteConfig.url}/#studio`,
         name: siteConfig.name,
         url: abs(pathFor(lang)),
@@ -72,7 +72,7 @@ export function jsonLdFor(lang: Lang) {
       {
         "@type": "WebSite",
         "@id": `${siteConfig.url}/#website`,
-        url: siteConfig.url,
+        url: siteConfig.url + "/",
         name: siteConfig.name,
         inLanguage: lang,
         publisher: { "@id": `${siteConfig.url}/#studio` },

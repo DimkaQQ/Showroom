@@ -472,6 +472,9 @@ function setNav(page) {
 document.addEventListener('click', (e) => { if (e.detail === 3 && e.target.closest && e.target.closest('.notice')) FX.flash('The data is sample. The code is real.'); });
 console.log('%cDemo', 'font:700 14px system-ui;color:#c8f03c;background:#0e0f0c;padding:3px 8px', 'Sample data, real engineering. Say hello: darian.mirelli@gmail.com');
 
+/* When embedded on the portfolio page: report that the demo rendered. The page keeps its screenshot until then. */
+addEventListener('load', () => { if (parent !== window) parent.postMessage({ showroom: 'ready' }, '*'); });
+
 'use strict';
 
 /* ── data ─────────────────────────────────────────────── */
