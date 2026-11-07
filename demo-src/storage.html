@@ -4,40 +4,184 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stockroom: purchasing for restaurant groups (demo)</title>
-<meta name="description" content="Demo: stock levels by venue, auto-drafted supplier orders for shortfalls, receiving and write-offs. Sample data shown.">
+<meta name="description" content="Demo: stock levels by venue, supplier orders from draft to receipt, stock counts, waste and food-cost reports. Sample data shown.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /*@kit.css*/
-:root[data-theme="light"] {
-  --bg: #ebecee; --surface: #ffffff; --raised: #f4f5f6; --hover: #eceef0; --border: #dcdfe3; --rule: #eceef0;
-  --text: #14171a; --muted: #565d66; --faint: #6a717b;
-  --accent: #a85f00; --accent-ink: #ffffff; --accent-bg: #fbeed7;
-  --pos: #1b7a4a; --neg: #b3302b; --warn: #8a5a0a;
-  --font: "Commissioner", system-ui, sans-serif; --display: "Commissioner", system-ui, sans-serif;
-}
-.brand-name, .head h1, .big, .kpi b { font-weight: 800; letter-spacing: -.02em; }
-.nav .count { background: var(--neg); color: #fff; }
-.pt { width: 40px; height: 40px; border-radius: 11px; flex: none; overflow: hidden; } .pt img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cell-pt { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.line .pt { width: 28px; height: 28px; border-radius: 8px; } .line > span { display: flex; align-items: center; gap: 10px; }
-.flash { animation: flash 1.4s ease-out; } @keyframes flash { from { background: var(--accent-bg); } to { background: transparent; } }
-.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--gap); }
-.chip { height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
-.chip:hover { color: var(--text); } .chip.on { background: var(--text); color: var(--surface); border-color: transparent; }
-.row-tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: var(--gap); }
-.search { flex: 1; min-width: 180px; max-width: 340px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); padding: 0 12px; outline: none; } .search:focus { border-color: var(--accent); }
-.level { display: flex; align-items: center; gap: 10px; } .level .bar { flex: 1; height: 8px; min-width: 60px; }
-.level .bar i.low { background: var(--neg); } .level .bar i.soon { background: var(--warn); } .level .bar i.ok { background: var(--pos); }
-.level b { min-width: 64px; text-align: right; font-weight: 600; }
-.draft { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; animation: pop .25s var(--ease) both; }
-.drafts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
-.draft-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; } .draft-h b { font-size: 16px; font-weight: 700; } .draft-h span { color: var(--muted); font-size: 13px; }
-.line { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; color: var(--muted); } .line b { color: var(--text); font-weight: 500; }
-.draft-f { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--rule); } .draft-f b { font-size: 18px; font-weight: 700; }
-.stars { color: var(--accent); letter-spacing: 1px; } .stars i { color: var(--border); font-style: normal; }
-@media (max-width: 899px) { .drafts { grid-template-columns: minmax(0, 1fr); } .level b { min-width: 0; } }
-.dm { display: none; } @media (max-width: 899px) { .dm { display: block; } }
+:root[data-theme="light"]{--bg:#ebecee;--surface:#ffffff;--raised:#f4f5f6;--hover:#eceef0;--border:#dcdfe3;--rule:#eceef0;--text:#14171a;--muted:#565d66;--faint:#6a717b;--accent:#a85f00;--accent-ink:#ffffff;--accent-bg:#fbeed7;--pos:#1b7a4a;--neg:#b3302b;--warn:#8a5a0a;--font:"Commissioner",system-ui,sans-serif;--display:"Commissioner",system-ui,sans-serif;--eo:cubic-bezier(.23, 1,.32, 1);--shadow:0 14px 40px rgba(20, 23, 26,.16)}
+.brand-name,.head h1,.big,.kpi b{font-weight:800;letter-spacing:-.02em}
+.nav .count{background:var(--neg);color:#fff} .nav .count.n{background:var(--raised);color:var(--muted)} .nav .count.a{background:var(--accent);color:#fff}
+.nav-label{padding:14px 10px 4px}
+.side{overflow-y:auto}
+.side-foot{flex-direction:column;align-items:stretch;gap:0}
+.vt{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border:0;border-radius:8px;background:none;color:var(--muted);cursor:pointer}
+.vt:hover{background:var(--hover);color:var(--text)}
+.ver{font-size:11px;color:var(--faint);padding:2px 10px}
+.pt{width:40px;height:40px;border-radius:11px;flex:none;overflow:hidden} .pt img{width:100%;height:100%;object-fit:cover;display:block}
+.pt.sm{width:28px;height:28px;border-radius:8px} .pt.lg{width:52px;height:52px;border-radius:13px}
+.cell-pt{display:flex;align-items:center;gap:12px;min-width:0}
+.cell-main{min-width:0} .cell-main b{overflow-wrap:anywhere} .cell-main em{font-style:normal}
+.line .pt{width:28px;height:28px;border-radius:8px} .line > span{display:flex;align-items:center;gap:10px;min-width:0}
+.level{display:flex;align-items:center;gap:10px} .level .bar{flex:1;height:8px;min-width:40px}
+.level .bar i.low{background:var(--neg)} .level .bar i.soon{background:var(--warn)} .level .bar i.ok{background:var(--pos)}
+.level b{min-width:64px;text-align:right;font-weight:600}
+.draft{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;animation:pop .25s var(--eo) both;min-width:0;display:flex;flex-direction:column}
+.drafts{display:grid;grid-template-columns:repeat(2,minmax(0, 1fr));gap:var(--gap)}
+.draft-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:4px} .draft-h b{font-size:15px;font-weight:700} .draft-h span{color:var(--muted);font-size:12px;text-align:right}
+.meta{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-bottom:6px} .meta .ic{width:14px;height:14px}
+.line{display:flex;justify-content:space-between;gap:12px;padding:5px 0;color:var(--muted)} .line b{color:var(--text);font-weight:500;white-space:nowrap}
+.draft-f{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto;padding-top:12px;border-top:1px solid var(--rule)} .draft-f > div > b{font-size:18px;font-weight:700} .draft-f small{display:block;font-size:12px}
+.bt{display:flex;gap:6px}
+.pill.acc{background:var(--accent-bg);color:var(--accent)}
+.sm{font-size:12px}
+.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm{display:none} @media (max-width:899px){.drafts{grid-template-columns:minmax(0, 1fr)} .level b{min-width:0} .dm{display:block}}
+.btn[aria-disabled="true"]{opacity:.5}
+.btn.danger{color:var(--neg)}
+.lnk{border:0;background:none;padding:0;color:var(--accent);font-weight:600;cursor:pointer;font-size:13px}
+.lnk:hover{text-decoration:underline}
+input[type=checkbox],input[type=radio]{width:16px;height:16px;accent-color:var(--accent);margin:0}
+/* top bar */
+.top{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.top .mb{display:none}
+.gs{position:relative;flex:1 1 260px;min-width:0;max-width:440px}
+.gs .ic{position:absolute;left:10px;top:9px;color:var(--faint)}
+.gs input{width:100%;height:36px;padding:0 34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);outline:none;transition:border-color .15s}
+.gs input:focus{border-color:var(--accent)}
+.gs kbd{position:absolute;right:8px;top:8px;font:600 11px var(--font);color:var(--faint);border:1px solid var(--border);border-radius:4px;padding:1px 6px}
+.top .sp{flex:1}
+.vsel,.sel2{height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);padding:0 8px;max-width:100%}
+.ib{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;cursor:pointer;position:relative;color:var(--muted);flex:none;transition:background-color .15s,color .15s}
+.ib:hover{color:var(--text);background:var(--hover)}
+.ib .dot{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--neg);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.ub{display:flex;align-items:center;gap:8px;height:36px;padding:0 8px 0 4px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;text-align:left}
+.ub:hover{background:var(--hover)}
+.ub .avatar,.uh .avatar{width:28px;height:28px;background:var(--accent-bg);color:var(--accent)}
+.ubn b{display:block;font-size:13px;line-height:1.1} .ubn small{font-size:11px;color:var(--muted)}
+.ub > .ic{width:14px;height:14px;color:var(--faint)}
+/* popovers */
+.pop{position:fixed;z-index:45;width:min(360px,calc(100vw - 24px));background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:6px;animation:pop .16s var(--eo) both;max-height:min(480px, 72svh);overflow:auto}
+.pop.gsp{width:min(440px,calc(100vw - 24px))}
+.pop.sheet{left:12px;right:12px;bottom:72px;width:auto}
+.pop-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;font-weight:600}
+.pop-l{padding:8px 10px 4px;font-size:12px;color:var(--faint)}
+.mi{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;border-radius:8px;background:none;text-align:left;cursor:pointer;color:var(--text)}
+.mi:hover,.mi:focus-visible{background:var(--hover)}
+.mi > .ic{color:var(--muted);align-self:flex-start;margin-top:1px}
+.mi > span{flex:1;min-width:0} .mi small{display:block;color:var(--muted);font-size:12px}
+.mi.unread::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
+.mi mark{background:var(--accent-bg);color:inherit;border-radius:2px}
+.sep{height:1px;background:var(--rule);margin:4px 0}
+.uh{display:flex;gap:10px;align-items:center;padding:10px} .uh .avatar{width:36px;height:36px} .uh small{display:block;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.urole{padding:0 10px 8px;font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+/* page parts */
+.back{display:inline-flex;align-items:center;gap:4px;border:0;background:none;color:var(--muted);cursor:pointer;padding:2px 0;margin-bottom:8px;font-size:13px}
+.back:hover{color:var(--text)} .back .ic{width:16px;height:16px}
+.kpis{gap:20px 44px} .kpi span em{font-style:normal;font-size:12px;margin-left:4px}
+.stack{display:flex;flex-direction:column;gap:var(--gap);min-width:0}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap} .sec-h h2{font-size:15px;font-weight:600} .sec-h span{color:var(--muted);font-size:12px}
+.dl{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--rule)} .dl:first-of-type{border-top:0;padding-top:0} .dl .cell-main{flex:1}
+.act-r{display:flex;gap:10px;width:100%;text-align:left;padding:9px 0;border:0;background:none;cursor:pointer;color:var(--text);border-top:1px solid var(--rule);font-size:13px}
+.act-r:first-of-type{border-top:0;padding-top:0}
+.bub{width:28px;height:28px;border-radius:50%;background:var(--raised);display:grid;place-items:center;flex:none;color:var(--muted)} .bub .ic{width:15px;height:15px}
+.act-r small{display:block;color:var(--muted);font-size:12px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.search{flex:1 1 220px;min-width:0;max-width:360px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);padding:0 12px;outline:none} .search:focus{border-color:var(--accent)}
+.tools .cnt{margin-left:auto;color:var(--muted);font-size:13px}
+.tabs{max-width:100%;overflow-x:auto;scrollbar-width:none} .tabs button{white-space:nowrap} .tabs em{font-style:normal;color:var(--faint);font-size:12px;margin-left:4px}
+.bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;margin-bottom:12px;border-radius:10px;background:var(--accent-bg);animation:pop .18s var(--eo) both}
+.bulk b{margin-right:4px}
+.tr.sel{background:var(--accent-bg)} .tr[data-item],.tr[data-go]{cursor:pointer}
+.cb{display:grid;place-items:center;width:28px;height:32px;cursor:pointer}
+.sh{border:0;background:none;padding:0;color:inherit;font:inherit;cursor:pointer;display:inline-flex;gap:3px;align-items:center}
+.sh:hover,.sh.on{color:var(--text)} .sh .ic{width:12px;height:12px}
+.r .sh{justify-content:flex-end}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:12px;margin-top:6px;border-top:1px solid var(--rule);flex-wrap:wrap;font-size:13px}
+.pager > div{display:flex;align-items:center;gap:8px} .pager .btn{width:32px;padding:0}
+.empty-s{text-align:center;padding:36px 12px;color:var(--muted)} .empty-s b{display:block;color:var(--text);font-size:15px;margin-bottom:4px} .empty-s .btn{margin-top:12px}
+.perm{text-align:center;padding:56px 20px} .perm .ic{width:30px;height:30px;margin:0 auto 12px;color:var(--muted)} .perm b{display:block;font-size:17px;margin-bottom:6px} .perm p{color:var(--muted);max-width:420px;margin:0 auto}
+.banner{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--raised);color:var(--muted);margin-bottom:12px;font-size:13px}
+.errbox{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:var(--neg-bg);color:var(--neg);font-size:13px} .errbox .btn{margin-top:8px}
+.okbox{display:flex;gap:10px;align-items:center;padding:12px;border-radius:10px;background:var(--pos-bg);color:var(--pos);font-size:13px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--rule)} .kv:first-child{border-top:0} .kv > span{color:var(--muted);flex:none} .kv b{font-weight:600;text-align:right;overflow-wrap:anywhere;min-width:0}
+.h3{font-size:13px;font-weight:600;margin:20px 0 8px;display:flex;justify-content:space-between;gap:8px}
+.spark{width:100%;height:56px;display:block} .spark.mini{height:22px;width:72px}
+.spark .l{fill:none;stroke:var(--accent);stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round} .spark .a{fill:var(--accent);opacity:.1}
+.sk{background:linear-gradient(90deg,var(--raised) 25%,var(--hover) 50%,var(--raised) 75%);background-size:200% 100%;animation:sk 1.1s linear infinite;border-radius:6px;height:14px}
+@keyframes sk{to{background-position:-200% 0}}
+.score{display:inline-flex;align-items:center;gap:8px} .score .bar{width:56px} .score .bar i{background:var(--pos)} .score.mid .bar i{background:var(--warn)}
+/* drawer */
+.dscrim{position:fixed;inset:0;background:rgba(20, 23, 26,.36);z-index:35;animation:fade .2s both}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px, 100vw);background:var(--surface);z-index:36;border-left:1px solid var(--border);display:flex;flex-direction:column;animation:din .3s var(--eo) both;box-shadow:var(--shadow)}
+@keyframes din{from{transform:translateX(40px);opacity:0}}
+.dh{display:flex;gap:12px;align-items:flex-start;padding:18px 20px;border-bottom:1px solid var(--rule)} .dh h2{font-size:18px;letter-spacing:-.01em} .dh .cell-main{flex:1}
+.db{padding:18px 20px;overflow:auto;flex:1} .df{padding:12px 20px;border-top:1px solid var(--rule);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px, 1fr));gap:10px}
+.vbox{border:1px solid var(--border);border-radius:10px;padding:12px} .vb-h{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px;font-size:13px}
+.big2{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.kvl{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);cursor:pointer;text-align:left} .kvl:hover{background:var(--hover)} .kvl small{display:block;color:var(--muted);font-size:12px}
+.mv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--rule);font-size:13px} .mv small{display:block;color:var(--muted);font-size:12px} .mv > b{white-space:nowrap}
+/* forms */
+.modal.wide{max-width:640px}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0, 1fr));gap:0 12px} .fgrid.g3{grid-template-columns:repeat(3,minmax(0, 1fr))}
+.field.bad input,.field.bad select,.field.bad textarea{border-color:var(--neg)}
+.ferr{color:var(--neg);font-size:12px} .hint{color:var(--muted);font-size:12px}
+.vrow{display:grid;grid-template-columns:minmax(0, 1.4fr) 1fr 1fr;gap:12px;align-items:start} .vrow .chk{margin-top:30px}
+.chk{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.ni{width:100%;min-width:0;height:32px;border:1px solid var(--border);border-radius:6px;padding:0 8px;text-align:right;background:var(--bg);outline:none}
+.ni:focus{border-color:var(--accent)} .ni.bad{border-color:var(--neg);background:var(--neg-bg)} .ni:disabled{opacity:.7}
+select.ni{text-align:left;padding:0 4px}
+.tr.chg{box-shadow:inset 3px 0 0 var(--accent)}
+.savebar{position:sticky;bottom:12px;z-index:5;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;margin-top:12px;border-radius:12px;background:var(--text);color:var(--surface);box-shadow:var(--shadow);animation:pop .2s var(--eo) both}
+.savebar span{flex:1;min-width:140px} .savebar .btn{background:transparent;color:var(--surface);border-color:rgba(255, 255, 255,.3)} .savebar .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+.prog{display:flex;align-items:center;gap:12px;flex-wrap:wrap} .prog .bar{flex:1;min-width:120px;height:8px}
+/* PO document */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0, 1fr));gap:8px;margin-bottom:var(--gap)}
+.step{border-top:3px solid var(--border);padding-top:8px;font-size:13px;min-width:0} .step.done{border-color:var(--accent)} .step b{display:block} .step span{font-size:12px;color:var(--muted);display:block}
+.doc{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:32px}
+.doc-h{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:18px;border-bottom:2px solid var(--text);margin-bottom:18px}
+.doc-h .brand{padding:0} .doc-t{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.doc-g{display:grid;grid-template-columns:repeat(3,minmax(0, 1fr));gap:16px;margin-bottom:20px;font-size:13px}
+.doc-g small{display:block;color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-top:6px} .doc-g small:first-child{margin-top:0}
+.doc-g b,.doc-g span{display:block;overflow-wrap:anywhere} .doc-g span{color:var(--muted)}
+.doc table{width:100%;border-collapse:collapse;font-size:13px}
+.doc th{text-align:left;font-weight:600;color:var(--faint);font-size:12px;padding:8px 6px;border-bottom:1px solid var(--border)}
+.doc td{padding:9px 6px;border-bottom:1px solid var(--rule);vertical-align:middle} .doc .r{text-align:right} .doc tfoot td{border:0;font-size:15px;padding-top:12px}
+.doc td .ni{width:76px;display:inline-block}
+.doc-n{color:var(--muted);font-size:12px;margin-top:18px}
+.doc-x{margin-top:18px;padding:14px;border-radius:10px;background:var(--raised);font-size:13px}
+.addl{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center} .addl select{flex:1 1 200px} .addl .ni{width:90px}
+/* sign in */
+.signin{min-height:calc(100svh - 29px);display:grid;place-items:center;padding:24px 16px}
+.sbox{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;box-shadow:0 1px 2px rgba(0, 0, 0,.04)}
+.sbox h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-top:18px} .sbox .brand{padding:0}
+.roles{display:grid;grid-template-columns:repeat(3,minmax(0, 1fr));gap:8px;margin:16px 0 18px;border:0;padding:0} .roles legend{font-size:13px;color:var(--muted);margin-bottom:6px;padding:0}
+.role{position:relative;border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;font-size:12px;transition:border-color .15s,background-color .15s;min-width:0}
+.role b{display:block;font-size:14px} .role span{color:var(--muted)} .role.on{border-color:var(--accent);background:var(--accent-bg)}
+.role input{position:absolute;opacity:0} .role:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px;font-size:13px;flex-wrap:wrap}
+.btn.wide{width:100%;height:40px}
+.sfoot{text-align:center;color:var(--faint);font-size:12px;margin-top:16px}
+#smsg:not(:empty){margin-bottom:12px;padding:10px 12px;border-radius:8px;background:var(--raised);font-size:13px;color:var(--muted)}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255, 255, 255,.4);border-top-color:#fff;animation:rot .7s linear infinite} @keyframes rot{to{transform:rotate(360deg)}}
+body.out .app,body.out .tabbar{display:none}
+/* undo toast */
+.ut{position:fixed;left:50%;bottom:28px;z-index:61;display:flex;align-items:center;gap:14px;max-width:calc(100vw - 32px);padding:8px 8px 8px 16px;border-radius:10px;background:var(--text);color:var(--surface);font-weight:500;box-shadow:var(--shadow);transform:translate(-50%, 16px);opacity:0;pointer-events:none;transition:opacity .2s,transform .25s var(--eo)}
+.ut.show{opacity:1;transform:translate(-50%, 0);pointer-events:auto}
+.ut button{border:0;background:rgba(255, 255, 255,.14);color:inherit;font-weight:700;height:30px;padding:0 12px;border-radius:7px;cursor:pointer}
+@media (max-width:1100px){.doc-g{grid-template-columns:repeat(2,minmax(0, 1fr))}}
+@media (max-width:899px){.top{gap:8px;margin-bottom:16px} .top .mb{display:grid} .top .sp,.ubn,.ub > .ic,.gs kbd{display:none}
+  .gs{flex:1 1 0} .vsel{order:9;width:100%}
+  .ub{padding:0 4px}
+  .toast,.ut{bottom:84px} .savebar{bottom:76px}
+  .doc{padding:18px} .steps{gap:4px} .step{font-size:12px}
+  .fgrid.g3{grid-template-columns:repeat(2,minmax(0, 1fr))}
+  .tools .cnt{margin-left:0;width:100%}}
+@media (max-width:560px){.fgrid,.fgrid.g3,.doc-g{grid-template-columns:minmax(0, 1fr)} .roles{grid-template-columns:minmax(0, 1fr)} .vrow{grid-template-columns:1fr 1fr} .vrow .chk{grid-column:1 / -1;margin-top:0;margin-bottom:8px} .sbox{padding:22px 18px}}
+@media print{body{background:#fff} .notice,.side,.tabbar,.top,.back,.head,.steps,.ut,.toast{display:none !important}
+  .app{display:block} .main{padding:0} .doc{border:0;padding:0} .noprint{display:none !important}}
+@media (prefers-reduced-motion:reduce){.sk{animation:none}}
 </style>
 </head>
 <body>
@@ -46,176 +190,967 @@
   <aside class="side">
     <div class="brand">
       <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/></svg></div>
-      <div><div class="brand-name">Stockroom</div><div class="brand-sub">Two venues, one ledger</div></div>
+      <div><div class="brand-name">Stockroom</div><div class="brand-sub">Donau &amp; Isar Gastro</div></div>
     </div>
-    <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">LH</div><div class="who"><b>Lena Hofmann</b><span>Buyer</span></div></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="side-foot"><button class="vt" data-act="help" type="button"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9.5a2.5 2.5 0 114 2c-1 .6-1.5 1.1-1.5 2.2M12 17h.01"/></svg><span>Help &amp; support</span></button><span class="ver">Stockroom 4.12.1</span></div>
   </aside>
-  <main class="main" id="main"></main>
+  <main class="main" id="main"><div class="top" id="top"></div><div id="view"></div></main>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
 /*@kit.js*/
 'use strict';
+Object.assign(ICONS, {
+  help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9.5a2.5 2.5 0 114 2c-1 .6-1.5 1.1-1.5 2.2M12 17h.01',
+  out: 'M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10', dl: 'M12 4v11M7 10l5 5 5-5M5 20h14',
+  print: 'M7 8V3h10v5M7 17H4v-7h16v7h-3M7 14h10v7H7z', left: 'M15 6l-6 6 6 6', right: 'M9 6l6 6-6 6',
+});
 
-/* ── data ─────────────────────────────────────────────── */
-const tg = (n) => '€' + fmtD(n, 2);
-const TODAY = '28.09.2026';
+/* seeded sample data (deterministic) */
+let sd = 20261105;
+const rnd = () => { sd = sd + 0x6D2B79F5 | 0; let t = Math.imul(sd ^ sd >>> 15, 1 | sd); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1)), pick = (a) => a[Math.floor(rnd() * a.length)];
+const r1 = (n) => Math.round(n * 10) / 10, r2 = (n) => Math.round(n * 100) / 100;
+const DAY = 864e5, TI = 52; /* calendar day 0 = Mon 14 Sep 2026 (W38); today = Thu 5 Nov 2026 */
+const dAt = (n, h = 0, m = 0) => new Date(2026, 8, 14 + n, h, m);
+const NOW0 = +dAt(TI, 9, 42), T0 = performance.now();
+const now = () => new Date(NOW0 + performance.now() - T0);
+const dIdx = (d) => Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(2026, 8, 14)) / DAY);
+const wkOf = (d) => Math.floor(dIdx(d) / 7), dayDiff = (d) => dIdx(d) - TI;
+const DF = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const DS = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
+const WD = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+const TF = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
+const RT = new Intl.RelativeTimeFormat('en-GB', { numeric: 'auto' });
+function rel(d) { const s = (d - now()) / 1000, a = Math.abs(s); if (a < 60) return 'just now'; if (a < 3600) return RT.format(Math.round(s / 60), 'minute'); if (a < 86400) return RT.format(Math.round(s / 3600), 'hour'); if (a < 7 * 86400) return RT.format(Math.round(s / 86400), 'day'); return DF.format(d); }
+const dayRel = (d) => { const n = dayDiff(d); return n === 0 ? 'today' : n === 1 ? 'tomorrow' : n === -1 ? 'yesterday' : WD.format(d); };
+const eur = (n) => (n < -.004 ? MINUS : '') + '€' + fmtD(Math.abs(n), 2), eur0 = (n) => (n < -.5 ? MINUS : '') + '€' + fmt(Math.abs(n));
+const NQ = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 1 });
+const fq = (n, u) => NQ.format(n) + (u ? ' ' + u : '');
+const pl = (n, s, p = s + 's') => `${fmt(n)} ${n === 1 ? s : p}`;
+const pc = (x, d = 1) => fmtD(x * 100, d) + '%';
+const sPct = (x) => (x > .0005 ? '+' : x < -.0005 ? MINUS : '') + fmtD(Math.abs(x) * 100, 1) + '%';
+const num = (s) => { s = String(s).trim().replace(',', '.'); return /^-?\d*\.?\d+$/.test(s) ? +s : NaN; };
+
+const VS = ['center', 'north'];
 const VEN = { center: 'Café Central Wien', north: 'Bistro Isar' };
+const VADDR = { center: 'Kärntner Ring 21, 1010 Wien', north: 'Rosenheimer Straße 52, 81669 München' };
+const STAFF = { center: ['Matthias Gruber', 'Anna Leitner'], north: ['Jonas Weber', 'Miriam Koch'] };
+const USERS = {
+  buyer: { n: 'Lena Hofmann', t: 'Buyer', e: 'lena.hofmann@donauisar.example', ini: 'LH', d: 'Orders, suppliers and reorder rules' },
+  chef: { n: 'Matthias Gruber', t: 'Chef', e: 'matthias.gruber@donauisar.example', ini: 'MG', d: 'Receiving, stock counts and waste' },
+  manager: { n: 'Katharina Brandl', t: 'Manager', e: 'katharina.brandl@donauisar.example', ini: 'KB', d: 'Full access, including approvals' },
+};
+const PERM = { send: ['buyer manager', 'Only Buyers and Managers can send orders'], rules: ['buyer manager', 'Only Buyers and Managers can change reorder rules'], approve: ['manager', 'Only Managers can approve stock counts'], reports: ['buyer manager', 'Only Buyers and Managers can open reports'], edit: ['buyer manager', 'Only Buyers and Managers can edit products and suppliers'] };
+let authed = true, role = 'buyer';
+const me = () => USERS[role], can = (p) => PERM[p][0].includes(role);
+const lock = (p) => can(p) ? '' : `aria-disabled="true" data-lock="${p}"`;
+
 const SUP = [
-  { id: 1, n: 'Alpenfleisch GmbH', who: 'Huber K.', tel: '+43 1 512 34 56', r: 5 },
-  { id: 2, n: 'Molkerei Isartal GmbH', who: 'Bauer P.', tel: '+49 89 234 56 78', r: 5 },
-  { id: 3, n: 'Gemüsehof Marchfeld GmbH', who: 'Wagner M.', tel: '+43 2282 456 78', r: 3 },
-  { id: 4, n: 'Getreide Süd GmbH', who: 'Fischer D.', tel: '+49 89 567 89 01', r: 4 },
-  { id: 5, n: 'GastroBedarf Wien GmbH', who: 'Moser L.', tel: '+43 1 678 90 12', r: 4 },
-  { id: 6, n: 'Getränke Bayern GmbH', who: 'Schmid K.', tel: '+49 89 890 12 34', r: 5 },
+  { id: 1, n: 'Alpenfleisch GmbH', city: 'Vienna', addr: 'Simmeringer Hauptstraße 210, 1110 Wien', lead: 1, fr: [1, 4], cut: '14:00', mov: 150, terms: '14 days net', base: .97, c: [['Katrin Huber', 'Key account manager', '+43 1 512 34 56', 'k.huber@alpenfleisch.example'], ['Florian Eder', 'Dispatch', '+43 1 512 34 60', 'dispatch@alpenfleisch.example']] },
+  { id: 2, n: 'Molkerei Isartal GmbH', city: 'Munich', addr: 'Am Moosfeld 18, 81829 München', lead: 1, fr: [1, 3], cut: '16:00', mov: 80, terms: '30 days net', base: .95, c: [['Peter Bauer', 'Sales', '+49 89 234 56 78', 'p.bauer@molkerei-isartal.example'], ['Sabine Lechner', 'Customer service', '+49 89 234 56 70', 'service@molkerei-isartal.example']] },
+  { id: 3, n: 'Gemüsehof Marchfeld GmbH', city: 'Vienna', addr: 'Hauptstraße 41, 2301 Groß-Enzersdorf', lead: 1, fr: [0, 2, 4], cut: '12:00', mov: 60, terms: '14 days net', base: .84, c: [['Martin Wagner', 'Owner', '+43 2249 456 78', 'm.wagner@marchfeld-gemuese.example']] },
+  { id: 4, n: 'Getreide Süd GmbH', city: 'Munich', addr: 'Landsberger Straße 300, 80687 München', lead: 2, fr: [2], cut: '12:00', mov: 120, terms: '30 days net', base: .92, c: [['Daniel Fischer', 'Sales', '+49 89 567 89 01', 'd.fischer@getreide-sued.example']] },
+  { id: 5, n: 'GastroBedarf Wien GmbH', city: 'Vienna', addr: 'Laxenburger Straße 365, 1230 Wien', lead: 2, fr: [2], cut: '15:00', mov: 100, terms: '30 days net', base: .88, sync: 1, c: [['Lukas Moser', 'Account manager', '+43 1 678 90 12', 'l.moser@gastrobedarf.example'], ['Eva Pichler', 'Accounts', '+43 1 678 90 20', 'accounts@gastrobedarf.example']] },
+  { id: 6, n: 'Getränke Bayern GmbH', city: 'Munich', addr: 'Frankfurter Ring 90, 80807 München', lead: 2, fr: [2], cut: '11:00', mov: 200, terms: '21 days net', base: .96, c: [['Klaus Schmid', 'Area manager', '+49 89 890 12 34', 'k.schmid@getraenke-bayern.example']] },
+  { id: 7, n: 'Kaffeerösterei Wieden GmbH', city: 'Vienna', addr: 'Wiedner Hauptstraße 88, 1050 Wien', lead: 3, fr: [3], every: 2, cut: '10:00', mov: 90, terms: '14 days net', base: .9, c: [['Julia Steiner', 'Wholesale', '+43 1 586 22 10', 'wholesale@roesterei-wieden.example']] },
+  { id: 8, n: 'Bäckerei Kornfeld KG', city: 'Vienna', addr: 'Brunner Straße 20, 1230 Wien', lead: 1, fr: [1, 3, 5], cut: '18:00', mov: 40, terms: '7 days net', base: .93, reg: 'center', c: [['Thomas Kern', 'Bakery manager', '+43 1 869 45 12', 'orders@kornfeld.example']] },
 ];
-/* qty / min per venue; null = the venue does not stock the item */
-const ITEMS = [
-  { id: 1,  n: 'Beef',         cat: 'Meat',     u: 'kg', px: 14.5, s: 1, qty: { center: null, north: 10 }, min: { center: null, north: 15 } },
-  { id: 2,  n: 'Whole milk 3.5%',      cat: 'Dairy', u: 'L',  px: 0.95,  s: 2, qty: { center: 40, north: 22 },   min: { center: 30, north: 20 } },
-  { id: 3,  n: 'Potatoes',        cat: 'Vegetables',    u: 'kg', px: 0.8,  s: 3, qty: { center: null, north: 8 },  min: { center: null, north: 15 } },
-  { id: 4,  n: 'Cream 33%',       cat: 'Dairy', u: 'L',  px: 4.2, s: 2, qty: { center: 6, north: 5 },     min: { center: 8, north: 10 } },
-  { id: 5,  n: 'Chicken fillet',     cat: 'Meat',     u: 'kg', px: 7.9, s: 1, qty: { center: 3, north: 22 },    min: { center: 3, north: 12 } },
-  { id: 6,  n: 'Butter',  cat: 'Dairy', u: 'kg', px: 8.4, s: 2, qty: { center: 2, north: 3 },     min: { center: 2, north: 4 } },
-  { id: 7,  n: 'Onions',     cat: 'Vegetables',    u: 'kg', px: 0.9,  s: 3, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
-  { id: 8,  n: 'Carrots',          cat: 'Vegetables',    u: 'kg', px: 0.95,  s: 3, qty: { center: null, north: 15 }, min: { center: null, north: 10 } },
-  { id: 9,  n: 'Long-grain rice', cat: 'Grains',    u: 'kg', px: 2.6,  s: 4, qty: { center: null, north: 24 }, min: { center: null, north: 15 } },
-  { id: 10, n: 'Pearl barley', cat: 'Grains',    u: 'kg', px: 1.9,  s: 4, qty: { center: null, north: 5 },  min: { center: null, north: 8 } },
-  { id: 11, n: 'Tomato ketchup', cat: 'Sauces',    u: 'pcs', px: 2.4,  s: 5, qty: { center: null, north: 18 }, min: { center: null, north: 10 } },
-  { id: 12, n: 'Barbecue sauce', cat: 'Sauces',    u: 'pcs', px: 3.1,  s: 5, qty: { center: 4, north: 8 },     min: { center: 3, north: 6 } },
-  { id: 13, n: 'Mineral water', cat: 'Drinks',  u: 'pcs', px: 0.35,  s: 6, qty: { center: 60, north: 60 },   min: { center: 40, north: 50 } },
-  { id: 14, n: 'Still water', cat: 'Drinks',  u: 'L',  px: 0.8,  s: 6, qty: { center: 8, north: 10 },    min: { center: 6, north: 10 } },
-  { id: 15, n: 'Pork neck',   cat: 'Meat',     u: 'kg', px: 8.6, s: 1, qty: { center: null, north: 14 }, min: { center: null, north: 12 } },
-];
-/* every order is lines; totals, "in transit" and supplier spend all derive from them */
-let PO = [
-  { id: 2038, s: 1, v: 'north',  date: '20.09.2026', st: 'received', lines: [[1, 20], [15, 14], [5, 10]] },
-  { id: 2039, s: 2, v: 'center', date: '22.09.2026', st: 'received', lines: [[2, 40], [4, 10], [6, 4]] },
-  { id: 2040, s: 6, v: 'north',  date: '24.09.2026', st: 'received', lines: [[13, 60], [14, 12]] },
-  { id: 2041, s: 3, v: 'north',  date: '27.09.2026', st: 'ordered',  lines: [[7, 20], [8, 10]] },
-  { id: 2042, s: 5, v: 'center', date: '27.09.2026', st: 'ordered',  lines: [[12, 6]] },
-  { id: 2037, s: 4, v: 'north',  date: '15.09.2026', st: 'cancelled', lines: [[9, 25]] },
-];
-const item = (id) => ITEMS.find((i) => i.id === id), sup = (id) => SUP.find((s) => s.id === id);
-const poTotal = (o) => o.lines.reduce((a, [i, q]) => a + item(i).px * q, 0);
-const stocked = (i, v) => (v === 'all' ? ['center', 'north'].some((x) => i.qty[x] !== null) : i.qty[v] !== null);
-const qtyOf = (i, v) => v === 'all' ? ['center', 'north'].reduce((a, x) => a + (i.qty[x] || 0), 0) : i.qty[v] || 0;
-const minOf = (i, v) => v === 'all' ? ['center', 'north'].reduce((a, x) => a + (i.min[x] || 0), 0) : i.min[v] || 0;
-const incoming = (id, v) => PO.filter((o) => o.st === 'ordered' && o.v === v).reduce((a, o) => a + o.lines.filter(([i]) => i === id).reduce((b, [, q]) => b + q, 0), 0);
-const incomingAll = (id) => incoming(id, 'center') + incoming(id, 'north');
-const state = (i, v) => { const q = qtyOf(i, v), m = minOf(i, v); return q < m ? 'low' : q < m * 1.3 ? 'soon' : 'ok'; };
-const value = (v) => ITEMS.filter((i) => stocked(i, v)).reduce((a, i) => a + qtyOf(i, v) * i.px, 0);
-const lowLines = () => ['center', 'north'].flatMap((v) => ITEMS.filter((i) => i.qty[v] !== null && i.qty[v] < i.min[v]).map((i) => ({ i, v })));
-/* what to buy: refill to twice the minimum, minus what is already on its way */
-const needQty = (i, v) => Math.max(0, i.min[v] * 2 - i.qty[v] - incoming(i.id, v));
-function drafts() {
-  const map = {};
-  lowLines().forEach(({ i, v }) => { const q = needQty(i, v); if (q > 0) (map[i.s + v] ||= { s: i.s, v, lines: [] }).lines.push([i.id, q]); });
-  return Object.values(map).sort((a, b) => a.s - b.s || a.v.localeCompare(b.v));
+const sup = (id) => SUP.find((s) => s.id === id);
+const CATALOG = {
+  Meat: [['Beef tenderloin', 'kg', 42.5, 1], ['Beef chuck, diced', 'kg', 14.5, 1], ['Veal escalope', 'kg', 34.9, 1], ['Pork neck', 'kg', 8.6, 1], ['Pork belly', 'kg', 9.2, 1], ['Chicken fillet', 'kg', 7.9, 1], ['Whole chicken', 'kg', 5.4, 1], ['Smoked bacon', 'kg', 11.8, 1], ['Weisswurst', 'kg', 12.4, 1], ['Leberkäse', 'kg', 9.9, 1]],
+  Dairy: [['Whole milk 3.5%', 'L', .95, 2], ['Cream 33%', 'L', 4.2, 2], ['Butter', 'kg', 8.4, 2], ['Crème fraîche', 'kg', 5.6, 2], ['Bergkäse', 'kg', 18.9, 2], ['Emmental', 'kg', 13.2, 2], ['Mozzarella', 'kg', 9.8, 2], ['Free-range eggs', 'pcs', .32, 2], ['Quark 20%', 'kg', 3.1, 2], ['Sour cream', 'kg', 3.4, 2]],
+  Vegetables: [['Waxy potatoes', 'kg', .8, 3], ['Onions', 'kg', .9, 3], ['Carrots', 'kg', .95, 3], ['Red cabbage', 'kg', 1.1, 3], ['Leeks', 'kg', 2.2, 3], ['Vine tomatoes', 'kg', 2.9, 3], ['Cucumbers', 'pcs', .69, 3], ['Butterhead lettuce', 'pcs', 1.15, 3], ['Lemons', 'kg', 2.6, 3], ['Flat-leaf parsley', 'pcs', .9, 3], ['Button mushrooms', 'kg', 4.8, 3], ['Garlic', 'kg', 6.5, 3]],
+  Grains: [['Wheat flour T480', 'kg', .85, 4], ['Long-grain rice', 'kg', 2.6, 4], ['Pearl barley', 'kg', 1.9, 4], ['Spätzle, dried', 'kg', 3.4, 4], ['Breadcrumbs', 'kg', 2.1, 4], ['Semolina', 'kg', 1.6, 4], ['Kaiser rolls', 'pcs', .38, 8], ['Soft pretzels', 'pcs', .55, 8], ['Rye bread', 'kg', 3.9, 8]],
+  Sauces: [['Tomato ketchup', 'pcs', 2.4, 5], ['Barbecue sauce', 'pcs', 3.1, 5], ['Dijon mustard', 'kg', 6.2, 5], ['Sweet mustard', 'kg', 4.4, 5], ['Sunflower oil', 'L', 2.3, 5], ['Rapeseed oil', 'L', 2.6, 5], ['White wine vinegar', 'L', 1.9, 5], ['Pumpkin seed oil', 'L', 18.5, 5], ['Veal stock concentrate', 'kg', 16.4, 5], ['Mayonnaise', 'kg', 4.9, 5]],
+  Drinks: [['Sparkling water 0.75 L', 'pcs', .35, 6], ['Still water', 'L', .8, 6], ['Apple juice', 'L', 1.45, 6], ['Herbal lemonade 0.35 L', 'pcs', .62, 6], ['Helles, 30 L keg', 'keg', 78, 6], ['Wheat beer 0.5 L', 'pcs', .92, 6], ['Grüner Veltliner 0.75 L', 'pcs', 6.9, 6], ['Espresso beans', 'kg', 21.5, 7], ['Filter coffee', 'kg', 16.8, 7], ['Black tea, 100 bags', 'pack', 7.4, 7]],
+};
+const CATS = Object.keys(CATALOG), UNITS = ['kg', 'L', 'pcs', 'pack', 'keg'];
+const CODE = { Meat: 'MT', Dairy: 'DY', Vegetables: 'VG', Grains: 'GR', Sauces: 'SC', Drinks: 'BV' };
+const CHILL = ['Meat', 'Dairy'];
+const ITEMS = [], BY = {};
+const isInt = (i) => i.u !== 'kg' && i.u !== 'L';
+const rq = (i, n) => isInt(i) ? Math.round(n) : r1(n);
+CATS.forEach((cat) => CATALOG[cat].forEach(([n, u, px, s]) => {
+  const id = ITEMS.length + 1, sp = sup(s), only = sp.reg || (rnd() < .68 ? null : rnd() < .5 ? 'center' : 'north');
+  const i = { id, n, cat, u, s, px, sku: `${CODE[cat]}-${4000 + id * 17}`, q: {}, min: {}, par: {}, use: { center: 0, north: 0 }, ph: [px] };
+  VS.forEach((v) => {
+    if (only && only !== v) { i.q[v] = i.min[v] = i.par[v] = null; return; }
+    const b = u === 'keg' ? ri(2, 4) : u === 'pack' ? ri(3, 6) : u === 'pcs' ? ri(3, 12) * 10 : px > 15 ? ri(3, 8) : ri(8, 30);
+    i.min[v] = b; i.par[v] = Math.round(b * (1.9 + rnd() * .5));
+    i.q[v] = rq(i, b * (rnd() < .15 ? .3 + rnd() * .6 : 1.05 + rnd() * 1.1));
+  });
+  let p = px; for (let k = 0; k < 11; k++) { p = r2(p / (1 + (rnd() - .42) * .05)); i.ph.unshift(p); }
+  ITEMS.push(i); BY[id] = i;
+}));
+const butter = ITEMS.find((i) => i.n === 'Butter'); butter.ph[10] = r2(butter.px / 1.038);
+
+/* purchase orders: every delivery slot of the last 8 weeks, then the open ones */
+const RAW = [];
+for (let w = 0; w < 8; w++) SUP.forEach((s) => VS.forEach((v) => {
+  if (s.every && w % 2) return;
+  const its = ITEMS.filter((i) => i.s === s.id && i.q[v] !== null); if (!its.length) return;
+  s.fr.forEach((dow) => { const di = w * 7 + dow; if (di <= TI + 1) RAW.push({ s, v, di, its }); });
+}));
+RAW.sort((a, b) => a.di - b.di || a.s.id - b.s.id || a.v.localeCompare(b.v));
+let poSeq = 4001;
+const PO = RAW.map(({ s, v, di, its }) => {
+  const per = s.fr.length / (s.every || 1), B = 'Lena Hofmann';
+  let ls = its.filter(() => rnd() < .78); if (!ls.length) ls = [its[0]];
+  const lines = ls.map((i) => ({ i: i.id, q: Math.max(1, Math.round(i.min[v] * 1.15 / per * (.8 + rnd() * .5))), px: i.ph[Math.min(11, Math.floor(di / 7) + 4)] }));
+  let created = dAt(di - s.lead, ri(12, 17), ri(0, 59)); if (+created > NOW0) created = dAt(TI, 7, ri(5, 40));
+  const o = { id: poSeq++, s: s.id, v, st: 'received', created, expected: dAt(di, 8), lines, log: [['draft', new Date(+created - ri(10, 90) * 6e4), B], ['sent', created, B]] };
+  const conf = new Date(Math.min(+created + ri(40, 180) * 6e4, NOW0 - 6e5));
+  if (di > TI || (di === TI && s.id !== 8) || (di === TI - 1 && s.id === 4 && v === 'north')) {
+    o.st = di === TI - 1 || (di === TI + 1 && rnd() < .4) ? 'sent' : 'confirmed';
+    if (o.st === 'confirmed') o.log.push(['confirmed', conf, s.c[0][0]]);
+    return o;
+  }
+  if (rnd() < .025) { o.st = 'cancelled'; o.log.push(['cancelled', conf, B]); return o; }
+  o.log.push(['confirmed', conf, s.c[0][0]]);
+  const on = rnd() < s.base, at = di === TI ? dAt(TI, 6, ri(30, 55)) : dAt(di, on ? ri(6, 9) : ri(11, 14), ri(0, 59));
+  const short = rnd() < .1 ? ri(0, lines.length - 1) : -1;
+  o.onTime = on || di === TI;
+  o.rcv = { at, note: 'LS-' + ri(10000, 99999), by: pick(STAFF[v]), temp: lines.some((l) => CHILL.includes(BY[l.i].cat)) ? r1(2.5 + rnd() * 4) : null, credit: 0,
+    lines: lines.map((l, k) => { const d = k === short ? Math.max(0, Math.round(l.q * (.5 + rnd() * .3))) : l.q; return { i: l.i, ord: l.q, dlv: d, acc: d, px: l.px, npx: l.px, iss: k === short ? [`Short ${fq(l.q - d, BY[l.i].u)}`] : [] }; }) };
+  o.log.push(['received', at, o.rcv.by]);
+  return o;
+});
+{ const its = ITEMS.filter((i) => i.s === 5 && i.q.center !== null).slice(0, 3), c = dAt(TI - 1, 16, 12);
+  PO.push({ id: poSeq++, s: 5, v: 'center', st: 'draft', created: c, expected: dAt(TI + 6, 8), lines: its.map((i) => ({ i: i.id, q: Math.max(1, Math.round(i.par.center * .5)), px: i.px })), log: [['draft', c, 'Lena Hofmann']] }); }
+PO.forEach((o) => { if (o.rcv && dayDiff(o.rcv.at) > -50) o.rcv.lines.forEach((l) => { if (dIdx(o.rcv.at) < 49) BY[l.i].use[o.v] += l.acc / 49; }); });
+
+/* weekly consumption and revenue, calibrated against what was actually received */
+const CONS = {}, REV = {};
+VS.forEach((v) => {
+  const P = [...Array(8)].map(() => Object.fromEntries(CATS.map((c) => [c, 0])));
+  PO.forEach((o) => { if (o.rcv && o.v === v) o.rcv.lines.forEach((l) => { P[wkOf(o.rcv.at)][BY[l.i].cat] += l.acc * l.px; }); });
+  CONS[v] = []; REV[v] = [];
+  for (let w = 0; w < 8; w++) {
+    const f = w === 7 ? 3.4 / 7 : 1, row = {}; let tot = 0;
+    CATS.forEach((c) => { const avg = P.slice(1, 7).reduce((a, x) => a + x[c], 0) / 6; row[c] = r2(avg * f * (.9 + rnd() * .2)); tot += row[c]; });
+    CONS[v].push(row); REV[v].push(Math.round(tot / (.275 + rnd() * .05)));
+  }
+});
+
+const REASONS = ['Expired', 'Spoiled', 'Overproduction', 'Damaged in delivery', 'Prep trim', 'Returned by guest', 'Other'];
+const OTHER = ['Freezer alarm overnight', 'Dropped during service', 'Allergen cross-contact', 'Staff meal over allowance'];
+const WASTE = [];
+for (let k = 0; k < 70; k++) {
+  const v = rnd() < .55 ? 'center' : 'north', i = pick(ITEMS.filter((x) => x.q[v] !== null && x.u !== 'keg')), di = ri(0, TI);
+  let r = rnd() * 19, x = 0; const RW = [5, 5, 3, 1, 3, 1, 1]; while ((r -= RW[x]) > 0) x++;
+  const q = isInt(i) ? ri(1, 8) : r1(.3 + rnd() * 2.4);
+  WASTE.push({ id: k + 1, i: i.id, v, q, val: r2(q * i.ph[Math.min(11, Math.floor(di / 7) + 4)]), reason: REASONS[x], note: x === 6 ? pick(OTHER) : '', by: pick(STAFF[v]), at: di === TI ? dAt(TI, 7, ri(0, 59)) : dAt(di, ri(15, 22), ri(0, 59)) });
 }
-console.assert(lowLines().length === 6 && drafts().length === 5 && Math.abs(drafts().reduce((a, d) => a + poTotal(d), 0) - 475.5) < 0.01, 'drafts');
+WASTE.sort((a, b) => b.at - a.at);
 
+const COUNTS = [];
+[6, 13, 20, 27, 34, 41, 48].forEach((d, k) => {
+  const v = k % 2 ? 'center' : 'north';
+  COUNTS.unshift({ id: 'SC-' + (31 + k), v, scope: 'Full count', by: STAFF[v][0], appr: 'Katharina Brandl', started: dAt(d, 21, ri(0, 20)), done: dAt(d + 1, 8, ri(0, 59)),
+    lines: ITEMS.filter((i) => i.q[v] !== null).map((i) => { const e = rq(i, i.min[v] * (.8 + rnd() * 1.2)); return { i: i.id, exp: e, cnt: rnd() < .2 ? rq(i, e * (.85 + rnd() * .2)) : e }; }) });
+});
+const NEXTCOUNT = COUNTS[0].v === 'north' ? 'center' : 'north';
 
-/* product photos (CC0, see demos/CREDITS.md), one per category */
-const PT = { 'Meat': 'meat', 'Dairy': 'dairy', 'Vegetables': 'veg', 'Grains': 'grain', 'Sauces': 'sauce', 'Drinks': 'drink' };
+/* derived numbers: every screen reads these, nothing is stored twice */
+let venue = 'all';
+const vs = (v) => v === 'all' ? VS : [v];
+const inV = (v) => venue === 'all' || v === venue;
+const has = (i, v) => vs(v).some((x) => i.q[x] !== null);
+const sumV = (o, v) => vs(v).reduce((a, x) => a + (o[x] || 0), 0);
+const qOf = (i, v) => sumV(i.q, v), minOf = (i, v) => sumV(i.min, v), parOf = (i, v) => sumV(i.par, v);
+const OPEN = ['draft', 'sent', 'confirmed'];
+const incoming = (id, v) => PO.reduce((a, o) => OPEN.includes(o.st) && vs(v).includes(o.v) ? a + o.lines.reduce((b, l) => b + (l.i === id ? l.q : 0), 0) : a, 0);
+const stat1 = (i, x) => i.q[x] === null ? null : i.q[x] < i.min[x] ? 'low' : i.q[x] < i.min[x] * 1.25 ? 'soon' : 'ok';
+const stat = (i, v) => { const s = vs(v).map((x) => stat1(i, x)); return s.includes('low') ? 'low' : s.includes('soon') ? 'soon' : 'ok'; };
+const SL = { low: ['Below min', 'neg'], soon: ['Running low', 'warn'], ok: ['In stock', 'pos'] };
+const pillS = (s) => `<span class="pill ${SL[s][1]}"><i></i>${SL[s][0]}</span>`;
+const lowLines = (v = 'all') => vs(v).flatMap((x) => ITEMS.filter((i) => stat1(i, x) === 'low').map((i) => ({ i, v: x })));
+const lowItems = (v) => ITEMS.filter((i) => has(i, v) && stat(i, v) === 'low');
+const stockVal = (v) => ITEMS.reduce((a, i) => a + qOf(i, v) * i.px, 0);
+const poTotal = (o) => o.lines.reduce((a, l) => a + l.q * l.px, 0);
+const rcvTotal = (o) => o.rcv ? o.rcv.lines.reduce((a, l) => a + l.acc * l.px, 0) : 0;
+const needQty = (i, v) => { const n = i.par[v] - i.q[v] - incoming(i.id, v); return n > 0 ? Math.ceil(n) : 0; };
+function suggestions(v = 'all') {
+  const m = {};
+  lowLines(v).forEach(({ i, v: x }) => { const n = needQty(i, x); if (n) (m[i.s + x] ||= { s: i.s, v: x, lines: [] }).lines.push({ i: i.id, q: n, px: i.px }); });
+  return Object.values(m).sort((a, b) => poTotal(b) - poTotal(a));
+}
+const isOver = (o) => ['sent', 'confirmed'].includes(o.st) && dayDiff(o.expected) < 0;
+const dueOrders = () => PO.filter((o) => ['sent', 'confirmed'].includes(o.st) && dayDiff(o.expected) <= 0 && inV(o.v)).sort((a, b) => a.expected - b.expected);
+const perWeek = (s) => s.fr.length / (s.every || 1);
+function nextDelivery(sp) { for (let k = sp.lead; k < sp.lead + 21; k++) { const di = TI + k; if (sp.fr.includes(di % 7) && (!sp.every || Math.floor(di / 7) % 2 === 0)) return dAt(di, 8); } return dAt(TI + sp.lead, 8); }
+function reli(sp) {
+  const rec = PO.filter((o) => o.s === sp.id && o.rcv), n = rec.length || 1;
+  const ot = rec.filter((o) => o.onTime).length / n;
+  let ord = 0, acc = 0, disc = 0; rec.forEach((o) => o.rcv.lines.forEach((l) => { ord += l.ord; acc += Math.min(l.acc, l.ord); disc += l.iss.length ? 1 : 0; }));
+  const fill = ord ? acc / ord : 1;
+  return { n: rec.length, ot, fill, disc, score: Math.round(ot * 55 + fill * 45) };
+}
+const basket = (sp) => { const its = ITEMS.filter((i) => i.s === sp.id); return [...Array(12)].map((_, k) => its.reduce((a, i) => a + i.ph[k] / i.ph[0], 0) / its.length * 100); };
+const sugMin = (i, v) => { const sp = sup(i.s); return Math.max(1, Math.ceil(i.use[v] * (sp.lead + 1.5))); };
+const sugPar = (i, v) => { const sp = sup(i.s); return Math.max(sugMin(i, v) + 1, Math.ceil(i.use[v] * (sp.lead + 1.5 + 7 / perWeek(sp)))); };
+/* reports */
+const WKL = (w) => 'W' + (38 + w);
+const revW = (w) => vs(venue).reduce((a, v) => a + REV[v][w], 0);
+const consW = (w, c) => vs(venue).reduce((a, v) => a + (c ? CONS[v][w][c] : CATS.reduce((b, k) => b + CONS[v][w][k], 0)), 0);
+const fcW = (w) => consW(w) / (revW(w) || 1);
+const purW = (w) => PO.reduce((a, o) => o.rcv && inV(o.v) && wkOf(o.rcv.at) === w ? a + rcvTotal(o) : a, 0);
+const wasteIn = (from, to = 99) => WASTE.filter((x) => inV(x.v) && dIdx(x.at) >= from && dIdx(x.at) <= to);
+const sumBy = (a, f) => a.reduce((s, x) => s + f(x), 0);
+
+/* notifications + log */
+const NOTE = [], LOG = []; let nSeq = 0;
+const notify = (text, icn, go, at = now(), read = false) => { NOTE.unshift({ id: ++nSeq, text, ic: icn, go, at, read }); NOTE.sort((a, b) => b.at - a.at); };
+const logE = (t, icn = 'edit', go) => LOG.push({ at: now(), t, ic: icn, go });
+notify(`Molkerei Isartal GmbH raised the price of Butter by 3.8%`, 'tag', { item: butter.id }, dAt(TI - 2, 11, 5), true);
+notify('Price list from GastroBedarf Wien GmbH could not be imported', 'alert', { page: 'supd', id: 5 }, dAt(TI - 1, 17, 30));
+notify(`Weekly stock count for ${VEN[NEXTCOUNT]} is due on Sunday`, 'list', { page: 'count' }, dAt(TI, 7, 0), true);
+{ const od = PO.find(isOver); if (od) notify(`PO-${od.id} from ${sup(od.s).n} is overdue (expected yesterday)`, 'clock', { page: 'po', id: od.id }, dAt(TI, 8, 15));
+  const cf = PO.find((o) => o.st === 'confirmed' && dayDiff(o.expected) === 0); if (cf) notify(`${sup(cf.s).n} confirmed PO-${cf.id} for delivery today`, 'check', { page: 'po', id: cf.id }, dAt(TI - 1, 18, 2));
+  const lw = lowLines()[0]; if (lw) notify(`${lw.i.n} at ${VEN[lw.v]} is below minimum`, 'alert', { item: lw.i.id }, dAt(TI, 9, 12)); }
+
+const PT = { Meat: 'meat', Dairy: 'dairy', Vegetables: 'veg', Grains: 'grain', Sauces: 'sauce', Drinks: 'drink' };
 const ptImg = (cat) => `<img src="img/pt-${PT[cat]}.jpg" alt="" loading="lazy" decoding="async">`;
 
-/* ── shell ────────────────────────────────────────────── */
-const PAGES = { today: ['Today', 'home'], stock: ['Stock', 'box'], orders: ['Purchasing', 'bag'], sup: ['Suppliers', 'users'] };
-let page = 'today', venue = 'all', cat = 'All', q = '';
-const CATS = ['All', ...new Set(ITEMS.map((i) => i.cat))];
+/* shell */
+const PAGES = { today: ['Today', 'home'], items: ['Catalogue', 'box'], count: ['Stock count', 'list'], waste: ['Waste', 'trash'], rules: ['Reorder rules', 'sliders'], orders: ['Orders', 'bag'], receive: ['Receiving', 'truck'], sup: ['Suppliers', 'users'], reports: ['Reports', 'chart'] };
+const GROUPS = [['', ['today']], ['Inventory', ['items', 'count', 'waste', 'rules']], ['Purchasing', ['orders', 'receive', 'sup']], ['Insights', ['reports']]];
+const TABS = ['today', 'items', 'orders', 'receive'];
+const PARENT = { po: 'orders', rcv: 'receive', supd: 'sup' };
+let R = { page: 'today', id: null }, loading = false, ltimer, gq = '', popA = null, lastFocus = null;
+const L = {
+  items: { q: '', cat: 'All', st: 'all', sort: 'name', dir: 1, p: 1, per: 12, sel: new Set(), ids: [] },
+  orders: { q: '', st: 'all', sort: 'created', dir: -1, p: 1, per: 12, sel: new Set(), ids: [] },
+  waste: { q: '', reason: 'All', p: 1, per: 10 },
+  sup: { q: '', sort: 'n', dir: 1 },
+  rules: { q: '', cat: 'All', v: 'center' },
+  count: { q: '', f: 'all' },
+};
+let rep = 8, editPO = null, CNT = null;
+const RC = {}, RP = { center: {}, north: {} };
 
 function chrome() {
-  const n = lowLines().length;
-  const item = (k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<span class="count" title="Below minimum">${n}</span>` : ''}</a>`;
-  $('#nav').innerHTML = Object.keys(PAGES).map(item).join('');
-  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'today' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
-  setNav(page);
+  const low = lowItems('all').length, due = PO.filter((o) => ['sent', 'confirmed'].includes(o.st) && dayDiff(o.expected) <= 0).length, dr = PO.filter((o) => o.st === 'draft').length;
+  const B = { today: [low, '', 'below minimum'], orders: [dr, 'n', 'drafts'], receive: [due, 'a', 'deliveries due'], count: [CNT ? 1 : 0, 'a', 'count in progress'] };
+  const cur = PARENT[R.page] || R.page;
+  const a = (k) => `<a data-page="${k}" tabindex="0" role="link" ${cur === k ? 'aria-current="page"' : ''}>${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${B[k] && B[k][0] ? `<span class="count ${B[k][1]}" title="${B[k][0]} ${B[k][2]}">${B[k][0]}</span>` : ''}</a>`;
+  $('#nav').innerHTML = GROUPS.map(([g, ks]) => (g ? `<div class="nav-label">${g}</div>` : '') + ks.map(a).join('')).join('');
+  $('#tabbar').innerHTML = TABS.map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${B[k] && B[k][0] ? `<b class="count">${B[k][0]}</b>` : ''}</a>`).join('') + `<a data-act="more" tabindex="0" role="button" aria-haspopup="true" class="${TABS.includes(cur) ? '' : 'on'}">${ic('more')}<span>More</span></a>`;
+  setNav(cur);
+  if (!TABS.includes(cur)) $('#tabbar [data-act=more]').classList.add('on');
 }
-function render() { chrome(); $('#main').innerHTML = ({ today, stock, orders, sup: suppliers })[page](); }
-function go(p) { page = p; render(); window.scrollTo(0, 0); }
-const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+function topbar() {
+  const u = me(), un = NOTE.filter((n) => !n.read).length;
+  $('#top').innerHTML = `<div class="brand-mark mb">${ic('box')}</div>
+<div class="gs" role="search">${ic('search')}<input id="gq" type="search" placeholder="Search products, suppliers, orders" aria-label="Search products, suppliers and orders" autocomplete="off" value="${esc(gq)}"><kbd>/</kbd></div><span class="sp"></span>
+<select id="venue" class="vsel" aria-label="Venue">${['all', ...VS].map((v) => `<option value="${v}" ${venue === v ? 'selected' : ''}>${v === 'all' ? 'All venues' : VEN[v]}</option>`).join('')}</select>
+<button class="ib hm" data-act="help" aria-label="Help and support" title="Help and support">${ic('help')}</button>
+<button class="ib" data-act="bell" aria-label="Notifications, ${un} unread" aria-haspopup="true" aria-expanded="false">${ic('bell')}${un ? `<span class="dot">${un}</span>` : ''}</button>
+<button class="ub" data-act="user" aria-label="Account menu for ${u.n}" aria-haspopup="true" aria-expanded="false"><span class="avatar">${u.ini}</span><span class="ubn"><b>${u.n}</b><small>${u.t}</small></span>${ic('down')}</button>`;
+}
+function render() {
+  if (!authed) return vSignin();
+  chrome(); topbar(); view();
+}
+const VIEWS = {};
+function view() {
+  const el = $('#view');
+  el.innerHTML = loading ? skel() : VIEWS[R.page]();
+  $$('[data-chart]', el).forEach((c) => { c.innerHTML = CH[c.dataset.chart](Math.max(240, c.clientWidth)); });
+  check();
+}
+function go(page, id = null) {
+  closePop(); closeDrawer(); R = { page, id };
+  const heavy = ['items', 'orders', 'sup', 'reports', 'waste', 'receive'].includes(page);
+  clearTimeout(ltimer); loading = heavy; render(); window.scrollTo(0, 0);
+  if (heavy) ltimer = setTimeout(() => { loading = false; view(); }, 260);
+}
+const skel = () => `<div class="sk" style="width:220px;height:26px;margin-bottom:10px"></div><div class="sk" style="width:300px;margin-bottom:24px"></div><section class="card">${[...Array(8)].map((_, k) => `<div style="display:flex;gap:14px;align-items:center;padding:12px 0"><div class="sk" style="width:36px;height:36px;border-radius:10px"></div><div style="flex:1"><div class="sk" style="width:${40 + (k * 17) % 40}%;margin-bottom:8px"></div><div class="sk" style="width:${20 + (k * 11) % 25}%;height:10px"></div></div><div class="sk hm" style="width:90px"></div></div>`).join('')}</section>`;
+const kv = (a, b, c = '') => `<div class="kv"><span>${a}</span><b class="${c}">${b}</b></div>`;
+const kpi = (b, t, c = '') => `<div class="kpi"><b class="${c}">${b}</b><span>${t}</span></div>`;
+/* a labelled field: the label points at the control's own id */
+const fld = (l, ctl) => `<div class="field"><label for="${(ctl.match(/id="([^"]+)"/) || [])[1]}">${l}</label>${ctl}</div>`;
+const head = (t, sub, actions = '', back) => `${back ? `<button class="back" data-${back[0]}>${ic('left')}${back[1]}</button>` : ''}<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+const sh = (k, key, label) => { const s = L[k], on = s.sort === key; return `<button class="sh ${on ? 'on' : ''}" data-act="sort" data-k="${k}" data-s="${key}" aria-label="Sort by ${label}">${label}${on ? ic(s.dir > 0 ? 'up' : 'down') : ''}</button>`; };
+function pager(k, total) {
+  const s = L[k], pages = Math.max(1, Math.ceil(total / s.per)), a = total ? (s.p - 1) * s.per + 1 : 0, b = Math.min(total, s.p * s.per);
+  return `<div class="pager"><span class="muted">${total ? `Showing ${fmt(a)}–${fmt(b)} of ${fmt(total)}` : 'No results'}</span><div><button class="btn sm" data-act="pg" data-k="${k}" data-p="${s.p - 1}" ${s.p <= 1 ? 'disabled' : ''} aria-label="Previous page">${ic('left')}</button><span>Page ${s.p} of ${pages}</span><button class="btn sm" data-act="pg" data-k="${k}" data-p="${s.p + 1}" ${s.p >= pages ? 'disabled' : ''} aria-label="Next page">${ic('right')}</button></div></div>`;
+}
+const pageOf = (k, list) => { const s = L[k], pages = Math.max(1, Math.ceil(list.length / s.per)); s.p = Math.max(1, Math.min(s.p, pages)); return list.slice((s.p - 1) * s.per, s.p * s.per); };
+const emptyS = (t, sub, act = '') => `<div class="empty-s"><b>${t}</b>${sub}${act ? `<div>${act}</div>` : ''}</div>`;
+const sortBy = (list, s, keys) => { const f = keys[s.sort]; return list.sort((x, y) => { const A = f(x), B = f(y); return (typeof A === 'string' ? A.localeCompare(B) : A - B) * s.dir; }); };
+function spark(vals, cls = '') {
+  const w = 300, h = 56, lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1, n = vals.length;
+  const d = vals.map((v, k) => `${k ? 'L' : 'M'}${(k / (n - 1) * w).toFixed(1)},${(5 + (h - 10) * (1 - (v - lo) / span)).toFixed(1)}`).join('');
+  return `<svg class="spark ${cls}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path class="a" d="${d}L${w},${h}L0,${h}Z"/><path class="l" d="${d}"/></svg>`;
+}
 
-document.addEventListener('click', (e) => {
-  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
-  const it = e.target.closest('[data-item]'); if (it) return openItem(+it.dataset.item);
-  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
-});
-document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
-document.addEventListener('input', (e) => { if (e.target.id === 'q') { q = e.target.value.toLowerCase(); const p = e.target.selectionStart; render(); const i = $('#q'); i.focus(); i.setSelectionRange(p, p); } });
+/* popovers, drawer, dialogs */
+function openPop(html, anchor, cls = '') {
+  closePop();
+  const p = document.createElement('div'); p.className = 'pop ' + cls; p.id = 'pop'; p.innerHTML = html; document.body.appendChild(p);
+  if (anchor && !cls.includes('sheet')) { const r = anchor.getBoundingClientRect(), w = p.offsetWidth; const left = cls.includes('left') ? r.left : r.right - w; p.style.left = Math.max(12, Math.min(innerWidth - w - 12, left)) + 'px'; p.style.top = r.bottom + 6 + 'px'; }
+  popA = anchor; anchor?.setAttribute('aria-expanded', 'true');
+  return p;
+}
+function closePop() { $('#pop')?.remove(); popA?.setAttribute('aria-expanded', 'false'); popA = null; }
+function drawer(html) {
+  closeDrawer(true); lastFocus = document.activeElement;
+  const s = document.createElement('div'); s.className = 'dscrim'; s.id = 'dscrim'; s.onclick = () => closeDrawer();
+  const d = document.createElement('aside'); d.className = 'drawer'; d.id = 'drawer'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.innerHTML = html;
+  document.body.append(s, d); d.querySelector('[data-act=closeD]')?.focus();
+}
+function closeDrawer(keep) { if (!$('#drawer')) return; $('#drawer').remove(); $('#dscrim')?.remove(); if (!keep && lastFocus && document.contains(lastFocus)) lastFocus.focus(); }
+function confirmBox(title, text, ok, fn, danger, cancel = 'Cancel') {
+  modal(`<h2>${title}</h2><p>${text}</p><div class="modal-actions"><button class="btn" data-act="closeM">${cancel}</button><button class="btn ${danger ? 'danger' : 'primary'}" id="cf-ok">${ok}</button></div>`, (s) => { const b = $('#cf-ok', s); b.focus(); b.onclick = () => { closeModal(); fn(); }; });
+}
+let undoT;
+function undo(msg, fn) {
+  let u = $('.ut'); if (!u) { u = document.createElement('div'); u.className = 'ut'; u.setAttribute('role', 'status'); document.body.appendChild(u); }
+  u.innerHTML = '<span></span><button type="button">Undo</button>'; u.firstChild.textContent = msg;
+  u.lastChild.onclick = () => { u.classList.remove('show'); fn(); toast('Change undone'); render(); };
+  void u.offsetWidth; u.classList.add('show'); clearTimeout(undoT); undoT = setTimeout(() => u.classList.remove('show'), 6000);
+}
+function fErr(id, msg) {
+  const inp = $('#' + id); if (!inp) return true;
+  const f = inp.closest('.field') || inp.parentElement; f.classList.toggle('bad', !!msg);
+  let e = f.querySelector('.ferr');
+  if (msg) { if (!e) { e = document.createElement('small'); e.className = 'ferr'; e.id = id + '-err'; f.appendChild(e); } e.textContent = msg; inp.setAttribute('aria-invalid', 'true'); inp.setAttribute('aria-describedby', id + '-err'); }
+  else { e?.remove(); inp.removeAttribute('aria-invalid'); }
+  return !msg;
+}
+function vForm(rules) { let first = null; rules.forEach(([id, fn]) => { const el = $('#' + id); if (!el) return; const m = fn(el.type === 'checkbox' ? el.checked : el.value); fErr(id, m); if (m && !first) first = id; }); if (first) $('#' + first).focus(); return !first; }
+const qtyErr = (i, n, max) => isNaN(n) || n <= 0 ? 'Enter a quantity above 0' : isInt(i) && n % 1 ? `Use whole numbers for ${i.u}` : max !== undefined && n > max + 1e-9 ? `Only ${fq(max, i.u)} in stock` : '';
+function csv(name, headRow, rows) {
+  const q = (x) => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + [headRow, ...rows].map((r) => r.map(q).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+  a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast(`Exported ${pl(rows.length, 'row')} to ${name}`);
+}
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const isoT = (d) => iso(d) + ' ' + TF.format(d);
 
-/* ── today ────────────────────────────────────────────── */
-function draftCard(d, k) {
-  return `<article class="draft"><div class="draft-h"><b>${esc(sup(d.s).n)}</b><span>for ${VEN[d.v]}</span></div>${d.lines.map(([i, qn]) => `<div class="line"><span><i class="pt">${ptImg(item(i).cat)}</i>${esc(item(i).n)}</span><b>${qn} ${item(i).u} · ${tg(qn * item(i).px)}</b></div>`).join('')}
-    <div class="draft-f"><b>${tg(poTotal(d))}</b><button class="btn primary sm" data-act="order" data-k="${k}">Order</button></div></article>`;
+/* activity */
+const ACTT = {
+  draft: (o, by) => `${by} drafted PO-${o.id} for ${sup(o.s).n}`, sent: (o, by) => `${by} sent PO-${o.id} to ${sup(o.s).n}`,
+  confirmed: (o) => `${sup(o.s).n} confirmed PO-${o.id}`, cancelled: (o, by) => `${by} cancelled PO-${o.id}`,
+  received: (o, by) => `${by} received PO-${o.id} at ${VEN[o.v]}${o.rcv && o.rcv.lines.some((l) => l.iss.length) ? ', with discrepancies' : ''}`,
+};
+const ACTI = { draft: 'edit', sent: 'arrow', confirmed: 'check', received: 'truck', cancelled: 'x' };
+function activity(n) {
+  const t = now(), ev = [];
+  PO.forEach((o) => { if (inV(o.v)) o.log.forEach(([st, at, by]) => { if (at > t - 3 * DAY) ev.push({ at, ic: ACTI[st], t: ACTT[st](o, by), go: `po:${o.id}` }); }); });
+  WASTE.forEach((w) => { if (inV(w.v) && w.at > t - 3 * DAY) ev.push({ at: w.at, ic: 'trash', t: `${w.by} logged ${fq(w.q, BY[w.i].u)} of ${BY[w.i].n} as waste`, item: w.i }); });
+  COUNTS.forEach((c) => { if (inV(c.v)) ev.push({ at: c.done, ic: 'list', t: `${c.appr} approved the stock count at ${VEN[c.v]}` }); });
+  LOG.forEach((e) => ev.push(e));
+  return ev.filter((e) => e.at <= t).sort((a, b) => b.at - a.at).slice(0, n);
 }
-function today() {
-  const ds = drafts(), sum = ds.reduce((a, d) => a + poTotal(d), 0), low = lowLines().length;
-  const open = PO.filter((o) => o.st === 'ordered'), transit = open.reduce((a, o) => a + poTotal(o), 0);
-  const finding = ds.length ? `<div class="finding">${ic('alert')}<span>${low} ${low === 1 ? 'item is' : 'items are'} below minimum. ${ds.length} supplier ${ds.length === 1 ? 'order' : 'orders'} drafted, ${tg(sum)} in total. Review and send.</span><button class="btn sm primary" data-act="orderAll">Order all</button></div>` : `<div class="finding" style="background:var(--pos-bg);color:var(--pos)">${ic('check')}<span>Everything is above minimum. Nothing to order.</span></div>`;
-  return head('What to restock today', `${TODAY} · stock across both venues`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${ITEMS.length}</b><span>Items tracked</span></div><div class="kpi"><b>${tg(value('all'))}</b><span>Stock value</span></div><div class="kpi"><b>${low}</b><span>Below minimum</span></div><div class="kpi"><b>${tg(transit)}</b><span>In transit, ${open.length} ${open.length === 1 ? 'order' : 'orders'}</span></div></div>
-    ${ds.length ? `<div class="drafts">${ds.map(draftCard).join('')}</div>` : ''}
-    <section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2>Awaiting delivery</h2><span>${open.length}</span></div>${open.map((o) => `<div class="tr" style="--cols:1.3fr 1fr 1fr auto;--colsm:1fr auto"><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · order ${o.id} · ${o.date}</span></div><span class="hm">${o.lines.length} ${o.lines.length === 1 ? 'item' : 'items'}</span><b class="hm">${tg(poTotal(o))}</b><button class="btn sm" data-act="receive" data-id="${o.id}">Receive</button></div>`).join('') || '<p class="empty">Nothing pending.</p>'}</section>`;
-}
+const actRow = (e) => `<button class="act-r" ${e.go ? `data-go="${e.go}"` : e.item ? `data-item="${e.item}"` : ''}><span class="bub">${ic(e.ic)}</span><span>${esc(e.t)}<small>${rel(e.at)}</small></span></button>`;
 
-/* ── stock ────────────────────────────────────────────── */
-function stock() {
-  const list = ITEMS.filter((i) => stocked(i, venue) && (cat === 'All' || i.cat === cat) && i.n.toLowerCase().includes(q));
-  const rows = list.map((i) => { const qn = qtyOf(i, venue), m = minOf(i, venue), st = state(i, venue), inc = venue === 'all' ? incomingAll(i.id) : incoming(i.id, venue); return `<div class="tr" data-item="${i.id}" tabindex="0" style="cursor:pointer;--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><div class="cell-pt"><span class="pt">${ptImg(i.cat)}</span><div class="cell-main"><b>${esc(i.n)}</b><span>${i.cat} · ${esc(sup(i.s).n)}${inc ? ` · ${inc} ${i.u} on the way` : ''}</span></div></div>
-    <div class="level hm"><div class="bar"><i class="${st}" style="width:${Math.min(100, qn / (m * 2 || 1) * 100)}%"></i></div><b>${qn} ${i.u}</b></div><span class="hm r muted">min ${m}</span><span class="hm r">${tg(i.px)}</span>
-    <div class="r"><span class="pill ${st === 'low' ? 'neg' : st === 'soon' ? 'warn' : 'pos'}"><i></i>${st === 'low' ? 'Low' : st === 'soon' ? 'Soon' : 'OK'}</span><div class="dm muted" style="font-size:12px;margin-top:2px">${qn} ${i.u}</div></div></div>`; }).join('');
-  return head('Stock', `${list.length} ${list.length === 1 ? 'item' : 'items'} · ${tg(list.reduce((a, i) => a + qtyOf(i, venue) * i.px, 0))}`) +
-    `<div class="chips">${['all', 'center', 'north'].map((v) => `<button class="chip ${venue === v ? 'on' : ''}" data-act="venue" data-v="${v}">${v === 'all' ? 'All venues' : VEN[v]}</button>`).join('')}</div>
-    <div class="row-tools"><input class="search" id="q" value="${esc(q)}" placeholder="Search by name" aria-label="Search"><div class="chips" style="margin:0">${CATS.map((c) => `<button class="chip ${cat === c ? 'on' : ''}" data-act="cat" data-v="${c}">${c}</button>`).join('')}</div></div>
-    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1.5fr 1.7fr .8fr .9fr .9fr;--colsm:1fr auto"><span>Item</span><span class="hm">In stock</span><span class="hm r">Minimum</span><span class="hm r">Price</span><span class="r">Status</span></div>${rows || '<p class="empty">Nothing found.</p>'}</div></section>`;
+/* Today */
+function sugCard(d, k) {
+  const sp = sup(d.s), tot = poTotal(d), short = sp.mov - tot;
+  const lines = d.lines.slice(0, 4).map((l) => `<div class="line"><span><i class="pt">${ptImg(BY[l.i].cat)}</i><span class="ell">${esc(BY[l.i].n)}</span></span><b>${fq(l.q, BY[l.i].u)} · ${eur(l.q * l.px)}</b></div>`).join('') + (d.lines.length > 4 ? `<div class="line">+ ${pl(d.lines.length - 4, 'more line')}</div>` : '');
+  return `<article class="draft"><div class="draft-h"><b>${esc(sp.n)}</b><span>${VEN[d.v]}</span></div><div class="meta">${ic('truck')}Delivery ${dayRel(nextDelivery(sp))} if ordered by ${sp.cut}</div>${lines}
+<div class="draft-f"><div><b>${eur(tot)}</b>${short > 0 ? `<small class="warn">${eur(short)} below the ${eur0(sp.mov)} minimum</small>` : ''}</div><div class="bt"><button class="btn sm" data-act="sugDraft" data-k="${k}">Draft</button><button class="btn sm primary" data-act="sugSend" data-k="${k}" ${lock('send')}>Send</button></div></div></article>`;
 }
+VIEWS.today = () => {
+  const sg = suggestions(venue), low = lowItems(venue).length, sum = sg.reduce((a, d) => a + poTotal(d), 0);
+  const due = dueOrders(), open = PO.filter((o) => OPEN.includes(o.st) && inV(o.v)), fc = fcW(7), dfc = fc - fcW(6);
+  const h = now().getHours(), greet = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  const finding = sg.length ? `<div class="finding">${ic('alert')}<span><b>${pl(low, 'item')} below minimum.</b> ${pl(sg.length, 'supplier order')} suggested, ${eur(sum)} in total.</span><button class="btn sm primary" data-act="draftAll">${sg.length === 1 ? 'Create draft' : 'Create all drafts'}</button></div>`
+    : `<div class="finding" style="background:var(--pos-bg)">${ic('check')}<span>${low ? `${pl(low, 'item')} below minimum, all already on order.` : 'Everything is above minimum. Nothing to order.'}</span></div>`;
+  return head(`${greet}, ${me().n.split(' ')[0]}`, `${WD.format(now())} · ${venue === 'all' ? 'Both venues' : VEN[venue]}`, `<button class="btn" data-act="logWaste">${ic('trash')}Log waste</button><button class="btn primary" data-act="newPO">${ic('plus')}New order</button>`) + finding +
+    `<div class="kpis">${kpi(`${eur0(stockVal(venue))}`,`Stock value`)}${kpi(`${low}`,`Below minimum`,`${low ? 'neg' : ''}`)}${kpi(`${eur0(sumBy(open, poTotal))}`,`On order, ${pl(open.length, 'order')}`)}${kpi(`${pc(fc)}`,`Food cost this week<em class="${dfc > 0 ? 'neg' : 'pos'}">${dfc > 0 ? '+' : MINUS}${fmtD(Math.abs(dfc) * 100, 1)} pts</em>`)}</div>
+<div class="grid"><section class="c8"><div class="sec-h"><h2>Suggested orders</h2><span>Refill to par, minus what is already on order</span></div>${sg.length ? `<div class="drafts">${sg.map(sugCard).join('')}</div>` : `<section class="card">${emptyS('Nothing to suggest', 'Every stock line is above minimum or already on order.')}</section>`}</section>
+<div class="c4 stack"><section class="card"><div class="card-h"><h2>Deliveries due</h2><span>${due.length}</span></div>${due.map((o) => `<div class="dl"><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>PO-${o.id} · ${VEN[o.v]} · ${pl(o.lines.length, 'line')}</span></div>${isOver(o) ? '<span class="pill neg"><i></i>Overdue</span>' : ''}<button class="btn sm" data-go="rcv:${o.id}">Receive</button></div>`).join('') || '<p class="empty">No deliveries due today.</p>'}</section>
+<section class="card"><div class="card-h"><h2>Recent activity</h2></div>${activity(6).map(actRow).join('') || '<p class="empty">No activity yet.</p>'}</section></div></div>`;
+};
+
+/* Catalogue */
+function itemList() {
+  const s = L.items, q = s.q.trim().toLowerCase();
+  return sortBy(ITEMS.filter((i) => has(i, venue) && (s.cat === 'All' || i.cat === s.cat) && (s.st === 'all' || stat(i, venue) === s.st) && (!q || `${i.n} ${i.sku} ${sup(i.s).n}`.toLowerCase().includes(q))), s,
+    { name: (i) => i.n, stock: (i) => qOf(i, venue) / (minOf(i, venue) || 1), price: (i) => i.px, value: (i) => qOf(i, venue) * i.px, status: (i) => ['low', 'soon', 'ok'].indexOf(stat(i, venue)), sup: (i) => sup(i.s).n });
+}
+const IC = '--cols:28px minmax(0,2.2fr) minmax(0,1.3fr) minmax(0,1.5fr) .8fr .8fr .9fr 104px;--colsm:28px minmax(0,1fr) auto';
+VIEWS.items = () => {
+  const s = L.items, list = itemList(), rows = pageOf('items', list); s.ids = rows.map((i) => i.id);
+  const allOn = rows.length && rows.every((i) => s.sel.has(i.id));
+  const tr = (i) => { const qn = qOf(i, venue), p = parOf(i, venue), st = stat(i, venue), inc = incoming(i.id, venue), on = s.sel.has(i.id);
+    return `<div class="tr ${on ? 'sel' : ''}" style="${IC}" data-item="${i.id}" tabindex="0" role="button" aria-label="${esc(i.n)}, ${SL[st][0]}"><label class="cb" data-stop><input type="checkbox" data-sel="items" value="${i.id}" ${on ? 'checked' : ''} aria-label="Select ${esc(i.n)}"></label>
+<div class="cell-pt"><span class="pt">${ptImg(i.cat)}</span><div class="cell-main"><b>${esc(i.n)}</b><span>${i.sku} · ${i.cat}${inc ? ` · <em class="acc">${fq(inc, i.u)} on order</em>` : ''}</span></div></div>
+<span class="hm ell muted">${esc(sup(i.s).n)}</span><div class="level hm"><div class="bar"><i class="${st}" style="width:${Math.min(100, qn / (p || 1) * 100)}%"></i></div><b>${fq(qn, i.u)}</b></div>
+<span class="hm r muted">${fq(minOf(i, venue))} / ${fq(p)}</span><span class="hm r">${eur(i.px)}</span><span class="hm r">${eur(qn * i.px)}</span><div class="r">${pillS(st)}<div class="dm muted sm">${fq(qn, i.u)}</div></div></div>`; };
+  return head('Catalogue', `${pl(list.length, 'product')} · ${eur0(sumBy(list, (i) => qOf(i, venue) * i.px))} stock value · ${venue === 'all' ? 'both venues' : VEN[venue]}`, `<button class="btn" data-act="expItems">${ic('dl')}Export CSV</button><button class="btn primary" data-act="newItem" ${lock('edit')}>${ic('plus')}New product</button>`) +
+    `<div class="tools"><input class="search" data-q="items" value="${esc(s.q)}" placeholder="Search name, SKU or supplier" aria-label="Search catalogue"><select class="sel2" data-f="cat" data-k="items" aria-label="Category">${['All', ...CATS].map((c) => `<option value="${c}" ${s.cat === c ? 'selected' : ''}>${c === 'All' ? 'All categories' : c}</option>`).join('')}</select><select class="sel2" data-f="st" data-k="items" aria-label="Stock status">${[['all', 'All statuses'], ['low', 'Below minimum'], ['soon', 'Running low'], ['ok', 'In stock']].map(([k, t]) => `<option value="${k}" ${s.st === k ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+${s.sel.size ? `<div class="bulk"><b>${s.sel.size} selected</b><button class="btn sm" data-act="bulkOrder">Add to order</button><button class="btn sm" data-act="expItems" data-only="1">Export selected</button><button class="lnk" data-act="clearSel" data-k="items">Clear selection</button></div>` : ''}
+<section class="card"><div class="tbl"><div class="tr th" style="${IC}"><label class="cb" data-stop><input type="checkbox" data-selall="items" ${allOn ? 'checked' : ''} aria-label="Select all on this page"></label><span>${sh('items', 'name', 'Product')}</span><span class="hm">${sh('items', 'sup', 'Supplier')}</span><span class="hm">${sh('items', 'stock', 'In stock')}</span><span class="hm r">Min / par</span><span class="hm r">${sh('items', 'price', 'Unit price')}</span><span class="hm r">${sh('items', 'value', 'Value')}</span><span class="r">${sh('items', 'status', 'Status')}</span></div>
+${rows.map(tr).join('') || emptyS('No products match', 'Try another search term or clear the filters.', '<button class="btn sm" data-act="clearF" data-k="items">Clear filters</button>')}</div>${pager('items', list.length)}</section>`;
+};
+const moves = (i) => [
+  ...PO.filter((o) => o.rcv).flatMap((o) => o.rcv.lines.filter((l) => l.i === i.id && l.acc).map((l) => ({ at: o.rcv.at, t: `Received, PO-${o.id}`, v: o.v, d: l.acc }))),
+  ...WASTE.filter((w) => w.i === i.id).map((w) => ({ at: w.at, t: `Waste: ${w.reason}`, v: w.v, d: -w.q })),
+  ...COUNTS.flatMap((c) => c.lines.filter((l) => l.i === i.id && l.cnt !== l.exp).map((l) => ({ at: c.done, t: 'Stock count adjustment', v: c.v, d: l.cnt - l.exp }))),
+].sort((a, b) => b.at - a.at);
 function openItem(id) {
-  const i = item(id), vs = ['center', 'north'].filter((v) => i.qty[v] !== null);
-  modal(`<h2>${esc(i.n)}</h2><p>${i.cat} · ${esc(sup(i.s).n)} · ${tg(i.px)} per ${i.u}</p>
-    ${vs.map((v) => `<div class="line"><span>${VEN[v]}</span><b>${i.qty[v]} ${i.u} <span class="muted">(min ${i.min[v]})</span></b></div>`).join('')}
-    <div class="field" style="margin-top:14px"><label for="a-v">Venue</label><select id="a-v">${vs.map((v) => `<option value="${v}" ${venue === v ? 'selected' : ''}>${VEN[v]}</option>`).join('')}</select></div>
-    <div class="field"><label for="a-q">Quantity, ${i.u}</label><input id="a-q" type="number" min="0.5" step="0.5" value="1"></div>
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button><button class="btn" id="a-out">Write off</button><button class="btn primary" id="a-in">Receive stock</button></div>`, () => {
-    const apply = (sign) => { const v = $('#a-v').value, n = +$('#a-q').value; if (!(n > 0)) return toast('Enter a quantity'); if (sign < 0 && n > i.qty[v]) return toast(`Only ${i.qty[v]} ${i.u} at this venue`); i.qty[v] = Math.round((i.qty[v] + sign * n) * 10) / 10; closeModal(); toast(`${i.n}: ${sign > 0 ? 'received' : 'written off'} ${n} ${i.u}`); render(); };
-    $('#a-out').onclick = () => apply(-1); $('#a-in').onclick = () => apply(1);
+  const i = BY[id]; if (!i) return; closePop();
+  const sp = sup(i.s), chg = i.px / i.ph[0] - 1, mv = moves(i).slice(0, 8), not = VS.find((v) => i.q[v] === null);
+  drawer(`<div class="dh"><span class="pt lg">${ptImg(i.cat)}</span><div class="cell-main"><h2>${esc(i.n)}</h2><span>${i.sku} · ${i.cat} · ${eur(i.px)} per ${i.u}</span></div><button class="ib" data-act="closeD" aria-label="Close">${ic('x')}</button></div>
+<div class="db"><div class="vgrid">${VS.filter((v) => i.q[v] !== null).map((v) => { const inc = incoming(i.id, v); return `<div class="vbox"><div class="vb-h"><b>${VEN[v]}</b>${pillS(stat1(i, v))}</div><div class="big2">${fq(i.q[v], i.u)}</div><div class="muted sm">Min ${fq(i.min[v])} · Par ${fq(i.par[v])}${inc ? ` · ${fq(inc, i.u)} on order` : ''}</div></div>`; }).join('')}</div>
+${not ? `<p class="muted sm" style="margin-top:8px">Not stocked at ${VEN[not]}.</p>` : ''}
+<h3 class="h3">Supplier</h3><button class="kvl" data-go="supd:${sp.id}"><span><b>${esc(sp.n)}</b><small>Lead time ${pl(sp.lead, 'day')} · order by ${sp.cut} · next delivery ${dayRel(nextDelivery(sp))}</small></span>${ic('right')}</button>
+<h3 class="h3"><span>Price, last 12 weeks</span><span class="${chg > 0 ? 'neg' : 'pos'}">${sPct(chg)}</span></h3>${spark(i.ph)}<div class="muted sm" style="display:flex;justify-content:space-between"><span>${eur(i.ph[0])}</span><span>${eur(i.px)}</span></div>
+<h3 class="h3">Recent movements</h3>${mv.map((m) => `<div class="mv"><span>${m.t}<small>${VEN[m.v]} · ${rel(m.at)}</small></span><b class="${m.d < 0 ? 'neg' : 'pos'}">${m.d > 0 ? '+' : MINUS}${fq(Math.abs(m.d), i.u)}</b></div>`).join('') || '<p class="empty">No movements in the last 8 weeks.</p>'}</div>
+<div class="df"><button class="btn" data-act="logWaste" data-id="${i.id}">Log waste</button><button class="btn" data-act="editItem" data-id="${i.id}" ${lock('edit')}>Edit</button><button class="btn primary" data-act="orderItem" data-id="${i.id}">Add to order</button></div>`);
+}
+function itemForm(id) {
+  const i = id ? BY[id] : { n: '', sku: '', cat: L.items.cat === 'All' ? 'Meat' : L.items.cat, u: 'kg', s: 1, px: '', q: { center: 0, north: 0 }, min: { center: '', north: '' }, par: { center: '', north: '' } };
+  const opt = (arr, cur) => arr.map(([v, t]) => `<option value="${v}" ${String(cur) === String(v) ? 'selected' : ''}>${esc(t)}</option>`).join('');
+  modal(`<h2>${id ? 'Edit product' : 'New product'}</h2><p>${id ? esc(i.n) + ' · ' + i.sku : 'New products start at zero stock and show up in suggested orders.'}</p><form id="pf" novalidate data-id="${id || ''}">
+${fld(`Product name`,`<input id="f-n" value="${esc(i.n)}" maxlength="60" autocomplete="off">`)}
+<div class="fgrid g3">${fld(`SKU`,`<input id="f-sku" value="${i.sku}" placeholder="MT-4210" autocomplete="off">`)}${fld(`Category`,`<select id="f-cat">${opt(CATS.map((c) => [c, c]), i.cat)}</select>`)}${fld(`Unit`,`<select id="f-u">${opt(UNITS.map((u) => [u, u]), i.u)}</select>`)}</div>
+<div class="fgrid">${fld(`Supplier`,`<select id="f-s">${opt(SUP.map((x) => [x.id, x.n]), i.s)}</select>`)}${fld(`Unit price, €`,`<input id="f-px" inputmode="decimal" value="${i.px}" placeholder="0.00">`)}</div>
+<h3 class="h3" style="margin-top:4px">Stocked at</h3><div id="f-ven">${VS.map((v) => `<div class="vrow"><label class="chk"><input type="checkbox" id="f-on-${v}" ${i.q[v] !== null ? 'checked' : ''}>${VEN[v]}</label>${fld(`Min`,`<input id="f-min-${v}" inputmode="decimal" value="${i.min[v] ?? ''}">`)}${fld(`Par`,`<input id="f-par-${v}" inputmode="decimal" value="${i.par[v] ?? ''}">`)}</div>`).join('')}</div>
+<div class="modal-actions"><button type="button" class="btn" data-act="closeM">Cancel</button><button class="btn primary" type="submit">${id ? 'Save changes' : 'Add product'}</button></div></form>`, (s) => s.firstChild.classList.add('wide'));
+}
+function saveItem(f) {
+  const id = +f.dataset.id || 0, old = BY[id], val = (k) => $('#' + k).value.trim();
+  const on = (v) => $('#f-on-' + v).checked;
+  const rules = [
+    ['f-n', (x) => !x.trim() ? 'Enter a product name' : ITEMS.some((i) => i.id !== id && i.n.toLowerCase() === x.trim().toLowerCase()) ? 'A product with this name already exists' : ''],
+    ['f-sku', (x) => !/^[A-Z]{2}-\d{4}$/.test(x.trim()) ? 'Use two capital letters, a dash and four digits, e.g. MT-4210' : ITEMS.some((i) => i.id !== id && i.sku === x.trim()) ? 'This SKU is already in use' : ''],
+    ['f-px', (x) => { const n = num(x); return isNaN(n) || n <= 0 ? 'Enter a price above €0' : n >= 10000 ? 'Price looks too high, check the unit' : ''; }],
+    ['f-on-center', () => !on('center') && !on('north') ? 'Select at least one venue' : ''],
+  ];
+  VS.forEach((v) => {
+    rules.push([`f-on-${v}`, () => old && !on(v) && old.q[v] > 0 ? `${fq(old.q[v], old.u)} still in stock here. Write it off before removing the venue.` : (!on('center') && !on('north') && v === 'center' ? 'Select at least one venue' : '')]);
+    if (on(v)) { rules.push([`f-min-${v}`, (x) => { const n = num(x); return isNaN(n) || n < 0 ? 'Enter a minimum of 0 or more' : ''; }]); rules.push([`f-par-${v}`, (x) => { const n = num(x), m = num(val(`f-min-${v}`)); return isNaN(n) || n <= 0 ? 'Enter a par level' : !isNaN(m) && n <= m ? 'Par must be higher than min' : ''; }]); }
+    else { fErr(`f-min-${v}`, ''); fErr(`f-par-${v}`, ''); }
+  });
+  if (!vForm(rules)) return;
+  const px = r2(num(val('f-px'))), it = old || { id: Math.max(...ITEMS.map((i) => i.id)) + 1, q: {}, min: {}, par: {}, use: { center: 0, north: 0 }, ph: Array(12).fill(px) };
+  Object.assign(it, { n: val('f-n'), sku: val('f-sku'), cat: val('f-cat'), u: val('f-u'), s: +val('f-s') });
+  if (old && px !== it.px) it.ph[11] = px; it.px = px;
+  VS.forEach((v) => { if (on(v)) { it.min[v] = num(val(`f-min-${v}`)); it.par[v] = num(val(`f-par-${v}`)); if (it.q[v] == null) it.q[v] = 0; } else it.q[v] = it.min[v] = it.par[v] = null; });
+  if (!old) { ITEMS.push(it); BY[it.id] = it; }
+  closeModal(); logE(`${me().n} ${old ? 'updated' : 'added'} ${it.n}`, old ? 'edit' : 'plus');
+  toast(old ? `Saved changes to ${it.n}` : `${it.n} added to the catalogue`);
+  render(); if ($('#drawer') || old) openItem(it.id);
+}
+
+/* Orders + PO document */
+const PS = { draft: ['Draft', ''], sent: ['Sent', 'warn'], confirmed: ['Confirmed', 'acc'], received: ['Received', 'pos'], cancelled: ['Cancelled', 'neg'] };
+const poPill = (o) => isOver(o) ? '<span class="pill neg"><i></i>Overdue</span>' : `<span class="pill ${PS[o.st][1]}"><i></i>${PS[o.st][0]}</span>`;
+function orderList(ignoreSt) {
+  const s = L.orders, q = s.q.trim().toLowerCase();
+  return sortBy(PO.filter((o) => inV(o.v) && (ignoreSt || s.st === 'all' || o.st === s.st) && (!q || `po-${o.id} ${sup(o.s).n} ${VEN[o.v]}`.toLowerCase().includes(q))), s,
+    { id: (o) => o.id, created: (o) => +o.created, expected: (o) => +o.expected, total: poTotal, sup: (o) => sup(o.s).n, status: (o) => Object.keys(PS).indexOf(o.st) });
+}
+const OC = '--cols:28px .8fr minmax(0,2fr) 1fr 1fr .9fr 108px;--colsm:28px minmax(0,1fr) auto';
+VIEWS.orders = () => {
+  const s = L.orders, all = orderList(true), list = orderList(), rows = pageOf('orders', list); s.ids = rows.map((o) => o.id);
+  const allOn = rows.length && rows.every((o) => s.sel.has(o.id)), open = all.filter((o) => OPEN.includes(o.st));
+  return head('Orders', `${pl(all.length, 'order')} in 8 weeks · ${eur0(sumBy(open, poTotal))} open · ${venue === 'all' ? 'both venues' : VEN[venue]}`, `<button class="btn" data-act="expOrders">${ic('dl')}Export CSV</button><button class="btn primary" data-act="newPO">${ic('plus')}New order</button>`) +
+    `<div class="tabs" role="tablist">${['all', ...Object.keys(PS)].map((k) => `<button role="tab" aria-selected="${s.st === k}" class="${s.st === k ? 'on' : ''}" data-act="ost" data-v="${k}">${k === 'all' ? 'All' : PS[k][0]}<em>${k === 'all' ? all.length : all.filter((o) => o.st === k).length}</em></button>`).join('')}</div>
+<div class="tools"><input class="search" data-q="orders" value="${esc(s.q)}" placeholder="Search PO number, supplier or venue" aria-label="Search orders"></div>
+${s.sel.size ? `<div class="bulk"><b>${s.sel.size} selected</b><button class="btn sm" data-act="bulkSend" ${lock('send')}>Send drafts</button><button class="btn sm" data-act="bulkCancel">Cancel orders</button><button class="btn sm" data-act="expOrders" data-only="1">Export selected</button><button class="lnk" data-act="clearSel" data-k="orders">Clear selection</button></div>` : ''}
+<section class="card"><div class="tbl"><div class="tr th" style="${OC}"><label class="cb" data-stop><input type="checkbox" data-selall="orders" ${allOn ? 'checked' : ''} aria-label="Select all on this page"></label><span class="hm">${sh('orders', 'id', 'Order')}</span><span>${sh('orders', 'sup', 'Supplier')}</span><span class="hm">${sh('orders', 'created', 'Created')}</span><span class="hm">${sh('orders', 'expected', 'Delivery')}</span><span class="hm r">${sh('orders', 'total', 'Total')}</span><span class="r">${sh('orders', 'status', 'Status')}</span></div>
+${rows.map((o) => { const on = s.sel.has(o.id); return `<div class="tr ${on ? 'sel' : ''}" style="${OC}" data-go="po:${o.id}" tabindex="0" role="button" aria-label="PO-${o.id}, ${esc(sup(o.s).n)}"><label class="cb" data-stop><input type="checkbox" data-sel="orders" value="${o.id}" ${on ? 'checked' : ''} aria-label="Select PO-${o.id}"></label><b class="hm">PO-${o.id}</b><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · ${pl(o.lines.length, 'line')}<span class="dm">PO-${o.id} · ${eur(poTotal(o))}</span></span></div><span class="hm muted">${DS.format(o.created)}</span><span class="hm">${o.rcv ? DS.format(o.rcv.at) : dayRel(o.expected)}</span><b class="hm r">${eur(poTotal(o))}</b><span class="r">${poPill(o)}</span></div>`; }).join('') || emptyS('No orders found', s.st !== 'all' ? `No ${PS[s.st][0].toLowerCase()} orders match.` : 'Try another search term.', '<button class="btn sm" data-act="clearF" data-k="orders">Clear filters</button>')}</div>${pager('orders', list.length)}</section>`;
+};
+function newPOForm(sid) {
+  const sp = sup(sid || 1);
+  const venOpts = (s) => VS.filter((v) => ITEMS.some((i) => i.s === s.id && i.q[v] !== null)).map((v) => `<option value="${v}" ${venue === v ? 'selected' : ''}>${VEN[v]}</option>`).join('');
+  modal(`<h2>New purchase order</h2><p>Starts as a draft. You can edit lines before sending.</p><form id="nf" novalidate>
+${fld(`Supplier`,`<select id="n-s">${SUP.map((x) => `<option value="${x.id}" ${x.id === sp.id ? 'selected' : ''}>${esc(x.n)}</option>`).join('')}</select>`)}
+<div class="fgrid">${fld(`Deliver to`,`<select id="n-v">${venOpts(sp)}</select>`)}${fld(`Requested delivery`,`<input id="n-d" type="date" value="${iso(nextDelivery(sp))}" min="${iso(dAt(TI, 0))}"><small class="hint" id="n-h">Earliest with ${pl(sp.lead, 'day')} lead time: ${WD.format(dAt(TI + sp.lead))}</small>`)}</div>
+<label class="chk"><input type="checkbox" id="n-pre" checked> Prefill with suggested quantities (refill to par)</label>
+<div class="modal-actions"><button type="button" class="btn" data-act="closeM">Cancel</button><button class="btn primary" type="submit">Create draft</button></div></form>`);
+  window.__venOpts = venOpts;
+}
+function saveNewPO() {
+  const sp = sup(+$('#n-s').value), v = $('#n-v').value;
+  if (!vForm([['n-v', (x) => !x ? `${sp.n} has no products stocked at either venue` : ''], ['n-d', (x) => { if (!x) return 'Choose a delivery date'; const d = new Date(x + 'T08:00'); return dayDiff(d) < sp.lead ? `${sp.n} needs ${pl(sp.lead, 'day')} lead time. Earliest: ${WD.format(dAt(TI + sp.lead))}` : dayDiff(d) > 60 ? 'Choose a date within the next 60 days' : ''; }]])) return;
+  const o = newPO(sp.id, v); o.expected = new Date($('#n-d').value + 'T08:00');
+  if ($('#n-pre').checked) ITEMS.filter((i) => i.s === sp.id && i.q[v] !== null).forEach((i) => { const n = needQty(i, v); if (n) o.lines.push({ i: i.id, q: n, px: i.px }); });
+  closeModal(); editPO = o.id; toast(o.lines.length ? `Draft PO-${o.id} created with ${pl(o.lines.length, 'line')}` : `Draft PO-${o.id} created. Add lines below.`); go('po', o.id);
+}
+function newPO(s, v) { const o = { id: Math.max(...PO.map((x) => x.id)) + 1, s, v, st: 'draft', created: now(), expected: nextDelivery(sup(s)), lines: [], log: [['draft', now(), me().n]] }; PO.push(o); return o; }
+function addToDraft(s, v, lines) { let o = PO.find((x) => x.st === 'draft' && x.s === s && x.v === v); if (!o) o = newPO(s, v); lines.forEach((l) => { const e = o.lines.find((x) => x.i === l.i); if (e) e.q += l.q; else o.lines.push({ ...l }); }); return o; }
+function sendPO(o, after) {
+  if (!can('send')) return toast(PERM.send[1]);
+  if (!o.lines.length) return toast('Add at least one line before sending');
+  const sp = sup(o.s), t = poTotal(o);
+  const doIt = () => {
+    o.st = 'sent'; o.log.push(['sent', now(), me().n]); if (editPO === o.id) editPO = null;
+    toast(`PO-${o.id} sent to ${sp.n}`);
+    setTimeout(() => { if (o.st !== 'sent') return; o.st = 'confirmed'; o.log.push(['confirmed', now(), sp.c[0][0]]); notify(`${sp.n} confirmed PO-${o.id} for ${dayRel(o.expected)}`, 'check', { page: 'po', id: o.id }); safeRender(true); }, 9000);
+    after ? after() : render();
+  };
+  if (t < sp.mov) confirmBox('Below minimum order value', `PO-${o.id} totals ${eur(t)}. ${esc(sp.n)} has a minimum order of ${eur(sp.mov)} and may charge a delivery fee. Send anyway?`, 'Send anyway', doIt);
+  else doIt();
+}
+VIEWS.po = () => {
+  const o = PO.find((x) => x.id === R.id);
+  if (!o) return head('Order not found', 'It may have been deleted.', '', ['page="orders"', 'Orders']) + `<section class="card">${emptyS('This order no longer exists', '', '<button class="btn sm" data-page="orders">Back to orders</button>')}</section>`;
+  const sp = sup(o.s), ed = o.st === 'draft' && editPO === o.id, rc = o.rcv;
+  const A = { draft: `<button class="btn danger" data-act="poDelete">${ic('trash')}Delete</button><button class="btn" data-act="poEdit">${ed ? 'Done editing' : 'Edit lines'}</button><button class="btn primary" data-act="poSend" ${lock('send')}>${ic('arrow')}Send to supplier</button>`,
+    sent: `<button class="btn danger" data-act="poCancel">Cancel order</button><button class="btn primary" data-act="poConfirm">${ic('check')}Mark as confirmed</button>`,
+    confirmed: `<button class="btn danger" data-act="poCancel">Cancel order</button><button class="btn primary" data-go="rcv:${o.id}">${ic('truck')}Receive delivery</button>`,
+    received: `<button class="btn" data-act="poDup">Reorder as new draft</button>`, cancelled: `<button class="btn" data-act="poDup">Reorder as new draft</button>` }[o.st];
+  const steps = ['draft', 'sent', 'confirmed', 'received'].map((st) => { const e = o.log.find((x) => x[0] === st); return `<div class="step ${e ? 'done' : ''}"><b>${PS[st][0]}</b><span>${e ? `${DS.format(e[1])}, ${TF.format(e[1])}` : '—'}</span><span class="ell hm">${e ? esc(e[2]) : ''}</span></div>`; }).join('');
+  const addable = ITEMS.filter((i) => i.s === o.s && i.q[o.v] !== null && !o.lines.some((l) => l.i === i.id));
+  const rows = o.lines.map((l, k) => { const i = BY[l.i], rl = rc && rc.lines[k]; return `<tr><td class="muted">${k + 1}</td><td><b>${esc(i.n)}</b>${rl && rl.iss.length ? `<div class="sm neg">${rl.iss.join(' · ')}</div>` : ''}</td><td class="hm muted">${i.sku}</td><td class="r">${ed ? `<input class="ni" data-pol="${k}" value="${l.q}" inputmode="decimal" aria-label="Quantity of ${esc(i.n)}"> ` : fq(l.q) + ' '}${i.u}</td><td class="r hm">${eur(l.px)}</td><td class="r" id="pol-t-${k}">${eur(l.q * l.px)}</td>${rc ? `<td class="r">${fq(rl.acc, i.u)}</td>` : ''}${ed ? `<td class="r noprint"><button class="ib" style="width:30px;height:30px" data-act="poDel" data-k="${k}" aria-label="Remove ${esc(i.n)}">${ic('x')}</button></td>` : ''}</tr>`; }).join('');
+  return head(`PO-${o.id}`, `${esc(sp.n)} · ${VEN[o.v]} · ${eur(poTotal(o))}`, `<button class="btn" data-act="print">${ic('print')}Print</button><button class="btn" data-act="expPO">${ic('dl')}CSV</button>${A}`, ['page="orders"', 'Orders']) +
+    (o.st === 'cancelled' ? `<div class="banner">${ic('x')}This order was cancelled ${rel(o.log[o.log.length - 1][1])}. Nothing will be delivered.</div>` : `<div class="steps">${steps}</div>`) +
+    (isOver(o) ? `<div class="finding">${ic('clock')}<span>Expected ${dayRel(o.expected)}, not delivered yet. Call ${esc(sp.c[0][0])} on ${sp.c[0][2]}.</span></div>` : '') +
+    `<article class="doc" id="doc"><div class="doc-h"><div class="brand"><div class="brand-mark">${ic('box')}</div><div><div class="brand-name">Donau &amp; Isar Gastro GmbH</div><div class="brand-sub">Purchasing · ordered via Stockroom</div></div></div><div class="r"><div class="doc-t">Purchase order</div><b>PO-${o.id}</b><div class="muted sm">Issued ${DF.format(o.created)}</div></div></div>
+<div class="doc-g"><div><small>Supplier</small><b>${esc(sp.n)}</b><span>${esc(sp.addr)}</span><span>${esc(sp.c[0][0])} · ${sp.c[0][3]}</span></div><div><small>Deliver to</small><b>${VEN[o.v]}</b><span>${VADDR[o.v]}</span><span>Goods-in 06:00–10:00</span></div><div><small>Requested delivery</small><b>${WD.format(o.expected)}</b><small>Payment terms</small><b>${sp.terms}</b><small>Buyer</small><b>${esc(o.log[0][2])}</b></div></div>
+<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Item</th><th class="hm">SKU</th><th class="r">Quantity</th><th class="r hm">Unit price</th><th class="r">Line total</th>${rc ? '<th class="r">Accepted</th>' : ''}${ed ? '<th class="noprint"></th>' : ''}</tr></thead><tbody>${rows || `<tr><td colspan="6" class="muted">No lines yet. Add products below.</td></tr>`}</tbody>
+<tfoot><tr><td colspan="3" class="hm"></td><td colspan="2"><b>Net total</b></td><td class="r"><b id="po-tot">${eur(poTotal(o))}</b></td>${rc ? `<td class="r"><b>${eur(rcvTotal(o))}</b></td>` : ''}</tr></tfoot></table></div>
+<div id="po-err" class="ferr" role="alert"></div>
+${ed ? `<div class="addl noprint"><select class="sel2" id="po-add" aria-label="Product to add">${addable.map((i) => `<option value="${i.id}">${esc(i.n)} (${eur(i.px)} / ${i.u})</option>`).join('') || '<option value="">All products are on this order</option>'}</select><input class="ni" id="po-q" inputmode="decimal" placeholder="Qty" aria-label="Quantity to add"><button class="btn sm" data-act="poAdd">${ic('plus')}Add line</button></div>` : ''}
+${rc ? `<div class="doc-x"><b>Goods receipt</b>${kv(`Delivery note`,`${esc(rc.note)}`)}${kv(`Received`,`${DF.format(rc.at)}, ${TF.format(rc.at)} by ${esc(rc.by)}${o.onTime ? '' : ' (late)'}`)}${rc.temp !== null ? `${kv(`Chilled goods temperature`,`${fmtD(rc.temp, 1)} °C`)}` : ''}${kv(`Discrepancies`,`${rc.lines.filter((l) => l.iss.length).length || 'None'}`)}${rc.credit ? `${kv(`Credit note requested`,`${eur(rc.credit)}`,'neg')}` : ''}</div>` : ''}
+<p class="doc-n">Prices exclude VAT. Please quote PO-${o.id} on the delivery note and invoice. Chilled goods must arrive at 7 °C or below; deliveries outside goods-in hours may be refused.</p></article>`;
+};
+
+/* Receiving */
+const RCC = '--cols:minmax(0,2fr) 1.1fr 1fr 1fr 1fr;--colsm:minmax(0,1fr) auto';
+VIEWS.receive = () => {
+  const exp = PO.filter((o) => ['sent', 'confirmed'].includes(o.st) && inV(o.v)).sort((a, b) => a.expected - b.expected);
+  const recent = PO.filter((o) => o.rcv && inV(o.v)).sort((a, b) => b.rcv.at - a.rcv.at), wk = recent.filter((o) => wkOf(o.rcv.at) === 7);
+  const disc = sumBy(wk, (o) => o.rcv.lines.filter((l) => l.iss.length).length), cred = sumBy(wk, (o) => o.rcv.credit || 0);
+  const row = (o) => `<div class="tr" style="${RCC}" data-go="${o.rcv ? 'po' : 'rcv'}:${o.id}" tabindex="0" role="button"><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>PO-${o.id} · ${VEN[o.v]} · ${pl(o.lines.length, 'line')}</span></div><span class="hm">${o.rcv ? `${DS.format(o.rcv.at)}, ${TF.format(o.rcv.at)}` : dayRel(o.expected)}</span><b class="hm r">${eur(o.rcv ? rcvTotal(o) : poTotal(o))}</b><span class="hm">${o.rcv ? (o.rcv.lines.some((l) => l.iss.length) ? `<span class="pill warn"><i></i>${pl(o.rcv.lines.filter((l) => l.iss.length).length, 'discrepancy', 'discrepancies')}</span>` : '<span class="pill pos"><i></i>Complete</span>') : poPill(o)}</span><span class="r">${o.rcv ? `<span class="muted sm">${esc(o.rcv.by)}</span>` : '<span class="btn sm primary">Receive</span>'}</span></div>`;
+  return head('Receiving', 'Check deliveries against the delivery note, then book them into stock') +
+    `<div class="kpis">${kpi(`${exp.filter((o) => dayDiff(o.expected) === 0).length}`,`Due today`)}${kpi(`${exp.filter(isOver).length}`,`Overdue`,`${exp.some(isOver) ? 'neg' : ''}`)}${kpi(`${wk.length}`,`Received this week`)}${kpi(`${disc}`,`Discrepancies this week`)}${kpi(`${eur0(cred)}`,`Credit notes requested`)}</div>
+<section class="card"><div class="card-h"><h2>Expected deliveries</h2><span>${pl(exp.length, 'order')}</span></div><div class="tbl">${exp.map(row).join('') || emptyS('Nothing expected', 'Sent and confirmed orders appear here until they are received.')}</div></section>
+<section class="card" style="margin-top:var(--gap)"><div class="card-h"><h2>Recently received</h2><span>Last 10</span></div><div class="tbl">${recent.slice(0, 10).map(row).join('')}</div></section>`;
+};
+const CONDL = { ok: 'OK', damaged: 'Damaged', wrong: 'Wrong item', quality: 'Quality issue' };
+function rcvCalc(o) {
+  const f = RC[o.id], tmp = num(f.temp), hot = !isNaN(tmp) && tmp > 7;
+  return o.lines.map((l, k) => {
+    const x = f.lines[k], d = num(x.d), p = num(x.p), it = BY[l.i], chill = CHILL.includes(it.cat);
+    const bad = isNaN(d) || d < 0 || isNaN(p) || p < 0 || (isInt(it) && d % 1 !== 0), rej = x.c !== 'ok' || (hot && chill), acc = bad || rej ? 0 : d, iss = [];
+    if (bad) iss.push(['Check values', 'neg']);
+    else { if (d < l.q) iss.push([`Short ${fq(l.q - d, it.u)}`, 'warn']); if (d > l.q) iss.push([`Over ${fq(d - l.q, it.u)}`, 'warn']); if (p > l.px + .004) iss.push([`Price +${eur(p - l.px)}`, 'neg']); if (p < l.px - .004) iss.push([`Price ${MINUS}${eur(l.px - p)}`, 'pos']); if (x.c !== 'ok') iss.push([CONDL[x.c], 'neg']); else if (hot && chill) iss.push(['Rejected: temperature', 'neg']); }
+    return { l, d, p, acc, iss, bad, credit: bad ? 0 : (rej ? d * p : 0) + (!rej && p > l.px ? (p - l.px) * d : 0) };
   });
 }
-
-/* ── orders + suppliers ───────────────────────────────── */
-const ST = { ordered: ['In transit', 'warn'], received: ['Received', 'pos'], cancelled: ['Cancelled', ''] };
-function orders() {
-  const rows = [...PO].sort((a, b) => b.id - a.id).map((o) => `<div class="tr" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm muted">${o.id}</span><div class="cell-main"><b>${esc(sup(o.s).n)}</b><span>${VEN[o.v]} · ${o.date}${' · ' + o.lines.length + (o.lines.length === 1 ? ' item' : ' items')}</span></div><span class="hm">${o.lines.map(([i, qn]) => esc(item(i).n.split(' ')[0]) + ' ' + qn).join(', ')}</span><b class="hm r">${tg(poTotal(o))}</b><span class="hm"><span class="pill ${ST[o.st][1]}"><i></i>${ST[o.st][0]}</span></span>
-    <span class="r">${o.st === 'ordered' ? `<button class="btn sm primary" data-act="receive" data-id="${o.id}">Receive</button>` : `<b>${tg(poTotal(o))}</b>`}</span></div>`).join('');
-  return head('Purchasing', `${PO.length} orders · received orders go straight into stock`) +
-    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:.6fr 1.4fr 1.2fr .8fr .9fr .9fr;--colsm:1fr auto"><span class="hm">No.</span><span>Supplier</span><span class="hm">Contents</span><span class="hm r">Total</span><span class="hm">Status</span><span class="r"></span></div>${rows}</div></section>`;
+const rcvRes = (r) => r.iss.length ? r.iss.map(([t, c]) => `<span class="pill ${c}"><i></i>${t}</span>`).join(' ') : '<span class="pill pos"><i></i>Match</span>';
+function rcvSum(o) {
+  const res = rcvCalc(o), f = RC[o.id], tmp = num(f.temp), dis = res.filter((r) => r.iss.length).length, cred = sumBy(res, (r) => r.credit);
+  return `<div class="card-h"><h2>Summary</h2></div>${kv(`Ordered`,`${eur(poTotal(o))}`)}${kv(`Accepted into stock`,`${eur(sumBy(res, (r) => r.acc * r.l.px))}`)}<div class="kv"><span>Discrepancies</span><b class="${dis ? 'warn' : ''}">${dis || 'None'}</b></div><div class="kv"><span>Credit note to request</span><b class="${cred ? 'neg' : ''}">${eur(cred)}</b></div>
+${!isNaN(tmp) && tmp > 7 ? `<div class="errbox" style="margin-top:10px">${ic('alert')}<span>${fmtD(tmp, 1)} °C is above the 7 °C limit. Chilled lines will be rejected and returned with the driver.</span></div>` : ''}
+<div class="modal-actions" style="flex-wrap:wrap"><button class="btn" data-go="po:${o.id}">Cancel</button><button class="btn primary" data-act="rcvDo">${ic('check')}Confirm receipt</button></div>`;
 }
-function suppliers() {
-  const rows = SUP.map((s) => { const mine = PO.filter((o) => o.s === s.id && o.st !== 'cancelled'), spent = mine.reduce((a, o) => a + poTotal(o), 0); return `<div class="tr" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><div class="cell-main"><b>${esc(s.n)}</b><span>${esc(s.who)} · ${s.tel}</span></div><span class="hm">${s.tel}</span><span class="hm stars">${'★'.repeat(s.r)}<i>${'★'.repeat(5 - s.r)}</i></span><span class="hm r">${mine.length}</span><b class="r">${tg(spent)}</b></div>`; }).join('');
-  return head('Suppliers', `${SUP.length} suppliers · ${tg(PO.filter((o) => o.st !== 'cancelled').reduce((a, o) => a + poTotal(o), 0))} spent in the last 2 weeks`) +
-    `<section class="card"><div class="tbl"><div class="tr th" style="--cols:1.3fr 1.2fr 1fr .7fr .9fr;--colsm:1fr auto"><span>Supplier</span><span class="hm">Phone</span><span class="hm">Rating</span><span class="hm r">Orders</span><span class="r">Total</span></div>${rows}</div></section>`;
-}
-
-/* ── actions ──────────────────────────────────────────── */
-const nextPO = () => Math.max(...PO.map((o) => o.id)) + 1;
-const ACT = {
-  venue(d) { venue = d.v; render(); }, cat(d) { cat = d.v; render(); },
-  order(d) { const x = drafts()[+d.k]; PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines }); toast(`Order sent: ${sup(x.s).n}`); render(); },
-  orderAll() { const ds = drafts(); ds.forEach((x) => PO.push({ id: nextPO(), s: x.s, v: x.v, date: TODAY, st: 'ordered', lines: x.lines })); toast(`Orders sent: ${ds.length}`); render(); },
-  receive(d) { const o = PO.find((x) => x.id === +d.id); o.lines.forEach(([i, qn]) => { item(i).qty[o.v] = (item(i).qty[o.v] || 0) + qn; }); o.st = 'received'; toast(`Received: order ${o.id}, stock updated`); render(); },
+VIEWS.rcv = () => {
+  const o = PO.find((x) => x.id === R.id);
+  if (!o || !['sent', 'confirmed'].includes(o.st)) return head('Nothing to receive', o ? `PO-${o.id} is ${PS[o.st][0].toLowerCase()}.` : 'This order no longer exists.', '', ['page="receive"', 'Receiving']) + `<section class="card">${emptyS('Only sent or confirmed orders can be received', '', o ? `<button class="btn sm" data-go="po:${o.id}">Open PO-${o.id}</button>` : '')}</section>`;
+  const sp = sup(o.s), chilled = o.lines.some((l) => CHILL.includes(BY[l.i].cat));
+  const f = RC[o.id] ||= { note: '', time: TF.format(now()), by: me().n, temp: '', lines: o.lines.map((l) => ({ d: String(l.q), p: String(l.px), c: 'ok' })) };
+  const res = rcvCalc(o);
+  return head(`Receive PO-${o.id}`, `${esc(sp.n)} → ${VEN[o.v]} · expected ${dayRel(o.expected)}`, '', [`go="po:${o.id}"`, `PO-${o.id}`]) +
+    `<div class="grid"><div class="c8 stack"><section class="card"><div class="card-h"><h2>1. Delivery note</h2><span>Copy from the driver's paper note</span></div>
+<div class="fgrid ${chilled ? 'g3' : ''}">${fld(`Delivery note no.`,`<input id="r-note" data-rf="note" value="${esc(f.note)}" placeholder="LS-48213" autocomplete="off">`)}${fld(`Arrived at`,`<input id="r-time" data-rf="time" type="time" value="${f.time}">`)}${chilled ? `${fld(`Chilled goods, °C`,`<input id="r-temp" data-rf="temp" inputmode="decimal" value="${esc(f.temp)}" placeholder="e.g. 4.5"><small class="hint">Limit 7 °C</small>`)}` : ''}</div><p class="hint">Received by ${esc(f.by)}</p></section>
+<section class="card"><div class="card-h"><h2>2. Check lines</h2><button class="lnk" data-act="rcvAll">Mark all as delivered in full</button></div><div class="tbl"><div class="tr th" style="--cols:minmax(0,1.8fr) .9fr .9fr 1fr minmax(0,1.3fr);--colsm:minmax(0,1fr) 80px"><span>Item, ordered</span><span class="r">Delivered</span><span class="r hm">Price on note, €</span><span class="hm">Condition</span><span class="hm">Result</span></div>
+${o.lines.map((l, k) => { const i = BY[l.i], x = f.lines[k]; return `<div class="tr" style="--cols:minmax(0,1.8fr) .9fr .9fr 1fr minmax(0,1.3fr);--colsm:minmax(0,1fr) 80px"><div class="cell-main"><b>${esc(i.n)}</b><span>Ordered ${fq(l.q, i.u)} at ${eur(l.px)}${CHILL.includes(i.cat) ? ' · chilled' : ''}</span><div class="dm" id="rm-${k}" style="margin-top:4px">${rcvRes(res[k])}</div></div><input class="ni" data-rc="d:${k}" value="${esc(x.d)}" inputmode="decimal" aria-label="Delivered quantity of ${esc(i.n)}, ${i.u}"><input class="ni hm" data-rc="p:${k}" value="${esc(x.p)}" inputmode="decimal" aria-label="Price on note for ${esc(i.n)}"><select class="ni hm" data-rc="c:${k}" aria-label="Condition of ${esc(i.n)}">${Object.entries(CONDL).map(([c, t]) => `<option value="${c}" ${x.c === c ? 'selected' : ''}>${t}</option>`).join('')}</select><span class="hm" id="rr-${k}">${rcvRes(res[k])}</span></div>`; }).join('')}</div></section></div>
+<aside class="c4"><section class="card" id="rsum" style="position:sticky;top:16px">${rcvSum(o)}</section></aside></div>`;
 };
-/* ── live consumption: the kitchens use stock all day, so statuses and orders move on their own ─ */
+function rcvRefresh(o) { rcvCalc(o).forEach((r, k) => { const a = $('#rr-' + k), b = $('#rm-' + k); if (a) a.innerHTML = rcvRes(r); if (b) b.innerHTML = rcvRes(r); $(`[data-rc="d:${k}"]`)?.classList.toggle('bad', r.bad); }); $('#rsum').innerHTML = rcvSum(o); }
+function rcvDo() {
+  const o = PO.find((x) => x.id === R.id), f = RC[o.id], chilled = o.lines.some((l) => CHILL.includes(BY[l.i].cat));
+  const ok = vForm([['r-note', (x) => !x.trim() ? 'Enter the delivery note number' : !/^[A-Za-z0-9][A-Za-z0-9\-/ ]{2,23}$/.test(x.trim()) ? 'Use 3 to 24 letters, digits or dashes, e.g. LS-48213' : ''], ['r-time', (x) => !x ? 'Enter the arrival time' : ''], ...(chilled ? [['r-temp', (x) => { const n = num(x); return isNaN(n) ? 'Measure and enter the temperature of the chilled goods' : n < -25 || n > 25 ? 'Enter a temperature between −25 and 25 °C' : ''; }]] : [])]);
+  if (!ok) return;
+  const res = rcvCalc(o);
+  if (res.some((r) => r.bad)) { toast('Check the highlighted lines: quantities and prices must be numbers'); $('.ni.bad')?.focus(); return; }
+  const dis = res.filter((r) => r.iss.length), cred = r2(sumBy(res, (r) => r.credit));
+  const apply = () => {
+    res.forEach((r) => { const i = BY[r.l.i]; i.q[o.v] = rq(i, (i.q[o.v] || 0) + r.acc); });
+    const [hh, mm] = f.time.split(':').map(Number), at = new Date(NOW0); at.setHours(hh || 0, mm || 0); const t = at > now() ? now() : at;
+    o.rcv = { at: t, note: f.note.trim(), by: f.by, temp: chilled ? num(f.temp) : null, credit: cred, lines: res.map((r) => ({ i: r.l.i, ord: r.l.q, dlv: r.d, acc: r.acc, px: r.l.px, npx: r.p, iss: r.iss.map((x) => x[0]) })) };
+    o.st = 'received'; o.onTime = dayDiff(o.expected) >= 0; o.log.push(['received', now(), me().n]); delete RC[o.id];
+    if (dis.length) notify(`PO-${o.id} received with ${pl(dis.length, 'discrepancy', 'discrepancies')}${cred ? `, credit note of ${eur(cred)} requested from ${sup(o.s).n}` : ''}`, 'alert', { page: 'po', id: o.id });
+    toast(`PO-${o.id} received: ${pl(res.filter((r) => r.acc).length, 'line')} booked into stock at ${VEN[o.v]}`);
+    go('po', o.id);
+  };
+  if (dis.length) confirmBox(`Receive with ${pl(dis.length, 'discrepancy', 'discrepancies')}?`, `Accepted goods go into stock at ${VEN[o.v]}.${cred ? ` A credit note request for ${eur(cred)} will be sent to ${esc(sup(o.s).n)}.` : ''} Short lines will not be invoiced.`, 'Confirm receipt', apply, false, 'Back to checking');
+  else apply();
+}
+
+/* Stock count */
+const cVar = (c) => sumBy(c.lines, (l) => l.cnt === '' || l.cnt === undefined ? 0 : (l.cnt - l.exp) * BY[l.i].px);
+VIEWS.count = () => {
+  if (!CNT) {
+    const hist = COUNTS.filter((c) => inV(c.v));
+    return head('Stock count', `Weekly full counts keep book stock honest. Next due: ${VEN[NEXTCOUNT]}, Sunday.`) +
+      `<div class="grid"><section class="card c5"><div class="card-h"><h2>Start a count</h2></div><form id="cf" novalidate>
+${fld(`Venue`,`<select id="c-v">${VS.map((v) => `<option value="${v}" ${(venue === 'all' ? NEXTCOUNT : venue) === v ? 'selected' : ''}>${VEN[v]}</option>`).join('')}</select>`)}
+${fld(`Scope`,`<select id="c-s"><option value="All">Full count</option>${CATS.map((c) => `<option value="${c}">${c} only</option>`).join('')}</select>`)}
+<label class="chk" style="margin-bottom:16px"><input type="checkbox" id="c-b"> Blind count (hide expected quantities)</label>
+<div><button class="btn primary" type="submit">${ic('list')}Start count</button></div></form></section>
+<section class="card c7"><div class="card-h"><h2>Count history</h2><span>${pl(hist.length, 'count')}</span></div><div class="tbl"><div class="tr th" style="--cols:1fr 1.3fr .8fr 1fr;--colsm:1fr auto"><span>Date</span><span class="hm">Venue, scope</span><span class="hm r">Accuracy</span><span class="r">Variance</span></div>
+${hist.map((c) => { const v = cVar(c), acc = c.lines.filter((l) => l.cnt === l.exp).length / c.lines.length; return `<div class="tr" style="--cols:1fr 1.3fr .8fr 1fr;--colsm:1fr auto" data-act="countD" data-id="${c.id}" tabindex="0" role="button"><div class="cell-main"><b>${DF.format(c.started)}</b><span>${c.id} · ${esc(c.by)}</span></div><span class="hm">${VEN[c.v]} · ${c.scope}</span><span class="hm r">${pc(acc, 0)}</span><b class="r ${v < 0 ? 'neg' : 'pos'}">${v < 0 ? MINUS : '+'}${eur(Math.abs(v))}</b></div>`; }).join('') || emptyS('No counts yet', '')}</div></section></div>`;
+  }
+  const s = L.count, sub = CNT.st === 'submitted', q = s.q.trim().toLowerCase();
+  const rows = CNT.lines.map((l, k) => ({ l, k })).filter(({ l }) => (!q || BY[l.i].n.toLowerCase().includes(q)) && (s.f === 'all' || (s.f === 'todo' ? l.cnt === '' : l.cnt !== '' && l.cnt !== l.exp)));
+  const C = '--cols:minmax(0,2fr) .9fr 1fr .9fr .9fr;--colsm:minmax(0,1fr) 84px 70px';
+  return head(`Stock count · ${VEN[CNT.v]}`, `${CNT.scope} · started ${rel(CNT.started)} by ${esc(CNT.by)}${CNT.blind ? ' · blind count' : ''}`, sub ? '' : `<button class="btn danger" data-act="cntDiscard">Discard</button><button class="btn primary" data-act="cntSubmit">Submit for approval</button>`) +
+    (sub ? (can('approve') ? `<div class="finding">${ic('shield')}<span>Submitted ${rel(CNT.sub)} by ${esc(CNT.subBy)}. Approving posts the variance to stock and the food-cost report.</span><button class="btn sm" data-act="cntReturn">Return for recount</button><button class="btn sm primary" data-act="cntApprove">Approve and post</button></div>` : `<div class="banner">${ic('lock')}Waiting for a Manager to approve. Katharina Brandl has been notified. ${PERM.approve[1]}.</div>`) : '') +
+    `<section class="card" style="margin-bottom:var(--gap)"><div class="prog" id="cprog">${cProg()}</div></section>
+<div class="tools"><input class="search" data-q="count" value="${esc(s.q)}" placeholder="Find a product on the sheet" aria-label="Search count sheet"><div class="tabs" style="margin:0">${[['all', 'All'], ['todo', 'Not counted'], ['var', 'With variance']].map(([k, t]) => `<button class="${s.f === k ? 'on' : ''}" data-act="cntF" data-v="${k}">${t}</button>`).join('')}</div></div>
+<section class="card"><div class="tbl"><div class="tr th" style="${C}"><span>Product</span><span class="r hm">Expected</span><span class="r">Counted</span><span class="r">Variance</span><span class="r hm">Value</span></div>
+${rows.map(({ l, k }) => { const i = BY[l.i]; return `<div class="tr" style="${C}"><div class="cell-pt"><span class="pt sm hm">${ptImg(i.cat)}</span><div class="cell-main"><b>${esc(i.n)}</b><span>${i.sku} · ${i.u}</span></div></div><span class="r hm muted">${CNT.blind && !sub ? 'Hidden' : fq(l.exp, i.u)}</span><input class="ni" data-cn="${k}" value="${l.cnt}" inputmode="decimal" placeholder="—" aria-label="Counted ${esc(i.n)}, ${i.u}" ${sub ? 'disabled' : ''}><span class="r" id="cv-${k}">${cVarQ(l)}</span><span class="r hm" id="ce-${k}">${cVarE(l)}</span></div>`; }).join('') || emptyS('Nothing to show', s.f === 'todo' ? 'Every line has been counted.' : 'No lines match.')}</div></section>`;
+};
+const cVarQ = (l) => { if (l.cnt === '' || CNT.blind && CNT.st === 'open') return '<span class="muted">—</span>'; const d = l.cnt - l.exp; return d ? `<b class="${d < 0 ? 'neg' : 'pos'}">${d > 0 ? '+' : MINUS}${fq(Math.abs(d))}</b>` : '<span class="muted">0</span>'; };
+const cVarE = (l) => { if (l.cnt === '' || CNT.blind && CNT.st === 'open') return ''; const d = (l.cnt - l.exp) * BY[l.i].px; return d ? `<span class="${d < 0 ? 'neg' : 'pos'}">${d > 0 ? '+' : MINUS}${eur(Math.abs(d))}</span>` : ''; };
+const cProg = () => { const n = CNT.lines.filter((l) => l.cnt !== '').length, t = CNT.lines.length, v = cVar(CNT); return `<b>${n} of ${pl(t, 'line')} counted</b><div class="bar"><i style="width:${n / t * 100}%"></i></div><span class="muted">Net variance ${CNT.blind && CNT.st === 'open' ? 'shown after submitting' : `<b class="${v < 0 ? 'neg' : ''}">${v < 0 ? MINUS : v > 0 ? '+' : ''}${eur(Math.abs(v))}</b>`}</span>`; };
+
+/* Waste */
+const WC = '--cols:minmax(0,2fr) .8fr .8fr 1.1fr 1fr;--colsm:minmax(0,1fr) auto';
+VIEWS.waste = () => {
+  const s = L.waste, q = s.q.trim().toLowerCase();
+  const list = WASTE.filter((w) => inV(w.v) && (s.reason === 'All' || w.reason === s.reason) && (!q || `${BY[w.i].n} ${w.by} ${w.note}`.toLowerCase().includes(q))), rows = pageOf('waste', list);
+  const wk = wasteIn(49), m30 = wasteIn(TI - 29), wv = sumBy(wk, (w) => w.val), cons = consW(7);
+  const byR = REASONS.map((r) => [r, sumBy(m30.filter((w) => w.reason === r), (w) => w.val)]).filter((x) => x[1]).sort((a, b) => b[1] - a[1]), mx = byR[0] ? byR[0][1] : 1;
+  return head('Waste', 'Everything thrown away, with a reason, so the food-cost report stays honest', `<button class="btn" data-act="expWaste">${ic('dl')}Export CSV</button><button class="btn primary" data-act="logWaste">${ic('plus')}Log waste</button>`) +
+    `<div class="kpis">${kpi(`${eur(wv)}`,`This week`)}${kpi(`${pc(wv / (cons || 1))}`,`Of consumption this week`)}${kpi(`${eur0(sumBy(m30, (w) => w.val))}`,`Last 30 days, ${pl(m30.length, 'entry', 'entries')}`)}<div class="kpi"><b style="font-size:20px;line-height:1.6">${byR[0] ? byR[0][0] : '—'}</b><span>Top reason</span></div></div>
+<div class="grid"><section class="card c4"><div class="card-h"><h2>By reason</h2><span>Last 30 days</span></div>${byR.map(([r, v]) => barRow(r, v / mx * 100, eur0(v))).join('') || '<p class="empty">No waste logged.</p>'}</section>
+<section class="card c8"><div class="tools"><input class="search" data-q="waste" value="${esc(s.q)}" placeholder="Search product, person or note" aria-label="Search waste log"><select class="sel2" data-f="reason" data-k="waste" aria-label="Reason">${['All', ...REASONS].map((r) => `<option ${s.reason === r ? 'selected' : ''} value="${r}">${r === 'All' ? 'All reasons' : r}</option>`).join('')}</select></div>
+<div class="tbl"><div class="tr th" style="${WC}"><span>Product</span><span class="r hm">Quantity</span><span class="r">Value</span><span class="hm">Reason</span><span class="hm">Logged</span></div>
+${rows.map((w) => { const i = BY[w.i]; return `<div class="tr" style="${WC}" data-item="${i.id}" tabindex="0" role="button"><div class="cell-main"><b>${esc(i.n)}</b><span>${VEN[w.v]}${w.note ? ' · ' + esc(w.note) : ''}<span class="dm">${fq(w.q, i.u)} · ${w.reason} · ${rel(w.at)}</span></span></div><span class="r hm">${fq(w.q, i.u)}</span><b class="r">${eur(w.val)}</b><span class="hm">${w.reason}</span><div class="hm cell-main"><span>${rel(w.at)}<br>${esc(w.by)}</span></div></div>`; }).join('') || emptyS('No entries', 'Nothing matches these filters.', '<button class="btn sm" data-act="clearF" data-k="waste">Clear filters</button>')}</div>${pager('waste', list.length)}</section></div>`;
+};
+function wasteForm(id) {
+  const it = id ? BY[id] : null, v0 = it ? (VS.find((v) => inV(v) && it.q[v] !== null) || VS.find((v) => it.q[v] !== null)) : (venue === 'all' ? 'center' : venue);
+  modal(`<h2>Log waste</h2><p>Removes the quantity from stock and counts it towards food cost.</p><form id="wf" novalidate>
+<div class="fgrid">${fld(`Venue`,`<select id="w-v">${VS.map((v) => `<option value="${v}" ${v === v0 ? 'selected' : ''}>${VEN[v]}</option>`).join('')}</select>`)}${fld(`Product`,`<select id="w-i">${wasteOpts(v0, id)}</select><small class="hint" id="w-h"></small>`)}
+<div class="field"><label for="w-q" id="w-ql">Quantity</label><input id="w-q" inputmode="decimal" autocomplete="off"></div>${fld(`Reason`,`<select id="w-r"><option value="">Select a reason</option>${REASONS.map((r) => `<option>${r}</option>`).join('')}</select>`)}</div>
+${fld(`Note <span class="muted">(required for Other)</span>`,`<textarea id="w-n" maxlength="200"></textarea>`)}
+<div class="modal-actions"><button type="button" class="btn" data-act="closeM">Cancel</button><button class="btn primary" type="submit">Log waste</button></div></form>`, () => wHint());
+}
+const wasteOpts = (v, sel) => CATS.map((c) => { const its = ITEMS.filter((i) => i.cat === c && i.q[v] !== null).sort((a, b) => a.n.localeCompare(b.n)); return its.length ? `<optgroup label="${c}">${its.map((i) => `<option value="${i.id}" ${i.id === sel ? 'selected' : ''}>${esc(i.n)}</option>`).join('')}</optgroup>` : ''; }).join('');
+function wHint() { const i = BY[+$('#w-i').value], v = $('#w-v').value; if (!i) return; $('#w-h').textContent = `In stock: ${fq(i.q[v], i.u)} · ${eur(i.px)} per ${i.u}`; $('#w-ql').textContent = `Quantity, ${i.u}`; }
+function saveWaste() {
+  const v = $('#w-v').value, i = BY[+$('#w-i').value];
+  if (!vForm([['w-i', () => !i ? 'Choose a product' : ''], ['w-q', (x) => i ? qtyErr(i, num(x), i.q[v]) : ''], ['w-r', (x) => !x ? 'Choose a reason' : ''], ['w-n', (x) => $('#w-r').value === 'Other' && !x.trim() ? 'Describe what happened' : '']])) return;
+  const q = num($('#w-q').value), e = { id: Math.max(0, ...WASTE.map((w) => w.id)) + 1, i: i.id, v, q, val: r2(q * i.px), reason: $('#w-r').value, note: $('#w-n').value.trim(), by: me().n, at: now() };
+  i.q[v] = rq(i, i.q[v] - q); WASTE.unshift(e); CONS[v][7][i.cat] += e.val;
+  closeModal(); closeDrawer(true); render();
+  undo(`Logged ${fq(q, i.u)} of ${i.n} as waste (${eur(e.val)})`, () => { i.q[v] = rq(i, i.q[v] + q); WASTE.splice(WASTE.indexOf(e), 1); CONS[v][7][i.cat] -= e.val; });
+}
+
+/* Suppliers */
+const SC = '--cols:minmax(0,2fr) .8fr 1fr 1.1fr 1fr .7fr;--colsm:minmax(0,1fr) auto';
+const scoreH = (sc) => `<span class="score ${sc < 85 ? 'mid' : ''}"><span class="bar"><i style="width:${sc}%"></i></span><b>${sc}</b></span>`;
+const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const days = (sp) => sp.fr.map((d) => DOW[d]).join(', ') + (sp.every ? ' (fortnightly)' : '');
+const spend = (sp) => PO.reduce((a, o) => o.s === sp.id && o.rcv && inV(o.v) ? a + rcvTotal(o) : a, 0);
+VIEWS.sup = () => {
+  const s = L.sup, q = s.q.trim().toLowerCase();
+  const list = sortBy(SUP.filter((x) => !q || `${x.n} ${x.city} ${x.c.map((c) => c[0]).join(' ')}`.toLowerCase().includes(q)), s, { n: (x) => x.n, lead: (x) => x.lead, score: (x) => reli(x).score, spend });
+  return head('Suppliers', `${pl(SUP.length, 'supplier')} · ${eur0(sumBy(SUP, spend))} received in 8 weeks`, `<button class="btn" data-act="expSup">${ic('dl')}Export CSV</button>`) +
+    `<div class="tools"><input class="search" data-q="sup" value="${esc(s.q)}" placeholder="Search supplier, city or contact" aria-label="Search suppliers"></div>
+<section class="card"><div class="tbl"><div class="tr th" style="${SC}"><span>${sh('sup', 'n', 'Supplier')}</span><span class="hm">${sh('sup', 'lead', 'Lead time')}</span><span class="hm">Delivers</span><span>${sh('sup', 'score', 'Reliability')}</span><span class="hm r">${sh('sup', 'spend', 'Spend, 8 wks')}</span><span class="hm r">Open</span></div>
+${list.map((x) => `<div class="tr" style="${SC}" data-go="supd:${x.id}" tabindex="0" role="button"><div class="cell-main"><b>${esc(x.n)}</b><span>${x.city} · ${[...new Set(ITEMS.filter((i) => i.s === x.id).map((i) => i.cat))].join(', ')}</span></div><span class="hm">${pl(x.lead, 'day')}</span><span class="hm muted">${days(x)}</span><span>${scoreH(reli(x).score)}</span><b class="hm r">${eur0(spend(x))}</b><span class="hm r">${PO.filter((o) => o.s === x.id && OPEN.includes(o.st) && inV(o.v)).length}</span></div>`).join('') || emptyS('No suppliers match', 'Try another search term.')}</div></section>`;
+};
+VIEWS.supd = () => {
+  const sp = sup(R.id); if (!sp) return head('Supplier not found', '', '', ['page="sup"', 'Suppliers']);
+  const r = reli(sp), b = basket(sp), its = ITEMS.filter((i) => i.s === sp.id), ords = PO.filter((o) => o.s === sp.id && inV(o.v)).sort((a, c) => c.created - a.created).slice(0, 6);
+  return head(esc(sp.n), `${sp.city} · ${[...new Set(its.map((i) => i.cat))].join(', ')} · ${sp.terms}`, `<button class="btn" data-act="editSup" ${lock('edit')}>${ic('edit')}Edit details</button><button class="btn primary" data-act="newPO" data-id="${sp.id}">${ic('plus')}New order</button>`, ['page="sup"', 'Suppliers']) +
+    `<div class="grid"><div class="c8 stack"><section class="card"><div class="card-h"><h2>Reliability</h2><span>Last 8 weeks</span></div><div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap"><div>${ringSVG(120, { value: r.score / 100, label: String(r.score), sub: 'of 100' })}</div><div style="flex:1;min-width:200px">${kv(`On-time deliveries`,`${pc(r.ot)}`)}${kv(`Fill rate`,`${pc(r.fill)}`)}${kv(`Deliveries received`,`${r.n}`)}${kv(`Lines with discrepancies`,`${r.disc}`)}</div></div></section>
+<section class="card"><div class="card-h"><h2>Price index</h2><span class="${b[11] > 100 ? 'neg' : 'pos'}">${sPct(b[11] / 100 - 1)} in 12 weeks</span></div>${spark(b)}<div class="muted sm" style="display:flex;justify-content:space-between"><span>${DS.format(dAt(-28))}</span><span>Basket of ${pl(its.length, 'product')}, ${DS.format(dAt(TI))} = ${fmtD(b[11], 1)}</span></div></section>
+<section class="card"><div class="card-h"><h2>Products</h2><span>${its.length}</span></div><div class="tbl">${its.map((i) => `<div class="tr" style="--cols:minmax(0,2fr) 1fr 90px .8fr;--colsm:minmax(0,1fr) auto" data-item="${i.id}" tabindex="0" role="button"><div class="cell-main"><b>${esc(i.n)}</b><span>${i.sku} · ${VS.filter((v) => i.q[v] !== null).map((v) => VEN[v]).join(', ')}</span></div><span class="r">${eur(i.px)} / ${i.u}</span><span class="hm">${spark(i.ph, 'mini')}</span><span class="r hm ${i.px > i.ph[0] ? 'neg' : 'pos'}">${sPct(i.px / i.ph[0] - 1)}</span></div>`).join('')}</div></section>
+<section class="card"><div class="card-h"><h2>Recent orders</h2></div><div class="tbl">${ords.map((o) => `<div class="tr" style="--cols:1fr 1.2fr 1fr auto;--colsm:1fr auto" data-go="po:${o.id}" tabindex="0" role="button"><b>PO-${o.id}</b><span class="hm">${VEN[o.v]}</span><span class="hm r">${eur(poTotal(o))}</span>${poPill(o)}</div>`).join('') || '<p class="empty">No orders yet.</p>'}</div></section></div>
+<div class="c4 stack"><section class="card"><div class="card-h"><h2>Contacts</h2></div>${sp.c.map((c) => `<div class="kv" style="display:block"><b style="text-align:left;display:block">${esc(c[0])}</b><span class="sm">${esc(c[1])}</span><div class="sm">${c[2]}</div><div class="sm" style="overflow-wrap:anywhere">${c[3]}</div></div>`).join('')}</section>
+<section class="card"><div class="card-h"><h2>Delivery terms</h2></div>${kv(`Lead time`,`${pl(sp.lead, 'day')}`)}${kv(`Delivery days`,`${days(sp)}`)}${kv(`Order cut-off`,`${sp.cut}`)}${kv(`Minimum order`,`${eur(sp.mov)}`)}${kv(`Payment`,`${sp.terms}`)}${kv(`Next delivery`,`${WD.format(nextDelivery(sp))}`)}</section>
+<section class="card"><div class="card-h"><h2>Price list sync</h2></div>${sp.sync === 1 ? `<div class="errbox">${ic('alert')}<div><b>Import failed ${rel(dAt(TI - 1, 17, 30))}</b><br>Unit “Kiste” in row 14 is not recognised. Prices shown are from the previous list.<br><button class="btn sm" data-act="syncRetry">Retry import</button></div></div>` : sp.sync === 2 ? `<div class="sk" style="height:42px"></div>` : `<div class="okbox">${ic('check')}<span>Price list imported ${rel(dAt(TI - 3 - sp.id % 3, 6, 10))}</span></div>`}</section></div></div>`;
+};
+function supForm() {
+  const sp = sup(R.id);
+  modal(`<h2>Edit supplier</h2><p>${esc(sp.n)}</p><form id="sf" novalidate><div class="fgrid">${fld(`Lead time, days`,`<input id="s-lead" inputmode="numeric" value="${sp.lead}">`)}${fld(`Order cut-off`,`<input id="s-cut" type="time" value="${sp.cut}">`)}
+${fld(`Minimum order, €`,`<input id="s-mov" inputmode="decimal" value="${sp.mov}">`)}${fld(`Payment terms`,`<select id="s-terms">${['7 days net', '14 days net', '21 days net', '30 days net'].map((t) => `<option ${t === sp.terms ? 'selected' : ''}>${t}</option>`).join('')}</select>`)}
+${fld(`Primary contact phone`,`<input id="s-tel" type="tel" value="${sp.c[0][2]}">`)}${fld(`Primary contact email`,`<input id="s-mail" type="email" value="${sp.c[0][3]}">`)}</div>
+<div class="modal-actions"><button type="button" class="btn" data-act="closeM">Cancel</button><button class="btn primary" type="submit">Save changes</button></div></form>`, (s) => s.firstChild.classList.add('wide'));
+}
+function saveSup() {
+  const sp = sup(R.id);
+  if (!vForm([['s-lead', (x) => { const n = num(x); return isNaN(n) || n % 1 || n < 1 || n > 14 ? 'Enter whole days from 1 to 14' : ''; }], ['s-cut', (x) => !x ? 'Enter a cut-off time' : ''], ['s-mov', (x) => { const n = num(x); return isNaN(n) || n < 0 ? 'Enter €0 or more' : ''; }], ['s-tel', (x) => !/^\+?[\d\s/-]{7,20}$/.test(x.trim()) ? 'Enter a phone number, e.g. +43 1 512 34 56' : ''], ['s-mail', (x) => !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(x.trim()) ? 'Enter a valid email address' : '']])) return;
+  Object.assign(sp, { lead: num($('#s-lead').value), cut: $('#s-cut').value, mov: num($('#s-mov').value), terms: $('#s-terms').value });
+  sp.c[0][2] = $('#s-tel').value.trim(); sp.c[0][3] = $('#s-mail').value.trim();
+  closeModal(); logE(`${me().n} updated terms for ${sp.n}`); toast(`Saved ${sp.n}`); render();
+}
+
+/* Reorder rules */
+const RLC = '--cols:minmax(0,2fr) .8fr .8fr 92px 92px 1fr .8fr;--colsm:minmax(0,1fr) 70px 70px';
+const ruleVal = (i, v) => { const p = RP[v][i.id]; return { min: p ? p.min : String(i.min[v]), par: p ? p.par : String(i.par[v]) }; };
+const ruleErr = (r) => { const m = num(r.min), p = num(r.par); return isNaN(m) || m < 0 ? 'Min must be 0 or more' : isNaN(p) || p <= 0 ? 'Enter a par level' : p <= m ? 'Par must be higher than min' : ''; };
+const ruleGap = (i, v) => { const sm = sugMin(i, v), sp = sugPar(i, v); return i.use[v] > 0 && (Math.abs(i.min[v] - sm) / sm > .25 || Math.abs(i.par[v] - sp) / sp > .25); };
+VIEWS.rules = () => {
+  const s = L.rules, v = s.v, q = s.q.trim().toLowerCase(), ro = !can('rules');
+  const list = ITEMS.filter((i) => i.q[v] !== null && (s.cat === 'All' || i.cat === s.cat) && (!q || i.n.toLowerCase().includes(q))).sort((a, b) => a.cat.localeCompare(b.cat) || a.n.localeCompare(b.n));
+  const gaps = list.filter((i) => ruleGap(i, v)).length;
+  return head('Reorder rules', `Below min, Stockroom suggests an order that refills to par. ${pl(ITEMS.filter((i) => i.q[v] !== null).length, 'product')} at ${VEN[v]}.`, `<button class="btn" data-act="expRules">${ic('dl')}Export CSV</button>`) +
+    `<div class="tabs">${VS.map((x) => `<button class="${x === v ? 'on' : ''}" data-act="rulesV" data-v="${x}">${VEN[x]}${Object.keys(RP[x]).length ? `<em>${Object.keys(RP[x]).length} unsaved</em>` : ''}</button>`).join('')}</div>
+${ro ? `<div class="banner">${ic('lock')}Read-only. Reorder rules are maintained by Buyers and Managers.</div>` : ''}
+<div class="tools"><input class="search" data-q="rules" value="${esc(s.q)}" placeholder="Find a product" aria-label="Search rules"><select class="sel2" data-f="cat" data-k="rules" aria-label="Category">${['All', ...CATS].map((c) => `<option value="${c}" ${s.cat === c ? 'selected' : ''}>${c === 'All' ? 'All categories' : c}</option>`).join('')}</select>${ro ? '' : `<button class="btn" data-act="rulesSug" ${gaps ? '' : 'disabled'}>Apply suggestions${gaps ? ` (${gaps})` : ''}</button>`}</div>
+<section class="card"><div class="tbl"><div class="tr th" style="${RLC}"><span>Product</span><span class="r hm">On hand</span><span class="r hm">Use per day</span><span class="r">Min</span><span class="r">Par</span><span class="hm r">Suggested min / par</span><span class="r hm">Cover</span></div>
+${list.map((i) => { const r = ruleVal(i, v), e = ruleErr(r), chg = !!RP[v][i.id], cov = i.use[v] ? i.q[v] / i.use[v] : 0; return `<div class="tr ${chg ? 'chg' : ''}" style="${RLC}"><div class="cell-main"><b>${esc(i.n)}</b><span>${i.cat} · ${i.u}</span><span class="ferr" id="re-${i.id}" style="display:block">${chg ? e : ''}</span></div><span class="r hm">${fq(i.q[v], i.u)}</span><span class="r hm muted">${fmtD(i.use[v], 1)}</span><input class="ni ${chg && e ? 'bad' : ''}" data-rule="min:${i.id}" value="${esc(r.min)}" inputmode="decimal" aria-label="Min for ${esc(i.n)}" ${ro ? 'disabled' : ''}><input class="ni ${chg && e ? 'bad' : ''}" data-rule="par:${i.id}" value="${esc(r.par)}" inputmode="decimal" aria-label="Par for ${esc(i.n)}" ${ro ? 'disabled' : ''}><span class="hm r ${ruleGap(i, v) ? 'acc' : 'muted'}">${i.use[v] ? `${sugMin(i, v)} / ${sugPar(i, v)}` : 'No history'}</span><span class="r hm ${cov && cov < sup(i.s).lead + 1 ? 'neg' : ''}">${cov ? pl(Math.round(cov * 10) / 10, 'day') : '—'}</span></div>`; }).join('') || emptyS('No products match', '')}</div></section><div id="savebar">${saveBar()}</div>`;
+};
+const saveBar = () => { const n = Object.keys(RP[L.rules.v]).length; return n ? `<div class="savebar" role="region" aria-label="Unsaved changes"><span>${pl(n, 'unsaved change')} at ${VEN[L.rules.v]}</span><button class="btn sm" data-act="rulesDiscard">Discard</button><button class="btn sm primary" data-act="rulesSave">Save rules</button></div>` : ''; };
+
+/* Reports */
+const CH = {
+  fc(w) {
+    const ws = [...Array(rep)].map((_, k) => 8 - rep + k), h = 220, L0 = 40, R0 = 54, T = 14, B = 26, lo = 20, hi = 40;
+    const vals = ws.map((x) => Math.max(lo, Math.min(hi, fcW(x) * 100))), X = (k) => L0 + (w - L0 - R0) * k / (ws.length - 1), Y = (v) => T + (h - T - B) * (1 - (v - lo) / (hi - lo));
+    let g = ''; [20, 25, 30, 35, 40].forEach((v) => { g += `<line class="grid-l" x1="${L0}" x2="${w - R0 + 8}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L0 - 8}" y="${Y(v) + 4}" text-anchor="end">${v}%</text>`; });
+    g += `<line x1="${L0}" x2="${w - R0 + 8}" y1="${Y(30)}" y2="${Y(30)}" stroke="var(--neg)" stroke-dasharray="4 4" opacity=".7"/><text x="${w - R0 + 12}" y="${Y(30) + 4}" style="fill:var(--neg)">Target</text>`;
+    const d = vals.map((v, k) => `${k ? 'L' : 'M'}${X(k).toFixed(1)},${Y(v).toFixed(1)}`).join('');
+    const pts = vals.map((v, k) => `<circle cx="${X(k)}" cy="${Y(v)}" r="3.5" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"><title>${WKL(ws[k])}: ${fmtD(v, 1)}%</title></circle><text x="${X(k)}" y="${h - 8}" text-anchor="middle">${WKL(ws[k])}${ws[k] === 7 ? '*' : ''}</text>`).join('');
+    const last = vals[vals.length - 1];
+    return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Food cost by week: ${ws.map((x, k) => WKL(x) + ' ' + fmtD(vals[k], 1) + '%').join(', ')}">${g}<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>${pts}<text x="${X(vals.length - 1)}" y="${Y(last) - 10}" text-anchor="middle" style="fill:var(--text);font-weight:600">${fmtD(last, 1)}%</text></svg>`;
+  },
+  cons(w) { const ws = [...Array(rep)].map((_, k) => 8 - rep + k); return barsSVG(w, { labels: ws.map(WKL), values: ws.map((x) => consW(x)), fmtV: (v) => '€' + (v >= 1000 ? fmtD(v / 1000, 1) + 'k' : fmt(v)), mark: rep - 2 }); },
+};
+VIEWS.reports = () => {
+  if (!can('reports')) return head('Reports', 'Food cost, consumption and waste') + `<section class="card perm">${ic('lock')}<b>Reports are available to Buyers and Managers</b><p>You are signed in as ${me().t}. Ask Katharina Brandl (Operations manager) if you need access to cost figures.</p></section>`;
+  const ws = [...Array(rep)].map((_, k) => 8 - rep + k), rev = sumBy(ws, revW), cons = sumBy(ws, (x) => consW(x)), pur = sumBy(ws, purW), wst = sumBy(wasteIn((8 - rep) * 7), (x) => x.val);
+  const cats = CATS.map((c) => [c, sumBy(ws, (x) => consW(x, c))]).sort((a, b) => b[1] - a[1]);
+  const sups = SUP.map((sp) => [sp.n, PO.reduce((a, o) => o.s === sp.id && o.rcv && inV(o.v) && wkOf(o.rcv.at) >= 8 - rep ? a + rcvTotal(o) : a, 0)]).sort((a, b) => b[1] - a[1]);
+  return head('Reports', `${rep} weeks to ${DF.format(now())} · ${venue === 'all' ? 'both venues' : VEN[venue]}`, `<div class="tabs" style="margin:0">${[4, 8].map((n) => `<button class="${rep === n ? 'on' : ''}" data-act="rep" data-v="${n}">${n} weeks</button>`).join('')}</div><button class="btn" data-act="expRep">${ic('dl')}Export CSV</button>`) +
+    `<div class="kpis">${kpi(`${pc(cons / rev)}`,`Food cost, target 30%`,`${cons / rev > .3 ? 'neg' : ''}`)}${kpi(`${eur0(rev)}`,`Food and drink revenue`)}${kpi(`${eur0(cons)}`,`Consumption at cost`)}${kpi(`${eur0(pur)}`,`Purchases received`)}${kpi(`${eur0(wst)}`,`Waste, ${pc(wst / cons)} of consumption`)}</div>
+<div class="grid"><section class="card c8"><div class="card-h"><h2>Food cost by week</h2><span>* week to date</span></div><div data-chart="fc"></div></section>
+<section class="card c4"><div class="card-h"><h2>Consumption by category</h2><span>${eur0(cons)}</span></div>${cats.map(([c, v]) => barRow(c, v / cats[0][1] * 100, eur0(v), pc(v / cons, 0))).join('')}</section>
+<section class="card c6"><div class="card-h"><h2>Consumption by week</h2><span>At cost</span></div><div data-chart="cons"></div></section>
+<section class="card c6"><div class="card-h"><h2>Purchases by supplier</h2><span>Received</span></div>${sups.filter((x) => x[1]).map(([n, v]) => barRow(esc(n), v / sups[0][1] * 100, eur0(v))).join('')}</section>
+<section class="card c12"><div class="card-h"><h2>Weekly figures</h2></div><div class="tbl"><div class="tr th" style="--cols:.7fr 1fr 1fr .8fr 1fr .8fr;--colsm:1fr 1fr auto"><span>Week</span><span class="r hm">Revenue</span><span class="r">Consumption</span><span class="r">Food cost</span><span class="r hm">Purchases</span><span class="r hm">Waste</span></div>
+${ws.slice().reverse().map((x) => { const f = fcW(x); return `<div class="tr" style="--cols:.7fr 1fr 1fr .8fr 1fr .8fr;--colsm:1fr 1fr auto"><div class="cell-main"><b>${WKL(x)}${x === 7 ? ' (to date)' : ''}</b><span>from ${DS.format(dAt(x * 7))}</span></div><span class="r hm">${eur0(revW(x))}</span><span class="r">${eur0(consW(x))}</span><b class="r ${f > .3 ? 'neg' : 'pos'}">${pc(f)}</b><span class="r hm">${eur0(purW(x))}</span><span class="r hm">${eur0(sumBy(wasteIn(x * 7, x * 7 + 6), (w) => w.val))}</span></div>`; }).join('')}</div></section></div>`;
+};
+
+/* sign in */
+let srole = 'buyer';
+function vSignin() {
+  document.body.classList.add('out'); closePop(); closeDrawer(true); closeModal();
+  let el = $('#signin'); if (!el) { el = document.createElement('div'); el.id = 'signin'; $('.app').after(el); }
+  el.innerHTML = `<div class="signin"><form class="sbox" id="sform" novalidate><div class="brand"><div class="brand-mark">${ic('box')}</div><div><div class="brand-name">Stockroom</div><div class="brand-sub">Donau &amp; Isar Gastro</div></div></div>
+<h1>Sign in</h1><p class="muted">Purchasing and inventory for Café Central Wien and Bistro Isar.</p>
+<fieldset class="roles"><legend>Demo account</legend>${Object.entries(USERS).map(([k, u]) => `<label class="role ${k === srole ? 'on' : ''}"><input type="radio" name="role" value="${k}" ${k === srole ? 'checked' : ''}><b>${u.t}</b><span>${u.n}</span></label>`).join('')}</fieldset>
+${fld(`Work email`,`<input id="se" type="email" autocomplete="username" value="${USERS[srole].e}">`)}
+${fld(`Password`,`<input id="sp" type="password" autocomplete="current-password" value="stockroom-demo">`)}
+<div class="srow"><label class="chk"><input type="checkbox" checked> Keep me signed in</label><button type="button" class="lnk" data-act="forgot">Forgot password?</button></div>
+<div id="smsg" role="status"></div><button class="btn primary wide" id="sbtn" type="submit">Sign in</button>
+<p class="sfoot">Stockroom 4.12.1 · <button type="button" class="lnk" data-act="help">Help &amp; support</button></p></form></div>`;
+}
+function doSignin() {
+  if (!vForm([['se', (x) => !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(x.trim()) ? 'Enter your work email' : ''], ['sp', (x) => !x ? 'Enter your password' : '']])) return;
+  const b = $('#sbtn'); b.disabled = true; b.innerHTML = '<span class="spin"></span>Signing in…';
+  setTimeout(() => { role = srole; authed = true; document.body.classList.remove('out'); $('#signin')?.remove(); R = { page: 'today', id: null }; render(); toast(`Signed in as ${me().n} (${me().t})`); }, 650);
+}
+
+/* help, menus, search */
+const KEYS = [['/', 'Focus search'], ['Esc', 'Close dialog, drawer or menu'], ['Enter', 'Open the focused row'], ['Tab', 'Move between fields']];
+function helpBox() {
+  closePop();
+  modal(`<h2>Help &amp; support</h2><p>Our support team answers Monday to Saturday, 07:00–20:00 CET.</p>${kv(`Email`,`support@stockroom.example`)}${kv(`Phone`,`+43 1 890 77 00`)}${kv(`System status`,`All systems operational`,'pos')}${kv(`Version`,`4.12.1, released 2 Nov 2026`)}
+<h3 class="h3">Keyboard shortcuts</h3>${KEYS.map(([k, t]) => `${kv(`${t}`,`<kbd>${k}</kbd>`)}`).join('')}<div class="modal-actions"><button class="btn primary" data-act="closeM">Done</button></div>`);
+}
+const hl = (s, q) => { const i = s.toLowerCase().indexOf(q); return i < 0 ? esc(s) : esc(s.slice(0, i)) + '<mark>' + esc(s.slice(i, i + q.length)) + '</mark>' + esc(s.slice(i + q.length)); };
+function gsearch() {
+  const s = gq.trim().toLowerCase(); if (!s) { if ($('#pop.gsp')) closePop(); return; }
+  const its = ITEMS.filter((i) => `${i.n} ${i.sku}`.toLowerCase().includes(s)).slice(0, 5), sps = SUP.filter((x) => x.n.toLowerCase().includes(s)).slice(0, 3);
+  const pos = PO.filter((o) => `po-${o.id}`.includes(s.replace(/^po\s*-?\s*/, 'po-')) || String(o.id).includes(s)).slice(-3).reverse();
+  const sec = (t, a) => a.length ? `<div class="pop-l">${t}</div>${a.join('')}` : '';
+  const html = sec('Products', its.map((i) => `<button class="mi" data-item="${i.id}"><span class="pt sm">${ptImg(i.cat)}</span><span>${hl(i.n, s)}<small>${i.sku} · ${fq(qOf(i, venue), i.u)} in stock</small></span></button>`)) + sec('Suppliers', sps.map((x) => `<button class="mi" data-go="supd:${x.id}">${ic('users')}<span>${hl(x.n, s)}<small>${x.city} · lead time ${pl(x.lead, 'day')}</small></span></button>`)) + sec('Orders', pos.map((o) => `<button class="mi" data-go="po:${o.id}">${ic('file')}<span>PO-${o.id}<small>${esc(sup(o.s).n)} · ${PS[o.st][0]}</small></span></button>`));
+  const p = $('#pop.gsp') || openPop('', $('#gq'), 'gsp left');
+  p.innerHTML = html || `<p class="empty">No matches for “${esc(gq.trim())}”.</p>`;
+}
+function notePop(a) {
+  openPop(`<div class="pop-h"><span>Notifications</span>${NOTE.some((n) => !n.read) ? '<button class="lnk" data-act="readAll">Mark all as read</button>' : ''}</div>` + (NOTE.slice(0, 12).map((n) => `<button class="mi ${n.read ? '' : 'unread'}" data-act="note" data-id="${n.id}">${ic(n.ic)}<span>${esc(n.text)}<small>${rel(n.at)}</small></span></button>`).join('') || '<p class="empty">You are all caught up.</p>'), a);
+}
+function userPop(a) {
+  const u = me();
+  openPop(`<div class="uh"><span class="avatar">${u.ini}</span><div><b>${u.n}</b><small>${u.e}</small></div></div><div class="urole"><span class="pill acc">${u.t}</span>${u.d}</div><div class="sep"></div><button class="mi" data-act="help">${ic('help')}<span>Help &amp; support</span></button><div class="sep"></div><button class="mi" data-act="signout">${ic('out')}<span>Sign out</span></button><div class="ver" style="padding:6px 10px">Stockroom 4.12.1 · build 2026.11.02</div>`, a);
+}
+
+/* actions */
+const curPO = () => PO.find((x) => x.id === R.id);
+const ACT = {
+  closeM: closeModal, closeD: () => closeDrawer(), help: helpBox,
+  bell(d, el) { if (popA === el) return closePop(); notePop(el); },
+  user(d, el) { if (popA === el) return closePop(); userPop(el); },
+  more(d, el) { if (popA === el) return closePop(); openPop(Object.keys(PAGES).filter((k) => !TABS.includes(k)).map((k) => `<button class="mi" data-page="${k}">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></button>`).join(''), el, 'sheet'); },
+  readAll() { NOTE.forEach((n) => { n.read = true; }); closePop(); topbar(); },
+  note(d) { const n = NOTE.find((x) => x.id === +d.id); n.read = true; closePop(); topbar(); if (n.go.item) openItem(n.go.item); else go(n.go.page, n.go.id ?? null); },
+  signout() { closePop(); authed = false; srole = role; render(); },
+  forgot() { $('#smsg').textContent = 'Password resets are handled by your administrator. In this demo the password is already filled in.'; },
+  sort(d) { const s = L[d.k]; if (s.sort === d.s) s.dir *= -1; else { s.sort = d.s; s.dir = ['name', 'n', 'sup'].includes(d.s) ? 1 : -1; } view(); },
+  pg(d) { L[d.k].p = +d.p; view(); $('#view .pager')?.scrollIntoView({ block: 'nearest' }); },
+  clearSel(d) { L[d.k].sel.clear(); view(); },
+  clearF(d) { Object.assign(L[d.k], { q: '', cat: 'All', st: 'all', reason: 'All', p: 1 }); view(); },
+  ost(d) { L.orders.st = d.v; L.orders.p = 1; view(); },
+  draftAll() { const sg = suggestions(venue); sg.forEach((x) => addToDraft(x.s, x.v, x.lines)); L.orders.st = 'draft'; toast(`${pl(sg.length, 'draft order')} created. Review and send.`); go('orders'); },
+  sugDraft(d) { const x = suggestions(venue)[+d.k]; if (!x) return; const o = addToDraft(x.s, x.v, x.lines); toast(`Draft PO-${o.id} for ${sup(x.s).n}`); render(); },
+  sugSend(d) { const x = suggestions(venue)[+d.k]; if (!x) return; const o = addToDraft(x.s, x.v, x.lines); sendPO(o); },
+  newPO(d) { newPOForm(d.id ? +d.id : null); },
+  logWaste(d) { wasteForm(d.id ? +d.id : null); },
+  newItem() { itemForm(); }, editItem(d) { itemForm(+d.id); },
+  orderItem(d) {
+    const i = BY[+d.id], made = [];
+    VS.filter((v) => i.q[v] !== null && inV(v)).forEach((v) => { const n = Math.max(1, needQty(i, v) || Math.ceil(i.par[v] - i.min[v])); made.push(addToDraft(i.s, v, [{ i: i.id, q: n, px: i.px }])); });
+    closeDrawer(true); toast(`${i.n} added to ${made.map((o) => 'PO-' + o.id).join(' and ')}`); render();
+  },
+  bulkOrder() {
+    const os = new Set(); let n = 0;
+    L.items.sel.forEach((id) => { const i = BY[id]; VS.filter((v) => i.q[v] !== null && inV(v)).forEach((v) => { const q = needQty(i, v); if (q) { os.add(addToDraft(i.s, v, [{ i: id, q, px: i.px }]).id); n++; } }); });
+    if (!n) return toast('Nothing to add: the selected items are at par or already on order');
+    L.items.sel.clear(); toast(`${pl(n, 'line')} added to ${pl(os.size, 'draft order')}`); render();
+  },
+  expItems(d) {
+    const list = d.only ? ITEMS.filter((i) => L.items.sel.has(i.id)) : itemList();
+    csv(`stockroom-catalogue-${iso(now())}.csv`, ['SKU', 'Product', 'Category', 'Supplier', 'Unit', 'Unit price EUR', 'In stock', 'Min', 'Par', 'Stock value EUR', 'Status', 'Venue'], list.map((i) => [i.sku, i.n, i.cat, sup(i.s).n, i.u, i.px.toFixed(2), qOf(i, venue), minOf(i, venue), parOf(i, venue), (qOf(i, venue) * i.px).toFixed(2), SL[stat(i, venue)][0], venue === 'all' ? 'All venues' : VEN[venue]]));
+  },
+  expOrders(d) { const list = d.only ? PO.filter((o) => L.orders.sel.has(o.id)) : orderList(); csv(`stockroom-orders-${iso(now())}.csv`, ['PO', 'Supplier', 'Venue', 'Created', 'Delivery', 'Status', 'Lines', 'Net total EUR'], list.map((o) => ['PO-' + o.id, sup(o.s).n, VEN[o.v], isoT(o.created), iso(o.expected), PS[o.st][0], o.lines.length, poTotal(o).toFixed(2)])); },
+  expPO() { const o = curPO(); csv(`PO-${o.id}.csv`, ['Line', 'SKU', 'Product', 'Quantity', 'Unit', 'Unit price EUR', 'Line total EUR'], o.lines.map((l, k) => [k + 1, BY[l.i].sku, BY[l.i].n, l.q, BY[l.i].u, l.px.toFixed(2), (l.q * l.px).toFixed(2)])); },
+  expWaste() { csv(`stockroom-waste-${iso(now())}.csv`, ['Date', 'Venue', 'Product', 'Quantity', 'Unit', 'Value EUR', 'Reason', 'Note', 'Logged by'], WASTE.filter((w) => inV(w.v)).map((w) => [isoT(w.at), VEN[w.v], BY[w.i].n, w.q, BY[w.i].u, w.val.toFixed(2), w.reason, w.note, w.by])); },
+  expSup() { csv(`stockroom-suppliers-${iso(now())}.csv`, ['Supplier', 'City', 'Lead time days', 'Delivery days', 'Minimum order EUR', 'Terms', 'Reliability', 'On-time %', 'Fill rate %', 'Spend 8 weeks EUR'], SUP.map((x) => { const r = reli(x); return [x.n, x.city, x.lead, days(x), x.mov, x.terms, r.score, (r.ot * 100).toFixed(1), (r.fill * 100).toFixed(1), spend(x).toFixed(2)]; })); },
+  expRules() { const v = L.rules.v; csv(`stockroom-reorder-rules-${v === 'center' ? 'wien' : 'muenchen'}.csv`, ['SKU', 'Product', 'Unit', 'On hand', 'Min', 'Par', 'Suggested min', 'Suggested par'], ITEMS.filter((i) => i.q[v] !== null).map((i) => [i.sku, i.n, i.u, i.q[v], i.min[v], i.par[v], sugMin(i, v), sugPar(i, v)])); },
+  expRep() { const ws = [...Array(rep)].map((_, k) => 8 - rep + k); csv(`stockroom-food-cost-${iso(now())}.csv`, ['Week', 'Week starting', 'Revenue EUR', 'Consumption EUR', 'Food cost %', 'Purchases EUR', 'Waste EUR', ...CATS.map((c) => c + ' EUR')], ws.map((x) => [WKL(x), iso(dAt(x * 7)), revW(x).toFixed(0), consW(x).toFixed(2), (fcW(x) * 100).toFixed(1), purW(x).toFixed(2), sumBy(wasteIn(x * 7, x * 7 + 6), (w) => w.val).toFixed(2), ...CATS.map((c) => consW(x, c).toFixed(2))])); },
+  rep(d) { rep = +d.v; view(); },
+  print() { window.print(); },
+  poEdit() { const o = curPO(); editPO = editPO === o.id ? null : o.id; view(); },
+  poSend() { sendPO(curPO()); },
+  poConfirm() { const o = curPO(); o.st = 'confirmed'; o.log.push(['confirmed', now(), me().n]); toast(`PO-${o.id} marked as confirmed by ${sup(o.s).n}`); render(); },
+  poCancel() { const o = curPO(), prev = o.st; confirmBox(`Cancel PO-${o.id}?`, `${esc(sup(o.s).n)} will be told not to deliver. Stock suggestions will include these lines again.`, 'Cancel order', () => { o.st = 'cancelled'; o.log.push(['cancelled', now(), me().n]); render(); undo(`PO-${o.id} cancelled`, () => { o.st = prev; o.log.pop(); }); }, true, 'Keep order'); },
+  poDelete() { const o = curPO(); confirmBox(`Delete draft PO-${o.id}?`, `${pl(o.lines.length, 'line')} worth ${eur(poTotal(o))} will be removed.`, 'Delete draft', () => { const k = PO.indexOf(o); PO.splice(k, 1); go('orders'); undo(`Draft PO-${o.id} deleted`, () => PO.splice(k, 0, o)); }, true, 'Keep draft'); },
+  poDup() { const o = curPO(), n = newPO(o.s, o.v); n.lines = o.lines.map((l) => ({ i: l.i, q: l.q, px: BY[l.i].px })); editPO = n.id; toast(`Draft PO-${n.id} created from PO-${o.id} at current prices`); go('po', n.id); },
+  poDel(d) { const o = curPO(); o.lines.splice(+d.k, 1); view(); },
+  poAdd() { const o = curPO(), i = BY[+$('#po-add').value], n = num($('#po-q').value); if (!i) return; const e = qtyErr(i, n); if (e) { $('#po-q').classList.add('bad'); $('#po-err').textContent = e; $('#po-q').focus(); return; } o.lines.push({ i: i.id, q: n, px: i.px }); view(); $('#po-add')?.focus(); },
+  rcvAll() { const o = curPO(); RC[o.id].lines.forEach((x, k) => { x.d = String(o.lines[k].q); x.p = String(o.lines[k].px); x.c = 'ok'; }); view(); },
+  rcvDo,
+  cntF(d) { L.count.f = d.v; view(); },
+  cntDiscard() { confirmBox('Discard this count?', 'Counted quantities will be lost. Stock levels stay as they are.', 'Discard count', () => { CNT = null; render(); toast('Count discarded'); }, true, 'Keep counting'); },
+  cntSubmit() {
+    const todo = CNT.lines.filter((l) => l.cnt === '');
+    const sub = () => { todo.forEach((l) => { l.cnt = l.exp; }); CNT.st = 'submitted'; CNT.sub = now(); CNT.subBy = me().n; notify(`${me().n} submitted the stock count for ${VEN[CNT.v]} (net variance ${eur(cVar(CNT))})`, 'list', { page: 'count' }); render(); toast(can('approve') ? 'Count submitted. Review and approve.' : 'Count submitted for approval'); };
+    if (todo.length) confirmBox(`${pl(todo.length, 'line')} not counted`, 'Lines left blank will be treated as matching the expected quantity. Submit anyway?', 'Submit', sub, false, 'Keep counting'); else sub();
+  },
+  cntReturn() { CNT.st = 'open'; render(); toast('Count returned for recount'); },
+  cntApprove() {
+    if (!can('approve')) return toast(PERM.approve[1]);
+    let val = 0; CNT.lines.forEach((l) => { const i = BY[l.i], adj = l.cnt - l.exp; if (adj && i.q[CNT.v] !== null) { i.q[CNT.v] = Math.max(0, rq(i, i.q[CNT.v] + adj)); CONS[CNT.v][7][i.cat] -= adj * i.px; val += adj * i.px; } });
+    COUNTS.unshift({ id: 'SC-' + (31 + COUNTS.length), v: CNT.v, scope: CNT.scope, by: CNT.by, appr: me().n, started: CNT.started, done: now(), lines: CNT.lines.map((l) => ({ ...l })) });
+    toast(`Count approved: ${val < 0 ? MINUS : '+'}${eur(Math.abs(val))} posted to ${VEN[CNT.v]}`); CNT = null; render();
+  },
+  countD(d) {
+    const c = COUNTS.find((x) => x.id === d.id), vr = c.lines.filter((l) => l.cnt !== l.exp).sort((a, b) => Math.abs((b.cnt - b.exp) * BY[b.i].px) - Math.abs((a.cnt - a.exp) * BY[a.i].px));
+    drawer(`<div class="dh"><div class="cell-main"><h2>Stock count ${c.id}</h2><span>${VEN[c.v]} · ${c.scope} · ${DF.format(c.started)}</span></div><button class="ib" data-act="closeD" aria-label="Close">${ic('x')}</button></div><div class="db">${kv(`Counted by`,`${esc(c.by)}`)}${kv(`Approved by`,`${esc(c.appr)}, ${DF.format(c.done)}`)}${kv(`Lines`,`${c.lines.length}`)}<div class="kv"><span>Net variance</span><b class="${cVar(c) < 0 ? 'neg' : 'pos'}">${eur(cVar(c))}</b></div>
+<h3 class="h3">Lines with variance (${vr.length})</h3>${vr.map((l) => { const i = BY[l.i], dv = l.cnt - l.exp; return `<div class="mv"><span>${esc(i.n)}<small>Expected ${fq(l.exp, i.u)}, counted ${fq(l.cnt, i.u)}</small></span><b class="${dv < 0 ? 'neg' : 'pos'}">${dv > 0 ? '+' : MINUS}${eur(Math.abs(dv * i.px))}</b></div>`; }).join('') || '<p class="empty">Every line matched.</p>'}</div>`);
+  },
+  rulesV(d) { L.rules.v = d.v; view(); },
+  rulesSug() { const v = L.rules.v; ITEMS.filter((i) => i.q[v] !== null && ruleGap(i, v) && (L.rules.cat === 'All' || i.cat === L.rules.cat)).forEach((i) => { RP[v][i.id] = { min: String(sugMin(i, v)), par: String(sugPar(i, v)) }; }); view(); toast('Suggestions applied. Review, then save.'); },
+  rulesDiscard() { RP[L.rules.v] = {}; view(); },
+  rulesSave() {
+    if (!can('rules')) return toast(PERM.rules[1]);
+    const v = L.rules.v, ids = Object.keys(RP[v]).map(Number), bad = ids.filter((id) => ruleErr(RP[v][id]));
+    if (bad.length) { L.rules.q = ''; L.rules.cat = 'All'; view(); $(`[data-rule="min:${bad[0]}"]`)?.focus(); return toast(`Check ${pl(bad.length, 'highlighted row')} before saving`); }
+    const old = ids.map((id) => [id, BY[id].min[v], BY[id].par[v]]);
+    ids.forEach((id) => { BY[id].min[v] = num(RP[v][id].min); BY[id].par[v] = num(RP[v][id].par); });
+    RP[v] = {}; logE(`${me().n} updated ${pl(ids.length, 'reorder rule')} at ${VEN[v]}`, 'sliders'); render();
+    undo(`Saved ${pl(ids.length, 'rule')} for ${VEN[v]}`, () => old.forEach(([id, m, p]) => { BY[id].min[v] = m; BY[id].par[v] = p; }));
+  },
+  editSup: supForm,
+  syncRetry() { const sp = sup(R.id); sp.sync = 2; view(); setTimeout(() => { sp.sync = 0; logE(`Price list from ${sp.n} imported`, 'check', `supd:${sp.id}`); if (R.page === 'supd') view(); toast(`Price list from ${sp.n} imported: 10 prices checked, no changes`); }, 1200); },
+};
+
+/* events */
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if ($('#pop') && !t.closest('#pop') && !t.closest('[data-act=bell],[data-act=user],[data-act=more],#gq')) closePop();
+  if (t.closest('[data-stop]')) return;
+  const lk = t.closest('[data-lock]'); if (lk) return toast(PERM[lk.dataset.lock][1]);
+  const act = t.closest('[data-act]'); if (act) { const f = ACT[act.dataset.act]; if (f) { if (act.closest('#pop') && !['readAll'].includes(act.dataset.act)) closePop(); f(act.dataset, act); } return; }
+  const g = t.closest('[data-go]'); if (g) { closeModal(); const [p, id] = g.dataset.go.split(':'); return go(p, id ? +id : null); }
+  const a = t.closest('[data-page]'); if (a) { closeModal(); return go(a.dataset.page); }
+  const it = t.closest('[data-item]'); if (it) { closeModal(); return openItem(+it.dataset.item); }
+});
+document.addEventListener('submit', (e) => {
+  e.preventDefault();
+  ({ sform: doSignin, pf: () => saveItem(e.target), nf: saveNewPO, wf: saveWaste, sf: saveSup, cf: () => {
+    const v = $('#c-v').value, sc = $('#c-s').value;
+    CNT = { v, scope: sc === 'All' ? 'Full count' : sc + ' only', blind: $('#c-b').checked, st: 'open', started: now(), by: me().n, lines: ITEMS.filter((i) => i.q[v] !== null && (sc === 'All' || i.cat === sc)).map((i) => ({ i: i.id, exp: i.q[v], cnt: '' })) };
+    L.count = { q: '', f: 'all' }; render(); toast(`Count started: ${pl(CNT.lines.length, 'line')} at ${VEN[v]}`);
+  } })[e.target.id]?.();
+});
+document.addEventListener('change', (e) => {
+  const t = e.target, ds = t.dataset;
+  if (t.id === 'venue') { venue = t.value; L.items.p = L.orders.p = L.waste.p = 1; L.items.sel.clear(); L.orders.sel.clear(); return render(); }
+  if (ds.sel) { const s = L[ds.sel].sel; t.checked ? s.add(+t.value) : s.delete(+t.value); view(); return $(`[data-sel="${ds.sel}"][value="${t.value}"]`)?.focus(); }
+  if (ds.selall) { const s = L[ds.selall]; s.ids.forEach((id) => t.checked ? s.sel.add(id) : s.sel.delete(id)); view(); return $(`[data-selall="${ds.selall}"]`)?.focus(); }
+  if (ds.f) { const s = L[ds.k]; s[ds.f] = t.value; if ('p' in s) s.p = 1; view(); return $(`[data-f="${ds.f}"][data-k="${ds.k}"]`)?.focus(); }
+  if (t.name === 'role') { srole = t.value; $$('.role').forEach((r) => r.classList.toggle('on', r.querySelector('input').checked)); $('#se').value = USERS[srole].e; fErr('se', ''); return; }
+  if (t.id === 'w-v') { $('#w-i').innerHTML = wasteOpts(t.value); return wHint(); }
+  if (t.id === 'w-i') return wHint();
+  if (t.id === 'n-s') { const sp = sup(+t.value); $('#n-v').innerHTML = window.__venOpts(sp); $('#n-d').value = iso(nextDelivery(sp)); $('#n-h').textContent = `Earliest with ${pl(sp.lead, 'day')} lead time: ${WD.format(dAt(TI + sp.lead))}`; fErr('n-v', ''); fErr('n-d', ''); }
+});
+document.addEventListener('input', (e) => {
+  const t = e.target, ds = t.dataset;
+  if (t.id === 'gq') { gq = t.value; return gsearch(); }
+  if (ds.q) { const k = ds.q; L[k].q = t.value; if ('p' in L[k]) L[k].p = 1; const pos = t.selectionStart; view(); const n = $(`[data-q="${k}"]`); n.focus(); n.setSelectionRange(pos, pos); return; }
+  if (ds.rf) { RC[R.id][ds.rf] = t.value; fErr(t.id, ''); return rcvRefresh(curPO()); }
+  if (ds.rc) { const [f, k] = ds.rc.split(':'); RC[R.id].lines[+k][{ d: 'd', p: 'p', c: 'c' }[f]] = t.value; return rcvRefresh(curPO()); }
+  if (ds.cn) { const l = CNT.lines[+ds.cn], i = BY[l.i], n = num(t.value), bad = t.value.trim() !== '' && (isNaN(n) || n < 0 || (isInt(i) && n % 1)); t.classList.toggle('bad', bad); t.title = bad ? (isInt(i) ? `Whole ${i.u} only` : 'Enter 0 or more') : ''; l.cnt = t.value.trim() === '' || bad ? '' : n; $('#cv-' + ds.cn).innerHTML = cVarQ(l); $('#ce-' + ds.cn).innerHTML = cVarE(l); $('#cprog').innerHTML = cProg(); return; }
+  if (ds.rule) {
+    const [f, id] = ds.rule.split(':'), i = BY[+id], v = L.rules.v, r = { ...ruleVal(i, v), [f]: t.value };
+    if (num(r.min) === i.min[v] && num(r.par) === i.par[v]) delete RP[v][id]; else RP[v][id] = r;
+    const er = RP[v][id] ? ruleErr(r) : ''; $('#re-' + id).textContent = er; $$(`[data-rule$=":${id}"]`).forEach((x) => x.classList.toggle('bad', !!er)); t.closest('.tr').classList.toggle('chg', !!RP[v][id]);
+    $('#savebar').innerHTML = saveBar(); return;
+  }
+  if (ds.pol) { const o = curPO(), l = o.lines[+ds.pol], n = num(t.value), er = qtyErr(BY[l.i], n); t.classList.toggle('bad', !!er); $('#po-err').textContent = er ? `${BY[l.i].n}: ${er}` : ''; if (!er) { l.q = n; $('#pol-t-' + ds.pol).textContent = eur(n * l.px); $('#po-tot').textContent = eur(poTotal(o)); } return; }
+  if (t.id === 'po-q') { t.classList.remove('bad'); $('#po-err').textContent = ''; }
+  if (t.closest('.field.bad')) fErr(t.id, '');
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { if ($('#scrim')) return; if ($('#pop')) { const a = popA; closePop(); a?.focus?.(); return; } if ($('#drawer')) closeDrawer(); return; }
+  if (!authed) return;
+  if (e.key === '/' && !e.target.matches('input,textarea,select') && !$('#scrim')) { e.preventDefault(); ($('#view .search') || $('#gq'))?.focus(); return; }
+  if (e.key === 'Enter' && e.target.id === 'gq') { e.preventDefault(); $('#pop.gsp .mi')?.click(); return; }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[tabindex][data-item],[tabindex][data-go],[tabindex][data-page],[tabindex][data-act]') && !e.target.matches('button,input,select')) { e.preventDefault(); e.target.click(); }
+}, true);
+let rzT; window.addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => { closePop(); if (authed && $('#view [data-chart]')) view(); }, 150); });
+
+/* reconciliation: every number must agree with every other one */
+function check() {
+  const low = lowItems('all').length;
+  console.assert(low === new Set(lowLines().map((x) => x.i.id)).size, 'below-min count matches stock lines');
+  console.assert(Math.abs(stockVal('all') - stockVal('center') - stockVal('north')) < .01, 'stock value adds up across venues');
+  console.assert(ITEMS.every((i) => VS.every((v) => i.q[v] === null || i.q[v] >= 0)), 'no negative stock');
+  console.assert(+($('#nav [data-page="today"] .count')?.textContent || 0) === low, 'nav badge matches below-min count');
+  console.assert(PO.every((o) => !o.rcv || o.rcv.lines.every((l) => l.acc <= l.dlv + 1e-9)), 'accepted never exceeds delivered');
+  console.assert(suggestions().every((d) => d.lines.every((l) => l.q > 0 && BY[l.i].q[d.v] + incoming(l.i, d.v) < BY[l.i].par[d.v])), 'suggestions refill to par');
+  console.assert(Math.abs(sumBy(VS, (v) => sumBy(CATS, (c) => CONS[v][7][c])) - (venue === 'all' ? consW(7) : sumBy(VS, (v) => sumBy(CATS, (c) => CONS[v][7][c])))) < .01, 'consumption adds up');
+}
+
+/* live kitchens: stock is used all day, so statuses and suggestions move on their own */
+function safeRender(force) {
+  if (!authed) return;
+  const busy = $('#scrim') || $('#drawer') || $('#pop') || document.activeElement?.matches('input,select,textarea');
+  chrome(); if (!$('#pop') && document.activeElement?.id !== 'gq') topbar();
+  if (!busy && (['today', 'items'].includes(R.page) || (force && ['po', 'orders', 'receive'].includes(R.page))) && !loading) view();
+}
 setInterval(() => {
-  if (document.hidden || $('#scrim')) return;
-  const pool = ITEMS.flatMap((i) => ['center', 'north'].filter((v) => i.qty[v] !== null && i.qty[v] > 0).map((v) => [i, v]));
-  const [i, v] = pool[Math.floor(Math.random() * pool.length)], before = i.qty[v] < i.min[v];
-  const used = i.u === 'pcs' ? 1 + Math.floor(Math.random() * 3) : [0.5, 1, 1.5][Math.floor(Math.random() * 3)];
-  i.qty[v] = Math.max(0, Math.round((i.qty[v] - used) * 10) / 10);
-  if (!before && i.qty[v] < i.min[v]) toast(`${i.n} (${VEN[v]}): below minimum, ${i.qty[v]} ${i.u}`);
-  if (['today', 'stock'].includes(page) && document.activeElement?.id !== 'q') render();
-}, 4500);
+  if (!authed || document.hidden) return;
+  const pool = []; ITEMS.forEach((i) => VS.forEach((v) => { if (i.q[v] > 0 && i.u !== 'keg') pool.push([i, v]); }));
+  const [i, v] = pool[Math.floor(Math.random() * pool.length)], was = stat1(i, v);
+  const u = Math.min(i.q[v], isInt(i) ? 1 + Math.floor(Math.random() * 3) : [.5, 1, 1.5][Math.floor(Math.random() * 3)]);
+  i.q[v] = rq(i, i.q[v] - u); CONS[v][7][i.cat] += u * i.px;
+  if (was !== 'low' && stat1(i, v) === 'low') notify(`${i.n} at ${VEN[v]} fell below minimum (${fq(i.q[v], i.u)} left)`, 'alert', { item: i.id });
+  safeRender();
+}, 5000);
 render();
 </script>
 </body>

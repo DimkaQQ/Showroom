@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RentoWorld — peer-to-peer car rental (demo)</title>
-<meta name="description" content="Demo: catalogue of cars from private owners, availability calendar, price calculation by dates, my trips and an owner dashboard. Sample data shown.">
+<meta name="description" content="Demo: peer-to-peer car rental marketplace. Search, listing pages with availability and reviews, checkout with card verification, trips, messages and a host dashboard. Sample data shown.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -12,239 +12,1368 @@
 :root[data-theme="light"] {
   --bg: #f6f5f1; --surface: #ffffff; --raised: #f2f1ec; --hover: #ecebe5; --border: #e3e1d9; --rule: #eeede7;
   --text: #17181a; --muted: #5a5d62; --faint: #6d7076;
-  --accent: #0c8a5f; --accent-ink: #ffffff; --accent-bg: #dff3ea;
+  --accent: #0c8a5f; --accent-ink: #ffffff; --accent-bg: #dff3ea; --accent-d: #08684a;
+  --star: #b87a00; --heart: #d93a52;
   --font: "Rubik", system-ui, sans-serif; --display: "Rubik", system-ui, sans-serif;
+  --sh: 0 1px 2px rgba(23,24,26,.05), 0 8px 24px rgba(23,24,26,.07);
+  --sh-l: 0 2px 6px rgba(23,24,26,.06), 0 22px 56px rgba(23,24,26,.18);
+  --e-out: cubic-bezier(.23,1,.32,1); --e-drw: cubic-bezier(.32,.72,0,1);
 }
 .head h1, .big, .kpi b { font-weight: 600; letter-spacing: -.025em; }
-
-/* top navigation instead of a sidebar: this one is a consumer product */
 .app { display: block; min-height: 0; } .side { display: none; }
-.top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 28px; height: 60px; padding: 0 var(--pad); background: var(--surface); border-bottom: 1px solid var(--border); }
-.top .brand { padding: 0; } .top .brand-name { font-weight: 700; }
-.top .nav { flex-direction: row; gap: 4px; } .top .nav a { height: 36px; }
-.top .who-top { margin-left: auto; display: flex; align-items: center; gap: 10px; } .top .who-top b { font-weight: 500; }
-.main { margin: 0 auto; max-width: 1240px; }
+.main { margin: 0 auto; max-width: 1240px; animation: fade .2s ease both; }
+body.out .top, body.out .tabbar, body.out .foot { display: none; }
+.sm-t { font-size: 13px; } .xs { font-size: 12px; }
+.lnk { all: unset; cursor: pointer; color: var(--accent); font-weight: 500; } .lnk:hover { text-decoration: underline; } .lnk:focus-visible { outline: 2px solid var(--accent); border-radius: 3px; }
+.btn.primary { background: var(--accent); } .btn.primary:hover { background: var(--accent-d); filter: none; }
+.btn.danger { background: var(--neg); color: #fff; border-color: transparent; }
+.btn.lg { height: 46px; font-size: 15px; border-radius: 10px; }
+.btn.ghost { background: transparent; border-color: transparent; }
+.spin { width: 15px; height: 15px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: rot .6s linear infinite; flex: none; }
+@keyframes rot { to { transform: rotate(360deg); } }
+.sel, .inp { height: 36px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 0 10px; min-width: 0; }
+.inp:focus, .sel:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+.av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; font-size: 13px; flex: none; }
+.av.lg { width: 56px; height: 56px; font-size: 18px; }
+.stars { color: var(--star); letter-spacing: 1px; } .stars i { color: var(--border); font-style: normal; }
+.rt { display: inline-flex; align-items: center; gap: 4px; font-weight: 500; white-space: nowrap; } .rt .ic { width: 14px; height: 14px; fill: var(--star); stroke: var(--star); } .rt em { font-style: normal; color: var(--muted); font-weight: 400; }
 
-.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
-.chip { height: 34px; padding: 0 14px; border-radius: 17px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s, border-color .15s; }
-.chip:hover { color: var(--text); border-color: var(--faint); }
+/* header */
+.top { position: sticky; top: 0; z-index: 20; padding: 0 var(--pad); background: color-mix(in srgb, var(--surface) 94%, transparent); -webkit-backdrop-filter: saturate(1.4) blur(12px); backdrop-filter: saturate(1.4) blur(12px); border-bottom: 1px solid var(--border); }
+.top-in { max-width: 1184px; margin: 0 auto; display: flex; align-items: center; gap: 24px; height: 64px; }
+.top .brand { padding: 0; cursor: pointer; border: 0; background: none; } .top .brand-name { font-weight: 700; font-size: 17px; }
+.brand-name em { font-style: normal; color: var(--accent); }
+.top .nav { flex-direction: row; gap: 2px; } .top .nav a { height: 36px; padding: 0 12px; }
+.tb-r { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.ib { position: relative; width: 38px; height: 38px; border-radius: 50%; border: 0; background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer; transition: background-color .15s, color .15s, transform .12s var(--e-out); }
+.ib:hover { background: var(--hover); color: var(--text); } .ib:active { transform: scale(.94); }
+.badge { position: absolute; top: 3px; right: 2px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--neg); color: #fff; font-size: 11px; font-weight: 600; display: grid; place-items: center; border: 2px solid var(--surface); }
+.um { display: flex; align-items: center; gap: 8px; height: 40px; padding: 3px 10px 3px 3px; margin-left: 6px; border: 1px solid var(--border); border-radius: 22px; background: var(--surface); cursor: pointer; transition: box-shadow .15s; }
+.um:hover { box-shadow: var(--sh); } .um .av { width: 32px; height: 32px; font-size: 12px; } .um b { font-weight: 500; } .um .ic { width: 14px; height: 14px; color: var(--muted); }
+.pop { position: fixed; z-index: 50; width: min(360px, calc(100vw - 24px)); background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--sh-l); transform-origin: top right; animation: popin .16s var(--e-out) both; overflow: hidden; }
+@keyframes popin { from { opacity: 0; transform: scale(.97) translateY(-4px); } }
+.pop-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 10px; } .pop-h b { font-size: 15px; font-weight: 600; }
+.pop-l { max-height: min(420px, 60svh); overflow: auto; padding: 0 6px 6px; }
+.pi { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 10px; border: 0; border-radius: 10px; background: none; text-align: left; cursor: pointer; color: var(--text); }
+.pi:hover { background: var(--hover); } .pi .ic { margin-top: 1px; color: var(--muted); }
+.pi span { flex: 1; min-width: 0; } .pi small { display: block; color: var(--faint); font-size: 12px; margin-top: 2px; }
+.pi.unread span { font-weight: 500; } .pi .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 6px; flex: none; }
+.pi.unread .ib-ic { color: var(--accent); }
+.pop hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+.um-h { display: flex; gap: 12px; align-items: center; padding: 16px; border-bottom: 1px solid var(--border); }
+.um-h b { display: block; font-weight: 600; } .um-h span { display: block; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.role { display: inline-flex !important; align-items: center; gap: 4px; margin-top: 4px; height: 20px; padding: 0 8px; border-radius: 10px; background: var(--accent-bg); color: var(--accent-d) !important; font-size: 12px !important; font-weight: 500; }
+.pi.out { color: var(--neg); } .pi.out .ic { color: var(--neg); }
+
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px 32px; align-items: center; padding: 30px 32px 26px; margin-bottom: 22px; border-radius: 20px; background: radial-gradient(120% 140% at 0% 0%, #0f5a41 0%, #0a3a2b 55%, #082c21 100%); color: #fff; overflow: hidden; }
+.eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #a8e6cc; margin-bottom: 10px; } .eyebrow .ic { width: 15px; height: 15px; }
+.hero h1 { font: 600 40px/1.08 var(--display); letter-spacing: -.03em; }
+.hero h1 span { color: #7fe0b6; }
+.hero p.lead { margin-top: 12px; color: rgba(255,255,255,.78); font-size: 16px; max-width: 46ch; }
+.hero-art { position: relative; height: 210px; border-radius: 14px; overflow: hidden; }
+.hero-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-art .float { position: absolute; left: 12px; bottom: 12px; display: flex; gap: 10px; align-items: center; padding: 8px 12px 8px 8px; border-radius: 12px; background: rgba(255,255,255,.95); color: var(--text); box-shadow: var(--sh); font-size: 13px; max-width: calc(100% - 24px); }
+.float b { display: block; font-weight: 600; } .float span { color: var(--muted); }
+.search { grid-column: 1 / -1; display: grid; grid-template-columns: 1.3fr 1fr 1fr .8fr auto; align-items: stretch; background: var(--surface); color: var(--text); border-radius: 14px; padding: 6px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.sf { display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 6px 14px; min-width: 0; border-radius: 10px; cursor: pointer; transition: background-color .15s; }
+.sf + .sf { box-shadow: -1px 0 0 var(--rule); } .sf:hover { background: var(--raised); }
+.sf span { font-size: 12px; color: var(--muted); font-weight: 500; }
+.sf input, .sf select { border: 0; background: none; padding: 0; height: 24px; outline: none; min-width: 0; width: 100%; font-weight: 500; cursor: pointer; }
+.sf:focus-within { background: var(--raised); box-shadow: inset 0 0 0 2px var(--accent); }
+.search .btn { height: auto; min-height: 50px; padding: 0 22px; border-radius: 10px; }
+.s-err { grid-column: 1 / -1; color: #ffd2cc; font-size: 13px; margin-top: -8px; } .s-err:empty { display: none; }
+.trust { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 22px; color: rgba(255,255,255,.78); font-size: 13px; }
+.trust li { display: flex; align-items: center; gap: 6px; } .trust .ic { width: 15px; height: 15px; color: #7fe0b6; }
+
+/* explore */
+.cities { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 4px; margin: 0 -2px 10px; }
+.cities::-webkit-scrollbar { display: none; }
+.chip { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s, border-color .15s, transform .12s var(--e-out); }
+.chip:hover { color: var(--text); border-color: var(--faint); } .chip:active { transform: scale(.97); }
 .chip.on { background: var(--text); color: var(--bg); border-color: transparent; }
-.filters select { height: 34px; border-radius: 17px; border: 1px solid var(--border); background: var(--surface); padding: 0 12px; margin-left: auto; }
-.cars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
-.car { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; cursor: pointer; text-align: left; padding: 0; transition: border-color .15s, transform .2s var(--ease); animation: pop .3s var(--ease) both; }
-.car:hover { border-color: var(--faint); transform: translateY(-2px); }
-.car-art { display: block; position: relative; aspect-ratio: 8 / 5; overflow: hidden; }
+.chip em { font-style: normal; font-size: 12px; opacity: .7; }
+.tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
+.srch { position: relative; display: flex; align-items: center; flex: 1 1 220px; min-width: 0; max-width: 300px; }
+.srch .ic { position: absolute; left: 10px; color: var(--faint); width: 16px; height: 16px; pointer-events: none; }
+.srch input { width: 100%; height: 38px; padding: 0 30px 0 34px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.srch input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+.srch kbd { position: absolute; right: 8px; font: 11px var(--font); color: var(--faint); border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; }
+.fpanel { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.fs { display: flex; flex-direction: column; gap: 3px; } .fs > span { font-size: 12px; color: var(--muted); }
+.fs .sel { height: 38px; border-radius: 10px; }
+.ftog { display: none; height: 38px; border-radius: 10px; } .ftog em { font-style: normal; min-width: 18px; height: 18px; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; display: grid; place-items: center; }
+.sortc { margin-left: auto; }
+.rng { display: flex; flex-direction: column; gap: 3px; width: 190px; } .rng > div:first-child { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); } .rng b { color: var(--text); font-weight: 500; }
+.rng-t { position: relative; height: 32px; }
+.rng-t::before { content: ''; position: absolute; left: 0; right: 0; top: 15px; height: 3px; border-radius: 2px; background: var(--border); }
+.rng-t i { position: absolute; top: 15px; height: 3px; background: var(--accent); }
+.rng-t input { position: absolute; left: 0; top: 6px; width: 100%; height: 20px; margin: 0; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; }
+.rng-t input::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); cursor: grab; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+.rng-t input::-moz-range-thumb { pointer-events: auto; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); cursor: grab; }
+.rng-t input::-webkit-slider-runnable-track { background: none; } .rng-t input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent-bg); }
+.swl { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 38px; cursor: pointer; user-select: none; }
+.swl input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.sw { width: 34px; height: 20px; border-radius: 10px; background: #cfcdc4; position: relative; transition: background-color .15s; flex: none; }
+.sw::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform .2s var(--e-out); }
+.swl input:checked + .sw { background: var(--accent); } .swl input:checked + .sw::after { transform: translateX(14px); }
+.swl input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
+.res-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 4px 0 14px; flex-wrap: wrap; }
+.res-h h2 { font-size: 18px; font-weight: 600; } .res-h p { color: var(--muted); font-size: 13px; }
+.cars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.car { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: border-color .15s, box-shadow .2s, transform .2s var(--e-out); animation: pop .3s var(--e-out) both; }
+@media (hover: hover) and (pointer: fine) { .car:hover { border-color: #d3d1c7; box-shadow: var(--sh); transform: translateY(-2px); } }
+.car.off { opacity: .62; }
+.car-art { display: block; position: relative; aspect-ratio: 8 / 5; overflow: hidden; background: var(--raised); }
 .car-art > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.tagi { position: absolute; left: 10px; top: 10px; display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 9px; border-radius: 13px; background: rgba(255,255,255,.94); font-size: 12px; font-weight: 500; }
+.tagi .ic { width: 13px; height: 13px; color: var(--accent); fill: var(--accent); }
+.fav { position: absolute; top: 10px; right: 10px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255,255,255,.94); display: grid; place-items: center; cursor: pointer; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.12); transition: transform .14s var(--e-out); }
+.fav:active { transform: scale(.9); } .fav.on .ic { fill: var(--heart); stroke: var(--heart); }
 .car-b { padding: 14px 16px 16px; }
-.car-b h3 { font-size: 16px; font-weight: 600; }
-.car-b .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.car-t { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.car-t h3 { font-size: 16px; font-weight: 600; min-width: 0; }
+.hit { all: unset; cursor: pointer; } .hit::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: 14px; }
+.hit:focus-visible { outline: none; } .hit:focus-visible::after { box-shadow: inset 0 0 0 2px var(--accent); }
+.car-b .sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
 .car-f { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px; gap: 8px; }
 .car-f b { font-size: 20px; font-weight: 600; } .car-f small { color: var(--muted); font-size: 13px; }
-.free { font-size: 12px; color: var(--accent); font-weight: 500; }
-.free.busy { color: var(--faint); }
+.car-f .tot { font-size: 13px; text-align: right; } .car-f .tot.ok { color: var(--accent-d); font-weight: 500; }
+.sk { background: linear-gradient(90deg, var(--raised) 0, var(--hover) 50%, var(--raised) 100%); background-size: 200% 100%; animation: sk 1.1s linear infinite; border-radius: 6px; }
+@keyframes sk { to { background-position: -200% 0; } }
+.empty-s { text-align: center; padding: 48px 16px; border: 1px dashed var(--border); border-radius: 14px; background: var(--surface); }
+.empty-s .ic-w { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 14px; display: grid; place-items: center; background: var(--accent-bg); color: var(--accent); }
+.empty-s h3 { font-size: 17px; font-weight: 600; } .empty-s p { color: var(--muted); max-width: 44ch; margin: 6px auto 16px; }
+.how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 40px; }
+.how > div { padding: 20px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
+.how .n { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-bg); color: var(--accent-d); font-weight: 600; display: grid; place-items: center; margin-bottom: 10px; }
+.how h3 { font-size: 15px; font-weight: 600; } .how p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.cta { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 20px; padding: 22px 24px; border-radius: 14px; background: var(--accent-bg); flex-wrap: wrap; }
+.cta h3 { font-size: 17px; font-weight: 600; } .cta p { color: var(--muted); }
 
-/* detail */
-.modal.wide { max-width: 860px; padding: 0; overflow: auto; }
-.det { display: grid; grid-template-columns: minmax(0, 1fr) 340px; }
-.det-l { padding: 24px; } .det-r { padding: 24px; border-left: 1px solid var(--border); background: var(--raised); }
-.det-art { border-radius: 12px; }
-.specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0 22px; }
-.specs div b { display: block; font-weight: 600; } .specs div span { font-size: 12px; color: var(--muted); }
-.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 8px; }
-.cal .dw { text-align: center; font-size: 12px; color: var(--faint); padding-bottom: 2px; }
-.day { height: 38px; border-radius: 8px; border: 0; background: var(--surface); color: var(--text); cursor: pointer; font-variant-numeric: tabular-nums; transition: background-color .12s; }
+/* listing */
+.crumbs { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; flex-wrap: wrap; }
+.crumbs button { all: unset; cursor: pointer; } .crumbs button:hover { color: var(--text); text-decoration: underline; } .crumbs button:focus-visible { outline: 2px solid var(--accent); }
+.lp-h { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.lp-h h1 { font-size: 28px; font-weight: 600; letter-spacing: -.025em; line-height: 1.15; }
+.lp-h p { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); margin-top: 6px; align-items: center; }
+.lp-h .acts { display: flex; gap: 8px; }
+.btn.on .ic { fill: var(--heart); stroke: var(--heart); }
+.gal { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; height: 430px; border-radius: 16px; overflow: hidden; margin-bottom: 30px; }
+.gal > figure { position: relative; min-height: 0; min-width: 0; }
+.gal > figure:first-child { grid-row: 1 / 3; } .gal img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gp { background: var(--raised); display: flex; flex-direction: column; padding: 12px 14px 10px; }
+.gp svg { flex: 1; min-height: 0; width: 100%; }
+.gp figcaption { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); }
+.gp figcaption b { color: var(--text); font-weight: 500; }
+.gp .svg-t { font: 11px var(--font); fill: var(--muted); }
+.lp { display: grid; grid-template-columns: minmax(0, 1fr) 370px; gap: 48px; align-items: start; }
+.lp-side { position: sticky; top: 84px; }
+.sec { padding: 28px 0; border-top: 1px solid var(--border); } .sec:first-child { border-top: 0; padding-top: 0; }
+.sec > h2 { font-size: 19px; font-weight: 600; letter-spacing: -.01em; margin-bottom: 14px; }
+.sec-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; } .sec-h h2 { font-size: 19px; font-weight: 600; }
+.specs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.specs div { padding: 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+.specs .ic { color: var(--accent); margin-bottom: 6px; } .specs b { display: block; font-weight: 600; font-size: 14px; } .specs span { font-size: 12px; color: var(--muted); }
+.desc { color: var(--text); max-width: 68ch; } .desc + .desc { margin-top: 10px; }
+.feat { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; }
+.feat li { display: flex; gap: 10px; align-items: center; } .feat .ic { color: var(--accent); }
+.hostc { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; padding: 20px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); }
+.hostc h3 { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sh { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 11px; background: #fbf0d6; color: #7a5200; font-size: 12px; font-weight: 500; }
+.vb { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.vb span { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 10px; border-radius: 13px; background: var(--accent-bg); color: var(--accent-d); font-size: 12px; font-weight: 500; }
+.vb .ic { width: 14px; height: 14px; }
+.hstat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 12px 0 14px; } .hstat b { display: block; font-weight: 600; } .hstat span { font-size: 12px; color: var(--muted); }
+.cal-nav { display: flex; gap: 6px; }
+.cals { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.mo-t { font-weight: 600; text-align: center; margin-bottom: 6px; }
+.mo-g { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 2px; }
+.dw { text-align: center; font-size: 12px; color: var(--faint); padding: 4px 0; }
+.day { height: 40px; border: 0; background: none; border-radius: 20px; color: var(--text); cursor: pointer; font-variant-numeric: tabular-nums; display: grid; place-items: center; transition: background-color .12s; }
 .day:hover:not(:disabled) { background: var(--hover); }
-.day:disabled { background: transparent; color: var(--faint); cursor: not-allowed; text-decoration: line-through; opacity: .6; }
-.day.in { background: var(--accent-bg); border-radius: 0; } .day.edge, .day.edge:hover:not(:disabled) { background: var(--accent); color: #fff; border-radius: 8px; }
-.day.past { visibility: hidden; }
-.sum .lines div { display: flex; justify-content: space-between; padding: 7px 0; color: var(--muted); } .sum .lines b { color: var(--text); font-weight: 500; }
-.sum .tot { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 12px; }
-.sum .tot b { font-size: 26px; font-weight: 600; }
-.close-x { position: absolute; top: 12px; right: 12px; }
-.modal.wide { position: relative; }
+.day:disabled { color: #a9aba6; cursor: not-allowed; text-decoration: line-through; }
+.day.past { color: #b9bab4; cursor: default; }
+.day.in { background: var(--accent-bg); border-radius: 0; }
+.day.edge, .day.edge:hover:not(:disabled) { background: var(--accent); color: #fff; border-radius: 20px; font-weight: 600; }
+.day.today { box-shadow: inset 0 0 0 1px var(--faint); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: 12px; color: var(--muted); align-items: center; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
+.cal-msg { margin-top: 10px; font-size: 13px; color: var(--neg); } .cal-msg:empty { display: none; }
+.ins { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.opt { position: relative; display: block; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.opt:has(input:checked) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 4%, var(--surface)); }
+.opt:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.opt b { display: flex; justify-content: space-between; font-weight: 600; } .opt b em { font-style: normal; color: var(--accent-d); font-weight: 500; font-size: 13px; }
+.opt p { color: var(--muted); font-size: 13px; margin-top: 4px; } .opt .ex { display: block; font-size: 12px; margin-top: 8px; color: var(--text); }
+.extras { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.extras label { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; }
+.extras input { accent-color: var(--accent); width: 16px; height: 16px; }
+.rv-sum { display: grid; grid-template-columns: 140px minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: start; margin-bottom: 18px; }
+.rv-big b { display: block; font: 600 44px/1 var(--display); letter-spacing: -.03em; } .rv-big small { color: var(--muted); }
+.hist button { display: grid; grid-template-columns: 14px minmax(0, 1fr) 28px; gap: 10px; align-items: center; width: 100%; padding: 3px 4px; border: 0; background: none; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--muted); }
+.hist button:hover, .hist button.on { background: var(--hover); color: var(--text); }
+.hist .bar i { background: var(--star); }
+.cats div { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; color: var(--muted); } .cats b { color: var(--text); font-weight: 500; }
+.rv-tools { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 4px; flex-wrap: wrap; }
+.rv { padding: 16px 0; border-top: 1px solid var(--rule); } .rv-h { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.rv-h b { display: block; font-weight: 500; } .rv-h small { color: var(--muted); }
+.rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; }
+.rules li { display: flex; gap: 10px; } .rules .ic { color: var(--muted); }
+.mapw { border-radius: 14px; overflow: hidden; border: 1px solid var(--border); background: #e8efe6; }
+.mapw svg { width: 100%; height: 220px; }
+.bk { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--sh); }
+.bk-p { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+.bk-p b { font-size: 24px; font-weight: 600; } .bk-p small { color: var(--muted); }
+.bk-d { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+.bk-d button { all: unset; cursor: pointer; padding: 8px 12px; } .bk-d button + button { border-left: 1px solid var(--border); }
+.bk-d button:hover { background: var(--raised); } .bk-d button:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.bk-d span { display: block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); } .bk-d b { font-weight: 500; }
+.ln { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; color: var(--muted); } .ln b { color: var(--text); font-weight: 500; white-space: nowrap; }
+.ln small { display: block; font-size: 12px; color: var(--faint); }
+.tot { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 12px; } .tot b { font-size: 22px; font-weight: 600; }
+.note { display: flex; gap: 8px; font-size: 13px; color: var(--muted); margin-top: 10px; } .note .ic { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--accent); }
+.perm { display: flex; gap: 12px; padding: 14px; border-radius: 12px; background: var(--neutral-bg); margin-bottom: 12px; } .perm .ic { color: var(--muted); flex: none; }
+.perm b { display: block; font-weight: 600; } .perm p { color: var(--muted); font-size: 13px; }
+.mbar { display: none; }
 
-.trip-c { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; }
-.trip-c + .trip-c { border-top: 1px solid var(--rule); }
-.trip-c .thumb { border-radius: 10px; overflow: hidden; aspect-ratio: 8 / 5; } .trip-c .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.trip-c b { display: block; font-weight: 600; } .trip-c span.s { color: var(--muted); font-size: 13px; }
+/* checkout */
+.co { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; align-items: start; }
+.steps { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.steps li { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+.steps li + li::before { content: ''; width: 24px; height: 1px; background: var(--border); }
+.steps i { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 12px; font-weight: 600; background: var(--raised); }
+.steps li.done i { background: var(--accent); color: #fff; } .steps li.on { color: var(--text); font-weight: 500; } .steps li.on i { background: var(--text); color: var(--bg); }
+.co .card { margin-bottom: 16px; padding: 22px; } .co .card > h2 { font-size: 16px; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; } .row3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0 14px; }
+.field input, .field select, .field textarea { background: var(--surface); height: 40px; }
+.field textarea { height: 84px; }
+.field.bad input, .field.bad textarea, .field.bad select { border-color: var(--neg); box-shadow: 0 0 0 3px var(--neg-bg); }
+.fe { color: var(--neg); font-size: 12px; } .fe:empty { display: none; }
+.hint { color: var(--faint); font-size: 12px; }
+.alert { display: flex; gap: 10px; padding: 12px 14px; border-radius: 10px; background: var(--neg-bg); color: var(--neg); margin-bottom: 16px; } .alert .ic { flex: none; }
+.alert.ok { background: var(--pos-bg); color: var(--pos); } .alert b { display: block; } .alert span { color: var(--text); }
+.ck { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; } .ck input { accent-color: var(--accent); width: 16px; height: 16px; margin-top: 2px; flex: none; }
+.cbrand { font-size: 11px; font-weight: 700; letter-spacing: .04em; padding: 1px 6px; border-radius: 4px; background: var(--raised); color: var(--text); }
+.sum-c { position: sticky; top: 84px; }
+.sum-car { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; align-items: center; padding-bottom: 14px; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
+.sum-car .car-art { border-radius: 10px; } .sum-car b { display: block; font-weight: 600; } .sum-car span { color: var(--muted); font-size: 13px; }
+.tds-h { display: flex; align-items: center; gap: 8px; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--border); }
+.tds-h b { font-weight: 700; letter-spacing: -.01em; } .tds-h span { margin-left: auto; font-size: 12px; color: var(--muted); }
+.tds-mark { width: 28px; height: 28px; border-radius: 7px; background: #23356b; color: #fff; display: grid; place-items: center; }
+.tds-d { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 12px 0 16px; font-size: 13px; } .tds-d dt { color: var(--muted); } .tds-d dd { margin: 0; font-weight: 500; text-align: right; }
+.otp { letter-spacing: .4em; font-size: 18px !important; text-align: center; }
+.tds-busy { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 30px 0; color: var(--muted); } .tds-busy .spin { width: 28px; height: 28px; color: #23356b; }
 
-@media (max-width: 1099px) { .cars { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 899px) {
-  .top { height: 52px; gap: 12px; } .top .nav, .top .who-top { display: none; }
-  .cars { grid-template-columns: minmax(0, 1fr); } .filters select { margin-left: 0; }
-  .det { grid-template-columns: minmax(0, 1fr); } .det-r { border-left: 0; border-top: 1px solid var(--border); } .det-l, .det-r { padding: 18px; }
-  .specs { grid-template-columns: repeat(2, 1fr); }
-  .trip-c { grid-template-columns: 84px minmax(0, 1fr); } .trip-c .btn { grid-column: 2; justify-self: start; }
-  .modal.wide { max-height: 94svh; }
+/* trips + trip */
+.tlist { display: flex; flex-direction: column; }
+.trow { display: grid; grid-template-columns: 128px minmax(0, 1fr) auto; gap: 16px; align-items: center; width: 100%; padding: 14px; border: 0; background: none; text-align: left; border-radius: 12px; cursor: pointer; color: var(--text); transition: background-color .15s; }
+.trow:hover { background: var(--hover); } .trow + .trow { box-shadow: 0 -1px 0 var(--rule); }
+.trow .car-art { border-radius: 10px; } .trow b { display: block; font-weight: 600; font-size: 15px; } .trow .s { color: var(--muted); font-size: 13px; }
+.trow .r { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.tl { display: flex; margin: 4px 0 22px; }
+.tl li { flex: 1; position: relative; padding-top: 22px; font-size: 13px; color: var(--muted); min-width: 0; }
+.tl li::before { content: ''; position: absolute; top: 5px; left: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--border); z-index: 1; }
+.tl li::after { content: ''; position: absolute; top: 10px; left: 12px; right: 0; height: 2px; background: var(--border); }
+.tl li:last-child::after { display: none; }
+.tl li.done { color: var(--text); } .tl li.done::before { background: var(--accent); border-color: var(--accent); } .tl li.done::after { background: var(--accent); }
+.tl li.now { color: var(--text); font-weight: 500; } .tl li.now::before { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-bg); }
+.tl small { display: block; color: var(--faint); font-weight: 400; }
+.steps-l { counter-reset: s; display: flex; flex-direction: column; gap: 12px; }
+.steps-l li { counter-increment: s; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; }
+.steps-l li::before { content: counter(s); width: 26px; height: 26px; border-radius: 50%; background: var(--accent-bg); color: var(--accent-d); font-weight: 600; font-size: 13px; display: grid; place-items: center; }
+.kv { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; } .kv span { display: block; font-size: 12px; color: var(--muted); } .kv b { font-weight: 600; }
+.act-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.starpick { display: flex; gap: 4px; margin-bottom: 14px; } .starpick button { border: 0; background: none; font-size: 28px; color: var(--border); cursor: pointer; padding: 0 2px; line-height: 1; } .starpick button.on { color: var(--star); }
+
+/* inbox */
+.ibx { display: grid; grid-template-columns: 330px minmax(0, 1fr); height: calc(100svh - 29px - 64px - 150px); min-height: 520px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); }
+.ibx-l { border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+.ibx-l .srch { max-width: none; margin: 12px; flex: none; }
+.thl { overflow: auto; flex: 1; padding: 0 6px 6px; }
+.thr { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; width: 100%; padding: 10px; border: 0; background: none; border-radius: 10px; text-align: left; cursor: pointer; color: var(--text); }
+.thr:hover { background: var(--hover); } .thr.on { background: var(--raised); }
+.thr b { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .thr span { display: block; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.thr small { font-size: 12px; color: var(--faint); text-align: right; } .thr .u { display: block; margin: 4px 0 0 auto; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+.thr.unread b { font-weight: 600; } .thr.unread span { color: var(--text); }
+.ibx-r { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.cv-h { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.cv-h b { display: block; font-weight: 600; } .cv-h span { font-size: 13px; color: var(--muted); } .cv-h .btn { margin-left: auto; }
+.cv-back { display: none; }
+.msgs { flex: 1; overflow: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 6px; }
+.dsep { text-align: center; font-size: 12px; color: var(--faint); margin: 10px 0 4px; }
+.m { max-width: min(75%, 520px); padding: 9px 13px; border-radius: 16px 16px 16px 4px; background: var(--raised); overflow-wrap: anywhere; animation: pop .2s var(--e-out) both; }
+.m.me { align-self: flex-end; background: var(--accent); color: #fff; border-radius: 16px 16px 4px 16px; }
+.m small { display: block; font-size: 11px; opacity: .7; margin-top: 2px; } .m.sys { align-self: center; background: none; color: var(--muted); font-size: 12px; text-align: center; }
+.typing { display: inline-flex; gap: 4px; padding: 12px 14px; } .typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); animation: blink 1s infinite; } .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes blink { 50% { opacity: .3; } }
+.cmp { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--border); align-items: flex-end; }
+.cmp textarea { flex: 1; min-width: 0; resize: none; height: 42px; max-height: 120px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); }
+.cmp textarea:focus { outline: none; border-color: var(--accent); }
+.cmp .btn { height: 42px; }
+
+/* host */
+.hk { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--gap); margin-bottom: var(--gap); }
+.hk .card { padding: 16px 18px; } .hk span { display: block; font-size: 13px; color: var(--muted); } .hk b { display: block; font: 600 26px/1.15 var(--display); letter-spacing: -.02em; margin: 4px 0 2px; } .hk small { font-size: 12px; color: var(--muted); }
+.req { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; padding: 12px 0; } .req + .req { border-top: 1px solid var(--rule); }
+.req b { font-weight: 600; } .req .s { display: block; font-size: 13px; color: var(--muted); } .req .act-row { margin-top: 10px; }
+.ctabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.hcal .mo-g { gap: 4px; }
+.hcal .day { height: 54px; border-radius: 8px; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 6px 7px; font-size: 13px; background: var(--raised); text-decoration: none; }
+.hcal .day small { font-size: 10px; font-weight: 500; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.hcal .day.bkd { background: var(--accent-bg); color: var(--accent-d); cursor: default; }
+.hcal .day.pnd { background: var(--warn-bg); color: var(--warn); cursor: default; }
+.hcal .day.blk { background: repeating-linear-gradient(135deg, #e7e5de 0 5px, #f2f1ec 5px 10px); color: var(--muted); }
+.hcal .day.past { background: none; color: #b9bab4; }
+.hcal button.day:hover { box-shadow: inset 0 0 0 1px var(--faint); }
+.pform .field { margin-bottom: 12px; } .pform .field input { width: 100%; }
+.pfx { position: relative; } .pfx > em { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-style: normal; color: var(--muted); font-size: 13px; pointer-events: none; }
+.prev { padding: 12px 14px; border-radius: 10px; background: var(--raised); font-size: 13px; margin: 4px 0 14px; } .prev div { display: flex; justify-content: space-between; padding: 2px 0; } .prev b { font-weight: 600; }
+.ttool { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.ttool .srch { max-width: 260px; } .ttool .sel { height: 38px; border-radius: 10px; }
+.bulk { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--text); color: var(--bg); margin-bottom: 10px; flex-wrap: wrap; }
+.bulk .btn { background: transparent; color: var(--bg); border-color: rgba(255,255,255,.25); } .bulk b { font-weight: 600; margin-right: auto; }
+.htb { --cols: 24px 96px minmax(0, 1.3fr) minmax(0, 1fr) 160px 44px 132px 80px; --colsm: 24px minmax(0, 1fr) auto; }
+.htb .tr { margin: 0; padding: 6px 10px; }
+.htb .th button { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; } .htb .th button:hover { color: var(--text); } .htb .th button:focus-visible { outline: 2px solid var(--accent); }
+.htb .th .ic { width: 12px; height: 12px; }
+.htb input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; cursor: pointer; }
+.htb .tr.on { background: var(--accent-bg); }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--muted); }
+.pg { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); } .pg div { display: flex; gap: 6px; align-items: center; }
+.ell { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#drw .drw-s { position: fixed; inset: 0; background: rgba(15,16,14,.42); z-index: 45; animation: fade .2s ease both; }
+.drw { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100vw); z-index: 46; background: var(--surface); overflow: auto; padding: 22px; box-shadow: var(--sh-l); animation: drw .32s var(--e-drw) both; }
+@keyframes drw { from { transform: translateX(100%); } }
+.drw-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 18px; } .drw-h h2 { font-size: 19px; font-weight: 600; }
+.drw .card { padding: 16px; margin-bottom: 12px; }
+.undo { position: fixed; left: 50%; bottom: 24px; z-index: 61; display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 32px); padding: 8px 8px 8px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,.25); opacity: 0; transform: translate(-50%, 14px); transition: opacity .2s, transform .25s var(--e-out); pointer-events: none; }
+.undo.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.undo button { border: 0; background: none; color: #7fe0b6; font-weight: 600; padding: 6px 10px; border-radius: 6px; cursor: pointer; } .undo button:hover { background: rgba(255,255,255,.1); }
+.faq details { border-bottom: 1px solid var(--rule); } .faq summary { cursor: pointer; padding: 12px 0; font-weight: 500; list-style: none; display: flex; justify-content: space-between; gap: 12px; } .faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; color: var(--muted); } .faq details[open] summary::after { content: '−'; } .faq p { color: var(--muted); padding: 0 0 12px; font-size: 13px; }
+.legal p { color: var(--muted); margin-bottom: 10px; font-size: 13px; } .legal h3 { font-size: 14px; font-weight: 600; margin: 14px 0 4px; }
+.modal.md { max-width: 560px; } .modal.sm { max-width: 400px; }
+.mx { float: right; margin: -6px -6px 0 0; }
+
+/* footer */
+.foot { border-top: 1px solid var(--border); background: var(--surface); margin-top: 48px; }
+.foot-in { max-width: 1240px; margin: 0 auto; padding: 36px var(--pad) 24px; display: grid; grid-template-columns: 1.5fr repeat(3, minmax(0, 1fr)); gap: 24px; }
+.foot h4 { font-size: 13px; font-weight: 600; margin-bottom: 8px; } .foot p { color: var(--muted); font-size: 13px; max-width: 34ch; margin-top: 10px; }
+.foot .lk { all: unset; display: block; cursor: pointer; color: var(--muted); padding: 4px 0; font-size: 13px; } .foot .lk:hover { color: var(--text); } .foot .lk:focus-visible { outline: 2px solid var(--accent); }
+.foot-b { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 16px; font-size: 12px; color: var(--faint); }
+
+/* sign in */
+.auth { min-height: calc(100svh - 29px); display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(90% 70% at 50% 0%, #dff3ea 0%, var(--bg) 70%); }
+.auth-c { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px; box-shadow: var(--sh-l); animation: pop .3s var(--e-out) both; }
+.auth-c .brand { padding: 0 0 18px; } .auth-c h1 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; } .auth-c > p { color: var(--muted); margin: 4px 0 20px; }
+.auth-c .field input { width: 100%; } .pw { position: relative; } .pw .lnk { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; }
+.auth-f { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 4px 0 18px; font-size: 13px; }
+.demo-n { display: flex; gap: 8px; padding: 10px 12px; border-radius: 10px; background: var(--raised); color: var(--muted); font-size: 12px; margin-top: 16px; } .demo-n .ic { width: 16px; height: 16px; flex: none; }
+
+@media (max-width: 1099px) {
+  .cars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hk { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lp { grid-template-columns: minmax(0, 1fr) 330px; gap: 32px; }
+  .specs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rv-sum { grid-template-columns: 120px minmax(0, 1fr); } .cats { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+  .fpanel .rng { width: 160px; }
 }
+@media (max-width: 899px) {
+  .top-in { height: 54px; gap: 10px; } .top .nav, .um b, .um > .ic, .hide-m { display: none; }
+  .um { padding: 2px; margin-left: 2px; border: 0; } .um .av { width: 34px; height: 34px; }
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 20px 16px 18px; border-radius: 16px; margin: 0 0 16px; }
+  .hero h1 { font-size: 27px; } .hero p.lead { font-size: 14px; margin-top: 8px; } .hero-art { display: none; }
+  .search { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; }
+  .sf:first-child { grid-column: 1 / -1; } .sf + .sf { box-shadow: none; } .sf { background: var(--raised); padding: 6px 12px; }
+  .search .btn { grid-column: 1 / -1; min-height: 46px; margin-top: 4px; }
+  .trust { gap: 4px 14px; font-size: 12px; } .trust li:nth-child(3) { display: none; }
+  .srch { max-width: none; flex-basis: 100%; } .tools .srch { flex: 1 1 0; } .srch kbd { display: none; }
+  .ftog { display: inline-flex; } .sortc { margin-left: 0; } .sortc > span { display: none; }
+  .fpanel { display: none; order: 9; width: 100%; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .fpanel.open { display: grid; } .fpanel .rng { width: auto; grid-column: 1 / -1; } .fpanel .sel { width: 100%; }
+  .cars { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .how { grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 28px; }
+  .lp { grid-template-columns: minmax(0, 1fr); gap: 0; } .lp-side { position: static; margin-top: 8px; }
+  .lp-h h1 { font-size: 23px; }
+  .gal { display: flex; height: auto; overflow-x: auto; scroll-snap-type: x mandatory; border-radius: 14px; margin-bottom: 22px; scrollbar-width: none; }
+  .gal > figure { flex: 0 0 86%; aspect-ratio: 8 / 5; scroll-snap-align: start; border-radius: 12px; overflow: hidden; } .gal > figure:first-child { flex-basis: 100%; }
+  .specs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .specs div { padding: 10px; }
+  .feat, .rules { grid-template-columns: minmax(0, 1fr); }
+  .cals { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .ins { grid-template-columns: minmax(0, 1fr); }
+  .rv-sum { grid-template-columns: minmax(0, 1fr); gap: 16px; } .cats { grid-template-columns: minmax(0, 1fr); }
+  .hostc { grid-template-columns: minmax(0, 1fr); }
+  body.pg-car .main { padding-bottom: 170px; }
+  .mbar { display: flex; position: fixed; left: 0; right: 0; bottom: calc(57px + env(safe-area-inset-bottom)); z-index: 29; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 16px; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -6px 20px rgba(0,0,0,.06); }
+  .mbar b { font-size: 17px; font-weight: 600; } .mbar small { display: block; color: var(--muted); font-size: 12px; }
+  .co { grid-template-columns: minmax(0, 1fr); gap: 0; } .sum-c { position: static; } .co .card { padding: 16px; }
+  .row2, .row3 { grid-template-columns: minmax(0, 1fr); } .row3 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .row3 > :first-child { grid-column: 1 / -1; }
+  .trow { grid-template-columns: 88px minmax(0, 1fr); gap: 12px; padding: 12px 4px; } .trow .r { grid-column: 2; flex-direction: row; align-items: center; justify-content: space-between; }
+  .tl { flex-direction: column; gap: 10px; } .tl li { padding: 0 0 0 24px; } .tl li::before { top: 3px; } .tl li::after { display: none; }
+  .kv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ibx { grid-template-columns: minmax(0, 1fr); height: calc(100svh - 29px - 54px - 150px); min-height: 440px; border-radius: 14px; }
+  .ibx.has .ibx-l { display: none; } .ibx:not(.has) .ibx-r { display: none; } .cv-back { display: grid; } .ibx-l { border-right: 0; }
+  .m { max-width: 85%; }
+  .hk { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .hk .card:last-child { grid-column: 1 / -1; } .hk b { font-size: 22px; }
+  .hcal .day { height: 44px; padding: 4px 5px; } .hcal .day small { display: none; }
+  .ttool .srch { max-width: none; flex: 1 1 100%; }
+  .foot { margin-top: 32px; } .foot-in { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 28px 16px 96px; } .foot-in > :first-child { grid-column: 1 / -1; }
+  .undo { bottom: 84px; }
+  .drw { padding: 18px 16px; }
+}
+@media (max-width: 380px) { .hero h1 { font-size: 24px; } .specs { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kv { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
 <div class="notice"><b>Demo</b> RentoWorld · sample data</div>
 <div class="app">
-  <header class="top">
-    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V11l2-4h10l2 4v5M3 16h18M7.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM16.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg></div><div class="brand-name">RentoWorld</div></div>
-    <nav class="nav" id="nav"></nav>
-    <div class="who-top"><b>Tomás</b><div class="avatar">TF</div></div>
-  </header>
+  <header class="top"><div class="top-in" id="top"></div></header>
   <main class="main" id="main"></main>
+  <footer class="foot" id="foot"></footer>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
 /*@kit.js*/
 'use strict';
+Object.assign(ICONS, {
+  help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9.5a2.5 2.5 0 014.8 1c0 1.7-2.3 2-2.3 3.5M12 17h.01',
+  out: 'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10',
+  left: 'M15 6l-6 6 6 6', right: 'M9 6l6 6-6 6',
+  dl: 'M12 4v11M7 10l5 5 5-5M5 20h14',
+  seat: 'M8 4h5l1 9h5v4H9zM9 17v3M17 17v3',
+  gear: 'M6 5v14M12 5v14M18 5v7M6 12h12',
+  fuel: 'M5 20V5h9v15M3 20h13M14 9h3l2 2v6a1.5 1.5 0 01-3 0v-3h-2M8 9h3',
+  door: 'M6 3h10l2 2v16H6zM14 12h1',
+  luggage: 'M7 7h10v13H7zM10 7V4h4v3M10 11v5M14 11v5',
+  send: 'M4 12l16-8-6 16-3-7z', key: 'M14.5 9.5a3.5 3.5 0 10-3 3.4L4 20.5V20h2.5v-2h2v-2h2l1.5-1.5',
+  card: 'M3 6h18v12H3zM3 10h18M7 15h3', road: 'M8 3L4 21M16 3l4 18M12 4v3M12 11v3M12 18v3',
+  user: 'M12 12a4 4 0 100-8 4 4 0 000 8zM5 20a7 7 0 0114 0',
+});
 
-/* ── data ─────────────────────────────────────────────── */
-const tg = (n) => '€' + fmt(n);
-const TODAY = new Date(2026, 8, 28);
-const addDays = (d) => new Date(TODAY.getTime() + d * 864e5);
-const dFmt = (d) => addDays(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }).replace('.', '');
-const plural = (n, a, b, c) => n === 1 ? a : c;
-const days = (n) => `${n} ${plural(n, 'day', 'days', 'days')}`;
+/* ── seeded data: same numbers on every load ─────────────────── */
+let seed = 20261107;
+const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+const pick = (a) => a[Math.floor(rnd() * a.length)];
 
+const TODAY = new Date(2026, 10, 7);
+const D = (d) => new Date(2026, 10, 7 + d);
+const dayOf = (dt) => Math.round((new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()) - TODAY) / 864e5);
+const p2 = (n) => String(n).padStart(2, '0');
+const iso = (d) => { const x = D(d); return `${x.getFullYear()}-${p2(x.getMonth() + 1)}-${p2(x.getDate())}`; };
+const fromIso = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? dayOf(new Date(+m[1], m[2] - 1, +m[3])) : null; };
+const fd = (d, o = { day: 'numeric', month: 'short' }) => D(d).toLocaleDateString('en-GB', o);
+const fdw = (d) => fd(d, { weekday: 'short', day: 'numeric', month: 'short' });
+const fr = (a, b) => a === b ? fdw(a) : `${fdw(a)} – ${fdw(b)}`;
+const frs = (a, b) => a === b ? fd(a) : `${fd(a)} – ${fd(b)}`;
+const eur = (n) => (n < 0 ? MINUS : '') + '€' + fmt(Math.abs(n));
+const pl = (n, one, many = one + 's') => `${fmt(n)} ${n === 1 ? one : many}`;
+const RTF = new Intl.RelativeTimeFormat('en-GB', { numeric: 'auto' });
+const MS0 = TODAY.getTime() + (10 * 60 + 24) * 6e4, T0 = performance.now();
+const now = () => MS0 + (performance.now() - T0);
+const minAgo = (m) => MS0 - m * 6e4;
+const ago = (at) => { const m = (now() - at) / 6e4; if (m < 1) return 'just now'; if (m < 60) return RTF.format(-Math.round(m), 'minute'); if (m < 1440) return RTF.format(-Math.round(m / 60), 'hour'); if (m < 8640) return RTF.format(-Math.round(m / 1440), 'day'); return new Date(at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); };
+const relDay = (d) => d === 0 ? 'today' : d === 1 ? 'tomorrow' : d === -1 ? 'yesterday' : d > 0 ? `in ${pl(d, 'day')}` : `${pl(-d, 'day')} ago`;
+const ini = (n) => { const w = String(n).trim().split(/\s+/).filter((x) => /^\p{Lu}/u.test(x)); return ((w[0] || n)[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase(); };
+const hue = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+const av = (n, cls = '') => `<span class="av ${cls}" aria-hidden="true" style="background:hsl(${hue(n)} 42% 89%);color:hsl(${hue(n)} 45% 26%)">${esc(ini(n))}</span>`;
+
+const ME = { name: 'Tomás Ferreira', first: 'Tomás', email: 'tomas.ferreira@example.com', phone: '+351 912 000 214', dob: '1988-04-16', lic: 'PT-L 4471 9020', role: 'Host · Superhost' };
+const HOSTS = {
+  tf: { n: 'Tomás Ferreira', since: 2021, langs: 'Portuguese, English, Spanish', rr: 98, rt: 'within an hour', ver: ['ID', 'Phone', 'Email', 'Driving licence'], sh: true, bio: 'Lisbon local, two family cars that I keep in top shape between my own road trips.' },
+  sa: { n: 'Stefan Albrecht', since: 2019, langs: 'German, English', rr: 95, rt: 'within 2 hours', ver: ['ID', 'Phone', 'Email', 'Driving licence'], sh: true, bio: 'Engineer in Schwabing. My Polo is perfect for city trips and the Alps on a budget.' },
+  pt: { n: 'Petra Turková', since: 2022, langs: 'Czech, English, German', rr: 100, rt: 'within an hour', ver: ['ID', 'Phone', 'Email'], sh: false, bio: 'I share my Octavia when I travel for work. Happy to recommend day trips from Prague.' },
+  jb: { n: 'Joost Bakker', since: 2020, langs: 'Dutch, English', rr: 92, rt: 'within 3 hours', ver: ['ID', 'Phone', 'Email', 'Driving licence'], sh: true, bio: 'Our Staria fits nine people and all their bikes. Popular with families and band tours.' },
+  cm: { n: 'Camille Mercier', since: 2023, langs: 'French, English', rr: 89, rt: 'within 4 hours', ver: ['ID', 'Email'], sh: false, bio: 'Plug-in hybrid for weekends in the Alps or the Beaujolais. I answer quickly in the evening.' },
+};
+const F_STD = ['Air conditioning', 'Bluetooth audio', 'USB-C charging'];
 const CARS = [
-  { id: 1,  n: 'Toyota Camry',     y: 2016, t: 'sedan', c: '#c9ced6', px: 38, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.9, trips: 63, own: 'You', where: 'Lisbon', dep: 500 },
-  { id: 2,  n: 'Kia Sportage',     y: 2009, t: 'suv',   c: '#2d5b8c', px: 32, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.8, trips: 41, own: 'You', where: 'Lisbon', dep: 400 },
-  { id: 5,  n: 'Volkswagen Polo',  y: 2016, t: 'hatch', c: '#3d4a57', px: 27, seats: 5, tr: 'Manual', fuel: 'Petrol', r: 4.5, trips: 90, own: 'Stefan A.', where: 'Munich', dep: 300 },
-  { id: 6,  n: 'Skoda Octavia RS Combi',    y: 2015, t: 'hatch', c: '#2f7d5b', px: 42, seats: 5, tr: 'Automatic', fuel: 'Petrol', r: 4.9, trips: 52, own: 'Petra T.', where: 'Prague', dep: 600 },
-  { id: 7,  n: 'Hyundai Staria',   y: 2023, t: 'van',   c: '#e8e4da', px: 90, seats: 9, tr: 'Automatic', fuel: 'Diesel', r: 5.0, trips: 22, own: 'Joost B.', where: 'Amsterdam', dep: 1000 },
-  { id: 8,  n: 'Toyota RAV4 Plug-in Hybrid',      y: 2022, t: 'suv',   c: '#1f2a36', px: 65, seats: 5, tr: 'Automatic', fuel: 'Plug-in hybrid', r: 4.8, trips: 74, own: 'Camille M.', where: 'Lyon', dep: 800 },
+  { id: 1, mk: 'Toyota', md: 'Camry', y: 2016, t: 'sedan', px: 38, seats: 5, doors: 4, tr: 'Automatic', fuel: 'Petrol', cons: '6.8 l/100 km', bags: 3, boot: 493, len: 4850, hgt: 1470, host: 'tf', city: 'Lisbon', area: 'Campo de Ourique', inst: true, wkd: 10, wk: 10, mo: 20, min: 1, km: 250, dep: 500, age: 21, tb: 18, p5: .86,
+    feat: [...F_STD, 'Cruise control', 'Rear camera', 'Heated seats', 'Apple CarPlay'], desc: ['A comfortable, quiet sedan that is easy to park in Lisbon and relaxed on the A2 to the Algarve. Recently serviced, new tyres in September.', 'The boot fits three large suitcases. A phone holder and a charging cable are in the glovebox.'],
+    pick: { addr: 'Rua Ferreira Borges 64, 1350-131 Lisbon', how: 'In person', steps: ['Meet Tomás at the entrance of the underground car park, level −1.', 'Walk around the car together and take photos in the app.', 'Collect the keys and the parking card for the exit gate.', 'Return to the same bay with the same fuel level.'] } },
+  { id: 2, mk: 'Kia', md: 'Sportage', y: 2009, t: 'suv', px: 32, seats: 5, doors: 5, tr: 'Automatic', fuel: 'Petrol', cons: '8.9 l/100 km', bags: 4, boot: 465, len: 4440, hgt: 1640, host: 'tf', city: 'Lisbon', area: 'Alcântara', inst: true, wkd: 15, wk: 10, mo: 20, min: 2, km: 300, dep: 400, age: 23, tb: 9, p5: .74,
+    feat: [...F_STD, 'Roof rails', 'Tow bar', 'Child seat ISOFIX'], desc: ['An honest, high-riding SUV for beach weekends and surf trips. Roof rails fit two boards; straps are in the boot.', 'Older but mechanically sound, with a full service history.'],
+    pick: { addr: 'Rua Fradesso da Silveira 12, 1300-260 Lisbon', how: 'Lockbox', steps: ['The car is parked in the residents’ garage behind the blue gate.', 'The gate and lockbox codes arrive in the app 24 hours before pick-up.', 'Photograph all four sides and the fuel gauge in the app.', 'Leave the key in the lockbox when you return.'] } },
+  { id: 5, mk: 'Volkswagen', md: 'Polo', y: 2016, t: 'hatch', px: 27, seats: 5, doors: 5, tr: 'Manual', fuel: 'Petrol', cons: '5.4 l/100 km', bags: 2, boot: 280, len: 3970, hgt: 1460, host: 'sa', city: 'Munich', area: 'Schwabing', inst: true, wkd: 10, wk: 12, mo: 25, min: 1, km: 250, dep: 300, age: 21, tb: 48, p5: .62,
+    feat: [...F_STD, 'Parking sensors', 'Winter tyres', 'Low-emission sticker'], desc: ['Small, economical and easy in Munich traffic. Winter tyres are fitted from October to April.', 'Green emission sticker for all German low-emission zones.'],
+    pick: { addr: 'Herzogstraße 41, 80803 Munich', how: 'In person', steps: ['Ring “Albrecht” at the courtyard gate; Stefan meets you in the courtyard.', 'Check the car together and photograph any marks.', 'The parking permit stays behind the windscreen during your trip.', 'Return with the same fuel level; there is a station on Leopoldstraße.'] } },
+  { id: 6, mk: 'Skoda', md: 'Octavia RS Combi', y: 2015, t: 'wagon', px: 42, seats: 5, doors: 5, tr: 'Automatic', fuel: 'Petrol', cons: '6.9 l/100 km', bags: 4, boot: 610, len: 4685, hgt: 1465, host: 'pt', city: 'Prague', area: 'Vinohrady', inst: true, wkd: 10, wk: 10, mo: 18, min: 2, km: 300, dep: 600, age: 25, tb: 31, p5: .82,
+    feat: [...F_STD, 'Adaptive cruise control', 'Navigation', 'Sport seats', 'Motorway vignette'], desc: ['Fast, practical estate with a huge 610-litre boot. Ideal for Bohemian Switzerland or a run to Vienna.', 'The Czech motorway vignette is valid until the end of the year and included in the price.'],
+    pick: { addr: 'Korunní 88, 120 00 Prague 2', how: 'Lockbox', steps: ['Find the car on the street in front of number 88; the plate is shown in your trip.', 'Open the lockbox on the gate with the code from the app.', 'Photograph the car and the dashboard before driving off.', 'Park within 200 m on return and put the key back in the lockbox.'] } },
+  { id: 7, mk: 'Hyundai', md: 'Staria', y: 2023, t: 'van', px: 90, seats: 9, doors: 4, tr: 'Automatic', fuel: 'Diesel', cons: '9.2 l/100 km', bags: 6, boot: 831, len: 5253, hgt: 1990, host: 'jb', city: 'Amsterdam', area: 'Oost', inst: false, wkd: 15, wk: 10, mo: 20, min: 2, km: 350, dep: 1000, age: 25, tb: 7, p5: .9,
+    feat: [...F_STD, 'Sliding doors', '360° camera', 'Rear climate control', 'Bike rack on request'], desc: ['Nine seats, sliding doors on both sides and space for luggage behind the third row.', 'Euro 6 diesel: allowed in the Amsterdam environmental zone.'],
+    pick: { addr: 'Javaplein 9, 1095 CJ Amsterdam', how: 'In person', steps: ['Meet Joost at the Javaplein parking garage, level 1.', 'Joost shows you the 360° camera and the seat folding.', 'Sign the handover in the app together.', 'Return to the same garage; the exit ticket is paid for you.'] } },
+  { id: 8, mk: 'Toyota', md: 'RAV4 Plug-in Hybrid', y: 2022, t: 'suv', px: 65, seats: 5, doors: 5, tr: 'Automatic', fuel: 'Plug-in hybrid', cons: '1.0 l/100 km + 15 kWh', bags: 4, boot: 520, len: 4600, hgt: 1690, host: 'cm', city: 'Lyon', area: 'Croix-Rousse', inst: false, wkd: 10, wk: 10, mo: 22, min: 2, km: 300, dep: 800, age: 25, tb: 22, p5: .8,
+    feat: [...F_STD, 'All-wheel drive', 'Type 2 charging cable', 'Heated steering wheel', 'Crit’Air 1 sticker'], desc: ['Around 70 km of electric range for the city, then a quiet hybrid for the motorway to the Alps.', 'Please charge at home or at public chargers; the Type 2 cable is in the boot.'],
+    pick: { addr: '14 rue d’Austerlitz, 69004 Lyon', how: 'In person', steps: ['Camille meets you at the door of the residence.', 'The car is in the courtyard, on charge.', 'Check the charge level and fuel together in the app.', 'Return with at least 30% battery.'] } },
 ];
-const TYPE = { sedan: 'Sedan', suv: 'Crossover', hatch: 'Hatchback', van: 'Minivan' };
-/* every booking is one record; busy days, trips, occupancy and earnings all derive from it */
-const B = [
-  { id: 1, car: 1, who: 'Lukas N.', from: -6, to: -3 }, { id: 2, car: 1, who: 'Anna L.', from: 2, to: 5 }, { id: 3, car: 1, who: 'Marco T.', from: 9, to: 14 }, { id: 4, car: 1, who: 'Camille R.', from: 19, to: 21 },
-  { id: 5, car: 2, who: 'Jonas V.', from: -5, to: -2 }, { id: 19, car: 2, who: 'Elena F.', from: -12, to: -9 }, { id: 20, car: 1, who: 'Pieter O.', from: -14, to: -11 }, { id: 6, car: 2, who: 'Sofia K.', from: 6, to: 12 }, { id: 7, car: 2, who: 'Hugo E.', from: 16, to: 20 },
-  { id: 8, car: 6, who: 'You', from: -9, to: -6 }, 
-  { id: 11, car: 5, who: 'You', from: 12, to: 14 }, 
-  { id: 13, car: 5, who: 'Nora R.', from: 3, to: 9 }, { id: 14, car: 6, who: 'Felix S.', from: 5, to: 7 }, { id: 15, car: 7, who: 'Lusa Tours Lda', from: 0, to: 10 }, { id: 16, car: 7, who: 'Mira D.', from: 14, to: 18 },
-  { id: 17, car: 8, who: 'Pavel P.', from: 2, to: 4 }, 
-];
-const car = (id) => CARS.find((c) => c.id === id);
-const busy = (carId, d) => B.some((b) => b.car === carId && d >= b.from && d <= b.to);
-const freeNext7 = (id) => { let n = 0; for (let d = 0; d < 7; d++) if (!busy(id, d)) n++; return n; };
-const nextId = () => Math.max(...B.map((b) => b.id)) + 1;
-const price = (c, n) => { const base = c.px * n, off = n >= 14 ? .15 : n >= 7 ? .1 : 0, disc = Math.round(base * off), fee = Math.round((base - disc) * .07); return { base, off, disc, fee, total: base - disc + fee }; };
-/* totals reconcile: 3 days of the Polo, no discount */
-console.assert(price(car(5), 3).total === 27 * 3 + Math.round(27 * 3 * .07) && price(car(1), 7).disc === 27, 'price');
+const TYPE = { sedan: 'Sedan', suv: 'SUV', hatch: 'Hatchback', wagon: 'Estate', van: 'Minivan' };
+const CITIES = ['Lisbon', 'Barcelona', 'Lyon', 'Munich', 'Amsterdam', 'Prague'];
+const car = (id) => CARS.find((c) => c.id === +id);
+const name = (c) => `${c.mk} ${c.md}`;
+const host = (c) => HOSTS[c.host];
+CARS.forEach((c) => { c.blk = new Set(); });
 
-const carPhoto = (c) => `<img src="img/car-${c.id}.jpg" alt="${esc(c.n)}" loading="lazy" decoding="async">`;
+const INS = {
+  basic: { n: 'Basic', px: 0, ex: 1500, d: 'Third-party liability and collision damage cover.' },
+  standard: { n: 'Standard', px: 9, ex: 500, d: 'Lower excess. Glass and tyres covered.' },
+  premium: { n: 'Premium', px: 16, ex: 0, d: 'No excess. Glass, tyres, keys and interior covered.' },
+};
+const EXTRAS = { driver: ['Additional driver', 6], seat: ['Child seat', 4] };
 
-const tint = (c) => `color-mix(in srgb, ${c} 16%, #f6f5f1)`;
+/* one price function used by cards, the booking box, checkout, receipts and host payouts */
+function quote(c, a, b, ins = 'basic', ex = {}) {
+  const n = b - a + 1; let base = 0, wkn = 0;
+  for (let d = a; d <= b; d++) { const w = D(d).getDay(), we = w === 5 || w === 6; base += Math.round(c.px * (we ? 1 + c.wkd / 100 : 1)); if (we) wkn++; }
+  const off = n >= 28 ? c.mo : n >= 7 ? c.wk : 0, disc = Math.round(base * off / 100), rental = base - disc;
+  const insC = INS[ins].px * n, exC = Object.keys(EXTRAS).reduce((s, k) => s + (ex[k] ? EXTRAS[k][1] * n : 0), 0);
+  const fee = Math.round(rental * .07), payout = Math.round(rental * .9);
+  return { n, base, wkn, off, disc, rental, ins: insC, ex: exC, fee, total: rental + insC + exC + fee, payout, comm: rental - payout, km: c.km * n };
+}
+{ const q = quote(CARS[0], 0, 6, 'standard', { seat: 1 }); console.assert(q.total === q.base - q.disc + q.ins + q.ex + q.fee && q.payout + q.comm === q.rental && q.off === 10, 'quote reconciles'); }
+const luhn = (s) => { let sum = 0; for (let i = 0; i < s.length; i++) { let x = +s[s.length - 1 - i]; if (i % 2) { x *= 2; if (x > 9) x -= 9; } sum += x; } return s.length > 0 && sum % 10 === 0; };
+console.assert(luhn('4242424242424242') && !luhn('4242424242424241'), 'luhn');
 
-/* ── shell ────────────────────────────────────────────── */
-const PAGES = { catalog: ['Catalogue', 'search'], trips: ['My trips', 'calendar'], host: ['My cars', 'wrench'] };
-let page = 'catalog', type = 'all', sort = 'price', sel = null;       // sel: { car, a, b }
-const myTrips = () => B.filter((b) => b.who === 'You').sort((a, b) => a.from - b.from);
+const NAMES = ['Lukas Novák', 'Anna Lindqvist', 'Marco Testa', 'Camille Roux', 'Jonas Vermeer', 'Elena Fuentes', 'Pieter Olsen', 'Sofia Kowalczyk', 'Hugo Esteves', 'Nora Richter', 'Felix Schmid', 'Mira Dvořáková', 'Inês Carvalho', 'Julien Moreau', 'Clara Vidal', 'Matteo Rinaldi', 'Katarzyna Wiśniewska-Kowalczyk', 'Ólafur Darri Ólafsson', 'Seán O’Brien', 'Greta Sørensen', 'Lars Kühn', 'Julie Bernard', 'Tim de Vries', 'Ana Novaković'];
+
+/* bookings: one record each; calendars, trips, earnings, KPIs and badges all derive from it */
+const B = []; let bid = 1000;
+const HOLD = ['pending', 'confirmed', 'completed'];
+const ref = () => 'RW-' + Array.from({ length: 6 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(rnd() * 32)]).join('');
+const taken = (c, d, ign) => c.blk.has(d) || B.some((b) => b.car === c.id && b !== ign && HOLD.includes(b.st) && d >= b.from && d <= b.to);
+const free = (c, a, b, ign) => { for (let d = a; d <= b; d++) if (taken(c, d, ign)) return false; return true; };
+function addB(o) { const c = car(o.car), b = { id: ++bid, ref: ref(), ins: 'basic', ex: {}, made: o.from - ri(4, 30), pu: '10:00', rt: '10:00', ...o }; b.q = quote(c, b.from, b.to, b.ins, b.ex); b.payout = b.q.payout; B.push(b); return b; }
+const stat = (b) => ['cancelled', 'declined', 'pending'].includes(b.st) ? b.st : b.to < 0 ? 'completed' : b.from <= 0 ? 'active' : 'confirmed';
+const ST = { pending: ['Request pending', 'warn'], confirmed: ['Confirmed', 'pos'], active: ['On trip', 'pos'], completed: ['Completed', ''], cancelled: ['Cancelled', 'neg'], declined: ['Declined', 'neg'] };
+const pill = (b) => { const s = ST[stat(b)]; return `<span class="pill ${s[1]}"><i></i>${s[0]}</span>`; };
+
+const T_OCT = addB({ car: 6, who: ME.name, me: true, from: -38, to: -35, st: 'completed', ins: 'standard', reviewed: true });
+const T_STA = addB({ car: 7, who: ME.name, me: true, from: -122, to: -118, st: 'completed', ins: 'premium', ex: { seat: 1 } });
+const T_POLO = addB({ car: 5, who: ME.name, me: true, from: 12, to: 14, st: 'confirmed', ins: 'standard', pu: '09:30', made: -2 });
+const T_RAV = addB({ car: 8, who: ME.name, me: true, from: 27, to: 30, st: 'pending', made: 0 });
+addB({ car: 6, who: ME.name, me: true, from: 3, to: 4, st: 'cancelled', made: -9, cx: -5 });
+for (const c of CARS) {
+  const mine = c.host === 'tf'; let d = mine ? -345 : -80;
+  while (d < 120) {
+    d += ri(1, d < 0 ? 4 : 7); const a = d, b = d + ri(1, 5) - 1;
+    if (b >= 120) break; if (!free(c, a, b)) continue;
+    addB({ car: c.id, who: pick(NAMES), from: a, to: b, st: b < 0 && rnd() < .05 ? 'cancelled' : 'confirmed', ins: pick(['basic', 'basic', 'standard', 'premium']), ex: rnd() < .2 ? { driver: 1 } : {} });
+    d = b;
+  }
+}
+B.forEach((b) => { if (b.st === 'confirmed' && b.to < 0) b.st = 'completed'; });
+{ const fut = B.filter((b) => car(b.car).host === 'tf' && b.from >= 5 && b.st === 'confirmed');
+  [['Sofia Kowalczyk', 2, 20], ['Julien Moreau', 1, 190], ['Katarzyna Wiśniewska-Kowalczyk', 2, 600]].forEach(([w, cid, m], i) => { const b = fut.filter((x) => x.car === cid)[i] || fut[i]; Object.assign(b, { st: 'pending', who: w, made: 0, at: minAgo(m) }); }); }
+[[1, [22, 23]], [2, [9, 10, 16]]].forEach(([id, ds]) => ds.forEach((d) => { if (free(car(id), d, d)) car(id).blk.add(d); }));
+
+/* reviews */
+const RV_T = ['Spotless car and a really smooth handover.', '{h} was waiting with the keys and walked me through everything.', 'Exactly as described. The fuel policy was clear and the return took two minutes.', 'Great for a weekend out of the city, very comfortable on the motorway.', 'Pick-up was easy to find and the instructions were clear.', 'Good value for the price. Would book again.', 'Plenty of space for luggage; four suitcases fitted with no problem.', 'Communication was quick and friendly from start to finish.', 'Smooth ride and low consumption. Parking sensors helped a lot in the old town.', '{h} was flexible with the return time when our flight was delayed.', 'Clean inside and out, and the charging cable was a nice touch.', 'Our third trip with {h}. Reliable every time.'];
+const RV_M = ['The car was clean, but pick-up started 15 minutes late.', 'Check-in took longer than expected because the lockbox code did not work at first.', 'Fine for the price, though the interior showed its age.'];
+const RV = [];
+for (const c of CARS) { const n = { 1: 24, 2: 17, 5: 31, 6: 21, 7: 12, 8: 26 }[c.id];
+  for (let i = 0; i < n; i++) { const r = rnd() < c.p5 ? 5 : rnd() < .75 ? 4 : rnd() < .7 ? 3 : 2; const h = host(c).n.split(' ')[0];
+    RV.push({ car: c.id, who: pick(NAMES), r, d: -ri(3, 430), text: (r >= 4 ? [pick(RV_T), rnd() < .5 ? pick(RV_T) : ''] : [pick(RV_M)]).filter((x, j, a) => x && a.indexOf(x) === j).join(' ').replace(/\{h\}/g, h) }); } }
+RV.push({ car: 6, who: ME.name, r: 5, d: -33, text: 'Petra made everything easy. The Octavia is quick, spotless and the vignette saved us time at the border.' });
+const reviews = (c) => RV.filter((r) => r.car === c.id).sort((a, b) => b.d - a.d);
+const rating = (c) => { const R = reviews(c); return R.reduce((s, r) => s + r.r, 0) / R.length; };
+const tripsN = (c) => c.tb + B.filter((b) => b.car === c.id && stat(b) === 'completed').length;
+
+/* inbox + notifications */
+let thId = 0;
+const TH = [
+  { who: 'Stefan Albrecht', role: 'Host', car: 5, bk: T_POLO.id, m: [[0, 'Hi Tomás, thanks for booking the Polo! Pick-up is in my courtyard on Herzogstraße. I will send the gate code the day before.', 1560], [1, 'Great, thank you. Is it fine if I arrive around 09:30?', 1500], [0, '09:30 is perfect. The car will be fully fuelled and the winter tyres are already on.', 55]], un: 1 },
+  { who: 'Sofia Kowalczyk', role: 'Renter', car: 2, m: [[0, 'Hello! I just sent a request for the Sportage. Could I pick it up at 08:00 instead of 10:00? My train arrives early.', 18]], un: 1 },
+  { who: 'Camille Mercier', role: 'Host', car: 8, bk: T_RAV.id, m: [[1, 'Hi Camille, I have sent a request for 4 days. We are two adults with two large suitcases.', 300], [0, 'Bonjour Tomás, thanks! I will confirm by this evening, I just need to check one date.', 190]], un: 1 },
+  { who: 'Petra Turková', role: 'Host', car: 6, bk: T_OCT.id, m: [[1, 'Car is back in front of number 88 and the key is in the lockbox. Thanks again!', 38 * 1440], [0, 'Thank you Tomás, everything looks perfect. You are welcome back any time.', 38 * 1440 - 40]], un: 0 },
+  { who: 'Anna Lindqvist', role: 'Renter', car: 1, m: [[0, 'Hi! Is there a child seat available for the Camry?', 4 * 1440], [1, 'Hi Anna, yes, I can add an ISOFIX seat for €4 a day. Just tick it when you book.', 4 * 1440 - 25], [0, 'Perfect, thank you!', 4 * 1440 - 20]], un: 0 },
+].map((t) => ({ id: ++thId, ...t, m: t.m.map(([me, x, mins]) => ({ me: !!me, t: x, at: minAgo(mins) })) }));
+const unreadMsgs = () => TH.reduce((s, t) => s + t.un, 0);
+let nId = 0;
+const N = [];
+const notify = (ic, t, go, read = false, at = now()) => { N.unshift({ id: ++nId, ic, t, go, read, at }); };
+{ const lastWeek = B.filter((b) => car(b.car).host === 'tf' && stat(b) === 'completed' && b.to >= -7).reduce((s, b) => s + b.payout, 0) || B.find((b) => car(b.car).host === 'tf' && stat(b) === 'completed').q.payout;
+  [['shield', 'Your driving licence was verified', ['host'], true, 13000], ['star', 'Petra Turková left you a 5-star review as a renter', ['trip', T_OCT.id], true, 4300], ['coin', `Payout of ${eur(lastWeek)} sent to your account ending 0417`, ['host'], true, 1700], ['clock', 'Your request for the Toyota RAV4 is waiting for Camille', ['trip', T_RAV.id], false, 240], ['chat', 'Stefan Albrecht sent you a message', ['inbox', 1], false, 55], ['calendar', 'New booking request from Sofia Kowalczyk for your Kia Sportage', ['host'], false, 20]].forEach(([i, t, g, r, m]) => notify(i, t, g, r, minAgo(m))); }
+const unreadN = () => N.filter((n) => !n.read).length;
+const FAV = new Set([7, 6]);
+
+/* ── shell ──────────────────────────────────────────────────── */
+const PAGES = { explore: ['Explore', 'search'], saved: ['Saved', 'heart'], trips: ['Trips', 'calendar'], inbox: ['Inbox', 'chat'], host: ['Host', 'key'] };
+let V = { p: 'explore' }, signedIn = true;
+const F = { city: '', a: null, b: null, g: 1, q: '', min: 20, max: 100, tr: '', fuel: '', seats: 0, inst: false, sort: 'rec', open: false };
+const myCars = () => CARS.filter((c) => c.host === 'tf');
+const hostB = () => B.filter((b) => car(b.car).host === 'tf');
+const pendingN = () => hostB().filter((b) => b.st === 'pending').length;
+const isPhone = () => matchMedia('(max-width: 899px)').matches;
+const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function chrome() {
-  $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
-  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span></a>`).join('');
-  setNav(page);
+  const cnt = { inbox: unreadMsgs(), host: pendingN(), saved: 0 };
+  const link = (k, tab) => `<a data-page="${k}" tabindex="0" role="link" ${V.p === k ? 'aria-current="page"' : ''}>${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${cnt[k] ? `<span class="count" aria-label="${cnt[k]} new">${cnt[k]}</span>` : ''}</a>`;
+  const un = unreadN();
+  $('#top').innerHTML = `<button class="brand" data-page="explore" aria-label="RentoWorld home"><span class="brand-mark">${ic('road')}</span><span class="brand-name">Rento<em>World</em></span></button>
+    <nav class="nav" aria-label="Main">${Object.keys(PAGES).map((k) => link(k)).join('')}</nav>
+    <div class="tb-r"><button class="ib hide-m" data-act="help" aria-label="Help centre" title="Help centre">${ic('help')}</button>
+    <button class="ib" data-act="bell" aria-label="Notifications${un ? `, ${un} unread` : ''}" aria-haspopup="true">${ic('bell')}${un ? `<span class="badge">${un}</span>` : ''}</button>
+    <button class="um" data-act="menu" aria-label="Account menu" aria-haspopup="true">${av(ME.name)}<b>${ME.first}</b>${ic('down')}</button></div>`;
+  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => link(k, 1)).join('');
+  setNav(V.car || V.trip ? '' : V.p);
 }
-function render() { chrome(); $('#main').innerHTML = ({ catalog, trips, host })[page](); }
-function go(p) { page = p; render(); window.scrollTo(0, 0); }
-const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+function footer() {
+  const col = (h, items) => `<div><h4>${h}</h4>${items.map(([t, k]) => `<button class="lk" data-act="${k[0] === '@' ? k.slice(1) : 'legal'}" data-k="${k}">${t}</button>`).join('')}</div>`;
+  $('#foot').innerHTML = `<div class="foot-in"><div><div class="brand" style="padding:0"><span class="brand-mark">${ic('road')}</span><span class="brand-name">Rento<em>World</em></span></div><p>Rent cars from verified owners in six European cities. Insurance and 24/7 roadside assistance on every trip.</p></div>
+    ${col('Support', [['Help centre', '@help'], ['Safety and insurance', 'insurance'], ['Cancellation policy', 'cancel']])}
+    ${col('Hosting', [['Host dashboard', '@hostgo'], ['Host protection', 'protection'], ['Pricing guide', 'pricing']])}
+    ${col('Legal', [['Terms of service', 'terms'], ['Privacy policy', 'privacy'], ['Imprint', 'imprint']])}
+    <div class="foot-b"><span>© 2026 RentoWorld Europe B.V. · Sample data for demonstration</span><span>English (UK) · € EUR · Web v3.8.2</span></div></div>`;
+}
+const after = [];
+function render() {
+  closePop();
+  document.body.classList.toggle('out', !signedIn);
+  document.body.classList.toggle('pg-car', V.p === 'car');
+  if (!signedIn) { $('#main').innerHTML = signin(); return; }
+  chrome();
+  after.length = 0;
+  $('#main').innerHTML = ({ explore, car: carPage, checkout, trip: tripPage, trips: tripsPage, saved, inbox, host: hostPage })[V.p]();
+  after.forEach((f) => f());
+  integrity();
+}
+function go(p, arg) {
+  if (p === 'car') V = { p, car: +arg }; else if (p === 'trip') V = { p, trip: +arg }; else if (p === 'inbox') V = { p, th: arg ? +arg : null }; else V = { p };
+  if (p === 'car') { SEL = { a: null, b: null, ins: 'standard', ex: {}, err: '' }; RVS = { f: 0, sort: 'new', n: 4 }; calOff = 0; const c = car(arg); if (F.a != null && free(c, F.a, F.b)) Object.assign(SEL, { a: F.a, b: F.b }); }
+  closeDrawer(); closeModal(); render(); window.scrollTo(0, 0);
+}
+const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1>${sub ? `<p>${sub}</p>` : ''}</div><div class="head-actions">${actions}</div></header>`;
 
-document.addEventListener('click', (e) => {
-  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
-  const c = e.target.closest('[data-car]'); if (c) return openCar(+c.dataset.car);
-  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
-});
-document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
-document.addEventListener('change', (e) => { if (e.target.id === 'sort') { sort = e.target.value; render(); } });
-
-/* ── catalog ──────────────────────────────────────────── */
-function catalog() {
-  const list = CARS.filter((c) => type === 'all' || c.t === type).sort((a, b) => sort === 'price' ? a.px - b.px : sort === 'rating' ? b.r - a.r : freeNext7(b.id) - freeNext7(a.id));
-  const cards = list.map((c) => { const f = freeNext7(c.id); return `<button class="car" data-car="${c.id}" aria-label="${esc(c.n)}, ${tg(c.px)} per day"><span class="car-art">${carPhoto(c)}</span>
-    <span class="car-b" style="display:block"><h3>${esc(c.n)}</h3><div class="sub">${c.y} · ${TYPE[c.t]} · ${c.tr} · ${c.seats} seats</div>
-    <span class="car-f"><span><b>${tg(c.px)}</b> <small>/ day</small></span><span style="text-align:right"><span class="free ${f < 3 ? 'busy' : ''}" style="display:block">${f === 7 ? 'Free all week' : f ? `Free ${f} of 7 days` : 'Booked all week'}</span><small>★ ${fmtD(c.r)} · ${c.trips} ${plural(c.trips, 'trip', 'trips', 'trips')}</small></span></span></span></button>`; }).join('');
-  return head('Cars across Europe', `${list.length} ${plural(list.length, 'car', 'cars', 'cars')} from owners. Pick your dates inside a listing and the price is calculated for you.`) +
-    `<div class="filters">${['all', 'sedan', 'suv', 'hatch', 'van'].map((k) => `<button class="chip ${type === k ? 'on' : ''}" data-act="type" data-v="${k}">${k === 'all' ? 'All' : TYPE[k]}</button>`).join('')}
-    <select id="sort" aria-label="Sort"><option value="price" ${sort === 'price' ? 'selected' : ''}>Cheapest first</option><option value="rating" ${sort === 'rating' ? 'selected' : ''}>By rating</option><option value="free" ${sort === 'free' ? 'selected' : ''}>Most free days</option></select></div>
-    <div class="cars">${cards}</div>`;
+/* reconciliation: every count shown agrees with the records */
+function integrity() {
+  const un = unreadN(), badge = $('.ib .badge');
+  console.assert((badge ? +badge.textContent : 0) === un, 'bell badge = unread notifications');
+  const mine = B.filter((b) => b.me), g = ['pending', 'confirmed', 'active'].map((s) => mine.filter((b) => stat(b) === s).length).reduce((a, b) => a + b, 0);
+  console.assert(g + mine.filter((b) => stat(b) === 'completed').length + mine.filter((b) => ['cancelled', 'declined'].includes(b.st)).length === mine.length, 'trip tabs add up');
+  for (const c of CARS) { const R = reviews(c); console.assert([5, 4, 3, 2, 1].reduce((s, k) => s + R.filter((r) => r.r === k).length, 0) === R.length, 'histogram = review count'); }
 }
 
-/* ── car detail + dates ───────────────────────────────── */
-function openCar(id) {
-  sel = { car: id, a: null, b: null };
-  const c = car(id);
-  modal(`<div class="det"><div class="det-l"><div class="det-art car-art" style="border-radius:12px;margin-bottom:18px">${carPhoto(c)}</div>
-      <h2 style="font-size:22px">${esc(c.n)}, ${c.y}</h2><p class="muted">Owner: ${esc(c.own)} · ${c.where} · ★ ${fmtD(c.r)}</p>
-      <div class="specs"><div><b>${c.seats}</b><span>seats</span></div><div><b>${c.tr}</b><span>gearbox</span></div><div><b>${c.fuel}</b><span>fuel</span></div><div><b>${tg(c.dep)}</b><span>deposit</span></div></div>
-      <h3 style="font-size:15px">Select dates</h3><p class="muted" style="font-size:13px">Greyed-out days are booked. Click the start day, then the end day.</p><div class="cal" id="cal"></div></div>
-    <div class="det-r sum" id="sum"></div></div><button class="btn sm close-x" onclick="closeModal()" aria-label="Close">${ic('x')}</button>`, () => { $('.modal').classList.add('wide'); drawCal(); });
+/* ── popovers, drawer, undo, confirm ───────────────────────── */
+function openPop(btn, html, cls = '') {
+  const was = $('#pop') && $('#pop').dataset.for === btn.dataset.act; closePop(); if (was) return;
+  const p = document.createElement('div'); p.id = 'pop'; p.className = 'pop ' + cls; p.dataset.for = btn.dataset.act; p.setAttribute('role', 'dialog'); p.innerHTML = html;
+  document.body.appendChild(p); const r = btn.getBoundingClientRect();
+  p.style.top = (r.bottom + 8) + 'px'; p.style.right = Math.max(12, innerWidth - r.right) + 'px';
+  btn.setAttribute('aria-expanded', 'true'); const f = p.querySelector('button'); if (f) f.focus({ preventScroll: true });
+}
+function closePop() { const p = $('#pop'); if (p) { p.remove(); $$('[aria-expanded="true"]').forEach((b) => b.setAttribute('aria-expanded', 'false')); } }
+document.addEventListener('mousedown', (e) => { if ($('#pop') && !e.target.closest('#pop') && !e.target.closest('[data-act="bell"],[data-act="menu"]')) closePop(); });
+function drawer(html) { closeDrawer(); const d = document.createElement('div'); d.id = 'drw'; d.innerHTML = `<div class="drw-s" data-act="dclose"></div><aside class="drw" role="dialog" aria-modal="true" aria-label="Booking details">${html}</aside>`; document.body.appendChild(d); const f = d.querySelector('.drw button'); if (f) f.focus(); }
+function closeDrawer() { const d = $('#drw'); if (d) d.remove(); }
+let undoT;
+function undo(msg, fn) {
+  let u = $('#undo'); if (!u) { u = document.createElement('div'); u.id = 'undo'; u.className = 'undo'; u.setAttribute('role', 'status'); document.body.appendChild(u); }
+  u.innerHTML = `<span></span><button type="button">Undo</button>`; u.firstChild.textContent = msg;
+  u.lastChild.onclick = () => { clearTimeout(undoT); u.classList.remove('show'); fn(); };
+  void u.offsetWidth; u.classList.add('show'); clearTimeout(undoT); undoT = setTimeout(() => u.classList.remove('show'), 6000);
+}
+function confirmBox(title, body, ok, onOk, danger = true) {
+  modal(`<h2 id="cf-t">${title}</h2><p>${body}</p><div class="modal-actions"><button class="btn" data-x>Keep it</button><button class="btn ${danger ? 'danger' : 'primary'}" data-ok>${ok}</button></div>`, (s) => {
+    s.firstChild.classList.add('sm'); s.firstChild.setAttribute('aria-labelledby', 'cf-t');
+    s.querySelector('[data-x]').onclick = closeModal; s.querySelector('[data-ok]').onclick = () => { closeModal(); onOk(); }; s.querySelector('[data-ok]').focus();
+  });
+}
+function download(fname, text, type = 'text/csv') {
+  const u = URL.createObjectURL(new Blob([text], { type: type + ';charset=utf-8' })), a = document.createElement('a');
+  a.href = u; a.download = fname; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 2000);
+}
+const csvCell = (v) => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
+
+/* ── explore ───────────────────────────────────────────────── */
+const photo = (c, eager) => `<img src="img/car-${c.id}.jpg" alt="${esc(name(c))}, ${c.y}" width="720" height="450" ${eager ? '' : 'loading="lazy"'} decoding="async">`;
+function explore() {
+  const n = (x) => CARS.filter((c) => !x || c.city === x).length, fc = activeFilters();
+  after.push(() => { drawResults(false); syncRange(); });
+  return `<section class="hero" aria-labelledby="hero-t">
+    <div><div class="eyebrow">${ic('shield')} Every trip insured · Verified owners</div>
+      <h1 id="hero-t">Rent a car from a local, <span>anywhere in Europe</span></h1>
+      <p class="lead">Book cars from verified owners in Lisbon, Barcelona, Lyon, Munich, Amsterdam and Prague. Pay per day, pick up around the corner.</p></div>
+    <div class="hero-art">${photo(car(8), 1)}<div class="float">${av(host(car(8)).n)}<div><b>Toyota RAV4 · Lyon</b><span>${eur(car(8).px)} / day · ${fmtD(rating(car(8)), 2)} rating</span></div></div></div>
+    <form class="search" id="sform" novalidate aria-label="Search cars">
+      <label class="sf"><span>Where</span><select id="s-city"><option value="">Any city</option>${CITIES.map((x) => `<option ${F.city === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
+      <label class="sf"><span>Pick-up</span><input type="date" id="s-a" min="${iso(0)}" max="${iso(119)}" value="${F.a != null ? iso(F.a) : ''}"></label>
+      <label class="sf"><span>Return</span><input type="date" id="s-b" min="${iso(0)}" max="${iso(119)}" value="${F.b != null ? iso(F.b) : ''}"></label>
+      <label class="sf"><span>Travellers</span><select id="s-g">${Array.from({ length: 9 }, (_, i) => `<option value="${i + 1}" ${F.g === i + 1 ? 'selected' : ''}>${pl(i + 1, 'person', 'people')}</option>`).join('')}</select></label>
+      <button class="btn primary lg" type="submit">${ic('search')}Search</button>
+    </form><p class="s-err" id="s-err" role="alert"></p>
+    <ul class="trust"><li>${ic('check')}Free cancellation up to 48 hours before pick-up</li><li>${ic('check')}24/7 roadside assistance</li><li>${ic('check')}No hidden fees</li></ul>
+  </section>
+  <div class="cities" role="group" aria-label="Filter by city">${['', ...CITIES].map((x) => `<button class="chip ${F.city === x ? 'on' : ''}" data-act="city" data-v="${x}" aria-pressed="${F.city === x}">${x || 'All cities'} <em>${n(x)}</em></button>`).join('')}</div>
+  <div class="tools">
+    <label class="srch">${ic('search')}<input type="search" id="f-q" data-search placeholder="Search make, model or city" aria-label="Search make, model or city" value="${esc(F.q)}" autocomplete="off"><kbd>/</kbd></label>
+    <button class="btn ftog" data-act="ftog" aria-expanded="${F.open}" aria-controls="fpanel">${ic('sliders')}Filters${fc ? `<em>${fc}</em>` : ''}</button>
+    <div class="fpanel ${F.open ? 'open' : ''}" id="fpanel">
+      <div class="rng"><div><span>Price per day</span><b id="rng-l"></b></div><div class="rng-t"><i id="rng-f"></i><input type="range" id="f-min" min="20" max="100" step="5" value="${F.min}" aria-label="Minimum price per day"><input type="range" id="f-max" min="20" max="100" step="5" value="${F.max}" aria-label="Maximum price per day"></div></div>
+      <label class="fs"><span>Transmission</span><select class="sel" id="f-tr"><option value="">Any</option>${['Automatic', 'Manual'].map((x) => `<option ${F.tr === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
+      <label class="fs"><span>Fuel</span><select class="sel" id="f-fuel"><option value="">Any</option>${['Petrol', 'Diesel', 'Plug-in hybrid'].map((x) => `<option ${F.fuel === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
+      <label class="fs"><span>Seats</span><select class="sel" id="f-seats">${[[0, 'Any'], [5, '5 or more'], [7, '7 or more']].map(([v, t]) => `<option value="${v}" ${F.seats === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label class="swl"><input type="checkbox" role="switch" id="f-inst" ${F.inst ? 'checked' : ''}><span class="sw"></span>Instant book</label>
+    </div>
+    <label class="fs sortc"><span>Sort by</span><select class="sel" id="f-sort" aria-label="Sort by">${[['rec', 'Recommended'], ['pa', 'Price: low to high'], ['pd', 'Price: high to low'], ['rt', 'Top rated'], ['tr', 'Most trips']].map(([v, t]) => `<option value="${v}" ${F.sort === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+  </div>
+  <div id="results" aria-live="polite"></div>
+  <section class="how" aria-label="How it works">${[['Find the right car', 'Filter by city, dates and what you need. Every listing shows the full price before you book.'], ['Book in minutes', 'Instant book confirms straight away. Otherwise the owner replies within 24 hours and you are only charged once accepted.'], ['Pick up and go', 'Meet the owner or use a lockbox. Photos at pick-up and return protect both of you.']].map(([h, p], i) => `<div><span class="n">${i + 1}</span><h3>${h}</h3><p>${p}</p></div>`).join('')}</section>
+  <div class="cta"><div><h3>Your car could earn you money while it is parked</h3><p>Hosts in Lisbon earn ${eur(Math.round(hostB().filter((b) => stat(b) === 'completed' && b.from > -365).reduce((s, b) => s + b.payout, 0) / 2 / 12))} a month per car on average.</p></div><button class="btn primary" data-page="host">Open host dashboard</button></div>`;
+}
+function activeFilters() { return (F.min > 20 || F.max < 100 ? 1 : 0) + !!F.tr + !!F.fuel + !!F.seats + !!F.inst; }
+function filtered() {
+  const q = F.q.trim().toLowerCase();
+  const L = CARS.filter((c) => (!F.city || c.city === F.city) && c.px >= F.min && c.px <= F.max && (!F.tr || c.tr === F.tr) && (!F.fuel || c.fuel === F.fuel) && c.seats >= Math.max(F.seats, F.g) && (!F.inst || c.inst) && (!q || `${name(c)} ${c.city} ${TYPE[c.t]} ${c.area}`.toLowerCase().includes(q)));
+  const k = { rec: (c) => -(rating(c) * 10 + Math.log(tripsN(c))), pa: (c) => c.px, pd: (c) => -c.px, rt: (c) => -rating(c), tr: (c) => -tripsN(c) }[F.sort];
+  L.sort((a, b) => k(a) - k(b));
+  if (F.a != null) L.sort((a, b) => free(b, F.a, F.b) - free(a, F.a, F.b));
+  return L;
+}
+function card(c) {
+  const q = F.a != null ? quote(c, F.a, F.b) : null, ok = !q || free(c, F.a, F.b), R = reviews(c);
+  return `<article class="car ${ok ? '' : 'off'}"><div class="car-art">${photo(c)}${c.inst ? `<span class="tagi">${ic('zap')}Instant book</span>` : ''}</div>
+    <button class="fav ${FAV.has(c.id) ? 'on' : ''}" data-act="fav" data-id="${c.id}" aria-pressed="${FAV.has(c.id)}" aria-label="${FAV.has(c.id) ? 'Remove from saved' : 'Save'}: ${esc(name(c))}">${ic('heart')}</button>
+    <div class="car-b"><div class="car-t"><h3><button class="hit" data-car="${c.id}">${esc(name(c))}</button></h3><span class="rt">${ic('star')}${fmtD(rating(c), 2)} <em>(${R.length})</em></span></div>
+    <div class="sub">${c.y} · ${c.city} · ${c.tr} · ${c.seats} seats · ${c.fuel}</div>
+    <div class="car-f"><span><b>${eur(c.px)}</b> <small>/ day</small></span>${q ? (ok ? `<span class="tot ok">${eur(q.total)} total<br><small>${pl(q.n, 'day')}, fees included</small></span>` : `<span class="tot muted">Booked on your dates</span>`) : `<span class="tot muted">${pl(tripsN(c), 'trip')} · ${esc(host(c).n.split(' ')[0])}</span>`}</div></div></article>`;
+}
+let resTok = 0;
+function drawResults(skel) {
+  const el = $('#results'); if (!el) return;
+  const tok = ++resTok;
+  if (skel) { el.innerHTML = `<div class="res-h"><h2 class="sk" style="width:180px;height:22px"></h2></div><div class="cars" aria-busy="true">${'<div class="car" style="animation:none"><div class="car-art sk" style="border-radius:0"></div><div class="car-b"><div class="sk" style="height:18px;width:60%"></div><div class="sk" style="height:13px;width:85%;margin-top:10px"></div><div class="sk" style="height:22px;width:35%;margin-top:18px"></div></div></div>'.repeat(3)}</div>`; setTimeout(() => { if (tok === resTok) drawResults(false); }, 420); return; }
+  const L = filtered(), avail = F.a != null ? L.filter((c) => free(c, F.a, F.b)).length : L.length, fc = activeFilters() + !!F.q;
+  const where = F.city ? ` in ${F.city}` : '', when = F.a != null ? ` for ${frs(F.a, F.b)}` : '';
+  let body;
+  if (!L.length && F.city && !CARS.some((c) => c.city === F.city)) body = `<div class="empty-s"><div class="ic-w">${ic('pin')}</div><h3>No cars in ${esc(F.city)} yet</h3><p>Owners in ${esc(F.city)} are joining RentoWorld every week. Get an email as soon as the first car is listed.</p><button class="btn primary" data-act="alert" data-v="${esc(F.city)}">${ic('bell')}Notify me</button> <button class="btn" data-act="city" data-v="">See all cities</button></div>`;
+  else if (!L.length) body = `<div class="empty-s"><div class="ic-w">${ic('search')}</div><h3>No cars match your filters</h3><p>Try a wider price range or fewer filters. ${F.q ? `Nothing matches “${esc(F.q)}”.` : ''}</p><button class="btn primary" data-act="clearf">Clear all filters</button></div>`;
+  else body = `<div class="cars">${L.map(card).join('')}</div>`;
+  el.innerHTML = `<div class="res-h"><h2>${F.a != null ? `${pl(avail, 'car')} available${where}${when}` : `${pl(L.length, 'car')}${where}`}</h2><p>${fc ? `${pl(fc, 'filter')} applied · <button class="lnk" data-act="clearf">Clear all</button>` : 'Prices include VAT. Service fee shown at checkout.'}</p></div>${body}`;
+}
+function syncRange() {
+  const a = $('#f-min'), b = $('#f-max'); if (!a) return;
+  $('#rng-l').textContent = `${eur(F.min)} – ${eur(F.max)}${F.max === 100 ? '+' : ''}`;
+  const f = $('#rng-f'); f.style.left = (F.min - 20) / .8 + '%'; f.style.right = (100 - (F.max - 20) / .8) + '%';
+}
+const refreshTools = () => { const t = $('.ftog'); if (t) { const n = activeFilters(); t.innerHTML = `${ic('sliders')}Filters${n ? `<em>${n}</em>` : ''}`; } };
+
+/* ── listing page ──────────────────────────────────────────── */
+let SEL = { a: null, b: null, ins: 'standard', ex: {}, err: '' }, RVS = { f: 0, sort: 'new', n: 4 }, calOff = 0;
+const PROF = {
+  sedan: 'M16 82 L18 66 Q22 59 50 57 L92 53 L122 33 Q130 29 150 29 L196 29 Q209 29 221 37 L246 53 L284 57 Q294 60 295 68 L296 82',
+  suv: 'M15 82 L16 60 Q19 52 44 50 L84 48 L104 25 Q108 21 122 21 L240 21 Q251 21 257 31 L271 50 L290 54 Q296 57 296 66 L296 82',
+  hatch: 'M18 82 L19 63 Q24 56 50 54 L88 50 L120 28 Q126 24 144 24 L224 24 Q238 24 248 37 L270 58 Q281 62 282 70 L283 82',
+  wagon: 'M15 82 L18 65 Q23 58 52 56 L92 52 L120 30 Q126 26 146 26 L270 28 Q281 30 285 44 L292 61 Q294 66 294 82',
+  van: 'M16 82 L16 52 Q18 41 34 37 L66 18 Q72 14 86 14 L282 14 Q293 14 294 26 L296 82',
+};
+function specSVG(c) {
+  const top = { sedan: 29, suv: 21, hatch: 24, wagon: 26, van: 14 }[c.t];
+  return `<svg viewBox="0 0 330 132" role="img" aria-label="Dimensions: length ${fmt(c.len)} mm, height ${fmt(c.hgt)} mm">
+    <path d="${PROF[c.t]}" fill="var(--surface)" stroke="var(--text)" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M16 82 L48 82 A25 25 0 0 1 98 82 L210 82 A25 25 0 0 1 260 82 L296 82" fill="none" stroke="var(--text)" stroke-width="1.6"/>
+    ${[73, 235].map((x) => `<circle cx="${x}" cy="84" r="17" fill="var(--text)"/><circle cx="${x}" cy="84" r="7" fill="var(--raised)"/>`).join('')}
+    <line x1="10" x2="302" y1="102" y2="102" stroke="var(--rule)"/>
+    <path d="M16 116 H296 M16 111 V121 M296 111 V121" stroke="var(--accent)" stroke-width="1.2"/><text class="svg-t" x="156" y="129" text-anchor="middle">${fmt(c.len)} mm</text>
+    <path d="M314 ${top} V101 M309 ${top} H319 M309 101 H319" stroke="var(--accent)" stroke-width="1.2"/><text class="svg-t" x="0" y="0" transform="translate(326 ${(top + 101) / 2}) rotate(-90)" text-anchor="middle">${fmt(c.hgt)}</text></svg>`;
+}
+function interiorSVG(c) {
+  const rows = c.seats === 9 ? [3, 3, 3] : [2, 3], xs = c.seats === 9 ? [92, 152, 212] : [118, 178];
+  let s = '';
+  rows.forEach((n, ri2) => { for (let i = 0; i < n; i++) { const y = n === 2 ? [32, 76][i] : [26, 54, 82][i]; s += `<rect x="${xs[ri2]}" y="${y}" width="34" height="${n === 2 ? 24 : 22}" rx="6" fill="${ri2 === 0 && i === 0 ? 'var(--accent)' : 'var(--surface)'}" stroke="var(--text)" stroke-width="1.2"/>`; } });
+  const bx = c.seats === 9 ? 256 : 226; let lg = '';
+  for (let i = 0; i < c.bags; i++) lg += `<rect x="${bx + (i % 2) * 22}" y="${30 + Math.floor(i / 2) * 22}" width="18" height="18" rx="3" fill="var(--accent-bg)" stroke="var(--accent)"/>`;
+  return `<svg viewBox="0 0 330 132" role="img" aria-label="Seating plan: ${c.seats} seats, room for ${c.bags} large bags">
+    <rect x="22" y="12" width="290" height="104" rx="38" fill="var(--surface)" stroke="var(--text)" stroke-width="1.6"/>
+    <path d="M70 18 Q60 64 70 110" fill="none" stroke="var(--rule)" stroke-width="6"/>
+    <circle cx="96" cy="44" r="9" fill="none" stroke="var(--text)" stroke-width="1.6"/>${s}${lg}
+    <text class="svg-t" x="30" y="129">Front</text><text class="svg-t" x="304" y="129" text-anchor="end">Boot ${fmt(c.boot)} L</text></svg>`;
+}
+function mapSVG(c) {
+  seed = c.id * 991; let roads = '';
+  for (let i = 0; i < 7; i++) { const y = ri(10, 210); roads += `<path d="M0 ${y} Q${ri(150, 450)} ${y + ri(-40, 40)} 640 ${ri(10, 210)}" stroke="#fff" stroke-width="${ri(4, 9)}" fill="none"/>`; }
+  for (let i = 0; i < 6; i++) { const x = ri(20, 620); roads += `<path d="M${x} 0 L${x + ri(-80, 80)} 220" stroke="#fff" stroke-width="${ri(3, 6)}" fill="none"/>`; }
+  return `<svg viewBox="0 0 640 220" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Map of the pick-up area in ${esc(c.area)}, ${c.city}"><rect width="640" height="220" fill="#e6ede3"/>
+    <path d="M0 190 Q200 150 340 200 T640 170 V220 H0Z" fill="#cfe0ea"/><rect x="${ri(40, 400)}" y="${ri(20, 100)}" width="120" height="60" rx="10" fill="#d5e6cf"/>${roads}
+    <g transform="translate(320 104)"><circle r="34" fill="var(--accent)" opacity=".15"/><path d="M0 0 C-12 -16 -14 -22 -14 -28 a14 14 0 0 1 28 0 c0 6 -2 12 -14 28z" fill="var(--accent)" stroke="#fff" stroke-width="2"/><circle cy="-28" r="5" fill="#fff"/></g>
+    <rect x="12" y="12" rx="8" width="${24 + c.area.length * 7.5}" height="28" fill="#fff"/><text x="24" y="31" style="font:500 13px var(--font);fill:var(--text)">${esc(c.area)}</text></svg>`;
+}
+function carPage() {
+  const c = car(V.car); if (!c) return head('Listing not found', 'This car is no longer listed.') + `<button class="btn" data-page="explore">Back to Explore</button>`;
+  const h = host(c), R = reviews(c), mine = c.host === 'tf';
+  after.push(drawCal, drawBk, drawReviews);
+  return `<nav class="crumbs" aria-label="Breadcrumb"><button data-page="explore">Explore</button>${ic('right')}<button data-act="city" data-v="${c.city}">${c.city}</button>${ic('right')}<span aria-current="page">${esc(name(c))}</span></nav>
+  <div class="lp-h"><div><h1>${esc(name(c))} ${c.y}</h1><p><span class="rt">${ic('star')}${fmtD(rating(c), 2)} <em>(${pl(R.length, 'review')})</em></span><span>${pl(tripsN(c), 'trip')}</span><span>${ic('pin').replace('class="ic ', 'style="width:14px;height:14px;display:inline;vertical-align:-2px" class="ic ')} ${esc(c.area)}, ${c.city}</span>${c.inst ? `<span class="pill pos">${ic('zap').replace('class="ic ', 'style="width:12px;height:12px" class="ic ')}Instant book</span>` : '<span class="pill">Request to book</span>'}</p></div>
+    <div class="acts"><button class="btn" data-act="share">${ic('copy')}Share</button><button class="btn ${FAV.has(c.id) ? 'on' : ''}" data-act="fav" data-id="${c.id}" aria-pressed="${FAV.has(c.id)}">${ic('heart')}${FAV.has(c.id) ? 'Saved' : 'Save'}</button></div></div>
+  <div class="gal"><figure>${photo(c, 1)}</figure>
+    <figure class="gp">${specSVG(c)}<figcaption><span>Exterior</span><b>${TYPE[c.t]} · ${c.doors} doors</b></figcaption></figure>
+    <figure class="gp">${interiorSVG(c)}<figcaption><span>Interior</span><b>${c.seats} seats · ${pl(c.bags, 'large bag')}</b></figcaption></figure></div>
+  <div class="lp"><div class="lp-main">
+    <section class="sec"><div class="specs">${[['seat', c.seats, 'seats'], ['gear', c.tr, 'gearbox'], ['fuel', c.fuel, 'fuel'], ['zap', c.cons, 'consumption'], ['luggage', fmt(c.boot) + ' L', 'boot'], ['road', fmt(c.km) + ' km', 'included per day']].map(([i, b, s]) => `<div>${ic(i)}<b>${b}</b><span>${s}</span></div>`).join('')}</div></section>
+    <section class="sec"><h2>About this car</h2>${c.desc.map((p) => `<p class="desc">${esc(p)}</p>`).join('')}</section>
+    <section class="sec"><h2>Features</h2><ul class="feat">${c.feat.map((f) => `<li>${ic('check')}${esc(f)}</li>`).join('')}</ul></section>
+    <section class="sec"><h2>Hosted by ${esc(h.n.split(' ')[0])}</h2><div class="hostc">${av(h.n, 'lg')}<div><h3>${esc(h.n)}${h.sh ? `<span class="sh">${ic('star').replace('class="ic ', 'style="width:12px;height:12px" class="ic ')}Superhost</span>` : ''}${mine ? '<span class="pill">You</span>' : ''}</h3>
+      <p class="muted sm-t">Hosting since ${h.since} · Speaks ${esc(h.langs)}</p><div class="vb">${h.ver.map((v) => `<span>${ic('check')}${v} verified</span>`).join('')}</div>
+      <p class="desc sm-t">${esc(h.bio)}</p><div class="hstat"><div><b>${h.rr}%</b><span>response rate</span></div><div><b>${h.rt[0].toUpperCase() + h.rt.slice(1)}</b><span>typical reply</span></div><div><b>${fmt(CARS.filter((x) => x.host === c.host).reduce((s, x) => s + tripsN(x), 0))}</b><span>trips hosted</span></div></div>
+      ${mine ? '' : `<button class="btn" data-act="msghost" data-id="${c.id}">${ic('chat')}Message ${esc(h.n.split(' ')[0])}</button>`}</div></div></section>
+    <section class="sec" id="avail"><div class="sec-h"><h2>Availability</h2><div class="cal-nav"><button class="btn sm" data-act="calp" aria-label="Previous months" ${calOff ? '' : 'disabled'}>${ic('left')}</button><button class="btn sm" data-act="caln" aria-label="Next months" ${calOff >= 2 ? 'disabled' : ''}>${ic('right')}</button></div></div>
+      <p class="muted sm-t" style="margin:-8px 0 12px">Choose your pick-up day, then your return day. Minimum trip: ${pl(c.min, 'day')}. Weekend days (Fri, Sat) are ${c.wkd}% higher.</p>
+      <div class="cals" id="cal"></div><p class="cal-msg" id="cal-msg" role="alert"></p>
+      <div class="legend"><span><i style="background:var(--accent)"></i>Your dates</span><span><i style="background:var(--raised);box-shadow:inset 0 0 0 1px var(--border)"></i>Available</span><span><i style="background:repeating-linear-gradient(135deg,#ddd 0 3px,#fff 3px 6px)"></i>Booked or unavailable</span><button class="lnk" data-act="cleard" style="margin-left:auto">Clear dates</button></div></section>
+    <section class="sec"><h2>Protection</h2><div class="ins" role="radiogroup" aria-label="Protection plan">${Object.entries(INS).map(([k, x]) => `<label class="opt"><input type="radio" name="ins" value="${k}" ${SEL.ins === k ? 'checked' : ''}><b>${x.n}<em>${x.px ? '+' + eur(x.px) + ' / day' : 'Included'}</em></b><p>${x.d}</p><span class="ex">Excess: <b>${eur(x.ex)}</b></span></label>`).join('')}</div>
+      <div class="extras">${Object.entries(EXTRAS).map(([k, [t, p]]) => `<label><input type="checkbox" data-ex="${k}" ${SEL.ex[k] ? 'checked' : ''}>${t} <span class="muted">+${eur(p)} / day</span></label>`).join('')}</div></section>
+    <section class="sec" id="reviews"><h2>Reviews</h2><div id="rvw"></div></section>
+    <section class="sec"><h2>Rules and requirements</h2><ul class="rules">${[['user', `Drivers aged ${c.age} or over, licence held for 2+ years`], ['card', `${eur(c.dep)} deposit held on your card, released within 7 days`], ['fuel', c.fuel === 'Plug-in hybrid' ? 'Return with at least 30% battery and the same fuel level' : 'Return with the same fuel level'], ['road', `${fmt(c.km)} km per day included, then €0.25 per km`], ['x', 'No smoking. Pets allowed only in a carrier'], ['globe', 'Cross-border trips within the EU need the owner’s approval']].map(([i, t]) => `<li>${ic(i)}<span>${t}</span></li>`).join('')}</ul></section>
+    <section class="sec"><h2>Pick-up location</h2><p class="muted sm-t" style="margin:-8px 0 12px">${esc(c.area)}, ${c.city} · Exact address shared after booking · Handover: ${c.pick.how.toLowerCase()}</p><div class="mapw">${mapSVG(c)}</div></section>
+  </div><aside class="lp-side"><div class="bk" id="bk" aria-live="polite"></div></aside></div><div class="mbar" id="mbar"></div>`;
+}
+function monthGrid(off, cell) {
+  const first = new Date(2026, 10 + off, 1), lead = (first.getDay() + 6) % 7, n = new Date(2026, 11 + off, 0).getDate();
+  let h = `<div class="mo"><div class="mo-t">${first.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</div><div class="mo-g">${['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d) => `<span class="dw" aria-hidden="true">${d}</span>`).join('')}${'<span></span>'.repeat(lead)}`;
+  for (let i = 1; i <= n; i++) h += cell(dayOf(new Date(2026, 10 + off, i)), i);
+  return h + '</div></div>';
 }
 function drawCal() {
-  const c = car(sel.car), start = TODAY.getDay() === 0 ? 6 : TODAY.getDay() - 1;   // Monday-first offset
-  let h = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((d) => `<div class="dw">${d}</div>`).join('') + '<span></span>'.repeat(start);
-  for (let d = 0; d < 28; d++) {
-    const inn = sel.a !== null && d >= sel.a && d <= (sel.b ?? sel.a), edge = d === sel.a || d === sel.b;
-    h += `<button class="day ${inn ? 'in' : ''} ${edge ? 'edge' : ''}" data-act="day" data-d="${d}" ${busy(c.id, d) ? 'disabled' : ''} aria-label="${dFmt(d)}${busy(c.id, d) ? ', booked' : ''}">${addDays(d).getDate()}</button>`;
+  const c = car(V.car), el = $('#cal'); if (!el) return;
+  const cell = (d, i) => { if (d < 0) return `<span class="day past" aria-hidden="true">${i}</span>`;
+    const t = taken(c, d), inn = SEL.a != null && d >= SEL.a && d <= (SEL.b ?? SEL.a), edge = d === SEL.a || d === SEL.b;
+    return `<button class="day ${inn ? 'in' : ''} ${edge ? 'edge' : ''} ${d === 0 ? 'today' : ''}" data-act="day" data-d="${d}" ${t || d > 119 ? 'disabled' : ''} aria-pressed="${inn}" aria-label="${fdw(d)}${t ? ', unavailable' : ''}">${i}</button>`; };
+  el.innerHTML = monthGrid(calOff, cell) + monthGrid(calOff + 1, cell);
+  $('#cal-msg').textContent = SEL.err || '';
+  const nv = $$('.cal-nav .btn'); if (nv.length) { nv[0].disabled = !calOff; nv[1].disabled = calOff >= 2; }
+}
+function drawBk() {
+  const c = car(V.car), el = $('#bk'); if (!el) return;
+  const R = reviews(c), n = SEL.a == null ? 0 : (SEL.b ?? SEL.a) - SEL.a + 1, done = SEL.a != null && SEL.b != null;
+  let h = `<div class="bk-p"><span><b>${eur(c.px)}</b> <small>/ day</small></span><span class="rt">${ic('star')}${fmtD(rating(c), 2)} <em>· ${R.length}</em></span></div>`;
+  if (c.host === 'tf') { el.innerHTML = h + `<div class="perm">${ic('lock')}<div><b>This is your listing</b><p>Hosts can’t book their own car. Manage prices and blocked dates from your host dashboard.</p></div></div><button class="btn primary lg" style="width:100%" data-page="host">Manage listing</button>`; drawMbar(0); return; }
+  h += `<div class="bk-d"><button data-act="tocal"><span>Pick-up</span><b>${SEL.a != null ? fdw(SEL.a) : 'Add date'}</b></button><button data-act="tocal"><span>Return</span><b>${SEL.b != null ? fdw(SEL.b) : 'Add date'}</b></button></div>`;
+  if (done) {
+    const q = quote(c, SEL.a, SEL.b, SEL.ins, SEL.ex);
+    h += `<div class="ln"><span>${eur(Math.round(q.base / q.n))} avg × ${pl(q.n, 'day')}${q.wkn ? `<small>Includes ${pl(q.wkn, 'weekend day')} at +${c.wkd}%</small>` : ''}</span><b>${eur(q.base)}</b></div>
+      ${q.disc ? `<div class="ln"><span>${q.n >= 28 ? 'Monthly' : 'Weekly'} discount ${q.off}%</span><b class="pos">${eur(-q.disc)}</b></div>` : ''}
+      <div class="ln"><span>${INS[SEL.ins].n} protection</span><b>${q.ins ? eur(q.ins) : 'Included'}</b></div>
+      ${Object.keys(EXTRAS).filter((k) => SEL.ex[k]).map((k) => `<div class="ln"><span>${EXTRAS[k][0]}</span><b>${eur(EXTRAS[k][1] * q.n)}</b></div>`).join('')}
+      <div class="ln"><span>Service fee</span><b>${eur(q.fee)}</b></div><div class="tot"><span>Total</span><b>${eur(q.total)}</b></div>
+      <button class="btn primary lg" style="width:100%;margin-top:14px" data-act="checkout">${c.inst ? `${ic('zap')}Book instantly` : 'Request to book'}</button>
+      <p class="note">${ic('check')}<span>Free cancellation until ${fdw(Math.max(0, SEL.a - 2))}, 10:00. ${c.inst ? '' : 'You won’t be charged until the owner accepts.'}</span></p>
+      <p class="note">${ic('shield')}<span>${eur(c.dep)} deposit held, not charged. ${fmt(q.km)} km included.</span></p>`;
+    drawMbar(q.total, q.n);
+  } else {
+    h += `<p class="muted sm-t" style="margin-bottom:14px">${SEL.a != null ? 'Now choose your return day.' : 'Add your dates to see the total price.'} Weekly trips get ${c.wk}% off, monthly ${c.mo}%.</p><button class="btn primary lg" style="width:100%" data-act="tocal">${SEL.a != null ? 'Select return date' : 'Check availability'}</button>`;
+    drawMbar(0);
   }
-  $('#cal').innerHTML = h; drawSum();
+  el.innerHTML = h;
 }
-function drawSum() {
-  const c = car(sel.car), n = sel.a === null ? 0 : (sel.b ?? sel.a) - sel.a + 1;
-  if (!n) { $('#sum').innerHTML = `<div class="tot" style="border:0"><span class="muted">${tg(c.px)} per day</span></div><p class="muted" style="margin:10px 0 18px">10% off from 7 days, 15% off from 14 days.</p><button class="btn primary" style="width:100%" disabled>Select dates</button>`; return; }
-  const p = price(c, n);
-  $('#sum').innerHTML = `<h3 style="font-size:15px;margin-bottom:2px">${n > 1 ? dFmt(sel.a) + ' — ' + dFmt(sel.b ?? sel.a) : dFmt(sel.a)}</h3><p class="muted" style="margin-bottom:12px">${days(n)}</p>
-    <div class="lines"><div><span>${tg(c.px)} × ${n}</span><b>${tg(p.base)}</b></div>${p.disc ? `<div><span>Discount ${p.off * 100}%</span><b class="pos">−${tg(p.disc)}</b></div>` : ''}<div><span>Service fee 7%</span><b>${tg(p.fee)}</b></div></div>
-    <div class="tot"><span>Total</span><b>${tg(p.total)}</b></div><p class="muted" style="font-size:13px;margin:8px 0 16px">The ${tg(c.dep)} deposit is held on your card and released after the trip.</p>
-    <button class="btn primary" style="width:100%;height:42px" data-act="book">Book now</button>`;
+function drawMbar(total, n) {
+  const m = $('#mbar'), c = car(V.car); if (!m) return;
+  m.innerHTML = c.host === 'tf' ? `<div><b>${eur(c.px)}</b> / day<small>Your listing</small></div><button class="btn" data-page="host">Manage</button>` : total ? `<div><b>${eur(total)}</b><small>${pl(n, 'day')} · ${frs(SEL.a, SEL.b)}</small></div><button class="btn primary" data-act="checkout">${c.inst ? 'Book instantly' : 'Request to book'}</button>` : `<div><b>${eur(c.px)}</b> / day<small>Add dates for the total</small></div><button class="btn primary" data-act="tocal">Select dates</button>`;
 }
-
-/* ── trips ────────────────────────────────────────────── */
-function trips() {
-  const list = myTrips(), up = list.filter((b) => b.to >= 0);
-  const rows = list.map((b) => { const c = car(b.car), n = b.to - b.from + 1, p = price(c, n), past = b.to < 0; return `<div class="trip-c"><span class="thumb">${carPhoto(c)}</span><div><b>${esc(c.n)}</b><span class="s">${dFmt(b.from)} — ${dFmt(b.to)} · ${days(n)} · ${tg(p.total)}</span></div>${past ? '<span class="pill">Completed</span>' : `<span style="display:flex;gap:8px;align-items:center"><span class="pill pos"><i></i>Confirmed</span><button class="btn sm" data-act="cancel" data-id="${b.id}">Cancel</button></span>`}</div>`; }).join('');
-  const spent = list.reduce((a, b) => a + price(car(b.car), b.to - b.from + 1).total, 0);
-  return head('My trips', `${up.length ? `Next: ${esc(car(up[0].car).n)}, from ${dFmt(up[0].from)}` : 'No upcoming trips'}`) +
-    `<div class="kpis"><div class="kpi"><b>${list.length}</b><span>Total trips</span></div><div class="kpi"><b>${tg(spent)}</b><span>Spent</span></div></div><section class="card">${rows || '<p class="empty">Nothing here yet. Pick a car in the catalogue.</p>'}</section>`;
-}
-
-/* ── host cabinet ─────────────────────────────────────── */
-function host() {
-  const mine = CARS.filter((c) => c.own === 'You'), done = (b) => b.to < 0;
-  const earn = (c) => B.filter((b) => b.car === c.id && done(b)).reduce((a, b) => { const n = b.to - b.from + 1, p = price(c, n); return a + (p.base - p.disc) * .9; }, 0);
-  const occ = (c) => { let n = 0; for (let d = 0; d < 28; d++) if (busy(c.id, d)) n++; return n; };
-  const tot = mine.reduce((a, c) => a + earn(c), 0), occAll = mine.reduce((a, c) => a + occ(c), 0) / (mine.length * 28);
-  const cards = mine.map((c) => `<section class="card c6"><div class="card-h"><h2>${esc(c.n)}</h2><span>${tg(c.px)} / day</span></div>
-    <div class="kpis" style="margin-bottom:12px;gap:28px"><div class="kpi"><b>${occ(c)}</b><span>Booked days out of 28</span></div><div class="kpi"><b>${tg(earn(c))}</b><span>Earned</span></div></div>
-    <div style="display:grid;grid-template-columns:repeat(28,1fr);gap:2px" aria-label="Occupancy over 28 days">${Array.from({ length: 28 }, (_, d) => `<i title="${dFmt(d)}" style="height:22px;border-radius:3px;background:${busy(c.id, d) ? 'var(--accent)' : 'var(--raised)'}"></i>`).join('')}</div>
-    <p class="muted" style="font-size:12px;margin-top:6px">${dFmt(0)} — ${dFmt(27)}</p>
-    <h3 style="font-size:14px;margin:16px 0 4px">Upcoming bookings</h3>${B.filter((b) => b.car === c.id && b.to >= 0).sort((a, b) => a.from - b.from).slice(0, 3).map((b) => `<div class="trip-c" style="grid-template-columns:1fr auto;padding:8px 0"><div><b>${esc(b.who)}</b><span class="s">${dFmt(b.from)} — ${dFmt(b.to)}</span></div><b>${tg((price(c, b.to - b.from + 1).base - price(c, b.to - b.from + 1).disc) * .9)}</b></div>`).join('')}</section>`).join('');
-  return head('My cars', `${mine.length} ${plural(mine.length, 'car', 'cars', 'cars')} listed. Service commission 10%.`) +
-    `<div class="kpis"><div class="kpi"><b>${tg(tot)}</b><span>Earned from completed bookings</span></div><div class="kpi"><b>${Math.round(occAll * 100)}<small>%</small></b><span>28-day occupancy</span></div></div><div class="grid">${cards}</div>`;
+function drawReviews() {
+  const c = car(V.car), el = $('#rvw'); if (!el) return;
+  const R = reviews(c), cnt = [5, 4, 3, 2, 1].map((k) => R.filter((r) => r.r === k).length), avg = rating(c);
+  seed = c.id * 77; const cats = ['Cleanliness', 'Communication', 'Accuracy', 'Pick-up and return', 'Value'].map((k) => [k, Math.min(5, avg + (rnd() - .55) * .3)]);
+  let L = R.filter((r) => !RVS.f || r.r === RVS.f); L = L.slice().sort(RVS.sort === 'hi' ? (a, b) => b.r - a.r || b.d - a.d : RVS.sort === 'lo' ? (a, b) => a.r - b.r || b.d - a.d : (a, b) => b.d - a.d);
+  const shown = L.slice(0, RVS.n);
+  el.innerHTML = `<div class="rv-sum"><div class="rv-big"><b>${fmtD(avg, 2)}</b><span class="stars" aria-hidden="true">${'★'.repeat(Math.round(avg))}<i>${'★'.repeat(5 - Math.round(avg))}</i></span><small style="display:block">${pl(R.length, 'review')}</small></div>
+    <div class="hist" role="group" aria-label="Filter reviews by rating">${cnt.map((n, i) => `<button data-act="rvf" data-v="${5 - i}" class="${RVS.f === 5 - i ? 'on' : ''}" aria-pressed="${RVS.f === 5 - i}" aria-label="${5 - i} stars: ${pl(n, 'review')}"><span>${5 - i}</span><span class="bar"><i style="width:${R.length ? n / R.length * 100 : 0}%"></i></span><span>${n}</span></button>`).join('')}</div>
+    <div class="cats">${cats.map(([k, v]) => `<div><span>${k}</span><b>${fmtD(v, 1)}</b></div>`).join('')}</div></div>
+    <div class="rv-tools"><span class="muted sm-t">${RVS.f ? `${pl(L.length, `${RVS.f}-star review`)} · <button class="lnk" data-act="rvf" data-v="0">Show all</button>` : `Showing ${shown.length} of ${R.length}`}</span><select class="sel" id="rv-sort" aria-label="Sort reviews"><option value="new" ${RVS.sort === 'new' ? 'selected' : ''}>Most recent</option><option value="hi" ${RVS.sort === 'hi' ? 'selected' : ''}>Highest rated</option><option value="lo" ${RVS.sort === 'lo' ? 'selected' : ''}>Lowest rated</option></select></div>
+    ${shown.map((r) => `<article class="rv"><div class="rv-h">${av(r.who)}<div><b>${esc(r.who === ME.name ? 'You' : r.who.split(' ')[0])}</b><small>${D(r.d).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })} · <span class="stars" aria-label="${r.r} out of 5">${'★'.repeat(r.r)}<i>${'★'.repeat(5 - r.r)}</i></span></small></div></div><p>${esc(r.text)}</p></article>`).join('') || '<p class="empty">No reviews with this rating.</p>'}
+    ${L.length > RVS.n ? `<button class="btn" data-act="rvmore">Show ${Math.min(6, L.length - RVS.n)} more reviews</button>` : ''}`;
 }
 
-/* ── actions ──────────────────────────────────────────── */
-const ACT = {
-  type(d) { type = d.v; render(); },
-  day(d) {
-    const x = +d.d, c = car(sel.car);
-    if (sel.a === null || sel.b !== null || x < sel.a) { sel.a = x; sel.b = null; }
-    else { for (let k = sel.a; k <= x; k++) if (busy(c.id, k)) { toast('This period includes booked days'); sel.a = x; sel.b = null; return drawCal(); } sel.b = x; }
-    drawCal();
-  },
-  book() {
-    const c = car(sel.car), a = sel.a, b = sel.b ?? sel.a;
-    B.push({ id: nextId(), car: c.id, who: 'You', from: a, to: b }); closeModal(); toast(`${c.n}: booking ${dFmt(a)} — ${dFmt(b)} confirmed`); go('trips');
-  },
-  cancel(d) { const i = B.findIndex((b) => b.id === +d.id); B.splice(i, 1); toast('Booking cancelled, the deposit will be released to your card'); render(); },
+/* ── checkout + 3-D Secure ─────────────────────────────────── */
+let CO = null;
+const VALID = {
+  name: (v) => v.trim().split(/\s+/).length < 2 ? 'Enter the driver’s first and last name as on the licence' : '',
+  email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? '' : 'Enter a valid email address, like name@example.com',
+  phone: (v) => v.replace(/\D/g, '').length < 9 ? 'Enter a mobile number including the country code' : '',
+  dob: (v) => { const d = fromIso(v); if (d == null) return 'Enter your date of birth'; const age = (TODAY - new Date(v)) / 31557600000; return age < car(CO.car).age ? `The owner requires drivers aged ${car(CO.car).age} or over` : ''; },
+  lic: (v) => v.replace(/\s/g, '').length < 6 ? 'Enter your driving licence number' : '',
+  card: (v) => { const d = v.replace(/\s/g, ''); if (!/^\d{13,19}$/.test(d)) return 'Enter the full card number'; return luhn(d) ? '' : 'This card number isn’t valid. Check it for typos'; },
+  cname: (v) => v.trim().length < 3 ? 'Enter the name shown on the card' : '',
+  exp: (v) => { const m = /^(\d{2})\s*\/\s*(\d{2})$/.exec(v.trim()); if (!m) return 'Use the format MM / YY'; const mo = +m[1], yr = 2000 + +m[2]; if (mo < 1 || mo > 12) return 'Month must be between 01 and 12'; return yr < 2026 || (yr === 2026 && mo < 11) ? 'This card has expired' : ''; },
+  cvc: (v) => /^\d{3,4}$/.test(v.trim()) ? '' : 'Enter the 3 or 4-digit security code',
+  terms: (v) => v ? '' : 'Accept the rental terms to continue',
 };
-/* ── live: other renters keep booking, so calendars and "free days" change under you ─ */
-const RENTERS = ['Ana N.', 'Lars K.', 'Julie B.', 'Tim D.', 'Greta S.', 'Marek M.', 'Dana T.'];
-setInterval(() => {
-  if (document.hidden || $('#scrim')) return;
-  const c = CARS[Math.floor(Math.random() * CARS.length)], start = 1 + Math.floor(Math.random() * 20), len = 1 + Math.floor(Math.random() * 3);
-  for (let d = start; d <= start + len; d++) if (busy(c.id, d)) return;
-  B.push({ id: nextId(), car: c.id, who: RENTERS[Math.floor(Math.random() * RENTERS.length)], from: start, to: start + len });
-  toast(`${c.n}: someone just booked ${dFmt(start)} — ${dFmt(start + len)}`);
-  if (page === 'catalog' || page === 'host') render();
-}, 8000);
+const brandOf = (d) => /^4/.test(d) ? 'VISA' : /^(5[1-5]|2[2-7])/.test(d) ? 'MASTERCARD' : /^3[47]/.test(d) ? 'AMEX' : '';
+function checkout() {
+  if (!CO) return head('Nothing to check out', 'Choose a car and your dates first.') + `<button class="btn primary" data-page="explore">Explore cars</button>`;
+  const c = car(CO.car), q = quote(c, CO.a, CO.b, CO.ins, CO.ex), h = host(c), f = CO.f, E = CO.err;
+  const fld = (id, label, attrs = '', extra = '') => `<div class="field ${E[id] ? 'bad' : ''}"><label for="co-${id}">${label}${extra}</label><input id="co-${id}" data-f="${id}" value="${esc(f[id])}" ${attrs} aria-invalid="${!!E[id]}" aria-describedby="er-${id}"><small class="fe" id="er-${id}">${esc(E[id] || '')}</small></div>`;
+  const nErr = Object.values(E).filter(Boolean).length, times = Array.from({ length: 13 }, (_, i) => `${p2(8 + i)}:00`);
+  const brand = brandOf(f.card.replace(/\s/g, ''));
+  return `<nav class="crumbs"><button data-act="backcar">${ic('left')}Back to ${esc(name(c))}</button></nav>
+  ${head(c.inst ? 'Confirm and pay' : 'Request to book', c.inst ? 'Your booking is confirmed as soon as the payment is verified.' : `${esc(h.n.split(' ')[0])} usually replies ${h.rt}. Your card is only charged once the request is accepted.`)}
+  <ol class="steps" aria-label="Progress"><li class="done"><i>${ic('check').replace('class="ic ', 'style="width:12px;height:12px" class="ic ')}</i>Car and dates</li><li class="on" aria-current="step"><i>2</i>Driver and payment</li><li><i>3</i>Confirmation</li></ol>
+  <div class="co"><form id="coform" novalidate>
+    ${CO.alert ? `<div class="alert" role="alert">${ic('alert')}<div><b>${CO.alert[0]}</b><span>${CO.alert[1]}</span></div></div>` : nErr ? `<div class="alert" role="alert">${ic('alert')}<div><b>Check ${pl(nErr, 'field')}</b><span>Some details are missing or need correcting.</span></div></div>` : ''}
+    <section class="card"><h2>Your trip <button class="lnk sm-t" type="button" data-act="backcar">Change dates</button></h2>
+      <div class="row2"><div class="field"><label for="co-pu">Pick-up · ${fdw(CO.a)}</label><select id="co-pu" data-f="pu">${times.map((t) => `<option ${f.pu === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="field"><label for="co-rt">Return · ${fdw(CO.b)}</label><select id="co-rt" data-f="rt">${times.map((t) => `<option ${f.rt === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div></div></section>
+    <section class="card"><h2>Main driver <span class="hint">Must match the driving licence</span></h2>
+      <div class="row2">${fld('name', 'Full name', 'autocomplete="name"')}${fld('email', 'Email', 'type="email" autocomplete="email"')}${fld('phone', 'Mobile number', 'type="tel" autocomplete="tel"')}${fld('dob', 'Date of birth', 'type="date" max="' + iso(0) + '"')}</div>${fld('lic', 'Driving licence number', 'autocomplete="off"')}
+      <div class="field"><label for="co-msg">Message to ${esc(h.n.split(' ')[0])} <span class="hint">(optional)</span></label><textarea id="co-msg" data-f="msg" maxlength="500" placeholder="Say hello and share your plans for the trip">${esc(f.msg)}</textarea></div></section>
+    <section class="card"><h2>Payment <span class="hint">${ic('lock').replace('class="ic ', 'style="width:13px;height:13px;display:inline;vertical-align:-2px" class="ic ')} Encrypted</span></h2>
+      ${fld('card', 'Card number', 'inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234" maxlength="23"', brand ? ` <span class="cbrand">${brand}</span>` : '')}
+      <div class="row3">${fld('cname', 'Name on card', 'autocomplete="cc-name"')}${fld('exp', 'Expiry', 'inputmode="numeric" autocomplete="cc-exp" placeholder="MM / YY" maxlength="7"')}${fld('cvc', 'Security code', 'inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4"')}</div>
+      <p class="hint" style="margin:-4px 0 14px">Demo: <button class="lnk xs" type="button" data-act="democard">use test card 4242 4242 4242 4242</button>. Card 4000 0000 0000 0002 is declined by the bank.</p>
+      <label class="ck ${E.terms ? 'bad' : ''}"><input type="checkbox" id="co-terms" data-f="terms" ${f.terms ? 'checked' : ''} aria-describedby="er-terms"><span>I agree to the <button class="lnk" type="button" data-act="legal" data-k="terms">rental terms</button> and the <button class="lnk" type="button" data-act="legal" data-k="cancel">cancellation policy</button>.</span></label><small class="fe" id="er-terms" style="display:block;margin-top:4px">${esc(E.terms || '')}</small>
+    </section>
+    <button class="btn primary lg" type="submit" id="paybtn" style="width:100%">${CO.busy ? '<span class="spin"></span>Processing…' : `${ic('lock')}${c.inst ? 'Pay' : 'Request and authorise'} ${eur(q.total)}`}</button>
+    <p class="hint" style="text-align:center;margin-top:8px">Your bank may ask you to approve this payment.</p>
+  </form>
+  <aside class="sum-c"><div class="bk"><div class="sum-car"><span class="car-art">${photo(c)}</span><div><b>${esc(name(c))}</b><span>${c.city} · ${esc(h.n)}</span><span class="rt" style="display:flex">${ic('star')}${fmtD(rating(c), 2)}</span></div></div>
+    <div class="ln"><span>Dates</span><b>${frs(CO.a, CO.b)}</b></div><div class="ln"><span>Rental, ${pl(q.n, 'day')}</span><b>${eur(q.base)}</b></div>${q.disc ? `<div class="ln"><span>Discount ${q.off}%</span><b class="pos">${eur(-q.disc)}</b></div>` : ''}
+    <div class="ln"><span>${INS[CO.ins].n} protection</span><b>${q.ins ? eur(q.ins) : 'Included'}</b></div>${Object.keys(EXTRAS).filter((k) => CO.ex[k]).map((k) => `<div class="ln"><span>${EXTRAS[k][0]}</span><b>${eur(EXTRAS[k][1] * q.n)}</b></div>`).join('')}
+    <div class="ln"><span>Service fee</span><b>${eur(q.fee)}</b></div><div class="tot"><span>Total (EUR)</span><b>${eur(q.total)}</b></div>
+    <p class="note">${ic('shield')}<span>${eur(c.dep)} deposit held on your card at pick-up and released within 7 days.</span></p></div></aside></div>`;
+}
+function setErr(id, msg) {
+  CO.err[id] = msg; const inp = $('#co-' + id), e = $('#er-' + id);
+  if (inp) { inp.setAttribute('aria-invalid', !!msg); const fl = inp.closest('.field'); if (fl) fl.classList.toggle('bad', !!msg); }
+  if (e) e.textContent = msg;
+}
+function submitCheckout() {
+  CO.alert = null; Object.keys(VALID).forEach((k) => { CO.err[k] = VALID[k](CO.f[k]); });
+  const first = Object.keys(VALID).find((k) => CO.err[k]);
+  if (first) { render(); const el = $('#co-' + first); if (el) el.focus(); return; }
+  CO.busy = true; render();
+  setTimeout(() => {
+    CO.busy = false;
+    if (CO.f.card.replace(/\s/g, '') === '4000000000000002') { CO.alert = ['Your bank declined this payment', 'The card issuer reported insufficient funds. Try another card. You have not been charged.']; render(); window.scrollTo({ top: 0, behavior: reduce() ? 'auto' : 'smooth' }); return; }
+    render(); threeDS();
+  }, 700);
+}
+function threeDS() {
+  const c = car(CO.car), q = quote(c, CO.a, CO.b, CO.ins, CO.ex), d = CO.f.card.replace(/\s/g, ''); let tries = 3;
+  modal(`<div class="tds-h"><span class="tds-mark">${ic('lock')}</span><b>Nordwind Bank</b><span>Secure verification</span></div>
+    <div id="tds-b"><h2 id="tds-t">Approve this payment</h2><dl class="tds-d"><dt>Merchant</dt><dd>RentoWorld Europe B.V.</dd><dt>Amount</dt><dd>€${fmtD(q.total, 2)}</dd><dt>Card</dt><dd>${brandOf(d) || 'Card'} •••• ${d.slice(-4)}</dd><dt>Date</dt><dd>${fd(0, { day: 'numeric', month: 'long', year: 'numeric' })}</dd></dl>
+    <div class="field"><label for="otp">Enter the 6-digit code we sent to +351 ••• ••• 214</label><input id="otp" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-describedby="otp-e"><small class="fe" id="otp-e" role="alert"></small></div>
+    <p class="hint">Demo code: 246810</p><div class="modal-actions"><button class="btn" id="tds-x">Cancel</button><button class="btn primary" id="tds-ok">Confirm</button></div></div>`, (s) => {
+    s.firstChild.classList.add('sm'); s.firstChild.setAttribute('aria-labelledby', 'tds-t');
+    const cancel = () => { closeModal(); CO.alert = ['Payment not completed', 'You cancelled the bank verification. You have not been charged.']; render(); };
+    $('#tds-x').onclick = cancel;
+    const ok = () => {
+      const v = $('#otp').value.trim();
+      if (v !== '246810') { tries--; if (!tries) { closeModal(); CO.alert = ['Verification failed', 'Too many incorrect codes. Your bank blocked this attempt. You have not been charged.']; render(); return; } $('#otp-e').textContent = `That code is not correct. ${pl(tries, 'attempt')} left.`; $('#otp').closest('.field').classList.add('bad'); $('#otp').focus(); return; }
+      $('#tds-b').innerHTML = `<div class="tds-busy"><span class="spin"></span><span>Confirming with your bank…</span></div>`;
+      setTimeout(() => { closeModal(); finalize(); }, 900);
+    };
+    $('#tds-ok').onclick = ok; $('#otp').addEventListener('keydown', (e) => { if (e.key === 'Enter') ok(); });
+  });
+}
+function finalize() {
+  const c = car(CO.car), h = host(c);
+  if (!free(c, CO.a, CO.b)) { CO.alert = ['Those dates were just booked', 'Someone else booked this car a moment ago. You have not been charged. Please choose other dates.']; render(); return; }
+  const b = addB({ car: c.id, who: ME.name, me: true, from: CO.a, to: CO.b, st: c.inst ? 'confirmed' : 'pending', ins: CO.ins, ex: { ...CO.ex }, made: 0, pu: CO.f.pu, rt: CO.f.rt, card: CO.f.card.replace(/\s/g, '').slice(-4) });
+  let t = TH.find((x) => x.who === h.n); if (!t) { t = { id: ++thId, who: h.n, role: 'Host', car: c.id, m: [], un: 0 }; TH.unshift(t); } t.bk = b.id; t.car = c.id;
+  t.m.push({ sys: true, t: `${c.inst ? 'Booking confirmed' : 'Booking requested'}: ${name(c)}, ${frs(b.from, b.to)}`, at: now() });
+  if (CO.f.msg.trim()) t.m.push({ me: true, t: CO.f.msg.trim(), at: now() });
+  notify(c.inst ? 'check' : 'clock', c.inst ? `Booking ${b.ref} confirmed: ${name(c)}, ${frs(b.from, b.to)}` : `Request sent to ${h.n.split(' ')[0]} for the ${name(c)}`, ['trip', b.id]);
+  CO = null; F.a = F.b = null; go('trip', b.id); V.fresh = true; render();
+}
+
+/* ── trips ─────────────────────────────────────────────────── */
+let TT = 'up';
+function tripsPage() {
+  const mine = B.filter((b) => b.me), G = { up: mine.filter((b) => ['pending', 'confirmed', 'active'].includes(stat(b))).sort((a, b) => a.from - b.from), past: mine.filter((b) => stat(b) === 'completed').sort((a, b) => b.from - a.from), canc: mine.filter((b) => ['cancelled', 'declined'].includes(b.st)).sort((a, b) => b.from - a.from) };
+  const spent = mine.filter((b) => HOLD.includes(b.st) && b.st !== 'pending' && D(b.from).getFullYear() === 2026).reduce((s, b) => s + b.q.total, 0);
+  const cities = new Set(G.past.map((b) => car(b.car).city)), next = G.up[0];
+  const L = G[TT];
+  return head('Trips', next ? `Next: ${esc(name(car(next.car)))} in ${car(next.car).city}, ${relDay(next.from)}` : 'No upcoming trips', `<button class="btn" data-page="explore">${ic('plus')}Book a car</button>`) +
+    `<div class="kpis"><div class="kpi"><b>${G.up.length}</b><span>Upcoming</span></div><div class="kpi"><b>${G.past.length}</b><span>Completed</span></div><div class="kpi"><b>${eur(spent)}</b><span>Spent in 2026</span></div><div class="kpi"><b>${cities.size}</b><span>${cities.size === 1 ? 'City' : 'Cities'} explored</span></div></div>
+    <div class="tabs" role="tablist">${[['up', 'Upcoming'], ['past', 'Past'], ['canc', 'Cancelled']].map(([k, t]) => `<button role="tab" aria-selected="${TT === k}" class="${TT === k ? 'on' : ''}" data-act="ttab" data-v="${k}">${t} · ${G[k].length}</button>`).join('')}</div>
+    <section class="card" style="padding:6px">${L.length ? `<div class="tlist">${L.map((b) => { const c = car(b.car); return `<button class="trow" data-act="trip" data-id="${b.id}"><span class="car-art">${photo(c)}</span><span><b>${esc(name(c))}</b><span class="s">${fr(b.from, b.to)} · ${c.city}</span><span class="s" style="display:block">Hosted by ${esc(host(c).n)} · ${b.ref}</span></span><span class="r">${pill(b)}<b>${eur(b.q.total)}</b></span></button>`; }).join('')}</div>` :
+    `<div class="empty-s" style="border:0">${TT === 'up' ? `<div class="ic-w">${ic('calendar')}</div><h3>No upcoming trips</h3><p>When you book a car, your pick-up details will appear here.</p><button class="btn primary" data-page="explore">Find a car</button>` : `<p>Nothing here.</p>`}</div>`}</section>`;
+}
+function tripPage() {
+  const b = B.find((x) => x.id === V.trip); if (!b) return head('Trip not found', '') + '<button class="btn" data-page="trips">All trips</button>';
+  const c = car(b.car), h = host(c), s = stat(b), q = b.q, cx = ['cancelled', 'declined'].includes(s);
+  const steps = [['Requested', fd(b.made)], ['Confirmed', s === 'pending' ? 'Waiting for owner' : ''], ['Pick-up', `${fdw(b.from)}, ${b.pu}`], ['Return', `${fdw(b.to)}, ${b.rt}`], ['Review', b.reviewed ? 'Done' : '']];
+  const at = cx ? 1 : { pending: 1, confirmed: 2, active: 3, completed: b.reviewed ? 5 : 4 }[s];
+  const th = TH.find((t) => t.who === h.n);
+  return `<nav class="crumbs"><button data-page="trips">${ic('left')}All trips</button></nav>
+    ${V.fresh ? `<div class="alert ok" role="status">${ic('check')}<div><b>${s === 'pending' ? 'Request sent' : 'You’re booked'}</b><span>${s === 'pending' ? `${esc(h.n.split(' ')[0])} usually replies ${h.rt}. Your card is authorised but not charged until the request is accepted.` : `Confirmation ${b.ref} was sent to ${ME.email}. Pick-up details are below.`}</span></div></div>` : ''}
+    ${head(esc(name(c)), `${fr(b.from, b.to)} · ${c.city} · <span class="mono">${b.ref}</span>`, pill(b))}
+    ${cx ? `<div class="finding" style="background:var(--neg-bg)">${ic('x')}<span>${s === 'declined' ? 'The owner declined this request. You were not charged.' : `Cancelled ${b.cx != null ? relDay(b.cx) : ''}. Refund of ${eur(b.refund ?? q.total)} issued to your card.`}</span></div>` :
+    `<ol class="tl">${steps.map(([t, sm], i) => `<li class="${i < at ? 'done' : i === at ? 'now' : ''}">${t}${sm ? `<small>${sm}</small>` : ''}</li>`).join('')}</ol>`}
+    <div class="grid"><section class="card c8"><div class="card-h"><h2>Pick-up instructions</h2><span>${c.pick.how}</span></div>
+      <div class="kv"><div><span>Pick-up</span><b>${fdw(b.from)}, ${b.pu}</b></div><div><span>Return</span><b>${fdw(b.to)}, ${b.rt}</b></div><div><span>Address</span><b>${s === 'pending' || cx ? `${esc(c.area)}, ${c.city}` : esc(c.pick.addr)}</b></div></div>
+      ${s === 'pending' || cx ? `<p class="muted">The exact address and handover steps are shared once the booking is confirmed.</p>` : `<ol class="steps-l">${c.pick.steps.map((x) => `<li><span>${esc(x)}</span></li>`).join('')}</ol>`}
+      <div class="mapw" style="margin-top:16px">${mapSVG(c)}</div>
+      <div class="act-row">${th ? `<button class="btn" data-act="th" data-id="${th.id}">${ic('chat')}Message ${esc(h.n.split(' ')[0])}</button>` : `<button class="btn" data-act="msghost" data-id="${c.id}">${ic('chat')}Message ${esc(h.n.split(' ')[0])}</button>`}
+        ${!cx && s !== 'completed' ? `<button class="btn" data-act="ics" data-id="${b.id}">${ic('calendar')}Add to calendar</button>` : ''}
+        <button class="btn" data-act="receipt" data-id="${b.id}">${ic('dl')}Download receipt</button>
+        ${s === 'completed' && !b.reviewed ? `<button class="btn primary" data-act="review" data-id="${b.id}">${ic('star')}Leave a review</button>` : ''}
+        ${['pending', 'confirmed'].includes(s) ? `<button class="btn" data-act="tcancel" data-id="${b.id}" style="margin-left:auto">${s === 'pending' ? 'Withdraw request' : 'Cancel trip'}</button>` : ''}</div></section>
+    <aside class="c4" style="display:flex;flex-direction:column;gap:var(--gap)"><section class="card" style="padding:0;overflow:hidden"><button class="car-art hit" data-car="${c.id}" style="display:block;position:relative;width:100%" aria-label="View listing">${photo(c)}</button><div style="padding:14px 16px;display:flex;gap:10px;align-items:center">${av(h.n)}<div><b style="font-weight:600">${esc(h.n)}</b><div class="muted sm-t">Replies ${h.rt}</div></div></div></section>
+      <section class="card"><div class="card-h"><h2>Receipt</h2><span>${b.card ? 'Card •••• ' + b.card : 'Visa •••• 4242'}</span></div>
+      <div class="ln"><span>Rental, ${pl(q.n, 'day')}</span><b>${eur(q.base)}</b></div>${q.disc ? `<div class="ln"><span>Discount ${q.off}%</span><b class="pos">${eur(-q.disc)}</b></div>` : ''}<div class="ln"><span>${INS[b.ins].n} protection</span><b>${q.ins ? eur(q.ins) : 'Included'}</b></div>${q.ex ? `<div class="ln"><span>Extras</span><b>${eur(q.ex)}</b></div>` : ''}<div class="ln"><span>Service fee</span><b>${eur(q.fee)}</b></div>
+      <div class="tot"><span>${s === 'pending' ? 'Authorised' : 'Total paid'}</span><b>${eur(q.total)}</b></div></section></aside></div>`;
+}
+function cancelTrip(b) {
+  const refund = b.from >= 2 ? b.q.total : Math.round(b.q.total / 2), prev = b.st, pend = b.st === 'pending';
+  confirmBox(pend ? 'Withdraw this request?' : 'Cancel this trip?', pend ? 'The hold on your card is released straight away.' : `${b.from >= 2 ? 'You are within the free cancellation window.' : 'Pick-up is less than 48 hours away, so 50% is refunded.'} You will get <b>${eur(refund)}</b> back to your card within 5–10 business days.`, pend ? 'Withdraw request' : 'Cancel trip', () => {
+    b.st = 'cancelled'; b.cx = 0; b.refund = pend ? b.q.total : refund; notify('x', `${pend ? 'Request withdrawn' : 'Trip cancelled'}: ${name(car(b.car))}, ${frs(b.from, b.to)}`, ['trip', b.id], true); render();
+    undo(pend ? 'Request withdrawn' : 'Trip cancelled', () => { if (!free(car(b.car), b.from, b.to, b)) return toast('Those dates are no longer available'); b.st = prev; delete b.cx; render(); });
+  });
+}
+
+/* ── saved ─────────────────────────────────────────────────── */
+function saved() {
+  const L = CARS.filter((c) => FAV.has(c.id));
+  return head('Saved cars', L.length ? `${pl(L.length, 'car')} saved. Prices update live.` : '') + (L.length ? `<div class="cars">${L.map(card).join('')}</div>` : `<div class="empty-s"><div class="ic-w">${ic('heart')}</div><h3>No saved cars yet</h3><p>Tap the heart on any car to keep it here and compare later.</p><button class="btn primary" data-page="explore">Explore cars</button></div>`);
+}
+
+/* ── inbox ─────────────────────────────────────────────────── */
+let IQ = '', RC = 0;
+const REPLIES = ['Thanks for your message! I will get back to you with the details shortly.', 'Sounds good. I will have the car ready ten minutes before pick-up.', 'Yes, that works for me. See you then!', 'No problem at all. I will add a note to the booking.', 'Good question. The manual is in the glovebox, but I will show you everything at handover.'];
+function inbox() {
+  if (V.th == null && !isPhone() && TH.length) { V.th = TH[0].id; TH[0].un = 0; chrome(); }
+  const t = TH.find((x) => x.id === V.th);
+  after.push(() => { drawThreads(); const m = $('.msgs'); if (m) m.scrollTop = m.scrollHeight; });
+  return head('Inbox', unreadMsgs() ? `${pl(unreadMsgs(), 'unread message')}` : 'You’re all caught up') +
+    `<div class="ibx ${t ? 'has' : ''}"><aside class="ibx-l"><label class="srch">${ic('search')}<input type="search" id="ib-q" data-search placeholder="Search conversations" aria-label="Search conversations" value="${esc(IQ)}"></label><div class="thl" id="thl" role="list"></div></aside>
+    <section class="ibx-r" aria-label="Conversation">${t ? conv(t) : '<div class="empty" style="margin:auto">Select a conversation</div>'}</section></div>`;
+}
+function drawThreads() {
+  const el = $('#thl'); if (!el) return; const q = IQ.trim().toLowerCase();
+  const L = TH.filter((t) => !q || (t.who + ' ' + name(car(t.car)) + ' ' + t.m.map((m) => m.t).join(' ')).toLowerCase().includes(q)).sort((a, b) => b.m[b.m.length - 1].at - a.m[a.m.length - 1].at);
+  el.innerHTML = L.map((t) => { const l = t.m[t.m.length - 1]; return `<button class="thr ${t.id === V.th ? 'on' : ''} ${t.un ? 'unread' : ''}" role="listitem" data-act="th" data-id="${t.id}">${av(t.who)}<span style="min-width:0"><b>${esc(t.who)}</b><span>${l.me ? 'You: ' : ''}${esc(l.t)}</span><span class="xs" style="color:var(--faint)">${t.role} · ${esc(name(car(t.car)))}</span></span><small>${ago(l.at)}${t.un ? '<span class="u" aria-label="unread"></span>' : ''}</small></button>`; }).join('') || `<p class="empty">No conversations match “${esc(IQ)}”.</p>`;
+}
+function conv(t) {
+  const c = car(t.car); let last = null;
+  const msgs = t.m.map((m) => { const day = new Date(m.at).toDateString(), sep = day !== last ? `<div class="dsep">${dayOf(new Date(m.at)) === 0 ? 'Today' : dayOf(new Date(m.at)) === -1 ? 'Yesterday' : new Date(m.at).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</div>` : ''; last = day;
+    return sep + (m.sys ? `<div class="m sys">${esc(m.t)}</div>` : `<div class="m ${m.me ? 'me' : ''}">${esc(m.t)}<small>${new Date(m.at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</small></div>`); }).join('');
+  return `<div class="cv-h"><button class="ib cv-back" data-act="thback" aria-label="Back to conversations">${ic('left')}</button>${av(t.who)}<div style="min-width:0"><b>${esc(t.who)}</b><span class="ell">${t.role} · ${esc(name(c))}, ${c.city}</span></div>${t.bk ? `<button class="btn sm" data-act="trip" data-id="${t.bk}">View trip</button>` : t.role === 'Host' ? `<button class="btn sm" data-car="${c.id}">View car</button>` : `<button class="btn sm" data-page="host">Host dashboard</button>`}</div>
+    <div class="msgs" id="msgs" aria-live="polite">${msgs}${t.typing ? '<div class="m typing" aria-label="typing"><i></i><i></i><i></i></div>' : ''}</div>
+    <form class="cmp" id="cmp" novalidate><label class="sr" for="cmp-t">Message</label><textarea id="cmp-t" placeholder="Write a message… (Enter to send)" maxlength="1000"></textarea><button class="btn primary" type="submit" aria-label="Send">${ic('send')}<span class="hide-m">Send</span></button></form>`;
+}
+function sendMsg(t, text) {
+  t.m.push({ me: true, t: text, at: now() }); redrawConv(t);
+  setTimeout(() => { t.typing = true; redrawConv(t); }, 700);
+  setTimeout(() => { t.typing = false; t.m.push({ me: false, t: REPLIES[RC++ % REPLIES.length], at: now() });
+    if (V.p !== 'inbox' || V.th !== t.id) { t.un++; notify('chat', `${t.who} replied to your message`, ['inbox', t.id]); chrome(); } redrawConv(t); }, 2400);
+}
+function redrawConv(t) {
+  if (V.p !== 'inbox' || V.th !== t.id) return;
+  const box = $('#msgs'), draft = $('#cmp-t') ? $('#cmp-t').value : '', had = document.activeElement && document.activeElement.id === 'cmp-t';
+  $('.ibx-r').innerHTML = conv(t); drawThreads(); const m = $('#msgs'); m.scrollTop = m.scrollHeight; $('#cmp-t').value = draft; if (had) $('#cmp-t').focus();
+}
+
+/* ── host dashboard ────────────────────────────────────────── */
+const H = { car: 1, mo: 0, chart: 0, q: '', st: '', cf: 0, sort: ['from', -1], pg: 1, sel: new Set(), f: null, err: {} };
+const PER = 10;
+function earnSeries(cid) {
+  const M = []; for (let i = 11; i >= 0; i--) { const dt = new Date(2026, 10 - i, 1); M.push({ y: dt.getFullYear(), m: dt.getMonth(), l: dt.toLocaleDateString('en-GB', { month: 'short' }), v: 0 }); }
+  for (const b of hostB()) { if (cid && b.car !== cid) continue; if (!['completed', 'active'].includes(stat(b))) continue; const dt = D(b.from), x = M.find((k) => k.y === dt.getFullYear() && k.m === dt.getMonth()); if (x) x.v += b.payout; }
+  return M;
+}
+function hostRows() {
+  const q = H.q.trim().toLowerCase();
+  const L = hostB().filter((b) => (!H.st || stat(b) === H.st) && (!H.cf || b.car === H.cf) && (!q || `${b.who} ${b.ref} ${name(car(b.car))}`.toLowerCase().includes(q)));
+  const [k, dir] = H.sort, key = { from: (b) => b.from, who: (b) => b.who, payout: (b) => b.payout, days: (b) => b.q.n }[k];
+  return L.sort((a, b) => { const x = key(a), y = key(b); return (x < y ? -1 : x > y ? 1 : 0) * dir; });
+}
+function hostPage() {
+  const cars = myCars(), hb = hostB(), pend = hb.filter((b) => b.st === 'pending').sort((a, b) => a.from - b.from);
+  const all = earnSeries(0), nov = all[11].v, oct = all[10].v;
+  console.assert(nov === hb.filter((b) => ['completed', 'active'].includes(stat(b)) && D(b.from).getMonth() === 10 && D(b.from).getFullYear() === 2026).reduce((s, b) => s + b.payout, 0), 'earnings KPI = chart bar');
+  const upcoming = hb.filter((b) => ['confirmed', 'active'].includes(stat(b))), upSum = upcoming.reduce((s, b) => s + b.payout, 0);
+  let bk = 0, bl = 0; for (const c of cars) for (let d = 0; d < 30; d++) { if (c.blk.has(d)) bl++; else if (B.some((b) => b.car === c.id && ['confirmed', 'completed'].includes(b.st) && d >= b.from && d <= b.to)) bk++; }
+  const occ = bk / Math.max(1, cars.length * 30 - bl), R = RV.filter((r) => car(r.car).host === 'tf'), rat = R.reduce((s, r) => s + r.r, 0) / R.length;
+  const ser = earnSeries(H.chart), yr = ser.reduce((s, x) => s + x.v, 0), delta = oct ? Math.round((nov - oct) / oct * 100) : 0;
+  after.push(() => { const el = $('#earn'); if (el) chart(el, (w) => barsSVG(w, { labels: ser.map((x) => x.l), values: ser.map((x) => x.v), fmtV: (v) => v >= 1000 ? '€' + fmtD(v / 1000, 1) + 'k' : '€' + fmt(v), h: 210 })); drawHostCal(); drawTable(); });
+  return head('Host dashboard', `${pl(cars.length, 'car')} listed in Lisbon · Payouts every Monday to the account ending 0417`, `<button class="btn" data-act="export">${ic('dl')}Export CSV</button>`) +
+    (pend.length ? `<div class="finding">${ic('clock')}<span><b>${pl(pend.length, 'booking request')}</b> waiting. Reply within 24 hours to keep your response rate.</span><button class="btn sm" data-act="toreq">Review</button></div>` : '') +
+    `<div class="hk"><div class="card"><span>Earned in November</span><b>${eur(nov)}</b><small class="${delta >= 0 ? 'pos' : 'neg'}">${signed(delta)}% vs October</small></div>
+     <div class="card"><span>Upcoming payouts</span><b>${eur(upSum)}</b><small>${pl(upcoming.length, 'booking')}</small></div>
+     <div class="card"><span>Occupancy, next 30 days</span><b>${Math.round(occ * 100)}%</b><small>${pl(bk, 'day')} booked · ${bl} blocked</small></div>
+     <div class="card"><span>Requests</span><b>${pend.length}</b><small>${pend.length ? 'Awaiting your reply' : 'All answered'}</small></div>
+     <div class="card"><span>Guest rating</span><b>${fmtD(rat, 2)}</b><small>${pl(R.length, 'review')}</small></div></div>
+    <div class="grid">
+      <section class="card c8"><div class="card-h"><h2>Earnings, last 12 months</h2><span>${eur(yr)} paid out</span></div>
+        <div class="tabs" role="tablist" aria-label="Car">${[[0, 'All cars'], ...cars.map((c) => [c.id, c.md])].map(([id, t]) => `<button role="tab" aria-selected="${H.chart === id}" class="${H.chart === id ? 'on' : ''}" data-act="hchart" data-v="${id}">${esc(t)}</button>`).join('')}</div><div id="earn"></div></section>
+      <section class="card c4" id="reqs"><div class="card-h"><h2>Booking requests</h2><span>${pend.length || 'None'}</span></div>
+        ${pend.length ? pend.map((b) => { const c = car(b.car); return `<div class="req">${av(b.who)}<div style="min-width:0"><b class="ell">${esc(b.who)}</b><span class="s">${esc(name(c))} · ${frs(b.from, b.to)}</span><span class="s">Payout <b style="color:var(--text);font-weight:600">${eur(b.payout)}</b> · expires ${b.at ? RTF.format(Math.max(1, Math.round(24 - (now() - b.at) / 36e5)), 'hour') : 'in 24 hours'}</span>
+          <div class="act-row"><button class="btn sm" data-act="decline" data-id="${b.id}">Decline</button><button class="btn sm primary" data-act="accept" data-id="${b.id}">Accept</button><button class="btn sm ghost" data-act="hrow" data-id="${b.id}">Details</button></div></div></div>`; }).join('') : `<div class="empty">${ic('check').replace('class="ic ', 'style="margin:0 auto 8px;color:var(--accent)" class="ic ')}No requests waiting.</div>`}</section>
+      <section class="card c7"><div class="card-h"><h2>Calendar</h2><span>Tap a free day to block it, tap again to unblock</span></div>
+        <div class="ctabs">${cars.map((c) => `<button class="chip ${H.car === c.id ? 'on' : ''}" data-act="hcar" data-v="${c.id}" aria-pressed="${H.car === c.id}">${esc(name(c))}</button>`).join('')}</div>
+        <div class="sec-h" style="margin-bottom:6px"><span class="muted sm-t" id="hcal-s"></span><div class="cal-nav"><button class="btn sm" data-act="hmp" aria-label="Previous month">${ic('left')}</button><button class="btn sm" data-act="hmn" aria-label="Next month">${ic('right')}</button></div></div>
+        <div class="hcal" id="hcal"></div>
+        <div class="legend"><span><i style="background:var(--accent-bg)"></i>Booked</span><span><i style="background:var(--warn-bg)"></i>Request</span><span><i style="background:repeating-linear-gradient(135deg,#ddd 0 3px,#fff 3px 6px)"></i>Blocked by you</span><span><i style="background:var(--raised)"></i>Available</span></div></section>
+      <section class="card c5">${pricingForm()}</section>
+      <section class="card c12" id="hbk"><div class="card-h"><h2>All bookings</h2><span id="hbk-n"></span></div>
+        <div class="ttool"><label class="srch">${ic('search')}<input type="search" id="h-q" data-search placeholder="Search renter, car or reference" aria-label="Search bookings" value="${esc(H.q)}"></label>
+          <select class="sel" id="h-st" aria-label="Status">${[['', 'All statuses'], ...Object.entries(ST).map(([k, v]) => [k, v[0]])].map(([k, t]) => `<option value="${k}" ${H.st === k ? 'selected' : ''}>${t}</option>`).join('')}</select>
+          <select class="sel" id="h-cf" aria-label="Car"><option value="0">All cars</option>${cars.map((c) => `<option value="${c.id}" ${H.cf === c.id ? 'selected' : ''}>${esc(name(c))}</option>`).join('')}</select></div>
+        <div id="hbulk"></div><div id="htb"></div></section>
+    </div>`;
+}
+function drawHostCal() {
+  const el = $('#hcal'); if (!el) return; const c = car(H.car);
+  const first = new Date(2026, 10 + H.mo, 1), last = new Date(2026, 11 + H.mo, 0); let nb = 0, nk = 0;
+  el.innerHTML = monthGrid(H.mo, (d, i) => {
+    if (d < 0) return `<span class="day past">${i}</span>`;
+    const b = B.find((x) => x.car === c.id && ['pending', 'confirmed', 'completed'].includes(x.st) && d >= x.from && d <= x.to);
+    if (b) { nk++; return `<button class="day ${b.st === 'pending' ? 'pnd' : 'bkd'}" data-act="hrow" data-id="${b.id}" aria-label="${fdw(d)}, ${b.st === 'pending' ? 'requested' : 'booked'} by ${esc(b.who)}">${i}<small>${esc(b.who.split(' ')[0])}</small></button>`; }
+    const bl = c.blk.has(d); if (bl) nb++;
+    return `<button class="day ${bl ? 'blk' : ''}" data-act="hday" data-d="${d}" aria-pressed="${bl}" aria-label="${fdw(d)}, ${bl ? 'blocked, press to unblock' : 'available, press to block'}">${i}${bl ? '<small>Blocked</small>' : ''}</button>`;
+  });
+  $('#hcal-s').textContent = `${first.toLocaleDateString('en-GB', { month: 'long' })}: ${pl(nk, 'day')} booked, ${pl(nb, 'day')} blocked`;
+  const nv = $$('#hcal').length && $$('.cal-nav .btn', $('#hcal').parentNode); if (nv && nv.length) { nv[0].disabled = H.mo <= 0; nv[1].disabled = H.mo >= 3; }
+}
+function pricingForm() {
+  const c = car(H.car), f = H.f && H.f.car === c.id ? H.f : (H.f = { car: c.id, px: c.px, wkd: c.wkd, wk: c.wk, mo: c.mo, min: c.min, km: c.km, inst: c.inst }), E = H.err;
+  const dirty = ['px', 'wkd', 'wk', 'mo', 'min', 'km', 'inst'].some((k) => String(f[k]) !== String(c[k]));
+  const num = (k, label, sfx, mn, mx) => `<div class="field ${E[k] ? 'bad' : ''}"><label for="p-${k}">${label}</label><div class="pfx"><input id="p-${k}" data-p="${k}" type="number" inputmode="numeric" min="${mn}" max="${mx}" value="${esc(f[k])}" aria-invalid="${!!E[k]}" aria-describedby="pe-${k}"><em>${sfx}</em></div><small class="fe" id="pe-${k}">${esc(E[k] || '')}</small></div>`;
+  let pv = ''; const ok = !Object.values(E).some(Boolean) && +f.px > 0;
+  if (ok) { const tmp = { ...c, px: +f.px, wkd: +f.wkd, wk: +f.wk, mo: +f.mo }, fri = [0, 1, 2, 3, 4, 5, 6].find((d) => D(d + 7).getDay() === 5) + 7, mon = [0, 1, 2, 3, 4, 5, 6].find((d) => D(d + 7).getDay() === 1) + 7;
+    const w = quote(tmp, fri, fri + 2), k = quote(tmp, mon, mon + 6); pv = `<div class="prev" aria-live="polite"><div><span>Weekend, Fri–Sun</span><b>${eur(w.payout)} payout</b></div><div><span>7 days from Monday</span><b>${eur(k.payout)} payout</b></div><div class="muted"><span>Guest pays ${eur(k.total)} for the week, incl. fees</span></div></div>`; }
+  return `<div class="card-h"><h2>Pricing rules</h2><span>${esc(name(c))}</span></div><form class="pform" id="pform" novalidate>
+    <div class="row2">${num('px', 'Daily price', '€', 10, 400)}${num('wkd', 'Weekend surcharge', '%', 0, 50)}${num('wk', 'Weekly discount (7+ days)', '%', 0, 40)}${num('mo', 'Monthly discount (28+ days)', '%', 0, 60)}${num('min', 'Minimum trip', 'days', 1, 14)}${num('km', 'Included distance', 'km / day', 100, 1000)}</div>
+    <label class="swl" style="margin-bottom:6px"><input type="checkbox" role="switch" data-p="inst" ${f.inst ? 'checked' : ''}><span class="sw"></span>Instant book <span class="muted sm-t">· guests book without waiting for you</span></label>
+    ${pv}<div class="act-row" style="justify-content:flex-end;margin-top:0"><button class="btn" type="button" data-act="preset" ${dirty ? '' : 'disabled'}>Discard</button><button class="btn primary" type="submit" ${dirty ? '' : 'disabled'}>Save pricing</button></div></form>`;
+}
+const PV = { px: [10, 400, 'Daily price must be between €10 and €400'], wkd: [0, 50, 'Weekend surcharge must be between 0 and 50%'], wk: [0, 40, 'Weekly discount must be between 0 and 40%'], mo: [0, 60, 'Monthly discount must be between 0 and 60%'], min: [1, 14, 'Minimum trip must be between 1 and 14 days'], km: [100, 1000, 'Included distance must be between 100 and 1,000 km'] };
+function validPrice() {
+  const f = H.f; H.err = {};
+  for (const k in PV) { const v = f[k]; if (v === '' || !Number.isInteger(+v) || +v < PV[k][0] || +v > PV[k][1]) H.err[k] = String(v).trim() === '' ? 'Enter a whole number' : PV[k][2]; }
+  if (!H.err.mo && !H.err.wk && +f.mo < +f.wk) H.err.mo = 'Monthly discount should be at least the weekly discount';
+  return !Object.keys(H.err).length;
+}
+function drawPricing() { const p = $('#pform'); if (!p) return; const a = document.activeElement, id = a && a.id, pos = a && a.selectionStart; p.parentNode.innerHTML = pricingForm(); if (id && $('#' + id)) { const el = $('#' + id); el.focus(); try { if (pos != null) el.setSelectionRange(pos, pos); } catch (e) { /* number inputs */ } } }
+function drawTable() {
+  const el = $('#htb'); if (!el) return;
+  const L = hostRows(), pages = Math.max(1, Math.ceil(L.length / PER)); H.pg = Math.min(H.pg, pages);
+  const rows = L.slice((H.pg - 1) * PER, H.pg * PER), allOn = rows.length && rows.every((b) => H.sel.has(b.id)), some = rows.some((b) => H.sel.has(b.id));
+  const sh = (k, t) => `<button data-act="hsort" data-k="${k}" aria-label="Sort by ${t}">${t}${H.sort[0] === k ? ic(H.sort[1] > 0 ? 'up' : 'down') : ''}</button>`;
+  $('#hbk-n').textContent = `${pl(L.length, 'booking')}`;
+  el.innerHTML = `<div class="tbl htb" role="table" aria-label="Bookings"><div class="tr th" role="row"><input type="checkbox" id="h-all" aria-label="Select all on this page" ${allOn ? 'checked' : ''}><span class="hm">Reference</span><span>${sh('who', 'Renter')}</span><span class="hm">Car</span><span class="hm">${sh('from', 'Dates')}</span><span class="hm">${sh('days', 'Days')}</span><span class="hm">Status</span><span class="r">${sh('payout', 'Payout')}</span></div>
+    ${rows.map((b) => `<div class="tr ${H.sel.has(b.id) ? 'on' : ''}" role="row" data-open data-act="hrow" data-id="${b.id}"><input type="checkbox" class="hck" data-id="${b.id}" aria-label="Select ${b.ref}" ${H.sel.has(b.id) ? 'checked' : ''}><span class="hm mono">${b.ref}</span><span class="cell-main" style="min-width:0"><b class="ell">${esc(b.who)}</b><span class="ell">${esc(car(b.car).md)} · ${frs(b.from, b.to)}</span></span><span class="hm ell">${esc(name(car(b.car)))}</span><span class="hm">${frs(b.from, b.to)}</span><span class="hm">${b.q.n}</span><span class="hm">${pill(b)}</span><span class="r"><b style="font-weight:600;${['cancelled', 'declined'].includes(b.st) ? 'text-decoration:line-through;color:var(--faint)' : ''}">${eur(b.payout)}</b></span></div>`).join('') || '<p class="empty">No bookings match these filters. <button class="lnk" data-act="hclear">Clear filters</button></p>'}</div>
+    <div class="pg"><span>${L.length ? `Showing ${(H.pg - 1) * PER + 1}–${Math.min(H.pg * PER, L.length)} of ${fmt(L.length)}` : ''}</span><div><button class="btn sm" data-act="hpg" data-v="-1" ${H.pg <= 1 ? 'disabled' : ''} aria-label="Previous page">${ic('left')}</button><span>Page ${H.pg} of ${pages}</span><button class="btn sm" data-act="hpg" data-v="1" ${H.pg >= pages ? 'disabled' : ''} aria-label="Next page">${ic('right')}</button></div></div>`;
+  const all = $('#h-all'); if (all) all.indeterminate = some && !allOn;
+  $('#hbulk').innerHTML = H.sel.size ? `<div class="bulk" role="region" aria-label="Bulk actions"><b>${pl(H.sel.size, 'booking')} selected</b><button class="btn sm" data-act="export" data-v="sel">${ic('dl')}Export selected</button><button class="btn sm" data-act="hselclear">Clear selection</button></div>` : '';
+}
+function bookingDrawer(b) {
+  const c = car(b.car), s = stat(b), q = b.q;
+  drawer(`<div class="drw-h"><div><span class="mono">${b.ref}</span><h2>${esc(b.who)}</h2></div><button class="ib" data-act="dclose" aria-label="Close">${ic('x')}</button></div>
+    <div style="margin-bottom:14px">${pill(b)}</div>
+    <section class="card"><div style="display:flex;gap:12px;align-items:center">${av(b.who, 'lg')}<div><b style="font-weight:600">${esc(b.who)}</b><div class="muted sm-t">${ic('check').replace('class="ic ', 'style="width:13px;height:13px;display:inline;vertical-align:-2px;color:var(--accent)" class="ic ')} ID and licence verified · ${pl(B.filter((x) => x.who === b.who && stat(x) === 'completed').length, 'trip')} on RentoWorld</div></div></div></section>
+    <section class="card"><div class="kv" style="grid-template-columns:1fr 1fr;margin:0"><div><span>Car</span><b>${esc(name(c))}</b></div><div><span>Length</span><b>${pl(q.n, 'day')}</b></div><div><span>Pick-up</span><b>${fdw(b.from)}, ${b.pu}</b></div><div><span>Return</span><b>${fdw(b.to)}, ${b.rt}</b></div><div><span>Protection</span><b>${INS[b.ins].n}</b></div><div><span>Booked</span><b>${fd(b.made, { day: 'numeric', month: 'short', year: 'numeric' })}</b></div></div></section>
+    <section class="card"><div class="ln"><span>Rental, ${pl(q.n, 'day')}</span><b>${eur(q.base)}</b></div>${q.disc ? `<div class="ln"><span>Discount ${q.off}%</span><b>${eur(-q.disc)}</b></div>` : ''}<div class="ln"><span>RentoWorld commission 10%</span><b>${eur(-q.comm)}</b></div><div class="tot"><span>Your payout</span><b>${eur(b.payout)}</b></div>
+      <p class="hint" style="margin-top:8px">Guest paid ${eur(q.total)} incl. protection and service fee. Payout is sent the Monday after the trip ends.</p></section>
+    <div class="act-row">${s === 'pending' ? `<button class="btn primary" data-act="accept" data-id="${b.id}">Accept request</button><button class="btn" data-act="decline" data-id="${b.id}">Decline</button>` : ''}${s === 'confirmed' ? `<button class="btn" data-act="hcancel" data-id="${b.id}">Cancel booking</button>` : ''}<button class="btn" data-act="msgrenter" data-id="${b.id}">${ic('chat')}Message</button></div>`);
+}
+function exportCSV(onlySel) {
+  const L = hostRows().filter((b) => !onlySel || H.sel.has(b.id));
+  const rows = [['Reference', 'Renter', 'Car', 'Pick-up', 'Return', 'Days', 'Status', 'Guest paid (EUR)', 'Payout (EUR)'], ...L.map((b) => [b.ref, b.who, name(car(b.car)), iso(b.from), iso(b.to), b.q.n, ST[stat(b)][0], b.q.total, b.payout])];
+  download(`rentoworld-bookings-${iso(0)}.csv`, rows.map((r) => r.map(csvCell).join(',')).join('\n')); toast(`Exported ${pl(L.length, 'booking')} to CSV`);
+}
+function setStatus(b, st, msg, ic2) {
+  const prev = b.st; b.st = st; notify(ic2, msg, ['host'], true);
+  const t = TH.find((x) => x.who === b.who); if (t) t.m.push({ sys: true, t: `${st === 'confirmed' ? 'Request accepted' : st === 'declined' ? 'Request declined' : 'Booking cancelled'}: ${name(car(b.car))}, ${frs(b.from, b.to)}`, at: now() });
+  closeDrawer(); render();
+  undo(msg, () => { b.st = prev; render(); });
+}
+
+/* ── sign in ───────────────────────────────────────────────── */
+let SI = { busy: false, err: {}, show: false };
+function signin() {
+  return `<div class="auth"><form class="auth-c" id="siform" novalidate><div class="brand"><span class="brand-mark">${ic('road')}</span><span class="brand-name">Rento<em>World</em></span></div>
+    <h1>Welcome back</h1><p>Sign in to manage your trips and listings.</p>
+    <div class="field ${SI.err.em ? 'bad' : ''}"><label for="si-em">Email</label><input id="si-em" type="email" autocomplete="username" value="${ME.email}" aria-describedby="si-em-e"><small class="fe" id="si-em-e">${SI.err.em || ''}</small></div>
+    <div class="field ${SI.err.pw ? 'bad' : ''}"><label for="si-pw">Password</label><div class="pw"><input id="si-pw" style="width:100%" type="${SI.show ? 'text' : 'password'}" autocomplete="current-password" value="demo-rento-2026" aria-describedby="si-pw-e"><button type="button" class="lnk" data-act="sishow">${SI.show ? 'Hide' : 'Show'}</button></div><small class="fe" id="si-pw-e">${SI.err.pw || ''}</small></div>
+    <div class="auth-f"><label class="ck"><input type="checkbox" checked>Keep me signed in</label><button type="button" class="lnk" data-act="forgot">Forgot password?</button></div>
+    <button class="btn primary lg" style="width:100%" type="submit" ${SI.busy ? 'disabled' : ''}>${SI.busy ? '<span class="spin"></span>Signing in…' : 'Sign in'}</button>
+    <p class="demo-n">${ic('lock')}<span>Demo credentials are filled in for you. Nothing leaves this page.</span></p></form></div>`;
+}
+
+/* ── help, legal, review ───────────────────────────────────── */
+const FAQ = [['What do I need to rent a car?', 'A valid driving licence held for at least two years, an ID or passport and a credit or debit card in the driver’s name. Some owners set a higher minimum age, shown on the listing.'], ['How does the deposit work?', 'The deposit is a hold on your card, not a charge. It is released within 7 days after the return, unless there is damage reported with photos.'], ['What does the protection cover?', 'Every trip includes third-party liability and collision cover. Standard and Premium plans lower your excess and add glass, tyres and keys.'], ['Can I cancel?', 'Free cancellation until 48 hours before pick-up. After that, 50% of the trip price is refunded. The service fee is refunded in both cases.'], ['What if the car breaks down?', 'Call 24/7 roadside assistance on +351 210 000 000. Help is dispatched in all six cities and on the motorways between them.']];
+const LEGAL = {
+  terms: ['Terms of service', ['RentoWorld connects people who want to rent a car with private owners. The rental contract is between the renter and the owner; RentoWorld provides the platform, payments and protection plans.', 'Renters must hold a valid licence and meet the owner’s age requirement. Owners must keep cars roadworthy, insured and serviced.']],
+  privacy: ['Privacy policy', ['We process account, booking and payment data to provide the service, under the GDPR. Driving licence images are used only for verification and deleted after 30 days.', 'You can download or delete your data from your account settings at any time.']],
+  imprint: ['Imprint', ['RentoWorld Europe B.V. (sample company for this demo), Amsterdam, the Netherlands.', 'This page is part of a portfolio demo. All names, cars, prices and bookings are sample data.']],
+  insurance: ['Safety and insurance', ['Every trip is covered by third-party liability and collision damage insurance. The excess depends on the protection plan chosen at checkout: €1,500 (Basic), €500 (Standard) or €0 (Premium).', 'Photos at pick-up and return, taken in the app, are the reference for any damage claim.']],
+  cancel: ['Cancellation policy', ['Free cancellation until 48 hours before pick-up. Within 48 hours, 50% of the trip price is refunded.', 'If the owner cancels, you get a full refund and a €25 travel credit.']],
+  protection: ['Host protection', ['Hosts are covered up to €1,000,000 in third-party liability and for physical damage to the car up to its market value, minus the host excess.']],
+  pricing: ['Pricing guide', ['Set a daily price, a weekend surcharge and length discounts. Weekly discounts apply from 7 days and monthly discounts from 28 days. RentoWorld keeps a 10% commission on the rental price.']],
+};
+function helpModal() {
+  modal(`<button class="ib mx" onclick="closeModal()" aria-label="Close">${ic('x')}</button><h2 id="h-t">Help centre</h2><p>Answers to common questions, or contact our team. We reply within 2 hours, every day 08:00–22:00.</p>
+    <div class="faq">${FAQ.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div>
+    <form id="supf" novalidate style="margin-top:18px"><div class="field"><label for="sup-topic">Topic</label><select id="sup-topic"><option>A current trip</option><option>Payments and refunds</option><option>My listing</option><option>Account and verification</option></select></div>
+    <div class="field"><label for="sup-m">How can we help?</label><textarea id="sup-m" maxlength="1000" aria-describedby="sup-e"></textarea><small class="fe" id="sup-e"></small></div>
+    <div class="modal-actions" style="justify-content:space-between;align-items:center"><span class="hint">Roadside assistance 24/7: +351 210 000 000</span><button class="btn primary" type="submit">Send to support</button></div></form>`, (s) => { s.firstChild.classList.add('md'); s.firstChild.setAttribute('aria-labelledby', 'h-t'); $('.mx', s).focus(); });
+}
+function reviewModal(b) {
+  let r = 5; const c = car(b.car);
+  modal(`<h2 id="rv-t">Review your trip</h2><p>${esc(name(c))} with ${esc(host(c).n)}, ${frs(b.from, b.to)}</p><div class="starpick" role="radiogroup" aria-label="Rating">${[1, 2, 3, 4, 5].map((i) => `<button type="button" role="radio" aria-checked="${i === 5}" data-r="${i}" class="on" aria-label="${pl(i, 'star')}">★</button>`).join('')}</div>
+    <div class="field"><label for="rv-x">What should other renters know?</label><textarea id="rv-x" maxlength="600" aria-describedby="rv-e"></textarea><small class="fe" id="rv-e"></small></div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Not now</button><button class="btn primary" id="rv-ok">Publish review</button></div>`, (s) => {
+    s.firstChild.setAttribute('aria-labelledby', 'rv-t');
+    $$('.starpick button', s).forEach((x) => x.onclick = () => { r = +x.dataset.r; $$('.starpick button', s).forEach((y) => { y.classList.toggle('on', +y.dataset.r <= r); y.setAttribute('aria-checked', +y.dataset.r === r); }); });
+    $('#rv-ok').onclick = () => { const t = $('#rv-x').value.trim(); if (t.length < 20) { $('#rv-e').textContent = `Write at least 20 characters (${t.length} so far)`; $('#rv-x').closest('.field').classList.add('bad'); $('#rv-x').focus(); return; }
+      RV.push({ car: c.id, who: ME.name, r, d: 0, text: t }); b.reviewed = true; closeModal(); toast(`Review published. ${name(c)} is now rated ${fmtD(rating(c), 2)}`); render(); };
+  });
+}
+
+/* ── actions ───────────────────────────────────────────────── */
+const ensureThread = (who, role, cid) => { let t = TH.find((x) => x.who === who); if (!t) { t = { id: ++thId, who, role, car: cid, m: [{ sys: true, t: `Conversation about the ${name(car(cid))}`, at: now() }], un: 0 }; TH.unshift(t); } return t; };
+const ACT = {
+  city(d) { F.city = d.v; if (V.p !== 'explore') { go('explore'); } else { $$('.cities .chip').forEach((c) => { c.classList.toggle('on', c.dataset.v === F.city); c.setAttribute('aria-pressed', c.dataset.v === F.city); }); const s = $('#s-city'); if (s) s.value = F.city; drawResults(true); } },
+  ftog() { F.open = !F.open; const p = $('#fpanel'); p.classList.toggle('open', F.open); $('.ftog').setAttribute('aria-expanded', F.open); },
+  clearf() { Object.assign(F, { q: '', min: 20, max: 100, tr: '', fuel: '', seats: 0, inst: false, g: 1 }); render(); },
+  alert(d) { toast(`Alert created. We’ll email you when a car is listed in ${d.v}`); },
+  fav(d) { const id = +d.id, on = !FAV.has(id); on ? FAV.add(id) : FAV.delete(id); const c = car(id);
+    if (V.p === 'saved' && !on) { render(); undo(`Removed ${name(c)} from saved`, () => { FAV.add(id); render(); }); return; }
+    $$(`[data-act="fav"][data-id="${id}"]`).forEach((b) => { b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); if (b.classList.contains('btn')) b.innerHTML = `${ic('heart')}${on ? 'Saved' : 'Save'}`; else b.setAttribute('aria-label', `${on ? 'Remove from saved' : 'Save'}: ${name(c)}`); });
+    toast(on ? `Saved ${name(c)}` : `Removed ${name(c)} from saved`); },
+  share() { const u = `rentoworld.example/cars/${V.car}`; try { navigator.clipboard.writeText(u).catch(() => {}); } catch (e) { /* not available */ } toast('Link copied to clipboard'); },
+  day(d) { const x = +d.d, c = car(V.car); SEL.err = '';
+    if (SEL.a == null || SEL.b != null || x < SEL.a) { SEL.a = x; SEL.b = null; }
+    else if (!free(c, SEL.a, x)) { SEL.err = 'This period includes unavailable days. Pick-up moved to the day you selected.'; SEL.a = x; SEL.b = null; }
+    else if (x - SEL.a + 1 < c.min) { SEL.err = `Only trips of ${pl(c.min, 'day')} or more can be booked for this car.`; }
+    else SEL.b = x;
+    drawCal(); drawBk(); },
+  cleard() { Object.assign(SEL, { a: null, b: null, err: '' }); drawCal(); drawBk(); },
+  calp() { calOff = Math.max(0, calOff - 1); drawCal(); }, caln() { calOff = Math.min(2, calOff + 1); drawCal(); },
+  tocal() { $('#avail').scrollIntoView({ behavior: reduce() ? 'auto' : 'smooth', block: 'start' }); },
+  rvf(d) { RVS.f = RVS.f === +d.v ? 0 : +d.v; RVS.n = 4; drawReviews(); }, rvmore() { RVS.n += 6; drawReviews(); },
+  checkout() { const c = car(V.car); if (!c || SEL.a == null || SEL.b == null) { ACT.tocal(); return toast('Select your pick-up and return dates first'); }
+    CO = { car: c.id, a: SEL.a, b: SEL.b, ins: SEL.ins, ex: { ...SEL.ex }, err: {}, f: { name: ME.name, email: ME.email, phone: ME.phone, dob: ME.dob, lic: ME.lic, msg: '', card: '', cname: '', exp: '', cvc: '', terms: false, pu: '10:00', rt: '10:00' } };
+    V = { p: 'checkout' }; render(); window.scrollTo(0, 0); },
+  backcar() { const c = CO && CO.car; const keep = CO && { a: CO.a, b: CO.b, ins: CO.ins, ex: CO.ex }; go('car', c || 1); if (keep) { Object.assign(SEL, keep, { err: '' }); render(); } },
+  democard() { Object.assign(CO.f, { card: '4242 4242 4242 4242', cname: 'TOMAS FERREIRA', exp: '08 / 29', cvc: '123' }); ['card', 'cname', 'exp', 'cvc'].forEach((k) => { CO.err[k] = ''; }); render(); },
+  msghost(d) { const c = car(d.id), t = ensureThread(host(c).n, 'Host', c.id); go('inbox', t.id); },
+  msgrenter(d) { const b = B.find((x) => x.id === +d.id), t = ensureThread(b.who, 'Renter', b.car); go('inbox', t.id); },
+  trip(d) { go('trip', d.id); }, ttab(d) { TT = d.v; render(); },
+  tcancel(d) { cancelTrip(B.find((x) => x.id === +d.id)); },
+  review(d) { reviewModal(B.find((x) => x.id === +d.id)); },
+  receipt(d) { const b = B.find((x) => x.id === +d.id), c = car(b.car), q = b.q;
+    const L = [['RentoWorld Europe B.V. receipt', b.ref], ['Car', name(c)], ['Dates', `${iso(b.from)} to ${iso(b.to)}`], ['Rental', q.base], ['Discount', -q.disc], ['Protection (' + INS[b.ins].n + ')', q.ins], ['Extras', q.ex], ['Service fee', q.fee], ['Total (EUR)', q.total], ['Status', ST[stat(b)][0]]];
+    download(`receipt-${b.ref}.csv`, L.map((r) => r.map(csvCell).join(',')).join('\n')); toast(`Receipt ${b.ref} downloaded`); },
+  ics(d) { const b = B.find((x) => x.id === +d.id), c = car(b.car), s = iso(b.from).replace(/-/g, ''), e = iso(b.to + 1).replace(/-/g, '');
+    download(`trip-${b.ref}.ics`, ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//RentoWorld//Trips//EN', 'BEGIN:VEVENT', `UID:${b.ref}@rentoworld.example`, `DTSTART;VALUE=DATE:${s}`, `DTEND;VALUE=DATE:${e}`, `SUMMARY:${name(c)} rental, ${c.city}`, `LOCATION:${c.pick.addr.replace(/,/g, '\\,')}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n'), 'text/calendar'); toast('Calendar file downloaded'); },
+  th(d) { const t = TH.find((x) => x.id === +d.id); if (!t) return; t.un = 0; if (V.p !== 'inbox') return go('inbox', t.id); V.th = t.id; render(); const ta = $('#cmp-t'); if (ta && !isPhone()) ta.focus(); },
+  thback() { V.th = null; render(); },
+  bell(d, e, el) { const html = `<div class="pop-h"><b>Notifications</b>${unreadN() ? `<button class="lnk sm-t" data-act="readall">Mark all as read</button>` : ''}</div><div class="pop-l">${N.map((n) => `<button class="pi ${n.read ? '' : 'unread'}" data-act="nopen" data-id="${n.id}">${ic(n.ic, 'ib-ic')}<span>${esc(n.t)}<small>${ago(n.at)}</small></span>${n.read ? '' : '<i class="dot" aria-label="unread"></i>'}</button>`).join('') || '<p class="empty">You’re all caught up.</p>'}</div>`; openPop(el, html); },
+  readall() { N.forEach((n) => { n.read = true; }); chrome(); closePop(); toast('All notifications marked as read'); },
+  nopen(d) { const n = N.find((x) => x.id === +d.id); n.read = true; closePop(); go(n.go[0], n.go[1]); },
+  menu(d, e, el) { openPop(el, `<div class="um-h">${av(ME.name, 'lg')}<div style="min-width:0"><b>${ME.name}</b><span>${ME.email}</span><span class="role">${ic('star').replace('class="ic ', 'style="width:11px;height:11px" class="ic ')}${ME.role}</span></div></div>
+    <div class="pop-l" style="padding-top:6px">${[['calendar', 'My trips', 'trips'], ['heart', 'Saved cars', 'saved'], ['key', 'Host dashboard', 'host'], ['chat', 'Inbox', 'inbox']].map(([i, t, p]) => `<button class="pi" data-page="${p}">${ic(i)}<span>${t}</span></button>`).join('')}<button class="pi" data-act="help">${ic('help')}<span>Help centre</span></button><hr><button class="pi out" data-act="signout">${ic('out')}<span>Sign out</span></button></div>`); },
+  signout() { closePop(); signedIn = false; SI = { busy: false, err: {}, show: false }; render(); window.scrollTo(0, 0); },
+  sishow() { SI.show = !SI.show; const p = $('#si-pw'); p.type = SI.show ? 'text' : 'password'; $('[data-act="sishow"]').textContent = SI.show ? 'Hide' : 'Show'; },
+  forgot() { toast(`Reset link sent to ${$('#si-em').value || 'your email'}`); },
+  help() { closePop(); helpModal(); }, hostgo() { go('host'); },
+  legal(d) { const L = LEGAL[d.k]; if (!L) return; modal(`<button class="ib mx" onclick="closeModal()" aria-label="Close">${ic('x')}</button><h2 id="lg-t">${L[0]}</h2><div class="legal" style="margin-top:12px">${L[1].map((p) => `<p>${p}</p>`).join('')}<p class="hint">Last updated 1 October 2026</p></div>`, (s) => { s.firstChild.classList.add('md'); s.firstChild.setAttribute('aria-labelledby', 'lg-t'); $('.mx', s).focus(); }); },
+  dclose() { closeDrawer(); },
+  hchart(d) { H.chart = +d.v; render(); },
+  hcar(d) { H.car = +d.v; H.err = {}; H.f = null; render(); },
+  hmp() { H.mo = Math.max(0, H.mo - 1); drawHostCal(); }, hmn() { H.mo = Math.min(3, H.mo + 1); drawHostCal(); },
+  hday(d) { const c = car(H.car), x = +d.d, on = !c.blk.has(x); on ? c.blk.add(x) : c.blk.delete(x); render();
+    undo(`${fdw(x)} ${on ? 'blocked' : 'unblocked'} for the ${c.md}`, () => { on ? c.blk.delete(x) : c.blk.add(x); render(); }); },
+  preset() { H.f = null; H.err = {}; drawPricing(); },
+  toreq() { $('#reqs').scrollIntoView({ behavior: reduce() ? 'auto' : 'smooth', block: 'center' }); },
+  accept(d) { const b = B.find((x) => x.id === +d.id); if (!b || b.st !== 'pending') return; setStatus(b, 'confirmed', `Accepted ${b.who.split(' ')[0]}’s request for ${frs(b.from, b.to)}`, 'check'); },
+  decline(d) { const b = B.find((x) => x.id === +d.id); if (!b || b.st !== 'pending') return; confirmBox('Decline this request?', `${esc(b.who)} will be notified and the dates ${frs(b.from, b.to)} become available again. Declining often lowers your search ranking.`, 'Decline request', () => setStatus(b, 'declined', `Declined request from ${b.who.split(' ')[0]}`, 'x')); },
+  hcancel(d) { const b = B.find((x) => x.id === +d.id); confirmBox('Cancel this booking?', `${esc(b.who)} gets a full refund and a €25 credit. Host cancellations are shown on your profile and a €50 fee applies.`, 'Cancel booking', () => setStatus(b, 'cancelled', `Cancelled booking ${b.ref}`, 'x')); },
+  hrow(d, e) { if (e && e.target.closest('input[type=checkbox]')) return; const b = B.find((x) => x.id === +d.id); if (b) bookingDrawer(b); },
+  hsort(d) { H.sort = H.sort[0] === d.k ? [d.k, -H.sort[1]] : [d.k, d.k === 'who' ? 1 : -1]; H.pg = 1; drawTable(); },
+  hpg(d) { H.pg += +d.v; drawTable(); },
+  hselclear() { H.sel.clear(); drawTable(); },
+  hclear() { Object.assign(H, { q: '', st: '', cf: 0, pg: 1 }); render(); },
+  export(d) { exportCSV(d.v === 'sel'); },
+};
+
+document.addEventListener('click', (e) => {
+  const pg = e.target.closest('[data-page]'); if (pg) { e.preventDefault(); closePop(); return go(pg.dataset.page); }
+  const c = e.target.closest('[data-car]'); if (c) return go('car', c.dataset.car);
+  const a = e.target.closest('[data-act]'); if (a && ACT[a.dataset.act]) { if (a.tagName === 'BUTTON' && a.type === 'submit') return; return ACT[a.dataset.act](a.dataset, e, a); }
+});
+document.addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('a[data-page]')) { e.preventDefault(); go(e.target.dataset.page); }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.tr[data-open]')) { e.preventDefault(); ACT.hrow(e.target.dataset); }
+  if (e.key === 'Escape') { if ($('#pop')) { closePop(); return; } closeDrawer(); }
+  if (e.key === '/' && !e.target.matches('input,textarea,select') && signedIn) { const s = $$('[data-search]').find((x) => x.offsetParent); e.preventDefault(); if (s) s.focus(); else { go('explore'); $('#f-q').focus(); } }
+  if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'cmp-t') { e.preventDefault(); $('#cmp').requestSubmit(); }
+});
+document.addEventListener('input', (e) => {
+  const t = e.target, id = t.id;
+  if (id === 'f-q') { F.q = t.value; drawResults(false); }
+  else if (id === 'f-min' || id === 'f-max') { let lo = +$('#f-min').value, hi = +$('#f-max').value; if (lo > hi - 5) { if (id === 'f-min') lo = hi - 5; else hi = lo + 5; $('#f-min').value = lo; $('#f-max').value = hi; } F.min = lo; F.max = hi; syncRange(); refreshTools(); drawResults(false); }
+  else if (id === 'ib-q') { IQ = t.value; drawThreads(); }
+  else if (id === 'h-q') { H.q = t.value; H.pg = 1; drawTable(); }
+  else if (t.dataset.f && CO) { let v = t.type === 'checkbox' ? t.checked : t.value;
+    if (t.dataset.f === 'card') { const dg = v.replace(/\D/g, '').slice(0, 19); v = dg.replace(/(\d{4})(?=\d)/g, '$1 '); t.value = v; const lbl = t.closest('.field').querySelector('label'); const br = brandOf(dg); lbl.innerHTML = `Card number${br ? ` <span class="cbrand">${br}</span>` : ''}`; }
+    if (t.dataset.f === 'exp') { const dg = v.replace(/\D/g, '').slice(0, 4); v = dg.length > 2 ? dg.slice(0, 2) + ' / ' + dg.slice(2) : dg; if (e.inputType !== 'deleteContentBackward') t.value = v; else v = t.value; }
+    if (t.dataset.f === 'cvc') { v = v.replace(/\D/g, '').slice(0, 4); t.value = v; }
+    CO.f[t.dataset.f] = v; if (CO.err[t.dataset.f] && VALID[t.dataset.f]) setErr(t.dataset.f, VALID[t.dataset.f](v)); }
+  else if (t.dataset.p && H.f) { H.f[t.dataset.p] = t.type === 'checkbox' ? t.checked : t.value; validPrice(); drawPricing(); }
+  else if (id === 'cmp-t') { t.style.height = 'auto'; t.style.height = Math.min(120, t.scrollHeight + 2) + 'px'; }
+});
+document.addEventListener('focusout', (e) => { const t = e.target; if (CO && t.dataset && t.dataset.f && VALID[t.dataset.f] && t.type !== 'checkbox' && String(CO.f[t.dataset.f]).trim()) setErr(t.dataset.f, VALID[t.dataset.f](CO.f[t.dataset.f])); });
+document.addEventListener('change', (e) => {
+  const t = e.target, id = t.id;
+  const fmap = { 'f-tr': 'tr', 'f-fuel': 'fuel', 'f-sort': 'sort' };
+  if (fmap[id]) { F[fmap[id]] = t.value; refreshTools(); drawResults(id !== 'f-sort'); }
+  else if (id === 'f-seats') { F.seats = +t.value; refreshTools(); drawResults(true); }
+  else if (id === 'f-inst') { F.inst = t.checked; refreshTools(); drawResults(true); }
+  else if (t.name === 'ins') { SEL.ins = t.value; drawBk(); }
+  else if (t.dataset.ex) { SEL.ex[t.dataset.ex] = t.checked; drawBk(); }
+  else if (id === 'rv-sort') { RVS.sort = t.value; drawReviews(); }
+  else if (id === 'h-st') { H.st = t.value; H.pg = 1; drawTable(); }
+  else if (id === 'h-cf') { H.cf = +t.value; H.pg = 1; drawTable(); }
+  else if (id === 'h-all') { const L = hostRows().slice((H.pg - 1) * PER, H.pg * PER); L.forEach((b) => t.checked ? H.sel.add(b.id) : H.sel.delete(b.id)); drawTable(); }
+  else if (t.classList.contains('hck')) { t.checked ? H.sel.add(+t.dataset.id) : H.sel.delete(+t.dataset.id); drawTable(); }
+  else if (t.dataset.f && CO && t.tagName === 'SELECT') CO.f[t.dataset.f] = t.value;
+  else if (id === 'co-terms' && CO) { CO.f.terms = t.checked; if (CO.err.terms) setErr('terms', VALID.terms(t.checked)); }
+  else if (t.dataset.p === 'inst' && H.f) { H.f.inst = t.checked; drawPricing(); }
+});
+document.addEventListener('submit', (e) => {
+  e.preventDefault(); const f = e.target;
+  if (f.id === 'sform') {
+    const a = fromIso($('#s-a').value), b = fromIso($('#s-b').value), err = $('#s-err'); let m = '';
+    if ((a == null) !== (b == null)) m = a == null ? 'Enter a pick-up date as well as the return date' : 'Enter a return date as well as the pick-up date';
+    else if (a != null && a < 0) m = 'Pick-up can’t be in the past';
+    else if (a != null && b < a) m = 'Return must be on or after the pick-up date';
+    else if (a != null && b > 119) m = 'Bookings open up to 4 months ahead';
+    err.textContent = m; if (m) return;
+    Object.assign(F, { a, b, city: $('#s-city').value, g: +$('#s-g').value });
+    $$('.cities .chip').forEach((c) => { c.classList.toggle('on', c.dataset.v === F.city); c.setAttribute('aria-pressed', c.dataset.v === F.city); });
+    drawResults(true); $('.cities').scrollIntoView({ behavior: reduce() ? 'auto' : 'smooth', block: 'start' });
+  } else if (f.id === 'coform') submitCheckout();
+  else if (f.id === 'cmp') { const ta = $('#cmp-t'), v = ta.value.trim(); if (!v) { ta.focus(); return toast('Enter a message before sending'); } ta.value = ''; ta.style.height = ''; sendMsg(TH.find((x) => x.id === V.th), v); }
+  else if (f.id === 'pform') { if (!validPrice()) { drawPricing(); const k = Object.keys(H.err)[0]; $('#p-' + k).focus(); return; }
+    const c = car(H.car), old = { px: c.px, wkd: c.wkd, wk: c.wk, mo: c.mo, min: c.min, km: c.km, inst: c.inst };
+    Object.assign(c, { px: +H.f.px, wkd: +H.f.wkd, wk: +H.f.wk, mo: +H.f.mo, min: +H.f.min, km: +H.f.km, inst: !!H.f.inst }); H.f = null;
+    notify('tag', `Pricing updated for the ${name(c)}: ${eur(c.px)} per day`, ['car', c.id], true); render();
+    undo(`Pricing saved. ${name(c)} now lists at ${eur(c.px)} / day`, () => { Object.assign(c, old); H.f = null; render(); }); }
+  else if (f.id === 'siform') {
+    const em = $('#si-em').value.trim(), pw = $('#si-pw').value; SI.err = {};
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) SI.err.em = 'Enter the email address you signed up with';
+    if (pw.length < 8) SI.err.pw = 'Password must be at least 8 characters';
+    if (SI.err.em || SI.err.pw) { render(); $('#si-em').value = em; $('#si-pw').value = pw; return; }
+    SI.busy = true; render(); setTimeout(() => { signedIn = true; SI.busy = false; V = { p: 'explore' }; render(); toast(`Welcome back, ${ME.first}`); }, 700);
+  } else if (f.id === 'supf') { const m = $('#sup-m').value.trim(); if (m.length < 10) { $('#sup-e').textContent = 'Describe your question in at least 10 characters'; $('#sup-m').closest('.field').classList.add('bad'); $('#sup-m').focus(); return; } closeModal(); toast('Request #48213 sent. Our team will reply within 2 hours'); }
+});
+
+/* live marketplace: a new request arrives for one of your cars (same one every session) */
+setTimeout(() => {
+  const c = car(1); let d = 40; while (!free(c, d, d + 2) && d < 100) d++;
+  if (d >= 100) return;
+  addB({ car: 1, who: 'Greta Sørensen', from: d, to: d + 2, st: 'pending', made: 0, at: now() });
+  notify('calendar', `New booking request from Greta Sørensen for your ${name(c)}`, ['host']);
+  if (V.p === 'host' && !$('#scrim') && !$('#drw') && !(document.activeElement && document.activeElement.matches('input,textarea'))) render(); else if (signedIn) chrome();
+}, 60000);
+
+footer();
 render();
 </script>
 </body>

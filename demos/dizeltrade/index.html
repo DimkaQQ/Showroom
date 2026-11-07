@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DizelTrade ERP — demo</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'14'%20fill%3D'%23c8f03c'%2F%3E%3Ctext%20x%3D'32'%20y%3D'45'%20font-family%3D'Arial%2CHelvetica%2Csans-serif'%20font-size%3D'38'%20font-weight%3D'700'%20text-anchor%3D'middle'%20fill%3D'%230b0c0a'%3ED%3C%2Ftext%3E%3C%2Fsvg%3E">
-<meta name="description" content="Demo: diesel fuel, trip and customer order management. Sample data shown.">
+<meta name="description" content="Demo: diesel distribution ERP with orders, trips, base stock, customers, invoices, fleet and audit. Sample data shown.">
 <style>
 @font-face { font-family: 'Onest'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/onest-latin-ext-gNMKW3F-SZuj7x.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'Onest'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/onest-latin-gNMKW3F-SZuj7x.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -203,43 +203,223 @@ svg { display: block; }
 .brow-t b { font-weight: 600; }
 @media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
 
-:root { --display: "Unbounded", "Onest", system-ui, sans-serif; --accent: #c8f03c; }
+:root { --display: "Unbounded", "Onest", system-ui, sans-serif; --accent: #c8f03c; --c2: #5fb3f9; --c3: #b79cff; --ease-out: cubic-bezier(.23,1,.32,1); --ease-drawer: cubic-bezier(.32,.72,0,1); }
 .big, .kpi b { font-weight: 600; }
 .tank-wrap { display: flex; gap: 22px; align-items: stretch; }
 .tank { flex: none; }
 .tank-list { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-width: 0; }
 .tank-list dl { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; }
 .tank-list dt { color: var(--muted); } .tank-list dd { text-align: right; font-weight: 600; }
-.trip { display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; }
+.trip { display: grid; grid-template-columns: 36px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 12px 0; }
 .trip + .trip { border-top: 1px solid var(--rule); }
 .trip-ic { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; background: var(--raised); color: var(--accent); }
 .trip b { display: block; font-weight: 600; } .trip span { color: var(--muted); font-size: 13px; }
-.load { display: inline-flex; align-items: center; gap: 8px; }
-@media (max-width: 899px) { .trip { grid-template-columns: 36px 1fr; } .trip .btn { grid-column: 2; justify-self: start; } .tank-wrap { flex-direction: row; } }
-
-.feedl { margin-top: 18px; border-top: 1px solid var(--rule); padding-top: 10px; } .feedl li { display: grid; grid-template-columns: 48px 1fr; gap: 8px; padding: 6px 0; color: var(--muted); font-size: 13px; } .feedl li b { color: var(--faint); font-weight: 500; } .feedl li:first-child { color: var(--text); animation: pop .3s var(--ease) both; }
+.feedl { margin-top: 18px; border-top: 1px solid var(--rule); padding-top: 10px; } .feedl li { display: grid; grid-template-columns: 52px minmax(0,1fr); gap: 8px; padding: 6px 0; color: var(--muted); font-size: 13px; } .feedl li b { color: var(--faint); font-weight: 500; } .feedl li:first-child { color: var(--text); }
 .map { width: 100%; height: auto; display: block; margin: -4px 0 8px; }
-.map .rt { stroke: var(--border); stroke-width: 2; stroke-dasharray: 3 6; fill: none; } .map .rt.on { stroke: var(--accent); opacity: .55; }
-.map .site { fill: var(--raised); stroke: var(--faint); stroke-width: 2; } .map text { font: 12px var(--font); fill: var(--faint); }
+.map .rt { stroke: var(--border); stroke-width: 1.5; stroke-dasharray: 3 6; fill: none; } .map .rt.on { stroke: var(--accent); opacity: .55; stroke-width: 2; }
+.map .site { fill: var(--raised); stroke: var(--faint); stroke-width: 2; } .map text { font: 12px var(--font); fill: var(--faint); } .map .site.on { stroke: var(--accent); }
 .map .hub { fill: var(--accent); } .map .mk { fill: var(--accent); stroke: var(--bg); stroke-width: 3; } .map .pulse { fill: var(--accent); opacity: .25; animation: mp 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+.map .bd { fill: none; stroke: var(--rule); stroke-width: 1.5; }
 @keyframes mp { from { transform: scale(.6); opacity: .45; } to { transform: scale(2.2); opacity: 0; } }
 .tp { height: 4px; border-radius: 2px; background: var(--raised); margin-top: 6px; overflow: hidden; } .tp i { display: block; height: 100%; background: var(--accent); transition: width 1.4s linear; }
+
+/* shell */
+.col { min-width: 0; display: flex; flex-direction: column; }
+.topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 var(--pad); border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--bg) 88%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.tb-brand { display: none; align-items: center; gap: 8px; font-weight: 700; }
+.tb-brand .brand-mark { width: 28px; height: 28px; }
+.tb-ctx { color: var(--muted); font-size: 13px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-ctx i { font-style: normal; display: inline-flex; align-items: center; gap: 6px; } .live { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); display: inline-block; }
+.tb-act { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.ib { position: relative; width: 36px; height: 36px; border-radius: 9px; border: 0; background: none; color: var(--muted); display: grid; place-items: center; cursor: pointer; transition: background-color .15s, color .15s, transform .12s var(--ease); }
+.ib:hover { background: var(--hover); color: var(--text); } .ib:active { transform: scale(.95); }
+.ib .dot { position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--neg); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--bg); }
+.ub { display: flex; align-items: center; gap: 10px; margin-left: 6px; padding: 3px 10px 3px 3px; border-radius: 22px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; text-align: left; transition: border-color .15s; }
+.ub:hover { border-color: var(--faint); } .ub .avatar { width: 30px; height: 30px; background: var(--accent); color: var(--accent-ink); }
+.ub b { display: block; font-size: 13px; font-weight: 600; line-height: 1.2; } .ub small { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.2; }
+.side-foot { flex-direction: column; align-items: stretch; gap: 6px; font-size: 12px; color: var(--muted); }
+.side-foot div { display: flex; align-items: center; gap: 8px; } .side-foot button { all: unset; cursor: pointer; color: var(--muted); display: flex; align-items: center; gap: 8px; padding: 4px 0; } .side-foot button:hover { color: var(--text); } .side-foot button:focus-visible { outline: 2px solid var(--accent); }
+.ver { color: var(--faint); font-size: 11.5px; }
+.nav a[aria-current] { background: var(--raised); color: var(--text); }
+.nav .lk { margin-left: auto; color: var(--faint); } .nav .lk .ic { width: 14px; height: 14px; }
+.main:focus { outline: none; }
+
+/* KPI cards */
+.kgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--gap); margin-bottom: var(--gap); }
+.kgrid.k4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.kc { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; min-width: 0; color: inherit; font: inherit; transition: border-color .15s, transform .12s var(--ease); }
+button.kc { cursor: pointer; } button.kc:hover { border-color: var(--faint); } button.kc:active { transform: scale(.985); }
+.kc span { display: block; color: var(--muted); font-size: 12.5px; } .kc b { display: block; font: 600 22px/1.25 var(--display); margin: 6px 0 2px; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kc b small { font: 500 13px var(--font); color: var(--muted); margin-left: 4px; } .kc em { font-style: normal; font-size: 12px; color: var(--faint); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kc.alert b { color: var(--neg); } .kc.warnk b { color: var(--warn); }
+.finding.neg { background: var(--neg-bg); } .finding.neg .ic { color: var(--neg); }
+
+/* tables */
+.tr > * { min-width: 0; }
+.cell-main b { overflow-wrap: anywhere; } .cell-main span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.toolbar .sp { flex: 1; }
+.search { flex: 1 1 220px; max-width: 360px; position: relative; display: flex; align-items: center; }
+.search .ic { position: absolute; left: 10px; color: var(--faint); width: 16px; height: 16px; }
+.search input { width: 100%; height: 34px; padding: 0 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); outline: none; transition: border-color .15s; }
+.search input:focus { border-color: var(--accent); }
+.search kbd { position: absolute; right: 8px; font: 11px var(--font); color: var(--faint); border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; }
+.chips { display: flex; gap: 6px; margin: 0 0 12px; overflow-x: auto; scrollbar-width: none; }
+.chip { flex: none; height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; font-size: 13px; transition: background-color .15s, color .15s, border-color .15s; }
+.chip:hover { color: var(--text); border-color: var(--faint); } .chip span { color: var(--faint); margin-left: 4px; }
+.chip.on { background: var(--text); color: var(--bg); border-color: transparent; } .chip.on span { color: inherit; opacity: .65; }
+.sort { all: unset; cursor: pointer; display: inline-flex; gap: 3px; align-items: center; border-radius: 4px; }
+.sort:hover { color: var(--text); } .sort:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sort .ic { width: 12px; height: 12px; opacity: 0; } .sort.on { color: var(--text); } .sort.on .ic { opacity: 1; }
+.th .r .sort { flex-direction: row-reverse; }
+.tr.sel { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.tr[data-row]:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ck { display: flex; align-items: center; } .ck input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; color: var(--muted); font-size: 13px; flex-wrap: wrap; }
+.pager div { display: flex; align-items: center; gap: 8px; } .pager .btn { width: 30px; padding: 0; } .pager .ic { width: 16px; height: 16px; }
+.bulk { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 10px; margin-bottom: 10px; border-radius: 10px; background: var(--raised); border: 1px solid var(--border); animation: fade .15s ease both; }
+.bulk b { font-weight: 600; margin-right: auto; }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 36px 12px; } .empty .ic { width: 22px; height: 22px; color: var(--faint); } .empty b { color: var(--text); font-weight: 600; } .empty .btn { margin-top: 6px; }
+.vq span { display: block; font-size: 13px; margin-bottom: 5px; }
+.pill.acc { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); } .pill.mute { opacity: .7; }
+.money { white-space: nowrap; }
+.sub { display: block; font-size: 12px; color: var(--muted); }
+
+/* drawer */
+.dscrim { position: fixed; inset: 0; z-index: 35; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .2s ease; }
+.dscrim.open { opacity: 1; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 36; width: min(620px, 100vw); background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; transform: translateX(100%); transition: transform .28s var(--ease-drawer); box-shadow: -20px 0 50px rgba(0,0,0,.35); }
+.drawer.open { transform: none; }
+.dr-h { display: flex; align-items: flex-start; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+.dr-h > div { flex: 1; min-width: 0; } .dr-h h2 { font-size: 18px; letter-spacing: -.01em; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; } .dr-h p { color: var(--muted); font-size: 13px; margin-top: 2px; overflow-wrap: anywhere; }
+.dr-b { flex: 1; overflow: auto; padding: 18px 20px 24px; overscroll-behavior: contain; }
+.dr-f { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; padding: 12px 20px; border-top: 1px solid var(--border); }
+.kv { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 16px; }
+.kv span { display: block; color: var(--muted); font-size: 12px; } .kv b { font-weight: 600; overflow-wrap: anywhere; }
+.sec { margin: 24px 0 10px; font-size: 13px; font-weight: 600; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.sec:first-child { margin-top: 0; }
+.steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-bottom: 20px; }
+.steps li { font-size: 12px; color: var(--faint); } .steps li::before { content: ''; display: block; height: 4px; border-radius: 2px; background: var(--raised); margin-bottom: 6px; }
+.steps li.done { color: var(--muted); } .steps li.done::before, .steps li.cur::before { background: var(--accent); } .steps li.cur { color: var(--text); font-weight: 600; }
+.tl li { position: relative; padding: 0 0 14px 22px; } .tl li::before { content: ''; position: absolute; left: 0; top: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.tl li::after { content: ''; position: absolute; left: 3px; top: 17px; bottom: 1px; width: 2px; background: var(--rule); } .tl li:last-child::after { display: none; }
+.tl li.mute::before { background: var(--faint); } .tl li.neg::before { background: var(--neg); }
+.tl span { display: block; color: var(--muted); font-size: 12px; }
+.dl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; } .dl + .dl { border-top: 1px solid var(--rule); }
+.dl b { font-weight: 600; } .dl > div > span { display: block; font-size: 12.5px; color: var(--muted); }
+.dl-a { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.credit { padding: 12px 14px; border-radius: 10px; background: var(--raised); font-size: 13px; }
+.credit .bar { margin: 8px 0 4px; } .credit.over { background: var(--neg-bg); } .credit.over .bar i { background: var(--neg); } .credit.near .bar i { background: var(--warn); }
+.lines { width: 100%; border-collapse: collapse; font-size: 13px; } .lines th { text-align: left; color: var(--faint); font-weight: 500; font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.lines td { padding: 8px 0; border-bottom: 1px solid var(--rule); } .lines .r { text-align: right; } .lines tfoot td { border: 0; padding: 4px 0; } .lines tfoot tr:last-child td { font-weight: 700; padding-top: 8px; }
+.note { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+
+/* popovers */
+.pop { position: fixed; z-index: 45; min-width: 250px; max-width: calc(100vw - 24px); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 16px 40px rgba(0,0,0,.45); padding: 6px; transform-origin: top right; animation: popin .16s var(--ease-out) both; }
+.pop.up { transform-origin: bottom right; }
+@keyframes popin { from { opacity: 0; transform: scale(.96); } }
+.mi { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border-radius: 8px; background: none; border: 0; color: var(--text); cursor: pointer; text-align: left; }
+.mi:hover, .mi:focus-visible { background: var(--hover); } .mi .ic { color: var(--muted); } .mi kbd { margin-left: auto; font: 11px var(--font); color: var(--faint); }
+.mh { padding: 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; } .mh b { display: block; } .mh span { display: block; color: var(--muted); font-size: 12.5px; overflow-wrap: anywhere; } .mh .pill { margin-top: 8px; }
+.nf { width: 390px; max-height: min(560px, 75vh); overflow: auto; padding: 0; }
+.nf-h { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
+.nf-h button { all: unset; cursor: pointer; color: var(--accent); font-size: 13px; } .nf-h button:focus-visible { outline: 2px solid var(--accent); }
+.nt { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 12px; width: 100%; padding: 12px 14px; border: 0; border-bottom: 1px solid var(--rule); background: none; color: var(--text); text-align: left; cursor: pointer; }
+.nt:hover { background: var(--hover); } .nt i { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: var(--faint); }
+.nt i.neg { background: var(--neg); } .nt i.warn { background: var(--warn); } .nt i.pos { background: var(--pos); } .nt b { font-weight: 600; display: block; } .nt span { display: block; color: var(--muted); font-size: 13px; } .nt small { color: var(--faint); font-size: 12px; }
+.nt.read { opacity: .6; } .nt.read b { font-weight: 500; }
+
+/* forms */
+.field .err { color: var(--neg); font-size: 12.5px; } .field .err:empty { display: none; } .field .hint { font-size: 12px; color: var(--faint); }
+.field [aria-invalid="true"] { border-color: var(--neg); }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.chk { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted); margin-top: 12px; } .chk input { accent-color: var(--accent); margin-top: 3px; }
+.calc { padding: 10px 12px; border-radius: 8px; background: var(--raised); font-size: 13px; color: var(--muted); } .calc b { color: var(--text); }
+.modal:has(.wide) { max-width: 560px; } .modal:has(.bol) { max-width: 820px; padding: 16px; }
+.modal .btn.danger, .btn.danger { background: var(--neg); color: #fff; border-color: transparent; }
+
+/* BOL document */
+.bol-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; } .bol-bar div { display: flex; gap: 8px; }
+.bol { background: #fff; color: #16170f; border-radius: 8px; padding: 28px; font-size: 12.5px; line-height: 1.45; }
+.bol header { display: flex; justify-content: space-between; gap: 16px; border-bottom: 2px solid #16170f; padding-bottom: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.bol h3 { font-size: 18px; letter-spacing: -.01em; } .bol .muted, .bol small { color: #5d6056; }
+.bol .g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+.bol .g3 div { border: 1px solid #d9d9d2; border-radius: 6px; padding: 8px 10px; } .bol .g3 small { display: block; text-transform: uppercase; font-size: 10px; letter-spacing: .06em; margin-bottom: 2px; }
+.bol table { width: 100%; border-collapse: collapse; margin-bottom: 14px; } .bol th, .bol td { border: 1px solid #d9d9d2; padding: 6px 8px; text-align: left; } .bol th { background: #f1f1ec; font-size: 11px; }
+.bol .sig { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; } .bol .sig div { border-top: 1px solid #16170f; padding-top: 4px; min-height: 52px; font-size: 11px; color: #5d6056; }
+.bol .stamp { display: inline-block; border: 2px solid #1e7a4c; color: #1e7a4c; font-weight: 700; padding: 4px 10px; border-radius: 4px; transform: rotate(-3deg); }
+.bol .adr { padding: 8px 10px; background: #fff4d6; border-left: 3px solid #e8a400; margin-bottom: 14px; }
+
+/* sign in, skeleton, permission, undo */
+body.out .app, body.out .tabbar { display: none; }
+.signin { min-height: calc(100svh - 29px); display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(900px 420px at 70% -10%, rgba(200,240,60,.08), transparent 60%), var(--bg); }
+.signin[hidden] { display: none; }
+.si-card { width: 100%; max-width: 430px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; animation: pop .25s var(--ease) both; }
+.si-card .brand { padding: 0 0 20px; } .si-card h1 { font-size: 22px; letter-spacing: -.02em; } .si-card > p { color: var(--muted); margin: 4px 0 18px; }
+.roles { display: grid; gap: 8px; margin-bottom: 16px; border: 0; padding: 0; } .roles legend { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.role { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: border-color .15s, background-color .15s; }
+.role:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); } .role input { accent-color: var(--accent); margin: 3px 0 0; }
+.role b { display: block; font-weight: 600; } .role span { color: var(--muted); font-size: 12.5px; }
+.btn.block { width: 100%; height: 40px; } .si-err { color: var(--neg); font-size: 13px; margin: -4px 0 10px; } .si-err:empty { display: none; }
+.si-foot { margin-top: 18px; font-size: 12px; color: var(--faint); text-align: center; }
+.sk { border-radius: 8px; background: linear-gradient(90deg, var(--raised) 0%, var(--hover) 50%, var(--raised) 100%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.perm { display: grid; justify-items: center; text-align: center; padding: 72px 16px; } .perm .ic { width: 30px; height: 30px; color: var(--faint); } .perm h2 { font-size: 18px; margin: 14px 0 6px; } .perm p { color: var(--muted); max-width: 440px; margin-bottom: 16px; }
+.undo { position: fixed; left: 50%; bottom: 24px; z-index: 65; display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: opacity .2s, transform .25s var(--ease-out); box-shadow: 0 10px 30px rgba(0,0,0,.35); max-width: calc(100vw - 32px); }
+.undo.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.undo .btn { background: transparent; color: var(--bg); border-color: color-mix(in srgb, var(--bg) 35%, transparent); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); } .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.split { display: flex; height: 12px; border-radius: 6px; overflow: hidden; gap: 2px; margin: 4px 0 16px; } .split i { display: block; height: 100%; }
+.help dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; margin-bottom: 16px; } .help dt kbd { font: 12px var(--font); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; } .help dd { color: var(--muted); }
+.help h3 { font-size: 13px; margin: 14px 0 6px; } .help ul li { color: var(--muted); padding: 2px 0; }
+@media (max-width: 1180px) { .kgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 899px) {
+  .topbar { padding: 0 12px 0 16px; } .tb-brand { display: flex; } .tb-ctx { display: none; } .ub { padding: 3px; border: 0; background: none; } .ub > div { display: none; }
+  .kgrid, .kgrid.k4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .search kbd { display: none; } .search { max-width: none; }
+  .trip { grid-template-columns: 36px minmax(0,1fr); } .trip .btn { grid-column: 2; justify-self: start; }
+  .kv { grid-template-columns: repeat(2, minmax(0, 1fr)); } .nf { width: calc(100vw - 24px); }
+  .undo { bottom: 84px; } .bol .g3, .bol .sig { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) { .card { padding: 14px; } .frow { grid-template-columns: 1fr; } .bol { padding: 16px; } .dr-h, .dr-b, .dr-f { padding-left: 16px; padding-right: 16px; } .kc b { font-size: 19px; } .tank-wrap { gap: 14px; } }
+@media print {
+  body > *:not(.scrim) { display: none !important; }
+  .scrim { position: static; background: none; padding: 0; display: block; animation: none; }
+  .modal { max-width: none !important; border: 0; padding: 0 !important; max-height: none; overflow: visible; animation: none; background: #fff; }
+  .modal .bol-bar { display: none; } .bol { padding: 0; border-radius: 0; }
+}
 </style>
 </head>
 <body>
 <div class="notice"><b>Demo</b> DizelTrade ERP · sample data</div>
-<div class="app">
+<div class="app" id="app">
   <aside class="side">
     <div class="brand">
       <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></svg></div>
-      <div><div class="brand-name">DizelTrade</div><div class="brand-sub">Leipzig Base</div></div>
+      <div><div class="brand-name">DizelTrade</div><div class="brand-sub">Leipzig base · ERP</div></div>
     </div>
-    <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">KB</div><div class="who"><b>K. Brandt</b><span>Partner · full access</span></div></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="side-foot">
+      <div><span class="live"></span>All systems operational</div>
+      <button type="button" data-act="help"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg>Help &amp; support</button>
+      <span class="ver">Version 4.12.0 · build 2026.06.08</span>
+    </div>
   </aside>
-  <main class="main" id="main"></main>
+  <div class="col">
+    <header class="topbar">
+      <div class="tb-brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/></svg></div>DizelTrade</div>
+      <div class="tb-ctx" id="ctx"></div>
+      <div class="tb-act">
+        <button class="ib" type="button" data-act="help" aria-label="Help and support"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg></button>
+        <button class="ib" type="button" data-act="notifs" id="bell" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"></button>
+        <button class="ub" type="button" data-act="userMenu" id="ub" aria-haspopup="true" aria-expanded="false"></button>
+      </div>
+    </header>
+    <main class="main" id="main" tabindex="-1"></main>
+  </div>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+<div class="signin" id="signin" hidden></div>
+<div class="undo" id="undo" role="status" aria-live="polite"></div>
 
 <script>
 /* Shared helpers for the Showroom demos (inlined by tools/build-demos.mjs). */
@@ -428,260 +608,1133 @@ console.log('%cDemo', 'font:700 14px system-ui;color:#c8f03c;background:#0e0f0c;
 addEventListener('load', () => { if (parent !== window) parent.postMessage({ showroom: 'ready' }, '*'); });
 
 'use strict';
+ICONS.help = 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01';
+ICONS.download = 'M12 4v11M7 10l5 5 5-5M5 20h14';
+ICONS.out = 'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10';
+ICONS.left = 'M15 6l-6 6 6 6'; ICONS.right = 'M9 6l6 6-6 6';
+ICONS.print = 'M7 9V4h10v5M7 17H4v-7h16v7h-3M7 14h10v6H7z';
+ICONS.mail = 'M3 6h18v12H3zM3 7l9 6 9-6';
 
-/* ── data ─────────────────────────────────────────────── */
-const CAP = 2500;
-const TODAY = '10.06.2026';
-const S = {
-  stockJun1: 1267,            // 1 June: 1 267 + 120 received − 540 shipped = 847
-  shippedJun: 540,
-  orders: [
-    { id: 101, client: 'Baumann Bau GmbH',       date: '05.06.2026', total: 400,  delivered: 370,  transit: 20, sites: ['Wrocław', 'Hanover'],  price: 1640 },
-    { id: 102, client: 'Kowalski Trans Sp. z o.o.',      date: '12.05.2026', total: 250,  delivered: 195,  transit: 12, sites: ['Prague'],                price: 1590 },
-    { id: 103, client: 'Rheinkies Steinbruch GmbH', date: '20.05.2026', total: 600,  delivered: 510,  transit: 18, sites: ['Frankfurt', 'Nuremberg'],  price: 1580 },
-    { id: 104, client: 'Leipzig Airport Services GmbH', date: '01.06.2026', total: 180,  delivered: 155,  transit: 0,  sites: ['Leipzig · airport'],       price: 1720 },
-    { id: 105, client: 'Agrar Vlček s.r.o.',      date: '15.04.2026', total: 1200, delivered: 1150, transit: 0,  sites: ['Leipzig · depot', 'Berlin'],  price: 1550 },
-  ],
-  trucks: [
-    { id: 1, name: 'MAN TGS 26.470',  plate: 'L-DT 412', owner: 'DTL',   tank: 20, driver: 'Schneider A. M.',   status: 'transit', last: 'Wrocław',     trips: 14 },
-    { id: 2, name: 'Volvo FH 460',    plate: 'DD-FT 185', owner: 'DTL',   tank: 14, driver: 'Nowak S. P.',   status: 'base',    last: 'Prague',    trips: 11 },
-    { id: 3, name: 'Scania R 450', plate: 'BA 741 KP', owner: 'DTL',   tank: 16, driver: 'De Vries R. J.', status: 'free',    last: 'Frankfurt', trips: 9 },
-    { id: 4, name: 'DAF XF 480',  plate: 'WRO 329M', owner: 'Hoffmann', tank: 18, driver: 'Schneider A. M.',   status: 'transit', last: 'Nuremberg',    trips: 7 },
-    { id: 5, name: 'Mercedes Actros 2545',   plate: 'PZ 558KH', owner: 'Hoffmann', tank: 12, driver: 'Moreau P. L.',  status: 'transit', last: 'Prague',    trips: 6 },
-    { id: 6, name: 'Iveco S-Way 460',  plate: 'L-DT 770', owner: 'Hoffmann', tank: 16, driver: 'Rossi D. A.',  status: 'base',    last: 'Berlin',      trips: 8 },
-  ],
-  trips: [
-    { id: 9, truck: 1, order: 101, site: 'Wrocław',     vol: 20, date: '10.06.2026', status: 'transit' },
-    { id: 8, truck: 4, order: 103, site: 'Nuremberg',    vol: 18, date: '10.06.2026', status: 'transit' },
-    { id: 7, truck: 5, order: 102, site: 'Prague',    vol: 12, date: '09.06.2026', status: 'transit' },
-    { id: 6, truck: 1, order: 101, site: 'Wrocław',     vol: 20, date: '02.06.2026', status: 'done' },
-    { id: 5, truck: 2, order: 102, site: 'Prague',    vol: 14, date: '28.05.2026', status: 'done' },
-    { id: 4, truck: 3, order: 103, site: 'Frankfurt', vol: 16, date: '25.05.2026', status: 'done' },
-    { id: 3, truck: 4, order: 101, site: 'Hanover', vol: 18, date: '20.05.2026', status: 'done' },
-  ],
-  receipts: [
-    { id: 4, src: 'Nordfuel Leipzig', vol: 150, ttn: 'BOL-2026-1901', date: '08.06.2026', ok: false, jun: true },
-    { id: 1, src: 'Nordfuel Leipzig', vol: 120, ttn: 'BOL-2026-1842', date: '03.06.2026', ok: true,  jun: true },
-    { id: 2, src: 'EuroDiesel Supply',   vol: 200, ttn: 'BOL-2026-1791', date: '27.05.2026', ok: true,  jun: false },
-    { id: 3, src: 'Brenner Mineralöl (private)', vol: 80, ttn: 'BOL-2026-1780', date: '20.05.2026', ok: true,  jun: false },
-  ],
-  months: [['Jan', 210], ['Feb', 260], ['Mar', 360], ['Apr', 450], ['May', 610], ['Jun', 540]],  // shipped, m³ (June includes 50 on the road)
+/* ── seeded sample data ───────────────────────────────── */
+let seed = 20260610;
+const rnd = () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+const r2 = (x) => Math.round(x * 100) / 100, r1 = (x) => Math.round(x * 10) / 10;
+const CAP = 2500, REORDER = 900, TODAY = 160, Y0 = Date.UTC(2026, 0, 1);
+let CLK = 14 * 60 + 36;
+const now = () => TODAY * 1440 + CLK;
+const dt = (d) => new Date(Y0 + d * 864e5);
+const DF = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+const DS = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+const DL = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const fd = (d) => DF.format(dt(d)), fds = (d) => DS.format(dt(d));
+const hm = (m) => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(Math.round(m) % 60).padStart(2, '0');
+const fdt = (t) => (Math.floor(t / 1440) === TODAY ? 'Today' : fds(Math.floor(t / 1440))) + ', ' + hm(t % 1440);
+const iso = (d) => dt(d).toISOString().slice(0, 10);
+const dayOf = (v) => Math.round((Date.parse(v) - Y0) / 864e5);
+const mon = (d) => dt(d).getUTCMonth();
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+const RTF = new Intl.RelativeTimeFormat('en-GB', { numeric: 'auto' });
+function ago(t) {
+  const m = now() - t, d = TODAY - Math.floor(t / 1440);
+  if (m < 1) return 'just now';
+  if (m < 60) return RTF.format(-m, 'minute');
+  if (d === 0) return RTF.format(-Math.floor(m / 60), 'hour');
+  if (d < 7) return RTF.format(-d, 'day');
+  return fd(Math.floor(t / 1440));
+}
+const CUR = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR' });
+const CUR0 = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+const CMP = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'EUR', notation: 'compact', maximumFractionDigits: 2 });
+const eur = (n) => CUR.format(Math.abs(n) < .005 ? 0 : n), eur0 = (n) => CUR0.format(n), eurC = (n) => CMP.format(n);
+const plural = (n, one, many = one + 's') => `${fmt(n)} ${n === 1 ? one : many}`;
+const pct = (a, b) => (b ? Math.round(a / b * 100) : 0);
+const COST = [1352, 1338, 1371, 1395, 1382, 1366];
+const CTRY = { DE: 'Germany', PL: 'Poland', CZ: 'Czechia' };
+const CITY = { Berlin: [13.40, 52.52, 'DE'], Hanover: [9.73, 52.37, 'DE'], Magdeburg: [11.63, 52.13, 'DE'], Kassel: [9.48, 51.31, 'DE'], Erfurt: [11.03, 50.98, 'DE'], Chemnitz: [12.92, 50.83, 'DE'], Dresden: [13.74, 51.05, 'DE'], Frankfurt: [8.68, 50.11, 'DE'], Nuremberg: [11.08, 49.45, 'DE'], 'Poznań': [16.93, 52.41, 'PL'], 'Wrocław': [17.04, 51.11, 'PL'], Liberec: [15.06, 50.77, 'CZ'], 'Ústí nad Labem': [14.03, 50.66, 'CZ'], Prague: [14.42, 50.08, 'CZ'], 'Plzeň': [13.38, 49.75, 'CZ'], Brno: [16.61, 49.20, 'CZ'] };
+const HUB = [12.37, 51.34];
+const kmTo = (c) => { const [lo, la] = CITY[c] || HUB, R = Math.PI / 180, x = (lo - HUB[0]) * R * Math.cos((la + HUB[1]) / 2 * R), y = (la - HUB[1]) * R; return Math.round(Math.hypot(x, y) * 6371 * 1.24); };
+const durTo = (c) => Math.round(kmTo(c) / 64 * 60) + 45;
+
+const USERS = {
+  admin: { name: 'Katrin Brandt', ini: 'KB', email: 'k.brandt@dizeltrade.example', role: 'Admin', desc: 'Full access, including overrides and audit log' },
+  dispatcher: { name: 'Tomasz Wierzbicki', ini: 'TW', email: 't.wierzbicki@dizeltrade.example', role: 'Dispatcher', desc: 'Orders, trips, base stock and fleet' },
+  accountant: { name: 'Eva Horáková', ini: 'EH', email: 'e.horakova@dizeltrade.example', role: 'Accountant', desc: 'Customers, credit, invoices and payments' },
+  system: { name: 'System', ini: 'SY', role: 'Automation' },
 };
-const STATUS = { transit: ['In transit', 'warn'], base: ['At base', ''], free: ['Available', 'pos'] };
+const PERM = { admin: '*', dispatcher: ['ops', 'orders', 'stock', 'fleet'], accountant: ['finance', 'pay', 'credit'] };
+const NEED = { ops: 'Dispatcher', orders: 'Dispatcher', stock: 'Dispatcher', fleet: 'Dispatcher', finance: 'Accountant', pay: 'Accountant', credit: 'Accountant', audit: 'Admin', override: 'Admin', cancel: 'Admin' };
+let me = 'admin', signedIn = true;
+const can = (p) => PERM[me] === '*' || PERM[me].includes(p);
 
-/* derived: every figure is computed from the rows */
-const receivedJun = () => S.receipts.filter((r) => r.ok && r.jun).reduce((s, r) => s + r.vol, 0);
-const pendingRc = () => S.receipts.filter((r) => !r.ok);
-const stock = () => S.stockJun1 + receivedJun() - S.shippedJun;
-const transitTrips = () => S.trips.filter((t) => t.status === 'transit');
-const transitVol = () => transitTrips().reduce((s, t) => s + t.vol, 0);
-const delivered = () => S.orders.reduce((s, o) => s + o.delivered, 0);
-const revenue = () => S.orders.reduce((s, o) => s + o.delivered * o.price, 0);
-const avgPrice = () => revenue() / delivered();
-const truck = (id) => S.trucks.find((t) => t.id === id);
-const order = (id) => S.orders.find((o) => o.id === id);
-const mln = (n) => fmtD(n / 1e6, 1);
-const pctOf = (a, b) => (b ? Math.round((a / b) * 100) : 0);
-console.assert(stock() === 847 && transitVol() === 50 && delivered() === 2380, 'seed data must reconcile');
+const CUST = [
+  ['Baumann Bau GmbH', 'Magdeburg', 'Jörg Baumann', 30, 0, 3], ['Rheinkies Steinbruch GmbH', 'Frankfurt', 'Sabine Keller', 30, 1, 3],
+  ['Saale Bodenservice GmbH', 'Erfurt', 'Michael Franke', 14, 0, 2], ['Elbtal Logistik GmbH', 'Dresden', 'Anja Richter', 30, 1, 2],
+  ['Vogtland Agrar eG', 'Chemnitz', 'Uwe Lorenz', 30, 2, 2], ['Nordheide Transporte GmbH', 'Hanover', 'Henrik Wolters', 14, 0, 2],
+  ['Fränkische Erdbau GmbH & Co. KG', 'Nuremberg', 'Matthias Seitz', 30, 1, 3], ['Hessenkran Service GmbH', 'Kassel', 'Claudia Becker', 30, 0, 1],
+  ['Spree Bauhof GmbH', 'Berlin', 'Dirk Hoffmeister', 30, 2, 3], ['Harzer Forstbetrieb Krüger', 'Magdeburg', 'Petra Krüger', 14, 0, 1],
+  ['Lausitz Recycling GmbH', 'Dresden', 'Thomas Pietsch', 30, 1, 1], ['Thüringer Busverkehr GmbH', 'Erfurt', 'Kerstin Vogel', 14, 0, 2],
+  ['Kowalski Trans Sp. z o.o.', 'Wrocław', 'Marek Kowalski', 30, 1, 3], ['Agro-Wielkopolska Sp. z o.o.', 'Poznań', 'Agnieszka Lis', 30, 2, 2],
+  ['Dolnośląskie Kruszywa S.A.', 'Wrocław', 'Paweł Grabowski', 30, 0, 2], ['Przewozy Zielińscy Sp.j.', 'Poznań', 'Krzysztof Zieliński', 14, 1, 1],
+  ['Odra Logistics Sp. z o.o.', 'Wrocław', 'Joanna Mazur', 30, 1, 1], ['Agrar Vlček s.r.o.', 'Plzeň', 'Petr Vlček', 30, 0, 2],
+  ['Doprava Novotný s.r.o.', 'Prague', 'Martin Novotný', 30, 1, 2], ['Stavby Malý a.s.', 'Brno', 'Lucie Malá', 30, 1, 2],
+  ['Severočeské lomy s.r.o.', 'Ústí nad Labem', 'Tomáš Beneš', 30, 2, 2], ['Liberecká doprava s.r.o.', 'Liberec', 'Jana Pokorná', 14, 0, 1],
+  ['Pražské stavby Dvořák s.r.o.', 'Prague', 'Ondřej Dvořák', 30, 0, 3], ['Brněnské sklady s.r.o.', 'Brno', 'Veronika Černá', 30, 1, 1],
+];
+const TRUCKS = [['MAN TGS 26.470', 'L-DT 412', 24, 1], ['Volvo FH 460', 'L-DT 185', 38, 1], ['Scania R 450', 'L-DT 741', 38, 1], ['DAF XF 480', 'L-DT 329', 36, 1], ['Mercedes Actros 2545', 'L-DT 558', 24, 1], ['Iveco S-Way 460', 'L-DT 770', 36, 1], ['MAN TGX 18.510', 'L-DT 903', 38, 1], ['Renault T 480', 'L-DT 264', 36, 1], ['DAF XF 450', 'DD-HS 214', 35, 0], ['Mercedes Arocs 2643', 'DD-HS 377', 30, 0]];
+const DRIVERS = ['Andreas Schneider', 'Piotr Nowak', 'Lukas Weber', 'Stefan Krause', 'Marek Dvořák', 'Adam Lewandowski', 'Michael Roth', 'Jiří Svoboda', 'Frank Ehrlich', 'Rainer Pohl'];
+const SUPPLIERS = ['Nordfuel Leipzig', 'EuroDiesel Supply', 'Mitteldeutsche Mineralöl AG'];
+const ascii = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l').replace(/Ł/g, 'L').toLowerCase();
+const digits = (n) => Array.from({ length: n }, () => ri(0, 9)).join('');
+const PHONE = { DE: '+49', PL: '+48', CZ: '+420' };
 
-/* ── tank gauge: the product's one thing ───────────────── */
+const S = { cust: [], trucks: [], drivers: [], orders: [], trips: [], inv: [], pay: [], rc: [], adj: [], maint: [], audit: [], open: 0 };
+CUST.forEach(([name, city, contact, terms, beh, w], i) => {
+  const cc = CITY[city][2], [f, ...l] = contact.split(' ');
+  S.cust.push({ id: i + 1, name, city, cc, contact, terms, beh, w, markup: 125 - w * 15 + ri(0, 3) * 10, since: 2016 + ri(0, 9),
+    email: `${ascii(f)}.${ascii(l.join(''))}@${ascii(name.split(/[\s-]/)[0])}.example`, phone: `${PHONE[cc]} ${digits(3)} ${digits(3)} ${digits(3)}`,
+    vat: cc + digits(cc === 'DE' ? 9 : cc === 'PL' ? 10 : 8), limit: 0 });
+});
+TRUCKS.forEach(([name, plate, tank, own], i) => S.trucks.push({ id: i + 1, name, plate, tank, own: !!own, driver: i + 1, odo: ri(180, 640) * 1000 + ri(0, 999), ws: i === 7 ? 156 : null }));
+DRIVERS.forEach((name, i) => S.drivers.push({ id: i + 1, name, phone: `+49 1${ri(51, 79)} ${digits(7)}`, adr: TODAY + (i === 3 ? 38 : i === 6 ? -4 : ri(70, 900)), cls: 'C+E', carrier: i > 7 ? 'Hoffmann Spedition' : '' }));
+const CU = (id) => S.cust[id - 1], TRK = (id) => S.trucks[id - 1], DRV = (id) => S.drivers[id - 1], OR = (id) => S.orders[id - 1];
+const bday = (d) => { while ((d + 4) % 7 === 0 || (d + 4) % 7 === 6) d++; return d; };
+const wpick = () => { let r = rnd() * S.cust.reduce((s, c) => s + c.w, 0); for (const c of S.cust) if ((r -= c.w) < 0) return c; return S.cust[0]; };
+const busy = {};
+const isBusy = (t, d) => (busy[d] && busy[d].has(t.id)) || (t.ws != null && d >= t.ws);
+for (let d = 1; d <= TODAY; d++) {
+  const w = (d + 4) % 7; if (w === 0 || w === 6) continue;
+  const n = d >= TODAY - 1 ? 2 : rnd() < .25 ? 2 : rnd() < .75 ? 1 : 0;
+  for (let k = 0; k < n; k++) {
+    const c = wpick(), vol = 5 * ri(5, 7 + c.w * 8), id = S.orders.length + 1;
+    const o = { id, no: 'SO-2026-' + String(id).padStart(4, '0'), cust: c.id, day: d, t: d * 1440 + ri(450, 840), vol, price: COST[mon(d)] + c.markup + ri(-1, 1) * 5, site: c.city, status: 'open', note: '', req: bday(d + 1), by: 'dispatcher' };
+    if (d < TODAY - 6 && rnd() < .04) o.status = 'cancelled';
+    S.orders.push(o);
+    if (o.status === 'cancelled' || d === TODAY || (d === TODAY - 1 && k === 1)) continue;
+    let rem = vol, day = bday(d + 1), per = 0;
+    while (rem > 0) {
+      const pool = S.trucks.filter((t) => !isBusy(t, day)), own = pool.filter((t) => t.own);
+      const t = own.length ? own[Math.floor(rnd() * own.length)] : pool[0];
+      if (!t || per === 2) { day = bday(day + 1); per = 0; continue; }
+      const v = Math.min(rem, t.tank); rem -= v; per++;
+      (busy[day] = busy[day] || new Set()).add(t.id);
+      S.trips.push({ order: o.id, truck: t.id, driver: t.driver, vol: v, day, dep: ri(330, 600), status: 'delivered', p: 1 });
+    }
+  }
+}
+S.trips.sort((a, b) => a.day - b.day || a.dep - b.dep);
+S.trips.forEach((t, i) => {
+  t.id = i + 1; t.no = 'BOL-2026-' + String(i + 1).padStart(4, '0');
+  const dur = durTo(OR(t.order).site);
+  if (t.day < TODAY) t.arr = t.dep + dur;
+  else if (t.day > TODAY) { t.status = 'planned'; t.dep = null; t.etd = 360 + (i % 4) * 45; t.p = 0; }
+});
+S.trips.filter((t) => t.day === TODAY).forEach((t, i) => {
+  if (i < 4) { t.status = 'transit'; t.p = .18 + rnd() * .55; t.dep = Math.round(CLK - durTo(OR(t.order).site) * t.p); }
+  else { t.status = 'planned'; t.dep = null; t.etd = 15 * 60 + i * 25; t.p = 0; }
+});
+const TP = (id) => S.trips[id - 1];
+function issue(t, at) {
+  const o = OR(t.order), c = CU(o.cust), net = r2(t.vol * o.price), rate = c.cc === 'DE' ? .19 : 0, vat = r2(net * rate), id = S.inv.length + 1;
+  const inv = { id, no: 'INV-2026-' + String(id).padStart(4, '0'), trip: t.id, order: o.id, cust: c.id, day: t.day, t: at, due: t.day + c.terms, vol: t.vol, price: o.price, net, rate, vat, gross: r2(net + vat), rem: null };
+  S.inv.push(inv); return inv;
+}
+S.trips.filter((t) => t.status === 'delivered').forEach((t) => issue(t, t.day * 1440 + t.arr + 25));
+const addPay = (inv, amount, day, t, by = 'accountant') => { const p = { id: 0, inv: inv.id, cust: inv.cust, day, t, amount: r2(amount), ref: inv.no, method: 'SEPA credit transfer', by }; S.pay.push(p); return p; };
+S.inv.forEach((inv) => {
+  const c = CU(inv.cust), delay = [ri(-9, 0), ri(-4, 9), ri(4, 40)][c.beh], pd = bday(Math.max(inv.day + 2, inv.day + c.terms + delay));
+  if (pd >= TODAY) return;
+  if (c.beh === 2 && rnd() < .3) addPay(inv, inv.gross / 2, pd, pd * 1440 + ri(540, 960));
+  else addPay(inv, inv.gross, pd, pd * 1440 + ri(540, 960));
+});
+S.pay.sort((a, b) => a.t - b.t).forEach((p, i) => { p.id = i + 1; p.no = 'PAY-2026-' + String(i + 1).padStart(4, '0'); });
+const loaded = (t) => t.status === 'transit' || t.status === 'delivered';
+const disp = new Array(TODAY + 1).fill(0); S.trips.forEach((t) => { if (loaded(t)) disp[t.day] += t.vol; });
+const addRc = (day, nom, ok, temp, t) => {
+  const dens = 826 + ri(0, 16), v15 = r1(nom * (1 - 0.00084 * (temp - 15))), id = S.rc.length + 1;
+  const r = { id, no: 'RC-2026-' + String(id).padStart(3, '0'), sup: SUPPLIERS[ri(0, 2)], ls: 'LS ' + digits(6), day, t, nom, temp, dens, v15, price: COST[mon(day)] + ri(-12, 12), ok, ct: ok ? t + ri(25, 90) : null, by: 'dispatcher' };
+  S.rc.push(r); return r;
+};
+let lastRc = 0;
+for (let d = bday(3); d <= TODAY - 3; d = bday(d + ri(4, 6))) {
+  let need = 0; for (let k = lastRc + 1; k <= d; k++) need += disp[k]; lastRc = d;
+  addRc(d, Math.max(180, Math.round((need + ri(-40, 40)) / 5) * 5), true, [2, 3, 7, 11, 15, 19][mon(d)] + ri(-3, 3), d * 1440 + ri(400, 640));
+}
+addRc(TODAY, 160, false, 21, TODAY * 1440 + 492);
+[30, 58, 89, 119, 150].forEach((d, i) => S.adj.push({ id: i + 1, no: 'ADJ-2026-0' + (i + 1), day: d, t: d * 1440 + 1380, q: -ri(4, 18) / 10, note: 'Month-end dip reading variance' }));
+S.open = r1(847 - S.rc.reduce((s, r) => s + (r.ok ? r.v15 : 0), 0) + S.trips.reduce((s, t) => s + (loaded(t) ? t.vol : 0), 0) - S.adj.reduce((s, a) => s + a.q, 0));
+const MK = [['Service · oil and filters', 90], ['Roadworthiness inspection (HU)', 365], ['ADR tank inspection', 365], ['Tachograph calibration', 730]];
+S.trucks.filter((t) => t.own).forEach((t) => MK.forEach(([kind, iv], j) => S.maint.push({ id: S.maint.length + 1, truck: t.id, kind, iv, due: t.id === 8 && !j ? TODAY - 4 : TODAY + ri(-3, j ? 260 : 85) })));
+(S.maint.find((m) => m.truck === 3 && m.iv === 365) || {}).due = TODAY + 6;
+let AID = 0;
+const A = (t, u, cat, text) => S.audit.push({ id: ++AID, t, u, cat, text });
+{
+  const since = (TODAY - 14) * 1440;
+  S.orders.forEach((o) => { if (o.t >= since) A(o.t, 'dispatcher', 'Order', `Created ${o.no} for ${CU(o.cust).name} · ${fmt(o.vol)} m³`); });
+  S.trips.forEach((t) => {
+    if (loaded(t) && t.day * 1440 + t.dep >= since) A(t.day * 1440 + t.dep, 'dispatcher', 'Dispatch', `Dispatched ${t.no} · ${TRK(t.truck).name} · ${t.vol} m³ to ${OR(t.order).site}`);
+    if (t.status === 'delivered' && t.day * 1440 >= since) A(t.day * 1440 + t.arr, 'system', 'Delivery', `Proof of delivery received for ${t.no} in ${OR(t.order).site}`);
+  });
+  S.inv.forEach((i) => { if (i.t >= since) A(i.t, 'system', 'Invoice', `Issued ${i.no} to ${CU(i.cust).name} · ${eur(i.gross)}`); });
+  S.pay.forEach((p) => { if (p.t >= since) A(p.t, 'accountant', 'Payment', `Recorded ${eur(p.amount)} from ${CU(p.cust).name} against ${p.ref}`); });
+  S.rc.forEach((r) => { if (r.ok && r.ct >= since) A(r.ct, 'dispatcher', 'Stock', `Confirmed receipt ${r.no} · +${fmtD(r.v15, 1)} m³ at 15 °C`); });
+  A(S.rc[S.rc.length - 1].t, 'dispatcher', 'Stock', `Logged receipt ${S.rc[S.rc.length - 1].no} from ${S.rc[S.rc.length - 1].sup}, awaiting confirmation`);
+  for (let d = TODAY - 14; d <= TODAY; d++) if ((d + 4) % 7 && (d + 4) % 7 !== 6) ['dispatcher', 'accountant', 'admin'].forEach((u, i) => A(d * 1440 + 400 + i * 22 + ri(0, 15), u, 'Access', 'Signed in · Leipzig office'));
+}
+
+/* derived state: every figure is computed from the rows above */
+let IX = null;
+const dirty = () => { IX = null; };
+function ix() {
+  if (IX) return IX;
+  const tbo = new Map(), ibt = new Map(), paid = new Map(), ibc = new Map(), pbc = new Map();
+  S.trips.forEach((t) => { if (!tbo.has(t.order)) tbo.set(t.order, []); tbo.get(t.order).push(t); });
+  S.inv.forEach((i) => { ibt.set(i.trip, i); if (!ibc.has(i.cust)) ibc.set(i.cust, []); ibc.get(i.cust).push(i); });
+  S.pay.forEach((p) => { paid.set(p.inv, (paid.get(p.inv) || 0) + p.amount); if (!pbc.has(p.cust)) pbc.set(p.cust, []); pbc.get(p.cust).push(p); });
+  const L = [{ t: 0, type: 'open', doc: 'Opening', who: 'Opening balance 1 Jan 2026', q: S.open }];
+  S.rc.forEach((r) => r.ok && L.push({ t: r.ct, type: 'in', doc: r.no, who: r.sup, q: r.v15 }));
+  S.trips.forEach((t) => loaded(t) && L.push({ t: t.day * 1440 + t.dep, type: 'out', doc: t.no, who: CU(OR(t.order).cust).name, q: -t.vol, trip: t.id }));
+  S.adj.forEach((a) => L.push({ t: a.t, type: 'adj', doc: a.no, who: a.note, q: a.q }));
+  L.sort((a, b) => a.t - b.t); let bal = 0; L.forEach((r, i) => { r.id = i + 1; bal += r.q; r.bal = r1(bal); });
+  return (IX = { tbo, ibt, paid, ibc, pbc, L });
+}
+const tripsOf = (oid) => ix().tbo.get(oid) || [];
+const invOfTrip = (tid) => ix().ibt.get(tid);
+const paidOf = (inv) => ix().paid.get(inv.id) || 0;
+const openOf = (inv) => r2(inv.gross - paidOf(inv));
+const ist = (inv) => (openOf(inv) < .01 ? 'paid' : inv.due < TODAY ? 'overdue' : paidOf(inv) > 0 ? 'part' : 'open');
+const overdueInv = () => S.inv.filter((i) => ist(i) === 'overdue');
+const stock = () => S.open + S.rc.reduce((s, r) => s + (r.ok ? r.v15 : 0), 0) - S.trips.reduce((s, t) => s + (loaded(t) ? t.vol : 0), 0) + S.adj.reduce((s, a) => s + a.q, 0);
+const pendingRc = () => S.rc.filter((r) => !r.ok);
+const transit = () => S.trips.filter((t) => t.status === 'transit');
+function oq(o) { let del = 0, tr = 0, pl = 0; for (const t of tripsOf(o.id)) { if (t.status === 'delivered') del += t.vol; else if (t.status === 'transit') tr += t.vol; else pl += t.vol; } return { del, tr, pl, rem: o.status === 'cancelled' ? 0 : o.vol - del - tr - pl }; }
+function ost(o) {
+  if (o.status === 'cancelled') return 'cancelled';
+  const q = oq(o);
+  if (q.del >= o.vol) return tripsOf(o.id).every((t) => { const i = invOfTrip(t.id); return i && ist(i) === 'paid'; }) ? 'paid' : 'invoiced';
+  if (q.tr) return 'transit'; if (q.pl) return 'scheduled'; return q.del ? 'partial' : 'confirmed';
+}
+const OST = { confirmed: ['Awaiting truck', 'warn'], partial: ['Part-delivered', 'warn'], scheduled: ['Scheduled', ''], transit: ['In transit', 'acc'], invoiced: ['Invoiced', ''], paid: ['Paid', 'pos'], cancelled: ['Cancelled', 'mute'] };
+const ORANK = { confirmed: 0, partial: 1, scheduled: 2, transit: 3, invoiced: 4, paid: 5, cancelled: 6 };
+const IST = { open: ['Open', ''], part: ['Part-paid', 'warn'], overdue: ['Overdue', 'neg'], paid: ['Paid', 'pos'] };
+const balOf = (c) => r2((ix().ibc.get(c.id) || []).reduce((s, i) => s + i.gross, 0) - (ix().pbc.get(c.id) || []).reduce((s, p) => s + p.amount, 0));
+const overOf = (c) => r2((ix().ibc.get(c.id) || []).reduce((s, i) => s + (ist(i) === 'overdue' ? openOf(i) : 0), 0));
+const pipeOf = (c) => S.orders.filter((o) => o.cust === c.id && o.status !== 'cancelled').reduce((s, o) => { const q = oq(o); return s + (q.tr + q.pl + q.rem) * o.price * (c.cc === 'DE' ? 1.19 : 1); }, 0);
+S.cust.forEach((c) => { const g = (ix().ibc.get(c.id) || []).reduce((s, i) => s + i.gross, 0) / 5.3; c.limit = Math.max(50000, Math.round(g * (c.beh === 2 ? .9 : 1.6) / 25000) * 25000); });
+A((TODAY - 6) * 1440 + 615, 'admin', 'Customer', `Changed credit limit for ${CU(9).name} from ${eur0(CU(9).limit + 50000)} to ${eur0(CU(9).limit)}`);
+S.audit.sort((a, b) => b.t - a.t);
+function tst(t) {
+  if (t.ws != null) return 'workshop';
+  if (S.trips.some((x) => x.truck === t.id && x.status === 'transit')) return 'transit';
+  if (S.trips.some((x) => x.truck === t.id && x.status === 'planned' && x.day === TODAY)) return 'loading';
+  return 'available';
+}
+const TST = { transit: ['On the road', 'acc'], loading: ['Loading today', 'warn'], available: ['Available', 'pos'], workshop: ['In workshop', 'neg'] };
+const mst = (m) => (m.due < TODAY ? 'over' : m.due - TODAY <= 30 ? 'soon' : 'ok');
+const MST = { over: ['Overdue', 'neg'], soon: ['Due soon', 'warn'], ok: ['Scheduled', ''] };
+const maintOver = () => S.maint.filter((m) => mst(m) === 'over');
+function monthly() {
+  const M = MONTHS.map((m) => ({ m, vol: 0, rev: 0, cost: 0, n: 0 }));
+  S.trips.forEach((t) => { if (t.status !== 'delivered') return; const o = OR(t.order), k = mon(t.day); M[k].vol += t.vol; M[k].rev += t.vol * o.price; M[k].cost += t.vol * COST[k]; M[k].n++; });
+  M.forEach((x) => { x.mar = x.rev - x.cost; x.pct = x.rev ? x.mar / x.rev * 100 : 0; }); return M;
+}
+function reconcile() {
+  const L = ix().L, st = stock();
+  console.assert(Math.abs(L[L.length - 1].bal - st) < .05, 'ledger must end at the tank level');
+  const dv = S.trips.filter((t) => t.status === 'delivered').reduce((s, t) => s + t.vol, 0);
+  console.assert(dv === S.orders.reduce((s, o) => s + oq(o).del, 0), 'order deliveries must match trips');
+  console.assert(Math.abs(S.inv.reduce((s, i) => s + i.vol, 0) - dv) < .001, 'every delivery is invoiced once');
+  const ar = S.inv.reduce((s, i) => s + i.gross, 0) - S.pay.reduce((s, p) => s + p.amount, 0);
+  console.assert(Math.abs(S.cust.reduce((s, c) => s + balOf(c), 0) - ar) < 1, 'customer balances must sum to receivables');
+  console.assert(Math.abs(monthly().reduce((s, m) => s + m.vol, 0) - dv) < .001, 'analytics must match deliveries');
+  console.assert(L.every((r) => r.bal >= 0 && r.bal <= CAP), 'stock stays within tank limits');
+}
+console.assert(Math.round(stock()) === 847, 'seed stock must reconcile to 847 m³');
+reconcile();
+
+/* ── shell ────────────────────────────────────────────── */
+const PAGES = { dashboard: ['Dashboard', 'home'], orders: ['Orders', 'box'], base: ['Base & stock', 'drop'], fleet: ['Fleet', 'truck'], customers: ['Customers', 'users'], finance: ['Invoices & payments', 'coin'], analytics: ['Analytics', 'chart'], audit: ['Audit log', 'shield'] };
+const PAGE_PERM = { finance: 'finance', audit: 'audit' };
+let page = 'dashboard', TAB = { base: 'ledger', fleet: 'trucks', finance: 'invoices' }, AN = false, booting = false;
+const READ = new Set(), EVN = [];
+const pill = (t, c = '') => `<span class="pill ${c}"><i></i>${t}</span>`;
+const head = (title, sub, actions = '') => `<header class="head"><div><h1>${title}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+const gb = (p, html, attrs, cls = 'btn') => can(p) ? `<button type="button" class="${cls}" ${attrs}>${html}</button>` : `<button type="button" class="${cls}" disabled aria-disabled="true" title="Requires the ${NEED[p]} role">${ic('lock')}${html.replace(/<svg[\s\S]*?<\/svg>/, '')}</button>`;
+const deny = (p) => toast(`Not available for your role. Requires ${NEED[p]}.`);
+const tabs = (pg, list) => `<div class="tabs" role="tablist">${list.map(([k, l]) => `<button type="button" role="tab" aria-selected="${TAB[pg] === k}" data-tab="${pg}:${k}" class="${TAB[pg] === k ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+const permState = (p, what) => `<div class="card perm">${ic('lock')}<h2>${what} is not available for your role</h2><p>You are signed in as ${USERS[me].role}. ${what} requires the ${NEED[p]} role. Ask an Admin to change your access, or switch account.</p><button class="btn" type="button" data-act="signOut">${ic('out')}Switch account</button></div>`;
+
+function notes() {
+  const L = [], st = stock();
+  if (st < REORDER) { const t = ix().L.reduce((a, r, i, X) => (r.bal < REORDER && (!i || X[i - 1].bal >= REORDER) ? r.t : a), now()); L.push({ key: 'low' + t, sev: 'neg', t, title: 'Low base stock', text: `${fmt(st)} m³ in the tank, below the ${fmt(REORDER)} m³ reorder level.`, go: 'base' }); }
+  pendingRc().forEach((r) => L.push({ key: 'rc' + r.id, sev: 'warn', t: r.t, title: 'Receipt awaiting confirmation', text: `${r.no} from ${r.sup}, ${fmtD(r.v15, 1)} m³ at 15 °C.`, go: 'base' }));
+  if (can('fleet')) S.maint.filter((m) => mst(m) === 'over' || m.due - TODAY <= 7).forEach((m) => L.push({ key: 'mt' + m.id + ':' + m.due, sev: m.due < TODAY ? 'neg' : 'warn', t: Math.min(now(), (m.due - 7) * 1440 + 360), title: m.due < TODAY ? 'Maintenance overdue' : 'Maintenance due this week', text: `${TRK(m.truck).name} (${TRK(m.truck).plate}): ${m.kind}, due ${fd(m.due)}.`, go: 'fleet' }));
+  if (can('finance')) {
+    const od = overdueInv(); if (od.length) L.push({ key: 'od' + od.length, sev: 'warn', t: TODAY * 1440 + 360, title: `${plural(od.length, 'invoice')} overdue`, text: `${eur(od.reduce((s, i) => s + openOf(i), 0))} past the due date.`, go: 'finance' });
+    S.cust.filter((c) => balOf(c) > c.limit).forEach((c) => L.push({ key: 'cl' + c.id, sev: 'neg', t: TODAY * 1440 + 362, title: 'Credit limit exceeded', text: `${c.name}: ${eur0(balOf(c))} of ${eur0(c.limit)}.`, go: 'customers' }));
+  }
+  return L.concat(EVN).sort((a, b) => b.t - a.t);
+}
+
+function chrome() {
+  const cnt = { orders: S.orders.filter((o) => ['confirmed', 'partial'].includes(ost(o))).length, base: pendingRc().length, fleet: maintOver().length, finance: can('finance') ? overdueInv().length : 0 };
+  const item = (k) => { const [label, icon] = PAGES[k], locked = PAGE_PERM[k] && !can(PAGE_PERM[k]); return `<a data-page="${k}" role="link" tabindex="0" ${page === k ? 'aria-current="page"' : ''}>${ic(icon)}<span>${label}</span>${locked ? `<span class="lk" title="Not available for your role">${ic('lock')}</span>` : cnt[k] ? `<span class="count" title="Needs attention">${cnt[k]}</span>` : ''}</a>`; };
+  $('#nav').innerHTML = item('dashboard') + '<div class="nav-label">Operations</div>' + ['orders', 'base', 'fleet'].map(item).join('') + '<div class="nav-label">Finance</div>' + ['customers', 'finance'].map(item).join('') + '<div class="nav-label">Insights</div>' + ['analytics', 'audit'].map(item).join('');
+  const tb = [['dashboard', 'Home', 'home'], ['orders', 'Orders', 'box'], ['base', 'Stock', 'drop'], ['customers', 'Customers', 'users']];
+  $('#tabbar').innerHTML = tb.map(([k, l, i]) => `<a data-page="${k}" role="link" tabindex="0">${ic(i)}<span>${l}</span>${cnt[k] ? `<b class="count">${cnt[k]}</b>` : ''}</a>`).join('') + `<a data-act="more" role="button" tabindex="0" class="${['fleet', 'finance', 'analytics', 'audit'].includes(page) ? 'on' : ''}">${ic('more')}<span>More</span></a>`;
+  const u = USERS[me], un = notes().filter((n) => !READ.has(n.key)).length;
+  $('#ub').innerHTML = `<span class="avatar">${u.ini}</span><div><b>${esc(u.name)}</b><small>${u.role}</small></div>`;
+  $('#ub').setAttribute('aria-label', `Account menu, ${u.name}, ${u.role}`);
+  $('#bell').innerHTML = ic('bell') + (un ? `<span class="dot">${un > 9 ? '9+' : un}</span>` : '');
+  $('#bell').setAttribute('aria-label', `Notifications, ${un} unread`);
+  ctx();
+  setNav(page);
+}
+const ctx = () => { $('#ctx').innerHTML = `<i><span class="live" aria-hidden="true"></span>Leipzig base</i> · ${DL.format(dt(TODAY))} · ${hm(CLK)}`; };
+
+function render() {
+  if (!signedIn) return;
+  const ae = document.activeElement, fq = ae && ae.dataset ? ae.dataset.q : null, cp = fq ? ae.selectionStart : 0;
+  chrome();
+  $('#main').innerHTML = booting ? skeleton() : ({ dashboard, orders, base, fleet, customers, finance, analytics, audit })[page]();
+  if (!booting) mountCharts();
+  if (DR) drawDrawer();
+  if (fq) { const el = $(`[data-q="${fq}"]`); if (el) { el.focus(); try { el.setSelectionRange(cp, cp); } catch (e) { /* type=search */ } } }
+}
+function go(p) { page = p; closePop(); closeDrawer(); render(); window.scrollTo(0, 0); }
+const skeleton = () => `<div class="sk" style="height:30px;width:260px;margin-bottom:8px"></div><div class="sk" style="height:16px;width:340px;max-width:100%;margin-bottom:24px"></div><div class="kgrid">${'<div class="sk" style="height:92px"></div>'.repeat(5)}</div><div class="grid"><div class="sk c5" style="height:320px"></div><div class="sk c7" style="height:320px"></div></div>`;
+
+/* ── tables: search, filter chips, sort, paging, selection, export ── */
+const TS = {}, TC = {}, PS = 15;
+function table(cfg) {
+  TC[cfg.key] = cfg;
+  const st = TS[cfg.key] || (TS[cfg.key] = { q: '', sort: cfg.sort, dir: cfg.dir || -1, page: 0, f: 'all', sel: new Set() });
+  const all = cfg.rows();
+  const chips = cfg.filters ? `<div class="chips" role="group" aria-label="Filter ${cfg.noun}">${cfg.filters.map(([id, label, fn]) => `<button type="button" class="chip ${st.f === id ? 'on' : ''}" aria-pressed="${st.f === id}" data-chip="${cfg.key}:${id}">${label}<span>${fmt(all.filter(fn).length)}</span></button>`).join('')}</div>` : '';
+  return `<div class="toolbar"><label class="search">${ic('search')}<span class="sr">Search ${cfg.noun}</span><input type="search" data-q="${cfg.key}" value="${esc(st.q)}" placeholder="${cfg.ph}" autocomplete="off"><kbd aria-hidden="true">/</kbd></label><span class="sp"></span>${cfg.tools || ''}${cfg.csv ? `<button type="button" class="btn" data-act="export" data-key="${cfg.key}">${ic('download')}Export CSV</button>` : ''}</div>${chips}<div id="tb-${cfg.key}">${tbody(cfg.key)}</div>`;
+}
+function tbody(key) {
+  const cfg = TC[key], st = TS[key];
+  let rows = cfg.rows();
+  const f = cfg.filters && cfg.filters.find((x) => x[0] === st.f); if (f) rows = rows.filter(f[2]);
+  const q = st.q.trim().toLowerCase(); if (q) rows = rows.filter((r) => cfg.text(r).toLowerCase().includes(q));
+  const col = cfg.cols.find((c) => c.k === st.sort);
+  if (col && col.v) rows = rows.map((r) => [col.v(r), r]).sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0) * st.dir).map((x) => x[1]);
+  st.vis = rows;
+  const total = rows.length, pages = Math.max(1, Math.ceil(total / PS)); st.page = Math.max(0, Math.min(st.page, pages - 1));
+  const view = rows.slice(st.page * PS, st.page * PS + PS), bulk = cfg.bulk;
+  const cols = (bulk ? '22px ' : '') + cfg.cols.map((c) => c.w).join(' '), colsm = (bulk ? '22px ' : '') + cfg.cols.filter((c) => !c.hm).map((c) => c.wm || c.w).join(' ');
+  if (!total) return `<div class="empty">${ic(q ? 'search' : 'list')}<b>${q ? `No ${cfg.noun} match “${esc(st.q)}”` : `No ${cfg.noun} here yet`}</b><span>${q || st.f !== 'all' ? 'Try a different search or filter.' : cfg.emptyText || ''}</span>${q || st.f !== 'all' ? `<button type="button" class="btn sm" data-act="clearFilters" data-key="${key}">Clear search and filters</button>` : ''}</div>`;
+  const allSel = view.length && view.every((r) => st.sel.has(r.id));
+  const th = `<div class="tr th">${bulk ? `<span class="ck"><input type="checkbox" data-ckall="${key}" ${allSel ? 'checked' : ''} aria-label="Select all on this page"></span>` : ''}${cfg.cols.map((c) => `<span class="${c.cls || ''} ${c.hm ? 'hm' : ''}" ${c.v ? `aria-sort="${st.sort === c.k ? (st.dir > 0 ? 'ascending' : 'descending') : 'none'}"` : ''}>${c.v ? `<button type="button" class="sort ${st.sort === c.k ? 'on' : ''}" data-sort="${key}:${c.k}">${c.l}${ic(st.sort === c.k && st.dir > 0 ? 'up' : 'down')}</button>` : c.l}</span>`).join('')}</div>`;
+  const tr = view.map((r) => `<div class="tr ${st.sel.has(r.id) ? 'sel' : ''}" ${cfg.open ? `data-row="${key}" data-rid="${r.id}" tabindex="0"` : ''}>${bulk ? `<span class="ck"><input type="checkbox" data-ck="${key}:${r.id}" ${st.sel.has(r.id) ? 'checked' : ''} aria-label="Select ${esc(cfg.label(r))}"></span>` : ''}${cfg.cols.map((c) => `<span class="${c.cls || ''} ${c.hm ? 'hm' : ''}">${c.c(r)}</span>`).join('')}</div>`).join('');
+  const bar = bulk && st.sel.size ? `<div class="bulk" role="region" aria-label="Bulk actions"><b>${plural(st.sel.size, 'selected', 'selected')}</b>${bulk.map(([op, label, p]) => p ? gb(p, label, `data-act="bulk" data-key="${key}" data-op="${op}"`, 'btn sm') : `<button type="button" class="btn sm" data-act="bulk" data-key="${key}" data-op="${op}">${label}</button>`).join('')}<button type="button" class="btn sm" data-act="clearSel" data-key="${key}">Clear</button></div>` : '';
+  return `${bar}<div class="tbl" role="table" aria-label="${cfg.noun}" style="--cols:${cols};--colsm:${colsm}">${th}${tr}</div>
+    <div class="pager"><span>${fmt(st.page * PS + 1)}–${fmt(Math.min(total, st.page * PS + PS))} of ${fmt(total)}</span><div><button type="button" class="btn sm" data-pg="${key}:-1" ${st.page ? '' : 'disabled'} aria-label="Previous page">${ic('left')}</button><span>Page ${st.page + 1} of ${pages}</span><button type="button" class="btn sm" data-pg="${key}:1" ${st.page < pages - 1 ? '' : 'disabled'} aria-label="Next page">${ic('right')}</button></div></div>`;
+}
+const refresh = (key) => { const el = $('#tb-' + key); if (el) el.innerHTML = tbody(key); };
+function csv(name, headRow, rows) {
+  const q = (v) => { const s = String(v == null ? '' : v); return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const url = URL.createObjectURL(new Blob(['﻿' + [headRow, ...rows].map((r) => r.map(q).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+  A(now(), me, 'Export', `Exported ${plural(rows.length, 'row')} to ${name}`); S.audit.sort((a, b) => b.t - a.t);
+  toast(`Exported ${plural(rows.length, 'row')} to ${name}`);
+}
+
+/* ── map ─────────────────────────────────────────────── */
+const PX = (lo, la) => [320 + (lo - 12.37) * 50.4, 122 - (la - 51.34) * 80];
+const MAJOR = new Set(['Berlin', 'Hanover', 'Frankfurt', 'Nuremberg', 'Wrocław', 'Poznań', 'Prague', 'Brno', 'Dresden']);
+const LBL = { Dresden: [11, 4, 'start'], Chemnitz: [-11, 4, 'end'], 'Ústí nad Labem': [11, 12, 'start'], Liberec: [11, 4, 'start'], 'Plzeň': [-11, 4, 'end'], Erfurt: [-11, 4, 'end'], Magdeburg: [-11, 4, 'end'], Kassel: [0, -12, 'middle'] };
+const posOn = (city, p) => { const a = PX(...HUB), b = PX(...CITY[city]); return [a[0] + (b[0] - a[0]) * p, a[1] + (b[1] - a[1]) * p]; };
+function mapSVG() {
+  const trs = transit(), on = new Set(trs.map((t) => OR(t.order).site));
+  const [hx, hy] = PX(...HUB);
+  const border = `<path class="bd" d="M${PX(14.8, 50.87).join(',')} L${PX(15.04, 51.27).join(',')} L${PX(14.6, 52.6).join(',')} L${PX(14.2, 53.4).join(',')}"/><path class="bd" d="M${PX(12.1, 50.3).join(',')} L${PX(13.0, 50.45).join(',')} L${PX(14.3, 50.88).join(',')} L${PX(14.8, 50.87).join(',')} L${PX(16.3, 50.66).join(',')} L${PX(18.3, 49.9).join(',')}"/><path class="bd" d="M${PX(12.1, 50.3).join(',')} L${PX(12.5, 49.7).join(',')} L${PX(13.8, 48.8).join(',')}"/>`;
+  const sites = Object.entries(CITY).map(([n, [lo, la]]) => {
+    const [x, y] = PX(lo, la), a = on.has(n), [dx, dy, an] = LBL[n] || [0, y < hy ? -12 : 22, 'middle'];
+    return `<line class="rt ${a ? 'on' : ''}" x1="${hx}" y1="${hy}" x2="${x}" y2="${y}"/><circle class="site ${a ? 'on' : ''}" cx="${x}" cy="${y}" r="${a ? 7 : 5}"><title>${n} · ${kmTo(n)} km</title></circle>${a || MAJOR.has(n) ? `<text x="${x + dx}" y="${y + dy}" text-anchor="${an}" ${a ? 'style="fill:var(--text)"' : ''}>${n === 'Ústí nad Labem' ? 'Ústí n. L.' : n}</text>` : ''}`;
+  }).join('');
+  return `<svg class="map" viewBox="0 0 640 320" role="img" aria-label="Map of trips on the road from Leipzig base">${border}${sites}<circle class="hub" cx="${hx}" cy="${hy}" r="10"/><text x="${hx}" y="${hy - 16}" text-anchor="middle" style="fill:var(--text);font-weight:600">Leipzig base</text>
+    ${trs.map((t) => { const [x, y] = posOn(OR(t.order).site, t.p); return `<g data-mk="${t.id}" transform="translate(${x} ${y})"><circle class="pulse" r="9"/><circle class="mk" r="8"/><title>${esc(TRK(t.truck).name)} → ${OR(t.order).site}</title></g>`; }).join('')}</svg>`;
+}
 function tankSVG(level) {
-  const W = 84, H = 210, y0 = 6, ph = H - 12, fill = ph * level;
+  const W = 84, H = 210, y0 = 6, ph = H - 12, fill = ph * Math.max(0, Math.min(1, level)), ry = y0 + ph * (1 - REORDER / CAP);
   const ticks = [0.25, 0.5, 0.75].map((t) => `<line x1="10" x2="26" y1="${y0 + ph * (1 - t)}" y2="${y0 + ph * (1 - t)}" stroke="var(--border)" stroke-width="2"/>`).join('');
   return `<svg class="tank" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${Math.round(level * 100)}% full of ${fmt(CAP)} m³">
     <rect x="1" y="${y0}" width="${W - 2}" height="${ph}" rx="14" fill="var(--raised)" stroke="var(--border)" stroke-width="2"/>
     <clipPath id="tk"><rect x="1" y="${y0}" width="${W - 2}" height="${ph}" rx="14"/></clipPath>
-    <rect x="0" y="${y0 + ph - fill}" width="${W}" height="${fill}" fill="var(--accent)" clip-path="url(#tk)" style="transition:all .6s var(--ease)"/>
-    ${ticks}</svg>`;
+    <rect x="0" y="${y0 + ph - fill}" width="${W}" height="${fill}" fill="${level * CAP < REORDER ? 'var(--warn)' : 'var(--accent)'}" clip-path="url(#tk)" style="transition:y .6s var(--ease),height .6s var(--ease)"/>
+    ${ticks}<line x1="1" x2="${W - 1}" y1="${ry}" y2="${ry}" stroke="var(--neg)" stroke-width="1.5" stroke-dasharray="4 3"><title>Reorder level ${fmt(REORDER)} m³</title></line></svg>`;
 }
 
-/* ── pages ────────────────────────────────────────────── */
-const PAGES = {
-  dashboard: ['Dashboard', 'home'], base: ['Base', 'drop'], orders: ['Orders', 'box'], fleet: ['Fleet', 'truck'], analytics: ['Analytics', 'chart'],
-};
-let page = 'dashboard', baseTab = 'receipts';
-
-function chrome() {
-  const pend = pendingRc().length;
-  const item = (k, extra = '') => `<a data-page="${k}" role="link" tabindex="0">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${extra}</a>`;
-  $('#nav').innerHTML = item('dashboard') + `<div class="nav-label">Base</div>` + item('base', pend ? `<span class="count" title="Awaiting confirmation">${pend}</span>` : '') + item('orders') + `<div class="nav-label">Operations</div>` + item('fleet') + item('analytics');
-  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" role="link" tabindex="0">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'base' && pend ? `<b class="count">${pend}</b>` : ''}</a>`).join('');
-  setNav(page);
+/* ── charts ──────────────────────────────────────────── */
+function comboSVG(w, { labels, bars, line, h = 230 }) {
+  const L = 46, R = 42, T = 16, B = 26, ph = h - T - B, pw = w - L - R, n = labels.length, step = pw / n, bw = Math.min(42, step * .5);
+  const bmax = niceMax(Math.max(...bars)), lmax = Math.max(10, Math.ceil(Math.max(...line) / 2) * 2 + 2);
+  let g = '';
+  for (let i = 0; i <= 3; i++) { const y = T + ph - ph * i / 3; g += `<line class="grid-l" x1="${L}" x2="${w - R}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmt(bmax * i / 3)}</text><text x="${w - R + 8}" y="${y + 4}">${fmtD(lmax * i / 3, 0)}%</text>`; }
+  const cx = (i) => L + step * i + step / 2, ly = (v) => T + ph - v / lmax * ph;
+  const b = bars.map((v, i) => { const bh = Math.max(2, v / bmax * ph); return `<rect x="${cx(i) - bw / 2}" y="${T + ph - bh}" width="${bw}" height="${bh}" rx="2" fill="var(--accent)" opacity="${i === n - 1 ? .55 : .9}"><title>${labels[i]}: ${fmt(v)} m³ delivered</title></rect><text x="${cx(i)}" y="${h - 8}" text-anchor="middle">${labels[i]}</text>`; }).join('');
+  const d = line.map((v, i) => `${i ? 'L' : 'M'}${cx(i).toFixed(1)},${ly(v).toFixed(1)}`).join(' ');
+  const dots = line.map((v, i) => `<circle cx="${cx(i)}" cy="${ly(v)}" r="3.5" fill="var(--c2)" stroke="var(--surface)" stroke-width="2"><title>${labels[i]}: gross margin ${fmtD(v, 1)}%</title></circle>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(labels.map((l, i) => `${l}: ${fmt(bars[i])} m³, margin ${fmtD(line[i], 1)}%`).join('; '))}">${g}${b}<path d="${d}" fill="none" stroke="var(--c2)" stroke-width="2" stroke-linejoin="round"/>${dots}</svg>`;
+}
+function linesSVG(w, { labels, series, h = 210, unit = '' }) {
+  const L = 50, R = 16, T = 14, B = 26, ph = h - T - B, pw = w - L - R, n = labels.length, all = series.flatMap((s) => s.v);
+  const lo = Math.floor(Math.min(...all) / 50) * 50 - 25, hi = Math.ceil(Math.max(...all) / 50) * 50 + 25;
+  const X = (i) => L + pw * i / (n - 1), Y = (v) => T + ph - (v - lo) / (hi - lo) * ph;
+  let g = ''; for (let i = 0; i <= 3; i++) { const v = lo + (hi - lo) * i / 3, y = Y(v); g += `<line class="grid-l" x1="${L}" x2="${w - R}" y1="${y}" y2="${y}"/><text x="${L - 8}" y="${y + 4}" text-anchor="end">${fmt(v)}</text>`; }
+  const xs = labels.map((l, i) => `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${l}</text>`).join('');
+  const p = series.map((s) => `<path d="${s.v.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')}" fill="none" stroke="${s.col}" stroke-width="2" ${s.dash ? 'stroke-dasharray="5 4"' : ''}/>${s.v.map((v, i) => `<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${s.col}"><title>${s.name}, ${labels[i]}: €${fmt(v)}${unit}</title></circle>`).join('')}`).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(series.map((s) => s.name + ': ' + s.v.map((v, i) => labels[i] + ' €' + fmt(v)).join(', ')).join('; '))}">${g}${xs}${p}</svg>`;
+}
+function stockSVG(w) {
+  const h = 200, L = 46, R = 12, T = 12, B = 26, ph = h - T - B, pw = w - L - R, days = 42, L0 = ix().L, pts = [];
+  let j = 0, bal = 0;
+  for (let d = TODAY - days + 1; d <= TODAY; d++) { const end = d === TODAY ? now() : (d + 1) * 1440; while (j < L0.length && L0[j].t < end) bal = L0[j++].bal; pts.push(bal); }
+  const X = (i) => L + pw * i / (days - 1), Y = (v) => T + ph - v / CAP * ph;
+  let g = ''; [0, 1000, 2000, CAP].forEach((v) => { g += `<line class="grid-l" x1="${L}" x2="${w - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${fmt(v)}</text>`; });
+  const d = pts.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+  const xs = pts.map((_, i) => ((days - 1 - i) % 7 ? '' : `<text x="${X(i)}" y="${h - 8}" text-anchor="middle">${fds(TODAY - days + 1 + i)}</text>`)).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Base stock, last ${days} days, from ${fmt(pts[0])} to ${fmt(pts[days - 1])} m³">${g}<path d="${d} L${X(days - 1)},${Y(0)} L${X(0)},${Y(0)}Z" fill="var(--accent)" opacity=".1"/><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="${L}" x2="${w - R}" y1="${Y(REORDER)}" y2="${Y(REORDER)}" stroke="var(--neg)" stroke-dasharray="5 4"/><text x="${w - R}" y="${Y(REORDER) - 6}" text-anchor="end" style="fill:var(--neg)">Reorder level ${fmt(REORDER)} m³</text>${xs}</svg>`;
+}
+function mountCharts() {
+  const M = monthly();
+  const a = $('#ch-months'); if (a) chart(a, (w) => barsSVG(w, { labels: M.map((m) => m.m), values: M.map((m) => m.vol), unit: 'm³' }));
+  const b = $('#ch-combo'); if (b) chart(b, (w) => comboSVG(w, { labels: M.map((m) => m.m), bars: M.map((m) => m.vol), line: M.map((m) => m.pct) }));
+  const c = $('#ch-price'); if (c) chart(c, (w) => linesSVG(w, { labels: M.map((m) => m.m), unit: '/m³', series: [{ name: 'Average sell price', col: 'var(--accent)', v: M.map((m) => Math.round(m.rev / (m.vol || 1))) }, { name: 'Purchase cost', col: 'var(--c2)', dash: 1, v: COST }] }));
+  const s = $('#ch-stock'); if (s) chart(s, stockSVG);
 }
 
-function render() {
-  chrome();
-  $('#main').innerHTML = ({ dashboard, base, orders, fleet, analytics })[page]();
-  mountCharts();
-  window.scrollTo(0, 0);
-}
-function go(p) { page = p; render(); }
-document.addEventListener('click', (e) => {
-  const a = e.target.closest('[data-page]'); if (a) { go(a.dataset.page); return; }
-  const act = e.target.closest('[data-act]'); if (act) { act.blur(); ACT[act.dataset.act](act.dataset); return; }
-  const row = e.target.closest('[data-open]'); if (row) openOrder(+row.dataset.open);
-  const tab = e.target.closest('[data-tab]'); if (tab) { baseTab = tab.dataset.tab; render(); }
-});
-document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
-
-const head = (title, sub, actions = '') => `<header class="head"><div><h1>${title}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
-const mainActions = `<button class="btn" data-act="newTrip">${ic('truck')}New trip</button><button class="btn primary" data-act="newReceipt">${ic('plus')}Log fuel receipt</button>`;
-
+/* ── dashboard ───────────────────────────────────────── */
 function dashboard() {
-  const pend = pendingRc();
-  const pv = pend.reduce((s, r) => s + r.vol, 0);
-  const trips = transitTrips();
-  const level = stock() / CAP;
-  return head('Dashboard', `${TODAY} · Leipzig base`, mainActions) +
-    (pend.length ? `<div class="finding">${ic('alert')}<span>Receipt ${esc(pend[0].ttn)} from ${esc(pend[0].src)}, ${pend[0].vol} m³, awaiting confirmation. Base stock will then be ${fmt(stock() + pv)} m³.</span><button class="btn sm" data-act="confirmRc" data-id="${pend[0].id}">Confirm</button></div>` : '') +
-    `<div class="kpis">
-      <div class="kpi"><b>€${mln(revenue())}<small>M</small></b><span>Revenue on delivered fuel</span></div>
-      <div class="kpi"><b>${fmt(delivered())}<small>m³</small></b><span>Delivered to customers</span></div>
-      <div class="kpi"><b>${S.orders.length}</b><span>Active orders</span></div>
+  const st = stock(), pend = pendingRc(), pv = pend.reduce((s, r) => s + r.v15, 0), trs = transit(), today = S.trips.filter((t) => t.status === 'planned' && t.day === TODAY);
+  const M = monthly(), jun = M[5], od = overdueInv(), odSum = od.reduce((s, i) => s + openOf(i), 0), u = USERS[me];
+  const greet = CLK < 720 ? 'Good morning' : CLK < 1080 ? 'Good afternoon' : 'Good evening';
+  const waiting = S.orders.filter((o) => ['confirmed', 'partial'].includes(ost(o)));
+  let finding = '';
+  if (st < REORDER) finding = `<div class="finding neg" role="alert">${ic('alert')}<span><b>Low base stock.</b> ${fmt(st)} m³ is below the ${fmt(REORDER)} m³ reorder level.${pend.length ? ` Confirming ${pend[0].no} (${fmtD(pend[0].v15, 1)} m³) brings it to ${fmt(st + pv)} m³.` : ' Book a supplier delivery.'}</span>${pend.length ? gb('stock', 'Confirm receipt', `data-act="confirmRc" data-id="${pend[0].id}"`, 'btn sm') : gb('stock', 'Log receipt', 'data-act="newReceipt"', 'btn sm')}</div>`;
+  else if (pend.length) finding = `<div class="finding">${ic('alert')}<span>Receipt ${pend[0].no} from ${esc(pend[0].sup)}, ${fmtD(pend[0].v15, 1)} m³ at 15 °C, is awaiting confirmation.</span>${gb('stock', 'Confirm', `data-act="confirmRc" data-id="${pend[0].id}"`, 'btn sm')}</div>`;
+  const acts = me === 'accountant' ? `<button type="button" class="btn" data-page="customers">${ic('users')}Customers</button><button type="button" class="btn primary" data-page="finance">${ic('coin')}Open receivables</button>` : `${gb('stock', `${ic('drop')}Log receipt`, 'data-act="newReceipt"')}${gb('orders', `${ic('plus')}New order`, 'data-act="newOrder"', 'btn primary')}`;
+  const k5 = can('finance') ? `<button type="button" class="kc ${od.length ? 'alert' : ''}" data-page="finance"><span>Overdue receivables</span><b>${eurC(odSum)}</b><em>${plural(od.length, 'invoice')} past due</em></button>` : `<button type="button" class="kc ${waiting.length ? 'warnk' : ''}" data-page="orders"><span>Awaiting a truck</span><b>${fmt(waiting.length)}<small>${waiting.length === 1 ? 'order' : 'orders'}</small></b><em>${fmt(waiting.reduce((s, o) => s + oq(o).rem, 0))} m³ to schedule</em></button>`;
+  const right = can('finance') ? (() => {
+    const rows = S.cust.map((c) => [c, overOf(c)]).filter((x) => x[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 5), mx = rows.length ? rows[0][1] : 1;
+    return `<section class="card c5"><div class="card-h"><h2>Overdue by customer</h2><span>${eur0(odSum)} in total</span></div>${rows.length ? rows.map(([c, v]) => barRow(`<a data-act="openCust" data-id="${c.id}" href="#" style="text-decoration:underline;text-decoration-color:var(--border)">${esc(c.name)}</a>`, v / mx * 100, eur0(v), c.cc)).join('') : '<div class="empty"><b>Nothing overdue</b><span>Every invoice is within its payment terms.</span></div>'}</section>`;
+  })() : `<section class="card c5"><div class="card-h"><h2>Orders awaiting a truck</h2><span>${plural(waiting.length, 'order')}</span></div>${waiting.length ? waiting.slice(0, 5).map((o) => `<div class="trip"><div class="trip-ic">${ic('box')}</div><div><b>${esc(CU(o.cust).name)}</b><span>${o.no} · ${fmt(oq(o).rem)} m³ to ${esc(o.site)}</span></div>${gb('ops', 'Schedule', `data-act="schedule" data-id="${o.id}"`, 'btn sm')}</div>`).join('') : '<div class="empty"><b>All orders scheduled</b></div>'}</section>`;
+  return head(`${greet}, ${esc(u.name.split(' ')[0])}`, `${DL.format(dt(TODAY))} · ${u.role} view`, acts) + finding +
+    `<div class="kgrid">
+      <button type="button" class="kc ${st < REORDER ? 'warnk' : ''}" data-page="base"><span>Base stock</span><b>${fmt(st)}<small>m³</small></b><em>${pct(st, CAP)}% of ${fmt(CAP)} m³ capacity</em></button>
+      <button type="button" class="kc" data-page="fleet"><span>On the road</span><b>${fmt(trs.reduce((s, t) => s + t.vol, 0))}<small>m³</small></b><em>${plural(trs.length, 'trip')} · ${fmt(today.length)} more to load today</em></button>
+      <button type="button" class="kc" data-page="orders"><span>Delivered in June</span><b>${fmt(jun.vol)}<small>m³</small></b><em>${plural(jun.n, 'delivery', 'deliveries')} to date</em></button>
+      <button type="button" class="kc" data-page="analytics"><span>Revenue in June (net)</span><b>${eurC(jun.rev)}</b><em>Gross margin ${fmtD(jun.pct, 1)}%</em></button>
+      ${k5}
     </div>
     <div class="grid">
-      <section class="card c5"><div class="card-h"><h2>Base stock</h2><span>capacity ${fmt(CAP)} m³</span></div>
-        <div class="tank-wrap">${tankSVG(level)}
-          <div class="tank-list"><div><div class="big">${fmt(stock())}<small>m³</small></div><div class="muted" style="margin-top:6px">${pctOf(stock(), CAP)}% of capacity</div></div>
-            <dl><dt>Received in June</dt><dd class="pos">${signed(receivedJun())}</dd><dt>Shipped in June</dt><dd>${signed(-S.shippedJun)}</dd><dt>Awaiting receipt</dt><dd class="${pv ? 'warn' : 'muted'}">${pv ? fmt(pv) : '—'}</dd></dl></div></div>
-        <ul class="feedl" aria-label="Events">${LOG.slice(0, 5).map(([h, x]) => `<li><b>${h}</b><span>${esc(x)}</span></li>`).join('')}</ul>
+      <section class="card c5"><div class="card-h"><h2>Base stock</h2><span>tank T1 · capacity ${fmt(CAP)} m³</span></div>
+        <div class="tank-wrap">${tankSVG(st / CAP)}
+          <div class="tank-list"><div><div class="big">${fmt(st)}<small>m³</small></div><div class="muted" style="margin-top:6px">${pct(st, CAP)}% full · at 15 °C</div></div>
+            <dl><dt>Received in June</dt><dd class="pos">${signed(Math.round(S.rc.filter((r) => r.ok && mon(r.day) === 5).reduce((s, r) => s + r.v15, 0)))}</dd><dt>Loaded in June</dt><dd>${signed(-S.trips.filter((t) => loaded(t) && mon(t.day) === 5).reduce((s, t) => s + t.vol, 0))}</dd><dt>Awaiting confirmation</dt><dd class="${pv ? 'warn' : 'muted'}">${pv ? fmtD(pv, 1) : '—'}</dd><dt>Reorder level</dt><dd>${fmt(REORDER)}</dd></dl></div></div>
+        <ul class="feedl" aria-label="Latest activity">${S.audit.filter((a) => a.cat !== 'Access' && a.cat !== 'Export').slice(0, 5).map((a) => `<li><b>${Math.floor(a.t / 1440) === TODAY ? hm(a.t % 1440) : fds(Math.floor(a.t / 1440))}</b><span>${esc(a.text)}</span></li>`).join('')}</ul>
       </section>
-      <section class="card c7"><div class="card-h"><h2>Trips on the road${trips.length ? ` · ${trips.length}` : ''}</h2><span>${fmt(transitVol())} m³ on the road</span></div>
-        ${mapSVG()}${trips.length ? trips.map((t) => `<div class="trip"><div class="trip-ic">${ic('truck')}</div><div><b>${esc(truck(t.truck).name)} → ${esc(t.site)}</b><span>${esc(truck(t.truck).driver)} · ${t.vol} m³ · left ${t.date.slice(0, 5)}</span><div class="tp"><i data-tp="${t.id}" style="width:${Math.round((TP[t.id] || 0) * 100)}%"></i></div></div><button class="btn sm" data-act="deliver" data-id="${t.id}">${ic('check')}Delivered</button></div>`).join('') : `<div class="empty">All trips delivered.<br><button class="btn sm" style="margin-top:10px" data-act="newTrip">Create trip</button></div>`}
+      <section class="card c7"><div class="card-h"><h2>Trips on the road${trs.length ? ` · ${trs.length}` : ''}</h2><span>${fmt(trs.reduce((s, t) => s + t.vol, 0))} m³ on the road · live</span></div>
+        ${mapSVG()}${trs.length ? trs.map((t) => { const o = OR(t.order); return `<div class="trip"><div class="trip-ic">${ic('truck')}</div><div><b>${esc(TRK(t.truck).name)} → ${esc(o.site)}</b><span>${esc(DRV(t.driver).name)} · ${t.vol} m³ · ${esc(CU(o.cust).name)} · ETA ${hm(t.dep + durTo(o.site))}</span><div class="tp"><i data-tp="${t.id}" style="width:${Math.round(t.p * 100)}%"></i></div></div>${gb('ops', `${ic('check')}Delivered`, `data-act="deliver" data-id="${t.id}"`, 'btn sm')}</div>`; }).join('') : `<div class="empty"><b>No trucks on the road</b><span>Every loaded trip has been delivered.</span></div>`}
+        ${today.length ? `<div class="sec">Still to load today · ${today.length}</div>${today.map((t) => `<div class="trip"><div class="trip-ic" style="color:var(--warn)">${ic('clock')}</div><div><b>${esc(TRK(t.truck).name)} → ${esc(OR(t.order).site)}</b><span>${t.no} · ${t.vol} m³ · ETD ${hm(t.etd)} · ${esc(DRV(t.driver).name)}</span></div>${gb('ops', 'Load &amp; dispatch', `data-act="dispatch" data-id="${t.id}"`, 'btn sm')}</div>`).join('')}` : ''}
       </section>
-      <section class="card c7"><div class="card-h"><h2>Monthly shipments, m³</h2><span>June includes trips on the road</span></div><div id="ch-months"></div></section>
-      <section class="card c5"><div class="card-h"><h2>Order fulfilment</h2><span>delivered of ordered</span></div>
-        ${S.orders.map((o) => barRow(esc(o.client), pctOf(o.delivered, o.total), `${pctOf(o.delivered, o.total)}%`, `${fmt(o.delivered)} of ${fmt(o.total)} m³`)).join('')}
-      </section>
+      <section class="card c7"><div class="card-h"><h2>Monthly deliveries, m³</h2><span>June to date</span></div><div id="ch-months"></div></section>
+      ${right}
     </div>`;
 }
 
-function base() {
-  const rc = `<div class="tbl" style="--cols:92px 1.4fr 1.2fr 80px 130px;--colsm:1.4fr 70px 110px">
-      <div class="tr th"><span class="hm">Date</span><span>Supplier</span><span class="hm">BOL</span><span class="r">m³</span><span class="r">Status</span></div>
-      ${S.receipts.map((r) => `<div class="tr"><span class="hm muted">${r.date}</span><span class="cell-main"><b>${esc(r.src)}</b><span class="hm" style="display:none"></span></span><span class="hm muted">${esc(r.ttn)}</span><span class="r">${r.vol}</span><span class="r">${r.ok ? '<span class="pill pos"><i></i>Received</span>' : `<button class="btn sm primary" data-act="confirmRc" data-id="${r.id}">Receive</button>`}</span></div>`).join('')}</div>`;
-  const tr = `<div class="tbl" style="--cols:92px 1.3fr 1.2fr 1fr 70px 110px;--colsm:1.2fr 1fr 60px">
-      <div class="tr th"><span class="hm">Date</span><span>Truck</span><span class="hm">Driver</span><span>Site</span><span class="r">m³</span><span class="r hm">Status</span></div>
-      ${S.trips.map((t) => `<div class="tr"><span class="hm muted">${t.date}</span><span class="cell-main"><b>${esc(truck(t.truck).name)}</b></span><span class="hm muted">${esc(truck(t.truck).driver)}</span><span>${esc(t.site)}</span><span class="r">${t.vol}</span><span class="r hm">${t.status === 'transit' ? '<span class="pill warn"><i></i>In transit</span>' : '<span class="pill pos"><i></i>Delivered</span>'}</span></div>`).join('')}</div>`;
-  return head('Base', `Stock ${fmt(stock())} of ${fmt(CAP)} m³ · ${pctOf(stock(), CAP)}%`, mainActions) +
-    `<div class="card" style="margin-bottom:var(--gap)"><div class="bar thick"><i style="width:${pctOf(stock(), CAP)}%"></i></div>
-      <div style="display:flex;justify-content:space-between;margin-top:10px" class="muted"><span>0</span><span>${fmt(CAP / 2)}</span><span>${fmt(CAP)} m³</span></div></div>
-    <div class="tabs" role="tablist"><button data-tab="receipts" class="${baseTab === 'receipts' ? 'on' : ''}">Receipts</button><button data-tab="trips" class="${baseTab === 'trips' ? 'on' : ''}">Trips</button></div>
-    <div class="card">${baseTab === 'receipts' ? rc : tr}</div>`;
-}
-
+/* ── orders ──────────────────────────────────────────── */
 function orders() {
-  return head('Customer orders', `${S.orders.length} active · ${fmt(S.orders.reduce((s, o) => s + o.total, 0))} m³ ordered`, `<button class="btn primary" data-act="newTrip">${ic('truck')}New trip</button>`) +
-    `<div class="card"><div class="tbl" style="--cols:1.4fr 100px 1.3fr 130px 130px;--colsm:1.3fr 110px">
-      <div class="tr th"><span>Customer</span><span class="hm">Date</span><span class="hm">Fulfilment</span><span class="r">Delivered</span><span class="r hm">Amount, €</span></div>
-      ${S.orders.map((o) => `<div class="tr" data-open="${o.id}"><span class="cell-main"><b>${esc(o.client)}</b><span>${esc(o.sites.join(', '))}</span></span><span class="hm muted">${o.date}</span><span class="hm"><div class="bar"><i style="width:${pctOf(o.delivered, o.total)}%"></i></div></span><span class="r">${fmt(o.delivered)} <span class="muted">/ ${fmt(o.total)}</span></span><span class="r hm">€${fmt(o.total * o.price)}</span></div>`).join('')}</div></div>`;
+  const open = S.orders.filter((o) => !['paid', 'invoiced', 'cancelled'].includes(ost(o)));
+  return head('Orders', `${plural(open.length, 'open order')} · ${fmt(open.reduce((s, o) => s + oq(o).rem + oq(o).pl + oq(o).tr, 0))} m³ still to deliver`, gb('orders', `${ic('plus')}New order`, 'data-act="newOrder"', 'btn primary')) +
+    `<div class="card">${table({
+      key: 'orders', noun: 'orders', ph: 'Search order, customer or site', sort: 'date', rows: () => S.orders, open: true, label: (o) => o.no,
+      text: (o) => `${o.no} ${CU(o.cust).name} ${o.site} ${CTRY[CU(o.cust).cc]}`,
+      filters: [['all', 'All', () => true], ['wait', 'Awaiting truck', (o) => ['confirmed', 'partial'].includes(ost(o))], ['sch', 'Scheduled', (o) => ost(o) === 'scheduled'], ['tr', 'In transit', (o) => ost(o) === 'transit'], ['inv', 'Invoiced', (o) => ost(o) === 'invoiced'], ['paid', 'Paid', (o) => ost(o) === 'paid'], ['x', 'Cancelled', (o) => o.status === 'cancelled']],
+      bulk: [['export', 'Export selected'], ['cancel', 'Cancel selected', 'cancel']],
+      cols: [
+        { k: 'date', l: 'Date', w: '96px', hm: 1, v: (o) => o.t, c: (o) => `<span class="muted">${fds(o.day)}</span>` },
+        { k: 'cust', l: 'Customer', w: 'minmax(0,1.7fr)', v: (o) => CU(o.cust).name, c: (o) => `<span class="cell-main"><b>${esc(CU(o.cust).name)}</b><span>${o.no} · ${esc(o.site)}, ${CU(o.cust).cc}</span></span>` },
+        { k: 'vol', l: 'Delivered / ordered', w: 'minmax(0,1.2fr)', hm: 1, v: (o) => o.vol, c: (o) => { const q = oq(o); return `<div class="vq"><span>${fmt(q.del)} / ${fmt(o.vol)} m³</span><div class="bar"><i style="width:${pct(q.del, o.vol)}%"></i></div></div>`; } },
+        { k: 'val', l: 'Value, net', w: '112px', cls: 'r', hm: 1, v: (o) => o.vol * o.price, c: (o) => `<span class="money">${eur0(o.vol * o.price)}</span>` },
+        { k: 'st', l: 'Status', w: '128px', wm: '112px', cls: 'r', v: (o) => ORANK[ost(o)], c: (o) => pill(...OST[ost(o)]) },
+      ],
+      csv: [['Order', 'Date', 'Customer', 'Country', 'Site', 'Ordered m3', 'Delivered m3', 'Price EUR/m3', 'Net EUR', 'Status'], (o) => [o.no, iso(o.day), CU(o.cust).name, CU(o.cust).cc, o.site, o.vol, oq(o).del, o.price, r2(o.vol * o.price), OST[ost(o)][0]]],
+    })}</div>`;
 }
 
+/* ── base & stock ────────────────────────────────────── */
+function base() {
+  const st = stock(), pend = pendingRc();
+  const TY = { open: ['Opening', ''], in: ['Receipt', 'pos'], out: ['Dispatch', 'acc'], adj: ['Count variance', 'warn'] };
+  const led = { key: 'ledger', noun: 'ledger entries', ph: 'Search document or counterparty', sort: 't', rows: () => ix().L, open: true, label: (r) => r.doc,
+    text: (r) => `${r.doc} ${r.who} ${TY[r.type][0]}`,
+    filters: [['all', 'All', () => true], ['in', 'Receipts', (r) => r.type === 'in'], ['out', 'Dispatches', (r) => r.type === 'out'], ['adj', 'Adjustments', (r) => r.type === 'adj' || r.type === 'open']],
+    cols: [
+      { k: 't', l: 'Date', w: '104px', v: (r) => r.t, c: (r) => `<span class="cell-main"><b>${r.t ? fds(Math.floor(r.t / 1440)) : '1 Jan'}</b><span>${r.t ? hm(r.t % 1440) : '00:00'}</span></span>` },
+      { k: 'what', l: 'Movement', w: 'minmax(0,2fr)', c: (r) => `<span class="cell-main"><b>${TY[r.type][0]} · ${esc(r.doc)}</b><span>${esc(r.who)}</span></span>` },
+      { k: 'q', l: 'Change, m³', w: '104px', cls: 'r', v: (r) => r.q, c: (r) => `<span class="${r.q > 0 ? 'pos' : r.type === 'adj' ? 'warn' : ''}">${r.type === 'open' ? fmtD(r.q, 1) : signed(r.q, (v) => fmtD(v, 1))}</span>` },
+      { k: 'bal', l: 'Balance, m³', w: '108px', cls: 'r', c: (r) => `<b>${fmtD(r.bal, 1)}</b>` },
+    ],
+    csv: [['Time', 'Type', 'Document', 'Counterparty', 'Change m3', 'Balance m3'], (r) => [r.t ? `${iso(Math.floor(r.t / 1440))} ${hm(r.t % 1440)}` : '2026-01-01 00:00', TY[r.type][0], r.doc, r.who, r1(r.q), r.bal]] };
+  const rcs = { key: 'rc', noun: 'receipts', ph: 'Search receipt, supplier or delivery note', sort: 't', rows: () => S.rc, label: (r) => r.no,
+    text: (r) => `${r.no} ${r.sup} ${r.ls}`,
+    filters: [['all', 'All', () => true], ['p', 'Awaiting confirmation', (r) => !r.ok], ['ok', 'Confirmed', (r) => r.ok]],
+    cols: [
+      { k: 't', l: 'Receipt', w: '120px', v: (r) => r.t, c: (r) => `<span class="cell-main"><b>${r.no}</b><span>${fds(r.day)}, ${hm(r.t % 1440)}</span></span>` },
+      { k: 'sup', l: 'Supplier', w: 'minmax(0,1.5fr)', v: (r) => r.sup, c: (r) => `<span class="cell-main"><b>${esc(r.sup)}</b><span>Delivery note ${r.ls}</span></span>` },
+      { k: 'obs', l: 'Observed', w: '1fr', hm: 1, c: (r) => `<span class="muted">${fmt(r.nom)} m³ at ${r.temp} °C · ${r.dens} kg/m³</span>` },
+      { k: 'v', l: 'At 15 °C', w: '96px', cls: 'r', v: (r) => r.v15, c: (r) => `<b>${fmtD(r.v15, 1)}</b>` },
+      { k: 'st', l: 'Status', w: '124px', cls: 'r', c: (r) => (r.ok ? pill('Confirmed', 'pos') : gb('stock', 'Confirm', `data-act="confirmRc" data-id="${r.id}"`, 'btn sm primary')) },
+    ],
+    csv: [['Receipt', 'Date', 'Supplier', 'Delivery note', 'Observed m3', 'Temp C', 'Density kg/m3', 'Volume at 15C m3', 'Price EUR/m3', 'Status'], (r) => [r.no, iso(r.day), r.sup, r.ls, r.nom, r.temp, r.dens, r.v15, r.price, r.ok ? 'Confirmed' : 'Pending']] };
+  return head('Base & stock', `${fmt(st)} of ${fmt(CAP)} m³ · ${pct(st, CAP)}% full · reorder level ${fmt(REORDER)} m³`, gb('stock', `${ic('plus')}Log receipt`, 'data-act="newReceipt"', 'btn primary')) +
+    `<div class="grid" style="margin-bottom:var(--gap)">
+      <section class="card c4"><div class="card-h"><h2>Tank T1</h2><span>Diesel EN 590 (B7)</span></div><div class="tank-wrap">${tankSVG(st / CAP)}<div class="tank-list"><div><div class="big">${fmt(st)}<small>m³</small></div><div class="muted" style="margin-top:6px">${st < REORDER ? `<span class="neg">${fmt(REORDER - st)} m³ below reorder level</span>` : `${fmt(st - REORDER)} m³ above reorder level`}</div></div><dl><dt>Free capacity</dt><dd>${fmt(CAP - st)}</dd><dt>Pending receipts</dt><dd class="${pend.length ? 'warn' : 'muted'}">${pend.length ? fmtD(pend.reduce((s, r) => s + r.v15, 0), 1) : '—'}</dd></dl></div></div></section>
+      <section class="card c8"><div class="card-h"><h2>Stock level, last 6 weeks</h2><span>closing balance per day, m³ at 15 °C</span></div><div id="ch-stock"></div></section>
+    </div>
+    ${tabs('base', [['ledger', 'Stock ledger'], ['rc', `Receipts${pend.length ? ` · ${pend.length} pending` : ''}`]])}
+    <div class="card">${TAB.base === 'ledger' ? table(led) : table(rcs)}</div>`;
+}
+
+/* ── fleet ───────────────────────────────────────────── */
 function fleet() {
-  const n = (s) => S.trucks.filter((t) => t.status === s).length;
-  return head('Fleet', `${S.trucks.length} trucks · ${n('transit')} in transit, ${n('base') + n('free')} available to assign`, `<button class="btn primary" data-act="newTrip">${ic('plus')}New trip</button>`) +
-    `<div class="card"><div class="tbl" style="--cols:1.3fr 90px 70px 1.2fr 1fr 80px 120px;--colsm:1.2fr 100px">
-      <div class="tr th"><span>Truck</span><span class="hm">Owner</span><span class="hm r">Tank, m³</span><span class="hm">Driver</span><span class="hm">Last site</span><span class="hm r">Trips</span><span class="r">Status</span></div>
-      ${S.trucks.map((t) => `<div class="tr"><span class="cell-main"><b>${esc(t.name)}</b><span>${esc(t.plate)}</span></span><span class="hm muted">${esc(t.owner)}</span><span class="hm r">${t.tank}</span><span class="hm">${esc(t.driver)}</span><span class="hm muted">${esc(t.last)}</span><span class="hm r">${t.trips}</span><span class="r"><span class="pill ${STATUS[t.status][1]}"><i></i>${STATUS[t.status][0]}</span></span></div>`).join('')}</div></div>`;
+  const n = (s) => S.trucks.filter((t) => tst(t) === s).length;
+  const nextDue = (t) => S.maint.filter((m) => m.truck === t.id).sort((a, b) => a.due - b.due)[0];
+  const lastTrip = (t) => S.trips.filter((x) => x.truck === t.id && x.status === 'delivered').pop();
+  const trucks = { key: 'trucks', noun: 'trucks', ph: 'Search truck, plate or driver', sort: 'name', dir: 1, rows: () => S.trucks, label: (t) => t.name,
+    text: (t) => `${t.name} ${t.plate} ${DRV(t.driver).name}`,
+    filters: [['all', 'All', () => true], ['own', 'Own fleet', (t) => t.own], ['hire', 'Hoffmann Spedition', (t) => !t.own], ['road', 'On the road', (t) => tst(t) === 'transit'], ['av', 'Available', (t) => tst(t) === 'available']],
+    cols: [
+      { k: 'name', l: 'Truck', w: 'minmax(0,1.4fr)', v: (t) => t.name, c: (t) => `<span class="cell-main"><b>${esc(t.name)}</b><span>${t.plate} · ${t.own ? 'own' : 'Hoffmann Spedition'}</span></span>` },
+      { k: 'tank', l: 'Tank, m³', w: '80px', cls: 'r', hm: 1, v: (t) => t.tank, c: (t) => t.tank },
+      { k: 'drv', l: 'Driver', w: '1fr', hm: 1, v: (t) => DRV(t.driver).name, c: (t) => esc(DRV(t.driver).name) },
+      { k: 'loc', l: 'Location', w: '1.1fr', hm: 1, c: (t) => { const tr = S.trips.find((x) => x.truck === t.id && x.status === 'transit'), l = lastTrip(t); return tr ? `<span>→ ${esc(OR(tr.order).site)} · ${Math.round(tr.p * 100)}%</span>` : t.ws != null ? '<span class="warn">Workshop · no GPS for 4 days</span>' : `<span class="muted">Leipzig base${l ? ` · last ${esc(OR(l.order).site)}` : ''}</span>`; } },
+      { k: 'odo', l: 'Odometer', w: '100px', cls: 'r', hm: 1, v: (t) => t.odo, c: (t) => `${fmt(t.odo)} km` },
+      { k: 'due', l: 'Next due', w: '110px', hm: 1, v: (t) => (nextDue(t) || { due: 9999 }).due, c: (t) => { const m = nextDue(t); return m ? `<span class="${mst(m) === 'over' ? 'neg' : mst(m) === 'soon' ? 'warn' : 'muted'}">${fds(m.due)}</span>` : '<span class="muted">Carrier</span>'; } },
+      { k: 'st', l: 'Status', w: '126px', wm: '116px', cls: 'r', v: (t) => tst(t), c: (t) => pill(...TST[tst(t)]) },
+    ],
+    csv: [['Truck', 'Plate', 'Owner', 'Tank m3', 'Driver', 'Odometer km', 'Status'], (t) => [t.name, t.plate, t.own ? 'DizelTrade' : 'Hoffmann Spedition', t.tank, DRV(t.driver).name, t.odo, TST[tst(t)][0]]] };
+  const maint = { key: 'maint', noun: 'maintenance items', ph: 'Search truck or item', sort: 'due', dir: 1, rows: () => S.maint, label: (m) => m.kind,
+    text: (m) => `${TRK(m.truck).name} ${TRK(m.truck).plate} ${m.kind}`,
+    filters: [['all', 'All', () => true], ['over', 'Overdue', (m) => mst(m) === 'over'], ['soon', 'Due in 30 days', (m) => mst(m) === 'soon']],
+    cols: [
+      { k: 'what', l: 'Truck and item', w: 'minmax(0,1.8fr)', v: (m) => TRK(m.truck).name, c: (m) => `<span class="cell-main"><b>${esc(TRK(m.truck).name)} · ${TRK(m.truck).plate}</b><span>${esc(m.kind)}</span></span>` },
+      { k: 'iv', l: 'Interval', w: '100px', hm: 1, c: (m) => `<span class="muted">${m.iv >= 365 ? plural(m.iv / 365, 'year') : plural(m.iv, 'day')}</span>` },
+      { k: 'due', l: 'Due', w: '1fr', hm: 1, v: (m) => m.due, c: (m) => `<span class="cell-main"><b>${fd(m.due)}</b><span>${m.due < TODAY ? plural(TODAY - m.due, 'day') + ' overdue' : m.due === TODAY ? 'today' : 'in ' + plural(m.due - TODAY, 'day')}</span></span>` },
+      { k: 'st', l: 'Status', w: '110px', cls: 'r', v: (m) => m.due, c: (m) => pill(...MST[mst(m)]) },
+      { k: 'a', l: '', w: '108px', cls: 'r', c: (m) => (mst(m) === 'ok' ? '' : gb('fleet', 'Mark done', `data-act="maintDone" data-id="${m.id}"`, 'btn sm')) },
+    ],
+    csv: [['Truck', 'Plate', 'Item', 'Due', 'Status'], (m) => [TRK(m.truck).name, TRK(m.truck).plate, m.kind, iso(m.due), MST[mst(m)][0]]] };
+  const drv = { key: 'drivers', noun: 'drivers', ph: 'Search driver', sort: 'name', dir: 1, rows: () => S.drivers, label: (d) => d.name, text: (d) => `${d.name} ${d.carrier}`,
+    cols: [
+      { k: 'name', l: 'Driver', w: 'minmax(0,1.4fr)', v: (d) => d.name, c: (d) => `<span class="cell-main"><b>${esc(d.name)}</b><span>${d.phone}${d.carrier ? ' · ' + d.carrier : ''}</span></span>` },
+      { k: 'cls', l: 'Licence', w: '80px', hm: 1, c: (d) => d.cls },
+      { k: 'trk', l: 'Truck', w: '1fr', hm: 1, c: (d) => esc(S.trucks.find((t) => t.driver === d.id).name) },
+      { k: 'adr', l: 'ADR certificate', w: '1fr', v: (d) => d.adr, c: (d) => `<span class="cell-main"><b class="${d.adr < TODAY ? 'neg' : d.adr - TODAY < 60 ? 'warn' : ''}">${fd(d.adr)}</b><span>${d.adr < TODAY ? 'expired' : 'valid ' + plural(d.adr - TODAY, 'day') + ' more'}</span></span>` },
+      { k: 'n', l: 'Trips in June', w: '96px', cls: 'r', v: (d) => S.trips.filter((t) => t.driver === d.id && mon(t.day) === 5 && loaded(t)).length, c: (d) => fmt(S.trips.filter((t) => t.driver === d.id && mon(t.day) === 5 && loaded(t)).length) },
+    ] };
+  return head('Fleet', `${plural(S.trucks.length, 'truck')} · ${fmt(n('transit'))} on the road · ${fmt(n('available'))} available · ${fmt(n('workshop'))} in workshop`, gb('ops', `${ic('truck')}Schedule delivery`, 'data-act="schedule"', 'btn primary')) +
+    tabs('fleet', [['trucks', 'Trucks'], ['maint', `Maintenance${maintOver().length ? ` · ${maintOver().length} overdue` : ''}`], ['drivers', 'Drivers']]) +
+    `<div class="card">${TAB.fleet === 'trucks' ? table(trucks) : TAB.fleet === 'maint' ? table(maint) : table(drv)}</div>`;
 }
 
+/* ── customers ───────────────────────────────────────── */
+function customers() {
+  const tot = S.cust.reduce((s, c) => s + balOf(c), 0), ov = S.cust.reduce((s, c) => s + overOf(c), 0);
+  return head('Customers', `${plural(S.cust.length, 'customer')} in ${Object.keys(CTRY).length} countries · ${eur0(tot)} receivable · ${eur0(ov)} overdue`, gb('credit', `${ic('plus')}New customer`, 'data-act="newCustomer"', 'btn primary')) +
+    `<div class="card">${table({
+      key: 'cust', noun: 'customers', ph: 'Search name, city, contact or VAT ID', sort: 'bal', rows: () => S.cust, open: true, label: (c) => c.name,
+      text: (c) => `${c.name} ${c.city} ${c.contact} ${c.vat} ${CTRY[c.cc]}`,
+      filters: [['all', 'All', () => true], ['DE', 'Germany', (c) => c.cc === 'DE'], ['PL', 'Poland', (c) => c.cc === 'PL'], ['CZ', 'Czechia', (c) => c.cc === 'CZ'], ['over', 'Over credit limit', (c) => balOf(c) > c.limit], ['od', 'With overdue', (c) => overOf(c) > 0]],
+      cols: [
+        { k: 'name', l: 'Customer', w: 'minmax(0,1.8fr)', v: (c) => c.name, c: (c) => `<span class="cell-main"><b>${esc(c.name)}</b><span>${esc(c.city)}, ${CTRY[c.cc]} · ${c.terms} days</span></span>` },
+        { k: 'lim', l: 'Credit limit', w: '116px', cls: 'r', hm: 1, v: (c) => c.limit, c: (c) => `<span class="money">${eur0(c.limit)}</span>` },
+        { k: 'bal', l: 'Balance', w: '120px', cls: 'r', v: (c) => balOf(c), c: (c) => `<span class="money ${balOf(c) > c.limit ? 'neg' : ''}">${eur0(balOf(c))}</span>` },
+        { k: 'ov', l: 'Overdue', w: '110px', cls: 'r', hm: 1, v: (c) => overOf(c), c: (c) => (overOf(c) > 0 ? `<span class="money neg">${eur0(overOf(c))}</span>` : '<span class="muted">—</span>') },
+        { k: 'use', l: 'Credit used', w: '1fr', hm: 1, v: (c) => balOf(c) / c.limit, c: (c) => { const p = pct(balOf(c), c.limit); return `<div class="vq"><span class="${p > 100 ? 'neg' : p > 85 ? 'warn' : ''}">${p}%</span><div class="bar"><i style="width:${Math.min(100, p)}%;${p > 100 ? 'background:var(--neg)' : p > 85 ? 'background:var(--warn)' : ''}"></i></div></div>`; } },
+      ],
+      csv: [['Customer', 'Country', 'City', 'VAT ID', 'Contact', 'Email', 'Terms days', 'Credit limit EUR', 'Balance EUR', 'Overdue EUR'], (c) => [c.name, c.cc, c.city, c.vat, c.contact, c.email, c.terms, c.limit, balOf(c), overOf(c)]],
+    })}</div>`;
+}
+
+/* ── finance ─────────────────────────────────────────── */
+function finance() {
+  if (!can('finance')) return head('Invoices & payments', 'Receivables, VAT and collections') + permState('finance', 'Invoices & payments');
+  const jun = S.inv.filter((i) => mon(i.day) === 5), col = S.pay.filter((p) => mon(p.day) === 5), open = S.inv.reduce((s, i) => s + openOf(i), 0), od = overdueInv();
+  const sales90 = S.inv.filter((i) => i.day > TODAY - 90).reduce((s, i) => s + i.gross, 0), dso = sales90 ? open / sales90 * 90 : 0;
+  const inv = { key: 'inv', noun: 'invoices', ph: 'Search invoice, customer or order', sort: 'no', rows: () => S.inv, open: true, label: (i) => i.no,
+    text: (i) => `${i.no} ${CU(i.cust).name} ${OR(i.order).no} ${TP(i.trip).no}`,
+    filters: [['all', 'All', () => true], ['open', 'Open', (i) => ist(i) === 'open'], ['overdue', 'Overdue', (i) => ist(i) === 'overdue'], ['part', 'Part-paid', (i) => ist(i) === 'part'], ['paid', 'Paid', (i) => ist(i) === 'paid']],
+    bulk: [['export', 'Export selected'], ['remind', 'Send reminders', 'pay']],
+    cols: [
+      { k: 'no', l: 'Invoice', w: 'minmax(0,1.2fr)', v: (i) => i.id, c: (i) => `<span class="cell-main"><b>${i.no}</b><span>${fds(i.day)} · ${esc(CU(i.cust).name)}</span></span>` },
+      { k: 'due', l: 'Due', w: '1fr', hm: 1, v: (i) => i.due, c: (i) => { const s = ist(i); return `<span class="cell-main"><b>${fds(i.due)}</b><span class="${s === 'overdue' ? 'neg' : ''}">${s === 'paid' ? 'settled' : i.due < TODAY ? plural(TODAY - i.due, 'day') + ' overdue' : i.due === TODAY ? 'due today' : 'in ' + plural(i.due - TODAY, 'day')}</span></span>`; } },
+      { k: 'net', l: 'Net', w: '108px', cls: 'r', hm: 1, v: (i) => i.net, c: (i) => `<span class="money">${eur(i.net)}</span>` },
+      { k: 'vat', l: 'VAT', w: '96px', cls: 'r', hm: 1, v: (i) => i.vat, c: (i) => `<span class="cell-main"><b style="font-weight:400">${eur(i.vat)}</b><span>${i.rate ? '19%' : '0% intra-EU'}</span></span>` },
+      { k: 'gross', l: 'Gross', w: '112px', cls: 'r', hm: 1, v: (i) => i.gross, c: (i) => `<b class="money">${eur(i.gross)}</b>` },
+      { k: 'open', l: 'Open', w: '112px', cls: 'r', v: (i) => openOf(i), c: (i) => `<span class="cell-main"><b class="money">${eur(openOf(i))}</b><span>${pill(...IST[ist(i)])}</span></span>` },
+    ],
+    csv: [['Invoice', 'Issued', 'Due', 'Customer', 'VAT ID', 'Order', 'Delivery note', 'Volume m3', 'Price EUR/m3', 'Net EUR', 'VAT rate', 'VAT EUR', 'Gross EUR', 'Paid EUR', 'Open EUR', 'Status'], (i) => [i.no, iso(i.day), iso(i.due), CU(i.cust).name, CU(i.cust).vat, OR(i.order).no, TP(i.trip).no, i.vol, i.price, i.net, i.rate ? '19%' : '0% intra-EU', i.vat, i.gross, r2(paidOf(i)), openOf(i), IST[ist(i)][0]]] };
+  const pay = { key: 'pay', noun: 'payments', ph: 'Search payment, customer or invoice', sort: 't', rows: () => S.pay, open: true, label: (p) => p.no,
+    text: (p) => `${p.no} ${CU(p.cust).name} ${p.ref}`,
+    cols: [
+      { k: 't', l: 'Payment', w: 'minmax(0,1.2fr)', v: (p) => p.t, c: (p) => `<span class="cell-main"><b>${p.no}</b><span>${fds(p.day)} · ${esc(CU(p.cust).name)}</span></span>` },
+      { k: 'inv', l: 'Invoice', w: '120px', hm: 1, c: (p) => esc(p.ref) },
+      { k: 'm', l: 'Method', w: '1fr', hm: 1, c: (p) => `<span class="muted">${p.method}</span>` },
+      { k: 'by', l: 'Recorded by', w: '1fr', hm: 1, c: (p) => `<span class="muted">${esc(USERS[p.by].name)}</span>` },
+      { k: 'amt', l: 'Amount', w: '120px', cls: 'r', v: (p) => p.amount, c: (p) => `<b class="money pos">${eur(p.amount)}</b>` },
+    ],
+    csv: [['Payment', 'Date', 'Customer', 'Invoice', 'Method', 'Amount EUR'], (p) => [p.no, iso(p.day), CU(p.cust).name, p.ref, p.method, p.amount]] };
+  const vatRows = MONTHS.map((m, k) => { const L = S.inv.filter((i) => mon(i.day) === k); return { m, de: L.filter((i) => i.rate).reduce((s, i) => s + i.net, 0), vat: L.reduce((s, i) => s + i.vat, 0), eu: L.filter((i) => !i.rate).reduce((s, i) => s + i.net, 0) }; });
+  return head('Invoices & payments', `${plural(S.inv.length, 'invoice')} this year · ${plural(S.pay.length, 'payment')} received`, `<button type="button" class="btn" data-act="vatCsv">${ic('download')}VAT summary CSV</button>`) +
+    `<div class="kgrid">
+      <div class="kc"><span>Invoiced in June (gross)</span><b>${eurC(jun.reduce((s, i) => s + i.gross, 0))}</b><em>${plural(jun.length, 'invoice')}</em></div>
+      <div class="kc"><span>Collected in June</span><b>${eurC(col.reduce((s, p) => s + p.amount, 0))}</b><em>${plural(col.length, 'payment')}</em></div>
+      <div class="kc"><span>Open receivables</span><b>${eurC(open)}</b><em>${plural(S.inv.filter((i) => ist(i) !== 'paid').length, 'open invoice')}</em></div>
+      <div class="kc ${od.length ? 'alert' : ''}"><span>Overdue</span><b>${eurC(od.reduce((s, i) => s + openOf(i), 0))}</b><em>${plural(od.length, 'invoice')}</em></div>
+      <div class="kc"><span>Days sales outstanding</span><b>${fmt(dso)}<small>days</small></b><em>last 90 days</em></div>
+    </div>
+    ${tabs('finance', [['invoices', 'Invoices'], ['payments', 'Payments'], ['vat', 'VAT summary']])}
+    <div class="card">${TAB.finance === 'invoices' ? table(inv) : TAB.finance === 'payments' ? table(pay) : `<div class="tbl" style="--cols:80px 1fr 1fr 1fr 1fr;--colsm:56px 1fr 1fr 1fr"><div class="tr th"><span>Month</span><span class="r">Domestic net (DE)</span><span class="r">Output VAT 19%</span><span class="r">Intra-EU supplies, 0%</span><span class="r hm">Total net</span></div>${vatRows.map((r) => `<div class="tr"><span>${r.m}${r.m === 'Jun' ? ' <span class="muted">(open)</span>' : ''}</span><span class="r money">${eur0(r.de)}</span><span class="r money">${eur0(r.vat)}</span><span class="r money">${eur0(r.eu)}</span><span class="r money hm">${eur0(r.de + r.eu)}</span></div>`).join('')}</div><p class="note">Supplies to Polish and Czech customers are VAT-exempt intra-Community supplies (Art. 138 VAT Directive); they are reported in the EC Sales List.</p>`}</div>`;
+}
+
+/* ── analytics ───────────────────────────────────────── */
 function analytics() {
-  const best = S.months.reduce((a, b) => (b[1] > a[1] ? b : a));
-  const rows = S.months.map(([m, v], i) => ({ m, v, d: i ? v - S.months[i - 1][1] : null, rev: v * avgPrice() }));
-  return head('Analytics', 'Shipments and revenue year to date') +
-    `<div class="kpis"><div class="kpi"><b>${fmt(S.months.reduce((s, m) => s + m[1], 0))}<small>m³</small></b><span>Shipped since January</span></div>
-      <div class="kpi"><b>${best[0]}<small>${best[1]} m³</small></b><span>Best month</span></div>
-      <div class="kpi"><b>€${fmt(avgPrice())}<small>/m³</small></b><span>Average sale price</span></div></div>
-    <div class="grid"><section class="card c8"><div class="card-h"><h2>Shipments, m³ per month</h2></div><div id="ch-line"></div></section>
-      <section class="card c4"><div class="card-h"><h2>Revenue by customer</h2><span>€ M</span></div>
-        ${[...S.orders].sort((a, b) => b.delivered * b.price - a.delivered * a.price).map((o) => barRow(esc(o.client), (o.delivered * o.price) / (Math.max(...S.orders.map((x) => x.delivered * x.price))) * 100, '€' + mln(o.delivered * o.price))).join('')}</section>
-      <section class="card c12"><div class="card-h"><h2>By month</h2><span>revenue at average price</span></div>
-        <div class="tbl" style="--cols:1fr 1fr 1fr 1fr;--colsm:1fr 1fr 1fr"><div class="tr th"><span>Month</span><span class="r">m³</span><span class="r">Revenue, € M</span><span class="r hm">vs. previous month</span></div>
-        ${rows.map((r) => `<div class="tr"><span>${r.m}${r.m === 'Jun' ? ' <span class="muted">(incomplete)</span>' : ''}</span><span class="r">${r.v}</span><span class="r">€${mln(r.rev)}</span><span class="r hm ${r.d > 0 ? 'pos' : r.d < 0 ? 'neg' : 'muted'}">${r.d == null ? '—' : signed(r.d) + ' m³'}</span></div>`).join('')}</div></section></div>`;
+  if (!AN) { setTimeout(() => { AN = true; if (page === 'analytics' && signedIn) render(); }, 450); return head('Analytics', 'Deliveries, revenue and margin, January to June 2026') + `<div class="kgrid k4">${'<div class="sk" style="height:92px"></div>'.repeat(4)}</div><div class="grid"><div class="sk c8" style="height:280px"></div><div class="sk c4" style="height:280px"></div></div><span class="sr" role="status">Loading analytics</span>`; }
+  const M = monthly(), vol = M.reduce((s, m) => s + m.vol, 0), rev = M.reduce((s, m) => s + m.rev, 0), mar = M.reduce((s, m) => s + m.mar, 0);
+  const byC = { DE: 0, PL: 0, CZ: 0 }, cm = new Map();
+  S.trips.forEach((t) => { if (t.status !== 'delivered') return; const o = OR(t.order), c = CU(o.cust); byC[c.cc] += t.vol * o.price; cm.set(c, (cm.get(c) || 0) + t.vol * (o.price - COST[mon(t.day)])); });
+  const top = [...cm].sort((a, b) => b[1] - a[1]).slice(0, 7), COL = { DE: 'var(--accent)', PL: 'var(--c2)', CZ: 'var(--c3)' };
+  return head('Analytics', 'Deliveries, revenue and margin, January to June 2026 · June to date', `<button type="button" class="btn" data-act="anCsv">${ic('download')}Export CSV</button>`) +
+    `<div class="kgrid k4">
+      <div class="kc"><span>Delivered this year</span><b>${fmt(vol)}<small>m³</small></b><em>${plural(M.reduce((s, m) => s + m.n, 0), 'delivery', 'deliveries')}</em></div>
+      <div class="kc"><span>Revenue, net</span><b>${eurC(rev)}</b><em>${eur0(rev / vol)} per m³ on average</em></div>
+      <div class="kc"><span>Gross margin</span><b>${eurC(mar)}</b><em>${fmtD(mar / rev * 100, 1)}% of revenue</em></div>
+      <div class="kc"><span>Margin per m³</span><b>€${fmt(mar / vol)}</b><em>sell price minus purchase cost</em></div>
+    </div>
+    <div class="grid">
+      <section class="card c8"><div class="card-h"><h2>Volume and gross margin by month</h2><div class="legend"><span><i style="background:var(--accent)"></i>Delivered, m³</span><span><i style="background:var(--c2);border-radius:50%"></i>Margin, %</span></div></div><div id="ch-combo"></div></section>
+      <section class="card c4"><div class="card-h"><h2>Revenue by country</h2><span>net</span></div>
+        <div class="split" role="img" aria-label="${Object.entries(byC).map(([k, v]) => `${CTRY[k]} ${pct(v, rev)}%`).join(', ')}">${Object.entries(byC).map(([k, v]) => `<i style="width:${v / rev * 100}%;background:${COL[k]}"></i>`).join('')}</div>
+        ${Object.entries(byC).map(([k, v]) => `<div class="brow"><div class="brow-t"><span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px;background:${COL[k]}"></i>${CTRY[k]}<em>${pct(v, rev)}%</em></span><b>${eurC(v)}</b></div></div>`).join('')}
+        <p class="note">${plural(S.cust.filter((c) => c.cc === 'DE').length, 'customer')} in Germany, ${fmt(S.cust.filter((c) => c.cc !== 'DE').length)} cross-border.</p></section>
+      <section class="card c6"><div class="card-h"><h2>Sell price vs purchase cost</h2><div class="legend"><span><i style="background:var(--accent)"></i>Sell, € per m³</span><span><i style="background:var(--c2)"></i>Cost</span></div></div><div id="ch-price"></div></section>
+      <section class="card c6"><div class="card-h"><h2>Top customers by gross margin</h2><span>year to date</span></div>${top.map(([c, v]) => barRow(esc(c.name), v / top[0][1] * 100, eur0(v), c.cc)).join('')}</section>
+      <section class="card c12"><div class="card-h"><h2>By month</h2><span>delivered volume at order prices, cost at monthly purchase index</span></div>
+        <div class="tbl" style="--cols:90px 1fr 1fr 1fr 1fr 90px;--colsm:56px 1fr 1fr 70px"><div class="tr th"><span>Month</span><span class="r">m³</span><span class="r">Revenue</span><span class="r hm">Cost</span><span class="r hm">Gross margin</span><span class="r">Margin</span></div>
+        ${M.map((m) => `<div class="tr"><span>${m.m}${m.m === 'Jun' ? ' <span class="muted">(MTD)</span>' : ''}</span><span class="r">${fmt(m.vol)}</span><span class="r money">${eur0(m.rev)}</span><span class="r money hm">${eur0(m.cost)}</span><span class="r money hm">${eur0(m.mar)}</span><span class="r">${fmtD(m.pct, 1)}%</span></div>`).join('')}</div></section>
+    </div>`;
 }
 
-function mountCharts() {
-  const labels = S.months.map((m) => m[0]), values = S.months.map((m) => m[1]);
-  const a = $('#ch-months'); if (a) chart(a, (w) => barsSVG(w, { labels, values, unit: 'm³' }));
-  const b = $('#ch-line'); if (b) chart(b, (w) => lineSVG(w, { labels, values }));
+/* ── audit ───────────────────────────────────────────── */
+function audit() {
+  if (!can('audit')) return head('Audit log', 'Every change, who made it and when') + permState('audit', 'The audit log');
+  const CATS = [...new Set(S.audit.map((a) => a.cat))].sort();
+  return head('Audit log', `${plural(S.audit.length, 'entry', 'entries')} in the last 15 days · read-only, entries cannot be deleted`) +
+    `<div class="card">${table({
+      key: 'audit', noun: 'audit entries', ph: 'Search action, document or customer', sort: 't', rows: () => S.audit, label: (a) => a.text,
+      text: (a) => `${a.text} ${USERS[a.u].name} ${a.cat}`,
+      filters: [['all', 'All', () => true], ...CATS.map((c) => [c, c, (a) => a.cat === c])],
+      cols: [
+        { k: 't', l: 'When', w: '128px', v: (a) => a.t, c: (a) => `<span class="cell-main"><b>${fdt(a.t)}</b><span>${ago(a.t)}</span></span>` },
+        { k: 'u', l: 'User', w: '1fr', hm: 1, v: (a) => USERS[a.u].name, c: (a) => `<span class="cell-main"><b>${esc(USERS[a.u].name)}</b><span>${USERS[a.u].role}</span></span>` },
+        { k: 'cat', l: 'Area', w: '104px', hm: 1, v: (a) => a.cat, c: (a) => pill(a.cat, { Payment: 'pos', Stock: 'acc', Order: '', Dispatch: 'acc', Customer: 'warn', Delivery: 'pos', Invoice: '', Access: 'mute', Export: 'mute', Fleet: 'warn' }[a.cat] || '') },
+        { k: 'x', l: 'Action', w: 'minmax(0,2.6fr)', c: (a) => `<span class="cell-main"><b style="font-weight:400">${esc(a.text)}</b><span class="hmx">${esc(USERS[a.u].name)}</span></span>` },
+      ],
+      csv: [['Time', 'User', 'Role', 'Area', 'Action'], (a) => [`${iso(Math.floor(a.t / 1440))} ${hm(a.t % 1440)}`, USERS[a.u].name, USERS[a.u].role, a.cat, a.text]],
+    })}</div>`;
 }
 
-/* ── actions ──────────────────────────────────────────── */
-/* ── live map: trucks drive along their routes; on arrival the trip closes by itself ─ */
-const SITES = { 'Leipzig Base': [300, 150], 'Wrocław': [520, 60], 'Hanover': [90, 50], 'Prague': [490, 235], 'Frankfurt': [90, 235], 'Nuremberg': [320, 275], 'Berlin': [230, 25] };
-let CLK = 14 * 60 + 36; const LOG = [['14:02', 'MAN TGS 26.470 left for Wrocław'], ['13:40', 'Mercedes Actros 2545 left for Prague'], ['12:15', 'Receipt BOL-2026-1901 awaiting confirmation']];
-const clk = () => String(Math.floor(CLK / 60)).padStart(2, '0') + ':' + String(CLK % 60).padStart(2, '0');
-const TP = { 9: .55, 8: .3, 7: .78 };
-const pos = (site, p) => { const a = SITES['Leipzig Base'], b = SITES[site] || [300, 40]; return [a[0] + (b[0] - a[0]) * p, a[1] + (b[1] - a[1]) * p]; };
-function mapSVG() {
-  const trips = transitTrips(), active = new Set(trips.map((t) => t.site));
-  return `<svg class="map" viewBox="0 0 600 300" role="img" aria-label="Trips on the map">${Object.entries(SITES).filter(([n]) => n !== 'Leipzig Base').map(([n, [x, y]]) => `<line class="rt ${active.has(n) ? 'on' : ''}" x1="300" y1="150" x2="${x}" y2="${y}"/><circle class="site" cx="${x}" cy="${y}" r="7"/><text x="${x}" y="${y + (y > 150 ? 24 : -14)}" text-anchor="middle">${n}</text>`).join('')}
-    <circle class="hub" cx="300" cy="150" r="10"/><text x="300" y="130" text-anchor="middle" style="fill:var(--text);font-weight:600">Leipzig Base</text>
-    ${trips.map((t) => { const [x, y] = pos(t.site, TP[t.id] || 0); return `<g data-mk="${t.id}" transform="translate(${x} ${y})"><circle class="pulse" r="9"/><circle class="mk" r="8"/></g>`; }).join('')}</svg>`;
+/* ── drawer ──────────────────────────────────────────── */
+let DR = null;
+function openDrawer(kind, id) { DR = { kind, id, from: DR ? DR.from : document.activeElement }; drawDrawer(true); }
+function drawDrawer(first) {
+  let sc = $('#dscrim'), el = $('#drawer');
+  if (!el) {
+    sc = document.createElement('div'); sc.id = 'dscrim'; sc.className = 'dscrim'; sc.onclick = closeDrawer; document.body.appendChild(sc);
+    el = document.createElement('aside'); el.id = 'drawer'; el.className = 'drawer'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-labelledby', 'dr-t'); document.body.appendChild(el);
+  }
+  const top = $('.dr-b', el) ? $('.dr-b', el).scrollTop : 0;
+  el.innerHTML = ({ order: drOrder, inv: drInv, cust: drCust })[DR.kind](DR.id);
+  if (first) { requestAnimationFrame(() => { sc.classList.add('open'); el.classList.add('open'); }); const x = $('[data-act="closeDrawer"]', el); if (x) x.focus({ preventScroll: true }); }
+  else $('.dr-b', el).scrollTop = top;
 }
-setInterval(() => {
-  if (document.hidden || $('#scrim')) return;
-  CLK++; let arrived = null;
-  transitTrips().forEach((t) => { TP[t.id] = Math.min(1, (TP[t.id] || 0) + .012 + (t.id % 3) * .004); if (TP[t.id] >= 1 && !arrived) arrived = t; });
-  if (arrived) { ACT.deliver({ id: arrived.id }); return; }
-  if (page !== 'dashboard') return;
-  transitTrips().forEach((t) => { const g = $(`[data-mk="${t.id}"]`), [x, y] = pos(t.site, TP[t.id] || 0); if (g) g.setAttribute('transform', `translate(${x} ${y})`); const b = $(`[data-tp="${t.id}"]`); if (b) b.style.width = Math.round((TP[t.id] || 0) * 100) + '%'; });
-}, 1400);
+function closeDrawer() {
+  if (!DR) return; const from = DR.from; DR = null;
+  const sc = $('#dscrim'), el = $('#drawer'); if (!el) return;
+  sc.classList.remove('open'); el.classList.remove('open');
+  setTimeout(() => { if (!DR) { sc.remove(); el.remove(); } }, 280);
+  if (from && document.contains(from)) from.focus({ preventScroll: true });
+}
+const drH = (title, sub, extra = '') => `<div class="dr-h"><div><h2 id="dr-t">${title}${extra}</h2><p>${sub}</p></div><button type="button" class="ib" data-act="closeDrawer" aria-label="Close panel">${ic('x')}</button></div>`;
+const kv = (pairs) => `<div class="kv">${pairs.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join('')}</div>`;
+function creditBox(c, extra = 0) {
+  const b = balOf(c), e = b + extra, p = pct(e, c.limit), cls = e > c.limit ? 'over' : p > 85 ? 'near' : '';
+  return `<div class="credit ${cls}"><div class="brow-t" style="margin:0"><span>${extra ? 'Exposure after this order' : 'Credit used'}</span><b>${eur0(e)} of ${eur0(c.limit)}</b></div><div class="bar"><i style="width:${Math.min(100, p)}%"></i></div><span class="muted">${e > c.limit ? `<span class="neg">Over the limit by ${eur0(e - c.limit)}. New orders need an Admin override.</span>` : `${eur0(c.limit - e)} available · ${c.terms}-day terms`}${overOf(c) > 0 ? ` · <span class="neg">${eur0(overOf(c))} overdue</span>` : ''}</span></div>`;
+}
+function drOrder(id) {
+  const o = OR(id), c = CU(o.cust), q = oq(o), s = ost(o), ts = tripsOf(o.id), lvl = { confirmed: 0, partial: 1, scheduled: 1, transit: 2, invoiced: 3, paid: 4, cancelled: -1 }[s];
+  const gross = o.vol * o.price * (c.cc === 'DE' ? 1.19 : 1);
+  const ev = [{ t: o.t, x: `Order created by ${USERS[o.by].name}`, s: `${fmt(o.vol)} m³ at €${fmt(o.price)} per m³` }, { t: o.t + 1, x: 'Credit check passed', s: `${c.terms}-day terms, limit ${eur0(c.limit)}` }];
+  ts.forEach((t) => {
+    if (t.st) ev.push({ t: t.st, x: `${t.no} scheduled`, s: `${TRK(t.truck).name} · ${DRV(t.driver).name}` });
+    if (loaded(t)) ev.push({ t: t.day * 1440 + t.dep, x: `${t.no} loaded and dispatched`, s: `${t.vol} m³ · ${TRK(t.truck).name} (${TRK(t.truck).plate})` });
+    if (t.status === 'delivered') { ev.push({ t: t.day * 1440 + t.arr, x: `Delivered to ${o.site}`, s: `${t.no} · proof of delivery signed` }); const i = invOfTrip(t.id); if (i) ev.push({ t: i.t, x: `Invoice ${i.no} issued`, s: eur(i.gross) }); }
+  });
+  S.pay.filter((p) => S.inv[p.inv - 1].order === o.id).forEach((p) => ev.push({ t: p.t, x: `Payment received`, s: `${eur(p.amount)} · ${p.no}` }));
+  if (o.status === 'cancelled') ev.push({ t: o.ct || o.t + 300, x: 'Order cancelled', s: o.cr || '', neg: 1 });
+  ev.sort((a, b) => a.t - b.t);
+  const ta = (t) => `<div class="dl"><div><b>${t.no}</b> · ${esc(TRK(t.truck).name)}<span>${fd(t.day)} · ${t.vol} m³ · ${esc(DRV(t.driver).name)}${t.status === 'transit' ? ` · ETA ${hm(t.dep + durTo(o.site))}` : t.status === 'planned' ? ` · ETD ${hm(t.etd)}` : ''}</span></div><div class="dl-a">${pill(...{ planned: ['Scheduled', ''], transit: ['In transit', 'acc'], delivered: ['Delivered', 'pos'] }[t.status])}<button type="button" class="btn sm" data-act="bol" data-id="${t.id}">${ic('file')}BOL</button>${t.status === 'planned' ? gb('ops', 'Dispatch', `data-act="dispatch" data-id="${t.id}"`, 'btn sm primary') + gb('ops', ic('trash'), `data-act="unschedule" data-id="${t.id}" aria-label="Remove ${t.no}"`, 'btn sm') : t.status === 'transit' ? gb('ops', 'Delivered', `data-act="deliver" data-id="${t.id}"`, 'btn sm primary') : ''}</div></div>`;
+  return drH(o.no, `${esc(c.name)} · created ${fd(o.day)}, ${hm(o.t % 1440)}`, ' ' + pill(...OST[s])) + `<div class="dr-b">
+    ${lvl >= 0 ? `<ol class="steps" aria-label="Order progress">${['Confirmed', 'Scheduled', 'In transit', 'Delivered', 'Paid'].map((x, i) => `<li class="${i < lvl ? 'done' : i === lvl ? 'cur' : ''}" ${i === lvl ? 'aria-current="step"' : ''}>${x}</li>`).join('')}</ol>` : ''}
+    ${kv([['Ordered', `${fmt(o.vol)} m³`], ['Delivered', `${fmt(q.del)} m³`], ['On the road', `${fmt(q.tr)} m³`], ['Scheduled', `${fmt(q.pl)} m³`], ['Left to schedule', `<span class="${q.rem ? 'warn' : ''}">${fmt(q.rem)} m³</span>`], ['Price, net', `€${fmt(o.price)} per m³`], ['Order value, net', eur(o.vol * o.price)], [c.cc === 'DE' ? 'VAT 19%' : 'VAT', c.cc === 'DE' ? eur(o.vol * o.price * .19) : '0%, intra-EU supply'], ['Total', eur(gross)], ['Delivery site', `${esc(o.site)}, ${CTRY[c.cc]} · ${kmTo(o.site)} km`], ['Requested date', fd(o.req)], ['Product', 'Diesel EN 590 (B7)']])}
+    ${o.note ? `<p class="note">Driver note: ${esc(o.note)}</p>` : ''}
+    <div class="sec">Customer credit</div>${creditBox(c)}
+    <div class="sec"><span>Deliveries · ${ts.length}</span>${q.rem > 0 ? gb('ops', `${ic('truck')}Schedule delivery`, `data-act="schedule" data-id="${o.id}"`, 'btn sm') : ''}</div>
+    ${ts.length ? ts.map(ta).join('') : `<div class="empty"><b>No truck assigned yet</b><span>${o.status === 'cancelled' ? 'This order was cancelled.' : `Schedule a delivery to assign a truck and driver for the ${fmt(q.rem)} m³.`}</span></div>`}
+    <div class="sec">Timeline</div><ol class="tl">${ev.map((e) => `<li class="${e.neg ? 'neg' : e.t > now() ? 'mute' : ''}"><b>${esc(e.x)}</b><span>${fdt(e.t)}${e.s ? ' · ' + esc(e.s) : ''}</span></li>`).join('')}</ol>
+  </div><div class="dr-f">${o.status !== 'cancelled' && !ts.some(loaded) ? gb('cancel', 'Cancel order', `data-act="cancelOrder" data-id="${o.id}"`, 'btn') + gb('orders', `${ic('edit')}Edit`, `data-act="editOrder" data-id="${o.id}"`, 'btn') : ''}<button type="button" class="btn" data-act="openCust" data-id="${c.id}">${ic('users')}Customer</button><button type="button" class="btn primary" data-act="closeDrawer">Done</button></div>`;
+}
+function drInv(id) {
+  const i = S.inv[id - 1], c = CU(i.cust), s = ist(i), ps = S.pay.filter((p) => p.inv === i.id), t = TP(i.trip);
+  return drH(i.no, `${esc(c.name)} · issued ${fd(i.day)}`, ' ' + pill(...IST[s])) + `<div class="dr-b">
+    ${kv([['Issue date', fd(i.day)], ['Due date', `${fd(i.due)}`], ['Terms', `${c.terms} days net`], ['Order', `<a href="#" data-act="openOrder" data-id="${i.order}">${OR(i.order).no}</a>`], ['Delivery note', `<a href="#" data-act="bol" data-id="${t.id}">${t.no}</a>`], ['Customer VAT ID', c.vat]])}
+    <div class="sec">Lines</div>
+    <table class="lines"><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Unit price</th><th class="r">Amount</th></tr></thead>
+      <tbody><tr><td>Diesel EN 590 (B7), delivered ${esc(OR(i.order).site)}</td><td class="r">${fmt(i.vol)} m³</td><td class="r">€${fmt(i.price)}</td><td class="r">${eur(i.net)}</td></tr></tbody>
+      <tfoot><tr><td colspan="3">Net</td><td class="r">${eur(i.net)}</td></tr><tr><td colspan="3">${i.rate ? 'VAT 19%' : 'VAT 0%, intra-Community supply (Art. 138 VAT Directive)'}</td><td class="r">${eur(i.vat)}</td></tr><tr><td colspan="3">Total</td><td class="r">${eur(i.gross)}</td></tr></tfoot></table>
+    <div class="sec"><span>Payments · ${ps.length}</span><span>Open ${eur(openOf(i))}</span></div>
+    ${ps.length ? ps.map((p) => `<div class="dl"><div><b>${p.no}</b><span>${fd(p.day)} · ${p.method} · recorded by ${esc(USERS[p.by].name)}</span></div><b class="pos">${eur(p.amount)}</b></div>`).join('') : `<div class="empty"><b>No payments yet</b><span>${s === 'overdue' ? `${plural(TODAY - i.due, 'day')} past the due date.` : `Due ${fd(i.due)}.`}</span></div>`}
+    ${i.rem != null ? `<p class="note">Payment reminder sent ${fd(i.rem)} to ${esc(c.email)}.</p>` : ''}
+  </div><div class="dr-f"><button type="button" class="btn" data-act="bol" data-id="${t.id}">${ic('file')}Delivery note</button>${s === 'overdue' ? gb('pay', `${ic('mail')}Send reminder`, `data-act="remind" data-id="${i.id}"`) : ''}${s !== 'paid' ? gb('pay', `${ic('coin')}Record payment`, `data-act="recordPay" data-id="${i.id}"`, 'btn primary') : `<button type="button" class="btn primary" data-act="closeDrawer">Done</button>`}</div>`;
+}
+function drCust(id) {
+  const c = CU(id), invs = ix().ibc.get(c.id) || [], ps = ix().pbc.get(c.id) || [], openO = S.orders.filter((o) => o.cust === c.id && !['paid', 'invoiced', 'cancelled'].includes(ost(o)));
+  let stmt = '';
+  if (can('finance')) {
+    const rows = [...invs.map((i) => ({ t: i.t, doc: i.no, d: i.gross, c: 0, x: `Delivery ${TP(i.trip).no}` })), ...ps.map((p) => ({ t: p.t, doc: p.no, d: 0, c: p.amount, x: `Payment for ${p.ref}` }))].sort((a, b) => a.t - b.t);
+    let bal = 0; rows.forEach((r) => { bal += r.d - r.c; r.b = bal; });
+    const last = rows.slice(-25).reverse();
+    stmt = `<div class="sec"><span>Statement · ${plural(rows.length, 'entry', 'entries')}</span><button type="button" class="btn sm" data-act="stmtCsv" data-id="${c.id}">${ic('download')}Statement CSV</button></div>
+      ${rows.length ? `<table class="lines"><thead><tr><th>Date</th><th>Document</th><th class="r">Debit</th><th class="r">Credit</th><th class="r">Balance</th></tr></thead><tbody>${last.map((r) => `<tr><td>${fds(Math.floor(r.t / 1440))}</td><td>${r.doc}<span class="sub">${esc(r.x)}</span></td><td class="r money">${r.d ? eur(r.d) : ''}</td><td class="r money pos">${r.c ? eur(r.c) : ''}</td><td class="r money">${eur(r.b)}</td></tr>`).join('')}</tbody></table>${rows.length > 25 ? `<p class="note">Showing the latest 25 of ${fmt(rows.length)} entries. Export the CSV for the full statement.</p>` : ''}` : '<div class="empty"><b>No transactions yet</b><span>Invoices and payments will appear here.</span></div>'}`;
+  } else stmt = `<div class="sec">Statement</div><div class="credit">${ic('lock')} The statement of account is available to the Accountant and Admin roles.</div>`;
+  return drH(esc(c.name), `${esc(c.city)}, ${CTRY[c.cc]} · customer since ${c.since}`) + `<div class="dr-b">
+    ${kv([['Contact', esc(c.contact)], ['Email', `<a href="mailto:${c.email}">${esc(c.email)}</a>`], ['Phone', c.phone], ['VAT ID', c.vat], ['Payment terms', `${c.terms} days net`], ['VAT treatment', c.cc === 'DE' ? '19% domestic' : '0% intra-EU']])}
+    <div class="sec"><span>Credit</span>${gb('credit', `${ic('edit')}Edit limit`, `data-act="editCredit" data-id="${c.id}"`, 'btn sm')}</div>${creditBox(c)}
+    <div class="sec"><span>Open orders · ${openO.length}</span>${gb('orders', `${ic('plus')}New order`, `data-act="newOrder" data-cust="${c.id}"`, 'btn sm')}</div>
+    ${openO.length ? openO.map((o) => `<div class="dl"><div><b><a href="#" data-act="openOrder" data-id="${o.id}">${o.no}</a></b><span>${fd(o.day)} · ${fmt(oq(o).del)} of ${fmt(o.vol)} m³ delivered</span></div>${pill(...OST[ost(o)])}</div>`).join('') : '<p class="muted">No open orders.</p>'}
+    ${stmt}
+  </div><div class="dr-f">${overOf(c) > 0 ? gb('pay', `${ic('mail')}Send reminder`, `data-act="remindCust" data-id="${c.id}"`) : ''}<button type="button" class="btn primary" data-act="closeDrawer">Done</button></div>`;
+}
+
+/* ── popovers: notifications, user menu, more ────────── */
+let POP = null;
+function openPop(kind, anchor) {
+  closePop(); POP = { kind, anchor };
+  const el = document.createElement('div'); el.className = 'pop'; el.id = 'pop';
+  if (kind === 'notifs') {
+    const L = notes(), un = L.filter((n) => !READ.has(n.key)).length; el.classList.add('nf'); el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Notifications');
+    el.innerHTML = `<div class="nf-h"><b>Notifications${un ? ` · ${un} new` : ''}</b>${un ? '<button type="button" data-act="readAll">Mark all as read</button>' : ''}</div>${L.length ? L.map((n) => `<button type="button" class="nt ${READ.has(n.key) ? 'read' : ''}" data-note="${n.key}"><i class="${n.sev}"></i><span><b>${esc(n.title)}</b><span>${esc(n.text)}</span><small>${ago(n.t)}</small></span></button>`).join('') : '<div class="empty"><b>You are all caught up</b><span>Alerts about stock, receipts, maintenance and payments appear here.</span></div>'}`;
+  } else {
+    const u = USERS[me]; el.setAttribute('role', 'menu');
+    const pages = kind === 'more' ? ['fleet', 'finance', 'analytics', 'audit'].map((k) => `<button type="button" class="mi" role="menuitem" data-page="${k}">${ic(PAGES[k][1])}${PAGES[k][0]}${PAGE_PERM[k] && !can(PAGE_PERM[k]) ? `<kbd>${ic('lock')}</kbd>` : ''}</button>`).join('') + '<div style="border-top:1px solid var(--border);margin:4px 0"></div>' : '';
+    el.innerHTML = `${kind === 'user' ? `<div class="mh"><b>${esc(u.name)}</b><span>${u.email}</span>${pill(u.role, 'acc')}<span style="margin-top:6px">${u.desc}</span></div>` : ''}${pages}<button type="button" class="mi" role="menuitem" data-act="help">${ic('help')}Help &amp; support</button><button type="button" class="mi" role="menuitem" data-act="shortcuts">${ic('grid')}Keyboard shortcuts<kbd>?</kbd></button><button type="button" class="mi" role="menuitem" data-act="signOut">${ic('out')}Sign out</button>`;
+  }
+  document.body.appendChild(el);
+  const r = anchor.getBoundingClientRect(), w = el.offsetWidth;
+  el.style.left = Math.max(12, Math.min(innerWidth - w - 12, r.right - w)) + 'px';
+  if (r.top > innerHeight / 2) { el.classList.add('up'); el.style.bottom = (innerHeight - r.top + 8) + 'px'; } else el.style.top = (r.bottom + 8) + 'px';
+  anchor.setAttribute('aria-expanded', 'true');
+  const f = $('button', el); if (f) f.focus({ preventScroll: true });
+}
+function closePop() { const el = $('#pop'); if (el) el.remove(); if (POP && POP.anchor) POP.anchor.setAttribute('aria-expanded', 'false'); POP = null; }
+
+/* ── sign in ─────────────────────────────────────────── */
+function signInScreen() {
+  const r = me in PERM ? me : 'admin';
+  $('#signin').innerHTML = `<form class="si-card" id="si-form" novalidate>
+    <div class="brand"><div class="brand-mark">${ic('drop')}</div><div><div class="brand-name">DizelTrade</div><div class="brand-sub">Leipzig base · ERP</div></div></div>
+    <h1>Sign in</h1><p>Use a demo account. Each role sees different screens and actions.</p>
+    <fieldset class="roles"><legend>Demo account</legend>${['admin', 'dispatcher', 'accountant'].map((k) => `<label class="role"><input type="radio" name="si-r" value="${k}" ${k === r ? 'checked' : ''}><span><b>${USERS[k].role} · ${esc(USERS[k].name)}</b><span>${USERS[k].desc}</span></span></label>`).join('')}</fieldset>
+    <div class="field"><label for="si-e">Work email</label><input id="si-e" type="email" autocomplete="username" value="${USERS[r].email}"></div>
+    <div class="field"><label for="si-p">Password</label><input id="si-p" type="password" autocomplete="current-password" value="demo-2026"></div>
+    <div class="si-err" id="si-err" role="alert"></div>
+    <button type="submit" class="btn primary block" data-act="signIn">Sign in</button>
+    <p class="si-foot">Demo password: demo-2026 · Version 4.12.0 · support@dizeltrade.example</p></form>`;
+  $$('[name="si-r"]').forEach((x) => { x.onchange = () => { $('#si-e').value = USERS[x.value].email; $('#si-err').textContent = ''; }; });
+  $('#si-form').onsubmit = (e) => { e.preventDefault(); ACT.signIn(); };
+}
+
+/* ── actions ─────────────────────────────────────────── */
+function audit_(cat, text, u = me) { A(now(), u, cat, text); S.audit.sort((a, b) => b.t - a.t); }
+let UT;
+function undoToast(msg, undo) {
+  const el = $('#undo'); el.innerHTML = `<span></span><button type="button" class="btn sm">Undo</button>`; el.firstChild.textContent = msg;
+  el.lastChild.onclick = () => { clearTimeout(UT); el.classList.remove('show'); undo(); dirty(); reconcile(); render(); toast('Change undone'); };
+  el.classList.add('show'); clearTimeout(UT); UT = setTimeout(() => el.classList.remove('show'), 6500);
+}
+const fld = (id, label, input, hint = '') => `<div class="field"><label for="${id}">${label}</label>${input}<span class="err" id="${id}-e" role="alert"></span>${hint ? `<span class="hint" id="${id}-h">${hint}</span>` : ''}</div>`;
+function ferr(id, msg) { const el = $('#' + id), e = $('#' + id + '-e'); if (el) { el.setAttribute('aria-invalid', msg ? 'true' : 'false'); el.setAttribute('aria-describedby', id + '-e'); } if (e) e.textContent = msg || ''; return msg ? 1 : 0; }
+function confirmDlg(title, text, okLabel, onOk, danger = true) {
+  modal(`<h2>${title}</h2><p>${text}</p><div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Keep</button><button type="button" class="btn ${danger ? 'danger' : 'primary'}" id="cf-ok">${okLabel}</button></div>`, (s) => { $('#cf-ok', s).focus(); $('#cf-ok', s).onclick = () => { closeModal(); onOk(); }; });
+}
+const after = () => { dirty(); reconcile(); render(); };
 
 const ACT = {
-  deliver({ id }) {
-    const t = S.trips.find((x) => x.id === +id); t.status = 'done';
-    const o = order(t.order); o.transit -= t.vol; o.delivered += t.vol;
-    truck(t.truck).status = 'base'; truck(t.truck).last = t.site; truck(t.truck).trips += 1;
-    LOG.unshift([clk(), `${truck(t.truck).name} delivered ${t.vol} m³ to ${t.site}`]); toast(`Delivered: ${t.vol} m³ to ${t.site}`); render();
+  closeDrawer: closeDrawer,
+  openCust({ id }) { closePop(); openDrawer('cust', +id); },
+  openOrder({ id }) { openDrawer('order', +id); },
+  more(d, el) { POP && POP.kind === 'more' ? closePop() : openPop('more', el); },
+  notifs(d, el) { POP && POP.kind === 'notifs' ? closePop() : openPop('notifs', el); },
+  userMenu(d, el) { POP && POP.kind === 'user' ? closePop() : openPop('user', el); },
+  readAll() { notes().forEach((n) => READ.add(n.key)); closePop(); chrome(); toast('All notifications marked as read'); },
+  help() {
+    closePop();
+    modal(`<div class="wide help"><h2>Help &amp; support</h2><p>DizelTrade ERP · version 4.12.0 (build 2026.06.08)</p>
+      <h3>Keyboard shortcuts</h3><dl><dt><kbd>/</kbd></dt><dd>Search the current table</dd><dt><kbd>Esc</kbd></dt><dd>Close a dialog, panel or menu</dd><dt><kbd>Enter</kbd></dt><dd>Open the focused row</dd><dt><kbd>?</kbd></dt><dd>Show this help</dd></dl>
+      <h3>Support</h3><ul><li>Email: support@dizeltrade.example</li><li>Phone: +49 341 555 0142, Monday to Friday 07:00–18:00 CET</li><li>Urgent dispatch issues: on-call line +49 341 555 0199, 24/7</li></ul>
+      <h3>New in 4.12</h3><ul><li>Credit check with Admin override on new orders</li><li>ADR transport data on printed delivery notes</li><li>Maintenance due dates and alerts for the own fleet</li></ul>
+      <div class="modal-actions"><button type="button" class="btn primary" onclick="closeModal()">Close</button></div></div>`);
   },
-  confirmRc({ id }) { const r = S.receipts.find((x) => x.id === +id); r.ok = true; toast(`Receipt confirmed: +${r.vol} m³ at base`); render(); },
+  shortcuts() { ACT.help(); },
+  signOut() {
+    closePop(); closeDrawer(); closeModal(); audit_('Access', 'Signed out'); signedIn = false; document.body.classList.add('out');
+    $('#signin').hidden = false; signInScreen(); window.scrollTo(0, 0); $('#si-p').focus();
+  },
+  signIn() {
+    const e = $('#si-e').value.trim().toLowerCase(), p = $('#si-p').value, err = $('#si-err');
+    const u = Object.keys(PERM).find((k) => USERS[k].email === e);
+    if (!e) { err.textContent = 'Enter your work email.'; $('#si-e').focus(); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]+$/.test(e)) { err.textContent = 'Enter a valid email address, for example name@company.example.'; $('#si-e').focus(); return; }
+    if (!u || p !== 'demo-2026') { err.textContent = 'Incorrect email or password. The demo password is demo-2026.'; $('#si-p').focus(); return; }
+    me = u; signedIn = true; READ.clear(); $('#signin').hidden = true; document.body.classList.remove('out');
+    audit_('Access', 'Signed in · Leipzig office'); page = 'dashboard'; booting = true; render();
+    setTimeout(() => { booting = false; render(); toast(`Signed in as ${USERS[me].name}, ${USERS[me].role}`); }, 650);
+  },
+  export({ key }) { const cfg = TC[key], st = TS[key], rows = st.vis || cfg.rows(); csv(`dizeltrade-${key}-${iso(TODAY)}.csv`, cfg.csv[0], rows.map(cfg.csv[1])); },
+  clearSel({ key }) { TS[key].sel.clear(); refresh(key); },
+  clearFilters({ key }) { Object.assign(TS[key], { q: '', f: 'all', page: 0 }); render(); },
+  bulk({ key, op }) {
+    const st = TS[key], cfg = TC[key], rows = cfg.rows().filter((r) => st.sel.has(r.id));
+    if (op === 'export') return csv(`dizeltrade-${key}-selected-${iso(TODAY)}.csv`, cfg.csv[0], rows.map(cfg.csv[1]));
+    if (op === 'cancel') {
+      const ok = rows.filter((o) => o.status !== 'cancelled' && !tripsOf(o.id).some(loaded)), skip = rows.length - ok.length;
+      if (!ok.length) return toast('None of the selected orders can be cancelled: fuel is already loaded or delivered.');
+      confirmDlg(`Cancel ${plural(ok.length, 'order')}?`, `Scheduled trucks are released.${skip ? ` ${plural(skip, 'order')} with fuel already loaded or delivered will be skipped.` : ''}`, `Cancel ${plural(ok.length, 'order')}`, () => {
+        const snap = ok.map((o) => [o, S.trips.filter((t) => t.order === o.id)]);
+        ok.forEach((o) => cancelOne(o, 'Bulk cancellation')); st.sel.clear(); after();
+        undoToast(`${plural(ok.length, 'order')} cancelled`, () => snap.forEach(([o, ts]) => { o.status = 'open'; S.trips.push(...ts); S.trips.sort((a, b) => a.id - b.id); audit_('Order', `Restored ${o.no}`); }));
+      });
+    }
+    if (op === 'remind') {
+      const od = rows.filter((i) => ist(i) === 'overdue');
+      if (!od.length) return toast('None of the selected invoices is overdue.');
+      od.forEach((i) => { i.rem = TODAY; audit_('Payment', `Payment reminder for ${i.no} sent to ${CU(i.cust).email}`); });
+      st.sel.clear(); after(); toast(`${plural(od.length, 'reminder')} sent for overdue invoices${rows.length > od.length ? `, ${fmt(rows.length - od.length)} not overdue skipped` : ''}`);
+    }
+  },
+  vatCsv() {
+    csv(`dizeltrade-vat-summary-2026.csv`, ['Month', 'Domestic net EUR', 'Output VAT 19% EUR', 'Intra-EU supplies EUR'], MONTHS.map((m, k) => { const L = S.inv.filter((i) => mon(i.day) === k); return [`2026-0${k + 1}`, r2(L.filter((i) => i.rate).reduce((s, i) => s + i.net, 0)), r2(L.reduce((s, i) => s + i.vat, 0)), r2(L.filter((i) => !i.rate).reduce((s, i) => s + i.net, 0))]; }));
+  },
+  anCsv() { csv('dizeltrade-analytics-2026.csv', ['Month', 'Delivered m3', 'Revenue EUR', 'Cost EUR', 'Gross margin EUR', 'Margin %'], monthly().map((m) => [m.m, m.vol, r2(m.rev), r2(m.cost), r2(m.mar), fmtD(m.pct, 1)])); },
+  stmtCsv({ id }) {
+    const c = CU(+id), rows = [...(ix().ibc.get(c.id) || []).map((i) => [i.t, iso(i.day), i.no, 'Invoice', i.gross, 0]), ...(ix().pbc.get(c.id) || []).map((p) => [p.t, iso(p.day), p.no, 'Payment ' + p.ref, 0, p.amount])].sort((a, b) => a[0] - b[0]);
+    let b = 0; csv(`statement-${ascii(c.name).replace(/[^a-z0-9]+/g, '-')}-${iso(TODAY)}.csv`, ['Date', 'Document', 'Description', 'Debit EUR', 'Credit EUR', 'Balance EUR'], rows.map((r) => { b = r2(b + r[4] - r[5]); return [r[1], r[2], r[3], r[4] || '', r[5] || '', b]; }));
+  },
+  confirmRc({ id }) {
+    if (!can('stock')) return deny('stock');
+    const r = S.rc.find((x) => x.id === +id); if (!r || r.ok) return;
+    if (stock() + r.v15 > CAP) return toast(`Only ${fmt(CAP - stock())} m³ free in the tank. Dispatch fuel before confirming.`);
+    r.ok = true; r.ct = now(); r.by = me; audit_('Stock', `Confirmed receipt ${r.no} · +${fmtD(r.v15, 1)} m³ at 15 °C`); after();
+    undoToast(`Receipt ${r.no} confirmed: +${fmtD(r.v15, 1)} m³`, () => { r.ok = false; r.ct = null; audit_('Stock', `Reverted confirmation of ${r.no}`); });
+  },
   newReceipt() {
-    modal(`<h2>Log fuel receipt</h2><p>The new receipt will be sent for confirmation.</p>
-      <div class="field"><label>Supplier</label><select id="f-src"><option>Nordfuel Leipzig</option><option>EuroDiesel Supply</option><option>Brenner Mineralöl (private)</option></select></div>
-      <div class="field"><label>Volume, m³</label><input id="f-vol" type="number" min="1" max="500" value="100"></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="f-ok">Save</button></div>`, () => {
-      $('#f-ok').onclick = () => {
-        const vol = +$('#f-vol').value; if (!(vol > 0)) return;
-        S.receipts.unshift({ id: Date.now(), src: $('#f-src').value, vol, ttn: 'BOL-2026-' + (1902 + S.receipts.length - 4), date: TODAY, ok: false, jun: true });
-        closeModal(); toast('Receipt saved, awaiting confirmation'); render();
+    if (!can('stock')) return deny('stock');
+    modal(`<div class="wide"><h2>Log fuel receipt</h2><p>Record the supplier delivery. Volume is corrected to 15 °C before it enters stock.</p>
+      <div class="frow">${fld('r-s', 'Supplier', `<select id="r-s">${SUPPLIERS.map((s) => `<option>${s}</option>`).join('')}</select>`)}${fld('r-ls', 'Supplier delivery note', `<input id="r-ls" placeholder="LS 123456" autocomplete="off">`)}</div>
+      <div class="frow">${fld('r-v', 'Observed volume, m³', '<input id="r-v" type="number" inputmode="decimal" min="1" max="1000" step="0.1" value="420">')}${fld('r-t', 'Fuel temperature, °C', '<input id="r-t" type="number" step="0.1" min="-30" max="50" value="19">')}</div>
+      <div class="frow">${fld('r-d', 'Density at 15 °C, kg/m³', '<input id="r-d" type="number" step="0.1" min="800" max="860" value="834">', 'EN 590 range: 820–845')}${fld('r-p', 'Purchase price, € per m³', `<input id="r-p" type="number" step="1" min="900" max="2500" value="${COST[5]}">`)}</div>
+      <div class="calc" id="r-c" aria-live="polite"></div>
+      <label class="chk"><input type="checkbox" id="r-ok"> Confirm now: I checked the seals and the dip reading</label>
+      <div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn primary" id="r-go">Save receipt</button></div></div>`, (s) => {
+      const calc = () => { const v = +$('#r-v').value, t = +$('#r-t').value, v15 = r1(v * (1 - 0.00084 * (t - 15))); $('#r-c').innerHTML = v > 0 ? `Standard volume <b>${fmtD(v15, 1)} m³</b> at 15 °C · tank after receipt <b>${fmt(stock() + v15)} of ${fmt(CAP)} m³</b>` : 'Enter the observed volume to see the corrected quantity.'; return v15; };
+      $$('input', s).forEach((x) => { x.oninput = calc; }); calc(); $('#r-ls').focus();
+      $('#r-go').onclick = () => {
+        const v = +$('#r-v').value, t = $('#r-t').value, d = +$('#r-d').value, ls = $('#r-ls').value.trim(), v15 = calc(), pend = pendingRc().reduce((x, r) => x + r.v15, 0);
+        let e = ferr('r-ls', !ls ? 'Enter the delivery note number from the supplier paperwork.' : S.rc.some((r) => r.ls === ls) ? `Delivery note ${ls} is already booked.` : '');
+        e += ferr('r-v', !(v > 0 && v <= 1000) ? 'Enter a volume between 0.1 and 1,000 m³.' : stock() + pend + v15 > CAP ? `The tank has room for ${fmt(CAP - stock() - pend)} m³ including pending receipts.` : '');
+        e += ferr('r-t', t === '' || +t < -30 || +t > 50 ? 'Enter a temperature between −30 and 50 °C.' : '');
+        e += ferr('r-d', !(d >= 800 && d <= 860) ? 'Density must be between 800 and 860 kg/m³.' : '');
+        e += ferr('r-p', !(+$('#r-p').value >= 900 && +$('#r-p').value <= 2500) ? 'Enter a price between €900 and €2,500 per m³.' : '');
+        if (e) return;
+        const r = addRc(TODAY, v, false, +t, now()); r.sup = $('#r-s').value; r.ls = ls; r.dens = d; r.price = +$('#r-p').value; r.v15 = v15; r.by = me;
+        audit_('Stock', `Logged receipt ${r.no} from ${r.sup} · ${fmtD(v15, 1)} m³ at 15 °C`);
+        if ($('#r-ok').checked) { r.ok = true; r.ct = now(); audit_('Stock', `Confirmed receipt ${r.no} · +${fmtD(v15, 1)} m³ at 15 °C`); }
+        closeModal(); after(); toast(r.ok ? `Receipt ${r.no} booked: +${fmtD(v15, 1)} m³` : `Receipt ${r.no} saved, awaiting confirmation`);
       };
     });
   },
-  newTrip(data = {}) {
-    const free = S.trucks.filter((t) => t.status !== 'transit');
-    if (!free.length) { toast('All trucks are in transit'); return; }
-    modal(`<h2>New trip</h2><p>Fuel is deducted from base stock immediately. Base stock now: ${fmt(stock())} m³.</p>
-      <div class="field"><label>Truck</label><select id="f-truck">${free.map((t) => `<option value="${t.id}">${esc(t.name)} · tank ${t.tank} m³</option>`).join('')}</select></div>
-      <div class="field"><label>Order</label><select id="f-order">${S.orders.map((o) => `<option value="${o.id}">${esc(o.client)} · ${fmt(o.total - o.delivered - o.transit)} m³ left</option>`).join('')}</select></div>
-      <div class="field"><label>Site</label><select id="f-site"></select></div>
-      <div class="field"><label>Volume, m³</label><input id="f-vol" type="number" min="1" value="12"><span id="f-err" class="neg" style="font-size:13px"></span></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="f-ok">Dispatch trip</button></div>`, () => {
-      const sync = () => {
-        const o = order(+$('#f-order').value), t = truck(+$('#f-truck').value);
-        $('#f-site').innerHTML = o.sites.map((s) => `<option>${esc(s)}</option>`).join('');
-        $('#f-vol').max = t.tank; if (+$('#f-vol').value > t.tank) $('#f-vol').value = t.tank;
-      };
-      $('#f-order').onchange = sync; $('#f-truck').onchange = sync; sync();
-      $('#f-ok').onclick = () => {
-        const t = truck(+$('#f-truck').value), o = order(+$('#f-order').value), vol = +$('#f-vol').value, left = o.total - o.delivered - o.transit;
-        const err = !(vol > 0) ? 'Enter a volume' : vol > t.tank ? `${t.name} tank holds ${t.tank} m³` : vol > stock() ? `Only ${fmt(stock())} m³ at base` : vol > left ? `Only ${left} m³ left on this order` : '';
-        if (err) { $('#f-err').textContent = err; return; }
-        S.trips.unshift({ id: Date.now(), truck: t.id, order: o.id, site: $('#f-site').value, vol, date: TODAY, status: 'transit' });
-        t.status = 'transit'; o.transit += vol; S.shippedJun += vol;
-        closeModal(); toast(`${t.name} dispatched: ${vol} m³`); render();
+  newOrder({ cust } = {}) {
+    if (!can('orders')) return deny('orders');
+    orderForm(null, +cust || 1);
+  },
+  editOrder({ id }) { if (!can('orders')) return deny('orders'); orderForm(OR(+id)); },
+  cancelOrder({ id }) {
+    if (!can('cancel')) return deny('cancel');
+    const o = OR(+id);
+    modal(`<h2>Cancel ${o.no}?</h2><p>${esc(CU(o.cust).name)} · ${fmt(o.vol)} m³. Scheduled trucks are released. This is recorded in the audit log.</p>${fld('x-r', 'Reason', '<select id="x-r"><option>Customer request</option><option>Credit hold</option><option>Duplicate order</option><option>Price not accepted</option></select>')}<div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Keep order</button><button type="button" class="btn danger" id="x-ok">Cancel order</button></div>`, () => {
+      $('#x-ok').onclick = () => {
+        const why = $('#x-r').value, ts = S.trips.filter((t) => t.order === o.id); closeModal(); cancelOne(o, why); after();
+        undoToast(`${o.no} cancelled`, () => { o.status = 'open'; S.trips.push(...ts); S.trips.sort((a, b) => a.id - b.id); audit_('Order', `Restored ${o.no}`); });
       };
     });
+  },
+  schedule({ id } = {}) {
+    if (!can('ops')) return deny('ops');
+    const open = S.orders.filter((o) => o.status !== 'cancelled' && oq(o).rem > 0);
+    if (!open.length) return toast('Every open order already has trucks assigned.');
+    const sel = open.find((o) => o.id === +id) || open[0];
+    modal(`<div class="wide"><h2>Schedule delivery</h2><p>Assign a truck and driver. Fuel leaves stock when the truck is loaded and dispatched.</p>
+      ${fld('s-o', 'Order', `<select id="s-o">${open.map((o) => `<option value="${o.id}" ${o === sel ? 'selected' : ''}>${o.no} · ${esc(CU(o.cust).name)} · ${fmt(oq(o).rem)} m³ left</option>`).join('')}</select>`)}
+      <div class="frow">${fld('s-d', 'Date', `<input id="s-d" type="date" min="${iso(TODAY)}" max="${iso(TODAY + 30)}" value="${iso(TODAY)}">`)}${fld('s-t', 'Truck', '<select id="s-t"></select>')}</div>
+      <div class="frow">${fld('s-dr', 'Driver', `<select id="s-dr">${S.drivers.map((d) => `<option value="${d.id}">${esc(d.name)}${d.adr < TODAY ? ' (ADR expired)' : ''}</option>`).join('')}</select>`)}${fld('s-v', 'Volume, m³', '<input id="s-v" type="number" inputmode="numeric" min="1" step="1">')}</div>
+      <label class="chk"><input type="checkbox" id="s-now"> Load and dispatch now (today only, deducts ${'base'} stock)</label>
+      <div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn primary" id="s-ok">Schedule</button></div></div>`, () => {
+      const sync = (keepVol) => {
+        const d = dayOf($('#s-d').value), o = OR(+$('#s-o').value), free = S.trucks.filter((t) => t.ws == null && !S.trips.some((x) => x.truck === t.id && x.day === d && x.status !== 'delivered'));
+        const cur = +$('#s-t').value; $('#s-t').innerHTML = free.length ? free.map((t) => `<option value="${t.id}" ${t.id === cur ? 'selected' : ''}>${esc(t.name)} · ${t.tank} m³${t.own ? '' : ' · hired'}</option>`).join('') : '<option value="">No truck free on this date</option>';
+        const t = TRK(+$('#s-t').value); if (t) { $('#s-dr').value = t.driver; if (!keepVol) $('#s-v').value = Math.min(t.tank, oq(o).rem); }
+        $('#s-now').disabled = d !== TODAY; if (d !== TODAY) $('#s-now').checked = false;
+      };
+      $('#s-o').onchange = () => sync(); $('#s-d').onchange = () => sync(); $('#s-t').onchange = () => sync(); sync();
+      $('#s-ok').onclick = () => {
+        const o = OR(+$('#s-o').value), d = dayOf($('#s-d').value), t = TRK(+$('#s-t').value), v = +$('#s-v').value, dr = DRV(+$('#s-dr').value), nowD = $('#s-now').checked;
+        let e = ferr('s-d', !(d >= TODAY && d <= TODAY + 30) ? `Pick a date between ${fd(TODAY)} and ${fd(TODAY + 30)}.` : (d + 4) % 7 === 0 ? 'The base is closed on Sundays.' : '');
+        e += ferr('s-t', !t ? 'No truck is free on this date. Pick another day.' : '');
+        e += ferr('s-dr', dr.adr < TODAY ? `${dr.name}'s ADR certificate expired on ${fd(dr.adr)}. Pick another driver.` : S.trips.some((x) => x.driver === dr.id && x.day === d && x.status !== 'delivered' && (!t || x.truck !== t.id)) ? `${dr.name} already drives another trip that day.` : '');
+        e += ferr('s-v', !(v > 0 && Number.isInteger(v)) ? 'Enter a whole number of m³.' : t && v > t.tank ? `${t.name} holds ${t.tank} m³.` : v > oq(o).rem ? `Only ${fmt(oq(o).rem)} m³ left to schedule on ${o.no}.` : nowD && v > stock() ? `Only ${fmt(stock())} m³ at base.` : '');
+        if (e) return;
+        const id2 = S.trips.length + 1, tr = { id: id2, no: 'BOL-2026-' + String(id2).padStart(4, '0'), order: o.id, truck: t.id, driver: dr.id, vol: v, day: d, dep: null, etd: 15 * 60 + 30, status: 'planned', p: 0, st: now() };
+        S.trips.push(tr); audit_('Dispatch', `Scheduled ${tr.no} for ${o.no} · ${t.name} · ${dr.name} · ${v} m³ on ${fd(d)}`);
+        closeModal(); dirty(); if (nowD) ACT.dispatch({ id: tr.id }); else { after(); toast(`${tr.no} scheduled for ${fd(d)}`); }
+        if (!DR) openDrawer('order', o.id);
+      };
+    });
+  },
+  dispatch({ id }) {
+    if (!can('ops')) return deny('ops');
+    const t = TP(+id); if (!t || t.status !== 'planned') return;
+    if (TRK(t.truck).ws != null) return toast(`${TRK(t.truck).name} is in the workshop.`);
+    if (t.vol > stock()) return toast(`Only ${fmt(stock())} m³ at base. Confirm a receipt first.`);
+    const was = stock() >= REORDER;
+    t.status = 'transit'; t.day = TODAY; t.dep = CLK; t.p = .02; audit_('Dispatch', `Dispatched ${t.no} · ${TRK(t.truck).name} · ${t.vol} m³ to ${OR(t.order).site}`); after();
+    toast(`${TRK(t.truck).name} loaded and dispatched: ${t.vol} m³ to ${OR(t.order).site}`);
+    if (was && stock() < REORDER) EVN.push({ key: 'ev-low' + now(), sev: 'neg', t: now(), title: 'Base stock fell below the reorder level', text: `${fmt(stock())} m³ left after ${t.no}.`, go: 'base' }), chrome();
+  },
+  unschedule({ id }) {
+    if (!can('ops')) return deny('ops');
+    const t = TP(+id); if (!t || t.status !== 'planned') return;
+    confirmDlg(`Remove ${t.no}?`, `${TRK(t.truck).name} is released and ${t.vol} m³ go back to “left to schedule”.`, 'Remove trip', () => {
+      const i = S.trips.indexOf(t); S.trips.splice(i, 1); audit_('Dispatch', `Removed scheduled trip ${t.no}`); after();
+      undoToast(`${t.no} removed`, () => { S.trips.splice(i, 0, t); audit_('Dispatch', `Restored ${t.no}`); });
+    });
+  },
+  deliver({ id }, el, by) {
+    if (!by && !can('ops')) return deny('ops');
+    const t = TP(+id); if (!t || t.status !== 'transit') return;
+    t.status = 'delivered'; t.arr = CLK; t.p = 1; const inv = issue(t, now() + 1), o = OR(t.order);
+    audit_('Delivery', `${by ? 'Telematics: ' : ''}Proof of delivery for ${t.no} in ${o.site}`, by || me); audit_('Invoice', `Issued ${inv.no} to ${CU(o.cust).name} · ${eur(inv.gross)}`, 'system');
+    EVN.push({ key: 'ev-d' + t.id, sev: 'pos', t: now(), title: `Delivered to ${o.site}`, text: `${TRK(t.truck).name}, ${t.vol} m³ for ${CU(o.cust).name}. Invoice ${inv.no} issued.`, go: 'orders' });
+    if (EVN.length > 20) EVN.shift();
+    after(); toast(`Delivered: ${t.vol} m³ to ${o.site} · ${inv.no} issued`);
+  },
+  bol({ id }) {
+    const t = TP(+id), o = OR(t.order), c = CU(o.cust), tk = TRK(t.truck), dr = DRV(t.driver);
+    modal(`<div class="bol-bar"><b>Delivery note ${t.no}</b><div><button type="button" class="btn sm" onclick="window.print()">${ic('print')}Print</button><button type="button" class="btn sm" onclick="closeModal()">Close</button></div></div>
+      <article class="bol" aria-label="Delivery note ${t.no}">
+        <header><div><h3>Delivery note / Bill of lading</h3><span class="muted">DizelTrade · Leipzig base, Am Tanklager 7, 04159 Leipzig, Germany</span></div><div style="text-align:right"><b style="font-size:16px">${t.no}</b><br><span class="muted">Order ${o.no} · ${fd(t.day)}</span></div></header>
+        <div class="g3"><div><small>Consignor</small><b>DizelTrade, Leipzig base</b><br>Tank T1 · VAT DE284615937</div><div><small>Consignee</small><b>${esc(c.name)}</b><br>${esc(o.site)}, ${CTRY[c.cc]}<br>VAT ${c.vat}</div><div><small>Carrier</small><b>${tk.own ? 'DizelTrade own fleet' : 'Hoffmann Spedition'}</b><br>${esc(tk.name)} · ${tk.plate}<br>Driver ${esc(dr.name)}</div></div>
+        <table><thead><tr><th>Product</th><th>Quantity at 15 °C</th><th>Litres</th><th>Density at 15 °C</th></tr></thead><tbody><tr><td>Diesel fuel EN 590 (B7)</td><td>${fmtD(t.vol, 1)} m³</td><td>${fmt(t.vol * 1000)} L</td><td>835.0 kg/m³</td></tr></tbody></table>
+        <div class="adr"><b>ADR:</b> UN 1202 DIESEL FUEL, 3, III, (D/E) · hazard identification number 30 · ${fmt(t.vol * 1000)} L in tank vehicle</div>
+        <div class="g3"><div><small>Departure</small>${loaded(t) ? `${fd(t.day)}, ${hm(t.dep)}` : `Planned ${fd(t.day)}, ${hm(t.etd)}`}</div><div><small>Distance</small>${kmTo(o.site)} km</div><div><small>Arrival</small>${t.status === 'delivered' ? `${fd(t.day)}, ${hm(t.arr)}` : t.status === 'transit' ? `ETA ${hm(t.dep + durTo(o.site))}` : '—'}</div></div>
+        ${o.note ? `<p><b>Note:</b> ${esc(o.note)}</p>` : ''}
+        ${t.status === 'delivered' ? `<span class="stamp">DELIVERED · ${fds(t.day)} ${hm(t.arr)}</span>` : ''}
+        <div class="sig"><div>Loaded by (base)</div><div>Driver</div><div>Received by (consignee), name and signature</div></div>
+      </article>`);
+  },
+  recordPay({ id }) {
+    if (!can('pay')) return deny('pay');
+    const i = S.inv[+id - 1], open = openOf(i);
+    modal(`<h2>Record payment</h2><p>${i.no} · ${esc(CU(i.cust).name)} · open ${eur(open)}</p>
+      ${fld('p-a', 'Amount, €', `<input id="p-a" type="number" inputmode="decimal" step="0.01" min="0.01" value="${open.toFixed(2)}">`)}
+      <div class="frow">${fld('p-d', 'Received on', `<input id="p-d" type="date" min="${iso(i.day)}" max="${iso(TODAY)}" value="${iso(TODAY)}">`)}${fld('p-m', 'Method', '<select id="p-m"><option>SEPA credit transfer</option><option>SEPA direct debit</option><option>Netting against supplier invoice</option></select>')}</div>
+      <div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn primary" id="p-ok">Record payment</button></div>`, () => {
+      $('#p-ok').onclick = () => {
+        const a = r2(+$('#p-a').value), d = dayOf($('#p-d').value);
+        let e = ferr('p-a', !(a > 0) ? 'Enter an amount above €0.' : a > open + .001 ? `The amount cannot exceed the open balance of ${eur(open)}.` : '');
+        e += ferr('p-d', !(d >= i.day && d <= TODAY) ? `Pick a date between ${fd(i.day)} and ${fd(TODAY)}.` : '');
+        if (e) return;
+        const p = addPay(i, a, d, now(), me); p.method = $('#p-m').value; p.id = S.pay.length; p.no = 'PAY-2026-' + String(S.pay.length).padStart(4, '0');
+        audit_('Payment', `Recorded ${eur(a)} from ${CU(i.cust).name} against ${i.no}`); closeModal(); after();
+        undoToast(`${eur(a)} recorded against ${i.no}`, () => { S.pay.splice(S.pay.indexOf(p), 1); audit_('Payment', `Reversed payment ${p.no} of ${eur(a)}`); });
+      };
+    });
+  },
+  remind({ id }) {
+    if (!can('pay')) return deny('pay');
+    const i = S.inv[+id - 1]; i.rem = TODAY; audit_('Payment', `Payment reminder for ${i.no} sent to ${CU(i.cust).email}`); after(); toast(`Reminder for ${i.no} sent to ${CU(i.cust).email}`);
+  },
+  remindCust({ id }) {
+    if (!can('pay')) return deny('pay');
+    const c = CU(+id), od = (ix().ibc.get(c.id) || []).filter((i) => ist(i) === 'overdue'); od.forEach((i) => { i.rem = TODAY; });
+    audit_('Payment', `Payment reminder for ${plural(od.length, 'overdue invoice')} sent to ${c.email}`); after(); toast(`Reminder for ${plural(od.length, 'overdue invoice')} sent to ${c.email}`);
+  },
+  editCredit({ id }) {
+    if (!can('credit')) return deny('credit');
+    const c = CU(+id);
+    modal(`<h2>Edit credit limit</h2><p>${esc(c.name)} · balance ${eur0(balOf(c))}</p>
+      ${fld('c-l', 'Credit limit, €', `<input id="c-l" type="number" step="5000" min="0" max="2000000" value="${c.limit}">`, 'In steps of €5,000')}
+      ${fld('c-t', 'Payment terms', `<select id="c-t">${[14, 30, 45].map((t) => `<option value="${t}" ${t === c.terms ? 'selected' : ''}>${t} days net</option>`).join('')}</select>`)}
+      ${fld('c-r', 'Reason for the change', '<textarea id="c-r" maxlength="200" placeholder="For example: annual review, new bank guarantee"></textarea>', 'Required. Stored in the audit log.')}
+      <div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn primary" id="c-ok">Save</button></div>`, () => {
+      $('#c-ok').onclick = () => {
+        const l = +$('#c-l').value, why = $('#c-r').value.trim();
+        let e = ferr('c-l', !(l >= 0 && l <= 2e6) || $('#c-l').value === '' ? 'Enter a limit between €0 and €2,000,000.' : l % 5000 ? 'Use steps of €5,000.' : '');
+        e += ferr('c-r', why.length < 5 ? 'Give a short reason (at least 5 characters).' : '');
+        if (e) return;
+        const old = c.limit, oldT = c.terms; c.limit = l; c.terms = +$('#c-t').value;
+        audit_('Customer', `Changed credit limit for ${c.name} from ${eur0(old)} to ${eur0(l)}${oldT !== c.terms ? `, terms ${oldT} to ${c.terms} days` : ''} · ${why}`); closeModal(); after();
+        undoToast(`Credit limit for ${c.name} set to ${eur0(l)}`, () => { c.limit = old; c.terms = oldT; audit_('Customer', `Reverted credit limit for ${c.name} to ${eur0(old)}`); });
+      };
+    });
+  },
+  newCustomer() {
+    if (!can('credit')) return deny('credit');
+    const cities = (cc) => Object.keys(CITY).filter((k) => CITY[k][2] === cc).map((k) => `<option>${k}</option>`).join('');
+    modal(`<div class="wide"><h2>New customer</h2><p>Credit is checked against this limit on every new order.</p>
+      ${fld('n-n', 'Company name', '<input id="n-n" autocomplete="organization" placeholder="Muster Bau GmbH">')}
+      <div class="frow">${fld('n-c', 'Country', '<select id="n-c"><option value="DE">Germany</option><option value="PL">Poland</option><option value="CZ">Czechia</option></select>')}${fld('n-ci', 'Delivery site', `<select id="n-ci">${cities('DE')}</select>`)}</div>
+      <div class="frow">${fld('n-v', 'VAT ID', '<input id="n-v" autocomplete="off" placeholder="DE123456789">', 'Format: DE + 9 digits')}${fld('n-t', 'Payment terms', '<select id="n-t"><option value="14">14 days net</option><option value="30" selected>30 days net</option><option value="45">45 days net</option></select>')}</div>
+      <div class="frow">${fld('n-p', 'Contact person', '<input id="n-p" autocomplete="name">')}${fld('n-e', 'Email', '<input id="n-e" type="email" autocomplete="email" placeholder="name@company.example">')}</div>
+      ${fld('n-l', 'Credit limit, €', '<input id="n-l" type="number" step="5000" min="0" value="100000">')}
+      <div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn primary" id="n-ok">Create customer</button></div></div>`, () => {
+      const RX = { DE: [/^DE\d{9}$/, 'DE + 9 digits'], PL: [/^PL\d{10}$/, 'PL + 10 digits'], CZ: [/^CZ\d{8,10}$/, 'CZ + 8 to 10 digits'] };
+      $('#n-c').onchange = () => { const cc = $('#n-c').value; $('#n-ci').innerHTML = cities(cc); $('#n-v-h').textContent = 'Format: ' + RX[cc][1]; $('#n-v').placeholder = cc + (cc === 'PL' ? '1234567890' : cc === 'CZ' ? '12345678' : '123456789'); };
+      $('#n-ok').onclick = () => {
+        const n = $('#n-n').value.trim(), cc = $('#n-c').value, v = $('#n-v').value.replace(/\s/g, '').toUpperCase(), em = $('#n-e').value.trim(), l = +$('#n-l').value;
+        let e = ferr('n-n', n.length < 3 ? 'Enter the registered company name.' : S.cust.some((c) => c.name.toLowerCase() === n.toLowerCase()) ? 'A customer with this name already exists.' : '');
+        e += ferr('n-v', !RX[cc][0].test(v) ? `Enter a ${CTRY[cc]} VAT ID: ${RX[cc][1]}.` : S.cust.some((c) => c.vat === v) ? 'This VAT ID belongs to an existing customer.' : '');
+        e += ferr('n-p', $('#n-p').value.trim().length < 3 ? 'Enter a contact person.' : '');
+        e += ferr('n-e', !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em) ? 'Enter a valid email, for example name@company.example.' : '');
+        e += ferr('n-l', !(l >= 0 && l <= 2e6) || $('#n-l').value === '' ? 'Enter a limit between €0 and €2,000,000.' : '');
+        if (e) return;
+        const c = { id: S.cust.length + 1, name: n, city: $('#n-ci').value, cc, contact: $('#n-p').value.trim(), terms: +$('#n-t').value, beh: 0, w: 1, markup: 110, since: 2026, email: em, phone: '—', vat: v, limit: l };
+        S.cust.push(c); audit_('Customer', `Created customer ${n} (${v}) with a credit limit of ${eur0(l)}`); closeModal(); after(); toast(`${n} created`); openDrawer('cust', c.id);
+      };
+    });
+  },
+  maintDone({ id }) {
+    if (!can('fleet')) return deny('fleet');
+    const m = S.maint[+id - 1], t = TRK(m.truck);
+    confirmDlg(`Mark “${m.kind}” done?`, `${esc(t.name)} (${t.plate}). The next due date becomes ${fd(TODAY + m.iv)}.${t.ws != null && m.iv === 90 ? ' The truck returns to service.' : ''}`, 'Mark done', () => {
+      const old = m.due, ws = t.ws; m.due = TODAY + m.iv; if (m.iv === 90) t.ws = null;
+      audit_('Fleet', `${m.kind} completed for ${t.name} (${t.plate}); next due ${fd(m.due)}`); after();
+      undoToast(`${m.kind} marked done for ${t.name}`, () => { m.due = old; t.ws = ws; audit_('Fleet', `Reverted ${m.kind} for ${t.name}`); });
+    }, false);
   },
 };
-function openOrder(id) {
-  const o = order(id), trips = S.trips.filter((t) => t.order === id);
-  modal(`<h2>${esc(o.client)}</h2><p>Order of ${o.date} · €${fmt(o.price)}/m³ · €${fmt(o.total * o.price)}</p>
-    <div class="brow-t"><span>Delivered</span><b>${fmt(o.delivered)} of ${fmt(o.total)} m³</b></div><div class="bar thick" style="margin-bottom:6px"><i style="width:${pctOf(o.delivered, o.total)}%"></i></div>
-    <p class="muted" style="margin:0 0 14px">${o.transit ? `${o.transit} m³ on the road · ` : ''}${fmt(o.total - o.delivered - o.transit)} m³ left to ship</p>
-    ${trips.length ? trips.map((t) => `<div class="trip" style="grid-template-columns:1fr auto"><div><b>${esc(truck(t.truck).name)} → ${esc(t.site)}</b><span>${t.date} · ${t.vol} m³</span></div><span class="pill ${t.status === 'transit' ? 'warn' : 'pos'}"><i></i>${t.status === 'transit' ? 'In transit' : 'Delivered'}</span></div>`).join('') : '<p class="muted">No trips yet.</p>'}
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button></div>`);
+function cancelOne(o, why) {
+  S.trips = S.trips.filter((t) => t.order !== o.id || loaded(t)); o.status = 'cancelled'; o.ct = now(); o.cr = why;
+  audit_('Order', `Cancelled ${o.no} for ${CU(o.cust).name} · ${why}`);
 }
+function orderForm(o, custId) {
+  const edit = !!o, c0 = edit ? CU(o.cust) : CU(custId), minVol = edit ? oq(o).del + oq(o).tr + oq(o).pl : 5;
+  modal(`<div class="wide"><h2>${edit ? `Edit ${o.no}` : 'New order'}</h2><p>Diesel EN 590 (B7), delivered from Leipzig base.</p>
+    ${fld('o-c', 'Customer', `<select id="o-c" ${edit ? 'disabled' : ''}>${S.cust.map((c) => `<option value="${c.id}" ${c === c0 ? 'selected' : ''}>${esc(c.name)} · ${c.cc}</option>`).join('')}</select>`)}
+    <div class="frow">${fld('o-v', 'Volume, m³', `<input id="o-v" type="number" inputmode="numeric" min="${minVol}" max="400" step="1" value="${edit ? o.vol : 72}">`, edit && minVol ? `At least ${fmt(minVol)} m³ already allocated` : 'Between 5 and 400 m³')}${fld('o-p', 'Price, € per m³ (net)', `<input id="o-p" type="number" step="1" min="1000" max="2500" value="${edit ? o.price : COST[5] + c0.markup}">`)}</div>
+    <div class="frow">${fld('o-s', 'Delivery site', `<select id="o-s">${Object.keys(CITY).map((k) => `<option ${k === (edit ? o.site : c0.city) ? 'selected' : ''}>${k}</option>`).join('')}</select>`)}${fld('o-d', 'Requested delivery', `<input id="o-d" type="date" min="${iso(TODAY)}" value="${iso(edit ? Math.max(o.req, TODAY) : bday(TODAY + 1))}">`)}</div>
+    ${fld('o-n', 'Note for the driver', `<textarea id="o-n" maxlength="240" placeholder="Gate code, contact on site, unloading hours">${edit ? esc(o.note) : ''}</textarea>`)}
+    <div id="o-cr" aria-live="polite"></div>
+    ${me === 'admin' ? '<label class="chk"><input type="checkbox" id="o-ov"> Override the credit limit (Admin). The override is recorded in the audit log.</label>' : ''}
+    <div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button type="button" class="btn primary" id="o-ok">${edit ? 'Save changes' : 'Create order'}</button></div></div>`, () => {
+    const extra = () => { const c = CU(+$('#o-c').value), v = +$('#o-v').value || 0, p = +$('#o-p').value || 0, base0 = edit ? o.vol * o.price : 0; return (v * p - base0) * (c.cc === 'DE' ? 1.19 : 1) + (edit ? 0 : 0); };
+    const exp = () => { const c = CU(+$('#o-c').value); return balOf(c) + pipeOf(c) - (edit ? 0 : 0) + extra(); };
+    const sync = () => { const c = CU(+$('#o-c').value); $('#o-cr').innerHTML = creditBox(c, pipeOf(c) + extra()); };
+    $('#o-c').onchange = () => { const c = CU(+$('#o-c').value); $('#o-s').value = c.city; $('#o-p').value = COST[5] + c.markup; sync(); };
+    $('#o-v').oninput = sync; $('#o-p').oninput = sync; sync();
+    $('#o-ok').onclick = () => {
+      const c = CU(+$('#o-c').value), v = +$('#o-v').value, p = +$('#o-p').value, d = dayOf($('#o-d').value), ov = $('#o-ov') && $('#o-ov').checked, over = exp() - c.limit;
+      let e = ferr('o-v', !(Number.isInteger(v) && v >= 5 && v <= 400) ? 'Enter a whole volume between 5 and 400 m³.' : v < minVol ? `At least ${fmt(minVol)} m³ is already scheduled or delivered.` : '');
+      e += ferr('o-p', !(p >= 1000 && p <= 2500) ? 'Enter a price between €1,000 and €2,500 per m³.' : '');
+      e += ferr('o-d', !(d >= TODAY) ? `The delivery date cannot be before ${fd(TODAY)}.` : '');
+      if (!e && over > 0 && extra() > 0 && !ov) { $('#o-cr').insertAdjacentHTML('beforeend', `<p class="err" role="alert" style="color:var(--neg);font-size:13px;margin-top:8px">Credit limit exceeded by ${eur0(over)}. ${me === 'admin' ? 'Tick the override to proceed.' : 'Ask an Admin to override, or record a payment first.'}</p>`); return; }
+      if (e) return;
+      if (edit) {
+        const was = `${o.vol} m³ at €${o.price}`; Object.assign(o, { vol: v, price: p, site: $('#o-s').value, req: d, note: $('#o-n').value.trim() });
+        audit_('Order', `Edited ${o.no}: ${was} → ${v} m³ at €${p}${ov && over > 0 ? ' · credit override' : ''}`); closeModal(); after(); toast(`${o.no} updated`); return;
+      }
+      const id = S.orders.length + 1, n = { id, no: 'SO-2026-' + String(id).padStart(4, '0'), cust: c.id, day: TODAY, t: now(), vol: v, price: p, site: $('#o-s').value, status: 'open', note: $('#o-n').value.trim(), req: d, by: me };
+      S.orders.push(n); audit_('Order', `Created ${n.no} for ${c.name} · ${fmt(v)} m³${ov && over > 0 ? ` · credit limit overridden by ${eur0(over)}` : ''}`);
+      closeModal(); after(); toast(`${n.no} created for ${c.name}`); openDrawer('order', id);
+    };
+  });
+}
+
+/* ── events ──────────────────────────────────────────── */
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if (POP && !t.closest('#pop') && !t.closest('[data-act="notifs"],[data-act="userMenu"],[data-act="more"]')) closePop();
+  const note = t.closest('[data-note]'); if (note) { const n = notes().find((x) => x.key === note.dataset.note); READ.add(note.dataset.note); closePop(); if (n) go(n.go); return; }
+  const pg = t.closest('[data-page]'); if (pg) { e.preventDefault(); go(pg.dataset.page); return; }
+  const act = t.closest('[data-act]');
+  if (act && !act.disabled) { e.preventDefault(); const f = ACT[act.dataset.act]; if (f) f(act.dataset, act); return; }
+  const tab = t.closest('[data-tab]'); if (tab) { const [p, k] = tab.dataset.tab.split(':'); TAB[p] = k; render(); return; }
+  const chip = t.closest('[data-chip]'); if (chip) { const [k, f] = chip.dataset.chip.split(':'); Object.assign(TS[k], { f, page: 0 }); TS[k].sel.clear(); render(); return; }
+  const so = t.closest('[data-sort]'); if (so) { const [k, c] = so.dataset.sort.split(':'), st = TS[k]; st.dir = st.sort === c ? -st.dir : (c === 'name' || c === 'cust' ? 1 : -1); st.sort = c; st.page = 0; refresh(k); $(`[data-sort="${k}:${c}"]`).focus(); return; }
+  const pgr = t.closest('[data-pg]'); if (pgr) { const [k, d] = pgr.dataset.pg.split(':'); TS[k].page += +d; refresh(k); const b = $(`[data-pg="${k}:${d}"]`); if (b && !b.disabled) b.focus(); return; }
+  if (t.closest('.ck')) return;
+  const row = t.closest('[data-row]'); if (row) openRow(row.dataset.row, +row.dataset.rid);
+});
+function openRow(key, id) {
+  if (key === 'orders') openDrawer('order', id);
+  else if (key === 'inv') openDrawer('inv', id);
+  else if (key === 'cust') openDrawer('cust', id);
+  else if (key === 'pay') openDrawer('inv', S.pay.find((p) => p.id === id).inv);
+  else if (key === 'ledger') { const r = ix().L[id - 1]; if (r && r.trip) openDrawer('order', TP(r.trip).order); else if (r && r.type === 'in') { TAB.base = 'rc'; TS.rc && (TS.rc.q = r.doc); render(); } }
+}
+document.addEventListener('change', (e) => {
+  const t = e.target;
+  if (t.dataset.ck) { const [k, id] = t.dataset.ck.split(':'); t.checked ? TS[k].sel.add(+id) : TS[k].sel.delete(+id); refresh(k); const b = $(`[data-ck="${k}:${id}"]`); if (b) b.focus(); }
+  if (t.dataset.ckall) { const k = t.dataset.ckall, st = TS[k], view = st.vis.slice(st.page * PS, st.page * PS + PS); view.forEach((r) => (t.checked ? st.sel.add(r.id) : st.sel.delete(r.id))); refresh(k); const b = $(`[data-ckall="${k}"]`); if (b) b.focus(); }
+});
+document.addEventListener('input', (e) => { const k = e.target.dataset && e.target.dataset.q; if (k) { TS[k].q = e.target.value; TS[k].page = 0; refresh(k); } });
+window.addEventListener('keydown', (e) => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+  if (e.key === 'Escape') { if ($('#scrim')) return; if (POP) { const a = POP.anchor; closePop(); a && a.focus(); e.preventDefault(); return; } if (DR) { closeDrawer(); e.preventDefault(); } return; }
+  if (!signedIn || $('#scrim')) return;
+  if (e.key === '/' && !typing) { const q = $('[data-q]'); if (q) { e.preventDefault(); q.focus(); q.select(); } return; }
+  if (e.key === '?' && !typing) { e.preventDefault(); ACT.help(); return; }
+  if ((e.key === 'Enter' || e.key === ' ') && !typing) {
+    const el = document.activeElement;
+    if (el.matches('[data-row]')) { e.preventDefault(); openRow(el.dataset.row, +el.dataset.rid); }
+    else if (el.matches('a[data-page], a[data-act]')) { e.preventDefault(); el.click(); }
+  }
+}, true);
+
+/* ── live: trucks drive their routes; on arrival the trip closes and is invoiced ─ */
+setInterval(() => {
+  if (document.hidden || $('#scrim') || !signedIn || booting) return;
+  CLK++; let arrived = null;
+  transit().forEach((t) => { t.p = Math.min(1, t.p + .012 + (t.id % 3) * .004); if (t.p >= 1 && !arrived) arrived = t; });
+  if (arrived) { ACT.deliver({ id: arrived.id }, null, 'system'); return; }
+  ctx();
+  if (page !== 'dashboard') return;
+  transit().forEach((t) => { const g = $(`[data-mk="${t.id}"]`), [x, y] = posOn(OR(t.order).site, t.p); if (g) g.setAttribute('transform', `translate(${x} ${y})`); const b = $(`[data-tp="${t.id}"]`); if (b) b.style.width = Math.round(t.p * 100) + '%'; });
+}, 1400);
 
 render();
 </script>

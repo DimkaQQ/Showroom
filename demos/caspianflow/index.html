@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CaspianFlow — fuel marketplace (demo)</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2064%2064'%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'14'%20fill%3D'%23f0b33c'%2F%3E%3Ctext%20x%3D'32'%20y%3D'45'%20font-family%3D'Arial%2CHelvetica%2Csans-serif'%20font-size%3D'38'%20font-weight%3D'700'%20text-anchor%3D'middle'%20fill%3D'%231a1203'%3EC%3C%2Ftext%3E%3C%2Fsvg%3E">
-<meta name="description" content="Demo: B2B fuel marketplace for Europe with a live price board, offers and requests, a landed-cost calculator and a deal desk. Sample data shown.">
+<meta name="description" content="Demo: B2B fuel marketplace for European terminals with a live price board, listings with spec sheets, negotiation, deal tracking with documents, price alerts and verified companies. Sample data shown.">
 <style>
 @font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 700; font-stretch: 100%; font-display: swap; src: url(fonts/bricolage-grotesque-latin-ext-3y9H6as8bTXq_n.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: 'Bricolage Grotesque'; font-style: normal; font-weight: 700; font-stretch: 100%; font-display: swap; src: url(fonts/bricolage-grotesque-latin-3y9H6as8bTXq_n.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
@@ -204,40 +204,227 @@ svg { display: block; }
 @media (max-width: 899px) { .tr { grid-template-columns: var(--colsm, var(--cols)); } }
 
 :root {
-  --bg: #0b0e13; --surface: #11151c; --raised: #181d26; --hover: #1d2430; --border: #222a36; --rule: #1a2029;
+  --bg: #0b0e13; --surface: #11151c; --raised: #181d26; --hover: #1d2430; --border: #232b37; --rule: #1a2029;
   --text: #eef1f5; --muted: #a0a9b8; --faint: #7d8797;
-  --accent: #f0b33c; --accent-ink: #1a1203;
+  --accent: #f0b33c; --accent-ink: #1a1203; --acc-tx: #f0b33c;
   --pos: #3fcf8e; --neg: #f26d6d;
+  --s1: #c4861c; --s2: #4b93ea; --sea: #0f2233; --sea-l: #1c3a52;
   --font: "Hanken Grotesk", system-ui, sans-serif; --display: "Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+  --shadow: 0 16px 40px rgba(0,0,0,.4);
 }
-.brand-name, .head h1, .big, .kpi b { font-family: var(--display); font-weight: 700; letter-spacing: -.02em; }
+:root[data-theme="light"] { --acc-tx: #8a5600; --s1: #a86b00; --s2: #1f63c6; --sea: #e3eef7; --sea-l: #c3d7e8; --shadow: 0 16px 40px rgba(20,30,50,.14); }
+.brand-name, .head h1, .big, .kpi b, .px-v { font-family: var(--display); font-weight: 700; letter-spacing: -.02em; }
 .nav .count { background: var(--accent); color: var(--accent-ink); }
-
+.ver { font-size: 10.5px; font-weight: 600; color: var(--faint); border: 1px solid var(--border); border-radius: 5px; padding: 0 5px; margin-left: 4px; vertical-align: 1px; }
+.xs { font-size: 12px; } .w6 { font-weight: 600; } .acc { color: var(--acc-tx); }
+.ell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.dm, .dmi { display: none; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 6px 0; }
+.lnk { border: 0; background: none; color: var(--acc-tx); cursor: pointer; padding: 0; font-weight: 500; }
+.lnk:hover { text-decoration: underline; }
+.btn.danger { background: var(--neg); color: #fff; border-color: transparent; font-weight: 600; }
+.btn .ic { width: 16px; height: 16px; }
+.pill.sm { height: 19px; padding: 0 7px; font-size: 11px; }
+.pill.acc-p { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.vb { display: inline-grid; place-items: center; color: var(--pos); vertical-align: -3px; margin-left: 4px; }
+.vb .ic { width: 15px; height: 15px; stroke-width: 2; }
+.nav-label { text-transform: none; }
+/* top bar */
+.top { display: flex; align-items: center; gap: 8px; margin: -8px 0 20px; }
+.srch { position: relative; flex: 1; max-width: 440px; }
+.srch .ic { position: absolute; left: 10px; top: 9px; color: var(--faint); pointer-events: none; }
+.srch input, .inp-s input { width: 100%; height: 36px; padding: 0 36px 0 34px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); outline: none; transition: border-color .15s; }
+.srch input:focus, .inp-s input:focus { border-color: var(--accent); }
+kbd { position: absolute; right: 8px; top: 8px; font: 600 11px var(--font); color: var(--faint); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; }
+.sp { flex: 1; }
+.ib { width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); display: grid; place-items: center; cursor: pointer; position: relative; flex: none; color: var(--muted); transition: background-color .15s, color .15s, transform .12s var(--ease); }
+.ib:hover { color: var(--text); background: var(--hover); } .ib:active { transform: scale(.96); }
+.ib .dot { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--neg); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--bg); }
+.mb { display: none; align-items: center; gap: 8px; font-weight: 700; }
+.mb .brand-mark { width: 28px; height: 28px; }
+.plan-b { height: 36px; }
+.ava-b { border: 0; background: none; padding: 0; cursor: pointer; border-radius: 50%; display: none; }
+.side-foot { padding: 0; border: 0; }
+.ub { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 8px; border: 0; border-top: 1px solid var(--border); background: none; text-align: left; cursor: pointer; border-radius: 0 0 8px 8px; }
+.ub:hover { background: var(--hover); }
+.ub .who span { display: flex; align-items: center; gap: 2px; }
+/* popover */
+.pop { position: fixed; z-index: 50; width: min(370px, calc(100vw - 24px)); max-height: min(72vh, 540px); overflow: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); padding: 6px; transform-origin: var(--to, top right); animation: popin .16s var(--ease) both; }
+.pop.narrow { width: min(280px, calc(100vw - 24px)); }
+@keyframes popin { from { opacity: 0; transform: scale(.97) translateY(-4px); } }
+.pop-h { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px 10px; }
+.mi { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; background: none; border-radius: 8px; text-align: left; cursor: pointer; color: var(--text); }
+.mi:hover, .mi:focus-visible { background: var(--hover); } .mi > span:first-of-type { flex: 1; } .mi .ic { color: var(--muted); }
+.um-h { display: flex; gap: 10px; padding: 10px; } .um-h b { display: block; } .um-h span { display: block; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.um-co { padding: 0 10px 8px; font-size: 13px; }
+.um-v { padding: 6px 10px 4px; font-size: 11px; color: var(--faint); }
+.ni { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; gap: 10px; align-items: start; width: 100%; text-align: left; padding: 10px; border: 0; background: none; border-radius: 8px; cursor: pointer; color: var(--muted); }
+.ni:hover, .ni:focus-visible { background: var(--hover); }
+.ni b { display: block; color: var(--text); font-weight: 500; } .ni.un b { font-weight: 600; } .ni span span { font-size: 13px; }
+.ni .nd { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; } .ni.un .nd { background: var(--accent); }
+.ni small { font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+.gs-i { display: grid; grid-template-columns: 22px minmax(0,1fr) auto; gap: 8px; align-items: center; }
+.gs-g { padding: 8px 10px 2px; font-size: 11.5px; color: var(--faint); }
 /* price board */
 .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap); margin-bottom: var(--gap); }
-.px { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 16px 12px; min-width: 0; }
-.px-t { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--muted); }
-.px-t b { color: var(--text); font-weight: 600; }
-.px-v { font: 700 34px/1.1 var(--display); letter-spacing: -.02em; margin: 6px 0 2px; transition: color .6s; }
+.px { display: block; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px 10px; min-width: 0; cursor: pointer; transition: border-color .15s, background-color .15s; }
+.px:hover { border-color: var(--faint); } .px.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.px-t { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--muted); font-size: 12.5px; }
+.px-t b { color: var(--text); font-weight: 600; font-size: 14px; }
+.px-v { display: block; font-size: 32px; line-height: 1.1; margin: 6px 0 2px; transition: color .6s; }
+.px-v small { font: 500 13px var(--font); color: var(--muted); letter-spacing: 0; margin-left: 4px; }
 .px-v.up { color: var(--pos); transition: none; } .px-v.dn { color: var(--neg); transition: none; }
-.px-c { font-size: 13px; }
-.spark { margin-top: 8px; width: 100%; height: 44px; }
+.px-c { display: block; font-size: 12.5px; }
+.spark { margin-top: 8px; width: 100%; height: 40px; }
 .spark path { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
 .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); animation: pulse 2s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: .35; } }
-.dm { display: none; } 
+.mgrid { margin-bottom: var(--gap); }
+/* charts */
+.ch-w { flex-wrap: wrap; align-items: flex-start; }
+.card-h > div > span { display: block; margin-top: 2px; }
+.ctl { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ctl .tabs { margin: 0; }
+.ctl select { height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); padding: 0 8px; }
+.tabs .ic.lk { width: 12px; height: 12px; margin-left: 4px; vertical-align: -1px; opacity: .8; }
+.tabs button { display: inline-flex; align-items: center; }
+.stats { display: flex; gap: 22px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.stats b { color: var(--text); font-weight: 600; margin-left: 4px; }
+.cv { position: relative; min-height: 250px; outline-offset: 4px; touch-action: pan-y; }
+.chart text { font: 11.5px var(--font); fill: var(--faint); }
+.chart .gl { stroke: var(--rule); } .chart .zl { stroke: var(--faint); stroke-dasharray: 3 3; }
+.chart .el { fill: var(--text); font-weight: 600; } .chart .xh { stroke: var(--faint); stroke-width: 1; }
+.ctip { position: absolute; z-index: 2; min-width: 150px; padding: 8px 10px; border-radius: 8px; background: var(--raised); border: 1px solid var(--border); box-shadow: var(--shadow); font-size: 12.5px; pointer-events: none; }
+.ctip b { display: block; margin-bottom: 3px; font-weight: 600; }
+.ctip span { display: flex; align-items: center; gap: 6px; color: var(--muted); } .ctip span b { margin: 0 0 0 auto; padding-left: 12px; color: var(--text); }
+.ctip i, .lg i { width: 10px; height: 3px; border-radius: 2px; display: inline-block; }
+.lg { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; } .lg span { display: inline-flex; align-items: center; gap: 6px; }
+.locked { position: relative; } .locked .cv { filter: blur(5px); opacity: .5; pointer-events: none; }
+.lock-o { position: absolute; inset: 64px 20px 20px; display: grid; place-items: center; text-align: center; }
+.lock-o div { max-width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); }
+.lock-o p { color: var(--muted); margin: 6px 0 14px; font-size: 13px; }
+.sk { border-radius: 6px; background: linear-gradient(90deg, var(--raised) 25%, var(--hover) 50%, var(--raised) 75%); background-size: 200% 100%; animation: shim 1.3s linear infinite; height: 12px; }
+@keyframes shim { to { background-position: -200% 0; } }
 .cmap { width: 100%; height: auto; display: block; }
-.cmap .sea { fill: #0f2233; stroke: #1c3a52; stroke-width: 2; } .cmap .land { fill: var(--raised); }
-.cmap .rt { fill: none; stroke: var(--accent); stroke-width: 1.6; opacity: .28; stroke-linecap: round; } .cmap .rt.new { opacity: .9; stroke-width: 2.4; }
-.cmap .hub { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; } .cmap text { font: 12px var(--font); fill: var(--muted); } .cmap .ship { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
-.feed2 li { display: grid; grid-template-columns: 54px 1fr; gap: 8px; padding: 9px 0; font-size: 13.5px; color: var(--muted); } .feed2 li + li { border-top: 1px solid var(--rule); } .feed2 li b { color: var(--text); font-weight: 600; } .feed2 li:first-child { animation: pop .3s var(--ease) both; }
-.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--gap); }
-.chip { height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s, border-color .15s; }
-.chip:hover { color: var(--text); border-color: var(--faint); }
-.chip.on { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
-.toolbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
-
+.cmap .sea { fill: var(--sea); stroke: var(--sea-l); stroke-width: 1.5; }
+.cmap .rt { fill: none; stroke: var(--accent); stroke-width: 1.6; opacity: .3; stroke-linecap: round; } .cmap .rt.new { opacity: .95; stroke-width: 2.4; }
+.cmap .hub { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; } .cmap text { font: 12px var(--font); fill: var(--muted); } .cmap .sl { font-style: italic; fill: var(--faint); font-size: 11px; }
+.cmap .ship { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
+.feed2 li { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 8px; padding: 9px 0; font-size: 13.5px; color: var(--muted); } .feed2 li + li { border-top: 1px solid var(--rule); } .feed2 li b { color: var(--text); font-weight: 600; } .feed2 li:first-child { animation: pop .3s var(--ease) both; }
+.desk li + li { border-top: 1px solid var(--rule); }
+.desk a { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 6px; margin: 0 -6px; border-radius: 8px; cursor: pointer; }
+.desk a:hover { background: var(--hover); }
+.desk .di { width: 32px; height: 32px; border-radius: 8px; background: var(--raised); display: grid; place-items: center; color: var(--acc-tx); }
+.desk b.n { font: 700 20px var(--display); } .desk small { display: block; color: var(--muted); font-size: 12px; }
+/* lists */
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: var(--gap); }
+.toolbar .tabs { margin: 0; }
+.toolbar select { height: 36px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); padding: 0 8px; max-width: 100%; }
+.inp-s { position: relative; flex: 1 1 220px; max-width: 340px; } .inp-s .ic { position: absolute; left: 10px; top: 9px; color: var(--faint); }
+.chk { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); cursor: pointer; }
+.chk input { width: 16px; height: 16px; accent-color: var(--accent); }
+.sh { border: 0; background: none; color: inherit; font: inherit; cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 3px; }
+.sh:hover { color: var(--text); } .sh .ic { width: 13px; height: 13px; } .r .sh { justify-content: flex-end; }
+.tr[data-l], .tr[data-d] { cursor: pointer; }
+.co-n { display: flex !important; align-items: center; min-width: 0; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 14px; margin-top: 6px; border-top: 1px solid var(--rule); font-size: 13px; }
+.pager > div { display: flex; align-items: center; gap: 8px; } .pager .btn { width: 32px; padding: 0; }
+.emp { padding: 36px 12px; text-align: center; color: var(--muted); }
+.emp b { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; } .emp .btn { margin-top: 14px; }
+.emp .ic { width: 28px; height: 28px; margin: 0 auto 10px; color: var(--faint); }
+/* detail */
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); margin-bottom: 10px; cursor: pointer; border: 0; background: none; padding: 0; }
+.back:hover { color: var(--text); }
+.dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 24px; }
+.dl div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+.dl dt { color: var(--muted); } .dl dd { text-align: right; font-weight: 500; }
+.spec { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.spec th { text-align: left; font-weight: 500; font-size: 12px; color: var(--faint); padding: 0 8px 8px 0; }
+.spec td { padding: 8px 8px 8px 0; border-top: 1px solid var(--rule); vertical-align: top; }
+.spec td:nth-child(n+3), .spec th:nth-child(n+3) { text-align: right; white-space: nowrap; }
+.tw { overflow-x: auto; }
+.sell-h { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+.logo { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; background: var(--raised); color: var(--acc-tx); flex: none; }
+.big-p { font: 700 34px/1.1 var(--display); letter-spacing: -.02em; }
+.stack-a { display: grid; gap: 8px; margin-top: 16px; } .stack-a .btn { width: 100%; }
+.sim li { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; cursor: pointer; } .sim li + li { border-top: 1px solid var(--rule); } .sim li:hover b { text-decoration: underline; }
+.note { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 8px; background: var(--raised); color: var(--muted); font-size: 13px; margin-top: 12px; }
+.note .ic { flex: none; margin-top: 1px; } .note.warn { background: var(--warn-bg); color: var(--text); } .note.warn .ic { color: var(--warn); }
+/* timeline */
+.tl { position: relative; }
+.tl li { position: relative; display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; padding-bottom: 18px; }
+.tl li::before { content: ''; position: absolute; left: 11px; top: 22px; bottom: 0; width: 2px; background: var(--border); }
+.tl li:last-child::before { display: none; } .tl li.done::before { background: var(--pos); }
+.tl .m { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--border); background: var(--surface); color: var(--faint); }
+.tl .done .m { background: var(--pos); border-color: var(--pos); color: var(--bg); } .tl .cur .m { border-color: var(--accent); color: var(--acc-tx); } .tl .cx .m { border-color: var(--neg); color: var(--neg); }
+.tl .m .ic { width: 13px; height: 13px; stroke-width: 2.6; }
+.tl b { font-weight: 600; } .tl p { color: var(--muted); font-size: 13px; } .tl small { color: var(--faint); font-size: 12px; white-space: nowrap; }
+.tl li:not(.done):not(.cur):not(.cx) b { color: var(--muted); font-weight: 500; }
+.doc { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 11px 0; } .doc + .doc { border-top: 1px solid var(--rule); }
+.doc .di { width: 36px; height: 36px; border-radius: 8px; background: var(--raised); display: grid; place-items: center; color: var(--muted); }
+.doc b { display: block; font-weight: 600; } .doc span { font-size: 12.5px; color: var(--muted); }
+.paper { background: #fbfaf6; color: #1c1f24; border-radius: 8px; padding: 22px; font-size: 12.5px; line-height: 1.5; }
+.paper h3 { font: 700 16px var(--display); margin-bottom: 2px; } .paper .pm { color: #5b6270; }
+.paper table { width: 100%; border-collapse: collapse; margin: 12px 0; } .paper td, .paper th { padding: 5px 0; border-bottom: 1px solid #e3e1da; text-align: left; } .paper td:last-child, .paper th:last-child { text-align: right; }
+.paper .sig { margin-top: 14px; display: flex; justify-content: space-between; gap: 12px; color: #5b6270; }
+/* chat */
+.chat { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: var(--gap); align-items: start; }
+.thl { padding: 12px; } .thl .inp-s { max-width: none; margin-bottom: 10px; } .thl .tabs { display: flex; margin-bottom: 8px; } .thl .tabs button { flex: 1; padding: 0 6px; }
+.th-i { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; width: 100%; padding: 10px 8px; border: 0; background: none; text-align: left; border-radius: 8px; cursor: pointer; color: var(--text); }
+.th-i:hover { background: var(--hover); } .th-i.on { background: var(--raised); }
+.th-i b { display: flex; align-items: center; font-weight: 600; font-size: 13.5px; min-width: 0; } .th-i span { display: block; font-size: 12.5px; color: var(--muted); }
+.th-i small { font-size: 11.5px; color: var(--faint); text-align: right; } .th-i .u { display: block; margin: 4px 0 0 auto; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.av2 { width: 36px; height: 36px; border-radius: 9px; background: var(--raised); display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--acc-tx); }
+.conv { display: flex; flex-direction: column; padding: 0; min-height: 560px; }
+.conv-h { display: flex; gap: 12px; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.conv-h > div { flex: 1; min-width: 0; }
+.msgs { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 12px; max-height: 560px; overflow-y: auto; }
+.msg { max-width: min(78%, 460px); }
+.msg .bub { padding: 9px 12px; border-radius: 12px 12px 12px 4px; background: var(--raised); }
+.msg.me { align-self: flex-end; } .msg.me .bub { border-radius: 12px 12px 4px 12px; background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+.msg small { display: block; font-size: 11.5px; color: var(--faint); margin-top: 4px; } .msg.me small { text-align: right; }
+.msg.sys { align-self: center; max-width: 90%; font-size: 12.5px; color: var(--muted); text-align: center; }
+.oc { margin-top: 8px; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); }
+.oc .ocv { font: 700 18px var(--display); } .oc .ocv small { font: 500 12.5px var(--font); color: var(--muted); }
+.oc-a { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.comp { display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--border); }
+.comp input { flex: 1; min-width: 0; height: 38px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); padding: 0 12px; outline: none; } .comp input:focus { border-color: var(--accent); }
+.typing { font-size: 12.5px; color: var(--muted); align-self: flex-start; }
+/* forms */
+.field.bad input, .field.bad select, .field.bad textarea { border-color: var(--neg); }
+.err { color: var(--neg); font-size: 12.5px; } .hint { color: var(--faint); font-size: 12px; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; }
+.row3 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0 12px; }
+.modal.wide { max-width: 820px; } .modal.mid { max-width: 560px; }
+.steps { display: flex; gap: 6px; margin-bottom: 16px; } .steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--raised); } .steps i.on { background: var(--accent); }
+.drop { width: 100%; border: 1.5px dashed var(--border); border-radius: 10px; padding: 22px; text-align: center; color: var(--muted); background: none; cursor: pointer; }
+.drop:hover { border-color: var(--faint); } .drop .ic { margin: 0 auto 6px; width: 24px; height: 24px; }
+.att { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 8px; background: var(--raised); }
+.co-out { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 24px; }
+.sum-c { background: var(--raised); border-radius: 12px; padding: 18px; }
+.sum-c .lines div { display: flex; justify-content: space-between; padding: 7px 0; } .sum-c .lines div + div { border-top: 1px solid var(--border); }
+.sum-c .tot { font-weight: 700; }
+.ccg { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg); }
+.ccg input { border: 0 !important; border-radius: 0 !important; width: 100%; height: 38px; padding: 0 10px; background: transparent; outline: none; }
+.ccg .r2 { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border); } .ccg .r2 input + input { border-left: 1px solid var(--border) !important; }
+.ccg:focus-within { border-color: var(--accent); } .field.bad .ccg { border-color: var(--neg); }
+.test { font-size: 12px; color: var(--warn); background: var(--warn-bg); border-radius: 6px; padding: 6px 10px; margin-bottom: 14px; }
+.spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: rot .7s linear infinite; }
+@keyframes rot { to { transform: rotate(360deg); } }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); }
+.plan { display: flex; flex-direction: column; } .plan.cur { border-color: var(--accent); }
+.plan .big-p small { font: 500 13px var(--font); color: var(--muted); letter-spacing: 0; }
+.plan ul { margin: 14px 0 18px; display: grid; gap: 7px; font-size: 13.5px; flex: 1; } .plan li { display: flex; gap: 8px; color: var(--muted); } .plan li .ic { color: var(--pos); width: 16px; height: 16px; margin-top: 2px; }
+.meter + .meter { margin-top: 14px; }
+.kyc li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; } .kyc li + li { border-top: 1px solid var(--rule); }
+.kyc .st { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--pos-bg); color: var(--pos); } .kyc .st.w { background: var(--warn-bg); color: var(--warn); }
+.kyc .st .ic { width: 13px; height: 13px; stroke-width: 2.6; } .kyc span small { display: block; color: var(--muted); font-size: 12px; }
+.tm select { height: 30px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg); padding: 0 6px; max-width: 100%; }
+details.faq { border-top: 1px solid var(--rule); } details.faq summary { padding: 12px 0; cursor: pointer; font-weight: 500; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+details.faq summary::after { content: '+'; color: var(--faint); } details.faq[open] summary::after { content: '−'; } details.faq p { color: var(--muted); padding-bottom: 12px; }
+.stl li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; } .stl li + li { border-top: 1px solid var(--rule); }
+.kb { display: inline-block; min-width: 24px; text-align: center; font: 600 12px var(--font); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; color: var(--muted); }
 /* calculator */
 .calc { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: var(--gap); align-items: start; }
 .stack { display: flex; height: 18px; border-radius: 9px; overflow: hidden; gap: 2px; margin: 14px 0 18px; }
@@ -247,27 +434,46 @@ svg { display: block; }
 .lines span { display: flex; align-items: center; gap: 8px; color: var(--muted); } .lines span i { width: 10px; height: 10px; border-radius: 3px; }
 .lines b { font-weight: 600; }
 .lines .sum { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 14px; } .lines .sum span { color: var(--text); font-weight: 600; } .lines .sum b { font: 700 20px var(--display); }
-.deal { padding: 14px 0; } .deal + .deal { border-top: 1px solid var(--rule); }
-.deal-h { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; margin-bottom: 8px; }
-.offer { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; padding: 10px 12px; margin-top: 6px; background: var(--raised); border-radius: 8px; }
-.offer .btn { margin-left: 4px; }
-@media (max-width: 1099px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .calc { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 899px) { .dm { display: block; } .px-v { font-size: 26px; } .px { padding: 12px; } }
+/* auth + undo */
+.auth { min-height: calc(100svh - 29px); display: grid; place-items: center; padding: 24px 16px; }
+.auth-c { width: 100%; max-width: 400px; }
+.auth-c .brand { padding: 0 0 22px; justify-content: center; }
+.auth-c .card { padding: 26px; } .auth-c h1 { font: 700 22px var(--display); margin-bottom: 4px; } .auth-c .card > p { color: var(--muted); margin-bottom: 18px; }
+.auth-c .btn { width: 100%; height: 40px; } .auth-f { text-align: center; color: var(--faint); font-size: 12px; margin-top: 16px; }
+.or { display: flex; align-items: center; gap: 10px; color: var(--faint); font-size: 12px; margin: 14px 0; } .or::before, .or::after { content: ''; flex: 1; border-top: 1px solid var(--border); }
+.us { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 16px); opacity: 0; z-index: 65; display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 16px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 500; box-shadow: var(--shadow); transition: opacity .2s, transform .25s var(--ease); pointer-events: none; max-width: calc(100vw - 32px); }
+.us.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.us .btn { background: transparent; color: var(--bg); border-color: color-mix(in srgb, var(--bg) 35%, transparent); }
+@media (max-width: 1099px) { .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .calc, .co-out { grid-template-columns: minmax(0, 1fr); } .plans { grid-template-columns: minmax(0, 1fr); } .chat { grid-template-columns: minmax(0, 280px) minmax(0, 1fr); } }
+@media (max-width: 899px) {
+  .dm { display: block; } .dmi { display: inline; }
+  .px-v { font-size: 24px; } .px { padding: 12px; } .px-t span { display: none; } .spark { height: 32px; }
+  .top { margin: -4px 0 16px; } .srch, .plan-b, .top .hlp { display: none; } .mb { display: flex; } .ava-b { display: block; }
+  .chat { grid-template-columns: minmax(0, 1fr); } .chat.has .thl { display: none; } .chat:not(.has) .conv { display: none; }
+  .msgs { max-height: none; } .conv { min-height: 0; } .msg { max-width: 88%; }
+  .dl { grid-template-columns: minmax(0, 1fr); } .row3 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .row3 > :first-child { grid-column: span 2; }
+  .toolbar .inp-s { max-width: none; flex-basis: 100%; } .toolbar select { flex: 1 1 40%; }
+  .us { bottom: 84px; } .stats { gap: 12px; } .hide-s { display: none; }
+  .modal { padding: 18px; }
+}
+@media (max-width: 520px) { .row2 { grid-template-columns: minmax(0, 1fr); } .kpis { gap: 14px 24px; } .kpi b { font-size: 21px; } .head-actions .btn { padding: 0 11px; } }
+@media (prefers-reduced-motion: reduce) { .live i, .sk { animation: none; } }
 </style>
 </head>
 <body>
 <div class="notice"><b>Demo</b> CaspianFlow · sample data</div>
-<div class="app">
+<div class="app" id="app">
   <aside class="side">
     <div class="brand">
       <div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M3 9c3-3 6 3 9 0s6 3 9 0M3 15c3-3 6 3 9 0s6 3 9 0"/></svg></div>
-      <div><div class="brand-name">CaspianFlow</div><div class="brand-sub">Fuel marketplace</div></div>
+      <div><div class="brand-name">CaspianFlow</div><div class="brand-sub">Fuel marketplace <span class="ver">v4.12</span></div></div>
     </div>
-    <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">LW</div><div class="who"><b>Lukas Weber</b><span>Weber Energiehandel GmbH · verified</span></div></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="side-foot" id="sfoot"></div>
   </aside>
-  <main class="main" id="main"></main>
+  <main class="main"><div class="top" id="top"></div><div id="view"></div></main>
 </div>
+<div id="auth" hidden></div>
 <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
@@ -457,235 +663,877 @@ console.log('%cDemo', 'font:700 14px system-ui;color:#c8f03c;background:#0e0f0c;
 addEventListener('load', () => { if (parent !== window) parent.postMessage({ showroom: 'ready' }, '*'); });
 
 'use strict';
-
-/* ── data ─────────────────────────────────────────────── */
-const eur = (n) => '€' + Math.round(n).toLocaleString('en-US');
-const num = (n) => Math.round(n).toLocaleString('en-US');
-const pct = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n).toFixed(1) + '%';
-const FUELS = {
-  diesel: { n: 'ARA diesel EN590', short: 'Diesel', px: 832, hub: 'Rotterdam (ARA)', seed: 1 },
-  gasoline:   { n: 'Eurobob gasoline', short: 'Gasoline', px: 868, hub: 'Amsterdam (ARA)', seed: 2 },
-  jet:    { n: 'NWE jet A-1', short: 'Jet A-1', px: 905, hub: 'Antwerp (NWE)', seed: 3 },
-  hfo:   { n: 'Fuel oil 3.5%', short: 'Fuel oil', px: 418, hub: 'Hamburg', seed: 4 },
-};
-/* 30-day series: deterministic wobble, forced to end on the current price */
-for (const f of Object.values(FUELS)) {
-  const raw = Array.from({ length: 30 }, (_, i) => 1 + 0.018 * Math.sin(i / (2.6 + f.seed * 0.7) + f.seed * 1.9) + 0.009 * Math.sin(i * 1.7 + f.seed * 2) + (i - 29) * 0.0011);
-  f.series = raw.map((r) => Math.round(f.px * r / raw[29]));
-  f.series[29] = f.px;
-}
-const dayChg = (f) => (f.series[29] / f.series[28] - 1) * 100;
-
-const L = [
-  { id: 1,  side: 'sell', f: 'diesel', vol: 5000,  px: 826, where: 'Rotterdam',    term: 'FOB', co: 'Maasport Energie B.V.',          win: 'Oct 24–31' },
-  { id: 2,  side: 'sell', f: 'diesel', vol: 2000,  px: 841, where: 'Hamburg',      term: 'DAP', co: 'Elbe Mineralöl GmbH',            win: 'Oct 20–25' },
-  { id: 3,  side: 'sell', f: 'diesel', vol: 8000,  px: 815, where: 'Antwerp',      term: 'FOB', co: 'Scheldt Fuels N.V.',             win: 'Nov 1–10' },
-  { id: 14, side: 'sell', f: 'diesel', vol: 1500,  px: 829, where: 'Le Havre',     term: 'FOB', co: 'Seine Énergie S.A.',             win: 'Oct 22–28' },
-  { id: 4,  side: 'sell', f: 'gasoline',   vol: 1500,  px: 861, where: 'Amsterdam',    term: 'FOB', co: 'Amstel Petroleum B.V.',          win: 'Oct 21–30' },
-  { id: 5,  side: 'sell', f: 'gasoline',   vol: 3000,  px: 874, where: 'Hamburg',      term: 'DAP', co: 'Nordlicht Oil GmbH',             win: 'Oct 26–Nov 5' },
-  { id: 6,  side: 'sell', f: 'jet',    vol: 1200,  px: 898, where: 'Antwerp',      term: 'CIF', co: 'Scheldt Aviation Fuels N.V.',    win: 'Oct 23–27' },
-  { id: 7,  side: 'sell', f: 'jet',    vol: 600,   px: 918, where: 'Rotterdam',    term: 'DAP', co: 'SkyFuel Europe B.V.',            win: 'Oct 20–24' },
-  { id: 8,  side: 'sell', f: 'hfo',  vol: 10000, px: 408, where: 'Trieste',      term: 'FOB', co: 'Adriatica Raffinazione S.r.l.',  win: 'Nov 1–15' },
-  { id: 9,  side: 'sell', f: 'hfo',  vol: 4000,  px: 426, where: 'Constanța',    term: 'CIF', co: 'Danube Petrol S.R.L.',           win: 'Oct 25–Nov 2' },
-  { id: 10, side: 'buy',  f: 'diesel', vol: 3000,  px: 825, where: 'Gdańsk',       term: 'DAP', co: 'Baltic Agro Trade Sp. z o.o.',   win: 'Nov 1–8' },
-  { id: 11, side: 'buy',  f: 'gasoline',   vol: 2000,  px: 863, where: 'Le Havre',     term: 'CIF', co: 'Rhône Carburants S.A.',          win: 'Oct 28–Nov 4' },
-  { id: 12, side: 'buy',  f: 'jet',    vol: 800,   px: 908, where: 'Trieste',      term: 'DAP', co: 'Adria Air Supply S.r.l.',        win: 'Oct 24–30' },
-  { id: 13, side: 'buy',  f: 'hfo',  vol: 5000,  px: 413, where: 'Rotterdam',    term: 'CIF', co: 'Estuaire Marine S.A.',           win: 'Nov 3–12' },
-  { id: 15, side: 'sell', f: 'diesel', vol: 4000,  px: 827, where: 'Rotterdam',    term: 'FOB', co: 'Weber Energiehandel GmbH',       win: 'Oct 28–Nov 6', mine: true },
-];
-const OFFERS = [   // offers received on my listing 15
-  { id: 1, from: 'Baltic Agro Trade Sp. z o.o.', vol: 1500, px: 824, st: 'new' },
-  { id: 2, from: 'Rhône Carburants S.A.', vol: 1000, px: 825, st: 'new' },
-];
-const SENT = [{ to: 'Scheldt Fuels N.V.', f: 'diesel', vol: 2000, px: 817, st: 'pending' }];
-const TRADES = [   // hours ago, fuel, volume t, price, buyer
-  [1, 'diesel', 5000, 832, 'Elbe Mineralöl GmbH'], [3, 'jet', 1200, 907, 'SkyFuel Europe B.V.'], [5, 'gasoline', 2000, 866, 'Amstel Petroleum B.V.'], [9, 'hfo', 6000, 419, 'Estuaire Marine S.A.'],
-  [14, 'diesel', 3000, 830, 'Baltic Agro Trade Sp. z o.o.'], [20, 'jet', 700, 903, 'Adria Air Supply S.r.l.'], [30, 'diesel', 4500, 834, 'Rhône Carburants S.A.'], [52, 'gasoline', 1800, 870, 'Seine Énergie S.A.'], [70, 'hfo', 3000, 421, 'Danube Petrol S.R.L.'],
-];
-const ROUTES = [
-  { n: 'Rotterdam → Antwerp (barge)',      freight: 9, duty: 21 },
-  { n: 'Rotterdam → Gdańsk (coaster)',  freight: 24, duty: 23 },
-  { n: 'Trieste → Vienna (rail)',  freight: 21, duty: 20 },
-  { n: 'Constanța → Budapest (barge + rail)', freight: 38, duty: 27 },
-];
-
-const HUBS = { 'Rotterdam': [250, 92], 'Antwerp': [232, 140], 'Le Havre': [150, 176], 'Hamburg': [340, 66], 'Gdańsk': [458, 50], 'Trieste': [372, 228], 'Constanța': [566, 214] };
-const ROUTE_OF = { diesel: ['Rotterdam', 'Gdańsk'], gasoline: ['Le Havre', 'Hamburg'], jet: ['Antwerp', 'Trieste'], hfo: ['Trieste', 'Constanța'] };
-const BUYERS = ['Elbe Mineralöl GmbH', 'SkyFuel Europe B.V.', 'Amstel Petroleum B.V.', 'Estuaire Marine S.A.', 'Baltic Agro Trade Sp. z o.o.', 'Adria Air Supply S.r.l.', 'Rhône Carburants S.A.', 'Seine Énergie S.A.'];
-TRADES.forEach((t) => { t[5] = ROUTE_OF[t[1]]; });
-const curve = (a, b) => { const [x1, y1] = HUBS[a], [x2, y2] = HUBS[b], mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - 38; return `M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}`; };
-function mapCard() {
-  return `<section class="card c8"><div class="card-h"><h2>Trade flows</h2><span class="live"><i></i>live</span></div><svg class="cmap" viewBox="0 0 620 290" role="img" aria-label="Map of European trade routes">
-    <path class="sea" d="M170 28 Q230 12 266 48 Q282 86 248 100 Q200 108 176 82 Q150 54 170 28z"/>
-    ${TRADES.slice(0, 7).map((t, i) => `<path class="rt ${i === 0 && t[0] === 0 ? 'new' : ''}" d="${curve(t[5][0], t[5][1])}"/>`).join('')}
-    ${Object.entries(HUBS).map(([n, [x, y]]) => `<circle class="hub" cx="${x}" cy="${y}" r="6"/><text x="${x}" y="${y + (y > 160 ? 22 : -12)}" text-anchor="middle">${n}</text>`).join('')}
-    ${TRADES[0][0] === 0 ? `<circle class="ship" r="6"><animateMotion dur="4s" fill="freeze" path="${curve(TRADES[0][5][0], TRADES[0][5][1])}"/></circle>` : ''}</svg></section>`;
-}
-function feedCard() {
-  return `<section class="card c4"><div class="card-h"><h2>Latest deals</h2></div><ul class="feed2">${TRADES.slice(0, 6).map((t) => `<li><span>${t[0] === 0 ? 'now' : t[0] + ' h'}</span><span><b>${eur(t[2] * t[3])}</b> · ${num(t[2])} t ${FUELS[t[1]].short}<br>${esc(t[4])}</span></li>`).join('')}</ul></section>`;
-}
-const trades24 = () => TRADES.filter((t) => t[0] < 24);
-const vol24 = () => trades24().reduce((a, t) => a + t[2] * t[3], 0);
-console.assert(trades24().length === 6 && vol24() === 5000 * 832 + 1200 * 907 + 2000 * 866 + 6000 * 419 + 3000 * 830 + 700 * 903, '24h volume');
-const vsBench = (l) => (l.px / FUELS[l.f].px - 1) * 100;
-
-/* ── shell ────────────────────────────────────────────── */
-const PAGES = { market: ['Market', 'chart'], listings: ['Listings', 'list'], calc: ['Calculator', 'sliders'], deals: ['My deals', 'file'] };
-let page = 'market', side = 'sell', fuel = 'all', calc = { f: 'diesel', vol: 3000, px: 832, r: 0 };
-const newOffers = () => OFFERS.filter((o) => o.st === 'new').length;
-
-function chrome() {
-  const n = newOffers();
-  $('#nav').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'deals' && n ? `<span class="count">${n}</span>` : ''}</a>`).join('');
-  $('#tabbar').innerHTML = Object.keys(PAGES).map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'deals' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
-  setNav(page);
-}
-function render() { chrome(); $('#main').innerHTML = ({ market, listings, calc: calcPage, deals })[page](); mount(); }
-function go(p) { page = p; render(); window.scrollTo(0, 0); }
-const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
-
-document.addEventListener('click', (e) => {
-  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
-  const act = e.target.closest('[data-act]'); if (act) return ACT[act.dataset.act](act.dataset);
-  const row = e.target.closest('[data-l]'); if (row) return openListing(+row.dataset.l);
+Object.assign(ICONS, {
+  help: 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.6 9.2a2.5 2.5 0 014.9.6c0 1.6-2.5 2.1-2.5 3.7M12 17h.01',
+  out: 'M14 4h5v16h-5M10 16l-4-4 4-4M6 12h11', dl: 'M12 4v11M7 10l5 5 5-5M5 20h14', left: 'M15 6l-6 6 6 6', right: 'M9 6l6 6-6 6',
+  sun: 'M12 17a5 5 0 100-10 5 5 0 000 10zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+  moon: 'M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z', send: 'M4 12l16-8-6 16-3-7z', upload: 'M12 16V4M7 9l5-5 5 5M5 20h14',
+  vs: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM8.5 12l2.5 2.5 4.5-5', card: 'M3 6h18v12H3zM3 10h18M7 15h4', menu: 'M4 7h16M4 12h16M4 17h16',
 });
-document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
-document.addEventListener('input', (e) => { if (e.target.dataset.c) { calc[e.target.dataset.c] = e.target.type === 'number' ? Math.max(0, +e.target.value || 0) : e.target.value; if (e.target.dataset.c === 'f') calc.px = FUELS[calc.f].px; if (e.target.dataset.c === 'r') calc.r = +e.target.value; drawCalc(e.target.dataset.c === 'f'); } });
+const VER = 'v4.12.2';
+
+/* ── seeded data ──────────────────────────────────────── */
+const mulberry = (a) => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const R = mulberry(20261107);
+const ri = (a, b) => a + Math.floor(R() * (b - a + 1)), pick = (a) => a[Math.floor(R() * a.length)], gauss = () => (R() + R() + R() - 1.5) / 0.5;
+const H = 36e5, D = 864e5, NOW = Date.now();
+const eur = (n) => (n < 0 ? MINUS : '') + '€' + fmt(Math.abs(n));
+const eur2 = (n) => '€' + fmtD(n, 2);
+const eurC = (n) => n >= 1e6 ? '€' + fmtD(n / 1e6, 1) + 'm' : n >= 1e4 ? '€' + fmt(n / 1e3) + 'k' : eur(n);
+const pct = (n, d = 1) => signed(n, (v) => fmtD(v, d)) + '%';
+const pl = (n, one, many) => `${fmt(n)} ${n === 1 ? one : (many || one + 's')}`;
+const tn = (n) => fmt(n) + ' t';
+const RTF = new Intl.RelativeTimeFormat('en-GB', { numeric: 'auto' });
+const DF = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }), DFY = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), DMY = new Intl.DateTimeFormat('en-GB', { month: 'short', year: '2-digit' }), TF = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' });
+function ago(ts) { const s = (Date.now() - ts) / 1e3, a = Math.abs(s); if (a < 45) return 'just now'; if (a < 3600) return RTF.format(-Math.round(s / 60), 'minute'); if (a < 86400) return RTF.format(-Math.round(s / 3600), 'hour'); if (a < 7 * 86400) return RTF.format(-Math.round(s / 86400), 'day'); return DFY.format(ts); }
+const dRange = (a, b) => { const A = new Date(a), B = new Date(b); return A.getMonth() === B.getMonth() ? `${A.getDate()}–${DF.format(B)}` : `${DF.format(A)} – ${DF.format(B)}`; };
+const ini = (n) => n.replace(/[^\p{L}\s]/gu, ' ').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+
+const FUELS = {
+  diesel: { n: 'Diesel EN 590 10 ppm', short: 'Diesel', std: 'EN 590:2022', px: 832, hub: 'Rotterdam (ARA)', step: 500 },
+  gasoline: { n: 'Eurobob gasoline E10', short: 'Gasoline', std: 'EN 228', px: 868, hub: 'Amsterdam (ARA)', step: 500 },
+  jet: { n: 'Jet A-1', short: 'Jet A-1', std: 'DEF STAN 91-091', px: 905, hub: 'Antwerp (NWE)', step: 200 },
+  hfo: { n: 'Fuel oil 3.5% RMG 380', short: 'Fuel oil', std: 'ISO 8217', px: 418, hub: 'Rotterdam (ARA)', step: 1000 },
+};
+const DAYS = 365, DATES = Array.from({ length: DAYS }, (_, i) => NOW - (DAYS - 1 - i) * D);
+{ const C = [0]; for (let i = 1; i < DAYS; i++) C.push(C[i - 1] + gauss() * 0.0095 + 0.004 * Math.sin(i / 23));
+  for (const f of Object.values(FUELS)) { let I = 0; const id = [0]; for (let i = 1; i < DAYS; i++) { I = I * 0.94 + gauss() * 0.006; id.push(I); }
+    f.series = C.map((c, i) => Math.round(f.px * (1 + c - C[DAYS - 1] + id[i] - id[DAYS - 1]))); f.series[DAYS - 1] = f.px; } }
+const prev = (f) => f.series[DAYS - 2], dayChg = (f) => (f.px / prev(f) - 1) * 100;
+
+/* hubs, terminals */
+const HUBS = {
+  Rotterdam: { xy: [250, 98], lp: 'w', t: 'Maasvlakte Oil Terminal', code: 'NL RTM', draft: 23.6, cap: 4.2, modes: 'Seagoing, barge, pipeline, rail' },
+  Amsterdam: { xy: [264, 70], lp: 'n', t: 'Westhaven Tank Terminal', code: 'NL AMS', draft: 15.1, cap: 2.1, modes: 'Seagoing, barge, truck' },
+  Antwerp: { xy: [236, 136], lp: 'w', t: 'Scheldt Tank Storage', code: 'BE ANR', draft: 16.0, cap: 3.0, modes: 'Seagoing, barge, rail, pipeline' },
+  Hamburg: { xy: [342, 62], lp: 'n', t: 'Elbe Bulk Liquids Terminal', code: 'DE HAM', draft: 15.3, cap: 1.4, modes: 'Seagoing, barge, rail, truck' },
+  'Gdańsk': { xy: [460, 48], lp: 'n', t: 'Port Północny Fuel Terminal', code: 'PL GDN', draft: 15.0, cap: 0.9, modes: 'Seagoing, rail, truck' },
+  'Le Havre': { xy: [150, 176], lp: 's', t: 'Port-Jérôme Tank Terminal', code: 'FR LEH', draft: 14.5, cap: 1.8, modes: 'Seagoing, barge, pipeline' },
+  Trieste: { xy: [372, 228], lp: 's', t: 'Molo Fuel Terminal', code: 'IT TRS', draft: 18.0, cap: 2.0, modes: 'Seagoing, pipeline, rail' },
+  'Constanța': { xy: [566, 214], lp: 's', t: 'Midia Liquid Bulk Terminal', code: 'RO CND', draft: 19.0, cap: 1.1, modes: 'Seagoing, barge, rail' },
+};
+const HUBN = Object.keys(HUBS), TERMS = ['FOB', 'CIF', 'DAP', 'FCA'];
+const PAY = ['Documentary LC at sight', 'Prepayment', '30 days open account', 'SBLC-backed, 15 days'], ORIG = ['EU refinery', 'US Gulf Coast', 'Baltic refinery', 'Mediterranean refinery', 'Middle East'];
+const INSP = ['Northline Inspection B.V.', 'Hanse Survey GmbH', 'Adria Cargo Control S.r.l.'];
+
+const ME = { id: 0, n: 'Weber Energiehandel GmbH', cc: 'DE', city: 'Hamburg', kyc: 'verified', since: 2019, deals: 64, rating: 4.8, resp: 22 };
+const COS = [['Maasport Energie B.V.', 'NL', 'Rotterdam'], ['Elbe Mineralöl GmbH', 'DE', 'Hamburg'], ['Scheldt Fuels N.V.', 'BE', 'Antwerp'], ['Seine Énergie S.A.', 'FR', 'Rouen'], ['Amstel Petroleum B.V.', 'NL', 'Amsterdam'], ['Nordlicht Oil GmbH', 'DE', 'Bremen'], ['Scheldt Aviation Fuels N.V.', 'BE', 'Antwerp'], ['SkyFuel Europe B.V.', 'NL', 'Schiphol'], ['Adriatica Raffinazione S.r.l.', 'IT', 'Trieste'], ['Danube Petrol S.R.L.', 'RO', 'Constanța'], ['Baltic Agro Trade Sp. z o.o.', 'PL', 'Gdańsk'], ['Rhône Carburants S.A.', 'FR', 'Lyon'], ['Adria Air Supply S.r.l.', 'IT', 'Venice'], ['Estuaire Marine S.A.', 'FR', 'Le Havre'], ['Hanse Tankschiff Handel GmbH', 'DE', 'Lübeck'], ['Vistula Paliwa S.A.', 'PL', 'Warsaw'], ['Kempen Brandstoffen B.V.', 'NL', 'Eindhoven'], ['Lagune Bunker S.r.l.', 'IT', 'Venice'], ['Carpathia Fuels S.R.L.', 'RO', 'Bucharest'], ['Flandria Olie N.V.', 'BE', 'Ghent'], ['Normandie Pétrole S.A.S.', 'FR', 'Caen'], ['Waddenzee Energy B.V.', 'NL', 'Groningen']]
+  .map(([n, cc, city], i) => ({ id: i + 1, n, cc, city, kyc: i % 7 === 5 ? 'pending' : i % 9 === 8 ? 'unverified' : 'verified', since: 2014 + ri(0, 10), deals: ri(14, 260), rating: 4 + ri(0, 9) / 10, resp: ri(8, 95) }));
+const coOf = (id) => id === 0 ? ME : COS[id - 1];
+const coBy = (n) => COS.find((c) => c.n === n);
+
+/* listings */
+const L = []; let LID = 1040;
+for (let i = 0; i < 62; i++) {
+  const f = pick(['diesel', 'diesel', 'diesel', 'gasoline', 'gasoline', 'jet', 'jet', 'hfo']), side = R() < .68 ? 'sell' : 'buy', st = FUELS[f].step;
+  const vol = st * ri(2, f === 'hfo' ? 12 : 16), from = NOW + ri(1, 24) * D;
+  L.push({ id: ++LID, side, f, vol, sold: 0, minLot: Math.min(vol, st * ri(1, 2)), px: Math.round(FUELS[f].px * (1 + gauss() * 0.009 + (side === 'sell' ? 0.003 : -0.004))), hub: pick(HUBN), term: pick(TERMS), co: ri(1, COS.length), from, to: from + ri(4, 12) * D, pay: pick(PAY), orig: pick(ORIG), insp: pick(INSP), posted: NOW - ri(1, 150) * H - ri(0, 59) * 6e4, st: 'active' });
+}
+L.push({ id: 1001, side: 'sell', f: 'diesel', vol: 4000, sold: 0, minLot: 500, px: 827, hub: 'Rotterdam', term: 'FOB', co: 0, from: NOW + 5 * D, to: NOW + 13 * D, pay: 'Documentary LC at sight', orig: 'EU refinery', insp: INSP[0], posted: NOW - 26 * H, st: 'active' });
+L.push({ id: 1002, side: 'buy', f: 'jet', vol: 1200, sold: 0, minLot: 400, px: 899, hub: 'Hamburg', term: 'DAP', co: 0, from: NOW + 9 * D, to: NOW + 16 * D, pay: '30 days open account', orig: 'Any', insp: INSP[1], posted: NOW - 50 * H, st: 'active' });
+const LBy = (id) => L.find((l) => l.id === +id);
+const rem = (l) => l.vol - l.sold, vsB = (l) => (l.px / FUELS[l.f].px - 1) * 100;
+const good = (l) => l.side === 'sell' ? vsB(l) < 0 : vsB(l) > 0;
+const active = (side) => L.filter((l) => l.st === 'active' && l.side === side);
+
+/* spec sheets: parameter | unit | limit | method | typical base | span | decimals */
+const SPEC = {
+  diesel: ['Density at 15 °C|kg/m³|820.0–845.0|EN ISO 12185|826|14|1', 'Sulphur content|mg/kg|≤ 10.0|EN ISO 20846|5|4|1', 'Cetane number|—|≥ 51.0|EN ISO 5165|52|4|1', 'Flash point|°C|> 55|EN ISO 2719|60|12|0', 'FAME content|% (V/V)|≤ 7.0|EN 14078|4.5|2|1', 'CFPP, winter grade|°C|≤ −15|EN 116|-24|8|0', 'Water content|mg/kg|≤ 200|EN ISO 12937|40|90|0', 'Distillation, 95% recovered|°C|≤ 360|EN ISO 3405|340|15|0'],
+  gasoline: ['Research octane number (RON)|—|≥ 95.0|EN ISO 5164|95.2|1|1', 'Motor octane number (MON)|—|≥ 85.0|EN ISO 5163|85.3|1|1', 'Density at 15 °C|kg/m³|720.0–775.0|EN ISO 12185|735|25|1', 'Sulphur content|mg/kg|≤ 10.0|EN ISO 20846|4|4|1', 'Vapour pressure, summer (DVPE)|kPa|45.0–60.0|EN 13016-1|52|6|1', 'Benzene|% (V/V)|≤ 1.0|EN 238|.4|.4|2', 'Oxygen content|% (m/m)|≤ 3.7|EN 1601|2.8|.8|1', 'Ethanol|% (V/V)|≤ 10.0|EN 1601|7|2.5|1'],
+  jet: ['Density at 15 °C|kg/m³|775.0–840.0|ASTM D4052|790|20|1', 'Flash point|°C|≥ 38|IP 170|40|8|0', 'Freezing point|°C|≤ −47|IP 529|-58|8|0', 'Total sulphur|% (m/m)|≤ 0.30|ASTM D2622|.02|.1|2', 'Smoke point|mm|≥ 25.0|ASTM D1322|25|3|1', 'Viscosity at −20 °C|mm²/s|≤ 8.000|ASTM D445|3.5|1.5|3', 'Existent gum|mg/100 mL|≤ 7|IP 540|1|2|0'],
+  hfo: ['Kinematic viscosity at 50 °C|mm²/s|≤ 380.0|ISO 3104|300|70|1', 'Density at 15 °C|kg/m³|≤ 991.0|ISO 12185|975|14|1', 'Sulphur|% (m/m)|≤ 3.50|ISO 8754|2.6|.8|2', 'Flash point|°C|≥ 60.0|ISO 2719|70|30|1', 'Pour point|°C|≤ 30|ISO 3016|6|15|0', 'Water|% (V/V)|≤ 0.50|ISO 3733|.05|.2|2', 'Total sediment, aged|% (m/m)|≤ 0.10|ISO 10307-2|.01|.05|2', 'CCAI|—|≤ 870|ISO 8217 Annex F|845|15|0'],
+};
+
+/* trades on the board */
+const BUY = COS.slice(0, 14).map((c) => c.n);
+const TRADES = Array.from({ length: 34 }, () => { const f = pick(['diesel', 'diesel', 'gasoline', 'jet', 'hfo']), a = pick(HUBN); let b = pick(HUBN); if (b === a) b = HUBN[(HUBN.indexOf(a) + 3) % HUBN.length]; return { t: NOW - ri(1, 71 * 60) * 6e4, f, vol: FUELS[f].step * ri(2, 12), px: Math.round(FUELS[f].px * (1 + gauss() * 0.006)), buyer: pick(BUY), a, b }; }).sort((x, y) => y.t - x.t);
+const trades24 = () => TRADES.filter((t) => Date.now() - t.t < 24 * H);
+const vol24 = () => trades24().reduce((s, t) => s + t.vol * t.px, 0);
+
+/* negotiations */
+const TH = []; let THID = 0;
+const msg = (by, hAgo, txt, o) => ({ by, t: NOW - hAgo * H, txt, ...o });
+const mkTh = (lid, cp, role, msgs, st = 'open', unread = 0) => { const th = { id: ++THID, lid, cp, role, msgs, st, unread }; TH.push(th); return th; };
+mkTh(1001, coBy('Baltic Agro Trade Sp. z o.o.').id, 'sell', [msg('them', 3.2, 'We can take 1,500 t for early November loading. LC at sight, confirming bank in Gdańsk.', { vol: 1500, px: 824 })], 'open', 1);
+mkTh(1001, coBy('Rhône Carburants S.A.').id, 'sell', [msg('them', 7, 'Interested in 1,000 t FOB, inspection by Northline.', { vol: 1000, px: 821 }), msg('me', 6.4, '821 is below our level. We can do 827 for 1,000 t.', { vol: 1000, px: 827 }), msg('them', 1.1, 'Meet in the middle at 825?', { vol: 1000, px: 825 })], 'open', 1);
+mkTh(1002, coBy('Scheldt Aviation Fuels N.V.').id, 'buy', [msg('them', 9, 'We can deliver 600 t Jet A-1 DAP Hamburg, certified to DEF STAN 91-091.', { vol: 600, px: 903 })], 'open', 0);
+{ const sells = (f) => L.find((l) => l.side === 'sell' && l.co && l.f === f && !TH.some((t) => t.cp === l.co));
+  const a = sells('diesel'), b = sells('gasoline'), c = sells('jet'), d = sells('hfo');
+  mkTh(a.id, a.co, 'buy', [msg('me', 20, 'Can you do 2,000 t at this level?', { vol: Math.min(2000, a.vol), px: a.px - 6 }), msg('them', 2.5, 'Best we can do is this, cargo is already at the terminal.', { vol: Math.min(2000, a.vol), px: a.px - 2 })]);
+  mkTh(b.id, b.co, 'buy', [msg('me', 4, 'Offer for a part cargo, inspection at load port.', { vol: b.minLot, px: b.px - 5 })]);
+  mkTh(c.id, c.co, 'buy', [msg('me', 50, 'Firm bid for the full parcel.', { vol: c.vol, px: c.px - 3 }), msg('them', 46, 'Agreed. Contract to follow from our desk.')], 'agreed');
+  mkTh(d.id, d.co, 'buy', [msg('me', 80, 'Indicative bid for 3,000 t.', { vol: Math.min(3000, d.vol), px: d.px - 9 }), msg('them', 77, 'Thanks, we have committed this cargo elsewhere.')], 'declined');
+}
+const lastO = (th) => [...th.msgs].reverse().find((m) => m.vol != null);
+const awaitMe = () => TH.filter((t) => t.st === 'open' && t.msgs[t.msgs.length - 1].by === 'them');
+
+/* deals */
+const STAGES = ['Deal agreed', 'Contract signed', 'Loaded, bill of lading issued', 'Delivered', 'Invoice issued', 'Paid'];
+const STATUS = ['Contract to sign', 'Awaiting loading', 'In transit', 'Delivered', 'Invoice due', 'Completed'];
+const DEALS = []; let DSEQ = 4180;
+function addDeal(o) { const d = { id: 'D-' + (++DSEQ), stage: 0, cx: false, appr: null, ts: [Date.now()], qcFail: false, ...o }; DEALS.unshift(d); return d; }
+[5, 5, 5, 4, 5, 3, 2, 5, 1, 2, 4, 1, 3, 2, 0, 1, 0].forEach((stage, i) => {
+  const f = pick(['diesel', 'diesel', 'gasoline', 'jet', 'hfo']), st = FUELS[f].step, start = NOW - ((17 - i) * 3 + ri(1, 3)) * D - ri(0, 20) * H, ts = [start];
+  for (let k = 1; k <= stage; k++) ts.push(Math.min(NOW - (stage - k + 1) * ri(3, 9) * H, ts[k - 1] + ri(1, 4) * D));
+  addDeal({ f, vol: st * ri(2, 10), px: Math.round(FUELS[f].series[Math.max(0, DAYS - 1 - (17 - i) * 3)] * (1 + gauss() * .004)), hub: pick(HUBN), term: pick(TERMS), cp: ri(1, COS.length), role: R() < .5 ? 'buy' : 'sell', stage, ts, cx: i === 11, qcFail: i === 13 });
+});
+{ const th = TH.find((t) => t.st === 'agreed'), l = LBy(th.lid), o = lastO(th); const d = addDeal({ f: l.f, vol: o.vol, px: o.px, hub: l.hub, term: l.term, cp: l.co, role: 'buy', ts: [th.msgs[1].t], th: th.id }); th.deal = d.id; l.sold += o.vol; }
+const DBy = (id) => DEALS.find((d) => d.id === id);
+const dVal = (d) => d.vol * d.px;
+const dStatus = (d) => d.cx ? 'Cancelled' : STATUS[d.stage];
+const needsAct = (d) => !d.cx && (d.stage === 0 || d.stage === 3 || d.stage === 4);
+const inTransit = (d) => !d.cx && (d.stage === 1 || d.stage === 2);
+const dueAt = (d) => (d.ts[4] || Date.now()) + 30 * D;
+
+/* alerts, saved searches, team, notifications */
+let AID = 3;
+const ALERTS = [{ id: 1, f: 'diesel', op: 'above', px: 835, ch: 'Email and in-app', on: true, hit: null, created: NOW - 9 * D }, { id: 2, f: 'jet', op: 'below', px: 880, ch: 'In-app', on: true, hit: null, created: NOW - 21 * D }, { id: 3, f: 'hfo', op: 'below', px: 405, ch: 'Email and in-app', on: false, hit: null, created: NOW - 40 * D }];
+let SID = 2;
+const SAVED = [{ id: 1, n: 'Diesel offers in Rotterdam', q: { side: 'sell', fuel: 'diesel', hub: 'Rotterdam', term: 'all', ver: false, q: '' }, notify: true, seen: NOW - 30 * H }, { id: 2, n: 'Jet A-1, verified sellers', q: { side: 'sell', fuel: 'jet', hub: 'all', term: 'all', ver: true, q: '' }, notify: false, seen: NOW - 70 * H }];
+const ROLES = ['Admin', 'Trader', 'Operations', 'Finance approver', 'Viewer'];
+const TEAM = [['Lukas Weber', 'l.weber', 'Admin', 0.1], ['Anna Schröder', 'a.schroeder', 'Trader', 2], ['Jonas Becker', 'j.becker', 'Trader', 26], ['Marta Kowalczyk', 'm.kowalczyk', 'Finance approver', 5], ['Pieter de Vries', 'p.devries', 'Operations', 50]].map(([n, e, role, h]) => ({ n, email: e + '@weber-energie.example', role, st: 'active', last: NOW - h * H }));
+TEAM.push({ n: 'Clara Hoffmann', email: 'c.hoffmann@weber-energie.example', role: 'Trader', st: 'invited', last: NOW - 2 * D });
+const PROFILE = { legal: 'Weber Energiehandel GmbH', vat: 'DE318274563', eori: 'DE4471290356812', reg: 'HRB 148213, Amtsgericht Hamburg', addr: 'Am Sandtorkai 41, 20457 Hamburg, Germany', phone: '+49 40 3861 2200', web: 'weber-energie.example' };
+const KYC = { st: 'renewal', exp: NOW + 23 * D, lic: 'DE00841592730' };
+const PLANS = { basic: { n: 'Basic', alerts: 3, saved: 3, range: 90, seats: 8, m: 0 }, pro: { n: 'Pro', alerts: 50, saved: 25, range: 365, seats: 15, m: 249 }, desk: { n: 'Desk', alerts: 500, saved: 100, range: 365, seats: 50, m: 690 } };
+let plan = 'basic'; const SUB = { cycle: 'year', renews: null, card: null, cancelAt: null }; const INVOICES = [];
+const PLAN = () => PLANS[plan];
+const TICKETS = [{ ref: 'CS-20714', subj: 'Bill of lading upload rejected', st: 'Resolved', t: NOW - 12 * D }];
+let NID = 0; const NOTES = [];
+const note = (t, title, body, go, read = false) => NOTES.push({ id: ++NID, t, title, body, go, read });
+note(NOW - 1.1 * H, 'Counter-offer from Rhône Carburants', '1,000 t Diesel at €825/t on your listing L-1001', ['chat', 2]);
+note(NOW - 3.2 * H, 'New offer on your listing', 'Baltic Agro Trade: 1,500 t Diesel at €824/t', ['chat', 1]);
+note(NOW - 5 * H, 'Quality certificate issued', `${DEALS[4].id}: certificate from ${INSP[0]}`, ['deal', DEALS[4].id], true);
+note(NOW - 9 * H, 'Excise licence renewal due', 'Your excise licence expires in 23 days. Renew it to keep your verified badge.', ['company'], false);
+note(NOW - 26 * H, 'Saved search: 2 new matches', 'Diesel offers in Rotterdam', ['saved'], true);
+note(NOW - 3 * D, 'Invoice paid', 'Seine Énergie S.A. settled an invoice', ['deals'], true);
+NOTES.sort((a, b) => b.t - a.t);
+const unread = () => NOTES.filter((n) => !n.read).length;
+function notify(title, body, go) { NOTES.unshift({ id: ++NID, t: Date.now(), title, body, go, read: false }); toast(title); chrome(); }
+
+/* ── state, shell ─────────────────────────────────────── */
+const PAGES = { market: ['Market', 'chart'], listings: ['Listings', 'list'], chat: ['Negotiations', 'chat'], deals: ['Deals', 'file'], alerts: ['Price alerts', 'bell'], saved: ['Saved searches', 'star'], calc: ['Landed cost', 'sliders'], company: ['Company & team', 'users'], billing: ['Plan & billing', 'coin'], help: ['Help & support', 'help'] };
+const NAV = [['Trading', ['market', 'listings', 'chat', 'deals']], ['Tools', ['alerts', 'saved', 'calc']], ['Account', ['company', 'billing', 'help']]];
+let page = 'market', cur = null, authed = true, lstReady = false;
+const hist = { f: 'diesel', r: 30 };
+const LQ = { side: 'sell', fuel: 'all', hub: 'all', term: 'all', ver: false, q: '', sort: 'px', dir: 1, pg: 0 };
+const DQ = { tab: 'all', q: '', sort: 'date', dir: -1, pg: 0 };
+const CQ = { tab: 'all', q: '' };
+let tpg = 0;
+const RANGES = [['1W', 7], ['1M', 30], ['3M', 90], ['1Y', 365]];
+const dark = () => document.documentElement.dataset.theme !== 'light';
+
+function counts() { return { chat: awaitMe().length, deals: DEALS.filter(needsAct).length }; }
+function chrome() {
+  const c = counts(), u = unread();
+  const link = (k, cls = '') => `<a data-page="${k}" tabindex="0" role="link" class="${cls}">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${c[k] ? `<span class="count" aria-label="${c[k]} need attention">${c[k]}</span>` : ''}</a>`;
+  $('#nav').innerHTML = NAV.map(([g, ks]) => `<div class="nav-label">${g}</div>${ks.map((k) => link(k)).join('')}`).join('');
+  $('#tabbar').innerHTML = ['market', 'listings', 'chat', 'deals'].map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${k === 'chat' ? 'Negotiate' : PAGES[k][0]}</span>${c[k] ? `<b class="count">${c[k]}</b>` : ''}</a>`).join('') + `<a data-act="more" data-pop tabindex="0" role="button" aria-haspopup="menu" class="${['market', 'listings', 'chat', 'deals', 'listing', 'deal'].includes(page) ? '' : 'on'}">${ic('menu')}<span>More</span></a>`;
+  $('#sfoot').innerHTML = `<button class="ub" data-act="user" data-pop aria-haspopup="menu" aria-label="Account menu"><div class="avatar">LW</div><div class="who"><b>Lukas Weber</b><span>${KYC.st === 'review' ? 'Verification in review' : 'Verified company'}${ic('vs', 'vb-i')}</span></div></button>`;
+  $('#top').innerHTML = `<div class="mb"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M3 9c3-3 6 3 9 0s6 3 9 0M3 15c3-3 6 3 9 0s6 3 9 0"/></svg></div>CaspianFlow</div>
+    <div class="srch">${ic('search')}<input id="gq" type="search" autocomplete="off" placeholder="Search listings, deals, companies" aria-label="Search listings, deals and companies"><kbd>/</kbd></div><div class="sp"></div>
+    ${plan === 'basic' ? `<button class="btn plan-b" data-act="upgrade">${ic('zap')}Upgrade to Pro</button>` : `<span class="pill pos plan-b" style="height:28px">Pro plan</span>`}
+    <button class="ib hlp" data-page="help" aria-label="Help and support" title="Help and support">${ic('help')}</button>
+    <button class="ib" data-act="bell" data-pop aria-haspopup="dialog" aria-label="Notifications${u ? `, ${u} unread` : ''}">${ic('bell')}${u ? `<span class="dot">${u > 9 ? '9+' : u}</span>` : ''}</button>
+    <button class="ava-b" data-act="user" data-pop aria-label="Account menu"><span class="avatar">LW</span></button>`;
+  setNav(['listing', 'deal'].includes(page) ? (page === 'listing' ? 'listings' : 'deals') : page);
+  const sv = $('.who .ic'); if (sv) sv.style.cssText = 'width:13px;height:13px;color:var(--pos);margin-left:3px';
+}
+function render() {
+  if (!authed) return renderAuth();
+  const ae = document.activeElement, fid = ae && ae.id && $('#view').contains(ae) ? ae.id : null, fk = ae && ae.dataset && ae.dataset.act ? `[data-act="${ae.dataset.act}"]${ae.dataset.v != null ? `[data-v="${ae.dataset.v}"]` : ''}` : null;
+  chrome(); $('#view').innerHTML = VIEWS[page](); mount();
+  const n = fid ? document.getElementById(fid) : fk ? $('#view ' + fk) : null; if (n) n.focus({ preventScroll: true });
+  reconcile();
+}
+function go(p, id) { closePop(); page = p; cur = id ?? null; if (p === 'listings') LQ.pg = LQ.pg || 0; render(); window.scrollTo(0, 0); const h = $('#view h1'); if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); } }
+const head = (t, sub, actions = '', back) => `${back ? `<button class="back" data-page="${back[0]}">${ic('left')}${back[1]}</button>` : ''}<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+const vb = (c) => c.kyc === 'verified' ? `<span class="vb" title="Verified company: KYC checks passed" aria-label="Verified company">${ic('vs')}</span>` : c.kyc === 'pending' ? ` <span class="pill sm warn">KYC pending</span>` : ` <span class="pill sm">Unverified</span>`;
+const empty = (icn, t, s, btn = '') => `<div class="emp">${ic(icn)}<b>${t}</b><p>${s}</p>${btn}</div>`;
+function reconcile() {
+  const c = counts();
+  console.assert(active('sell').length + active('buy').length === L.filter((l) => l.st === 'active').length, 'listing split');
+  console.assert(['all', 'act', 'transit', 'done', 'cx'].slice(2).reduce((s, k) => s + DEALS.filter(DTABS[k][1]).length, 0) + DEALS.filter((d) => !d.cx && (d.stage === 0 || d.stage >= 3) && d.stage < 5).length === DEALS.length, 'deal buckets');
+  console.assert(DEALS.reduce((s, d) => s + dVal(d), 0) === DEALS.reduce((s, d) => s + d.vol * d.px, 0), 'deal value');
+  console.assert(L.every((l) => l.sold <= l.vol), 'sold within volume');
+  const b = $('#nav [data-page="chat"] .count'); console.assert((b ? +b.textContent : 0) === c.chat, 'chat badge');
+  const dot = $('#top .dot'); console.assert((dot ? +dot.textContent.replace('9+', '10') : 0) === Math.min(10, unread()) || unread() > 9, 'bell badge');
+}
+
+/* ── popovers ─────────────────────────────────────────── */
+let popEl = null;
+function openPop(trigger, html, cls = '', focus = true) {
+  closePop(); const p = document.createElement('div'); p.className = 'pop ' + cls; p.id = 'pop'; p.innerHTML = html; document.body.appendChild(p);
+  const r = trigger.getBoundingClientRect(), pw = p.offsetWidth, ph = p.offsetHeight;
+  let left = r.left + r.width / 2 > innerWidth / 2 ? r.right - pw : r.left; left = Math.max(12, Math.min(innerWidth - pw - 12, left));
+  let top = r.bottom + 8; if (top + ph > innerHeight - 8 && r.top - ph - 8 > 8) { top = r.top - ph - 8; p.style.setProperty('--to', 'bottom center'); }
+  p.style.left = left + 'px'; p.style.top = Math.max(8, top) + 'px';
+  trigger.setAttribute('aria-expanded', 'true'); popEl = { p, trigger };
+  if (focus) { const f = $('button,[tabindex="0"],a', p); if (f) f.focus({ preventScroll: true }); }
+}
+function closePop(refocus) { if (!popEl) return false; popEl.p.remove(); popEl.trigger.setAttribute('aria-expanded', 'false'); if (refocus && document.contains(popEl.trigger)) popEl.trigger.focus(); popEl = null; return true; }
+const mi = (icn, label, pg, extra = '') => `<a class="mi" data-page="${pg}" tabindex="0" role="menuitem">${ic(icn)}<span>${label}</span>${extra}</a>`;
+function userMenu() {
+  return `<div class="um-h"><div class="avatar">LW</div><div><b>Lukas Weber</b><span>l.weber@weber-energie.example</span><span>Head of trading · Admin</span></div></div>
+  <div class="um-co">${esc(ME.n)}${vb(ME)}</div><hr>${mi('users', 'Company & team', 'company')}${mi('coin', 'Plan & billing', 'billing', `<span class="pill sm ${plan === 'basic' ? '' : 'pos'}">${PLAN().n}</span>`)}${mi('help', 'Help & support', 'help')}
+  <button class="mi" data-act="theme" role="menuitem">${ic(dark() ? 'sun' : 'moon')}<span>${dark() ? 'Light' : 'Dark'} theme</span></button><hr>
+  <button class="mi" data-act="signOut" role="menuitem">${ic('out')}<span>Sign out</span></button><div class="um-v">CaspianFlow ${VER} · build 3 Nov 2026</div>`;
+}
+function notesHTML() {
+  const u = unread();
+  return `<div class="pop-h"><b>Notifications</b>${u ? `<button class="lnk" data-act="readAll">Mark all as read</button>` : `<span class="muted xs">All read</span>`}</div>` +
+    (NOTES.length ? NOTES.slice(0, 12).map((n) => `<button class="ni ${n.read ? '' : 'un'}" data-act="openNote" data-v="${n.id}"><i class="nd"></i><span><b>${esc(n.title)}</b><span>${esc(n.body)}</span></span><small>${ago(n.t)}</small></button>`).join('') : empty('bell', 'You are all caught up', 'New offers, deal updates and alerts appear here.'));
+}
+function gSearch(inp) {
+  const q = inp.value.trim().toLowerCase(); if (!q) return closePop();
+  const ls = L.filter((l) => l.st === 'active' && (`l-${l.id} ${coOf(l.co).n} ${l.hub} ${FUELS[l.f].short}`).toLowerCase().includes(q)).slice(0, 5);
+  const ds = DEALS.filter((d) => (`${d.id} ${coOf(d.cp).n} ${FUELS[d.f].short}`).toLowerCase().includes(q)).slice(0, 4);
+  const html = (ls.length || ds.length) ? (ls.length ? `<div class="gs-g">Listings</div>` + ls.map((l) => `<button class="mi gs-i" data-act="openL" data-v="${l.id}">${ic('list')}<span class="ell">${FUELS[l.f].short} · ${tn(rem(l))} · ${esc(l.hub)} <span class="muted">· ${esc(coOf(l.co).n)}</span></span><small class="muted">${eur(l.px)}</small></button>`).join('') : '') +
+    (ds.length ? `<div class="gs-g">Deals</div>` + ds.map((d) => `<button class="mi gs-i" data-act="openD" data-v="${d.id}">${ic('file')}<span class="ell">${d.id} · ${esc(coOf(d.cp).n)}</span><small class="muted">${dStatus(d)}</small></button>`).join('') : '') +
+    `<button class="mi" data-act="allRes" data-v="${esc(inp.value)}">${ic('search')}<span>Show all listings matching “${esc(inp.value)}”</span></button>`
+    : `<p class="emp">No listings or deals match “${esc(inp.value)}”.</p>`;
+  if (popEl && popEl.trigger === inp) popEl.p.innerHTML = html; else openPop(inp, html, '', false);
+}
 
 /* ── market ───────────────────────────────────────────── */
 function spark(f) {
-  const s = f.series, min = Math.min(...s), max = Math.max(...s), w = 200, h = 44;
+  const s = f.series.slice(-30), min = Math.min(...s), max = Math.max(...s), w = 200, h = 40;
   return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><path d="${s.map((v, i) => `${i ? 'L' : 'M'}${(i / 29 * w).toFixed(1)},${(h - 4 - (v - min) / (max - min || 1) * (h - 8)).toFixed(1)}`).join(' ')}"/></svg>`;
 }
 function pxCard(k) {
-  const f = FUELS[k], c = dayChg(f);
-  return `<article class="px" data-fuel="${k}"><div class="px-t"><b>${f.n}</b><span>${f.hub}</span></div><div class="px-v">${eur(f.px)}</div><div class="px-c ${c >= 0 ? 'pos' : 'neg'}">${pct(c)} <span class="muted">today, €/t</span></div>${spark(f)}</article>`;
+  const f = FUELS[k], c = dayChg(f), on = hist.f === k;
+  return `<button type="button" class="px ${on ? 'on' : ''}" id="px-${k}" data-act="pickF" data-v="${k}" aria-pressed="${on}" aria-label="${f.n}: ${eur(f.px)} per tonne, ${pct(c)} today. Show price history"><span class="px-t"><b>${f.short}</b><span>${f.hub}</span></span><span class="px-v">${eur(f.px)}<small>/t</small></span><span class="px-c"><span class="${c >= 0 ? 'pos' : 'neg'}">${pct(c)}</span> <span class="muted">${signed(f.px - prev(f))} today</span></span>${spark(f)}</button>`;
+}
+function kpis() {
+  return `<div class="kpis" id="mk-kpis"><div class="kpi"><b>${eurC(vol24())}</b><span>Traded in 24 h</span></div><div class="kpi"><b>${trades24().length}</b><span>Deals in 24 h</span></div><div class="kpi"><b>${active('sell').length}</b><span>Open offers</span></div><div class="kpi"><b>${active('buy').length}</b><span>Open requests</span></div></div>`;
+}
+const curve = (a, b) => { const [x1, y1] = HUBS[a].xy, [x2, y2] = HUBS[b].xy, mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - 38; return `M${x1} ${y1} Q${mx} ${my} ${x2} ${y2}`; };
+function mapCard() {
+  const tr = TRADES.slice(0, 7), fresh = Date.now() - tr[0].t < 15e3;
+  return `<section class="card c6" id="mk-map"><div class="card-h"><div><h2>Trade flows</h2><span>Last 7 deals between hubs</span></div><span class="live"><i></i>live</span></div><svg class="cmap" viewBox="0 0 620 290" role="img" aria-label="Map of the last seven trade routes between European hubs">
+    <path class="sea" d="M170 28 Q230 12 266 48 Q282 86 248 104 Q200 112 176 84 Q150 54 170 28z"/><text class="sl" x="196" y="64">North Sea</text><text class="sl" x="420" y="88">Baltic</text><text class="sl" x="300" y="268">Adriatic</text><text class="sl" x="520" y="262">Black Sea</text>
+    ${tr.map((t, i) => `<path class="rt ${i === 0 && fresh ? 'new' : ''}" d="${curve(t.a, t.b)}"/>`).join('')}
+    ${Object.entries(HUBS).map(([n, h]) => { const [x, y] = h.xy, p = { n: [x, y - 12, 'middle'], s: [x, y + 22, 'middle'], w: [x - 12, y + 4, 'end'] }[h.lp]; return `<circle class="hub" cx="${x}" cy="${y}" r="6"/><text x="${p[0]}" y="${p[1]}" text-anchor="${p[2]}">${n}</text>`; }).join('')}
+    ${fresh ? `<circle class="ship" r="6"><animateMotion dur="4s" fill="freeze" path="${curve(tr[0].a, tr[0].b)}"/></circle>` : ''}</svg></section>`;
+}
+function feedCard() {
+  return `<section class="card c4" id="mk-feed"><div class="card-h"><h2>Latest deals</h2><span>${pl(trades24().length, 'deal')} today</span></div><ul class="feed2">${TRADES.slice(0, 7).map((t) => `<li><span>${ago(t.t).replace(' ago', '').replace('minutes', 'min').replace('minute', 'min').replace('hours', 'h').replace('hour', 'h')}</span><span><b>${eur(t.vol * t.px)}</b> · ${tn(t.vol)} ${FUELS[t.f].short}<br>${esc(t.a)} → ${esc(t.b)}</span></li>`).join('')}</ul></section>`;
+}
+function tradesCard() {
+  const per = 8, rows = TRADES.slice(tpg * per, tpg * per + per), cols = '--cols:.9fr 1fr .8fr .8fr 1fr 1.4fr;--colsm:minmax(0,1fr) auto';
+  return `<section class="card c8" id="mk-trades"><div class="card-h"><div><h2>Recent trades</h2><span>Last 3 days · ${pl(TRADES.length, 'trade')}</span></div><button class="btn sm" data-act="tradesCsv">${ic('dl')}Export CSV</button></div><div class="tbl"><div class="tr th" style="${cols}"><span class="hm">When</span><span>Product</span><span class="hm r">Volume</span><span class="hm r">Price/t</span><span class="r">Total</span><span class="hm">Route · buyer</span></div>
+    ${rows.map((t) => `<div class="tr" style="${cols}"><span class="muted hm">${ago(t.t)}</span><div class="cell-main"><b>${FUELS[t.f].short}</b><span class="dm">${tn(t.vol)} · ${ago(t.t)}</span></div><span class="hm r">${tn(t.vol)}</span><span class="hm r">${eur(t.px)}</span><div class="r"><b>${eur(t.vol * t.px)}</b><div class="dm muted xs">${esc(t.a)} → ${esc(t.b)}</div></div><div class="hm cell-main"><b class="ell" style="font-weight:500">${esc(t.a)} → ${esc(t.b)}</b><span class="ell" style="display:block">${esc(t.buyer)}</span></div></div>`).join('')}</div>${pager(TRADES.length, tpg, per, 'tpg')}</section>`;
+}
+function deskCard() {
+  const a = awaitMe().length, dn = DEALS.filter(needsAct).length, al = ALERTS.filter((x) => x.on && !x.hit).length, trg = ALERTS.filter((x) => x.hit).length, nm = SAVED.reduce((s, x) => s + newFor(x), 0);
+  const row = (icn, n, label, sub, pg) => `<li><a data-page="${pg}" tabindex="0" role="link"><span class="di">${ic(icn)}</span><span><span>${label}</span><small>${sub}</small></span><b class="n">${n}</b></a></li>`;
+  return `<section class="card c4" id="desk"><div class="card-h"><h2>Your desk</h2><span>${esc(ME.n)}</span></div><ul class="desk">
+    ${row('chat', a, 'Awaiting your reply', `${pl(TH.filter((t) => t.st === 'open').length, 'open negotiation')}`, 'chat')}
+    ${row('file', dn, 'Deals that need action', `${pl(DEALS.filter(inTransit).length, 'cargo', 'cargoes')} in transit`, 'deals')}
+    ${row('bell', al, 'Active price alerts', trg ? `${pl(trg, 'alert')} triggered` : `${PLAN().alerts > 40 ? 'Unlimited' : 'Up to ' + PLAN().alerts} on ${PLAN().n}`, 'alerts')}
+    ${row('star', nm, 'New saved-search matches', `${pl(SAVED.length, 'saved search', 'saved searches')}`, 'saved')}</ul>
+    <div class="note ${KYC.st === 'renewal' ? 'warn' : ''}">${ic(KYC.st === 'renewal' ? 'alert' : 'vs')}<span>${KYC.st === 'renewal' ? `Excise licence expires ${ago(KYC.exp)}. <button class="lnk" data-act="kyc">Renew now</button>` : KYC.st === 'review' ? 'Excise licence renewal is in review. Your badge stays active meanwhile.' : `Verified company · licence valid to ${DFY.format(KYC.exp)}`}</span></div></section>`;
+}
+function histCard() {
+  const f = FUELS[hist.f];
+  return `<section class="card c8" id="hist"><div class="card-h ch-w"><div><h2>Price history · ${f.short}</h2><span>${f.hub} assessment · €/t, daily close</span></div><div class="ctl">
+    <select id="h-f" aria-label="Product">${Object.entries(FUELS).map(([k, x]) => `<option value="${k}" ${k === hist.f ? 'selected' : ''}>${x.short}</option>`).join('')}</select>
+    <div class="tabs" role="group" aria-label="Time range">${RANGES.map(([k, n]) => `<button type="button" class="${hist.r === n ? 'on' : ''}" data-act="range" data-v="${n}" aria-pressed="${hist.r === n}" ${n > PLAN().range ? 'title="Available on Pro"' : ''}>${k}${n > PLAN().range ? ic('lock', 'lk') : ''}</button>`).join('')}</div>
+    <button class="ib" data-act="histCsv" aria-label="Export price history as CSV" title="Export CSV">${ic('dl')}</button></div></div><div class="stats" id="h-stats"></div><div class="cv" id="h-chart" tabindex="0"></div><p class="xs muted" style="margin-top:6px">Hover or use the arrow keys to read daily values.</p></section>`;
+}
+function spreadCard() {
+  const lk = plan === 'basic';
+  return `<section class="card c6 ${lk ? 'locked' : ''}" id="spread"><div class="card-h"><div><h2>Spreads to diesel</h2><span>€/t, product minus diesel, same range as price history</span></div></div>
+    <div class="lg"><span><i style="background:var(--s1)"></i>Jet A-1 regrade</span><span><i style="background:var(--s2)"></i>Gasoline vs diesel</span></div><div class="cv" id="s-chart" tabindex="${lk ? -1 : 0}" ${lk ? 'aria-hidden="true"' : ''}></div>
+    ${lk ? `<div class="lock-o"><div>${ic('lock')}<b style="display:block;margin-top:6px">Spreads are a Pro feature</b><p>Track jet and gasoline regrades against diesel with a year of history.</p><button class="btn primary" data-act="upgrade">See Pro plan</button></div></div>` : ''}</section>`;
 }
 function market() {
-  const sells = L.filter((l) => l.side === 'sell' && !l.mine);
-  const best = sells.map((l) => ({ l, d: vsBench(l) })).sort((a, b) => a.d - b.d)[0];
-  const f = FUELS[best.l.f];
-  const finding = `<div class="finding">${ic('tag')}<span>${esc(best.l.co)} offers ${num(best.l.vol)} t of ${f.short} in ${esc(best.l.where)} at ${eur(best.l.px)}, ${eur(f.px - best.l.px)} under the benchmark (${pct(vsBench(best.l))}).</span><button class="btn sm primary" data-act="offer" data-id="${best.l.id}">Make an offer</button></div>`;
-  const rows = TRADES.slice(0, 7).map((t) => `<div class="tr" style="--cols:.9fr 1fr .9fr .8fr 1fr 1.3fr;--colsm:1fr auto"><span class="muted hm">${t[0] === 0 ? 'just now' : t[0] < 24 ? t[0] + ' h ago' : Math.round(t[0] / 24) + ' d ago'}</span><div class="cell-main"><b>${FUELS[t[1]].short}</b><span class="dm">${num(t[2])} t · ${t[0] === 0 ? 'just now' : t[0] + ' h ago'}</span></div><span class="hm r">${num(t[2])} t</span><span class="hm r">${eur(t[3])}</span><div class="r"><b>${eur(t[2] * t[3])}</b><div class="dm muted" style="font-size:12px">${esc(t[4])}</div></div><span class="hm">${esc(t[4])}</span></div>`).join('');
-  return head('Market', `Prices in EUR per tonne, excl. VAT · North-West Europe and the Mediterranean · CET <span class="live" style="margin-left:8px"><i></i>live</span>`, `<button class="btn primary" data-act="newListing">${ic('plus')}New listing</button>`) + finding +
-    `<div class="kpis"><div class="kpi"><b>${eur(vol24())}</b><span>Traded in 24 h</span></div><div class="kpi"><b>${trades24().length}</b><span>Deals in 24 h</span></div><div class="kpi"><b>${L.filter((l) => l.side === 'sell').length}</b><span>Open offers</span></div><div class="kpi"><b>${L.filter((l) => l.side === 'buy').length}</b><span>Open requests</span></div></div>
-    <div class="board" id="board">${Object.keys(FUELS).map(pxCard).join('')}</div>
-    <div class="grid" style="margin-bottom:var(--gap)">${mapCard()}${feedCard()}</div>
-    <section class="card"><div class="card-h"><h2>Recent trades</h2><span>last 3 days</span></div><div class="tbl"><div class="tr th" style="--cols:.9fr 1fr .9fr .8fr 1fr 1.3fr;--colsm:1fr auto"><span class="hm">When</span><span>Fuel</span><span class="hm r">Volume</span><span class="hm r">Price</span><span class="r">Total</span><span class="hm">Buyer</span></div>${rows}</div></section>`;
+  const best = L.filter((l) => l.side === 'sell' && l.st === 'active' && l.co).map((l) => ({ l, d: vsB(l) })).sort((a, b) => a.d - b.d)[0], f = FUELS[best.l.f];
+  return head('Market', `Assessed prices in EUR per tonne, excl. VAT · North-West Europe and the Mediterranean <span class="live" style="margin-left:6px"><i></i>live</span>`, `<button class="btn" data-act="newAlert">${ic('bell')}Set alert</button><button class="btn primary" data-act="newListing">${ic('plus')}New listing</button>`) +
+    `<div class="finding">${ic('tag')}<span>${esc(coOf(best.l.co).n)} offers ${tn(rem(best.l))} of ${f.short} in ${esc(best.l.hub)} at ${eur(best.l.px)}/t, ${eur(f.px - best.l.px)} under the benchmark (${pct(best.d)}).</span><button class="btn sm primary" data-act="openL" data-v="${best.l.id}">View offer</button></div>` +
+    kpis() + `<div class="board" id="board">${Object.keys(FUELS).map(pxCard).join('')}</div>
+    <div class="grid mgrid">${histCard()}${deskCard()}</div><div class="grid mgrid">${spreadCard()}${mapCard()}</div><div class="grid">${tradesCard()}${feedCard()}</div>`;
+}
+function liveMarket() { if (page !== 'market' || !$('#mk-kpis')) return; $('#mk-kpis').outerHTML = kpis(); $('#mk-map').outerHTML = mapCard(); $('#mk-feed').outerHTML = feedCard(); $('#mk-trades').outerHTML = tradesCard(); }
+
+/* charts: one y-axis, recessive grid, end labels, crosshair + tooltip, arrow keys */
+function ticks(lo, hi) { const raw = (hi - lo) / 4, mag = 10 ** Math.floor(Math.log10(raw)), st = [1, 2, 2.5, 5, 10].find((k) => k * mag >= raw) * mag, out = []; for (let v = Math.floor(lo / st) * st; v < hi + st; v += st) { out.push(Math.round(v * 100) / 100); if (v >= hi) break; } return out; }
+function lineChart(host, ser, dates, o = {}) {
+  const w = Math.max(260, host.clientWidth), h = o.h || 250, Lm = 44, Rm = ser.length > 1 ? 112 : 58, T = 12, B = 26, pw = w - Lm - Rm, ph = h - T - B, n = dates.length;
+  const all = ser.flatMap((s) => s.v); let lo = Math.min(...all), hi = Math.max(...all); if (o.zero) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); } if (hi - lo < 4) { hi += 2; lo -= 2; }
+  const tk = ticks(lo, hi); lo = tk[0]; hi = tk[tk.length - 1];
+  const X = (i) => Lm + pw * i / (n - 1), Y = (v) => T + ph - (v - lo) / (hi - lo) * ph, fy = o.fy || ((v) => eur(v));
+  const g = tk.map((v) => `<line class="gl ${o.zero && v === 0 ? 'zl' : ''}" x1="${Lm}" x2="${Lm + pw}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${Lm - 8}" y="${Y(v) + 4}" text-anchor="end">${o.zero ? signed(v) : fmt(v)}</text>`).join('');
+  const span = (dates[n - 1] - dates[0]) / D, xf = span > 200 ? DMY : DF, nx = w < 420 ? 3 : 5;
+  const xl = Array.from({ length: nx }, (_, k) => Math.round(k * (n - 1) / (nx - 1))).map((i, k) => `<text x="${X(i)}" y="${h - 6}" text-anchor="${k === 0 ? 'start' : k === nx - 1 ? 'end' : 'middle'}">${xf.format(dates[i])}</text>`).join('');
+  const paths = ser.map((s, j) => { const d = s.v.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(''); return (o.area && j === 0 ? `<path d="${d}L${X(n - 1)} ${T + ph}L${Lm} ${T + ph}Z" fill="${s.c}" opacity=".1"/>` : '') + `<path d="${d}" fill="none" stroke="${s.c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`; }).join('');
+  const ys = ser.map((s) => Y(s.v[n - 1])); if (ys.length === 2 && Math.abs(ys[0] - ys[1]) < 16) { const m = (ys[0] + ys[1]) / 2, up = ys[0] <= ys[1] ? -1 : 1; ys[0] = m + up * 8; ys[1] = m - up * 8; }
+  const ends = ser.map((s, j) => `<text x="${X(n - 1) + 8}" y="${ys[j] + 4}"><tspan class="el">${fy(s.v[n - 1])}</tspan>${ser.length > 1 ? ` ${s.short}` : ''}</text>`).join('');
+  host.innerHTML = `<svg class="chart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(o.label)}">${g}${xl}${paths}${ends}<g class="hv" style="opacity:0"><line class="xh" y1="${T}" y2="${T + ph}"/>${ser.map((s) => `<circle r="4.5" fill="${s.c}" stroke="var(--surface)" stroke-width="2"/>`).join('')}</g></svg><div class="ctip" hidden></div>`;
+  const svg = host.firstChild, hv = $('.hv', svg), tip = host.lastChild;
+  const show = (i) => { i = Math.max(0, Math.min(n - 1, i)); host._i = i; const x = X(i); hv.style.opacity = 1; $('line', hv).setAttribute('x1', x); $('line', hv).setAttribute('x2', x);
+    $$('circle', hv).forEach((c, j) => { c.setAttribute('cx', x); c.setAttribute('cy', Y(ser[j].v[i])); });
+    tip.hidden = false; tip.innerHTML = `<b>${DFY.format(dates[i])}</b>` + ser.map((s) => `<span><i style="background:${s.c}"></i>${s.n}<b>${fy(s.v[i])}</b></span>`).join('');
+    const tw = tip.offsetWidth; tip.style.left = (x + 14 + tw > w ? Math.max(0, x - tw - 14) : x + 14) + 'px'; tip.style.top = T + 'px'; };
+  const hide = () => { hv.style.opacity = 0; tip.hidden = true; };
+  host.onpointermove = (e) => { const r = svg.getBoundingClientRect(); show(Math.round((e.clientX - r.left - Lm) / pw * (n - 1))); };
+  host.onpointerleave = hide; host.onblur = hide;
+  host.onkeydown = (e) => { const k = { ArrowLeft: -1, ArrowRight: 1, Home: -1e4, End: 1e4 }[e.key]; if (k) { e.preventDefault(); show((host._i ?? n - 1) + k); } };
+}
+function drawHist() {
+  const el = $('#h-chart'); if (!el) return; const f = FUELS[hist.f], v = f.series.slice(-hist.r), d = DATES.slice(-hist.r);
+  const lo = Math.min(...v), hi = Math.max(...v), avg = v.reduce((a, b) => a + b, 0) / v.length, ch = (v[v.length - 1] / v[0] - 1) * 100;
+  $('#h-stats').innerHTML = `<span>Low<b>${eur(lo)}</b></span><span>High<b>${eur(hi)}</b></span><span>Average<b>${eur(avg)}</b></span><span>Change<b class="${ch >= 0 ? 'pos' : 'neg'}">${pct(ch)}</b></span>`;
+  lineChart(el, [{ n: f.short, short: f.short, v, c: 'var(--s1)' }], d, { area: true, label: `${f.n} price, last ${hist.r} days: from ${eur(v[0])} to ${eur(v[v.length - 1])} per tonne, low ${eur(lo)}, high ${eur(hi)}` });
+}
+function spreadData() { const r = hist.r === 7 ? 30 : hist.r, ds = FUELS.diesel.series.slice(-r); return { r, d: DATES.slice(-r), jet: FUELS.jet.series.slice(-r).map((x, i) => x - ds[i]), gas: FUELS.gasoline.series.slice(-r).map((x, i) => x - ds[i]) }; }
+function drawSpread() {
+  const el = $('#s-chart'); if (!el) return; const s = spreadData(), fy = (v) => signed(v, (x) => '€' + fmt(x));
+  lineChart(el, [{ n: 'Jet A-1 regrade', short: 'Jet', v: s.jet, c: 'var(--s1)' }, { n: 'Gasoline vs diesel', short: 'Gasoline', v: s.gas, c: 'var(--s2)' }], s.d, { zero: true, fy, h: 230, label: `Spreads to diesel over ${s.r} days: jet ${fy(s.jet[s.jet.length - 1])}, gasoline ${fy(s.gas[s.gas.length - 1])} per tonne today` });
 }
 
 /* ── listings ─────────────────────────────────────────── */
-function listings() {
-  const list = L.filter((l) => l.side === side && (fuel === 'all' || l.f === fuel)).sort((a, b) => (side === 'sell' ? a.px - b.px : b.px - a.px));
-  const rows = list.map((l) => { const d = vsBench(l), good = side === 'sell' ? d < 0 : d > 0; return `<div class="tr" data-l="${l.id}" tabindex="0" style="cursor:pointer;--cols:1fr .8fr .8fr .9fr 1.1fr 1.3fr;--colsm:1fr auto"><div class="cell-main"><b>${FUELS[l.f].short}${l.mine ? ' <span class="pill">yours</span>' : ''}</b><span>${num(l.vol)} t · ${esc(l.where)} · ${l.term}</span></div><span class="hm r">${num(l.vol)} t</span><span class="hm r"><b>${eur(l.px)}</b></span><span class="hm r"><span class="pill ${good ? 'pos' : ''}">${pct(d)}</span></span><span class="hm">${esc(l.where)} · ${l.term}</span><span class="hm">${esc(l.co)}</span><div class="r dm"><b>${eur(l.px)}</b><div class="muted" style="font-size:12px">${pct(d)} vs benchmark</div></div></div>`; }).join('');
-  return head('Listings', `${list.length} ${side === 'sell' ? 'offers' : 'requests'}${fuel === 'all' ? '' : ' for ' + FUELS[fuel].short} · benchmark = market price today`, `<button class="btn primary" data-act="newListing">${ic('plus')}New listing</button>`) +
-    `<div class="toolbar"><div class="tabs"><button class="${side === 'sell' ? 'on' : ''}" data-act="side" data-v="sell">Offers</button><button class="${side === 'buy' ? 'on' : ''}" data-act="side" data-v="buy">Requests</button></div>
-    <div class="chips">${['all', ...Object.keys(FUELS)].map((k) => `<button class="chip ${fuel === k ? 'on' : ''}" data-act="fuel" data-v="${k}">${k === 'all' ? 'All fuels' : FUELS[k].short}</button>`).join('')}</div></div>
-    <section class="card"><div class="tbl"><div class="tr th" style="--cols:1fr .8fr .8fr .9fr 1.1fr 1.3fr;--colsm:1fr auto"><span>Fuel</span><span class="hm r">Volume</span><span class="hm r">Price/t</span><span class="hm r">vs benchmark</span><span class="hm">Where</span><span class="hm">Company</span></div>${rows || '<p class="empty">Nothing here yet.</p>'}</div></section>`;
+function filterL(q) {
+  const t = (q.q || '').trim().toLowerCase();
+  return L.filter((l) => l.st === 'active' && l.side === q.side && (q.fuel === 'all' || l.f === q.fuel) && (q.hub === 'all' || l.hub === q.hub) && (q.term === 'all' || l.term === q.term) && (!q.ver || coOf(l.co).kyc === 'verified') && (!t || `l-${l.id} ${coOf(l.co).n} ${l.hub} ${FUELS[l.f].short} ${l.term}`.toLowerCase().includes(t)));
 }
-function openListing(id) {
-  const l = L.find((x) => x.id === id), d = vsBench(l);
-  modal(`<h2>${FUELS[l.f].n}</h2><p>${esc(l.co)} · ${esc(l.where)}, ${l.term} · ${esc(l.win)}</p>
-    <div class="lines"><div><span>${l.side === 'sell' ? 'Offered' : 'Wanted'}</span><b>${num(l.vol)} t</b></div><div><span>Price</span><b>${eur(l.px)} / t</b></div><div><span>Against benchmark ${eur(FUELS[l.f].px)}</span><b class="${(l.side === 'sell' ? d < 0 : d > 0) ? 'pos' : ''}">${pct(d)}</b></div><div class="sum"><span>Deal value</span><b>${eur(l.vol * l.px)}</b></div></div>
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button>${l.mine ? '' : `<button class="btn primary" data-act="offer" data-id="${l.id}">${l.side === 'sell' ? 'Make an offer' : 'Offer supply'}</button>`}</div>`);
+const SORTS = { px: (l) => l.px, vol: (l) => rem(l), vs: (l) => vsB(l), from: (l) => l.from, co: (l) => coOf(l.co).n, posted: (l) => -l.posted };
+const sh = (k, label, Q, act, cls = '') => `<span class="${cls}" ${Q.sort === k ? `aria-sort="${Q.dir > 0 ? 'ascending' : 'descending'}"` : ''}><button type="button" class="sh" data-act="${act}" data-v="${k}" aria-label="Sort by ${label}">${label}${Q.sort === k ? ic(Q.dir > 0 ? 'up' : 'down') : ''}</button></span>`;
+function pager(total, pg, per, act) {
+  const pages = Math.max(1, Math.ceil(total / per)), a = total ? pg * per + 1 : 0, b = Math.min(total, (pg + 1) * per);
+  return `<div class="pager"><span class="muted">${total ? `Showing ${fmt(a)}–${fmt(b)} of ${fmt(total)}` : 'No results'}</span><div><button class="btn sm" data-act="${act}" data-v="${pg - 1}" ${pg <= 0 ? 'disabled' : ''} aria-label="Previous page">${ic('left')}</button><span class="xs muted">Page ${pg + 1} of ${pages}</span><button class="btn sm" data-act="${act}" data-v="${pg + 1}" ${pg >= pages - 1 ? 'disabled' : ''} aria-label="Next page">${ic('right')}</button></div></div>`;
+}
+const LCOLS = '--cols:minmax(0,1.1fr) .7fr .75fr .75fr minmax(0,1.15fr) minmax(0,1.6fr) .75fr;--colsm:minmax(0,1fr) auto';
+function sortedL() { const k = SORTS[LQ.sort], arr = filterL(LQ); return arr.sort((a, b) => { const x = k(a), y = k(b); return (x < y ? -1 : x > y ? 1 : 0) * LQ.dir; }); }
+function lstRes() {
+  if (!lstReady) return `<div class="tbl">${Array.from({ length: 8 }, () => `<div class="tr" style="${LCOLS}">${'<div class="sk"></div>'.repeat(2)}<div class="sk hm"></div><div class="sk hm"></div><div class="sk hm"></div><div class="sk hm"></div><div class="sk hm"></div></div>`).join('')}</div><span class="sr" role="status">Loading listings</span>`;
+  const all = sortedL(), per = 12; if (LQ.pg * per >= all.length) LQ.pg = Math.max(0, Math.ceil(all.length / per) - 1);
+  const rows = all.slice(LQ.pg * per, LQ.pg * per + per).map((l) => { const c = coOf(l.co), d = vsB(l); return `<div class="tr" data-l="${l.id}" tabindex="0" role="link" aria-label="${FUELS[l.f].short}, ${tn(rem(l))} at ${eur(l.px)} per tonne, ${esc(l.hub)}, ${esc(c.n)}" style="${LCOLS}">
+    <div class="cell-main"><b>${FUELS[l.f].short}${l.co === 0 ? ' <span class="pill sm acc-p">Yours</span>' : ''}</b><span>L-${l.id}<span class="dmi"> · ${tn(rem(l))} · ${esc(l.hub)} ${l.term}</span></span></div>
+    <span class="hm r">${tn(rem(l))}</span><span class="hm r"><b>${eur(l.px)}</b></span><span class="hm r"><span class="pill ${good(l) ? 'pos' : ''}">${pct(d)}</span></span>
+    <div class="hm cell-main"><b style="font-weight:500">${esc(l.hub)} · ${l.term}</b><span>${dRange(l.from, l.to)}</span></div>
+    <div class="hm cell-main"><b class="co-n"><span class="ell">${esc(c.n)}</span>${vb(c)}</b><span>${c.city}, ${c.cc}</span></div><span class="hm r muted xs">${ago(l.posted)}</span>
+    <div class="r dm"><b>${eur(l.px)}</b><div class="muted xs">${pct(d)} vs bench</div></div></div>`; }).join('');
+  return `<div class="tbl"><div class="tr th" style="${LCOLS}">${sh('co', 'Product', LQ, 'lsort', '').replace('Product', 'Product')}${sh('vol', 'Volume', LQ, 'lsort', 'hm r')}${sh('px', 'Price/t', LQ, 'lsort', 'hm r')}${sh('vs', 'vs bench', LQ, 'lsort', 'hm r')}${sh('from', 'Delivery', LQ, 'lsort', 'hm')}<span class="hm">Company</span>${sh('posted', 'Posted', LQ, 'lsort', 'hm r')}</div>
+    ${rows || empty('search', 'No listings match these filters', LQ.q ? `Nothing found for “${esc(LQ.q)}”.` : 'Try another hub or product, or widen the filters.', `<button class="btn" data-act="clearF">Clear filters</button>`)}</div>${pager(all.length, LQ.pg, per, 'lpg')}`;
+}
+function drawLst() { const r = $('#lst-res'); if (r) r.innerHTML = lstRes(); const c = $('#lst-n'); if (c) c.textContent = lstSub(); }
+const lstSub = () => `${pl(filterL(LQ).length, LQ.side === 'sell' ? 'offer' : 'request')} match · ${pl(active('sell').length, 'offer')} and ${pl(active('buy').length, 'request')} live · benchmark = today’s assessment`;
+const fsel = (id, label, cur2, opts) => `<select id="${id}" aria-label="${label}">${opts.map(([v, t]) => `<option value="${v}" ${cur2 === v ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
+function listings() {
+  const dirty = LQ.fuel !== 'all' || LQ.hub !== 'all' || LQ.term !== 'all' || LQ.ver || LQ.q;
+  if (!lstReady) setTimeout(() => { lstReady = true; if (page === 'listings') drawLst(); }, 450);
+  return head('Listings', `<span id="lst-n">${lstSub()}</span>`, `<button class="btn" data-act="saveSearch">${ic('star')}Save search</button><button class="btn" data-act="lstCsv">${ic('dl')}<span class="hide-s">Export </span>CSV</button><button class="btn primary" data-act="newListing">${ic('plus')}New listing</button>`) +
+    `<div class="toolbar"><div class="tabs" role="group" aria-label="Side"><button class="${LQ.side === 'sell' ? 'on' : ''}" data-act="side" data-v="sell" aria-pressed="${LQ.side === 'sell'}">Offers · ${active('sell').length}</button><button class="${LQ.side === 'buy' ? 'on' : ''}" data-act="side" data-v="buy" aria-pressed="${LQ.side === 'buy'}">Requests · ${active('buy').length}</button></div>
+    <div class="inp-s">${ic('search')}<input id="lq" type="search" value="${esc(LQ.q)}" placeholder="Company, hub or reference" aria-label="Search listings"></div>
+    ${fsel('lf', 'Product', LQ.fuel, [['all', 'All products'], ...Object.entries(FUELS).map(([k, f]) => [k, f.short])])}${fsel('lh', 'Hub', LQ.hub, [['all', 'All hubs'], ...HUBN.map((h) => [h, h])])}${fsel('lt', 'Incoterm', LQ.term, [['all', 'Any Incoterm'], ...TERMS.map((t) => [t, t])])}
+    <label class="chk"><input type="checkbox" id="lv" ${LQ.ver ? 'checked' : ''}>Verified only</label>${dirty ? `<button class="lnk" data-act="clearF">Clear filters</button>` : ''}</div>
+    <section class="card" id="lst-res" aria-live="polite">${lstRes()}</section>`;
+}
+
+/* listing detail */
+function specRows(l) { const r = mulberry(l.id * 7); return SPEC[l.f].map((s) => { const [p, u, lim, m, base, span, dp] = s.split('|'); const v = +base + r() * +span; return `<tr><td>${p}</td><td class="muted">${u}</td><td>${lim}</td><td><b>${fmtD(v, +dp).replace('-', MINUS)}</b></td><td class="muted hm">${m}</td></tr>`; }).join(''); }
+function listing() {
+  const l = LBy(cur); if (!l) return empty('alert', 'Listing not found', 'It may have been withdrawn or sold out.', `<button class="btn" data-page="listings">Back to listings</button>`);
+  const c = coOf(l.co), f = FUELS[l.f], hb = HUBS[l.hub], mine = l.co === 0, th = TH.find((t) => t.lid === l.id && t.st === 'open' && !mine), d = vsB(l);
+  const sims = L.filter((x) => x.id !== l.id && x.st === 'active' && x.side === l.side && x.f === l.f).sort((a, b) => Math.abs(a.px - l.px) - Math.abs(b.px - l.px)).slice(0, 4);
+  return head(`${f.short} · ${tn(rem(l))} · ${esc(l.hub)} ${l.term}`, `L-${l.id} · ${l.side === 'sell' ? 'Offer' : 'Request'} posted ${ago(l.posted)} · ${l.st === 'active' ? '<span class="pill pos sm"><i></i>Live</span>' : `<span class="pill sm">${l.st === 'sold' ? 'Sold out' : 'Withdrawn'}</span>`}`, mine ? `<button class="btn" data-act="editL" data-v="${l.id}">${ic('edit')}Edit</button><button class="btn" data-act="withdrawL" data-v="${l.id}" ${l.st !== 'active' ? 'disabled' : ''}>${ic('trash')}Withdraw</button>` : '', ['listings', 'All listings']) +
+    `<div class="grid"><div class="c8" style="display:grid;gap:var(--gap)">
+    <section class="card"><div class="card-h"><h2>Commercial terms</h2><span>${f.n}</span></div><dl class="dl">
+      <div><dt>Price</dt><dd>${eur(l.px)} / t</dd></div><div><dt>Against benchmark ${eur(f.px)}</dt><dd class="${good(l) ? 'pos' : ''}">${pct(d)}</dd></div>
+      <div><dt>${l.side === 'sell' ? 'Available' : 'Wanted'}</dt><dd>${tn(rem(l))}${l.sold ? ` <span class="muted xs">of ${tn(l.vol)}</span>` : ''}</dd></div><div><dt>Minimum lot</dt><dd>${tn(l.minLot)}</dd></div>
+      <div><dt>Incoterm</dt><dd>${l.term} ${esc(l.hub)} (Incoterms 2020)</dd></div><div><dt>Laycan</dt><dd>${dRange(l.from, l.to)}</dd></div>
+      <div><dt>Payment</dt><dd>${l.pay}</dd></div><div><dt>Origin</dt><dd>${l.orig}</dd></div>
+      <div><dt>Inspection</dt><dd>${l.insp}</dd></div><div><dt>Value at full volume</dt><dd>${eur(rem(l) * l.px)}</dd></div></dl></section>
+    <section class="card"><div class="card-h"><div><h2>Specification sheet</h2><span>${f.std} · typical values from the latest tank certificate</span></div><button class="btn sm" data-act="specCsv" data-v="${l.id}">${ic('dl')}CSV</button></div>
+      <div class="tw"><table class="spec"><thead><tr><th>Parameter</th><th>Unit</th><th>Limit</th><th>This cargo</th><th class="hm">Method</th></tr></thead><tbody>${specRows(l)}</tbody></table></div></section>
+    <section class="card"><div class="card-h"><div><h2>Terminal</h2><span>${hb.code}</span></div></div><dl class="dl"><div><dt>Terminal</dt><dd>${hb.t}</dd></div><div><dt>Port</dt><dd>${esc(l.hub)}</dd></div><div><dt>Max. draft at berth</dt><dd>${fmtD(hb.draft)} m</dd></div><div><dt>Storage capacity</dt><dd>${fmtD(hb.cap)} million m³</dd></div><div><dt>Transport modes</dt><dd>${hb.modes}</dd></div><div><dt>Operating hours</dt><dd>24/7, customs bonded</dd></div></dl></section></div>
+    <div class="c4" style="display:grid;gap:var(--gap);align-content:start"><section class="card"><div class="card-h"><h2>${l.side === 'sell' ? 'Seller' : 'Buyer'}</h2>${mine ? '<span>Your company</span>' : ''}</div>
+      <div class="sell-h"><div class="logo">${ini(c.n)}</div><div style="min-width:0"><b class="co-n"><span class="ell">${esc(c.n)}</span>${vb(c)}</b><span class="muted xs">${c.city}, ${c.cc} · member since ${c.since}</span></div></div>
+      <dl class="dl" style="grid-template-columns:1fr"><div><dt>Completed deals</dt><dd>${fmt(c.deals)}</dd></div><div><dt>Counterparty rating</dt><dd>${fmtD(c.rating)} / 5</dd></div><div><dt>Typical response</dt><dd>${c.resp < 60 ? c.resp + ' min' : '1 h ' + (c.resp - 60) + ' min'}</dd></div></dl>
+      ${c.kyc !== 'verified' ? `<div class="note warn">${ic('alert')}<span>${c.kyc === 'pending' ? 'KYC checks are still running for this company. Deals settle only after verification.' : 'This company has not completed KYC. Trade with prepayment or LC only.'}</span></div>` : ''}
+      <div class="big-p" style="margin-top:16px">${eur(l.px)}<small class="muted" style="font:500 13px var(--font)"> / t</small></div>
+      <div class="stack-a">${mine ? `<button class="btn primary" data-page="chat">${ic('chat')}See ${pl(TH.filter((t) => t.lid === l.id && t.st === 'open').length, 'negotiation')}</button>` : l.st !== 'active' ? '' : th ? `<button class="btn primary" data-page="chat" data-id="${th.id}">${ic('chat')}Continue negotiation</button>` : `<button class="btn primary" data-act="offer" data-v="${l.id}">${l.side === 'sell' ? 'Make an offer' : 'Offer supply'}</button>`}
+      <button class="btn" data-act="alertFor" data-v="${l.f}">${ic('bell')}Alert me on ${f.short} price</button></div></section>
+    <section class="card"><div class="card-h"><h2>Similar ${l.side === 'sell' ? 'offers' : 'requests'}</h2></div>${sims.length ? `<ul class="sim">${sims.map((x) => `<li data-l="${x.id}" tabindex="0" role="link"><span><b>${tn(rem(x))} · ${esc(x.hub)} ${x.term}</b><br><span class="muted xs">${esc(coOf(x.co).n)}</span></span><span class="r"><b>${eur(x.px)}</b><br><span class="xs ${good(x) ? 'pos' : 'muted'}">${pct(vsB(x))}</span></span></li>`).join('')}</ul>` : '<p class="muted">No similar listings right now.</p>'}</section></div></div>`;
+}
+
+/* ── negotiations ─────────────────────────────────────── */
+const thState = (t) => t.st === 'agreed' ? ['Agreed', 'pos'] : t.st === 'declined' ? ['Declined', 'neg'] : t.msgs[t.msgs.length - 1].by === 'them' ? ['Your turn', 'warn'] : ['Waiting for reply', ''];
+function thFilter() { const q = CQ.q.trim().toLowerCase(); return TH.filter((t) => (CQ.tab === 'all' || (CQ.tab === 'me' && awaitMe().includes(t)) || (CQ.tab === 'closed' && t.st !== 'open')) && (!q || `${coOf(t.cp).n} l-${t.lid} ${FUELS[LBy(t.lid).f].short}`.toLowerCase().includes(q))).sort((a, b) => b.msgs[b.msgs.length - 1].t - a.msgs[a.msgs.length - 1].t); }
+function thList() {
+  const arr = thFilter();
+  return arr.length ? arr.map((t) => { const c = coOf(t.cp), l = LBy(t.lid), lm = t.msgs[t.msgs.length - 1], s = thState(t); return `<button class="th-i ${cur === t.id ? 'on' : ''}" data-act="openTh" data-v="${t.id}"><span class="av2">${ini(c.n)}</span><span style="min-width:0"><b><span class="ell">${esc(c.n)}</span>${vb(c)}</b><span class="ell">${t.role === 'sell' ? 'On your' : 'Your bid on'} ${FUELS[l.f].short} · L-${l.id}</span><span class="pill sm ${s[1]}" style="margin-top:4px;display:inline-flex">${s[0]}</span></span><span><small>${ago(lm.t).replace(' ago', '')}</small>${t.unread ? '<i class="u" aria-label="Unread"></i>' : ''}</span></button>`; }).join('') : `<p class="emp">No negotiations here.</p>`;
+}
+function drawThreads() { const el = $('#th-list'); if (el) el.innerHTML = thList(); }
+function convo(t) {
+  if (!t) return `<div class="emp" style="margin:auto">${ic('chat')}<b>Select a negotiation</b><p>Offers, counter-offers and messages with counterparties appear here.</p></div>`;
+  const c = coOf(t.cp), l = LBy(t.lid), lo = lastO(t), canAct = t.st === 'open' && t.msgs[t.msgs.length - 1].by === 'them' && lo && t.msgs[t.msgs.length - 1] === lo, s = thState(t);
+  const ms = t.msgs.map((m) => m.by === 'sys' ? `<div class="msg sys">${esc(m.txt)} · ${TF.format(m.t)}</div>` : `<div class="msg ${m.by}"><div class="bub">${m.txt ? esc(m.txt) : ''}${m.o ? `<div class="oc"><span class="xs muted">${m.by === 'me' ? 'Your offer' : 'Their offer'}</span><div class="ocv">${eur(m.o.px)}<small> /t · ${tn(m.o.vol)} · ${l.term} ${esc(l.hub)}</small></div><span class="xs muted">Total ${eur(m.o.vol * m.o.px)} · ${pct((m.o.px / FUELS[l.f].px - 1) * 100)} vs benchmark</span>${canAct && m === lo ? `<div class="oc-a"><button class="btn sm primary" data-act="accept" data-v="${t.id}">Accept</button><button class="btn sm" data-act="counter" data-v="${t.id}">Counter-offer</button><button class="btn sm" data-act="decline" data-v="${t.id}">Decline</button></div>` : ''}</div>` : ''}</div><small>${m.by === 'me' ? 'You' : esc(c.n.split(' ')[0])} · ${ago(m.t)}</small></div>`).join('');
+  return `<div class="conv-h"><button class="ib dm" data-act="thBack" aria-label="Back to negotiations">${ic('left')}</button><span class="av2">${ini(c.n)}</span><div><b class="co-n"><span class="ell">${esc(c.n)}</span>${vb(c)}</b><span class="muted xs">${FUELS[l.f].short} · ${tn(l.vol)} · ${esc(l.hub)} ${l.term} · listed ${eur(l.px)}/t · <button class="lnk" data-act="openL" data-v="${l.id}">L-${l.id}</button></span></div><span class="pill ${s[1]}">${s[0]}</span>${t.deal ? `<button class="btn sm" data-act="openD" data-v="${t.deal}">Open deal ${t.deal}</button>` : ''}</div>
+    <div class="msgs" id="msgs" aria-live="polite">${ms}${t.typing ? `<div class="typing">${esc(c.n.split(' ')[0])} is typing…</div>` : ''}</div>
+    ${t.st === 'open' ? `<form class="comp" data-th="${t.id}"><input id="cmsg" autocomplete="off" placeholder="Write a message" aria-label="Message to ${esc(c.n)}"><button class="btn" data-act="counter" data-v="${t.id}" type="button">${ic('coin')}<span class="hide-s">Offer</span></button><button class="btn primary" type="submit" aria-label="Send message">${ic('send')}</button></form>` : `<p class="muted xs" style="padding:12px 18px;border-top:1px solid var(--border)">This negotiation is closed.</p>`}`;
+}
+function chat() {
+  const t = TH.find((x) => x.id === +cur); if (t && t.unread) { t.unread = 0; setTimeout(chrome); }
+  return head('Negotiations', `${pl(awaitMe().length, 'negotiation')} awaiting your reply · offers are binding for 24 hours`, `<button class="btn" data-page="listings">${ic('list')}Browse listings</button>`) +
+    `<div class="chat ${t ? 'has' : ''}"><section class="card thl"><div class="inp-s">${ic('search')}<input id="cq" type="search" value="${esc(CQ.q)}" placeholder="Search negotiations" aria-label="Search negotiations"></div>
+    <div class="tabs" role="group" aria-label="Filter">${[['all', 'All'], ['me', 'Your turn · ' + awaitMe().length], ['closed', 'Closed']].map(([k, n]) => `<button class="${CQ.tab === k ? 'on' : ''}" data-act="cTab" data-v="${k}" aria-pressed="${CQ.tab === k}">${n}</button>`).join('')}</div><div id="th-list">${thList()}</div></section>
+    <section class="card conv" id="conv">${convo(t)}</section></div>`;
+}
+function drawConv() { if (page !== 'chat') return; const t = TH.find((x) => x.id === +cur), el = $('#conv'); if (el) { const v = $('#cmsg') ? $('#cmsg').value : '', f = document.activeElement && document.activeElement.id === 'cmsg'; el.innerHTML = convo(t); if ($('#cmsg')) { $('#cmsg').value = v; if (f) $('#cmsg').focus(); } scrollMsgs(); } drawThreads(); chrome(); }
+function scrollMsgs() { const m = $('#msgs'); if (m) m.scrollTop = m.scrollHeight; }
+function theyReply(t, o) {
+  t.typing = true; drawConv();
+  setTimeout(() => {
+    t.typing = false; const l = LBy(t.lid), them = lastO(t.msgs.slice(0, -1).length ? { msgs: t.msgs.filter((m) => m.by === 'them') } : t) || { px: l.px, vol: o.vol }, c = coOf(t.cp);
+    const gap = Math.abs(o.px - them.px) / them.px;
+    if (gap <= 0.005 || (t.role === 'buy' ? o.px >= them.px : o.px <= them.px)) { t.msgs.push({ by: 'them', t: Date.now(), txt: `Agreed at ${eur(o.px)}/t for ${tn(o.vol)}. Please send the contract.` }); closeDeal(t, o); }
+    else { const px = Math.round((o.px + them.px) / 2); t.msgs.push({ by: 'them', t: Date.now(), txt: px === them.px ? 'That is our final level.' : `We can meet you at ${eur(px)}/t.`, o: { vol: o.vol, px } }); if (page !== 'chat' || +cur !== t.id) t.unread++; notify(`Counter-offer from ${c.n}`, `${tn(o.vol)} ${FUELS[l.f].short} at ${eur(px)}/t`, ['chat', t.id]); }
+    drawConv(); if (page === 'market') render();
+  }, 2400);
+}
+function closeDeal(t, o) {
+  const l = LBy(t.lid); t.st = 'agreed'; t.msgs.push({ by: 'sys', t: Date.now(), txt: 'Deal agreed. Contract generated for signature.' });
+  const d = addDeal({ f: l.f, vol: o.vol, px: o.px, hub: l.hub, term: l.term, cp: t.cp, role: t.role, th: t.id }); t.deal = d.id;
+  l.sold = Math.min(l.vol, l.sold + o.vol); if (rem(l) < l.minLot || rem(l) <= 0) l.st = 'sold';
+  notify(`Deal ${d.id} agreed`, `${tn(o.vol)} ${FUELS[l.f].short} with ${coOf(t.cp).n}, ${eur(o.vol * o.px)}`, ['deal', d.id]);
+}
+
+/* ── deals ────────────────────────────────────────────── */
+const DTABS = { all: ['All', () => true], act: ['Needs action', needsAct], transit: ['In transit', inTransit], done: ['Completed', (d) => !d.cx && d.stage === 5], cx: ['Cancelled', (d) => d.cx] };
+const DSORT = { date: (d) => d.ts[0], val: dVal, vol: (d) => d.vol, cp: (d) => coOf(d.cp).n, st: (d) => d.cx ? 9 : d.stage };
+const DCOLS = '--cols:minmax(0,.8fr) minmax(0,1.6fr) .7fr .7fr .9fr minmax(0,1fr) .7fr;--colsm:minmax(0,1fr) auto';
+const stPill = (d) => `<span class="pill sm ${d.cx ? 'neg' : d.stage === 5 ? 'pos' : needsAct(d) ? 'warn' : ''}"><i></i>${dStatus(d)}</span>`;
+function filterD() { const q = DQ.q.trim().toLowerCase(), k = DSORT[DQ.sort]; return DEALS.filter((d) => DTABS[DQ.tab][1](d) && (!q || `${d.id} ${coOf(d.cp).n} ${FUELS[d.f].short} ${d.hub}`.toLowerCase().includes(q))).sort((a, b) => { const x = k(a), y = k(b); return (x < y ? -1 : x > y ? 1 : 0) * DQ.dir; }); }
+function dlRes() {
+  const all = filterD(), per = 10; if (DQ.pg * per >= all.length) DQ.pg = Math.max(0, Math.ceil(all.length / per) - 1);
+  const rows = all.slice(DQ.pg * per, DQ.pg * per + per).map((d) => `<div class="tr" data-d="${d.id}" tabindex="0" role="link" style="${DCOLS}"><div class="cell-main"><b>${d.id}</b><span>${DF.format(d.ts[0])}<span class="dmi"> · ${d.role === 'buy' ? 'Buy' : 'Sell'} ${FUELS[d.f].short}</span></span></div>
+    <div class="hm cell-main"><b class="co-n"><span class="ell">${esc(coOf(d.cp).n)}</span>${vb(coOf(d.cp))}</b><span>${d.role === 'buy' ? 'You buy' : 'You sell'} · ${FUELS[d.f].short} · ${esc(d.hub)} ${d.term}</span></div>
+    <span class="hm r">${tn(d.vol)}</span><span class="hm r">${eur(d.px)}</span><span class="r"><b>${eur(dVal(d))}</b><span class="dm" style="margin-top:3px">${stPill(d)}</span></span><span class="hm">${stPill(d)}</span><span class="hm r muted xs">${ago(d.ts[d.ts.length - 1])}</span></div>`).join('');
+  return `<div class="tbl"><div class="tr th" style="${DCOLS}">${sh('date', 'Deal', DQ, 'dsort')}${sh('cp', 'Counterparty', DQ, 'dsort', 'hm')}${sh('vol', 'Volume', DQ, 'dsort', 'hm r')}<span class="hm r">Price/t</span>${sh('val', 'Value', DQ, 'dsort', 'r')}${sh('st', 'Status', DQ, 'dsort', 'hm')}<span class="hm r">Updated</span></div>${rows || empty('file', 'No deals here', DQ.q ? `Nothing matches “${esc(DQ.q)}”.` : 'Deals appear when an offer is accepted.')}</div>${pager(all.length, DQ.pg, per, 'dpg')}`;
+}
+function drawDeals() { const r = $('#dl-res'); if (r) r.innerHTML = dlRes(); }
+function deals() {
+  const open = DEALS.filter((d) => !d.cx && d.stage < 5), mo = DEALS.filter((d) => !d.cx && d.stage === 5 && Date.now() - d.ts[5] < 30 * D);
+  return head('Deals', 'Every agreed trade from contract to payment', `<button class="btn" data-act="dealsCsv">${ic('dl')}Export CSV</button>`) +
+    `<div class="kpis"><div class="kpi"><b>${open.length}</b><span>Open deals</span></div><div class="kpi"><b>${eurC(open.reduce((s, d) => s + dVal(d), 0))}</b><span>Value in progress</span></div><div class="kpi"><b>${tn(DEALS.filter(inTransit).reduce((s, d) => s + d.vol, 0))}</b><span>Awaiting loading or in transit</span></div><div class="kpi"><b>${eurC(mo.reduce((s, d) => s + dVal(d), 0))}</b><span>Settled in 30 days</span></div></div>
+    <div class="toolbar"><div class="tabs" role="group" aria-label="Status" style="flex-wrap:wrap">${Object.entries(DTABS).map(([k, [n, fn]]) => `<button class="${DQ.tab === k ? 'on' : ''}" data-act="dTab" data-v="${k}" aria-pressed="${DQ.tab === k}">${n} · ${DEALS.filter(fn).length}</button>`).join('')}</div><div class="inp-s">${ic('search')}<input id="dq" type="search" value="${esc(DQ.q)}" placeholder="Deal, company or product" aria-label="Search deals"></div></div>
+    <section class="card" id="dl-res">${dlRes()}</section>`;
+}
+const DOCS = [['contract', 'Sales contract', 1], ['bl', 'Bill of lading', 2], ['qc', 'Quality certificate', 2], ['inv', 'Commercial invoice', 4]];
+function docState(d, k) {
+  if (k === 'contract') return d.stage >= 1 ? ['Signed by both parties', 'pos', 'Signed'] : ['Awaiting your signature', 'warn', 'To sign'];
+  if (k === 'inv') return d.stage >= 5 ? [`Paid ${DF.format(d.ts[5])}`, 'pos', 'Paid'] : d.stage === 4 ? [`Due ${DFY.format(dueAt(d))}`, 'warn', 'Due'] : ['Issued after delivery', '', 'Not issued'];
+  return d.stage >= 2 ? [`Issued ${DF.format(d.ts[2])}${k === 'qc' ? ' · ' + INSP[d.f.length % 3] : ''}`, 'pos', 'Issued'] : ['Issued at loading', '', 'Not issued'];
+}
+const NEXT = { 0: ['Sign contract', 'Sign the sales contract to confirm the deal.'], 1: ['Confirm loading', 'Confirm the cargo has loaded. The bill of lading and quality certificate are attached from the terminal.'], 2: ['Confirm delivery', 'Confirm receipt at the discharge terminal.'], 3: ['Issue invoice', 'Issue the commercial invoice for this deal.'], 4: ['Record payment', 'Payments need a Finance approver.'] };
+function deal() {
+  const d = DBy(cur); if (!d) return empty('alert', 'Deal not found', 'It may have been removed.', `<button class="btn" data-page="deals">Back to deals</button>`);
+  const c = coOf(d.cp), f = FUELS[d.f], nx = NEXT[d.stage], fin = TEAM.find((m) => m.role === 'Finance approver');
+  const inv = d.role === 'buy' && d.stage === 3 ? ['Record supplier invoice', 'Add the invoice received from the seller.'] : nx;
+  const tl = STAGES.map((s, i) => { const done = i <= d.stage && !(d.cx && i > 0 && i > d.stage), cu = !d.cx && i === d.stage + 1; return `<li class="${i <= d.stage ? 'done' : cu ? 'cur' : ''}"><span class="m">${i <= d.stage ? ic('check') : ''}</span><div><b>${s}</b>${i <= d.stage && i < d.ts.length ? `<p>${['Agreed on CaspianFlow', 'E-signed by Lukas Weber and ' + esc(c.n), 'Loaded at ' + HUBS[d.hub].t, 'Received at discharge terminal', 'Invoice ' + d.id.replace('D', 'INV') + ' issued', 'Payment received'][i]}</p>` : cu ? `<p>Next step</p>` : ''}</div><small>${i < d.ts.length && i <= d.stage ? DF.format(d.ts[i]) + ', ' + TF.format(d.ts[i]) : done ? '' : ''}</small></li>`; }).join('') + (d.cx ? `<li class="cx"><span class="m">${ic('x')}</span><div><b>Cancelled</b><p>${esc(d.cxWhy || 'Cancelled by mutual agreement')}</p></div><small>${d.cxAt ? DF.format(d.cxAt) : ''}</small></li>` : '');
+  const docs = DOCS.map(([k, n]) => { const s = docState(d, k), has = s[1] !== ''; return `<div class="doc"><span class="di">${ic('file')}</span><div style="min-width:0"><b>${n}</b><span>${s[0]}</span></div><div style="display:flex;gap:6px;align-items:center"><span class="pill sm ${s[1]} hide-s">${s[2]}</span>${has ? `<button class="btn sm" data-act="viewDoc" data-v="${k}">View</button>` : ''}</div></div>`; }).join('');
+  return head(`Deal ${d.id}`, `${d.role === 'buy' ? 'Purchase from' : 'Sale to'} ${esc(c.n)} · agreed ${DFY.format(d.ts[0])}`, `${!d.cx && d.stage <= 1 ? `<button class="btn" data-act="cancelDeal">${ic('x')}Cancel deal</button>` : ''}${d.th ? `<button class="btn" data-page="chat" data-id="${d.th}">${ic('chat')}Negotiation</button>` : ''}`, ['deals', 'All deals']) +
+    `<div class="grid"><div class="c8" style="display:grid;gap:var(--gap)"><section class="card"><div class="card-h"><h2>Summary</h2>${stPill(d)}</div><dl class="dl"><div><dt>Product</dt><dd>${f.n}</dd></div><div><dt>Volume</dt><dd>${tn(d.vol)}</dd></div><div><dt>Price</dt><dd>${eur(d.px)} / t</dd></div><div><dt>Deal value</dt><dd><b>${eur(dVal(d))}</b></dd></div><div><dt>Delivery</dt><dd>${d.term} ${esc(d.hub)}</dd></div><div><dt>Counterparty</dt><dd><span class="co-n" style="justify-content:flex-end"><span class="ell">${esc(c.n)}</span>${vb(c)}</span></dd></div></dl>
+      ${!d.cx && d.stage < 5 ? `<div class="note ${d.stage === 0 || d.stage === 4 ? 'warn' : ''}">${ic(d.stage === 4 ? 'lock' : 'clock')}<span style="flex:1"><b>${inv[0]}.</b> ${inv[1]}${d.stage === 4 ? ` You are an Admin trader; ${esc(fin.n)} (${fin.role}) approves payments.` : ''}</span>${d.stage === 4 ? (d.appr === 'pending' ? `<span class="pill sm warn"><span class="spin" style="width:10px;height:10px"></span>Awaiting approval</span>` : `<button class="btn sm primary" data-act="advance">Request approval</button>`) : `<button class="btn sm primary" data-act="advance">${inv[0]}</button>`}</div>` : ''}</section>
+      <section class="card"><div class="card-h"><h2>Documents</h2><span>${pl(DOCS.filter(([k]) => docState(d, k)[1] !== '').length, 'document')} available</span></div>${docs}</section></div>
+      <section class="card c4"><div class="card-h"><h2>Timeline</h2></div><ol class="tl">${tl}</ol></section></div>`;
+}
+function docHTML(d, k) {
+  const c = coOf(d.cp), f = FUELS[d.f], seller = d.role === 'sell' ? ME : c, buyer = d.role === 'sell' ? c : ME, v = dVal(d), vat = buyer.cc === 'DE' && seller.cc === 'DE' ? v * .19 : 0;
+  const top = (t, ref) => `<h3>${t}</h3><div class="pm">${ref} · ${DFY.format(d.ts[Math.min(d.stage, d.ts.length - 1)])}</div><table><tr><td>Seller</td><td>${esc(seller.n)}, ${seller.city}</td></tr><tr><td>Buyer</td><td>${esc(buyer.n)}, ${buyer.city}</td></tr></table>`;
+  if (k === 'contract') return top('Sales contract', d.id.replace('D', 'SC')) + `<table><tr><td>Product</td><td>${f.n}, ${f.std}</td></tr><tr><td>Quantity</td><td>${tn(d.vol)} ± 5% in seller’s option</td></tr><tr><td>Price</td><td>${eur(d.px)} per metric tonne</td></tr><tr><td>Delivery</td><td>${d.term} ${esc(d.hub)}, Incoterms 2020</td></tr><tr><td>Law</td><td>English law, LMAA arbitration</td></tr></table><div class="sig"><span>${d.stage >= 1 ? 'Signed: Lukas Weber' : 'Awaiting signature'}</span><span>${d.stage >= 1 ? 'Signed: ' + esc(c.n) : ''}</span></div>`;
+  if (k === 'bl') return top('Bill of lading', 'BL-' + d.id.slice(2) + '-01') + `<table><tr><td>Vessel</td><td>MT Nordic Aurora</td></tr><tr><td>Port of loading</td><td>${HUBS[d.hub].t}, ${esc(d.hub)}</td></tr><tr><td>Quantity (gross)</td><td>${tn(d.vol)} · ${fmt(d.vol / .845)} m³ at 15 °C</td></tr><tr><td>Freight</td><td>${d.term === 'CIF' ? 'Prepaid' : 'Payable as per charter party'}</td></tr></table><div class="sig"><span>Shipped on board ${DF.format(d.ts[2])}</span><span>Master</span></div>`;
+  if (k === 'qc') return top('Certificate of quality', 'QC-' + d.id.slice(2)) + `<table><tr><th>Parameter</th><th>Result</th></tr>${specRows({ id: d.vol + d.px, f: d.f }).replace(/<td class="muted hm">[^<]*<\/td>/g, '').replace(/<td class="muted">[^<]*<\/td><td>[^<]*<\/td>/g, '')}</table><div class="sig"><span>${INSP[d.f.length % 3]}</span><span>Within ${f.std} limits</span></div>`;
+  return top('Commercial invoice', d.id.replace('D', 'INV')) + `<table><tr><th>Item</th><th>Amount</th></tr><tr><td>${tn(d.vol)} ${f.short} at ${eur(d.px)}/t</td><td>${eur2(v)}</td></tr><tr><td>${vat ? 'VAT 19%' : 'VAT 0%, reverse charge (Art. 196 Directive 2006/112/EC)'}</td><td>${eur2(vat)}</td></tr><tr><td><b>Total due</b></td><td><b>${eur2(v + vat)}</b></td></tr></table><div class="sig"><span>${d.stage >= 5 ? 'Paid in full' : 'Due ' + DFY.format(dueAt(d))}</span><span>IBAN DE89 2005 0000 0000 4821 77</span></div>`;
+}
+
+/* ── alerts, saved searches ───────────────────────────── */
+const aSt = (a) => a.hit ? ['Triggered', 'warn'] : a.on ? ['Active', 'pos'] : ['Paused', ''];
+function alerts() {
+  const lim = PLAN().alerts, used = ALERTS.length, cols = '--cols:minmax(0,1.2fr) 1fr .9fr minmax(0,1.1fr) .8fr auto;--colsm:minmax(0,1fr) auto';
+  const rows = ALERTS.map((a) => { const f = FUELS[a.f], dist = a.px - f.px, s = aSt(a); return `<div class="tr" style="${cols}"><div class="cell-main"><b>${f.short} ${a.op} ${eur(a.px)}</b><span>${a.ch}<span class="dmi"> · now ${eur(f.px)}</span></span></div><span class="hm">${a.hit ? `Hit ${ago(a.hit)}` : `${signed(dist, (x) => '€' + fmt(x))} away (${pct(dist / f.px * 100)})`}</span><span class="hm r">${eur(f.px)}</span><span class="hm muted xs">Created ${ago(a.created)}</span><span class="hm"><span class="pill sm ${s[1]}"><i></i>${s[0]}</span></span>
+    <div style="display:flex;gap:4px;justify-content:flex-end"><button class="btn sm" data-act="togA" data-v="${a.id}">${a.hit ? 'Re-arm' : a.on ? 'Pause' : 'Resume'}</button><button class="ib" style="width:28px;height:28px" data-act="editA" data-v="${a.id}" aria-label="Edit alert">${ic('edit')}</button><button class="ib" style="width:28px;height:28px" data-act="delA" data-v="${a.id}" aria-label="Delete alert">${ic('trash')}</button></div></div>`; }).join('');
+  return head('Price alerts', `Get notified when an assessed price crosses your level · ${used} of ${lim > 40 ? 'unlimited' : lim} used on ${PLAN().n}`, `<button class="btn primary" data-act="newAlert">${ic('plus')}New alert</button>`) +
+    `<section class="card"><div class="tbl"><div class="tr th" style="${cols}"><span>Alert</span><span class="hm">Distance</span><span class="hm r">Now</span><span class="hm">Created</span><span class="hm">Status</span><span></span></div>${rows || empty('bell', 'No price alerts yet', 'Create one to hear about a move before your counterparties do.', `<button class="btn primary" data-act="newAlert">New alert</button>`)}</div></section>
+    ${plan === 'basic' ? `<div class="note">${ic('zap')}<span style="flex:1">Basic includes ${lim} alerts. Pro raises this to 50 and adds SMS delivery.</span><button class="lnk" data-act="upgrade">Compare plans</button></div>` : ''}`;
+}
+const newFor = (s) => filterL(s.q).filter((l) => l.posted > s.seen).length;
+const qSum = (q) => [q.side === 'sell' ? 'Offers' : 'Requests', q.fuel === 'all' ? 'all products' : FUELS[q.fuel].short, q.hub === 'all' ? 'all hubs' : q.hub, q.term === 'all' ? '' : q.term, q.ver ? 'verified only' : '', q.q ? `“${q.q}”` : ''].filter(Boolean).join(' · ');
+function saved() {
+  return head('Saved searches', `Re-run a filter in one click and get notified about new matches · ${SAVED.length} of ${PLAN().saved} used`, `<button class="btn" data-page="listings">${ic('search')}New search</button>`) +
+    `<section class="card">${SAVED.length ? SAVED.map((s) => { const n = filterL(s.q).length, nw = newFor(s); return `<div class="doc" style="grid-template-columns:36px minmax(0,1fr) auto"><span class="di">${ic('star')}</span><div style="min-width:0"><b>${esc(s.n)} ${nw ? `<span class="pill sm warn">${nw} new</span>` : ''}</b><span>${esc(qSum(s.q))} · ${pl(n, 'match', 'matches')}</span></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><label class="chk hide-s"><input type="checkbox" data-sn="${s.id}" ${s.notify ? 'checked' : ''}>Email me</label><button class="btn sm primary" data-act="runS" data-v="${s.id}">Open</button><button class="ib" style="width:28px;height:28px" data-act="renS" data-v="${s.id}" aria-label="Rename">${ic('edit')}</button><button class="ib" style="width:28px;height:28px" data-act="delS" data-v="${s.id}" aria-label="Delete saved search">${ic('trash')}</button></div></div>`; }).join('') : empty('star', 'No saved searches', 'Filter the listings, then choose Save search.', `<button class="btn primary" data-page="listings">Go to listings</button>`)}</section>`;
 }
 
 /* ── calculator ───────────────────────────────────────── */
-function landed() {
-  const r = ROUTES[calc.r], value = calc.vol * calc.px, freight = calc.vol * r.freight, ins = value * 0.003, duty = (value + freight) * r.duty / 100;
-  const total = value + freight + ins + duty; return { value, freight, ins, duty, total, r };
-}
+const ROUTES = [{ n: 'Rotterdam → Antwerp (barge)', freight: 9, duty: 21 }, { n: 'Rotterdam → Gdańsk (coaster)', freight: 24, duty: 23 }, { n: 'Trieste → Vienna (rail)', freight: 21, duty: 20 }, { n: 'Constanța → Budapest (barge + rail)', freight: 38, duty: 27 }, { n: 'Hamburg → Berlin (rail)', freight: 14, duty: 19 }];
+let calc = { f: 'diesel', vol: 3000, px: 832, r: 0 };
+function landed() { const r = ROUTES[calc.r], value = calc.vol * calc.px, freight = calc.vol * r.freight, ins = value * 0.003, duty = (value + freight) * r.duty / 100; return { value, freight, ins, duty, total: value + freight + ins + duty, r }; }
 function resultHTML() {
-  const x = landed(), parts = [['Fuel', x.value, 'var(--accent)'], ['Freight', x.freight, '#5aa9ff'], ['Insurance 0.3%', x.ins, '#a78bfa'], [`VAT ${x.r.duty}%`, x.duty, '#f26d6d']];
-  const bench = calc.vol * (FUELS[calc.f].px - calc.px);
-  return `<div class="big">${eur(x.total)}</div><p class="muted">${eur(calc.vol ? x.total / calc.vol : 0)} per tonne delivered · ${num(calc.vol)} t</p>
+  const x = landed(), parts = [['Product', x.value, 'var(--s1)'], ['Freight', x.freight, 'var(--s2)'], ['Insurance 0.3%', x.ins, 'var(--faint)'], [`Import VAT ${x.r.duty}%`, x.duty, 'var(--neg)']], bench = calc.vol * (FUELS[calc.f].px - calc.px);
+  return `<div class="big">${eur(x.total)}</div><p class="muted">${eur(calc.vol ? x.total / calc.vol : 0)} per tonne delivered · ${tn(calc.vol)}</p>
     <div class="stack">${parts.filter((p) => p[1] > 0).map(([, v, c]) => `<i style="flex:${Math.max(v, 0.0001)};background:${c}"></i>`).join('')}</div>
     <div class="lines">${parts.map(([n, v, c]) => `<div><span><i style="background:${c}"></i>${n}</span><b>${eur(v)}</b></div>`).join('')}<div class="sum"><span>Landed cost</span><b>${eur(x.total)}</b></div></div>
-    <p class="${bench >= 0 ? 'pos' : 'neg'}" style="margin-top:14px">${bench === 0 ? 'Your price equals the benchmark.' : bench > 0 ? `You save ${eur(bench)} against the benchmark ${eur(FUELS[calc.f].px)}.` : `You pay ${eur(-bench)} more than the benchmark ${eur(FUELS[calc.f].px)}.`}</p>`;
+    <p class="${bench >= 0 ? 'pos' : 'neg'}" style="margin-top:14px">${bench === 0 ? 'Your price equals the benchmark.' : bench > 0 ? `You save ${eur(bench)} against the benchmark ${eur(FUELS[calc.f].px)}/t.` : `You pay ${eur(-bench)} more than the benchmark ${eur(FUELS[calc.f].px)}/t.`}</p>`;
 }
 function calcPage() {
-  return head('Calculator', 'Landed cost to your gate: fuel, freight, insurance and VAT') +
-    `<div class="calc"><section class="card"><div class="field"><label for="c-f">Fuel</label><select id="c-f" data-c="f">${Object.entries(FUELS).map(([k, f]) => `<option value="${k}" ${calc.f === k ? 'selected' : ''}>${f.n}</option>`).join('')}</select></div>
-      <div class="field"><label for="c-v">Volume, tonnes</label><input id="c-v" data-c="vol" type="number" min="0" step="100" value="${calc.vol}"></div>
-      <div class="field"><label for="c-p">Price, €/t at origin</label><input id="c-p" data-c="px" type="number" min="0" value="${calc.px}"></div>
-      <div class="field"><label for="c-r">Route</label><select id="c-r" data-c="r">${ROUTES.map((r, i) => `<option value="${i}" ${calc.r === i ? 'selected' : ''}>${r.n}</option>`).join('')}</select></div></section>
+  return head('Landed cost', 'Cost to your gate: product, freight, insurance and import VAT') +
+    `<div class="calc"><section class="card"><div class="field"><label for="c-f">Product</label><select id="c-f" data-c="f">${Object.entries(FUELS).map(([k, f]) => `<option value="${k}" ${calc.f === k ? 'selected' : ''}>${f.n}</option>`).join('')}</select></div>
+      <div class="field"><label for="c-v">Volume, t</label><input id="c-v" data-c="vol" type="number" min="0" step="100" value="${calc.vol}"></div>
+      <div class="field"><label for="c-p">Price at origin, €/t</label><input id="c-p" data-c="px" type="number" min="0" value="${calc.px}"></div>
+      <div class="field"><label for="c-r">Route</label><select id="c-r" data-c="r">${ROUTES.map((r, i) => `<option value="${i}" ${calc.r === i ? 'selected' : ''}>${r.n}</option>`).join('')}</select></div><p class="xs muted">Freight rates are indicative, updated weekly by the operations desk.</p></section>
       <section class="card" id="c-out" aria-live="polite">${resultHTML()}</section></div>`;
 }
-function drawCalc(fuelChanged) { $('#c-out').innerHTML = resultHTML(); if (fuelChanged) $('#c-p').value = calc.px; }
 { const x = (calc.vol = 1000, calc.px = 700, calc.r = 1, landed()); console.assert(Math.round(x.total) === 700000 + 24000 + 2100 + 166520, 'landed'); calc.vol = 3000; calc.px = 832; calc.r = 0; }
 
-/* ── deals ────────────────────────────────────────────── */
-function deals() {
-  const mine = L.find((l) => l.mine), sold = OFFERS.filter((o) => o.st === 'accepted').reduce((a, o) => a + o.vol, 0), left = mine.vol - sold;
-  const off = OFFERS.map((o, i) => `<div class="offer"><div><b>${esc(o.from)}</b><div class="muted">${num(o.vol)} t at ${eur(o.px)} · ${eur(o.vol * o.px)}</div></div><div>${o.st === 'new' ? `<button class="btn sm" data-act="decline" data-i="${i}">Decline</button><button class="btn sm primary" data-act="accept" data-i="${i}" ${o.vol > left ? 'disabled title="Not enough volume left"' : ''}>Accept</button>` : `<span class="pill ${o.st === 'accepted' ? 'pos' : ''}">${o.st === 'accepted' ? 'Accepted' : 'Declined'}</span>`}</div></div>`).join('');
-  const sent = SENT.map((s) => `<div class="offer"><div><b>${esc(s.to)}</b><div class="muted">${FUELS[s.f].short} · ${num(s.vol)} t at ${eur(s.px)}</div></div><span class="pill warn"><i></i>Waiting for reply</span></div>`).join('');
-  return head('My deals', 'Your listing, offers you received and offers you sent') +
-    `<div class="grid"><section class="card c7"><div class="card-h"><h2>Your offer · ${FUELS[mine.f].short}</h2><span>${esc(mine.where)} · ${mine.term}</span></div>
-      <div class="kpis" style="margin-bottom:14px"><div class="kpi"><b>${num(left)} t</b><span>Left of ${num(mine.vol)} t</span></div><div class="kpi"><b>${eur(mine.px)}</b><span>Your price per tonne</span></div></div>
-      <div class="bar thick"><i style="width:${sold / mine.vol * 100}%"></i></div><p class="muted" style="margin:8px 0 16px">${num(sold)} t sold${sold ? ' · ' + eur(OFFERS.filter((o) => o.st === 'accepted').reduce((a, o) => a + o.vol * o.px, 0)) + ' in deals' : ''}</p>
-      <h3 style="font-size:14px;margin-bottom:4px">Offers received</h3>${off}</section>
-      <section class="card c5"><div class="card-h"><h2>Offers you sent</h2></div>${sent}<button class="btn" style="margin-top:14px" data-act="goListings">Browse listings</button></section></div>`;
+/* ── company, billing, help ───────────────────────────── */
+function company() {
+  const seats = TEAM.length, lim = PLAN().seats, cols = '--cols:minmax(0,1.6fr) minmax(0,1fr) .8fr auto;--colsm:minmax(0,1fr) auto';
+  const kycSteps = [['Company registration', PROFILE.reg, 1], ['VAT and EORI numbers', `${PROFILE.vat} · ${PROFILE.eori}`, 1], ['Ultimate beneficial owners', '2 owners declared, IDs verified', 1], ['Sanctions and PEP screening', 'Passed, rescreened daily', 1], ['Excise licence (authorised warehousekeeper)', KYC.st === 'renewal' ? `${KYC.lic} · expires ${DFY.format(KYC.exp)}` : KYC.st === 'review' ? 'Renewal submitted, in review (usually under 1 business day)' : `${KYC.lic} · valid to ${DFY.format(KYC.exp)}`, KYC.st === 'verified']];
+  return head('Company & team', `${esc(PROFILE.legal)} · ${pl(TEAM.filter((m) => m.st === 'active').length, 'active member')}`, `<button class="btn" data-act="editCo">${ic('edit')}Edit profile</button><button class="btn primary" data-act="invite">${ic('plus')}Invite member</button>`) +
+    `<div class="grid"><section class="card c7"><div class="card-h"><h2>Company profile</h2><span class="co-n">Verified company${vb(ME)}</span></div><dl class="dl"><div><dt>Legal name</dt><dd>${esc(PROFILE.legal)}</dd></div><div><dt>Register</dt><dd>${esc(PROFILE.reg)}</dd></div><div><dt>VAT ID</dt><dd>${esc(PROFILE.vat)}</dd></div><div><dt>EORI</dt><dd>${esc(PROFILE.eori)}</dd></div><div><dt>Address</dt><dd>${esc(PROFILE.addr)}</dd></div><div><dt>Phone</dt><dd>${esc(PROFILE.phone)}</dd></div><div><dt>Website</dt><dd>${esc(PROFILE.web)}</dd></div><div><dt>Trading hubs</dt><dd>Hamburg, Rotterdam, Gdańsk</dd></div></dl></section>
+    <section class="card c5"><div class="card-h"><h2>Verification (KYC)</h2><span class="pill ${KYC.st === 'verified' ? 'pos' : 'warn'}"><i></i>${KYC.st === 'verified' ? 'Verified' : KYC.st === 'review' ? 'Renewal in review' : 'Renewal due'}</span></div>
+      <ul class="kyc">${kycSteps.map(([n, s, ok]) => `<li><span class="st ${ok ? '' : 'w'}">${ic(ok ? 'check' : KYC.st === 'review' ? 'clock' : 'alert')}</span><span>${n}<small>${esc(s)}</small></span>${!ok && KYC.st === 'renewal' ? `<button class="btn sm primary" data-act="kyc">Renew</button>` : ''}</li>`).join('')}</ul>
+      <p class="xs muted" style="margin-top:10px">Counterparties see the verified badge next to your company name. Checks follow the EU AML Directive and are run by CaspianFlow’s compliance team.</p></section>
+    <section class="card c12"><div class="card-h"><div><h2>Team</h2><span>${seats} of ${lim} seats used on ${PLAN().n}</span></div></div><div class="tbl tm"><div class="tr th" style="${cols}"><span>Member</span><span class="hm">Role</span><span class="hm">Last active</span><span></span></div>
+    ${TEAM.map((m, i) => `<div class="tr" style="${cols}"><div class="cell-main" style="display:flex;gap:10px;align-items:center;min-width:0"><span class="avatar">${ini(m.n)}</span><span style="min-width:0"><b class="ell">${esc(m.n)}${i === 0 ? ' <span class="pill sm">You</span>' : ''}${m.st === 'invited' ? ' <span class="pill sm warn">Invited</span>' : ''}</b><span class="ell" style="display:block;overflow-wrap:anywhere">${esc(m.email)}</span></span></div>
+      <span class="hm"><select data-role="${i}" aria-label="Role of ${esc(m.n)}" ${i === 0 ? 'disabled title="You cannot change your own role"' : ''}>${ROLES.map((r) => `<option ${r === m.role ? 'selected' : ''}>${r}</option>`).join('')}</select></span>
+      <span class="hm muted xs">${m.st === 'invited' ? `Invite sent ${ago(m.last)}` : ago(m.last)}</span><div style="display:flex;gap:4px;justify-content:flex-end">${m.st === 'invited' ? `<button class="btn sm" data-act="resend" data-v="${i}">Resend</button>` : ''}${i ? `<button class="ib" style="width:28px;height:28px" data-act="rmM" data-v="${i}" aria-label="Remove ${esc(m.n)}">${ic('trash')}</button>` : ''}</div></div>`).join('')}</div></section></div>`;
+}
+function billing() {
+  const p = PLAN(), meter = (n, u, l) => `<div class="meter">${barRow(n, l > 40 ? u / l * 100 : u / l * 100, `${u} of ${l > 40 && n !== 'Seats' ? 'unlimited' : l}`)}</div>`;
+  const plans = [['basic', 'For occasional buyers', ['Live price board', 'Price history up to 3 months', '3 price alerts, 3 saved searches', '8 team seats']], ['pro', 'For active trading desks', ['Everything in Basic', 'Full year of history and spreads', '50 alerts with SMS, 25 saved searches', '15 seats, CSV and API export']], ['desk', 'For trading houses', ['Everything in Pro', 'Dedicated compliance desk', 'SSO and audit log', '50 seats, custom limits']]];
+  return head('Plan & billing', `You are on <b>${p.n}</b>${plan !== 'basic' ? ` · renews ${SUB.cancelAt ? 'no longer, ends ' + DFY.format(SUB.cancelAt) : DFY.format(SUB.renews)}` : ' · free for verified companies'}`) +
+    `<div class="grid" style="margin-bottom:var(--gap)"><section class="card c6"><div class="card-h"><h2>Usage</h2><span>${p.n} plan</span></div>${meter('Price alerts', ALERTS.length, p.alerts)}${meter('Saved searches', SAVED.length, p.saved)}${meter('Seats', TEAM.length, p.seats)}</section>
+    <section class="card c6"><div class="card-h"><h2>Payment method</h2></div>${SUB.card ? `<div class="doc"><span class="di">${ic('card')}</span><div><b>${SUB.card}</b><span>Billing contact l.weber@weber-energie.example</span></div><span class="pill sm pos">Default</span></div>` : `<p class="muted">No card on file. Basic is free; a card is only needed for Pro or Desk.</p>`}
+      ${plan !== 'basic' && !SUB.cancelAt ? `<button class="btn" style="margin-top:14px" data-act="cancelSub">Cancel subscription</button>` : ''}</section></div>
+    <div class="plans" style="margin-bottom:var(--gap)">${plans.map(([k, d, feats]) => `<section class="card plan ${plan === k ? 'cur' : ''}"><div class="card-h"><h2>${PLANS[k].n}</h2>${plan === k ? '<span class="pill sm pos">Current plan</span>' : k === 'pro' ? '<span class="pill sm warn">Most popular</span>' : ''}</div><div class="big-p">${PLANS[k].m ? eur(PLANS[k].m) : '€0'}<small> / month</small></div><p class="muted xs">${d}${k === 'pro' ? ' · €2,390 billed yearly' : ''}</p><ul>${feats.map((x) => `<li>${ic('check')}<span>${x}</span></li>`).join('')}</ul>${plan === k ? `<button class="btn" disabled>Current plan</button>` : k === 'desk' ? `<button class="btn" data-act="sales">Contact sales</button>` : k === 'basic' ? '' : `<button class="btn primary" data-act="upgrade">Upgrade to Pro</button>`}</section>`).join('')}</div>
+    <section class="card"><div class="card-h"><h2>Invoices</h2></div>${INVOICES.length ? INVOICES.map((i) => `<div class="doc"><span class="di">${ic('file')}</span><div><b>${i.ref} · ${eur2(i.total)}</b><span>${DFY.format(i.t)} · ${i.desc}</span></div><span class="pill sm pos">Paid</span></div>`).join('') : `<p class="muted">No invoices yet. Invoices for paid plans appear here.</p>`}</section>`;
+}
+function help() {
+  const faq = [['How are benchmark prices assessed?', 'Benchmarks are the volume-weighted average of deals closed on CaspianFlow in each hub, cross-checked against exchange settlement prices at 16:30 CET.'], ['Who can see my listings?', 'Every verified company sees your listing. Unverified companies see the product and hub, but not your company name, until they pass KYC.'], ['Are offers binding?', 'Yes. An offer is binding for 24 hours or until the counterparty replies. Accepting an offer creates a sales contract for both sides to sign.'], ['Which documents does a deal need?', 'Sales contract, bill of lading, certificate of quality from an independent inspector and the commercial invoice. Terminals upload B/L and quality certificates directly.'], ['How do I add a colleague?', 'Go to Company & team and choose Invite member. Admins set the role; payments always need a Finance approver.']];
+  return head('Help & support', `Support desk Mon–Fri 07:00–20:00 CET · average first reply 18 min`) +
+    `<div class="grid"><section class="card c7"><div class="card-h"><h2>Frequently asked</h2></div>${faq.map(([q, a]) => `<details class="faq"><summary>${q}</summary><p>${a}</p></details>`).join('')}</section>
+    <div class="c5" style="display:grid;gap:var(--gap);align-content:start"><section class="card"><div class="card-h"><h2>Contact support</h2></div><form id="sup" novalidate>
+      ${F('s-t', 'Topic', `<select id="s-t"><option>Deals and documents</option><option>Listings and offers</option><option>Verification (KYC)</option><option>Billing</option><option>Something else</option></select>`)}
+      ${F('s-m', 'Message', `<textarea id="s-m" placeholder="Tell us what happened and the deal or listing reference"></textarea>`)}<button class="btn primary" type="submit">Send to support</button></form>
+      ${TICKETS.map((t) => `<div class="doc" style="margin-top:8px"><span class="di">${ic('chat')}</span><div><b>${t.ref} · ${esc(t.subj)}</b><span>${ago(t.t)}</span></div><span class="pill sm ${t.st === 'Resolved' ? 'pos' : 'warn'}">${t.st}</span></div>`).join('')}</section>
+    <section class="card"><div class="card-h"><h2>System status</h2></div><ul class="stl"><li><span>Price feed</span><span class="pill sm pos"><i></i>Operational</span></li><li><span>Matching and negotiations</span><span class="pill sm pos"><i></i>Operational</span></li><li><span>Inspector document links</span><span class="pill sm warn"><i></i>Degraded</span></li></ul></section>
+    <section class="card"><div class="card-h"><h2>Keyboard shortcuts</h2></div><ul class="stl"><li><span>Search</span><span class="kb">/</span></li><li><span>Close dialog or menu</span><span class="kb">Esc</span></li><li><span>Move along a chart</span><span><span class="kb">←</span> <span class="kb">→</span></span></li></ul><p class="xs muted" style="margin-top:10px">CaspianFlow ${VER} · build 3 Nov 2026</p></section></div></div>`;
 }
 
-/* ── live board: small random walk, only the board repaints ─ */
-let tickT;
-function mount() {
-  clearInterval(tickT);
-  if (page === 'market') tickT = setInterval(tick, 3500);
-}
-function tick() {
-  const ks = Object.keys(FUELS), k = ks[Math.floor(Math.random() * ks.length)], f = FUELS[k];
-  const step = Math.max(1, Math.round(f.px * 0.0008)) * (Math.random() < 0.5 ? -1 : 1);
-  f.px = Math.max(1, f.px + step); f.series[29] = f.px;
-  const el = $(`[data-fuel="${k}"]`); if (!el) return;
-  el.outerHTML = pxCard(k); const n = $(`[data-fuel="${k}"] .px-v`); n.classList.add(step > 0 ? 'up' : 'dn'); setTimeout(() => n.classList.remove('up', 'dn'), 700);
+/* ── sign-in ──────────────────────────────────────────── */
+function renderAuth() {
+  closePop(); closeModal(); $('#app').hidden = true; $('#tabbar').style.display = 'none'; const a = $('#auth'); a.hidden = false;
+  a.innerHTML = `<div class="auth"><div class="auth-c"><div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M3 9c3-3 6 3 9 0s6 3 9 0M3 15c3-3 6 3 9 0s6 3 9 0"/></svg></div><div><div class="brand-name">CaspianFlow</div><div class="brand-sub">Fuel marketplace</div></div></div>
+    <section class="card"><h1>Sign in</h1><p>Trade fuel with verified companies across European terminals.</p><form id="login" novalidate>
+    ${F('a-e', 'Work email', `<input id="a-e" type="email" autocomplete="username" value="l.weber@weber-energie.example">`)}${F('a-p', 'Password', `<input id="a-p" type="password" autocomplete="current-password" value="sample-password">`)}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><label class="chk"><input type="checkbox" checked>Keep me signed in</label><button type="button" class="lnk" data-act="forgot">Forgot password?</button></div>
+    <button class="btn primary" type="submit" id="a-go">Sign in</button></form><div class="or">or</div><button class="btn" data-act="sso">Continue with company SSO</button></section>
+    <p class="auth-f">Sample credentials are filled in · ${VER}</p></div></div>`;
 }
 
+/* ── forms ────────────────────────────────────────────── */
+const F = (id, label, inp, hint = '') => `<div class="field" id="f-${id}"><label for="${id}">${label}</label>${inp}${hint ? `<small class="hint">${hint}</small>` : ''}</div>`;
+function bad(id, m) { const f = $('#f-' + id); if (!f) return false; f.classList.add('bad'); let e = $('.err', f); if (!e) { e = document.createElement('small'); e.className = 'err'; e.id = id + '-err'; f.appendChild(e); } e.textContent = m; const i = $('#' + id); i.setAttribute('aria-invalid', 'true'); i.setAttribute('aria-describedby', id + '-err'); return false; }
+function clr(s = document) { $$('.field.bad', s).forEach((f) => { f.classList.remove('bad'); const e = $('.err', f); if (e) e.remove(); $$('[aria-invalid]', f).forEach((i) => i.removeAttribute('aria-invalid')); }); }
+const firstBad = () => { const i = $('.field.bad input, .field.bad select, .field.bad textarea'); if (i) i.focus(); };
+const val = (id) => ($('#' + id).value || '').trim();
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+function dlg(html, onMount, cls = '') { const s = modal(html, onMount); const m = $('.modal', s); if (cls) m.classList.add(cls); const h = $('h2', m); if (h) { h.id = 'dlg-t'; m.setAttribute('aria-labelledby', 'dlg-t'); } return s; }
+function confirmDlg(title, body, ok, fn, danger = true) { dlg(`<h2>${title}</h2><p>${body}</p><div class="modal-actions"><button class="btn" data-x>Keep</button><button class="btn ${danger ? 'danger' : 'primary'}" id="cf-ok">${ok}</button></div>`, () => { $('#cf-ok').onclick = () => { closeModal(); fn(); }; $('[data-x]').focus(); }); }
+function undo(m, fn) {
+  let el = $('#us'); if (!el) { el = document.createElement('div'); el.id = 'us'; el.className = 'us'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.innerHTML = `<span></span><button type="button" class="btn sm">Undo</button>`; el.firstChild.textContent = m;
+  el.lastChild.onclick = () => { el.classList.remove('show'); fn(); };
+  void el.offsetWidth; el.classList.add('show'); clearTimeout(undo.t); undo.t = setTimeout(() => el.classList.remove('show'), 6000);
+}
+function csv(name, rows) {
+  const q = (v) => { v = String(v ?? ''); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const blob = new Blob(['﻿' + rows.map((r) => r.map(q).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast(`Exported ${pl(rows.length - 1, 'row')} to ${name}`);
+}
+const today = () => new Date().toISOString().slice(0, 10);
 
-setInterval(() => {
-  if (document.hidden || $('#scrim')) return;
-  const k = Object.keys(FUELS)[Math.floor(Math.random() * 4)], f = FUELS[k], vol = 500 * (1 + Math.floor(Math.random() * 8));
-  TRADES.unshift([0, k, vol, Math.round(f.px * (1 + (Math.random() - .5) * .012)), BUYERS[Math.floor(Math.random() * BUYERS.length)], ROUTE_OF[k]]);
-  toast(`Deal: ${num(vol)} t ${f.short} at ${eur(TRADES[0][3])}`);
-  if (page === 'market') render();
-}, 9000);
+function listingForm(l) {
+  const e = !!l, x = l || { side: 'sell', f: 'diesel', hub: 'Rotterdam', term: 'FOB', vol: 2000, minLot: 500, px: FUELS.diesel.px, from: NOW + 7 * D, to: NOW + 14 * D, pay: PAY[0] };
+  const iso = (t) => new Date(t).toISOString().slice(0, 10);
+  dlg(`<h2>${e ? 'Edit listing L-' + l.id : 'New listing'}</h2><p>${e ? 'Changes are visible to counterparties at once.' : 'Your listing goes live on the board for verified companies.'}</p><form id="lform" novalidate>
+    <div class="row2">${F('n-s', 'Type', `<select id="n-s" ${e ? 'disabled' : ''}><option value="sell" ${x.side === 'sell' ? 'selected' : ''}>I sell (offer)</option><option value="buy" ${x.side === 'buy' ? 'selected' : ''}>I buy (request)</option></select>`)}${F('n-f', 'Product', `<select id="n-f" ${e ? 'disabled' : ''}>${Object.entries(FUELS).map(([k, f]) => `<option value="${k}" ${x.f === k ? 'selected' : ''}>${f.short}</option>`).join('')}</select>`)}</div>
+    <div class="row2">${F('n-h', 'Hub', `<select id="n-h">${HUBN.map((h) => `<option ${x.hub === h ? 'selected' : ''}>${h}</option>`).join('')}</select>`)}${F('n-t', 'Incoterm', `<select id="n-t">${TERMS.map((t) => `<option ${x.term === t ? 'selected' : ''}>${t}</option>`).join('')}</select>`)}</div>
+    <div class="row3">${F('n-p', 'Price, €/t', `<input id="n-p" type="number" inputmode="decimal" value="${x.px}">`, `<span id="n-ph">Benchmark ${eur(FUELS[x.f].px)}</span>`)}${F('n-v', 'Volume, t', `<input id="n-v" type="number" inputmode="numeric" value="${x.vol}">`)}${F('n-m', 'Min. lot, t', `<input id="n-m" type="number" inputmode="numeric" value="${x.minLot}">`)}</div>
+    <div class="row2">${F('n-a', 'Laycan from', `<input id="n-a" type="date" value="${iso(x.from)}">`)}${F('n-b', 'Laycan to', `<input id="n-b" type="date" value="${iso(x.to)}">`)}</div>
+    ${F('n-y', 'Payment terms', `<select id="n-y">${PAY.map((p) => `<option ${x.pay === p ? 'selected' : ''}>${p}</option>`).join('')}</select>`)}
+    <div class="modal-actions"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="submit">${e ? 'Save changes' : 'Publish listing'}</button></div></form>`, () => {
+    $('#n-f').onchange = () => { $('#n-p').value = FUELS[$('#n-f').value].px; $('#n-ph').textContent = 'Benchmark ' + eur(FUELS[$('#n-f').value].px); };
+    $('#lform').onsubmit = (ev) => {
+      ev.preventDefault(); clr(); const f = $('#n-f').value, p = +val('n-p'), v = +val('n-v'), m = +val('n-m'), a = Date.parse(val('n-a')), b = Date.parse(val('n-b')), bm = FUELS[f].px; let ok = true;
+      if (!val('n-p') || !(p > 0)) ok = bad('n-p', 'Enter a price per tonne.'); else if (Math.abs(p / bm - 1) > 0.15) ok = bad('n-p', `Keep within 15% of the benchmark (${eur(bm * .85)}–${eur(bm * 1.15)}).`);
+      if (!(v > 0) || v % 50) ok = bad('n-v', 'Enter a volume in steps of 50 t.') && ok; else if (e && v < l.sold) ok = bad('n-v', `${tn(l.sold)} is already sold.`) && ok;
+      if (!(m > 0)) ok = bad('n-m', 'Enter a minimum lot.') && ok; else if (m > v) ok = bad('n-m', 'Cannot exceed the volume.') && ok;
+      if (!a || a < Date.parse(today())) ok = bad('n-a', 'Pick today or a later date.') && ok;
+      if (!b || b <= a) ok = bad('n-b', 'Must be after the start date.') && ok;
+      if (!ok) return firstBad();
+      const o = { hub: $('#n-h').value, term: $('#n-t').value, px: Math.round(p), vol: v, minLot: m, from: a, to: b, pay: $('#n-y').value };
+      if (e) { Object.assign(l, o); closeModal(); toast('Listing updated'); render(); return; }
+      const nl = { id: Math.max(...L.map((z) => z.id)) + 1, side: $('#n-s').value, f, sold: 0, co: 0, orig: 'EU refinery', insp: INSP[0], posted: Date.now(), st: 'active', ...o };
+      L.push(nl); closeModal(); toast(`Listing L-${nl.id} published`); LQ.side = nl.side; go('listing', nl.id);
+    };
+  }, 'mid');
+}
+function alertForm(a, f0) {
+  if (!a && ALERTS.length >= PLAN().alerts) return paywall(`${PLAN().n} includes ${PLAN().alerts} price alerts.`);
+  const x = a || { f: f0 || hist.f, op: 'above', px: Math.round(FUELS[f0 || hist.f].px * 1.01), ch: 'Email and in-app' };
+  dlg(`<h2>${a ? 'Edit price alert' : 'New price alert'}</h2><p>We check the assessed price on every tick.</p><form id="aform" novalidate>
+    ${F('al-f', 'Product', `<select id="al-f">${Object.entries(FUELS).map(([k, f]) => `<option value="${k}" ${x.f === k ? 'selected' : ''}>${f.n}</option>`).join('')}</select>`)}
+    <div class="row2">${F('al-o', 'Condition', `<select id="al-o"><option value="above" ${x.op === 'above' ? 'selected' : ''}>Rises above</option><option value="below" ${x.op === 'below' ? 'selected' : ''}>Falls below</option></select>`)}${F('al-p', 'Price, €/t', `<input id="al-p" type="number" inputmode="decimal" value="${x.px}">`, `<span id="al-h">Now ${eur(FUELS[x.f].px)}</span>`)}</div>
+    ${F('al-c', 'Deliver by', `<select id="al-c">${['Email and in-app', 'In-app', 'Email, in-app and SMS'].map((c) => `<option ${x.ch === c ? 'selected' : ''}>${c}</option>`).join('')}</select>`)}
+    <div class="modal-actions"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="submit">${a ? 'Save alert' : 'Create alert'}</button></div></form>`, () => {
+    $('#al-f').onchange = () => { $('#al-h').textContent = 'Now ' + eur(FUELS[$('#al-f').value].px); };
+    $('#aform').onsubmit = (ev) => {
+      ev.preventDefault(); clr(); const f = $('#al-f').value, op = $('#al-o').value, p = +val('al-p'), now = FUELS[f].px, ch = $('#al-c').value; let ok = true;
+      if (!(p > 0)) ok = bad('al-p', 'Enter a price per tonne.'); else if (op === 'above' && p <= now) ok = bad('al-p', `Must be above the current ${eur(now)}.`); else if (op === 'below' && p >= now) ok = bad('al-p', `Must be below the current ${eur(now)}.`); else if (Math.abs(p / now - 1) > .3) ok = bad('al-p', 'Keep within 30% of the current price.');
+      if (ok && ALERTS.some((z) => z !== a && z.f === f && z.op === op && z.px === Math.round(p))) ok = bad('al-p', 'You already have this alert.');
+      if (ok && ch.includes('SMS') && plan === 'basic') ok = bad('al-c', 'SMS delivery is part of Pro.');
+      if (!ok) return firstBad();
+      if (a) Object.assign(a, { f, op, px: Math.round(p), ch, hit: null, on: true }); else ALERTS.push({ id: ++AID, f, op, px: Math.round(p), ch, on: true, hit: null, created: Date.now() });
+      closeModal(); toast(a ? 'Alert updated' : `Alert set: ${FUELS[f].short} ${op} ${eur(p)}`); render();
+    };
+  });
+}
+function paywall(why) {
+  dlg(`<h2>Upgrade to Pro</h2><p>${why} Pro is built for desks that trade every week.</p><ul class="plan" style="display:grid;gap:8px;margin-bottom:6px">${['A full year of price history and spreads', '50 price alerts with SMS delivery', '25 saved searches and 15 seats', 'CSV and API export'].map((x) => `<li style="display:flex;gap:8px">${ic('check')}<span>${x}</span></li>`).join('')}</ul><p class="muted xs">€249 per month, or €2,390 per year (save 20%). Cancel any time.</p><div class="modal-actions"><button class="btn" data-x>Not now</button><button class="btn primary" data-act="checkout">Continue to checkout</button></div>`);
+}
+function checkout() {
+  const cy = { c: SUB.cycle };
+  const cos = [['DE', 'Germany'], ['NL', 'Netherlands'], ['BE', 'Belgium'], ['FR', 'France'], ['PL', 'Poland'], ['IT', 'Italy'], ['RO', 'Romania']];
+  dlg(`<h2>Upgrade to CaspianFlow Pro</h2><p>Billed by CaspianFlow B.V., Rotterdam. You can cancel at any time.</p><div class="co-out"><div class="sum-c" id="co-sum"></div><form id="cform" novalidate>
+    <div class="test">Test mode: use card 4242 4242 4242 4242, any future date and any CVC.</div><b style="display:block;margin-bottom:10px">Contact details</b>
+    ${F('k-e', 'Email for invoices', `<input id="k-e" type="email" autocomplete="email" value="l.weber@weber-energie.example">`)}<div class="row2">${F('k-n', 'Full name', `<input id="k-n" autocomplete="name" value="Lukas Weber">`)}${F('k-c', 'Company', `<input id="k-c" autocomplete="organization" value="${esc(PROFILE.legal)}">`)}</div>
+    <div class="row2">${F('k-y', 'Country', `<select id="k-y">${cos.map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}</select>`)}${F('k-v', 'VAT ID', `<input id="k-v" value="${PROFILE.vat}" placeholder="e.g. DE123456789">`, 'Optional. Valid EU VAT IDs outside NL are reverse-charged.')}</div>
+    <b style="display:block;margin:6px 0 10px">Payment</b><div class="field" id="f-k-cc"><label for="k-cc">Card details</label><div class="ccg"><input id="k-cc" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234" maxlength="23" aria-label="Card number"><div class="r2"><input id="k-x" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / YY" maxlength="7" aria-label="Expiry date"><input id="k-cv" inputmode="numeric" autocomplete="cc-csc" placeholder="CVC" maxlength="4" aria-label="Security code"></div></div></div>
+    <button class="btn primary" type="submit" id="k-go" style="width:100%;height:40px"></button><p class="xs muted" style="margin-top:8px;text-align:center">${ic('lock', '').replace('class="ic ', 'style="display:inline;width:12px;height:12px;vertical-align:-1px" class="ic ')} Card data is tokenised by the payment processor. No card number touches CaspianFlow servers.</p></form></div>`, () => {
+    const calcT = () => { const base = cy.c === 'year' ? 2390 : 249, v = val('k-v').toUpperCase(), rc = /^[A-Z]{2}[0-9A-Z]{8,12}$/.test(v) && !v.startsWith('NL'), vat = rc ? 0 : base * .21; return { base, vat, total: base + vat, rc }; };
+    const draw = () => { const t = calcT(); $('#co-sum').innerHTML = `<b>Pro plan</b><div class="tabs" style="margin:12px 0;display:flex" role="group" aria-label="Billing period"><button type="button" class="${cy.c === 'month' ? 'on' : ''}" data-cy="month" style="flex:1">Monthly</button><button type="button" class="${cy.c === 'year' ? 'on' : ''}" data-cy="year" style="flex:1">Yearly · save 20%</button></div><div class="lines"><div><span>Pro, ${cy.c === 'year' ? '12 months' : '1 month'}</span><b>${eur2(t.base)}</b></div><div><span>${t.rc ? 'VAT reverse charge' : 'VAT 21%'}</span><b>${eur2(t.vat)}</b></div><div class="tot"><span>Due today</span><b>${eur2(t.total)}</b></div></div><p class="xs muted" style="margin-top:10px">Renews ${DFY.format(Date.now() + (cy.c === 'year' ? 365 : 30) * D)}. Price excludes VAT where applicable.</p>`; $('#k-go').textContent = `Pay ${eur2(t.total)}`; $$('[data-cy]').forEach((b) => b.onclick = () => { cy.c = b.dataset.cy; draw(); }); };
+    draw(); $('#k-v').oninput = draw;
+    $('#k-cc').oninput = (e) => { const d = e.target.value.replace(/\D/g, '').slice(0, 19); e.target.value = d.replace(/(.{4})/g, '$1 ').trim(); };
+    $('#k-x').oninput = (e) => { const d = e.target.value.replace(/\D/g, '').slice(0, 4); e.target.value = d.length > 2 ? d.slice(0, 2) + ' / ' + d.slice(2) : d; };
+    $('#k-cv').oninput = (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); };
+    $('#cform').onsubmit = (ev) => {
+      ev.preventDefault(); clr(); let ok = true; const cc = val('k-cc').replace(/\D/g, ''), ex = val('k-x').replace(/\D/g, ''), cv = val('k-cv'), vt = val('k-v').toUpperCase();
+      if (!val('k-e')) ok = bad('k-e', 'Enter an email for invoices.'); else if (!EMAIL.test(val('k-e'))) ok = bad('k-e', 'Enter a valid email, like name@company.eu.');
+      if (val('k-n').length < 2) ok = bad('k-n', 'Enter the full name.') && ok;
+      if (!val('k-c')) ok = bad('k-c', 'Enter the company name.') && ok;
+      if (vt && !/^[A-Z]{2}[0-9A-Z]{8,12}$/.test(vt)) ok = bad('k-v', 'Use the format DE123456789.') && ok; else if (vt && vt.slice(0, 2) !== $('#k-y').value) ok = bad('k-v', 'The VAT ID country does not match the selected country.') && ok;
+      const luhn = (n) => { let s = 0; for (let i = 0; i < n.length; i++) { let d = +n[n.length - 1 - i]; if (i % 2) { d *= 2; if (d > 9) d -= 9; } s += d; } return s % 10 === 0; };
+      const mm = +ex.slice(0, 2), yy = +ex.slice(2), nowD = new Date(), expOk = ex.length === 4 && mm >= 1 && mm <= 12 && (2000 + yy > nowD.getFullYear() || (2000 + yy === nowD.getFullYear() && mm >= nowD.getMonth() + 1));
+      if (cc.length < 13) ok = bad('k-cc', 'Enter the card number.') && ok; else if (!luhn(cc)) ok = bad('k-cc', 'This card number is not valid. Check the digits.') && ok;
+      else if (!expOk) ok = bad('k-cc', ex.length < 4 ? 'Enter the expiry date as MM / YY.' : 'This card has expired.') && ok; else if (!/^\d{3,4}$/.test(cv)) ok = bad('k-cc', 'Enter the 3 or 4 digit security code.') && ok;
+      if (!ok) return firstBad();
+      if (cc === '4000000000000002') return bad('k-cc', 'Your bank declined this card. Try another card.');
+      const b = $('#k-go'); b.disabled = true; b.innerHTML = `<span class="spin"></span>Processing…`; const t = calcT();
+      setTimeout(() => {
+        plan = 'pro'; SUB.cycle = cy.c; SUB.renews = Date.now() + (cy.c === 'year' ? 365 : 30) * D; SUB.card = `${cc[0] === '5' ? 'Mastercard' : 'Visa'} ending ${cc.slice(-4)} · expires ${ex.slice(0, 2)}/${ex.slice(2)}`; SUB.cancelAt = null;
+        INVOICES.unshift({ ref: 'CF-INV-' + (26000 + INVOICES.length + 418), t: Date.now(), total: t.total, desc: `Pro plan, ${cy.c === 'year' ? 'yearly' : 'monthly'}${t.rc ? ', reverse charge' : ''}` });
+        $('.modal').innerHTML = `<div style="text-align:center;padding:10px 0"><div class="logo" style="margin:0 auto 12px;color:var(--pos)">${ic('check')}</div><h2 id="dlg-t">You are on Pro</h2><p class="muted" style="margin:6px 0 16px">Receipt ${INVOICES[0].ref} for ${eur2(t.total)} was sent to ${esc(val('k-e') || 'your email')}. Full history, spreads and higher limits are unlocked.</p><button class="btn primary" data-x>Back to CaspianFlow</button></div>`;
+        notify('Welcome to CaspianFlow Pro', 'Full price history, spreads and higher limits are now active.', ['billing']); render();
+      }, 1300);
+    };
+  }, 'wide');
+}
+function kycFlow(step = 1, st = { lic: '', auth: 'Hauptzollamt Hamburg', exp: '', file: null, ok: false }) {
+  const bar = `<div class="steps" aria-label="Step ${step} of 3">${[1, 2, 3].map((i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join('')}</div>`;
+  const body = step === 1 ? `${F('y-l', 'Excise number (SEED)', `<input id="y-l" value="${esc(st.lic)}" placeholder="DE00841592730" autocomplete="off">`, '2-letter country code followed by 11 characters.')}${F('y-a', 'Issuing authority', `<select id="y-a">${['Hauptzollamt Hamburg', 'Hauptzollamt Bremen', 'Hauptzollamt Kiel'].map((a) => `<option ${a === st.auth ? 'selected' : ''}>${a}</option>`).join('')}</select>`)}${F('y-x', 'Valid until', `<input id="y-x" type="date" value="${st.exp}">`)}`
+    : step === 2 ? `<div class="field" id="f-y-d"><label for="y-d">Licence document (PDF, max. 10 MB)</label>${st.file ? `<div class="att">${ic('file')}<span style="flex:1;min-width:0" class="ell">${st.file}</span><button class="lnk" type="button" id="y-rm">Remove</button></div>` : `<button type="button" class="drop" id="y-d">${ic('upload')}<b style="display:block;color:var(--text)">Choose a file</b><span class="xs">Scanned licence with the customs stamp</span></button>`}</div>`
+    : `<dl class="dl" style="grid-template-columns:1fr;margin-bottom:14px"><div><dt>Excise number</dt><dd>${esc(st.lic)}</dd></div><div><dt>Authority</dt><dd>${st.auth}</dd></div><div><dt>Valid until</dt><dd>${DFY.format(Date.parse(st.exp))}</dd></div><div><dt>Document</dt><dd class="ell">${st.file}</dd></div></dl><div class="field" id="f-y-c"><label class="chk"><input type="checkbox" id="y-c" ${st.ok ? 'checked' : ''}>I confirm the information is correct and the licence is in force.</label></div>`;
+  dlg(`<h2>Renew excise licence</h2><p>Step ${step} of 3 · ${['', 'Licence details', 'Upload document', 'Review and submit'][step]}</p>${bar}<form id="kform" novalidate>${body}<div class="modal-actions">${step > 1 ? `<button class="btn" type="button" id="y-back">Back</button>` : `<button class="btn" type="button" data-x>Cancel</button>`}<button class="btn primary" type="submit">${step === 3 ? 'Submit for review' : 'Continue'}</button></div></form>`, () => {
+    if ($('#y-back')) $('#y-back').onclick = () => kycFlow(step - 1, st);
+    if ($('#y-d')) $('#y-d').onclick = () => { st.file = 'Erlaubnis_Steuerlager_2027.pdf · 412 KB'; kycFlow(2, st); };
+    if ($('#y-rm')) $('#y-rm').onclick = () => { st.file = null; kycFlow(2, st); };
+    $('#kform').onsubmit = (ev) => {
+      ev.preventDefault(); clr(); let ok = true;
+      if (step === 1) { st.lic = val('y-l').toUpperCase(); st.auth = $('#y-a').value; st.exp = val('y-x');
+        if (!/^[A-Z]{2}[0-9A-Z]{11}$/.test(st.lic)) ok = bad('y-l', 'Use 2 letters and 11 characters, like DE00841592730.');
+        if (!st.exp) ok = bad('y-x', 'Enter the expiry date.') && ok; else if (Date.parse(st.exp) < Date.now() + 30 * D) ok = bad('y-x', 'The licence must be valid for at least 30 more days.') && ok;
+        if (!ok) return firstBad(); return kycFlow(2, st); }
+      if (step === 2) { if (!st.file) { bad('y-d', 'Attach the licence document to continue.'); return; } return kycFlow(3, st); }
+      st.ok = $('#y-c').checked; if (!st.ok) return bad('y-c', 'Please confirm to submit.');
+      KYC.st = 'review'; KYC.lic = st.lic; closeModal(); notify('Licence renewal submitted', 'Compliance usually reviews within one business day.', ['company']); render();
+      setTimeout(() => { KYC.st = 'verified'; KYC.exp = Date.parse(st.exp); notify('Verification renewed', `Excise licence approved, valid to ${DFY.format(KYC.exp)}.`, ['company']); render(); }, 6000);
+    };
+  }, 'mid');
+}
+function offerForm(t, l) {
+  const lo = t && lastO(t), x = lo ? { vol: lo.vol, px: lo.px } : { vol: Math.min(rem(l), Math.max(l.minLot, 1000)), px: l.px - (l.side === 'sell' ? 3 : -3) };
+  dlg(`<h2>${t ? 'Counter-offer' : l.side === 'sell' ? 'Make an offer' : 'Offer supply'}</h2><p>${FUELS[l.f].short} · ${esc(coOf(l.co).n)} · listed ${eur(l.px)}/t, ${tn(rem(l))} available${lo ? ` · last offer ${eur(lo.px)}/t` : ''}</p><form id="oform" novalidate>
+    <div class="row2">${F('o-v', 'Volume, t', `<input id="o-v" type="number" inputmode="numeric" value="${x.vol}">`, `Min. ${tn(l.minLot)}, max. ${tn(rem(l))}`)}${F('o-p', 'Price, €/t', `<input id="o-p" type="number" inputmode="decimal" value="${x.px}">`, `Benchmark ${eur(FUELS[l.f].px)}`)}</div>
+    ${F('o-m', 'Message (optional)', `<textarea id="o-m" placeholder="Inspection, payment or loading details"></textarea>`)}<p class="muted" id="o-t"></p><p class="xs muted">The offer is binding for 24 hours.</p>
+    <div class="modal-actions"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="submit">Send offer</button></div></form>`, () => {
+    const upd = () => { $('#o-t').textContent = `Total ${eur((+val('o-v') || 0) * (+val('o-p') || 0))}`; }; upd(); $('#o-v').oninput = upd; $('#o-p').oninput = upd;
+    $('#oform').onsubmit = (ev) => {
+      ev.preventDefault(); clr(); const v = Math.round(+val('o-v')), p = Math.round(+val('o-p')), bm = FUELS[l.f].px; let ok = true;
+      if (!(v >= l.minLot && v <= rem(l))) ok = bad('o-v', `Volume must be ${fmt(l.minLot)} to ${tn(rem(l))}.`);
+      if (!(p > 0)) ok = bad('o-p', 'Enter a price per tonne.') && ok; else if (Math.abs(p / bm - 1) > .1) ok = bad('o-p', `Keep within 10% of the benchmark ${eur(bm)}.`) && ok; else if (lo && p === lo.px && v === lo.vol) ok = bad('o-p', 'This matches the current offer. Accept it instead.') && ok;
+      if (!ok) return firstBad();
+      const o = { vol: v, px: p }, m = { by: 'me', t: Date.now(), txt: val('o-m'), o };
+      if (!t) { t = { id: ++THID, lid: l.id, cp: l.co, role: l.side === 'sell' ? 'buy' : 'sell', msgs: [m], st: 'open', unread: 0 }; TH.push(t); } else t.msgs.push(m);
+      closeModal(); toast(`Offer sent to ${coOf(l.co).n}`); CQ.tab = 'all'; if (page !== 'chat' || +cur !== t.id) go('chat', t.id); else drawConv(); theyReply(t, o);
+    };
+  });
+}
 
 /* ── actions ──────────────────────────────────────────── */
 const ACT = {
-  side(d) { side = d.v; render(); }, fuel(d) { fuel = d.v; render(); }, goListings() { go('listings'); },
-  accept(d) { const o = OFFERS[+d.i]; o.st = 'accepted'; toast(`Deal with ${o.from}: ${eur(o.vol * o.px)}`); render(); },
-  decline(d) { OFFERS[+d.i].st = 'declined'; toast('Offer declined'); render(); },
-  offer(d) {
-    const l = L.find((x) => x.id === +d.id);
-    modal(`<h2>${l.side === 'sell' ? 'Make an offer' : 'Offer supply'}</h2><p>${FUELS[l.f].n} · ${esc(l.co)} · listed ${eur(l.px)} for ${num(l.vol)} t</p>
-      <div class="field"><label for="o-v">Volume, tonnes (up to ${num(l.vol)})</label><input id="o-v" type="number" min="1" max="${l.vol}" value="${Math.min(l.vol, 1000)}"></div>
-      <div class="field"><label for="o-p">Your price, €/t</label><input id="o-p" type="number" min="1" value="${l.px}"></div>
-      <p id="o-t" class="muted"></p><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="o-ok">Send offer</button></div>`, () => {
-      const upd = () => { const v = +$('#o-v').value || 0, p = +$('#o-p').value || 0; $('#o-t').textContent = `Total ${eur(v * p)}`; }; upd();
-      $('#o-v').oninput = upd; $('#o-p').oninput = upd;
-      $('#o-ok').onclick = () => {
-        const v = Math.round(+$('#o-v').value), p = Math.round(+$('#o-p').value);
-        if (!(v >= 1 && v <= l.vol)) { $('#o-v').focus(); return toast(`Volume must be 1 to ${num(l.vol)} t`); }
-        if (!(p > 0)) { $('#o-p').focus(); return; }
-        SENT.unshift({ to: l.co, f: l.f, vol: v, px: p, st: 'pending' }); closeModal(); toast('Offer sent to ' + l.co); if (page === 'deals') render();
-      };
+  more(d, el) { if (popEl && popEl.trigger === el) return closePop(); openPop(el, ['alerts', 'saved', 'calc', 'company', 'billing', 'help'].map((k) => mi(PAGES[k][1], PAGES[k][0], k)).join('') + `<hr><button class="mi" data-act="signOut">${ic('out')}<span>Sign out</span></button>`, 'narrow'); },
+  user(d, el) { if (popEl && popEl.trigger === el) return closePop(); openPop(el, userMenu(), 'narrow'); },
+  bell(d, el) { if (popEl && popEl.trigger === el) return closePop(); openPop(el, notesHTML()); },
+  readAll() { NOTES.forEach((n) => n.read = true); chrome(); closePop(); toast('All notifications marked as read'); },
+  openNote(d) { const n = NOTES.find((x) => x.id === +d.v); n.read = true; closePop(); go(n.go[0], n.go[1]); },
+  theme() { document.documentElement.dataset.theme = dark() ? 'light' : 'dark'; closePop(); render(); },
+  signOut() { closePop(); authed = false; renderAuth(); window.scrollTo(0, 0); },
+  forgot() { toast('Reset link sent to l.weber@weber-energie.example'); },
+  sso() { toast('Company SSO is available on the Desk plan'); },
+  upgrade() { closePop(); checkout(); }, checkout() { closeModal(); checkout(); },
+  sales() { toast('Our sales team will call you within one business day'); },
+  cancelSub() { confirmDlg('Cancel Pro?', `Pro stays active until ${DFY.format(SUB.renews)}. After that the account moves to Basic and alerts above 3 are paused.`, 'Cancel subscription', () => { SUB.cancelAt = SUB.renews; toast('Subscription will end ' + DFY.format(SUB.renews)); render(); }); },
+  pickF(d) { hist.f = d.v; render(); const h = $('#hist'); if (h && innerWidth < 900) h.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); },
+  range(d) { const n = +d.v; if (n > PLAN().range) return paywall('A full year of history is part of Pro.'); hist.r = n; $$('#hist .tabs button').forEach((b) => { b.classList.toggle('on', +b.dataset.v === n); b.setAttribute('aria-pressed', +b.dataset.v === n); }); $('#h-chart').innerHTML = '<div class="sk" style="height:250px"></div>'; setTimeout(() => { drawHist(); drawSpread(); }, 260); },
+  histCsv() { const f = FUELS[hist.f]; csv(`caspianflow-${hist.f}-${hist.r}d.csv`, [['date', 'product', 'hub', 'eur_per_t'], ...f.series.slice(-hist.r).map((v, i) => [new Date(DATES[DAYS - hist.r + i]).toISOString().slice(0, 10), f.n, f.hub, v])]); },
+  tradesCsv() { csv('caspianflow-trades.csv', [['time', 'product', 'volume_t', 'eur_per_t', 'value_eur', 'from', 'to', 'buyer'], ...TRADES.map((t) => [new Date(t.t).toISOString(), FUELS[t.f].short, t.vol, t.px, t.vol * t.px, t.a, t.b, t.buyer])]); },
+  tpg(d) { tpg = +d.v; $('#mk-trades').outerHTML = tradesCard(); },
+  newListing() { listingForm(); }, editL(d) { listingForm(LBy(d.v)); },
+  withdrawL(d) { const l = LBy(d.v); confirmDlg('Withdraw this listing?', `L-${l.id} disappears from the board. Open negotiations on it are closed.`, 'Withdraw', () => { const ths = TH.filter((t) => t.lid === l.id && t.st === 'open'); l.st = 'withdrawn'; ths.forEach((t) => t.st = 'declined'); render(); undo(`Listing L-${l.id} withdrawn`, () => { l.st = 'active'; ths.forEach((t) => t.st = 'open'); render(); }); }); },
+  openL(d) { closePop(); closeModal(); go('listing', +d.v); }, openD(d) { closePop(); go('deal', d.v); },
+  allRes(d) { closePop(); LQ.q = d.v; LQ.pg = 0; $('#gq').value = ''; go('listings'); },
+  side(d) { LQ.side = d.v; LQ.sort = 'px'; LQ.dir = d.v === 'sell' ? 1 : -1; LQ.pg = 0; render(); },
+  lsort(d) { LQ.dir = LQ.sort === d.v ? -LQ.dir : 1; LQ.sort = d.v; drawLst(); }, lpg(d) { LQ.pg = +d.v; drawLst(); $('#lst-res').scrollIntoView({ block: 'nearest' }); },
+  clearF() { Object.assign(LQ, { fuel: 'all', hub: 'all', term: 'all', ver: false, q: '', pg: 0 }); render(); },
+  lstCsv() { csv('caspianflow-listings.csv', [['ref', 'side', 'product', 'volume_t', 'eur_per_t', 'vs_benchmark_pct', 'hub', 'incoterm', 'laycan_from', 'laycan_to', 'company', 'kyc'], ...sortedL().map((l) => ['L-' + l.id, l.side, FUELS[l.f].short, rem(l), l.px, vsB(l).toFixed(2), l.hub, l.term, new Date(l.from).toISOString().slice(0, 10), new Date(l.to).toISOString().slice(0, 10), coOf(l.co).n, coOf(l.co).kyc])]); },
+  specCsv(d) { const l = LBy(d.v), r = mulberry(l.id * 7); csv(`L-${l.id}-spec.csv`, [['parameter', 'unit', 'limit', 'value', 'method'], ...SPEC[l.f].map((s) => { const [p, u, lim, m, b, sp, dp] = s.split('|'); return [p, u, lim, (+b + r() * +sp).toFixed(+dp), m]; })]); },
+  saveSearch() {
+    if (SAVED.length >= PLAN().saved) return paywall(`${PLAN().n} includes ${PLAN().saved} saved searches.`);
+    const def = `${LQ.fuel === 'all' ? 'All products' : FUELS[LQ.fuel].short} ${LQ.side === 'sell' ? 'offers' : 'requests'}${LQ.hub !== 'all' ? ' in ' + LQ.hub : ''}`;
+    dlg(`<h2>Save this search</h2><p>${esc(qSum(LQ))}</p><form id="sform" novalidate>${F('ss-n', 'Name', `<input id="ss-n" value="${esc(def)}" maxlength="60">`)}<label class="chk"><input type="checkbox" id="ss-e" checked>Email me about new matches</label><div class="modal-actions"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="submit">Save search</button></div></form>`, () => {
+      $('#sform').onsubmit = (ev) => { ev.preventDefault(); clr(); const n = val('ss-n'); if (!n) return bad('ss-n', 'Give the search a name.'); if (SAVED.some((s) => s.n.toLowerCase() === n.toLowerCase())) return bad('ss-n', 'You already have a saved search with this name.'); SAVED.push({ id: ++SID, n, q: { ...LQ }, notify: $('#ss-e').checked, seen: Date.now() }); closeModal(); toast(`Saved “${n}”`); };
     });
   },
-  newListing() {
-    modal(`<h2>New listing</h2><p>It goes live on the board at once.</p>
-      <div class="field"><label>Type</label><select id="n-s"><option value="sell">I sell</option><option value="buy">I need</option></select></div>
-      <div class="field"><label>Fuel</label><select id="n-f">${Object.entries(FUELS).map(([k, f]) => `<option value="${k}">${f.n}</option>`).join('')}</select></div>
-      <div class="field"><label>Volume, tonnes</label><input id="n-v" type="number" min="1" value="2000"></div><div class="field"><label>Price, €/t</label><input id="n-p" type="number" min="1" value="${FUELS.diesel.px}"></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="n-ok">Publish</button></div>`, () => {
-      $('#n-f').onchange = () => { $('#n-p').value = FUELS[$('#n-f').value].px; };
-      $('#n-ok').onclick = () => {
-        const v = Math.round(+$('#n-v').value), p = Math.round(+$('#n-p').value); if (!(v >= 1 && p > 0)) return toast('Check volume and price');
-        L.push({ id: Math.max(...L.map((x) => x.id)) + 1, side: $('#n-s').value, f: $('#n-f').value, vol: v, px: p, where: 'Rotterdam', term: 'FOB', co: 'Weber Energiehandel GmbH', win: 'Open', mine: true });
-        closeModal(); toast('Listing published'); side = $('#n-s').value; fuel = 'all'; go('listings');
-      };
+  runS(d) { const s = SAVED.find((x) => x.id === +d.v); Object.assign(LQ, s.q, { pg: 0, sort: 'px', dir: s.q.side === 'sell' ? 1 : -1 }); s.seen = Date.now(); go('listings'); },
+  renS(d) { const s = SAVED.find((x) => x.id === +d.v); dlg(`<h2>Rename saved search</h2><form id="rform" novalidate>${F('rs-n', 'Name', `<input id="rs-n" value="${esc(s.n)}" maxlength="60">`)}<div class="modal-actions"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="submit">Save</button></div></form>`, () => { $('#rform').onsubmit = (ev) => { ev.preventDefault(); clr(); const n = val('rs-n'); if (!n) return bad('rs-n', 'Give the search a name.'); s.n = n; closeModal(); render(); }; }); },
+  delS(d) { const i = SAVED.findIndex((x) => x.id === +d.v), s = SAVED[i]; SAVED.splice(i, 1); render(); undo(`Deleted “${s.n}”`, () => { SAVED.splice(i, 0, s); render(); }); },
+  newAlert() { alertForm(); }, alertFor(d) { alertForm(null, d.v); }, editA(d) { alertForm(ALERTS.find((a) => a.id === +d.v)); },
+  togA(d) { const a = ALERTS.find((x) => x.id === +d.v); if (a.hit) { a.hit = null; a.on = true; toast('Alert re-armed'); } else { a.on = !a.on; toast(a.on ? 'Alert resumed' : 'Alert paused'); } render(); },
+  delA(d) { const i = ALERTS.findIndex((x) => x.id === +d.v), a = ALERTS[i]; ALERTS.splice(i, 1); render(); undo(`Deleted alert ${FUELS[a.f].short} ${a.op} ${eur(a.px)}`, () => { ALERTS.splice(i, 0, a); render(); }); },
+  offer(d) { const l = LBy(d.v); if (l.co === 0) return; const t = TH.find((x) => x.lid === l.id && x.st === 'open'); if (t) return go('chat', t.id); offerForm(null, l); },
+  openTh(d) { go('chat', +d.v); setTimeout(scrollMsgs); }, thBack() { cur = null; render(); },
+  cTab(d) { CQ.tab = d.v; render(); },
+  counter(d) { const t = TH.find((x) => x.id === +d.v); offerForm(t, LBy(t.lid)); },
+  accept(d) { const t = TH.find((x) => x.id === +d.v), o = lastO(t), l = LBy(t.lid);
+    if (t.role === 'sell' && o.vol > rem(l)) return toast(`Only ${tn(rem(l))} left on L-${l.id}`);
+    confirmDlg('Accept this offer?', `${tn(o.vol)} ${FUELS[l.f].short} at ${eur(o.px)}/t, total ${eur(o.vol * o.px)} with ${esc(coOf(t.cp).n)}. A sales contract is generated for both sides.`, 'Accept and create deal', () => { t.msgs.push({ by: 'me', t: Date.now(), txt: 'Accepted. Sending the contract now.' }); closeDeal(t, o); drawConv(); }, false); },
+  decline(d) { const t = TH.find((x) => x.id === +d.v); confirmDlg('Decline this offer?', `${esc(coOf(t.cp).n)} is told the offer was declined and the negotiation closes.`, 'Decline offer', () => { t.st = 'declined'; t.msgs.push({ by: 'sys', t: Date.now(), txt: 'You declined the offer.' }); drawConv(); undo('Offer declined', () => { t.st = 'open'; t.msgs.pop(); drawConv(); }); }); },
+  dTab(d) { DQ.tab = d.v; DQ.pg = 0; render(); }, dsort(d) { DQ.dir = DQ.sort === d.v ? -DQ.dir : -1; DQ.sort = d.v; drawDeals(); }, dpg(d) { DQ.pg = +d.v; drawDeals(); },
+  dealsCsv() { csv('caspianflow-deals.csv', [['deal', 'agreed', 'side', 'product', 'volume_t', 'eur_per_t', 'value_eur', 'incoterm', 'hub', 'counterparty', 'status'], ...filterD().map((d) => [d.id, new Date(d.ts[0]).toISOString().slice(0, 10), d.role, FUELS[d.f].short, d.vol, d.px, dVal(d), d.term, d.hub, coOf(d.cp).n, dStatus(d)])]); },
+  advance() {
+    const d = DBy(cur), c = coOf(d.cp);
+    if (d.stage === 4) { d.appr = 'pending'; render(); toast('Approval requested from Marta Kowalczyk'); setTimeout(() => { d.appr = null; d.stage = 5; d.ts[5] = Date.now(); notify(`Payment approved for ${d.id}`, `Marta Kowalczyk approved ${eur(dVal(d))}`, ['deal', d.id]); if (page === 'deal' && cur === d.id) render(); }, 2600); return; }
+    const go2 = () => { d.stage++; d.ts[d.stage] = Date.now(); toast(`${d.id}: ${STAGES[d.stage]}`); render(); };
+    if (d.stage === 0) confirmDlg('Sign the sales contract?', `You sign ${d.id.replace('D', 'SC')} for ${tn(d.vol)} at ${eur(d.px)}/t with ${esc(c.n)}. The e-signature is legally binding.`, 'Sign contract', go2, false); else go2();
+  },
+  cancelDeal() { const d = DBy(cur); dlg(`<h2>Cancel deal ${d.id}?</h2><p>The counterparty must agree. Cancelled deals stay in your history.</p><form id="xform" novalidate>${F('x-r', 'Reason', `<select id="x-r"><option value="">Choose a reason</option><option>Cancelled by mutual agreement</option><option>Vessel not available in laycan</option><option>Counterparty failed KYC</option><option>Credit limit exceeded</option></select>`)}<div class="modal-actions"><button class="btn" type="button" data-x>Keep deal</button><button class="btn danger" type="submit">Cancel deal</button></div></form>`, () => { $('#xform').onsubmit = (ev) => { ev.preventDefault(); clr(); if (!val('x-r')) return bad('x-r', 'Choose a reason.'); d.cx = true; d.cxWhy = val('x-r'); d.cxAt = Date.now(); closeModal(); render(); undo(`Deal ${d.id} cancelled`, () => { d.cx = false; render(); }); }; }); },
+  viewDoc(d) {
+    const dl = DBy(cur), k = d.v, n = DOCS.find((x) => x[0] === k)[1];
+    const show = (fail) => dlg(`<h2>${n}</h2><p>${dl.id} · ${esc(coOf(dl.cp).n)}</p><div id="docb">${fail ? `<div class="emp">${ic('alert')}<b>Could not load the document</b><p>The inspector’s portal did not respond. Your data is safe; try again.</p><button class="btn" id="d-re">Retry</button></div>` : `<div class="paper">${docHTML(dl, k)}</div>`}</div><div class="modal-actions"><button class="btn" data-x>Close</button>${fail ? '' : `<button class="btn primary" id="d-dl">${ic('dl')}Download</button>`}</div>`, () => {
+      if ($('#d-re')) $('#d-re').onclick = () => { $('#docb').innerHTML = '<div class="sk" style="height:220px"></div>'; setTimeout(() => show(false), 500); };
+      if ($('#d-dl')) $('#d-dl').onclick = () => { const txt = $('.paper').innerText; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' })); a.download = `${dl.id}-${k}.txt`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast(`Downloaded ${dl.id}-${k}.txt`); };
+    }, 'mid');
+    if (k === 'qc' && dl.qcFail) { dl.qcFail = false; show(true); } else show(false);
+  },
+  kyc() { kycFlow(); },
+  editCo() { const p = PROFILE; dlg(`<h2>Edit company profile</h2><p>Changes to the legal name or VAT ID trigger a new KYC check.</p><form id="pform" novalidate>${F('p-l', 'Legal name', `<input id="p-l" value="${esc(p.legal)}">`)}<div class="row2">${F('p-v', 'VAT ID', `<input id="p-v" value="${esc(p.vat)}">`)}${F('p-e', 'EORI', `<input id="p-e" value="${esc(p.eori)}">`)}</div>${F('p-a', 'Registered address', `<input id="p-a" value="${esc(p.addr)}">`)}<div class="row2">${F('p-p', 'Phone', `<input id="p-p" type="tel" value="${esc(p.phone)}">`)}${F('p-w', 'Website', `<input id="p-w" value="${esc(p.web)}">`)}</div><div class="modal-actions"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="submit">Save profile</button></div></form>`, () => {
+    $('#pform').onsubmit = (ev) => { ev.preventDefault(); clr(); let ok = true; const v = val('p-v').toUpperCase(), e = val('p-e').toUpperCase();
+      if (val('p-l').length < 3) ok = bad('p-l', 'Enter the registered legal name.');
+      if (!/^[A-Z]{2}[0-9A-Z]{8,12}$/.test(v)) ok = bad('p-v', 'Use the format DE123456789.') && ok;
+      if (!/^[A-Z]{2}[0-9A-Z]{1,15}$/.test(e)) ok = bad('p-e', 'EORI starts with a country code, up to 17 characters.') && ok;
+      if (val('p-a').length < 8) ok = bad('p-a', 'Enter the full registered address.') && ok;
+      if (!/^\+?[0-9 ()-]{7,20}$/.test(val('p-p'))) ok = bad('p-p', 'Enter a phone number with country code.') && ok;
+      if (val('p-w') && !/^[\w-]+(\.[\w-]+)+(\/.*)?$/.test(val('p-w').replace(/^https?:\/\//, ''))) ok = bad('p-w', 'Enter a domain like company.eu.') && ok;
+      if (!ok) return firstBad(); Object.assign(PROFILE, { legal: val('p-l'), vat: v, eori: e, addr: val('p-a'), phone: val('p-p'), web: val('p-w') }); closeModal(); toast('Company profile saved'); render(); };
+  }, 'mid'); },
+  invite() {
+    if (TEAM.length >= PLAN().seats) return paywall(`All ${PLAN().seats} seats on ${PLAN().n} are in use.`);
+    dlg(`<h2>Invite a team member</h2><p>They get an email to join ${esc(PROFILE.legal)} on CaspianFlow.</p><form id="iform" novalidate>${F('i-n', 'Full name', `<input id="i-n" autocomplete="off">`)}${F('i-e', 'Work email', `<input id="i-e" type="email" autocomplete="off" placeholder="name@weber-energie.example">`)}${F('i-r', 'Role', `<select id="i-r">${ROLES.slice(1).map((r) => `<option>${r}</option>`).join('')}</select>`, 'Traders can make offers. Finance approvers release payments. Viewers are read-only.')}<div class="modal-actions"><button class="btn" type="button" data-x>Cancel</button><button class="btn primary" type="submit">Send invite</button></div></form>`, () => {
+      $('#iform').onsubmit = (ev) => { ev.preventDefault(); clr(); let ok = true; const n = val('i-n'), e = val('i-e').toLowerCase();
+        if (n.length < 2) ok = bad('i-n', 'Enter their full name.');
+        if (!e) ok = bad('i-e', 'Enter their work email.') && ok; else if (!EMAIL.test(e)) ok = bad('i-e', 'Enter a valid email, like name@company.eu.') && ok; else if (TEAM.some((m) => m.email === e)) ok = bad('i-e', 'This person is already on the team.') && ok;
+        if (!ok) return firstBad(); TEAM.push({ n, email: e, role: $('#i-r').value, st: 'invited', last: Date.now() }); closeModal(); toast(`Invite sent to ${e}`); render(); };
     });
   },
+  resend(d) { TEAM[+d.v].last = Date.now(); toast(`Invite resent to ${TEAM[+d.v].email}`); render(); },
+  rmM(d) { const i = +d.v, m = TEAM[i]; confirmDlg(`Remove ${esc(m.n)}?`, 'They lose access at once. Their deals and messages stay with the company.', 'Remove member', () => { TEAM.splice(i, 1); render(); undo(`${m.n} removed`, () => { TEAM.splice(i, 0, m); render(); }); }); },
 };
+
+/* ── events ───────────────────────────────────────────── */
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if (popEl && !t.closest('#pop') && !t.closest('[data-pop]') && t !== $('#gq')) closePop();
+  if (t.closest('[data-x]')) return closeModal();
+  const a = t.closest('[data-page]'); if (a) { e.preventDefault(); closeModal(); return go(a.dataset.page, a.dataset.id ? (isNaN(a.dataset.id) ? a.dataset.id : +a.dataset.id) : null); }
+  const act = t.closest('[data-act]'); if (act && !act.disabled && ACT[act.dataset.act]) return ACT[act.dataset.act](act.dataset, act, e);
+  const row = t.closest('[data-l]'); if (row) return go('listing', +row.dataset.l);
+  const dr = t.closest('[data-d]'); if (dr) return go('deal', dr.dataset.d);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && popEl) { closePop(true); return; }
+  const typing = e.target.matches('input,textarea,select');
+  if (e.key === '/' && !typing && !$('#scrim') && authed) { const s = [$('#lq'), $('#dq'), $('#cq'), $('#gq')].find((x) => x && x.offsetParent); if (s) { e.preventDefault(); s.focus(); s.select(); } }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page],[data-l],[data-d],a[data-act]')) { e.preventDefault(); e.target.click(); }
+  if (e.key === 'Enter' && e.target.id === 'gq' && e.target.value.trim()) ACT.allRes({ v: e.target.value.trim() });
+  if (e.key === 'Tab' && $('#scrim')) { const f = $$('#scrim button:not([disabled]), #scrim input:not([disabled]), #scrim select:not([disabled]), #scrim textarea').filter((x) => x.offsetParent); if (f.length) { const i = f.indexOf(document.activeElement); if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); } } }
+});
+document.addEventListener('input', (e) => {
+  const id = e.target.id, v = e.target.value;
+  if (id === 'lq') { LQ.q = v; LQ.pg = 0; drawLst(); } else if (id === 'dq') { DQ.q = v; DQ.pg = 0; drawDeals(); } else if (id === 'cq') { CQ.q = v; drawThreads(); } else if (id === 'gq') gSearch(e.target);
+  else if (e.target.dataset.c) { const k = e.target.dataset.c; calc[k] = e.target.type === 'number' ? Math.max(0, +v || 0) : k === 'r' ? +v : v; if (k === 'f') { calc.px = FUELS[calc.f].px; $('#c-p').value = calc.px; } $('#c-out').innerHTML = resultHTML(); }
+});
+document.addEventListener('change', (e) => {
+  const t = e.target, id = t.id;
+  const m = { lf: 'fuel', lh: 'hub', lt: 'term' }[id]; if (m) { LQ[m] = t.value; LQ.pg = 0; return render(); }
+  if (id === 'lv') { LQ.ver = t.checked; LQ.pg = 0; return render(); }
+  if (id === 'h-f') { hist.f = t.value; return render(); }
+  if (t.dataset.sn) { const s = SAVED.find((x) => x.id === +t.dataset.sn); s.notify = t.checked; return toast(t.checked ? `Emails on for “${s.n}”` : `Emails off for “${s.n}”`); }
+  if (t.dataset.role) { const mbr = TEAM[+t.dataset.role]; if (t.value === 'Admin' && !TEAM.some((x, i) => i && x.role === 'Admin')) { /* allowed */ } mbr.role = t.value; toast(`${mbr.n} is now ${t.value}`); }
+});
+document.addEventListener('submit', (e) => {
+  const f = e.target;
+  if (f.id === 'login') { e.preventDefault(); clr(f); let ok = true; if (!EMAIL.test(val('a-e'))) ok = bad('a-e', 'Enter your work email.'); if (!val('a-p')) ok = bad('a-p', 'Enter your password.') && ok; if (!ok) return firstBad();
+    const b = $('#a-go'); b.disabled = true; b.innerHTML = '<span class="spin"></span>Signing in…'; setTimeout(() => { authed = true; $('#auth').hidden = true; $('#auth').innerHTML = ''; $('#app').hidden = false; $('#tabbar').style.display = ''; page = 'market'; cur = null; render(); }, 700); }
+  if (f.id === 'sup') { e.preventDefault(); clr(f); const m = val('s-m'); if (m.length < 20) return bad('s-m', m ? `Add a little more detail (${20 - m.length} more characters).` : 'Describe the issue so we can help.') || firstBad();
+    const ref = 'CS-' + (20871 + TICKETS.length); TICKETS.unshift({ ref, subj: $('#s-t').value, st: 'Open', t: Date.now() }); toast(`Ticket ${ref} created. We reply by email.`); render(); }
+  if (f.classList.contains('comp')) { e.preventDefault(); const t = TH.find((x) => x.id === +f.dataset.th), i = $('#cmsg'), m = i.value.trim(); if (!m) return i.focus(); t.msgs.push({ by: 'me', t: Date.now(), txt: m }); i.value = ''; drawConv(); $('#cmsg').focus();
+    if (!t.typing) { t.typing = true; setTimeout(() => { t.typing = false; t.msgs.push({ by: 'them', t: Date.now(), txt: pick(['Noted, checking with our scheduler.', 'Thanks, we will confirm within the hour.', 'Understood. Inspection at load port works for us.']) }); drawConv(); }, 2000); drawConv(); } }
+});
+let rz2; addEventListener('resize', () => { clearTimeout(rz2); rz2 = setTimeout(() => { if (popEl) closePop(); mount(); }, 140); });
+
+/* ── live board ───────────────────────────────────────── */
+function mount() { drawHist(); drawSpread(); scrollMsgs(); }
+const LR = mulberry(77);
+setInterval(() => {
+  if (!authed) return;
+  const ks = Object.keys(FUELS), k = ks[Math.floor(LR() * ks.length)], f = FUELS[k], step = Math.max(1, Math.round(f.px * 0.0008)) * (LR() < 0.5 ? -1 : 1);
+  f.px = Math.max(1, f.px + step); f.series[DAYS - 1] = f.px;
+  const el = $('#px-' + k); if (el) { el.outerHTML = pxCard(k); const n = $(`#px-${k} .px-v`); n.classList.add(step > 0 ? 'up' : 'dn'); setTimeout(() => n.classList.remove('up', 'dn'), 700); }
+  for (const a of ALERTS) if (a.on && !a.hit && a.f === k && (a.op === 'above' ? f.px >= a.px : f.px <= a.px)) { a.hit = Date.now(); notify(`Price alert: ${f.short} ${a.op} ${eur(a.px)}`, `${f.n} is now ${eur(f.px)}/t at ${f.hub}`, ['alerts']); if (page === 'alerts') render(); }
+}, 3500);
+setInterval(() => {
+  if (document.hidden || $('#scrim') || !authed) return;
+  const k = Object.keys(FUELS)[Math.floor(LR() * 4)], f = FUELS[k], a = HUBN[Math.floor(LR() * 8)], b = HUBN[(HUBN.indexOf(a) + 1 + Math.floor(LR() * 7)) % 8];
+  TRADES.unshift({ t: Date.now(), f: k, vol: f.step * (2 + Math.floor(LR() * 8)), px: Math.round(f.px * (1 + (LR() - .5) * .01)), buyer: BUY[Math.floor(LR() * BUY.length)], a, b }); TRADES.pop();
+  if (page === 'market') { toast(`Deal: ${tn(TRADES[0].vol)} ${f.short} at ${eur(TRADES[0].px)}/t`); liveMarket(); }
+}, 12000);
+
+const VIEWS = { market, listings, listing, chat, deals, deal, alerts, saved, calc: calcPage, company, billing, help };
 render();
 </script>
 </body>
