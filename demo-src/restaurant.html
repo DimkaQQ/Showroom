@@ -3,61 +3,249 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RestOS — Restaurant Management (Demo)</title>
-<meta name="description" content="Demo: kitchen order board, menu with stop-list, guests, staff and restaurant finances. Sample data shown.">
+<title>RestOS — Restaurant Operating System (Demo)</title>
+<meta name="description" content="Demo: RestOS restaurant operating system with live order board, POS, floor plan, kitchen display, reservations, shifts, inventory, guest loyalty and end-of-day report. Sample data shown.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
 <style>
 /*@kit.css*/
-:root[data-theme="light"] {
-  --bg: #efece6; --surface: #ffffff; --raised: #f6f3ee; --hover: #efebe4; --border: #e2ded4; --rule: #eeeae2;
-  --text: #1d1a16; --muted: #5f5a50; --faint: #716b60;
-  --accent: #d9461f; --accent-ink: #ffffff;
-  --font: "Golos Text", system-ui, sans-serif; --display: "Fraunces", Georgia, serif;
+:root[data-theme="light"]{
+--bg:#efece6;--surface:#ffffff;--raised:#f6f3ee;--hover:#efebe4;--border:#e2ded4;--rule:#eeeae2;
+--text:#1d1a16;--muted:#5f5a50;--faint:#716b60;
+--accent:#d9461f;--accent-ink:#ffffff;
+--font:"Golos Text",system-ui,sans-serif;--display:"Fraunces",Georgia,serif;
+--info:#3a4fa0;--info-bg:#eef1fb;
 }
-.brand-mark { background: var(--accent); color: #fff; }
-.brand-name { font-family: var(--display); font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
-.head h1, .big, .kpi b { font-family: var(--display); font-weight: 600; letter-spacing: -.02em; }
-.nav .count { background: var(--accent); color: #fff; }
-.board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap); align-items: start; }
-.col-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
-.col-h h2 { font-size: 15px; font-weight: 600; } .col-h span { color: var(--muted); font-size: 13px; }
-.tickets { display: flex; flex-direction: column; gap: 10px; min-height: 64px; }
-.ticket { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px 12px; }
-.ticket.late { border-color: var(--accent); }
-.t-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
-.t-top b { font-size: 15px; } .t-top span { font-size: 13px; color: var(--muted); }
-.t-top .late { color: var(--accent); font-weight: 600; }
-.t-items { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
-.t-items li { display: flex; justify-content: space-between; gap: 8px; } .t-items li + li { margin-top: 2px; }
-.t-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.t-foot b { font-variant-numeric: tabular-nums; }
-.none { color: var(--faint); padding: 18px 4px; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius); }
-.menu-grp { margin-bottom: 22px; } .menu-grp h2 { font-size: 15px; margin-bottom: 8px; }
-.dish { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; min-height: 48px; padding: 6px 0; }
-.dish + .dish { border-top: 1px solid var(--rule); }
-.dish.off b { color: var(--faint); text-decoration: line-through; }
-.sw { width: 40px; height: 24px; border-radius: 12px; border: 0; background: var(--border); position: relative; cursor: pointer; transition: background-color .18s; }
-.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .2s var(--ease); }
-.sw[aria-pressed="true"] { background: var(--pos); } .sw[aria-pressed="true"]::after { transform: translateX(16px); }
-.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--gap); }
-.filters input, .filters select { height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); outline: none; }
-.filters input { min-width: 220px; } .filters input:focus, .filters select:focus { border-color: var(--accent); }
-.stars { color: var(--accent); letter-spacing: 1px; }
-@media (max-width: 899px) { .board { grid-template-columns: 1fr; } .filters input { min-width: 0; flex: 1; } }
+.brand-mark{background:var(--accent);color:#fff}
+.brand-name{font-family:var(--display);font-size:18px;font-weight:600;letter-spacing:-.01em}
+.head h1,.big,.kpi b{font-family:var(--display);font-weight:600;letter-spacing:-.02em}
+.nav .count{background:var(--accent);color:#fff}
+.nav .count.soft{background:var(--raised);color:var(--muted);border:1px solid var(--border)}
+.side{overflow-y:auto}
+.side-foot{flex-direction:column;align-items:stretch;gap:4px;font-size:12px;color:var(--muted)}
+.side-foot b{color:var(--text);font-weight:500}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);align-items:start}
+.col-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.col-h h2{font-size:15px;font-weight:600}.col-h span{color:var(--muted);font-size:13px}
+.tickets{display:flex;flex-direction:column;gap:10px;min-height:64px}
+.ticket{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 14px 12px;cursor:pointer;transition:border-color .15s}
+.ticket:hover{border-color:var(--faint)}
+.ticket.late{border-color:var(--accent)}
+.t-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.t-top b{font-size:15px}.t-top span{font-size:13px;color:var(--muted)}
+.t-top .late{color:var(--accent);font-weight:600}
+.t-top .tt{display:flex;align-items:center;gap:10px;min-width:0}
+.t-items{color:var(--muted);font-size:13px;margin-bottom:12px}
+.t-items li + li{margin-top:2px}
+.t-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.none{color:var(--faint);padding:18px 4px;text-align:center;border:1px dashed var(--border);border-radius:var(--radius)}
+.thumb{width:44px;height:44px;border-radius:12px;flex:none;overflow:hidden}.thumb svg,.thumb img{width:100%;height:100%;display:block}.thumb img{object-fit:cover}
+.ticket.fresh{animation:fresh 1.6s var(--ease) both}
+@keyframes fresh{0%{transform:translateY(-14px) scale(.97);opacity:0;box-shadow:0 0 0 0 rgba(217,70,31,.5)}30%{transform:none;opacity:1;box-shadow:0 0 0 10px rgba(217,70,31,0)}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes lp{50%{opacity:.3}}
+.kpis.k5{gap:32px}
+.kpi span em{font-style:normal;color:var(--faint)}
 
-.dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
-.dcard { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: transform .25s var(--ease), border-color .15s; }
-.dcard:hover { transform: translateY(-3px); border-color: var(--faint); }
-.dcard.off { opacity: .6; } .dcard.off .dart svg, .dcard.off .dart img { filter: grayscale(1); }
-.dart { display: block; padding: 8px 10px 0; } .dart svg { width: 100%; height: auto; display: block; } .dart img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; display: block; }
-.dbody { padding: 10px 14px 14px; } .dbody b { display: block; font-weight: 600; line-height: 1.25; min-height: 2.5em; }
-.dfoot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; } .dfoot span { font: 600 17px var(--display); }
-.thumb { width: 44px; height: 44px; border-radius: 12px; flex: none; overflow: hidden; } .thumb svg, .thumb img { width: 100%; height: 100%; display: block; } .thumb img { object-fit: cover; }
-.t-top .tt { display: flex; align-items: center; gap: 10px; }
-.ticket.fresh { animation: fresh 1.6s var(--ease) both; }
-@keyframes fresh { 0% { transform: translateY(-14px) scale(.97); opacity: 0; box-shadow: 0 0 0 0 rgba(217,70,31,.5); } 30% { transform: none; opacity: 1; box-shadow: 0 0 0 10px rgba(217,70,31,0); } 100% { box-shadow: 0 0 0 0 transparent; } }
-.liveclock { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); } .liveclock i { width: 7px; height: 7px; border-radius: 50%; background: var(--pos); animation: lp 1.6s ease-in-out infinite; } @keyframes lp { 50% { opacity: .3; } }
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.dcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;min-width:0;transition:transform .25s var(--ease),border-color .15s}
+.dcard:hover{transform:translateY(-3px);border-color:var(--faint)}
+.dcard.off{opacity:.65}.dcard.off .dart svg,.dcard.off .dart img{filter:grayscale(1)}
+.dart{display:block;width:100%;padding:8px 10px 0;border:0;background:none;cursor:pointer}.dart svg{width:100%;height:auto;display:block}.dart img{width:100%;aspect-ratio:4 / 3;object-fit:cover;border-radius:10px;display:block}
+.dbody{padding:10px 14px 14px}.dbody>b{display:block;font-weight:600;line-height:1.25}
+.dfoot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}.dfoot>span{font:600 17px var(--display)}
+.sw{width:40px;height:24px;border-radius:12px;border:0;background:var(--border);position:relative;cursor:pointer;transition:background-color .18s;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s var(--ease)}
+.sw[aria-pressed="true"]{background:var(--pos)}.sw[aria-pressed="true"]::after{transform:translateX(16px)}
+.posbar .btn{color:var(--text)}
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-10px 0 18px;min-height:40px}
+.top-l{display:flex;align-items:center;gap:12px;min-width:0}
+.mbrand{display:none;align-items:center;gap:8px;font:600 17px var(--display)}
+.mbrand .brand-mark{width:28px;height:28px}
+.clock{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:15px;background:var(--surface);border:1px solid var(--border);font-size:13px;color:var(--muted);white-space:nowrap}
+.clock i{width:7px;height:7px;border-radius:50%;background:var(--pos);animation:lp 1.6s ease-in-out infinite}
+.top-r{display:flex;align-items:center;gap:6px;position:relative}
+.ib{position:relative;width:36px;height:36px;display:grid;place-items:center;border-radius:9px;border:1px solid transparent;background:none;cursor:pointer;color:var(--muted);transition:background-color .15s,color .15s}
+.ib:hover,.ib[aria-expanded="true"]{background:var(--surface);border-color:var(--border);color:var(--text)}
+.ib .dot{position:absolute;top:1px;right:0;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;border:2px solid var(--bg)}
+.ub{display:flex;align-items:center;gap:8px;height:40px;padding:0 10px 0 4px;border-radius:20px;border:1px solid var(--border);background:var(--surface);cursor:pointer;text-align:left}
+.ub .avatar{width:30px;height:30px;background:var(--accent);color:#fff}
+.ub b{display:block;font-size:13px;line-height:1.2;font-weight:600}.ub small{display:block;font-size:11px;color:var(--muted)}
+.pop{position:absolute;top:calc(100% + 8px);right:0;z-index:35;width:min(360px,calc(100vw - 32px));max-height:70svh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 40px rgba(29,26,22,.16);padding:6px;transform-origin:top right;animation:popin .16s var(--ease) both}
+@keyframes popin{from{opacity:0;transform:scale(.96) translateY(-4px)}}
+.pop-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;font-weight:600}
+.pop .mi{display:flex;gap:10px;align-items:flex-start;width:100%;padding:9px 10px;border-radius:8px;border:0;background:none;text-align:left;cursor:pointer}
+.pop .mi:hover{background:var(--hover)}
+.pop .mi .ic{margin-top:1px;color:var(--muted)}
+.mi b{display:block;font-weight:500}.mi span{display:block;font-size:12px;color:var(--muted)}
+.mi.unread b::after{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:6px;vertical-align:middle}
+.pop hr{border:0;border-top:1px solid var(--rule);margin:4px 0}
+.ver{font-size:11px;color:var(--faint);padding:6px 10px}
+.linkbtn{border:0;background:none;color:var(--accent);cursor:pointer;font-size:13px;padding:0;font-weight:500}
+
+/* drawer,undo,states */
+.dw-scrim{position:fixed;inset:0;z-index:38;background:rgba(29,26,22,.32);animation:fade .18s ease both}
+.dw{position:absolute;top:0;right:0;bottom:0;width:min(480px,100vw);background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;animation:slin .26s var(--ease) both}
+@keyframes slin{from{transform:translateX(32px);opacity:0}}
+.dw-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 20px 14px;border-bottom:1px solid var(--rule)}
+.dw-h h2{font:600 20px var(--display)}.dw-h p{color:var(--muted);font-size:13px;margin-top:2px}
+.dw-b{flex:1;overflow:auto;padding:16px 20px}
+.dw-f{display:flex;flex-wrap:wrap;gap:8px;padding:14px 20px;border-top:1px solid var(--rule);justify-content:flex-end}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;margin-bottom:8px}
+.kv span{display:block;font-size:12px;color:var(--faint)}.kv b{font-weight:500;overflow-wrap:anywhere}
+.sec{font-size:12px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 6px}
+.ln{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:8px 0;border-top:1px solid var(--rule)}
+.ln small{grid-column:1;color:var(--muted);font-size:12px}
+.ln .ok{color:var(--pos);display:inline-flex;vertical-align:-3px}
+.sum{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding-top:10px;border-top:1px solid var(--border);margin-top:4px}
+.sum .tot{font:600 18px var(--display)}
+.undo{position:fixed;left:50%;bottom:24px;z-index:65;display:flex;align-items:center;gap:14px;padding:8px 8px 8px 16px;border-radius:10px;background:var(--text);color:var(--bg);font-weight:500;transform:translate(-50%,16px);opacity:0;pointer-events:none;transition:opacity .2s,transform .25s var(--ease);max-width:calc(100vw - 32px)}
+.undo.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.undo .btn{background:transparent;color:#ffb59e;border-color:rgba(255,255,255,.22)}
+.bar2{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.bar2 .sp{flex:1}
+.inp{height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);outline:none;min-width:0;transition:border-color .15s,box-shadow .15s}
+.inp:focus,.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,70,31,.12)}
+.srch{position:relative;flex:1 1 220px;max-width:340px}.srch .ic{position:absolute;left:10px;top:8px;color:var(--faint);pointer-events:none}.srch input{width:100%;padding-left:34px}
+.srch kbd{position:absolute;right:8px;top:7px;font:11px var(--font);color:var(--faint);border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+.th button{all:unset;cursor:pointer;display:inline-flex;gap:3px;align-items:center;border-radius:4px}
+.th button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.th .r button{justify-content:flex-end}
+.th .ic{width:12px;height:12px}
+.tr[tabindex]{cursor:pointer}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:12px;margin-top:6px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.pager div{display:flex;gap:6px}
+.skel{border-radius:8px;background:linear-gradient(90deg,var(--raised) 25%,var(--hover) 50%,var(--raised) 75%);background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.state{text-align:center;padding:56px 16px}.state .ic{width:28px;height:28px;margin:0 auto 10px;color:var(--faint)}.state h2{font-size:17px;margin-bottom:4px}.state p{color:var(--muted);max-width:420px;margin:0 auto 14px}
+.state.errs{background:var(--neg-bg);border-radius:var(--radius);padding:18px;text-align:left;margin:10px 0}.state.errs .ic{margin:0;color:var(--neg);display:inline-block;vertical-align:-4px}
+.err{color:var(--neg);font-size:12px}[aria-invalid="true"]{border-color:var(--neg) !important}
+.btn.danger{background:var(--neg);color:#fff;border-color:transparent}
+.btn.ghost{background:none;border-color:transparent}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{height:30px;padding:0 12px;border-radius:15px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:13px;color:var(--muted);white-space:nowrap;transition:background-color .15s,color .15s}.chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}.chip em{font-style:normal;opacity:.65;margin-left:4px}
+.modal.wide{max-width:620px}
+.modal .row2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.chk{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer}.chk input{width:16px;height:16px;accent-color:var(--accent)}.chk em{margin-left:auto;font-style:normal;color:var(--muted)}
+.hint{font-size:12px;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;background:var(--raised);border:1px solid var(--border);color:var(--muted);margin:2px 4px 0 0}
+.pill.info{background:var(--info-bg);color:var(--info)}
+.lst li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--rule)}.lst li:first-child{border-top:0}.lst li>span{min-width:0}.lst small{display:block;color:var(--muted);font-size:12px}
+
+/* floor */
+.zones{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--gap)}
+.zone{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;min-width:0}
+.zone h2{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;justify-content:space-between;gap:8px}.zone h2 span{font-weight:400;color:var(--muted);font-size:12px}
+.fp{display:grid;grid-template-columns:repeat(var(--c,4),minmax(0,1fr));gap:12px}
+.tb{min-height:104px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);padding:10px;text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;gap:4px;min-width:0;transition:transform .15s var(--ease),border-color .15s}
+.tb:hover{border-color:var(--faint)}.tb:active{transform:scale(.98)}
+.tb>div{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.tb b{font:600 19px var(--display)}.tb small{font-size:12px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb .st{font-size:12px;font-weight:600}
+.tb.free .st{color:var(--pos)}
+.tb.seated{background:#fdf0ea;border-color:#f2c3b2}.tb.seated .st{color:var(--accent)}
+.tb.bill{background:var(--warn-bg);border-color:#e9cf96}.tb.bill .st{color:var(--warn)}
+.tb.reserved{background:var(--info-bg);border-color:#c9d2ef}.tb.reserved .st{color:var(--info)}
+.tb.cleaning{background:repeating-linear-gradient(-45deg,var(--raised) 0 8px,var(--surface) 8px 16px)}.tb.cleaning .st{color:var(--muted)}
+.tb>.seats{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-start}.seats i{width:6px;height:6px;border-radius:50%;background:var(--border)}.seats i.f{background:var(--accent)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:14px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;border:1px solid var(--border)}
+
+/* POS */
+.posl{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:var(--gap);align-items:start}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;margin-top:12px}
+.pi{display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:12px;border:1px solid var(--border);background:var(--surface);cursor:pointer;text-align:left;min-width:0;transition:transform .12s var(--ease),border-color .15s}
+.pi:hover{border-color:var(--faint)}.pi:active{transform:scale(.97)}.pi[aria-disabled="true"]{opacity:.55;cursor:not-allowed}.pi[aria-disabled="true"] .thumb{filter:grayscale(1)}
+.pi .thumb{width:100%;height:auto;aspect-ratio:4 / 3;border-radius:8px}
+.pi b{font-weight:500;font-size:13px;line-height:1.25;min-height:2.5em}.pi>span{font-weight:600;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:4px}
+.pi .pill{height:18px;font-size:11px;padding:0 6px}
+.tk{padding:0;display:flex;flex-direction:column;position:sticky;top:16px;max-height:calc(100svh - 60px)}
+.tk-h{padding:16px 16px 12px;border-bottom:1px solid var(--rule)}.tk-h h2{font-size:15px;margin-bottom:10px}
+.tk-b{flex:1;overflow:auto;padding:0 16px;min-height:110px}
+.tk-f{padding:12px 16px 16px;border-top:1px solid var(--rule)}
+.tk-f .btn{flex:1}
+.tl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:10px 0;border-bottom:1px solid var(--rule);align-items:center}
+.tl>button{all:unset;cursor:pointer;min-width:0;border-radius:4px}.tl>button:focus-visible{outline:2px solid var(--accent)}
+.tl small{display:block;color:var(--accent);font-size:12px}
+.qty{display:inline-flex;align-items:center;gap:4px}.qty button{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--raised);cursor:pointer;display:grid;place-items:center}.qty b{min-width:18px;text-align:center}
+.tk .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tk select,.tk input{width:100%}
+.posbar{display:none}
+
+/* KDS */
+.kds{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;align-items:start}
+.kt{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.kt-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:var(--raised);border-bottom:1px solid var(--border)}
+.kt.warn .kt-h{background:var(--warn-bg)}.kt.late .kt-h{background:var(--accent);color:#fff}.kt.late .kt-h small{color:rgba(255,255,255,.85)}
+.kt-h b{font-size:15px}.kt-h small{display:block;font-size:12px;color:var(--muted)}.kt-h .tm{font:600 20px var(--display);white-space:nowrap}
+.ki{display:flex;gap:10px;width:100%;padding:9px 12px;border:0;border-bottom:1px solid var(--rule);background:none;text-align:left;cursor:pointer}
+.ki:hover{background:var(--hover)}.ki .n{font-weight:700;min-width:22px}.ki small{display:block;color:var(--accent);font-size:12px}.ki.done{color:var(--faint)}.ki.done>span:last-child{text-decoration:line-through}.ki.other{opacity:.45}
+.ki em{font-style:normal;font-size:11px;color:var(--faint);margin-left:6px}
+.kt-f{padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+
+/* reservations */
+.days{display:grid;grid-template-columns:repeat(7,minmax(84px,1fr));gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px}
+.dy{padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;text-align:left;min-width:0}.dy.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}.dy b{display:block}.dy small{display:block;color:var(--muted);font-size:12px}
+.avail{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
+.slot{flex:none;width:56px;padding:5px 0;border-radius:8px;text-align:center;font-size:11px;border:1px solid var(--border);background:var(--pos-bg);color:var(--pos);cursor:pointer}.slot b{display:block;font-size:13px;color:var(--text);font-weight:500}
+.slot.tight{background:var(--warn-bg);color:var(--warn)}.slot.full{background:var(--neg-bg);color:var(--neg);cursor:not-allowed}.slot.past{opacity:.4;cursor:not-allowed;background:var(--raised);color:var(--muted)}
+.tlw{overflow-x:auto;margin-top:4px}
+.tlg{display:grid;grid-template-columns:76px repeat(22,minmax(30px,1fr));min-width:820px;font-size:12px;position:relative}
+.tlg .hd{color:var(--faint);padding:4px 0 6px 4px;border-left:1px solid var(--rule)}
+.tlg .rl{padding:9px 0;font-weight:500;border-top:1px solid var(--rule);white-space:nowrap}
+.tlg .cl{border-top:1px solid var(--rule);border-left:1px solid var(--rule);min-height:38px}
+.tlg .nowl{border-left:2px solid var(--accent);z-index:1;pointer-events:none}
+.rb{position:relative;z-index:2;margin:4px 2px;border-radius:7px;padding:0 7px;height:30px;background:var(--info-bg);color:var(--info);border:1px solid #c9d2ef;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;font-size:12px;text-align:left}
+.rb.seated{background:var(--pos-bg);color:var(--pos);border-color:#b9e2c9}.rb.no-show{background:var(--neg-bg);color:var(--neg);border-color:#f2c2bd}.rb.completed{background:var(--raised);color:var(--muted);border-color:var(--border)}
+.rlist{display:none}
+
+/* shifts */
+.sgw{overflow-x:auto}
+.sg{display:grid;grid-template-columns:190px repeat(7,minmax(88px,1fr)) 76px;min-width:900px;font-size:13px}
+.sg>div{padding:5px;border-top:1px solid var(--rule);min-width:0}
+.sg .hd{color:var(--faint);font-size:12px;border-top:0}.sg .hd b{display:block;color:var(--text);font-weight:500}
+.sg .td{background:rgba(217,70,31,.05)}
+.sg .nm b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sg .nm span{font-size:12px;color:var(--muted)}
+.sc{width:100%;height:42px;border-radius:8px;border:1px dashed var(--border);background:none;cursor:pointer;font-size:12px;color:var(--faint);line-height:1.15}
+.sc b{display:block;font-weight:600;font-size:12px}
+.sc.M{background:#eaf3ec;border:1px solid #c7e0cd;color:#1e6b41}.sc.E{background:#fdf0ea;border:1px solid #f2c3b2;color:#a3361a}.sc.D{background:#efe9f8;border:1px solid #d6c9ef;color:#5a3d99}
+.sc:disabled{cursor:default;opacity:.65}
+.sg .cov{font-size:12px}.sg .cov span{display:block}
+
+/* auth */
+.auth{position:fixed;inset:0;z-index:80;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);background:var(--bg);overflow:auto}
+.auth-l{background:#1d1a16;color:#f6f3ee;padding:40px;display:flex;flex-direction:column;justify-content:space-between;gap:24px}
+.auth-l h2{font:600 34px/1.15 var(--display);letter-spacing:-.02em;max-width:440px}.auth-l p{color:#c9c2b5;max-width:420px;margin-top:12px}
+.auth-l .brand{padding:0}.auth-l .brand-sub{color:#b8b0a2}
+.auth-r{display:grid;place-items:center;padding:24px 16px}
+.auth-card{width:100%;max-width:380px}
+.auth-card h1{font:600 24px var(--display);margin-bottom:4px}.auth-card>p{color:var(--muted);margin-bottom:16px}
+.auth .tabs{display:flex}.auth .tabs button{flex:1}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin:16px 0 6px}.pin-dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--faint);transition:background-color .12s}.pin-dots i.f{background:var(--text);border-color:var(--text)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}.pad button{height:56px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-size:20px;font-weight:500;cursor:pointer;transition:transform .1s var(--ease),background-color .15s}.pad button:active{transform:scale(.96);background:var(--hover)}.pad button.fn{font-size:13px;color:var(--muted)}
+.shake{animation:shake .32s}@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.who-pick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wp{padding:8px 4px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;min-width:0}.wp span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wp small{color:var(--muted);font-size:11px}.wp.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.auth .field input{height:40px}
+
+/* receipt */
+.rcpt{font:13px/1.5 ui-monospace,"SF Mono",Menlo,Consolas,monospace;background:#fffdf8;border:1px solid var(--border);border-radius:8px;padding:18px;max-width:340px;margin:0 auto;color:#1d1a16}
+.rcpt .c{text-align:center}.rcpt .row{display:flex;justify-content:space-between;gap:10px}.rcpt hr{border:0;border-top:1px dashed #b9b2a6;margin:8px 0}.rcpt .qr{width:96px;height:96px;margin:8px auto 2px}
+.spin{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--accent);animation:spin .7s linear infinite;display:inline-block;vertical-align:-4px}@keyframes spin{to{transform:rotate(360deg)}}
+@media print{body>*:not(#scrim){display:none !important}#scrim{position:static;background:none;padding:0}.modal{border:0;max-width:none;max-height:none}.modal>*:not(.rcpt){display:none !important}.rcpt{border:0}}
+
+@media (max-width:1100px){.posl{grid-template-columns:minmax(0,1fr)}.tk{position:static;max-height:none}}
+@media (max-width:899px){
+.board{grid-template-columns:minmax(0,1fr)}
+.top{margin:-6px 0 14px}.mbrand{display:flex}.ib[data-act=help]{display:none}.clock{padding:0 10px}.clock em,.ub span.hm2,.ub>.ic{display:none}.ub{padding:0 4px}
+.zones{grid-template-columns:minmax(0,1fr)}.fp{gap:8px;grid-template-columns:repeat(2,minmax(0,1fr))}.tb{min-height:92px;padding:8px}.tb b{font-size:17px}
+.tlw{display:none}.rlist{display:block}
+.undo{bottom:84px}
+.posbar{display:flex;position:fixed;left:12px;right:12px;bottom:74px;z-index:29;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px 10px 16px;border-radius:12px;background:var(--text);color:var(--bg);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.auth{grid-template-columns:minmax(0,1fr)}.auth-l{display:none}
+.sg{grid-template-columns:136px repeat(7,minmax(84px,1fr)) 64px;min-width:820px}
+.kv{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.modal .row2{grid-template-columns:minmax(0,1fr)}
+.srch{max-width:none}.srch kbd{display:none}
+.kpis.k5{gap:18px 24px}.kpis.k5 .kpi{flex:1 1 40%}
+}
 </style>
 </head>
 <body>
@@ -65,282 +253,1110 @@
 <div class="app">
   <aside class="side">
     <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/></svg></div><div><div class="brand-name">RestOS</div><div class="brand-sub">Nordlicht · Vienna</div></div></div>
-    <nav class="nav" id="nav"></nav>
-    <div class="side-foot"><div class="avatar">KH</div><div class="who"><b>Katharina Huber</b><span>Administrator</span></div></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="side-foot" id="sidefoot"></div>
   </aside>
-  <main class="main" id="main"></main>
+  <main class="main"><div id="top"></div><div id="view"></div></main>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
 
 <script>
 /*@kit.js*/
 'use strict';
-
-/* ── data: every total is computed from the rows ───────── */
-let NOW = '14:35'; const TODAY = '28.09.2026';
-const CATS = { hot: 'Hot dishes', cold: 'Cold dishes', drinks: 'Drinks', desserts: 'Desserts', breakfast: 'Breakfast', pizza: 'Pizza & pasta', grill: 'Grill' };
-const MENU = [
-  ['Goulash Soup', 'hot', 8.5], ['Wiener Schnitzel', 'hot', 19.5], ['Mushroom Risotto', 'hot', 16.5], ['Spaghetti Bolognese', 'hot', 14.5, false], ['Tomato Soup', 'hot', 7.5], ['Bitterballen', 'hot', 1],
-  ['Caesar Salad', 'cold', 11.5], ['Caprese Salad', 'cold', 10.5], ['Burrata', 'cold', 13.5],
-  ['Green Tea', 'drinks', 3.5], ['Tea with Milk', 'drinks', 3.5], ['Orange Juice', 'drinks', 4.5], ['Strawberry Daiquiri', 'drinks', 9.5], ['Cola', 'drinks', 3.5], ['Red Wine', 'drinks', 7.5], ['Bread', 'cold', 3.5],
-  ['Chocolate Cake', 'desserts', 6.5], ['Tiramisu', 'desserts', 7.5, false],
-  ['Fried Eggs with Potatoes', 'breakfast', 10.5], ['Oatmeal', 'breakfast', 6.5],
-  ['Pizza Bianca', 'pizza', 13.5], ['Pasta Carbonara', 'pizza', 14.5],
-  ['Beef Steak', 'grill', 28.5], ['Tomahawk Steak', 'grill', 32],
-].map(([n, c, p, a = true]) => ({ n, c, p, a }));
-
-/* ── dish illustrations: flat vector, one per category, tinted per dish ─ */
-const hue = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
-const drink = (c, ice) => `<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 34 h34 l-3.4 40 h-27.2 z" fill="${c}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="${ice}" opacity=".5" transform="rotate(12 54 46)"/><rect x="62" y="56" width="9" height="9" rx="2" fill="${ice}" opacity=".4"/><path d="M68 8 l-7 38" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`;
-/* real photos (CC0, see demos/CREDITS.md) where we have a matching one; the rest fall back to the flat vector below */
-const PHOTO = { 'Caesar Salad': 'caesar', 'Pizza': 'pizza', 'Fried Eggs': 'eggs', 'Beef Steak': 'steak', 'Tomahawk Steak': 'kebab', 'Tea with Milk': 'tea', 'Strawberry Daiquiri': 'cocktail', 'Chocolate Cake': 'cake' };
-function dishArt(name, c, size = 'card') {
-  const pk = Object.keys(PHOTO).find((k) => name.startsWith(k));
-  if (pk) return `<img src="img/${PHOTO[pk]}.jpg" alt="${esc(name)}" loading="lazy" decoding="async">`;
-  const h = hue(name), bg = { hot: '#f7e3d6', cold: '#e2efd9', drinks: '#dcebf2', desserts: '#f6dfe6', breakfast: '#f8ecc9', pizza: '#f6e2cc', grill: '#ead9d0' }[c];
-  const warm = `hsl(${(h % 40) + 5} 70% 48%)`, leaf = `hsl(${95 + (h % 30)} 45% 42%)`, liq = `hsl(${[28, 12, 200, 340, 45][h % 5]} 75% 55%)`;
-  const plate = '<ellipse cx="60" cy="74" rx="46" ry="6" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#fff"/><circle cx="60" cy="48" r="27" fill="#f4f1ec"/>';
-
-  const mk = {
-    'Goulash Soup': `${plate}<circle cx="60" cy="48" r="22" fill="#a3201f"/><circle cx="60" cy="48" r="16" fill="#b92a26"/><circle cx="60" cy="47" r="6" fill="#fff6e8"/><path d="M52 56 q6 4 12 0" stroke="#7a1516" stroke-width="2.5" fill="none"/><path d="M70 36 l4 -3 M48 38 l-3 -3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
-    'Tomato Soup': `${plate}<circle cx="60" cy="48" r="22" fill="#d9731f"/><circle cx="52" cy="44" r="5" fill="#8a3b14"/><circle cx="68" cy="52" r="5" fill="#8a3b14"/><circle cx="66" cy="40" r="3" fill="#f4e2a4"/><circle cx="50" cy="56" r="3" fill="#f4e2a4"/><path d="M58 34 l4 -5 M64 60 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
-    'Spaghetti Bolognese': `${plate}<circle cx="60" cy="48" r="22" fill="#c4521f"/><path d="M42 46 q9 -10 18 0 t18 0 M44 54 q8 -8 16 0 t16 0 M48 40 q6 -6 12 0 t14 0" stroke="#f4dba0" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="68" cy="58" r="3.5" fill="#3f7a3a"/>`,
-    'Mushroom Risotto': `${plate}<path d="M32 56 q4 -30 28 -30 q24 0 28 30 q-28 10 -56 0z" fill="#e6b44a"/><path d="M44 42 l6 5 M62 36 l7 3 M54 52 l8 2 M72 48 l5 6" stroke="#d9741a" stroke-width="3.5" stroke-linecap="round"/><circle cx="58" cy="32" r="3" fill="#7a4a21"/><circle cx="68" cy="30" r="2.5" fill="#fff3d0"/>`,
-    'Bitterballen': `${plate}${[[48, 56], [64, 58], [56, 44], [72, 46]].map(([x, y]) => `<path d="M${x - 10} ${y + 4} q10 -18 20 0 q-10 4 -20 0z" fill="#f6e4c2" stroke="#e0c89a" stroke-width="2"/><path d="M${x - 4} ${y - 4} l8 0" stroke="#e0c89a" stroke-width="2" stroke-linecap="round"/>`).join('')}<circle cx="84" cy="62" r="4" fill="#fff"/>`,
-    'Wiener Schnitzel': `${plate}<path d="M36 52 q-2 -18 22 -20 q22 -2 26 14 q-4 16 -26 14 q-18 0 -22 -8z" fill="#8a4a24"/><path d="M42 46 l10 -4 M56 50 l10 -4 M62 40 l9 3" stroke="#c98a55" stroke-width="3.5" stroke-linecap="round"/><circle cx="82" cy="58" r="6" fill="#f2d78a"/><circle cx="74" cy="64" r="5" fill="#f2d78a"/><path d="M48 58 l4 3 M52 36 l3 -4" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
-    'Caesar Salad': `${plate}${[0, 70, 140, 210, 280].map((r) => `<ellipse cx="60" cy="38" rx="8" ry="13" fill="#7fbf4f" transform="rotate(${r} 60 48)"/>`).join('')}${[[52, 46], [68, 50], [60, 40], [48, 54]].map(([x, y]) => `<rect x="${x - 4}" y="${y - 4}" width="8" height="8" rx="2" fill="#e8b563" transform="rotate(${x * 3} ${x} ${y})"/>`).join('')}<path d="M62 54 l5 -3 M54 38 l4 -2" stroke="#f5efdc" stroke-width="3" stroke-linecap="round"/>`,
-    'Caprese Salad': `${plate}<path d="M36 54 q2 -26 24 -26 q22 0 24 26 q-24 8 -48 0z" fill="#f2e6c0"/>${[[48, 46], [60, 40], [70, 48], [56, 54], [66, 56]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="3" fill="${i % 2 ? '#e9753a' : '#6fae4a'}"/>`).join('')}`,
-    'Burrata': `${plate}${[[44, 50], [62, 40], [76, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="10" fill="#1f2a24"/><circle cx="${x}" cy="${y}" r="8" fill="#f8f4ea"/><circle cx="${x}" cy="${y}" r="3.5" fill="#ee6f3c"/>`).join('')}<path d="M80 36 h6" stroke="#6fae4a" stroke-width="3" stroke-linecap="round"/>`,
-    'Bread': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M24 62 q0 -30 36 -30 q36 0 36 30 q-36 8 -72 0z" fill="#d9a24f"/><path d="M42 44 l6 12 M58 40 l6 14 M74 44 l5 11" stroke="#b9772a" stroke-width="4" stroke-linecap="round"/>`,
-    'Green Tea': drink('#9bc24a', '#e8f4d0'), 'Tea with Milk': drink('#9a4a1b', '#fff'), 'Orange Juice': drink('#f09a22', '#fff'), 'Strawberry Daiquiri': drink('#c4263a', '#fff'), 'Cola': drink('#3a2418', '#fff'),
-    'Red Wine': `<ellipse cx="60" cy="78" rx="22" ry="4" fill="#000" opacity=".1"/><path d="M44 14 h32 q4 28 -16 36 q-20 -8 -16 -36z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M47 28 h26 q0 16 -13 22 q-13 -6 -13 -22z" fill="#7a1a3a"/><path d="M60 50 v22 M48 74 h24" stroke="#c9d6dc" stroke-width="3" stroke-linecap="round"/>`,
-    'Chocolate Cake': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 64 L26 36 q34 -12 68 0 L94 64 Z" fill="#e2b072"/><path d="M26 44 h68 M26 54 h68" stroke="#fff1d6" stroke-width="5"/><path d="M26 36 q34 -12 68 0" stroke="#c98a45" stroke-width="3" fill="none"/><circle cx="48" cy="26" r="4" fill="#f4c542"/><circle cx="62" cy="22" r="4" fill="#f4c542"/><circle cx="76" cy="27" r="4" fill="#f4c542"/>`,
-    'Tiramisu': `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><rect x="28" y="30" width="64" height="34" rx="4" fill="#f4e6cd"/><rect x="28" y="40" width="64" height="6" fill="#6b3a1c"/><rect x="28" y="54" width="64" height="6" fill="#6b3a1c"/><path d="M28 30 h64 v6 h-64z" fill="#4a2814"/>`,
-    'Fried Eggs': `${plate}<path d="M38 52 q-6 -16 10 -22 q16 -8 28 4 q10 12 -2 22 q-14 12 -36 -4z" fill="#fffdf8" stroke="#eee4d0" stroke-width="2"/><circle cx="58" cy="44" r="10" fill="#f4b81f"/><circle cx="55" cy="41" r="3" fill="#fff" opacity=".6"/><path d="M70 62 q8 -10 14 -2 t-2 12" stroke="#b9432c" stroke-width="5" fill="none" stroke-linecap="round"/>`,
-  };
-  const key = Object.keys(mk).find((k) => name.startsWith(k));
-  const art = key ? mk[key] : {
-    hot: `${plate}<ellipse cx="60" cy="48" rx="22" ry="21" fill="${warm}"/><path d="M42 44 q9 -8 18 0 t18 0" stroke="#fff3df" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".9"/><circle cx="52" cy="54" r="3" fill="#fff3df"/><circle cx="68" cy="40" r="3" fill="${leaf}"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
-    cold: `${plate}${[0, 60, 120, 180, 240, 300].map((r, i) => `<ellipse cx="60" cy="38" rx="7" ry="14" fill="${i % 2 ? leaf : `hsl(${100 + (h % 20)} 50% 50%)`}" transform="rotate(${r} 60 48)"/>`).join('')}<circle cx="52" cy="46" r="5" fill="#d8402c"/><circle cx="68" cy="52" r="5" fill="#d8402c"/><circle cx="62" cy="40" r="3.5" fill="#f2d36b"/>`,
-    drinks: `<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 36 h34 l-3.4 38 h-27.2 z" fill="${liq}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="#fff" opacity=".55" transform="rotate(12 54 46)"/><rect x="62" y="54" width="9" height="9" rx="2" fill="#fff" opacity=".45" transform="rotate(-10 66 58)"/><path d="M66 8 l-6 40" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`,
-    desserts: `<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 66 L26 40 L94 40 L94 66 Z" fill="#e7c08a"/><path d="M26 54 h68" stroke="#f9e7c8" stroke-width="5"/><path d="M26 40 q34 -22 68 0 z" fill="${`hsl(${340 + (h % 20)} 55% 62%)`}"/><circle cx="60" cy="25" r="6" fill="#c8302f"/><path d="M60 19 q2 -7 7 -9" stroke="#3f7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
-    breakfast: `${plate}<path d="M38 52 q-6 -16 10 -22 q16 -8 28 4 q10 12 -2 22 q-14 12 -36 -4z" fill="#fffdf8" stroke="#eee4d0" stroke-width="2"/><circle cx="58" cy="44" r="10" fill="#f4b81f"/><circle cx="55" cy="41" r="3" fill="#fff" opacity=".6"/><path d="M70 62 q8 -10 14 -2 t-2 12" stroke="#b9432c" stroke-width="5" fill="none" stroke-linecap="round"/>`,
-    pizza: /Pasta/.test(name) ? `${plate}<path d="M40 52 q10 -20 20 -2 q10 -18 20 2 q-10 16 -20 0 q-10 16 -20 0z" fill="#f3d58b"/><path d="M44 50 q8 -10 16 0 t16 0" stroke="#e3b95a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="60" cy="46" r="6" fill="#fff6dc"/><circle cx="52" cy="42" r="2" fill="#6b4a2b"/><circle cx="68" cy="52" r="2" fill="#6b4a2b"/>`
-      : `<ellipse cx="60" cy="76" rx="44" ry="5" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#e7b872"/><circle cx="60" cy="48" r="28" fill="#d8402c"/><circle cx="60" cy="48" r="26" fill="#f6e7b8" opacity=".9"/>${[[50, 38], [68, 40], [60, 56], [46, 54], [72, 54]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="#b83a28"/>`).join('')}<path d="M56 30 l4 -4 4 4 M50 62 l4 -3 M70 46 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round" fill="none"/>`,
-    grill: `${plate}<path d="M36 52 q-4 -16 14 -20 q26 -6 34 8 q6 14 -10 20 q-26 8 -38 -8z" fill="${`hsl(${15 + (h % 12)} 50% 30%)`}"/><path d="M48 36 l12 20 M58 33 l12 20 M68 34 l10 16" stroke="#2a150c" stroke-width="3" stroke-linecap="round" opacity=".55"/><circle cx="78" cy="62" r="5" fill="${leaf}"/><circle cx="86" cy="58" r="3.5" fill="#d8402c"/>`,
-  }[c];
-  return `<svg viewBox="0 0 120 ${c === 'drinks' || c === 'desserts' ? 90 : 86}" aria-hidden="true"><rect width="120" height="90" fill="${bg}"/>${art}</svg>`;
-}
-const price = (n) => MENU.find((m) => m.n === n).p;
-const cat = (n) => MENU.find((m) => m.n === n).c;
-const O = (id, table, type, guest, items, status, time) => ({ id, table, type, guest, items: items.map(([n, q]) => ({ n, q, p: price(n) })), status, time });
-const S = {
-  orders: [
-    O('#1042', 'Table 5', 'Dine-in', 'Sophie M.', [['Goulash Soup', 1], ['Bread', 2], ['Green Tea', 1]], 'new', '14:23'),
-    O('#1041', 'Table 2', 'Dine-in', 'Elena R.', [['Wiener Schnitzel', 2], ['Orange Juice', 2]], 'cooking', '14:18'),
-    O('#1040', 'Delivery', 'Delivery', 'Jan v. D.', [['Mushroom Risotto', 1], ['Spaghetti Bolognese', 1], ['Strawberry Daiquiri', 2]], 'confirm', '14:10'),
-    O('#1039', 'Table 8', 'Dine-in', 'Anna B.', [['Caesar Salad', 1], ['Beef Steak', 1], ['Red Wine', 1]], 'ready', '13:55'),
-    O('#1038', 'Table 1', 'Dine-in', 'Lukas G.', [['Pizza Bianca', 2], ['Cola', 2]], 'done', '13:40'),
-    O('#1037', 'Delivery', 'Delivery', 'Katarzyna N.', [['Burrata', 2]], 'done', '13:20'),
-    O('#1036', 'Table 4', 'Dine-in', 'Matthias W.', [['Tomato Soup', 1], ['Bitterballen', 10], ['Tea with Milk', 2]], 'cooking', '13:15'),
-    O('#1035', 'Table 7', 'Dine-in', 'Pieter V.', [['Pasta Carbonara', 2]], 'confirm', '13:05'),
-    O('#1034', 'Table 3', 'Dine-in', 'Tomas H.', [['Caprese Salad', 1], ['Tomahawk Steak', 1]], 'done', '12:50'),
-    O('#1033', 'Table 6', 'Dine-in', 'Ingrid O.', [['Chocolate Cake', 1]], 'cancel', '12:30'),
-  ],
-  menu: MENU,
-  guests: [
-    ['Lukas Gruber', '+43 664 123 4567', 42, 2480, '26.09.2026', 'vip'], ['Sophie Müller', '+49 151 234 5678', 28, 1190, '25.09.2026', 'vip'],
-    ['Pieter de Vries', '+31 6 1234 5678', 18, 840, '24.09.2026', 'regular'], ['Elena Rossi', '+43 660 987 6543', 15, 610, '27.09.2026', 'regular'],
-    ['Katarzyna Nowak', '+49 170 345 6789', 9, 370, '22.09.2026', 'regular'], ['Jan van Dijk', '+31 6 2345 6789', 6, 240, '28.09.2026', 'regular'],
-    ['Anna Berger', '+43 676 456 7890', 2, 95, '28.09.2026', 'new'], ['Matthias Weber', '+49 160 567 8901', 1, 48, '28.09.2026', 'new'],
-  ].map(([name, phone, visits, spent, last, lvl]) => ({ name, phone, visits, spent, last, lvl })),
-  staff: [
-    ['Katharina Huber', 'Administrator', true, 4.8, 22], ['Marco Bianchi', 'Cook', true, 4.9, 20], ['Lena Hoffmann', 'Waiter', false, 4.5, 17],
-    ['Thomas Bakker', 'Waiter', true, 4.6, 19], ['Sofia Lindqvist', 'Bartender', false, 4.7, 15], ['Johan Vermeulen', 'Cashier', true, 4.3, 21],
-  ].map(([name, role, on, rating, shifts]) => ({ name, role, on, rating, shifts })),
-  days: [['Tue', '22.09', 620], ['Wed', '23.09', 500], ['Thu', '24.09', 730], ['Fri', '25.09', 790], ['Sat', '26.09', 820], ['Sun', '27.09', 670]],
-  expenses: [['28.09.2026', 'Groceries', 275], ['27.09.2026', 'Payroll', 390], ['26.09.2026', 'Write-offs', 70], ['25.09.2026', 'Rent', 1290], ['24.09.2026', 'Groceries', 350], ['23.09.2026', 'Utilities', 330]],
-  month30: [420, 460, 490, 450, 520, 540, 590, 520, 570, 600, 640, 590, 660, 700, 740, 620, 680, 710, 760, 650, 720, 770, 800, 690, 620, 500, 730, 790, 820, 670],
-};
-const SM = { new: ['New', ''], confirm: ['Accepted', ''], cooking: ['Cooking', 'warn'], ready: ['Ready', 'pos'], done: ['Served', ''], cancel: ['Cancelled', 'neg'] };
-const NEXT = { new: ['confirm', 'Accept'], confirm: ['cooking', 'To kitchen'], cooking: ['ready', 'Ready'], ready: ['done', 'Serve'] };
-const total = (o) => o.items.reduce((s, i) => s + i.p * i.q, 0);
-const live = () => S.orders.filter((o) => o.status !== 'cancel');
-const revenueToday = () => live().reduce((s, o) => s + total(o), 0);
-const mins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-const wait = (o) => mins(NOW) - mins(o.time);
-const tg = (n) => '€' + fmtD(n, 2);
-const week = () => S.days.reduce((s, d) => s + d[2], 0) + revenueToday();
-console.assert(revenueToday() === 321.5 && S.orders.length === 10, 'orders total'); // 19 + 48 + 50 + 47.5 + 34 + 27 + 24.5 + 29 + 42.5 = 321.5 (cancelled #1033 excluded)
-
-/* ── shell ────────────────────────────────────────────── */
-const PAGES = { dashboard: ['Dashboard', 'home'], orders: ['Orders', 'bag'], menu: ['Menu', 'utensils'], guests: ['Guests', 'users'], staff: ['Staff', 'calendar'], finance: ['Finance', 'coin'], analytics: ['Analytics', 'chart'] };
-let page = 'dashboard', ordFilter = 'all', guestQ = '', guestL = 'all';
-const newCount = () => S.orders.filter((o) => o.status === 'new').length;
-
-function chrome() {
-  const n = newCount();
-  const item = (k, extra = '') => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${extra}</a>`;
-  $('#nav').innerHTML = item('dashboard') + item('orders', n ? `<span class="count" title="New orders">${n}</span>` : '') + item('menu') + `<div class="nav-label">People</div>` + item('guests') + item('staff') + `<div class="nav-label">Money</div>` + item('finance') + item('analytics');
-  const tabs = ['dashboard', 'orders', 'menu', 'guests', 'finance'];
-  $('#tabbar').innerHTML = tabs.map((k) => `<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${k === 'orders' && n ? `<b class="count">${n}</b>` : ''}</a>`).join('');
-  setNav(page);
-}
-function render() { chrome(); $('#main').innerHTML = ({ dashboard, orders, menu, guests, staff, finance, analytics })[page](); mount(); }
-function go(p) { page = p; render(); window.scrollTo(0, 0); }
-document.addEventListener('click', (e) => {
-  const a = e.target.closest('[data-page]'); if (a) return go(a.dataset.page);
-  const adv = e.target.closest('[data-adv]'); if (adv) return advance(adv.dataset.adv);
-  const op = e.target.closest('[data-order]'); if (op && !e.target.closest('button')) return openOrder(op.dataset.order);
-  const f = e.target.closest('[data-filter]'); if (f) { ordFilter = f.dataset.filter; return render(); }
-  const sw = e.target.closest('[data-dish]'); if (sw) { const d = S.menu[+sw.dataset.dish]; d.a = !d.a; toast(d.a ? `${d.n} back on the menu` : `${d.n} added to stop-list`); return render(); }
-  const act = e.target.closest('[data-act]'); if (act) ACT[act.dataset.act](act.dataset);
+Object.assign(ICONS,{
+help:'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9.2a2.6 2.6 0 015 .6c0 1.7-2.5 2.1-2.5 3.7M12 17h.01',
+out:'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10',
+print:'M7 8V3h10v5M6 17H4v-7h16v7h-2M7 14h10v7H7z',
+down2:'M12 4v11M7 10l5 5 5-5M5 20h14',
+minus:'M5 12h14',
+pct:'M6 18L18 6M7.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM16.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z',
 });
-document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); go(e.target.dataset.page); } });
-document.addEventListener('input', (e) => { if (e.target.id === 'g-q') { guestQ = e.target.value.toLowerCase(); const p = e.target.selectionStart; render(); const i = $('#g-q'); i.focus(); i.setSelectionRange(p, p); } });
-document.addEventListener('change', (e) => { if (e.target.id === 'g-l') { guestL = e.target.value; render(); } });
+const VERSION='RestOS 4.12.0';
 
-const head = (t, sub, actions = '') => `<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
-const pill = (s) => `<span class="pill ${SM[s][1]}"><i></i>${SM[s][0]}</span>`;
+/* utilities */
+const rng=(s)=>()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s ^ s>>>15,1|s);t=t+Math.imul(t ^ t>>>7,61|t)^ t;return((t ^ t>>>14)>>>0)/4294967296;};
+let R=rng(20261107);
+const ri=(a,b)=>a+Math.floor(R()*(b-a+1)),pk=(a)=>a[Math.floor(R()*a.length)];
+const r2=(n)=>Math.round(n*100)/100;
+const eur=(n)=>(n<-0.004?MINUS:'')+'€'+fmtD(Math.abs(n),2);
+const pl=(n,one,many=one+'s')=>`${fmt(n)} ${n===1?one:many}`;
+const hm=(m)=>{m=Math.floor(m);return String(Math.floor(m/60)% 24).padStart(2,'0')+':'+String(m % 60).padStart(2,'0');};
+const RTF=new Intl.RelativeTimeFormat('en-GB',{numeric:'auto'});
+let NOW=19*60+42;
+const ago=(t)=>{const d=Math.floor(NOW-t);if(d<1)return 'just now';if(d<60)return RTF.format(-d,'minute');return RTF.format(-Math.floor(d/60),'hour');};
+const day=(o)=>new Date(2026,10,7+o);
+const DF=new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'numeric',month:'short'});
+const DFL=new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const DFS=new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric'});
+const dago=(n)=>n<7?(n===0?'today':RTF.format(-n,'day')):DFS.format(day(-n));
+const ini=(n)=>{const w=n.trim().split(/\s+/).filter((x)=>x[0]===x[0].toUpperCase());return((w[0]||'?')[0]+(w.length>1?w[w.length-1][0]:'')).toUpperCase();};
+const short=(n)=>{const w=n.split(' ');return w[0]+' '+w[w.length-1][0]+'.';};
+const sum=(a,f)=>r2(a.reduce((s,x)=>s+f(x),0));
 
-function advance(id) {
-  const o = S.orders.find((x) => x.id === id), [next] = NEXT[o.status];
-  o.status = next; toast(`${o.id} · ${SM[next][0]}`); render();
-}
-
-/* ── dashboard: the live board ────────────────────────── */
-function ticket(o) {
-  const w = wait(o), late = o.status !== 'ready' && w >= 12;
-  const nx = NEXT[o.status];
-  return `<article class="ticket${late ? ' late' : ''}${o.id === FRESH ? ' fresh' : ''}" data-order="${o.id}" style="cursor:pointer">
-    <div class="t-top"><span class="tt"><span class="thumb">${dishArt(o.items[0].n, cat(o.items[0].n))}</span><b>${esc(o.table)} <span>${o.id}</span></b></span><span class="${late ? 'late' : ''}">${w} min</span></div>
-    <ul class="t-items">${o.items.slice(0, 3).map((i) => `<li><span>${esc(i.n)}${i.q > 1 ? ' × ' + i.q : ''}</span></li>`).join('')}${o.items.length > 3 ? `<li><span>+${o.items.length - 3} more</span></li>` : ''}</ul>
-    <div class="t-foot"><b>${tg(total(o))}</b><button class="btn sm ${o.status === 'new' ? 'primary' : ''}" data-adv="${o.id}">${nx[1]}</button></div></article>`;
-}
-function dashboard() {
-  const col = (title, sts) => { const l = S.orders.filter((o) => sts.includes(o.status)).sort((a, b) => mins(a.time) - mins(b.time)); return `<section><div class="col-h"><h2>${title}</h2><span>${l.length}</span></div><div class="tickets">${l.length ? l.map(ticket).join('') : '<div class="none">Empty</div>'}</div></section>`; };
-  const waiting = S.orders.filter((o) => o.status === 'new').sort((a, b) => mins(a.time) - mins(b.time))[0];
-  const stop = S.menu.filter((m) => !m.a).map((m) => m.n);
-  const conflict = S.orders.filter((o) => !['done', 'cancel'].includes(o.status) && o.items.some((i) => stop.includes(i.n)))[0];
-  const avg = revenueToday() / live().length;
-  const finding = conflict ? `<div class="finding">${ic('alert')}<span>Order ${conflict.id} includes “${esc(conflict.items.find((i) => stop.includes(i.n)).n)}”, which is on the stop-list. Call the guest before sending it to the kitchen.</span><button class="btn sm" data-order="${conflict.id}">Open order</button></div>`
-    : waiting && wait(waiting) >= 10 ? `<div class="finding">${ic('clock')}<span>${esc(waiting.table)} has waited ${wait(waiting)} min: order ${waiting.id} is not accepted yet.</span><button class="btn sm primary" data-adv="${waiting.id}">Accept</button></div>` : '';
-  return head('Dashboard', `${TODAY} · <span class="liveclock"><i></i>${NOW}, shift in progress</span>`, `<button class="btn primary" data-act="newOrder">${ic('plus')}New order</button>`) + finding +
-    `<div class="kpis"><div class="kpi"><b>€${fmt(revenueToday())}</b><span>Revenue today as of ${NOW}</span></div>
-      <div class="kpi"><b>${live().length}</b><span>Orders, ${S.orders.length - live().length} cancelled</span></div>
-      <div class="kpi"><b>€${fmt(avg)}</b><span>Average check</span></div>
-      <div class="kpi"><b>${S.orders.filter((o) => o.status === 'done').length}</b><span>Served to guests</span></div></div>
-    <div class="board">${col('New', ['new', 'confirm'])}${col('In the kitchen', ['cooking'])}${col('Ready to serve', ['ready'])}</div>`;
-}
-
-function orders() {
-  const f = ordFilter;
-  const list = S.orders.filter((o) => f === 'all' || o.status === f);
-  const tab = (k, t) => `<button data-filter="${k}" class="${f === k ? 'on' : ''}">${t}</button>`;
-  return head('Orders', `${S.orders.length} today · ${tg(revenueToday())}`, `<button class="btn primary" data-act="newOrder">${ic('plus')}New order</button>`) +
-    `<div class="tabs">${tab('all', 'All')}${tab('new', 'New')}${tab('cooking', 'In kitchen')}${tab('ready', 'Ready')}${tab('done', 'Served')}${tab('cancel', 'Cancelled')}</div>
-    <div class="card">${list.length ? `<div class="tbl" style="--cols:70px 1.2fr 1fr 70px 110px 100px;--colsm:60px 1fr 90px">
-      <div class="tr th"><span>№</span><span>Table & guest</span><span class="hm">Items</span><span class="hm r">Time</span><span class="r">Total</span><span class="r hm">Status</span></div>
-      ${list.map((o) => `<div class="tr" data-order="${o.id}" data-open style="cursor:pointer"><span class="muted">${o.id}</span><span class="cell-main"><b>${esc(o.table)}</b><span>${esc(o.guest)}</span></span><span class="hm muted">${esc(o.items.map((i) => i.n).slice(0, 2).join(', '))}${o.items.length > 2 ? '…' : ''}</span><span class="hm r muted">${o.time}</span><span class="r">${tg(total(o))}</span><span class="r hm">${pill(o.status)}</span></div>`).join('')}</div>` : '<div class="empty">No orders with this status.</div>'}</div>`;
-}
-
-function menu() {
-  const stop = S.menu.filter((m) => !m.a).length;
-  return head('Menu', `${S.menu.length} items · ${stop ? stop + ' on stop-list' : 'stop-list empty'}`, `<button class="btn primary" data-act="newDish">${ic('plus')}New dish</button>`) +
-    Object.entries(CATS).map(([k, name]) => { const items = S.menu.map((m, i) => ({ ...m, i })).filter((m) => m.c === k); if (!items.length) return ''; return `<section class="menu-grp"><h2>${name}</h2><div class="dgrid">${items.map((m) => `<article class="dcard ${m.a ? '' : 'off'}"><span class="dart">${dishArt(m.n, m.c)}</span><div class="dbody"><b>${esc(m.n)}</b><div class="dfoot"><span>${tg(m.p)}</span><button class="sw" data-dish="${m.i}" aria-pressed="${m.a}" aria-label="${esc(m.n)}: ${m.a ? 'on menu' : 'on stop-list'}"></button></div></div></article>`).join('')}</div></section>`; }).join('');
-}
-
-function guests() {
-  const l = S.guests.filter((g) => (!guestQ || g.name.toLowerCase().includes(guestQ) || g.phone.includes(guestQ)) && (guestL === 'all' || g.lvl === guestL));
-  const LV = { vip: ['VIP', 'warn'], regular: ['Regular', ''], new: ['New', 'pos'] };
-  return head('Guests', `${S.guests.length} in database · points: 1 per €1`) +
-    `<div class="filters"><input id="g-q" type="search" placeholder="Name or phone" value="${esc(guestQ)}" aria-label="Search"><select id="g-l" aria-label="Level"><option value="all">All levels</option>${Object.entries(LV).map(([k, v]) => `<option value="${k}" ${guestL === k ? 'selected' : ''}>${v[0]}</option>`).join('')}</select></div>
-    <div class="card">${l.length ? `<div class="tbl" style="--cols:1.4fr 150px 70px 110px 80px 110px;--colsm:1.4fr 90px"><div class="tr th"><span>Guest</span><span class="hm">Phone</span><span class="hm r">Visits</span><span class="hm r">Spent</span><span class="hm r">Points</span><span class="r">Level</span></div>
-      ${l.map((g) => `<div class="tr"><span class="cell-main"><b>${esc(g.name)}</b><span>last visit ${g.last}</span></span><span class="hm muted">${esc(g.phone)}</span><span class="hm r">${g.visits}</span><span class="hm r">${tg(g.spent)}</span><span class="hm r">${fmt(g.spent)}</span><span class="r"><span class="pill ${LV[g.lvl][1]}">${LV[g.lvl][0]}</span></span></div>`).join('')}</div>` : '<div class="empty">No guests found. Try a different name.</div>'}</div>`;
-}
-
-function staff() {
-  const on = S.staff.filter((s) => s.on).length;
-  return head('Staff', `${on} of ${S.staff.length} on shift now`) +
-    `<div class="card"><div class="tbl" style="--cols:1.4fr 1fr 120px 110px 90px;--colsm:1.3fr 110px"><div class="tr th"><span>Employee</span><span class="hm">Role</span><span class="hm">Shift</span><span class="hm r">Rating</span><span class="r">Status</span></div>
-    ${S.staff.map((s) => `<div class="tr"><span class="cell-main"><b>${esc(s.name)}</b><span>${s.shifts} shifts in September</span></span><span class="hm">${s.role}</span><span class="hm muted">${s.on ? '10:00–22:00' : 'day off'}</span><span class="hm r"><span class="stars">${'★'.repeat(Math.round(s.rating))}</span> ${fmtD(s.rating)}</span><span class="r"><span class="pill ${s.on ? 'pos' : ''}"><i></i>${s.on ? 'On shift' : 'Off shift'}</span></span></div>`).join('')}</div></div>`;
-}
-
-function finance() {
-  const exp = S.expenses.reduce((s, e) => s + e[2], 0), rev = week();
-  const rows = [...S.days.map((d) => [d[1] + '.2026', 'Revenue', 'Dine-in & delivery', d[2]]), [TODAY, 'Revenue', `Dine-in & delivery (as of ${NOW})`, revenueToday()], ...S.expenses.map((e) => [e[0], 'Expense', e[1], -e[2]])]
-    .sort((a, b) => b[0].split('.').reverse().join('').localeCompare(a[0].split('.').reverse().join('')));
-  return head('Finance', '22–28 September 2026 · prices include VAT') +
-    `<div class="kpis"><div class="kpi"><b>€${fmt(rev)}</b><span>Revenue, 7 days</span></div><div class="kpi"><b>€${fmt(exp)}</b><span>Expenses</span></div><div class="kpi"><b class="${rev - exp >= 0 ? 'pos' : 'neg'}">€${signed(rev - exp)}</b><span>Net result (${Math.round(((rev - exp) / rev) * 100)}% of revenue)</span></div></div>
-    <div class="card"><div class="tbl" style="--cols:110px 1fr 1.2fr 140px;--colsm:90px 1fr 100px"><div class="tr th"><span>Date</span><span>Type</span><span class="hm">Category</span><span class="r">Total</span></div>
-    ${rows.map((r) => `<div class="tr"><span class="muted">${r[0].slice(0, 5)}</span><span>${r[1]}</span><span class="hm muted">${esc(r[2])}</span><span class="r ${r[3] > 0 ? 'pos' : ''}">${signed(r[3], (v) => '€' + fmtD(v, 2))}</span></div>`).join('')}</div></div>`;
-}
-
-function analytics() {
-  const byCat = {}; live().forEach((o) => o.items.forEach((i) => { byCat[cat(i.n)] = (byCat[cat(i.n)] || 0) + i.p * i.q; }));
-  const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]), t = rows.reduce((s, r) => s + r[1], 0);
-  const best = S.days.reduce((a, b) => (b[2] > a[2] ? b : a));
-  return head('Analytics', 'Revenue and sales mix') +
-    `<div class="kpis"><div class="kpi"><b>€${fmt(best[2])}</b><span>Best day of the week: ${best[0]}, ${best[1]}</span></div><div class="kpi"><b>€${fmt(rows.length ? t / live().length : 0)}</b><span>Average check today</span></div></div>
-    <div class="grid"><section class="card c7"><div class="card-h"><h2>Daily revenue, €</h2><span>today — as of ${NOW}</span></div><div id="ch-days"></div></section>
-    <section class="card c5"><div class="card-h"><h2>Sales mix today</h2><span>share of revenue</span></div>${rows.map(([k, v]) => barRow(CATS[k], (v / t) * 100, Math.round((v / t) * 100) + '%', tg(v))).join('')}</section>
-    <section class="card c12"><div class="card-h"><h2>30-day revenue, €</h2></div><div id="ch-30"></div></section></div>`;
-}
-function mount() {
-  const a = $('#ch-days'); if (a) { const labels = [...S.days.map((d) => d[0]), 'Mon'], vals = [...S.days.map((d) => d[2]), revenueToday()]; chart(a, (w) => barsSVG(w, { labels, values: vals, fmtV: (v) => fmtD(v, v % 1 ? 1 : 0), unit: '€' })); }
-  const b = $('#ch-30'); if (b) { const v = S.month30, labels = v.map((_, i) => i + 1 + ''); chart(b, (w) => lineSVG(w, { labels, values: v, xAt: [0, 7, 14, 21, 29], fmtV: (x) => fmtD(x, x % 1 ? 1 : 0) })); }
-}
-
-/* ── actions ──────────────────────────────────────────── */
-const ACT = {
-  newOrder() {
-    const avail = S.menu.filter((m) => m.a);
-    modal(`<h2>New order</h2><p>It will appear in the “New” column.</p>
-      <div class="field"><label>Table</label><select id="o-t">${[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `<option>Table ${n}</option>`).join('')}<option>Delivery</option></select></div>
-      <div class="field"><label>Dish</label><select id="o-d">${avail.map((m) => `<option>${esc(m.n)} · ${tg(m.p)}</option>`).join('')}</select></div>
-      <div class="field"><label>Quantity</label><input id="o-q" type="number" min="1" max="20" value="1"></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="o-ok">Create</button></div>`, () => {
-      $('#o-ok').onclick = () => {
-        const name = $('#o-d').value.split(' · ')[0], q = Math.max(1, +$('#o-q').value || 1), t = $('#o-t').value;
-        S.orders.unshift(O('#' + (1043 + S.orders.length - 10), t, t === 'Delivery' ? 'Delivery' : 'Dine-in', 'Guest', [[name, q]], 'new', NOW));
-        closeModal(); toast('Order created'); render();
-      };
-    });
-  },
-  newDish() {
-    modal(`<h2>New dish</h2><p>It will appear on the menu right away.</p><div class="field"><label>Name</label><input id="d-n" placeholder="E.g. Apple Strudel"></div>
-      <div class="field"><label>Category</label><select id="d-c">${Object.entries(CATS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div><div class="field"><label>Price, €</label><input id="d-p" type="number" min="0" step="0.5" value="10"></div>
-      <div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" id="d-ok">Add</button></div>`, () => {
-      $('#d-ok').onclick = () => { const n = $('#d-n').value.trim(); if (!n) { $('#d-n').focus(); return; } S.menu.push({ n, c: $('#d-c').value, p: +$('#d-p').value || 0, a: true }); closeModal(); toast(`${n} added to the menu`); render(); };
-    });
-  },
+/* reference data */
+const CATS={hot:'Hot dishes',cold:'Starters & salads',pizza:'Pizza & pasta',grill:'Grill',breakfast:'Breakfast',desserts:'Desserts',drinks:'Drinks'};
+const STN={hot:'hot',pizza:'hot',grill:'grill',cold:'cold',breakfast:'cold',desserts:'pastry',drinks:'bar'};
+const STATIONS={hot:'Hot line',grill:'Grill',cold:'Cold & pantry',pastry:'Pastry',bar:'Bar'};
+const DONENESS=['Rare','Medium rare','Medium','Well done'];
+const MODS={
+hot:[['No onions',0],['Extra portion',4],['Gluten-free',0],['Side salad',3.5]],grill:[['Pepper sauce',2.5],['Fries',4],['Grilled vegetables',4.5]],
+cold:[['Dressing on the side',0],['Add grilled chicken',4.5],['No croutons',0]],breakfast:[['Extra egg',1.5],['Toast',2]],
+pizza:[['Extra cheese',2],['Gluten-free base',3],['Chilli oil',0]],desserts:[['Whipped cream',1],['Vanilla ice cream',2.5]],drinks:[['No ice',0],['Oat milk',.5],['Double',2.5]],
 };
-function openOrder(id) {
-  const o = S.orders.find((x) => x.id === id), stop = S.menu.filter((m) => !m.a).map((m) => m.n), nx = NEXT[o.status];
-  modal(`<h2>${o.id} · ${esc(o.table)}</h2><p>${esc(o.guest)} · accepted at ${o.time} · ${pill(o.status)}</p>
-    ${o.items.map((i) => `<div class="trip" style="grid-template-columns:1fr auto;padding:8px 0;display:grid"><span>${esc(i.n)} × ${i.q}${stop.includes(i.n) ? ' <span class="pill neg">on stop-list</span>' : ''}</span><b>${tg(i.p * i.q)}</b></div>`).join('')}
-    <div class="trip" style="grid-template-columns:1fr auto;display:grid;border-top:1px solid var(--border);margin-top:6px;padding-top:12px"><b>Total</b><b>${tg(total(o))}</b></div>
-    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button>${nx ? `<button class="btn primary" id="adv">${nx[1]}</button>` : ''}${nx && o.status !== 'ready' ? '' : ''}</div>`, () => { const b = $('#adv'); if (b) b.onclick = () => { closeModal(); advance(id); }; });
+const INV={},SUP=['Wiener Fleischhof','Marchfeld Gemüse','Alpenmilch Genossenschaft','Bäckerei Moser','Feinkost Lindner','Rösterei Kaiser','Weingut Brandl','Getränke Lechner'];
+[['veal','Veal escalope','kg',3.2,2.5,29,0],['beef','Beef sirloin','kg',5.8,4,34,0],['tbone','Tomahawk cuts','pcs',3,4,24,0],
+['mince','Beef mince','kg',2.5,2,12,0],['panc','Pancetta','kg',1.6,1.5,18,0],['pot','Potatoes','kg',18,10,1.1,1],
+['tom','Tomatoes','kg',9,5,2.8,1],['mush','Mushrooms','kg',2.1,2,7.5,1],['rom','Romaine lettuce','pcs',14,8,1.2,1],
+['apple','Apples','kg',8,4,2.2,1],['oj','Oranges','kg',6,5,1.8,1],['straw','Strawberries','kg',1.2,1,8,1],
+['moz','Mozzarella','kg',3.4,2,11,2],['bur','Burrata','pcs',6,8,3.9,2],['masc','Mascarpone','kg',0,1.5,9.8,2],
+['butter','Butter','kg',4,3,8.5,2],['cream','Cream','l',6,4,3.2,2],['milk','Milk','l',16,10,1.1,2],
+['egg','Eggs','pcs',120,60,.28,2],['flour','Flour','kg',22,10,.9,3],['bread','Sourdough loaves','pcs',9,6,3.4,3],
+['rice','Arborio rice','kg',4.5,3,4.2,4],['pasta','Spaghetti','kg',7,4,2.4,4],['oats','Oats','kg',3,2,2,4],
+['choc','Dark chocolate','kg',1.8,1,14,4],['coffee','Espresso beans','kg',3.2,2,24,5],['tea','Tea leaves','kg',.8,.5,32,5],
+['wine','Zweigelt (red)','btl',14,12,9.5,6],['gv','Grüner Veltliner','btl',18,12,8.2,6],['beer','Lager (keg)','l',42,30,2.1,7],
+['rum','White rum','btl',2,2,16,7],['cola','Cola 0.33 l','pcs',48,24,.6,7],
+].forEach(([id,n,u,q,min,cost,sup])=>{INV[id]={id,n,u,q,min,cost,sup:SUP[sup]};});
+const MENU=[
+['Goulash Soup','hot',8.5,'beef:.08,pot:.1'],['Wiener Schnitzel','hot',19.5,'veal:.18,flour:.03,egg:1,pot:.2'],['Tafelspitz','hot',22.5,'beef:.25,pot:.2'],
+['Käsespätzle','hot',14.5,'flour:.12,egg:2,butter:.03'],['Mushroom Risotto','hot',16.5,'rice:.09,mush:.12,butter:.02,cream:.05'],['Spaghetti Bolognese','hot',14.5,'pasta:.12,mince:.12,tom:.1',false],
+['Tomato Soup','hot',7.5,'tom:.25,cream:.03'],['Bitterballen, 6 pcs','hot',7.5,'beef:.06,flour:.03'],
+['Caesar Salad','cold',11.5,'rom:1,egg:1,bread:.1'],['Caprese Salad','cold',10.5,'tom:.2,moz:.12'],['Burrata','cold',13.5,'bur:1,tom:.15'],['Bread basket','cold',3.5,'bread:.25'],
+['Fried Eggs with Potatoes','breakfast',10.5,'egg:3,pot:.2'],['Oatmeal with Berries','breakfast',6.5,'oats:.08,milk:.2,straw:.03'],
+['Pizza Bianca','pizza',13.5,'flour:.2,moz:.15'],['Pizza Margherita','pizza',12.5,'flour:.2,moz:.12,tom:.1'],['Pasta Carbonara','pizza',14.5,'pasta:.12,panc:.08,egg:2'],
+['Beef Steak','grill',28.5,'beef:.3,pot:.15'],['Tomahawk Steak for two','grill',54,'tbone:1,pot:.3'],
+['Chocolate Cake','desserts',6.5,'choc:.05,flour:.04,egg:1,butter:.03'],['Sachertorte','desserts',7.5,'choc:.06,flour:.03,egg:1'],['Apple Strudel','desserts',6.9,'apple:.15,flour:.05,butter:.02'],
+['Tiramisu','desserts',7.5,'masc:.1,coffee:.01,egg:1'],['Kaiserschmarrn','desserts',9.5,'flour:.08,egg:2,milk:.1'],
+['Espresso','drinks',2.9,'coffee:.009'],['Wiener Melange','drinks',4.2,'coffee:.009,milk:.12'],['Green Tea','drinks',3.5,'tea:.004'],['Tea with Milk','drinks',3.5,'tea:.004,milk:.05'],
+['Orange Juice','drinks',4.5,'oj:.4'],['Cola','drinks',3.5,'cola:1'],['Strawberry Daiquiri','drinks',9.5,'rum:.06,straw:.08'],['Red Wine, 1/8 l','drinks',5.9,'wine:.17'],
+['Grüner Veltliner, 1/8 l','drinks',5.5,'gv:.17'],['Lager, 0.5 l','drinks',5.2,'beer:.5'],
+].map(([n,c,p,ing,on=true])=>({n,c,p,on,ing:ing.split(',').map((s)=>{const[a,b]=s.split(':');return[a,+b];}),vat:c==='drinks'?20:10,st:STN[c]}));
+/* dish illustrations: flat vector, one per category, tinted per dish */
+const hue=(s)=>[...s].reduce((a,c)=>(a*31+c.charCodeAt(0))% 360,7);
+const drink=(c,ice)=>`<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 34 h34 l-3.4 40 h-27.2 z" fill="${c}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="${ice}" opacity=".5" transform="rotate(12 54 46)"/><rect x="62" y="56" width="9" height="9" rx="2" fill="${ice}" opacity=".4"/><path d="M68 8 l-7 38" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`;
+/* real photos (CC0, see demos/CREDITS.md) where we have a matching one; the rest fall back to the flat vector below */
+const PHOTO={'Caesar Salad':'caesar','Pizza':'pizza','Fried Eggs':'eggs','Beef Steak':'steak','Tomahawk Steak':'kebab','Tea with Milk':'tea','Strawberry Daiquiri':'cocktail','Chocolate Cake':'cake'};
+function dishArt(name,c,size='card'){
+const pk=Object.keys(PHOTO).find((k)=>name.startsWith(k));
+if(pk)return `<img src="img/${PHOTO[pk]}.jpg" alt="${esc(name)}" loading="lazy" decoding="async">`;
+const h=hue(name),bg={hot:'#f7e3d6',cold:'#e2efd9',drinks:'#dcebf2',desserts:'#f6dfe6',breakfast:'#f8ecc9',pizza:'#f6e2cc',grill:'#ead9d0'}[c];
+const warm=`hsl(${(h % 40)+5} 70% 48%)`,leaf=`hsl(${95+(h % 30)} 45% 42%)`,liq=`hsl(${[28,12,200,340,45][h % 5]} 75% 55%)`;
+const plate='<ellipse cx="60" cy="74" rx="46" ry="6" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#fff"/><circle cx="60" cy="48" r="27" fill="#f4f1ec"/>';
+
+const mk={
+'Goulash Soup':`${plate}<circle cx="60" cy="48" r="22" fill="#a3201f"/><circle cx="60" cy="48" r="16" fill="#b92a26"/><circle cx="60" cy="47" r="6" fill="#fff6e8"/><path d="M52 56 q6 4 12 0" stroke="#7a1516" stroke-width="2.5" fill="none"/><path d="M70 36 l4 -3 M48 38 l-3 -3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
+'Tomato Soup':`${plate}<circle cx="60" cy="48" r="22" fill="#d9731f"/><circle cx="52" cy="44" r="5" fill="#8a3b14"/><circle cx="68" cy="52" r="5" fill="#8a3b14"/><circle cx="66" cy="40" r="3" fill="#f4e2a4"/><circle cx="50" cy="56" r="3" fill="#f4e2a4"/><path d="M58 34 l4 -5 M64 60 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
+'Spaghetti Bolognese':`${plate}<circle cx="60" cy="48" r="22" fill="#c4521f"/><path d="M42 46 q9 -10 18 0 t18 0 M44 54 q8 -8 16 0 t16 0 M48 40 q6 -6 12 0 t14 0" stroke="#f4dba0" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="68" cy="58" r="3.5" fill="#3f7a3a"/>`,
+'Mushroom Risotto':`${plate}<path d="M32 56 q4 -30 28 -30 q24 0 28 30 q-28 10 -56 0z" fill="#e6b44a"/><path d="M44 42 l6 5 M62 36 l7 3 M54 52 l8 2 M72 48 l5 6" stroke="#d9741a" stroke-width="3.5" stroke-linecap="round"/><circle cx="58" cy="32" r="3" fill="#7a4a21"/><circle cx="68" cy="30" r="2.5" fill="#fff3d0"/>`,
+'Bitterballen':`${plate}${[[48,56],[64,58],[56,44],[72,46]].map(([x,y])=>`<path d="M${x-10} ${y+4} q10 -18 20 0 q-10 4 -20 0z" fill="#f6e4c2" stroke="#e0c89a" stroke-width="2"/><path d="M${x-4} ${y-4} l8 0" stroke="#e0c89a" stroke-width="2" stroke-linecap="round"/>`).join('')}<circle cx="84" cy="62" r="4" fill="#fff"/>`,
+'Wiener Schnitzel':`${plate}<path d="M36 52 q-2 -18 22 -20 q22 -2 26 14 q-4 16 -26 14 q-18 0 -22 -8z" fill="#8a4a24"/><path d="M42 46 l10 -4 M56 50 l10 -4 M62 40 l9 3" stroke="#c98a55" stroke-width="3.5" stroke-linecap="round"/><circle cx="82" cy="58" r="6" fill="#f2d78a"/><circle cx="74" cy="64" r="5" fill="#f2d78a"/><path d="M48 58 l4 3 M52 36 l3 -4" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round"/>`,
+'Caprese Salad':`${plate}<path d="M36 54 q2 -26 24 -26 q22 0 24 26 q-24 8 -48 0z" fill="#f2e6c0"/>${[[48,46],[60,40],[70,48],[56,54],[66,56]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="3" fill="${i % 2?'#e9753a':'#6fae4a'}"/>`).join('')}`,
+'Burrata':`${plate}${[[44,50],[62,40],[76,54]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="10" fill="#1f2a24"/><circle cx="${x}" cy="${y}" r="8" fill="#f8f4ea"/><circle cx="${x}" cy="${y}" r="3.5" fill="#ee6f3c"/>`).join('')}<path d="M80 36 h6" stroke="#6fae4a" stroke-width="3" stroke-linecap="round"/>`,
+'Bread':`<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M24 62 q0 -30 36 -30 q36 0 36 30 q-36 8 -72 0z" fill="#d9a24f"/><path d="M42 44 l6 12 M58 40 l6 14 M74 44 l5 11" stroke="#b9772a" stroke-width="4" stroke-linecap="round"/>`,
+'Green Tea':drink('#9bc24a','#e8f4d0'),'Orange Juice':drink('#f09a22','#fff'),'Cola':drink('#3a2418','#fff'),
+'Red Wine':`<ellipse cx="60" cy="78" rx="22" ry="4" fill="#000" opacity=".1"/><path d="M44 14 h32 q4 28 -16 36 q-20 -8 -16 -36z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M47 28 h26 q0 16 -13 22 q-13 -6 -13 -22z" fill="#7a1a3a"/><path d="M60 50 v22 M48 74 h24" stroke="#c9d6dc" stroke-width="3" stroke-linecap="round"/>`,
+'Tiramisu':`<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><rect x="28" y="30" width="64" height="34" rx="4" fill="#f4e6cd"/><rect x="28" y="40" width="64" height="6" fill="#6b3a1c"/><rect x="28" y="54" width="64" height="6" fill="#6b3a1c"/><path d="M28 30 h64 v6 h-64z" fill="#4a2814"/>`,
+};
+const key=Object.keys(mk).find((k)=>name.startsWith(k));
+const art=key?mk[key]:{
+hot:`${plate}<ellipse cx="60" cy="48" rx="22" ry="21" fill="${warm}"/><path d="M42 44 q9 -8 18 0 t18 0" stroke="#fff3df" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".9"/><circle cx="52" cy="54" r="3" fill="#fff3df"/><circle cx="68" cy="40" r="3" fill="${leaf}"/><path d="M50 14 q-4 6 0 11 M60 11 q-4 6 0 11 M70 14 q-4 6 0 11" stroke="#9a948c" stroke-width="2" fill="none" stroke-linecap="round" opacity=".55"/>`,
+cold:`${plate}${[0,60,120,180,240,300].map((r,i)=>`<ellipse cx="60" cy="38" rx="7" ry="14" fill="${i % 2?leaf:`hsl(${100+(h % 20)} 50% 50%)`}" transform="rotate(${r} 60 48)"/>`).join('')}<circle cx="52" cy="46" r="5" fill="#d8402c"/><circle cx="68" cy="52" r="5" fill="#d8402c"/><circle cx="62" cy="40" r="3.5" fill="#f2d36b"/>`,
+drinks:`<ellipse cx="60" cy="76" rx="26" ry="4" fill="#000" opacity=".1"/><path d="M40 22 h40 l-5 52 h-30 z" fill="#fff" opacity=".85" stroke="#c9d6dc" stroke-width="2"/><path d="M43 36 h34 l-3.4 38 h-27.2 z" fill="${liq}"/><rect x="50" y="42" width="9" height="9" rx="2" fill="#fff" opacity=".55" transform="rotate(12 54 46)"/><rect x="62" y="54" width="9" height="9" rx="2" fill="#fff" opacity=".45" transform="rotate(-10 66 58)"/><path d="M66 8 l-6 40" stroke="#e0533d" stroke-width="3.5" stroke-linecap="round"/>`,
+desserts:`<ellipse cx="60" cy="74" rx="40" ry="5" fill="#000" opacity=".1"/><path d="M26 66 L26 40 L94 40 L94 66 Z" fill="#e7c08a"/><path d="M26 54 h68" stroke="#f9e7c8" stroke-width="5"/><path d="M26 40 q34 -22 68 0 z" fill="${`hsl(${340+(h % 20)} 55% 62%)`}"/><circle cx="60" cy="25" r="6" fill="#c8302f"/><path d="M60 19 q2 -7 7 -9" stroke="#3f7a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+breakfast:`${plate}<path d="M38 52 q-6 -16 10 -22 q16 -8 28 4 q10 12 -2 22 q-14 12 -36 -4z" fill="#fffdf8" stroke="#eee4d0" stroke-width="2"/><circle cx="58" cy="44" r="10" fill="#f4b81f"/><circle cx="55" cy="41" r="3" fill="#fff" opacity=".6"/><path d="M70 62 q8 -10 14 -2 t-2 12" stroke="#b9432c" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+pizza:/Pasta/.test(name)?`${plate}<path d="M40 52 q10 -20 20 -2 q10 -18 20 2 q-10 16 -20 0 q-10 16 -20 0z" fill="#f3d58b"/><path d="M44 50 q8 -10 16 0 t16 0" stroke="#e3b95a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="60" cy="46" r="6" fill="#fff6dc"/><circle cx="52" cy="42" r="2" fill="#6b4a2b"/><circle cx="68" cy="52" r="2" fill="#6b4a2b"/>`
+:`<ellipse cx="60" cy="76" rx="44" ry="5" fill="#000" opacity=".1"/><circle cx="60" cy="48" r="34" fill="#e7b872"/><circle cx="60" cy="48" r="28" fill="#d8402c"/><circle cx="60" cy="48" r="26" fill="#f6e7b8" opacity=".9"/>${[[50,38],[68,40],[60,56],[46,54],[72,54]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#b83a28"/>`).join('')}<path d="M56 30 l4 -4 4 4 M50 62 l4 -3 M70 46 l5 3" stroke="#3f7a3a" stroke-width="3" stroke-linecap="round" fill="none"/>`,
+grill:`${plate}<path d="M36 52 q-4 -16 14 -20 q26 -6 34 8 q6 14 -10 20 q-26 8 -38 -8z" fill="${`hsl(${15+(h % 12)} 50% 30%)`}"/><path d="M48 36 l12 20 M58 33 l12 20 M68 34 l10 16" stroke="#2a150c" stroke-width="3" stroke-linecap="round" opacity=".55"/><circle cx="78" cy="62" r="5" fill="${leaf}"/><circle cx="86" cy="58" r="3.5" fill="#d8402c"/>`,
+}[c];
+return `<svg viewBox="0 0 120 ${c==='drinks'||c==='desserts'?90:86}" aria-hidden="true"><rect width="120" height="90" fill="${bg}"/>${art}</svg>`;
 }
-/* ── live kitchen: the clock runs, orders keep arriving, the pass marks dishes ready ─ */
-let FRESH = null, beat = 0;
-const WHO = ['Felix T.', 'Marie R.', 'Tim S.', 'Laura K.', 'Daan Z.', 'Eva B.', 'David M.', 'Nina N.'];
-const WHERE = ['Table 1', 'Table 3', 'Table 6', 'Table 2', 'Table 4', 'Table 8', 'Delivery'];
-const hm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
-function spawn() {
-  const avail = S.menu.filter((m) => m.a), pick = () => avail[Math.floor(Math.random() * avail.length)].n, items = new Map();
-  for (let k = 0, n = 1 + Math.floor(Math.random() * 3); k < n; k++) items.set(pick(), 1 + Math.floor(Math.random() * 2));
-  const id = '#' + (Math.max(...S.orders.map((o) => +o.id.slice(1))) + 1), where = WHERE[Math.floor(Math.random() * WHERE.length)];
-  S.orders.unshift(O(id, where, where === 'Delivery' ? 'Delivery' : 'Dine-in', WHO[Math.floor(Math.random() * WHO.length)], [...items], 'new', NOW));
-  FRESH = id; toast(`New order ${id} · ${where}`);
+
+/* model */
+const dish=(n)=>S.menu.find((m)=>m.n===n);
+const shortOf=(m,k=1)=>m.ing.filter(([id,q])=>INV[id].q<q*k-1e-9).map(([id])=>INV[id].n);
+const isAvail=(m)=>m.on&&!shortOf(m).length;
+const why=(m)=>!m.on?'Taken off manually':shortOf(m).length?'Out of '+shortOf(m).join(', '):'';
+const invSt=(i)=>i.q<=0?'empty':i.q<=i.min?'low':i.q<=i.min*1.5?'warning':'ok';
+const INVST={empty:['Out of stock','neg'],low:['Below par','warn'],warning:['Running low','info'],ok:['In stock','pos']};
+const modPrice=(c,x)=>((MODS[c]||[]).find((m)=>m[0]===x)||[0,0])[1];
+const mkLine=(n,q,mods=[],note='')=>{const m=dish(n);return{n,q,p:m.p,md:sum(mods,(x)=>modPrice(m.c,x)),mods,note,done:false,vat:m.vat,c:m.c,st:m.st};};
+const lt=(l)=>r2((l.p+l.md)*l.q);
+const sub=(o)=>sum(o.items,lt);
+const disc=(o)=>!o.disc?0:r2(o.disc.t==='%'?sub(o)*o.disc.v/100:Math.min(o.disc.v,sub(o)));
+const redeemV=(o)=>r2((o.redeem||0)/20);
+const due=(o)=>r2(Math.max(0,sub(o)-disc(o)-redeemV(o)));
+const paid=(o)=>sum(o.pays,(p)=>p.a);
+const left=(o)=>r2(due(o)-paid(o));
+const OPEN=['new','cooking','ready','served'];
+const SM={new:['New','info'],cooking:['In kitchen','warn'],ready:['Ready','pos'],served:['Awaiting payment',''],paid:['Paid',''],cancel:['Cancelled','neg']};
+const NEXT={new:'Accept & fire',cooking:'Mark ready',ready:'Serve',served:'Take payment'};
+const tier=(g)=>g.spent>=1500?'Gold':g.spent>=500?'Silver':'Bronze';
+const TIERC={Gold:'warn',Silver:'info',Bronze:''};
+
+const TABLES=[2,2,4,4,4,4,6,8,4,4,2,6,2,2,2,2].map((s,i)=>({n:i+1,s,z:i<8?'Main hall':i<12?'Winter garden':'Bar',occ:null,dirty:false}));
+const tbl=(n)=>TABLES.find((t)=>t.n===+n);
+const CAP=TABLES.reduce((s,t)=>s+t.s,0);
+
+const STAFF=[
+['s1','Katharina Huber','Restaurant manager','mgr',24],['s2','Markus Steiner','Head chef','kitchen',23],['s3','Lena Hoffmann','Waiter','floor',14.5],
+['s4','Thomas Bakker','Waiter','floor',14.5],['s5','Sofie Lindner','Bartender','bar',15],['s6','Johan Vermeulen','Host','floor',14],
+['s7','Florian Wagner','Sous-chef','kitchen',19],['s8','Anouk de Graaf','Line cook','kitchen',16],['s9','Jonas Pichler','Line cook','kitchen',16],
+['s10','Miriam Koller','Pastry chef','kitchen',17],['s11','Daan Visser','Waiter','floor',14.5],['s12','Hannah Schmid','Waiter','floor',14.5],
+['s13','Lukas Eder','Bartender','bar',15],['s14','Ruben Jansen','Kitchen porter','kitchen',13],
+].map(([id,name,role,dept,rate],i)=>({id,name,role,dept,rate,rating:[4.8,4.9,4.6,4.5,4.7,4.4,4.6,4.5,4.3,4.8,4.6,4.7,4.4,4.2][i],phone:`+43 660 ${410+i*7} ${String(1000+i*373).slice(-4)}`}));
+const staff=(id)=>STAFF.find((s)=>s.id===id);
+const SHT={M:['Morning','10:00–16:00',6,600,960],E:['Evening','16:00–23:00',7,960,1380],D:['Double','10:00–22:00',11,600,1320],O:['Off','',0,0,0]};
+const TODAYI=5;// Mon 2 Nov … Sun 8 Nov; today is Saturday
+(()=>{
+const today={s1:'D',s2:'D',s3:'E',s4:'E',s5:'E',s6:'E',s7:'E',s8:'E',s9:'M',s10:'E',s11:'E',s12:'M',s13:'M',s14:'E'};
+STAFF.forEach((s,i)=>{s.sh=[0,1,2,3,4,5,6].map((d)=>(d===TODAYI?today[s.id]:(d+i)% 7===0||(d+i*3)% 7===2?'O':pk(['M','E','E','D'])));});
+})();
+const hours=(s)=>s.sh.reduce((a,c)=>a+SHT[c][2],0);
+const onNow=(s)=>{const c=SHT[s.sh[TODAYI]];return NOW>=c[3]&&NOW<c[4];};
+
+/* guests */
+const FN=['Lukas','Sophie','Pieter','Anna','Matthias','Katrin','Jan','Lotte','Felix','Marie','Tobias','Eva','Sven','Femke','Maximilian','Julia','Daan','Lea','Stefan','Isabel','Bram','Clara','Georg','Nina','Ruben','Hanna','Ólafur','Saskia','Johannes','Theresa','Niels','Laura'];
+const LN=['Gruber','Müller','de Vries','Berger','Weber','Brandstätter','van Dijk','Aigner','Steinbauer','Moser','Bakker','Wagner','Fischer','Janssen','Pichler','Mayer','Visser','Schuster','Leitner','Smit','Fuchs','Oberhauser-Wettstein','Kok','Lehner','Bauer','Mulder','Winkler','Hofbauer','Meijer','Zimmermann','Kraus'];
+const NL=/^(de |van |Bakker|Janssen|Visser|Smit|Kok|Mulder|Meijer)/,DE=/^(Müller|Weber|Fischer|Schuster|Zimmermann|Kraus|Wagner)/;
+const NOTES=['Nut allergy','Prefers window table','Vegetarian','Gluten-free','Celebrates anniversary in November','Usually orders Tafelspitz','High chair needed','Lactose intolerant'];
+const GUESTS=[];
+(()=>{
+const seen=new Set();let id=1;
+for(let i=0;GUESTS.length<64;i++){
+const name=FN[i % FN.length]+' '+LN[(i*7+3)% LN.length];if(seen.has(name))continue;seen.add(name);
+const ln=name.slice(name.indexOf(' ')+1),d=()=>String(ri(0,9));
+const phone=NL.test(ln)?`+31 6 ${ri(1000,9999)} ${ri(1000,9999)}`:DE.test(ln)?`+49 15${d()} ${ri(100,999)} ${ri(1000,9999)}`:`+43 6${pk(['60','64','76','99'])} ${ri(100,999)} ${ri(1000,9999)}`;
+const visits=Math.max(1,Math.round(R()**2*46)),spent=r2(visits*ri(26,64)+ri(0,99)/100);
+const redeemed=Math.floor(spent/400)*100,points=Math.max(0,Math.floor(spent)-redeemed);
+const email=name.toLowerCase().replace(/ü/g,'ue').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ó/g,'o').replace(/ß/g,'ss').replace(/ /g,'.')+'@example.com';
+const g={id:id++,name,phone,email,visits,spent,points,last:Math.min(200,Math.round(R()**1.5*120)),since:2019+ri(0,7)% 7,note:R()<.3?pk(NOTES):'',ledger:[]};
+const base=Math.floor(spent/visits);
+for(let k=0;k<Math.min(4,visits);k++)g.ledger.push({d:dago(g.last+k*ri(6,21)),what:'Visit · earned',p:base+ri(-9,12)});
+if(redeemed)g.ledger.splice(1,0,{d:dago(g.last+ri(20,40)),what:'Redeemed for discount',p:-100});
+GUESTS.push(g);
 }
-setInterval(() => {
-  if (document.hidden) return;
-  beat++; NOW = hm(mins(NOW) + 1);
-  if (beat % 3 === 0) spawn();
-  else if (beat % 4 === 0) { const c = S.orders.find((o) => o.status === 'cooking'); if (c) { c.status = 'ready'; toast(`${c.id} is ready to serve`); } }
-  if (['dashboard', 'orders', 'analytics', 'finance'].includes(page) && !$('#scrim')) { render(); FRESH = null; }
-}, 5000);
+})();
+const guest=(id)=>GUESTS.find((g)=>g.id===+id);
+
+/* today's orders: generated chronologically, each table holds at most one open check */
+const ORDERS=[];
+(()=>{
+let id=2101,t=11*60+31;const busy={};
+const food=MENU.filter((m)=>m.c!=='drinks'&&m.on&&m.n!=='Tiramisu'),drinks=MENU.filter((m)=>m.c==='drinks');
+const W=['s3','s4','s11','s12'];
+while(t<NOW-2){
+const r=R(),type=r<.78?'Dine-in':r<.9?'Takeaway':'Delivery';
+const cov=type==='Dine-in'?pk([1,2,2,2,2,3,4,4,5,6]):1;
+let tb=null;
+if(type==='Dine-in'){const fit=TABLES.filter((x)=>x.s>=cov&&x.s<=cov+3&&(busy[x.n]||0)<=t);if(!fit.length){t+=ri(3,7);continue;}tb=pk(fit).n;}
+const dur=type==='Dine-in'?ri(48,100):ri(20,34),age=NOW-t,end=t+dur;
+if(tb)busy[tb]=end+8;
+const items=[],add=(n,q)=>{const m=MENU.find((x)=>x.n===n),mods=m.c==='grill'?[pk(DONENESS)]:R()<.12&&MODS[m.c]?[pk(MODS[m.c])[0]]:[];const ex=items.find((l)=>l.n===n&&!l.mods.length&&!mods.length);if(ex)ex.q+=q;else items.push(mkLineM(m,q,mods));};
+const mains=Math.max(1,Math.round(cov*(.7+R()*.5)));
+for(let k=0;k<mains;k++)add(pk(food).n,1);
+if(type==='Dine-in')for(let k=0;k<cov;k++)if(R()<.85)add(pk(drinks).n,1);
+const gl=R()<.45?pk(GUESTS):null;
+let st='paid';
+if(end>NOW)st=type==='Dine-in'?(age<22?'cooking':age<30?'ready':'served'):(age<6?'new':age<20?'cooking':'ready');
+else if(R()<.04)st='cancel';
+const o={id:id++,t,type,table:tb,cov,gid:gl?gl.id:null,name:gl?gl.name:type==='Dine-in'?'Walk-in':pk(['Guest','Phone order']),waiter:pk(W),items,st,pays:[],disc:null,redeem:0,
+src:type==='Dine-in'?'POS':type==='Delivery'?'Delivery partner':pk(['POS','Phone','Online shop']),fired:t+1,closed:null,why:st==='cancel'?pk(['Guest left','Duplicate order','Kitchen error']):''};
+items.forEach((l)=>{l.done=st==='cooking'?R()<age/18:st!=='new';});if(st==='cooking'&&items.every((l)=>l.done))items[items.length-1].done=false;
+if(R()<.07)o.disc=pk([{t:'%',v:10,why:'Regular guest'},{t:'%',v:50,why:'Staff meal'},{t:'€',v:5,why:'Service recovery'}]);
+if(st==='paid'){const a=due(o),m=R();o.closed=end;o.pays.push({m:m<.68?'Card':m<.94?'Cash':'Voucher',a,tip:m<.68?r2(a*pk([0,0,.05,.1])):0,t:end});}
+if(OPEN.includes(st)&&tb)tbl(tb).occ={since:t,cov,gid:o.gid};
+ORDERS.unshift(o);
+t+=ri(4,11);
+}
+[[NOW-7,'Delivery','Pizza Margherita',2],[NOW-2,'Takeaway','Wiener Schnitzel',1]].forEach(([t,type,n,q],k)=>{const g=GUESTS[20+k*9],m=MENU.find((x)=>x.n===n);ORDERS.unshift({id:id++,t,type,table:null,cov:1,gid:g.id,name:g.name,waiter:'s6',items:[mkLineM(m,q,[]),mkLineM(MENU.find((x)=>x.n===(k?'Tiramisu':'Cola')),q,[])],st:'new',pays:type==='Delivery'?[]:[],disc:null,redeem:0,src:type==='Delivery'?'Delivery partner':'Online shop',fired:t,closed:null,why:''});});
+const t9=TABLES.find((x)=>!x.occ&&x.s>=4);if(t9)t9.occ={since:NOW-3,cov:3,gid:null};
+const td=TABLES.find((x)=>!x.occ&&x.s===2);if(td)td.dirty=true;
+})();
+function mkLineM(m,q,mods){return{n:m.n,q,p:m.p,md:sum(mods,(x)=>modPrice(m.c,x)),mods,note:'',done:false,vat:m.vat,c:m.c,st:m.st};}
+
+/* reservations for the next 7 days */
+const RES=[];
+const resOn=(o)=>RES.filter((r)=>r.o===o&&r.st!=='cancelled');
+function freeTable(o,t,size,skip,any){
+return TABLES.filter((x)=>x.s>=size&&x.s<=size+4).sort((a,b)=>a.s-b.s||a.n-b.n)
+.find((x)=>!RES.some((r)=>r!==skip&&r.o===o&&r.table===x.n&&(any?r.st!=='cancelled':['booked','seated'].includes(r.st))&&Math.abs(r.t-t)<120))||null;
+}
+(()=>{
+let id=501;
+const add=(o,t,size,g,st,note='')=>{const tb=freeTable(o,t,size,null,true);if(!tb)return;RES.push({id:id++,o,t,size,name:g.name,phone:g.phone,gid:g.id,table:tb.n,st,note,src:pk(['Phone','Website','Website','Walk-in list'])});};
+add(0,20*60,4,GUESTS[5],'booked','Window if possible');add(0,20*60+30,8,GUESTS[11],'booked','Birthday, cake at 22:00');add(0,21*60,2,GUESTS[2],'booked');
+for(let o=0;o<7;o++){
+const n=o===0?9:[5,7,8,6,4,9,11][(day(o).getDay()+6)% 7];
+for(let k=0;k<n;k++){
+const t=12*60+30*pk([0,1,2,3,12,13,14,14,15,15,16,16,17,18]),g=pk(GUESTS);
+let st='booked';if(o===0&&t<=NOW)st=R()<.12?'no-show':'completed';
+add(o,t,pk([2,2,2,3,4,4,5,6]),g,st,R()<.2?pk(['Allergy: nuts','Pram','Quiet corner','Business dinner']):'');
+}
+}
+})();
+const nextRes=(n)=>RES.filter((r)=>r.o===0&&r.table===n&&r.st==='booked'&&r.t>=NOW-15).sort((a,b)=>a.t-b.t)[0];
+
+const S={orders:ORDERS,menu:MENU,guests:GUESTS,notes:[],hist:[3640,2980,2140,2310,2460,2890,3720]};
+const openOn=(n)=>S.orders.filter((o)=>o.table===+n&&OPEN.includes(o.st));
+function tstat(T){
+const os=openOn(T.n);
+if(os.some((o)=>o.st==='served'))return 'bill';
+if(os.length||T.occ)return 'seated';
+if(T.dirty)return 'cleaning';
+const r=nextRes(T.n);if(r&&r.t-NOW<=60)return 'reserved';
+return 'free';
+}
+const TST={free:'Free',seated:'Seated',bill:'Bill due',reserved:'Reserved',cleaning:'Needs clearing'};
+
+/* stock: deducted when a ticket is fired to the kitchen */
+function need(items){const n={};items.forEach((l)=>{const m=dish(l.n);if(m)m.ing.forEach(([id,q])=>{n[id]=(n[id]||0)+q*l.q;});});return n;}
+function blocker(items){
+for(const l of items){const m=dish(l.n);if(m&&!m.on)return `${m.n} is on the stop-list`;}
+const n=need(items);for(const id in n)if(INV[id].q<n[id]-1e-9){const d=items.find((l)=>dish(l.n).ing.some((x)=>x[0]===id));return `Not enough ${INV[id].n} for ${d.n} (${fmtD(INV[id].q,INV[id].u==='pcs'||INV[id].u==='btl'?0:1)} ${INV[id].u} left)`;}
+return '';
+}
+function consume(items){
+const before=S.menu.filter(isAvail).map((m)=>m.n),n=need(items);
+for(const id in n)INV[id].q=Math.max(0,r2(INV[id].q-n[id]));
+S.menu.filter((m)=>before.includes(m.n)&&!isAvail(m)).forEach((m)=>note('box',`${m.n} moved to the stop-list`,why(m)+' · automatic','menu'));
+}
+function note(k,ti,b,pg){S.notes.unshift({t:NOW,k,ti,b,pg,read:false});S.notes.length=Math.min(S.notes.length,30);}
+(()=>{
+const nw=S.orders.find((o)=>o.st==='new');
+[[NOW-240,'truck','Delivery received','Marchfeld Gemüse · 14 items checked in by Florian Wagner','inventory',1],[NOW-150,'star','New 5-star review','“The Tafelspitz was perfect.” Table 3 · served by Lena Hoffmann','guests',1],
+[NOW-38,'clock','Shift swap approved','Daan Visser covers Hannah Schmid on Sunday evening','staff',1],[NOW-21,'calendar','Large party tonight','Party of 8 at 20:30 · '+(RES.find((r)=>r.size===8&&r.o===0)?'Table '+RES.find((r)=>r.size===8&&r.o===0).table:'no table yet'),'reservations',0],
+[NOW-9,'box','Mascarpone is out of stock','Tiramisu moved to the stop-list automatically','inventory',0]].forEach(([t,k,ti,b,pg,read])=>S.notes.unshift({t,k,ti,b,pg,read:!!read}));
+if(nw)S.notes.unshift({t:nw.t,k:'bag',ti:`New ${nw.type.toLowerCase()} order #${nw.id}`,b:`${pl(nw.items.length,'item')} · ${eur(due(nw))}`,pg:'orders',read:false});
+})();
+
+/* end-of-day numbers: one function feeds the dashboard, report, CSV and the reconciliation */
+function eod(){
+const closed=S.orders.filter((o)=>o.st==='paid'),live=S.orders.filter((o)=>o.st!=='cancel');
+const pays=live.flatMap((o)=>o.pays.map((p)=>({...p,o})));
+const taken=sum(pays,(p)=>p.a),tips=sum(pays,(p)=>p.tip);
+const net=sum(closed,due),gross=sum(closed,sub),discounts=r2(gross-net),partial=r2(taken-net);
+const byM={};pays.forEach((p)=>{byM[p.m]=r2((byM[p.m]||0)+p.a);});
+const byC={},vat={10:0,20:0},top={};
+closed.forEach((o)=>{const f=sub(o)?due(o)/sub(o):0;o.items.forEach((l)=>{const v=lt(l)*f;byC[l.c]=(byC[l.c]||0)+v;vat[l.vat]+=v;});});
+live.forEach((o)=>o.items.forEach((l)=>{top[l.n]=(top[l.n]||0)+l.q;}));
+const hours={};for(let h=11;h<=23;h++)hours[h]=0;pays.forEach((p)=>{const h=Math.min(23,Math.floor(p.t/60));hours[h]=r2(hours[h]+p.a);});
+const waiters={};closed.forEach((o)=>{const w=waiters[o.waiter]||(waiters[o.waiter]={n:0,cov:0,v:0});w.n++;w.cov+=o.cov;w.v=r2(w.v+due(o));});
+const covers=closed.filter((o)=>o.type==='Dine-in').reduce((s,o)=>s+o.cov,0);
+return{closed,live,pays,taken,tips,net,gross,discounts,partial,byM,byC,vat,top,hours,waiters,covers,cancelled:S.orders.filter((o)=>o.st==='cancel'),
+open:sum(S.orders.filter((o)=>OPEN.includes(o.st)),left),openN:S.orders.filter((o)=>OPEN.includes(o.st)).length};
+}
+function reconcile(e=eod()){
+console.assert(Math.abs(sum(Object.values(e.byM),(x)=>x)-e.taken)<.01,'payments by method add up to takings');
+console.assert(Math.abs(Object.values(e.byC).reduce((s,x)=>s+x,0)-e.net)<.05,'sales mix adds up to net sales');
+console.assert(Math.abs(e.vat[10]+e.vat[20]-e.net)<.05,'VAT bases add up to net sales');
+console.assert(S.orders.filter((o)=>OPEN.includes(o.st)&&o.table).every((o)=>tstat(tbl(o.table))!=='free'),'no open check on a free table');
+console.assert(TABLES.every((T)=>openOn(T.n).length<=2),'at most two open checks per table');
+console.assert(new Set(S.orders.map((o)=>o.id)).size===S.orders.length,'order ids are unique');
+console.assert(S.orders.every((o)=>o.st!=='paid'||Math.abs(left(o))<.01),'paid orders are settled');
+console.assert(Object.values(INV).every((i)=>i.q>=0),'stock never negative');
+return e;
+}
+reconcile();
+
+/* shell */
+const PAGES={dashboard:['Dashboard','home'],orders:['Orders','bag'],pos:['POS','tag'],floor:['Floor plan','grid'],kitchen:['Kitchen display','flame'],
+reservations:['Reservations','calendar'],guests:['Guests','users'],menu:['Menu & stop-list','utensils'],inventory:['Inventory','box'],staff:['Staff & shifts','clock'],report:['End of day','chart']};
+const GROUPS=[['',['dashboard','orders','pos','floor','kitchen']],['Guests',['reservations','guests']],['Back office',['menu','inventory','staff','report']]];
+const MGR_ONLY=['report','inventory'];
+let page='dashboard',USER=staff('s1'),pop=null,DW=null,FRESH=null;
+const seen={};
+const F={orders:{q:'',st:'all',type:'all'},guests:{q:'',tier:'all'},inv:{q:'',st:'all'},menu:{q:'',cat:'all',stop:false},kds:'all',res:{o:0,size:2},staff:'schedule'};
+const POS={table:'',type:'Dine-in',cov:2,guest:'',gid:null,lines:[],cat:'all',q:'',disc:null,err:''};
+const isMgr=()=>USER.dept==='mgr';
+const badge=(k)=>{
+if(k==='orders'){const n=S.orders.filter((o)=>o.st==='new').length;return n?`<span class="count" title="New orders">${n}</span>`:'';}
+if(k==='kitchen'){const n=S.orders.filter((o)=>o.st==='cooking').length;return n?`<span class="count soft" title="Open tickets">${n}</span>`:'';}
+if(k==='inventory'){const n=Object.values(INV).filter((i)=>['empty','low'].includes(invSt(i))).length;return n?`<span class="count soft" title="Stock alerts">${n}</span>`:'';}
+if(k==='reservations'){const n=RES.filter((r)=>r.o===0&&r.st==='booked'&&r.t>=NOW-15).length;return n?`<span class="count soft" title="Still to arrive today">${n}</span>`:'';}
+return '';
+};
+function chrome(){
+const item=(k)=>`<a data-page="${k}" tabindex="0" role="link" ${page===k?'aria-current="page"':''}>${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${badge(k)}</a>`;
+$('#nav').innerHTML=GROUPS.map(([g,ks])=>(g?`<div class="nav-label">${g}</div>`:'')+ks.map(item).join('')).join('');
+const n=S.orders.filter((o)=>o.st==='new').length;
+$('#tabbar').innerHTML=['dashboard','orders','pos','floor'].map((k)=>`<a data-page="${k}" tabindex="0" role="link">${ic(PAGES[k][1])}<span>${k==='floor'?'Floor':PAGES[k][0]}</span>${k==='orders'&&n?`<b class="count">${n}</b>`:''}</a>`).join('')+
+`<a data-act="more" tabindex="0" role="button" class="${['dashboard','orders','pos','floor'].includes(page)?'':'on'}">${ic('more')}<span>More</span></a>`;
+$('#sidefoot').innerHTML=`<div><b>Terminal POS-2</b> · Main hall</div><div>Version 4.12.0 · <span class="pos">Online</span></div>`;
+setNav(page);
+topbar();
+}
+function topbar(){
+const un=S.notes.filter((x)=>!x.read).length;
+const popHTML=pop==='bell'?`<div class="pop" role="dialog" aria-label="Notifications"><div class="pop-h">Notifications${un?`<button class="linkbtn" data-act="readAll">Mark all as read</button>`:''}</div>${S.notes.length?S.notes.slice(0,12).map((x,i)=>`<button class="mi ${x.read?'':'unread'}" data-act="noteGo" data-i="${i}">${ic(x.k)}<span><b>${esc(x.ti)}</b><span>${esc(x.b)}</span><span>${ago(x.t)}</span></span></button>`).join(''):'<div class="empty">You are all caught up.</div>'}</div>`
+:pop==='user'?`<div class="pop" role="menu" style="width:260px"><div class="pop-h" style="display:block"><b style="display:block">${esc(USER.name)}</b><span class="hint">${esc(USER.role)} · Nordlicht Vienna</span></div><hr>
+      <button class="mi" role="menuitem" data-act="switchUser">${ic('users')}<span><b>Switch user</b><span>Hand the terminal to a colleague</span></span></button>
+      <button class="mi" role="menuitem" data-act="help">${ic('help')}<span><b>Help & shortcuts</b></span></button><hr>
+      <button class="mi" role="menuitem" data-act="signOut">${ic('out')}<span><b>Sign out</b></span></button><div class="ver">${VERSION} · build 2026.11.2</div></div>`:'';
+$('#top').innerHTML=`<div class="top"><div class="top-l"><span class="mbrand"><span class="brand-mark">${ic('utensils')}</span>RestOS</span><span class="clock"><i></i><span id="clk">${DF.format(day(0))} · ${hm(NOW)}</span><em>&nbsp;· Service open</em></span></div>
+    <div class="top-r"><button class="ib" data-act="help" aria-label="Help and keyboard shortcuts" title="Help">${ic('help')}</button>
+    <button class="ib" data-act="bell" aria-label="Notifications, ${un} unread" aria-expanded="${pop==='bell'}">${ic('bell')}${un?`<b class="dot">${un>9?'9+':un}</b>`:''}</button>
+    <button class="ub" data-act="user" aria-haspopup="menu" aria-expanded="${pop==='user'}" aria-label="Account: ${esc(USER.name)}"><span class="avatar">${ini(USER.name)}</span><span class="hm2"><b>${esc(USER.name)}</b><small>${esc(USER.role)}</small></span>${ic('down')}</button>${popHTML}</div></div>`;
+}
+const VIEWS={};
+function renderView(){
+const a=document.activeElement,id=a&&a.id&&$('#view').contains(a)?a.id:null,ss=id&&a.selectionStart;
+let html;
+if(MGR_ONLY.includes(page)&&!isMgr())html=head(PAGES[page][0],'Restricted')+`<div class="card state">${ic('lock')}<h2>You don't have access to this page</h2><p>${esc(PAGES[page][0])} is available to managers. You are signed in as ${esc(USER.name)} (${esc(USER.role)}).</p><button class="btn primary" data-act="switchUser">Switch user</button></div>`;
+else if(['orders','guests','report','inventory'].includes(page)&&!seen[page]){seen[page]=1;html=skeleton();setTimeout(()=>{if(!$('.skel-wrap'))return;renderView();},380);}
+else html=VIEWS[page]();
+$('#view').innerHTML=html;
+mount();
+if(id){const n=document.getElementById(id);if(n){n.focus();try{if(ss!=null)n.setSelectionRange(ss,ss);}catch(e){/* not a text field */}}}
+}
+function render(){chrome();renderView();refreshDrawer();reconcile();}
+function go(p){page=p;pop=null;closeDrawer();render();window.scrollTo(0,0);}
+const skeleton=()=>`<div class="skel-wrap" aria-busy="true" aria-label="Loading"><div class="skel" style="height:30px;width:220px;margin-bottom:10px"></div><div class="skel" style="height:16px;width:320px;max-width:80%;margin-bottom:26px"></div>
+  <div class="card">${Array.from({length:7},(_,i)=>`<div class="skel" style="height:22px;margin:14px 0;width:${[100,92,97,88,95,90,84][i]}%"></div>`).join('')}</div></div>`;
+const head=(t,sub,actions='')=>`<header class="head"><div><h1>${t}</h1><p>${sub}</p></div><div class="head-actions">${actions}</div></header>`;
+const pill=(s)=>`<span class="pill ${SM[s][1]}"><i></i>${SM[s][0]}</span>`;
+const srch=(bind,val,ph)=>`<label class="srch"><span class="sr">Search</span>${ic('search')}<input class="inp" type="search" id="q-${bind.replace('.','-')}" data-bind="${bind}" value="${esc(val)}" placeholder="${ph}" autocomplete="off"><kbd>/</kbd></label>`;
+const sel=(bind,val,opts,label)=>`<select class="inp" id="s-${bind.replace('.','-')}" data-bind="${bind}" aria-label="${label}">${opts.map(([v,t])=>`<option value="${v}" ${String(val)===String(v)?'selected':''}>${t}</option>`).join('')}</select>`;
+const where=(o)=>o.table?`Table ${o.table}`:o.type;
+
+/* table: sortable, paginated; rows open a drawer */
+const TB={};
+function dtable(key,rows,cols,{size=12,open,empty='Nothing matches these filters. Try clearing the search.'}={}){
+const st=TB[key]||(TB[key]={s:null,d:1,pg:0});
+if(!rows.length)return `<div class="state">${ic('search')}<h2>No results</h2><p>${empty}</p></div>`;
+const l=rows.slice();
+if(st.s){const c=cols.find((x)=>x.k===st.s);l.sort((a,b)=>{const x=c.v(a),y=c.v(b);return(x>y?1:x<y?-1:0)*st.d;});}
+const pages=Math.max(1,Math.ceil(l.length/size));st.pg=Math.min(st.pg,pages-1);
+const v=l.slice(st.pg*size,st.pg*size+size),cl=(c)=>`${c.cls||''}${c.m?'':' hm'}`;
+const th=cols.map((c)=>`<span class="${cl(c)}" role="columnheader" ${c.v?`aria-sort="${st.s===c.k?(st.d>0?'ascending':'descending'):'none'}"`:''}>${c.v?`<button data-act="sort" data-k="${key}:${c.k}">${c.l}${st.s===c.k?ic(st.d>0?'up':'down'):''}</button>`:c.l}</span>`).join('');
+return `<div class="tbl" role="table" style="--cols:${cols.map((c)=>c.w).join(' ')};--colsm:${cols.filter((c)=>c.m).map((c)=>c.m===true?c.w:c.m).join(' ')}"><div class="tr th" role="row">${th}</div>
+    ${v.map((r)=>`<div class="tr" role="row" tabindex="0" data-act="${open}" data-id="${r.id}">${cols.map((c)=>`<span class="${cl(c)}" role="cell">${c.h(r)}</span>`).join('')}</div>`).join('')}</div>
+    <div class="pager"><span>Showing ${fmt(st.pg*size+1)}–${fmt(st.pg*size+v.length)} of ${fmt(l.length)}</span>${pages>1?`<div><button class="btn sm" data-act="pg" data-k="${key}:-1" ${st.pg?'':'disabled'}>Previous</button><button class="btn sm" data-act="pg" data-k="${key}:1" ${st.pg<pages-1?'':'disabled'}>Next</button></div>`:''}</div>`;
+}
+
+/* dashboard: the live board */
+const wait=(o)=>Math.max(0,Math.floor(NOW-(o.st==='new'?o.t:o.fired)));
+function ticket(o){
+const w=wait(o),late=o.st!=='ready'&&w>=(o.st==='new'?5:18);
+return `<article class="ticket${late?' late':''}${o.id===FRESH?' fresh':''}" data-act="openOrder" data-id="${o.id}" tabindex="0" aria-label="Order ${o.id}, ${where(o)}">
+    <div class="t-top"><span class="tt"><span class="thumb">${dishArt(o.items[0].n,o.items[0].c)}</span><b>${esc(where(o))} <span>#${o.id}</span></b></span><span class="${late?'late':''}">${w} min</span></div>
+    <ul class="t-items">${o.items.slice(0,3).map((i)=>`<li>${esc(i.n)}${i.q>1?' × '+i.q:''}${i.mods.length?` <em>· ${esc(i.mods.join(', '))}</em>`:''}</li>`).join('')}${o.items.length>3?`<li>+${o.items.length-3} more</li>`:''}</ul>
+    <div class="t-foot"><b>${eur(due(o))}</b><button class="btn sm ${o.st==='new'?'primary':''}" data-act="adv" data-id="${o.id}">${NEXT[o.st]}</button></div></article>`;
+}
+function finding(){
+const stopNew=S.orders.find((o)=>o.st==='new'&&o.items.some((l)=>!isAvail(dish(l.n))));
+if(stopNew){const l=stopNew.items.find((x)=>!isAvail(dish(x.n)));return `<div class="finding">${ic('alert')}<span>Order #${stopNew.id} includes “${esc(l.n)}”, which is on the stop-list (${esc(why(dish(l.n)).toLowerCase())}). Call the guest before accepting it.</span><button class="btn sm" data-act="openOrder" data-id="${stopNew.id}">Open order</button></div>`;}
+const clash=RES.filter((r)=>r.o===0&&r.st==='booked'&&r.t>=NOW-15&&r.t-NOW<=30).find((r)=>['seated','bill'].includes(tstat(tbl(r.table))));
+if(clash)return `<div class="finding">${ic('calendar')}<span>${esc(clash.name)} (${clash.size}) is booked for ${hm(clash.t)} at Table ${clash.table}, which is still occupied. Move the booking or turn the table.</span><button class="btn sm" data-act="openRes" data-id="${clash.id}">Reassign</button></div>`;
+const waiting=S.orders.filter((o)=>o.st==='new').sort((a,b)=>a.t-b.t)[0];
+if(waiting&&wait(waiting)>=4)return `<div class="finding">${ic('clock')}<span>${esc(waiting.type)} order #${waiting.id} has waited ${pl(wait(waiting),'minute')} for acceptance.</span><button class="btn sm primary" data-act="adv" data-id="${waiting.id}">Accept & fire</button></div>`;
+return '';
+}
+VIEWS.dashboard=()=>{
+const e=eod(),col=(title,st)=>{const l=S.orders.filter((o)=>o.st===st).sort((a,b)=>a.t-b.t);return `<section><div class="col-h"><h2>${title}</h2><span>${l.length}</span></div><div class="tickets">${l.length?l.map(ticket).join(''):'<div class="none">Nothing here right now</div>'}</div></section>`;};
+const seated=TABLES.reduce((s,T)=>s+(T.occ?T.occ.cov:0),0),cook=S.orders.filter((o)=>o.st==='cooking');
+const oldest=cook.length?Math.max(...cook.map(wait)):0,nClosed=e.closed.length;
+const counts={};TABLES.forEach((T)=>{const s=tstat(T);counts[s]=(counts[s]||0)+1;});
+const up=RES.filter((r)=>r.o===0&&r.st==='booked'&&r.t>=NOW-15).sort((a,b)=>a.t-b.t);
+const alerts=Object.values(INV).filter((i)=>invSt(i)!=='ok').sort((a,b)=>a.q/a.min-b.q/b.min);
+const stop=S.menu.filter((m)=>!isAvail(m));
+return head(`Good evening, ${esc(USER.name.split(' ')[0])}`,`${DFL.format(day(0))} · dinner service`,`<button class="btn" data-act="walkIn">${ic('users')}Seat walk-in</button><button class="btn primary" data-page="pos">${ic('plus')}New order</button>`)+finding()+
+`<div class="kpis k5"><div class="kpi"><b>${eur(e.taken)}</b><span>Takings so far</span></div>
+      <div class="kpi"><b>${eur(e.open)}</b><span>${pl(e.openN,'open check')}</span></div>
+      <div class="kpi"><b>${seated}<small>/ ${CAP}</small></b><span>Covers seated now</span></div>
+      <div class="kpi"><b>${eur(nClosed?e.net/nClosed:0)}</b><span>Average check, ${pl(nClosed,'paid order')}</span></div>
+      <div class="kpi"><b>${cook.length}</b><span>Kitchen tickets${cook.length?`, oldest ${oldest} min`:''}</span></div></div>
+    <div class="board">${col('New','new')}${col('In the kitchen','cooking')}${col('Ready to serve','ready')}</div>
+    <div class="grid" style="margin-top:var(--gap)">
+      <section class="card c4"><div class="card-h"><h2>Floor right now</h2><button class="linkbtn" data-page="floor">Floor plan</button></div>${Object.keys(TST).map((k)=>barRow(TST[k],(counts[k]||0)/TABLES.length*100,pl(counts[k]||0,'table'))).join('')}</section>
+      <section class="card c4"><div class="card-h"><h2>Arriving next</h2><button class="linkbtn" data-page="reservations">All bookings</button></div>${up.length?`<ul class="lst">${up.slice(0,5).map((r)=>`<li><span><b>${hm(r.t)}</b> ${esc(r.name)}<small>${pl(r.size,'guest')} · Table ${r.table}${r.note?' · '+esc(r.note):''}</small></span><button class="btn sm" data-act="openRes" data-id="${r.id}">Open</button></li>`).join('')}</ul>`:'<div class="empty">No more bookings today.</div>'}</section>
+      <section class="card c4"><div class="card-h"><h2>Stock alerts</h2><span>${pl(stop.length,'dish','dishes')} on stop-list</span></div>${alerts.length?`<ul class="lst">${alerts.slice(0,5).map((i)=>`<li><span>${esc(i.n)}<small>${fmtD(i.q,i.q % 1?1:0)} ${i.u} on hand · par ${fmtD(i.min,i.min % 1?1:0)}</small></span><span class="pill ${INVST[invSt(i)][1]}">${INVST[invSt(i)][0]}</span></li>`).join('')}</ul>`:'<div class="empty">All stock above par.</div>'}</section></div>`;
+};
+
+/* orders */
+function orderRows(){
+const f=F.orders,q=f.q.trim().toLowerCase();
+return S.orders.filter((o)=>(f.st==='all'||o.st===f.st)&&(f.type==='all'||o.type===f.type)&&
+(!q||('#'+o.id).includes(q)||String(o.id).includes(q)||where(o).toLowerCase().includes(q)||o.name.toLowerCase().includes(q)||o.items.some((l)=>l.n.toLowerCase().includes(q))));
+}
+VIEWS.orders=()=>{
+const f=F.orders,c=(s)=>S.orders.filter((o)=>s==='all'||o.st===s).length;
+const tab=(k,t)=>`<button data-act="ordTab" data-k="${k}" class="${f.st===k?'on':''}">${t} <span class="muted">${c(k)}</span></button>`;
+const rows=orderRows();
+return head('Orders',`${pl(S.orders.length,'order')} today · ${eur(eod().taken)} taken`,`<button class="btn" data-act="csvOrders">${ic('down2')}Export CSV</button><button class="btn primary" data-page="pos">${ic('plus')}New order</button>`)+
+`<div class="tabs" role="tablist" style="max-width:100%;overflow-x:auto">${tab('all','All')}${tab('new','New')}${tab('cooking','In kitchen')}${tab('ready','Ready')}${tab('served','Awaiting payment')}${tab('paid','Paid')}${tab('cancel','Cancelled')}</div>
+    <div class="bar2">${srch('orders.q',f.q,'Order no., table, guest or dish')}${sel('orders.type',f.type,[['all','All types'],['Dine-in','Dine-in'],['Takeaway','Takeaway'],['Delivery','Delivery']],'Order type')}</div>
+    <div class="card">${dtable('orders',rows,[
+{k:'id',l:'No.',w:'70px',m:'64px',v:(o)=>o.id,h:(o)=>`<span class="muted">#${o.id}</span>`},
+{k:'t',l:'Opened',w:'74px',v:(o)=>o.t,h:(o)=>hm(o.t)},
+{k:'w',l:'Table & guest',w:'minmax(0,1.2fr)',m:'minmax(0,1fr)',v:(o)=>where(o),h:(o)=>`<span class="cell-main"><b>${esc(where(o))}</b><span>${esc(o.name)}${o.type==='Dine-in'?' · '+pl(o.cov,'cover'):''}</span></span>`},
+{k:'it',l:'Items',w:'minmax(0,1.4fr)',h:(o)=>`<span class="muted">${esc(o.items.map((l)=>(l.q>1?l.q+'× ':'')+l.n).slice(0,2).join(', '))}${o.items.length>2?` +${o.items.length-2}`:''}</span>`},
+{k:'wt',l:'Waiter',w:'110px',v:(o)=>staff(o.waiter).name,h:(o)=>esc(short(staff(o.waiter).name))},
+{k:'st',l:'Status',w:'150px',v:(o)=>Object.keys(SM).indexOf(o.st),h:(o)=>pill(o.st)},
+{k:'tot',l:'Total',w:'96px',m:'84px',cls:'r',v:(o)=>due(o),h:(o)=>`<b style="font-weight:600">${eur(due(o))}</b>`},
+],{open:'openOrder',empty:`No ${f.st==='all'?'':SM[f.st][0].toLowerCase()+' '}orders match “${esc(f.q)}”.`})}</div>`;
+};
+
+/* POS composer */
+const posOrder=()=>POS.type==='Dine-in'&&POS.table?openOn(POS.table).find((o)=>o.st!=='new'):null;
+VIEWS.pos=()=>{
+const q=POS.q.trim().toLowerCase(),list=S.menu.filter((m)=>(POS.cat==='all'||m.c===POS.cat)&&(!q||m.n.toLowerCase().includes(q)));
+const ex=posOrder(),t={n:0,items:POS.lines,disc:POS.disc},g=guest(POS.gid);
+const subT=sub(t),dT=disc(t),n=POS.lines.reduce((s,l)=>s+l.q,0);
+const cats=[['all','All',S.menu.length],...Object.entries(CATS).map(([k,v])=>[k,v,S.menu.filter((m)=>m.c===k).length])];
+return head('Point of sale',`Terminal POS-2 · ${esc(USER.name)}`,ex?`<button class="btn" data-act="openOrder" data-id="${ex.id}">Open check #${ex.id}</button>`:'')+
+`<div class="posl"><div><div class="bar2">${srch('pos.q',POS.q,'Search the menu')}</div><div class="chips" role="group" aria-label="Category">${cats.map(([k,v,c])=>`<button class="chip ${POS.cat===k?'on':''}" data-act="posCat" data-k="${k}" aria-pressed="${POS.cat===k}">${v}<em>${c}</em></button>`).join('')}</div>
+      ${list.length?`<div class="pgrid">${list.map((m)=>{const ok=isAvail(m);return `<button class="pi" data-act="posAdd" data-n="${esc(m.n)}" aria-disabled="${!ok}" ${ok?'':`title="${esc(why(m))}"`}><span class="thumb">${dishArt(m.n,m.c)}</span><b>${esc(m.n)}</b><span>${eur(m.p)}${ok?'':'<span class="pill neg">Stop-list</span>'}</span></button>`;}).join('')}</div>`:`<div class="state">${ic('search')}<h2>No dishes found</h2><p>Nothing on the menu matches “${esc(POS.q)}”.</p></div>`}</div>
+    <div class="card tk" id="ticket"><div class="tk-h"><h2>${ex?`Adding to check #${ex.id}`:'New ticket'}</h2>
+      <div class="row2"><div class="field"><label for="pos-type">Order type</label><select class="inp" id="pos-type" data-pos="type">${['Dine-in','Takeaway','Delivery'].map((x)=>`<option ${POS.type===x?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div class="field"><label for="pos-table">Table</label><select class="inp" id="pos-table" data-pos="table" ${POS.type!=='Dine-in'?'disabled':''} ${POS.err==='table'?'aria-invalid="true"':''}><option value="">${POS.type==='Dine-in'?'Choose a table':'Not needed'}</option>${TABLES.map((T)=>`<option value="${T.n}" ${+POS.table===T.n?'selected':''}>Table ${T.n} · ${TST[tstat(T)]}</option>`).join('')}</select></div></div>
+      <div class="row2"><div class="field"><label for="pos-cov">Covers</label><input class="inp" id="pos-cov" type="number" min="1" max="20" data-pos="cov" value="${POS.cov}" ${POS.type!=='Dine-in'?'disabled':''}></div>
+      <div class="field"><label for="pos-guest">Guest (loyalty)</label><input class="inp" id="pos-guest" list="glist" data-pos="guest" value="${esc(POS.guest)}" placeholder="Name or phone" autocomplete="off"><datalist id="glist">${S.guests.map((x)=>`<option value="${esc(x.name)}">${esc(x.phone)}</option>`).join('')}</datalist></div></div>
+      ${g?`<p class="hint">${esc(g.name)} · <span class="pill ${TIERC[tier(g)]}">${tier(g)}</span> ${fmt(g.points)} points${g.note?' · '+esc(g.note):''}</p>`:ex?`<p class="hint">Open since ${hm(ex.t)} · ${eur(due(ex))} on the check so far</p>`:''}
+    </div><div class="tk-b">${POS.lines.length?POS.lines.map((l,i)=>`<div class="tl"><button data-act="posEdit" data-i="${i}" aria-label="Edit ${esc(l.n)}"><b style="font-weight:500">${esc(l.n)}</b>${l.mods.length||l.note?`<small>${esc([...l.mods,l.note].filter(Boolean).join(' · '))}</small>`:''}</button><b>${eur(lt(l))}</b>
+      <span class="qty"><button data-act="posQty" data-i="${i}" data-d="-1" aria-label="One less">${ic('minus')}</button><b>${l.q}</b><button data-act="posQty" data-i="${i}" data-d="1" aria-label="One more">${ic('plus')}</button></span><span class="hint">${eur(l.p+l.md)} each</span></div>`).join(''):`<div class="empty">Tap a dish to add it to the ticket.</div>`}</div>
+    <div class="tk-f"><div class="sum"><span>Subtotal</span><span>${eur(subT)}</span>${dT?`<span>Discount · ${esc(POS.disc.why)}</span><span>${eur(-dT)}</span>`:''}<b>Total</b><b class="tot">${eur(subT-dT)}</b><span class="hint">incl. VAT ${eur(vatOf(t,10))} (10%) · ${eur(vatOf(t,20))} (20%)</span></div>
+      ${POS.err&&POS.err!=='table'?`<p class="err" role="alert" style="margin-top:8px">${esc(POS.err)}</p>`:POS.err==='table'?`<p class="err" role="alert" style="margin-top:8px">Choose a table for a dine-in order.</p>`:''}
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn" data-act="posDisc" ${POS.lines.length?'':'disabled'}>${ic('pct')}Discount</button><button class="btn" data-act="posClear" ${POS.lines.length?'':'disabled'}>Clear</button></div>
+      <div style="display:flex;gap:8px;margin-top:8px"><button class="btn primary" data-act="posSend">Send to kitchen</button><button class="btn" data-act="posSend" data-pay="1">Send & pay</button></div></div></div></div>
+    ${n?`<div class="posbar"><span>${pl(n,'item')} · <b>${eur(subT-dT)}</b></span><button class="btn sm" data-act="toTicket">View ticket</button></div>`:''}`;
+};
+function vatOf(o,rate){const s=sub(o),f=s?(s-disc(o)-redeemV(o))/s:0;return r2(o.items.filter((l)=>l.vat===rate).reduce((a,l)=>a+lt(l)*f,0)*rate/(100+rate));}
+
+/* floor plan */
+VIEWS.floor=()=>{
+const occ=TABLES.filter((T)=>['seated','bill'].includes(tstat(T))).length,cov=TABLES.reduce((s,T)=>s+(T.occ?T.occ.cov:0),0);
+const tile=(T)=>{
+const s=tstat(T),os=openOn(T.n),o=os[0],r=nextRes(T.n),c=T.occ?T.occ.cov:0;
+const info=s==='seated'||s==='bill'?`${T.occ?ago(T.occ.since).replace(' ago',''):''}${os.length?' · '+eur(sum(os,left)):' · no order yet'}`:s==='reserved'?`${hm(r.t)} · ${esc(short(r.name))}`:s==='cleaning'?'Clear and reset':r?`Next: ${hm(r.t)}`:'Available';
+return `<button class="tb ${s}" data-act="openTable" data-id="${T.n}" aria-label="Table ${T.n}, ${T.s} seats, ${TST[s]}"><div><b>${T.n}</b><span class="st">${TST[s]}</span></div><div class="seats" aria-hidden="true">${Array.from({length:T.s},(_,i)=>`<i class="${i<c?'f':''}"></i>`).join('')}</div><small>${info}${o&&o.st==='ready'?' · food ready':''}</small></button>`;
+};
+const zone=(z,c)=>{const ts=TABLES.filter((T)=>T.z===z);return `<section class="zone"><h2>${z}<span>${pl(ts.reduce((s,T)=>s+T.s,0),'seat')}</span></h2><div class="fp" style="--c:${c}">${ts.map(tile).join('')}</div></section>`;};
+return head('Floor plan',`${occ} of ${TABLES.length} tables occupied · ${cov} of ${CAP} covers`,`<button class="btn primary" data-act="walkIn">${ic('users')}Seat walk-in</button>`)+
+`<div class="legend">${[['free','var(--surface)'],['seated','#fdf0ea'],['bill','var(--warn-bg)'],['reserved','var(--info-bg)'],['cleaning','var(--raised)']].map(([k,c])=>`<span><i style="background:${c}"></i>${TST[k]}</span>`).join('')}</div>
+    <div class="zones"><div>${zone('Main hall',4)}</div><div style="display:grid;gap:var(--gap)">${zone('Winter garden',2)}${zone('Bar',2)}</div></div>`;
+};
+
+/* kitchen display */
+VIEWS.kitchen=()=>{
+const cook=S.orders.filter((o)=>o.st==='cooking').sort((a,b)=>a.fired-b.fired),f=F.kds;
+const has=(o,s)=>o.items.some((l)=>l.st===s&&!l.done);
+const list=f==='all'?cook:cook.filter((o)=>has(o,f)),newN=S.orders.filter((o)=>o.st==='new').length;
+const late=cook.filter((o)=>wait(o)>=18).length,avg=cook.length?Math.round(cook.reduce((s,o)=>s+wait(o),0)/cook.length):0;
+const tk=(o)=>{const w=wait(o),lv=w>=18?'late':w>=12?'warn':'';const its=o.items.map((l,i)=>({l,i})).filter(({l})=>f==='all'||l.st===f||true);
+return `<article class="kt ${lv}"><div class="kt-h"><span><b>#${o.id} · ${esc(where(o))}</b><small>${esc(short(staff(o.waiter).name))} · fired ${hm(o.fired)}${o.type==='Dine-in'?' · '+pl(o.cov,'cover'):''}</small></span><span class="tm">${w} min</span></div>
+      ${its.map(({l,i})=>`<button class="ki ${l.done?'done':''} ${f!=='all'&&l.st!==f?'other':''}" data-act="kdsItem" data-id="${o.id}" data-i="${i}" aria-pressed="${l.done}"><span class="n">${l.q}×</span><span>${esc(l.n)}<em>${STATIONS[l.st]}</em>${l.mods.length||l.note?`<small>${esc([...l.mods,l.note].filter(Boolean).join(' · '))}</small>`:''}</span></button>`).join('')}
+      <div class="kt-f"><span>${o.items.filter((l)=>l.done).length} of ${o.items.length} done</span><button class="btn sm primary" data-act="bump" data-id="${o.id}">Bump${f==='all'?'':' '+STATIONS[f]}</button></div></article>`;};
+return head('Kitchen display',`${pl(cook.length,'open ticket')} · average ${avg} min${late?` · <span class="neg">${late} over 18 min</span>`:''}`)+
+(newN?`<div class="finding">${ic('bag')}<span>${pl(newN,'online order')} waiting for acceptance at the pass.</span><button class="btn sm" data-act="ordTab" data-k="new" data-go="1">Review</button></div>`:'')+
+`<div class="chips" role="group" aria-label="Station" style="margin-bottom:14px">${[['all','All stations',cook.length],...Object.entries(STATIONS).map(([k,v])=>[k,v,cook.filter((o)=>has(o,k)).length])].map(([k,v,c])=>`<button class="chip ${f===k?'on':''}" data-act="kdsSt" data-k="${k}" aria-pressed="${f===k}">${v}<em>${c}</em></button>`).join('')}</div>`+
+(list.length?`<div class="kds">${list.map(tk).join('')}</div>`:`<div class="card state">${ic('check')}<h2>All caught up</h2><p>${f==='all'?'New tickets appear here as soon as they are fired from the POS.':`Nothing waiting for ${STATIONS[f]}.`}</p></div>`);
+};
+
+/* reservations */
+const SLOTS=Array.from({length:20},(_,i)=>12*60+i*30);// 12:00 … 21:30
+const RSM={booked:['Booked','info'],seated:['Seated','pos'],completed:['Completed',''],'no-show':['No-show','neg'],cancelled:['Cancelled','neg']};
+VIEWS.reservations=()=>{
+const o=F.res.o,size=+F.res.size,list=resOn(o).sort((a,b)=>a.t-b.t);
+const strip=[0,1,2,3,4,5,6].map((d)=>{const l=resOn(d);return `<button class="dy ${d===o?'on':''}" data-act="resDay" data-k="${d}" aria-pressed="${d===o}"><b>${d===0?'Today':DF.format(day(d)).split(' ')[0]}</b><small>${DF.format(day(d)).replace(/^\w+,? /,'')}</small><small>${pl(l.length,'booking')} · ${l.reduce((s,r)=>s+r.size,0)} cov.</small></button>`;}).join('');
+const slots=SLOTS.map((t)=>{const past=o===0&&t<NOW+15,n=TABLES.filter((T)=>T.s>=size&&T.s<=size+4&&!RES.some((r)=>r.o===o&&r.table===T.n&&['booked','seated'].includes(r.st)&&Math.abs(r.t-t)<120)).length;
+return `<button class="slot ${past?'past':n===0?'full':n<=2?'tight':''}" data-act="newRes" data-t="${t}" ${past||!n?'aria-disabled="true"':''} title="${past?'In the past':n?pl(n,'table')+' free':'Fully booked'}"><b>${hm(t)}</b>${past?'–':n?n+' free':'Full'}</button>`;}).join('');
+const col=(t)=>2+(t-12*60)/30;
+const nowCol=o===0&&NOW>=720&&NOW<1380?`<div class="nowl" style="grid-row:1/${TABLES.length+2};grid-column:${Math.floor(col(NOW))}" aria-hidden="true"></div>`:'';
+const grid=`<div class="tlg">${'<div></div>'+Array.from({length:22},(_,i)=>`<div class="hd" style="grid-row:1;grid-column:${i+2}">${i % 2?'':hm(720+i*30)}</div>`).join('')}
+    ${TABLES.map((T,r)=>`<div class="rl" style="grid-row:${r+2};grid-column:1">T${T.n} <span class="muted">· ${T.s}</span></div>`+Array.from({length:22},(_,i)=>`<div class="cl" style="grid-row:${r+2};grid-column:${i+2}"></div>`).join('')).join('')}
+    ${list.map((x)=>`<button class="rb ${x.st}" style="grid-row:${TABLES.findIndex((T)=>T.n===x.table)+2};grid-column:${col(x.t)}/span 4" data-act="openRes" data-id="${x.id}" title="${esc(x.name)}, ${x.size} guests, ${hm(x.t)}">${hm(x.t)} ${esc(x.name)} (${x.size})</button>`).join('')}${nowCol}</div>`;
+const rl=list.length?`<ul class="lst card" style="padding:4px 16px">${list.map((x)=>`<li data-act="openRes" data-id="${x.id}" tabindex="0" style="cursor:pointer"><span><b>${hm(x.t)}</b> ${esc(x.name)}<small>${pl(x.size,'guest')} · Table ${x.table}${x.note?' · '+esc(x.note):''}</small></span><span class="pill ${RSM[x.st][1]}">${RSM[x.st][0]}</span></li>`).join('')}</ul>`:`<div class="card state">${ic('calendar')}<h2>No bookings yet</h2><p>Pick a free slot above to add the first one.</p></div>`;
+return head('Reservations',`${DFL.format(day(o))} · ${pl(list.length,'booking')}, ${list.reduce((s,r)=>s+r.size,0)} covers`,`<button class="btn primary" data-act="newRes">${ic('plus')}New booking</button>`)+
+`<div class="days">${strip}</div><div class="card" style="margin-bottom:var(--gap)"><div class="card-h"><h2>Availability</h2><span><label for="s-res-size">Party size</label> ${sel('res.size',size,[1,2,3,4,5,6,7,8].map((n)=>[n,pl(n,'guest')]),'Party size')}</span></div><div class="avail">${slots}</div><p class="hint" style="margin-top:8px">Tables are held for two hours. Select a slot to book it.</p></div>
+    <div class="card tlw">${grid}</div><div class="rlist">${rl}</div>`;
+};
+
+/* guests CRM */
+VIEWS.guests=()=>{
+const f=F.guests,q=f.q.trim().toLowerCase(),l=S.guests.filter((g)=>(f.tier==='all'||tier(g)===f.tier)&&(!q||g.name.toLowerCase().includes(q)||g.phone.replace(/ /g,'').includes(q.replace(/ /g,''))||g.email.includes(q)));
+const by=(t)=>S.guests.filter((g)=>tier(g)===t).length;
+return head('Guests',`${pl(S.guests.length,'guest')} · loyalty: 1 point per €1, 100 points = €5`,`<button class="btn" data-act="csvGuests">${ic('down2')}Export CSV</button><button class="btn primary" data-act="editGuest">${ic('plus')}Add guest</button>`)+
+`<div class="kpis"><div class="kpi"><b>${by('Gold')}</b><span>Gold, €1,500+ spent</span></div><div class="kpi"><b>${by('Silver')}</b><span>Silver, €500+</span></div><div class="kpi"><b>${by('Bronze')}</b><span>Bronze</span></div><div class="kpi"><b>${fmt(S.guests.reduce((s,g)=>s+g.points,0))}</b><span>Points outstanding</span></div></div>
+    <div class="bar2">${srch('guests.q',f.q,'Name, phone or email')}${sel('guests.tier',f.tier,[['all','All tiers'],['Gold','Gold'],['Silver','Silver'],['Bronze','Bronze']],'Tier')}</div>
+    <div class="card">${dtable('guests',l,[
+{k:'n',l:'Guest',w:'minmax(0,1.5fr)',m:true,v:(g)=>g.name,h:(g)=>`<span class="cell-main"><b>${esc(g.name)}</b><span>${g.note?esc(g.note):'Guest since '+g.since}</span></span>`},
+{k:'p',l:'Phone',w:'160px',h:(g)=>`<span class="muted">${esc(g.phone)}</span>`},
+{k:'v',l:'Visits',w:'70px',cls:'r',v:(g)=>g.visits,h:(g)=>fmt(g.visits)},
+{k:'s',l:'Spent',w:'110px',cls:'r',v:(g)=>g.spent,h:(g)=>eur(g.spent)},
+{k:'pt',l:'Points',w:'80px',cls:'r',v:(g)=>g.points,h:(g)=>fmt(g.points)},
+{k:'l',l:'Last visit',w:'120px',v:(g)=>-g.last,h:(g)=>`<span class="muted">${dago(g.last)}</span>`},
+{k:'t',l:'Tier',w:'86px',m:'80px',cls:'r',v:(g)=>g.spent,h:(g)=>`<span class="pill ${TIERC[tier(g)]}">${tier(g)}</span>`},
+],{open:'openGuest',empty:`No guests match “${esc(f.q)}”. Check the spelling or add them as a new guest.`})}</div>`;
+};
+
+/* menu & stop-list */
+VIEWS.menu=()=>{
+const f=F.menu,q=f.q.trim().toLowerCase(),stop=S.menu.filter((m)=>!isAvail(m));
+const l=S.menu.map((m,i)=>({...m,i})).filter((m)=>(f.cat==='all'||m.c===f.cat)&&(!f.stop||!isAvail(m))&&(!q||m.n.toLowerCase().includes(q)));
+return head('Menu & stop-list',`${pl(S.menu.length,'dish','dishes')} · ${stop.length?pl(stop.length,'dish','dishes')+' on the stop-list':'stop-list empty'} · prices incl. VAT`,`<button class="btn primary" data-act="editDish">${ic('plus')}New dish</button>`)+
+`<div class="bar2">${srch('menu.q',f.q,'Search dishes')}${sel('menu.cat',f.cat,[['all','All categories'],...Object.entries(CATS)],'Category')}<label class="chk"><input type="checkbox" data-bind="menu.stop" ${f.stop?'checked':''}> Stop-list only</label></div>`+
+(l.length?`<div class="dgrid">${l.map((m)=>{const auto=m.on&&!isAvail(m);return `<article class="dcard ${isAvail(m)?'':'off'}"><button class="dart" data-act="editDish" data-i="${m.i}" aria-label="Edit ${esc(m.n)}">${dishArt(m.n,m.c)}</button><div class="dbody"><b>${esc(m.n)}</b>
+      <span class="hint">${CATS[m.c]} · ${STATIONS[m.st]}</span>${isAvail(m)?'':`<span class="pill ${auto?'warn':'neg'}" style="margin-top:6px;max-width:100%;overflow:hidden;text-overflow:ellipsis">${esc(why(m))}</span>`}
+      <div class="dfoot"><span>${eur(m.p)}</span>${auto?`<button class="btn sm" data-page="inventory">Restock</button>`:`<button class="sw" data-act="toggleDish" data-i="${m.i}" aria-pressed="${m.on}" aria-label="${esc(m.n)}: ${m.on?'on the menu':'on the stop-list'}"></button>`}</div></div></article>`;}).join('')}</div>`
+:`<div class="card state">${ic('utensils')}<h2>No dishes found</h2><p>Try another category or clear the search.</p></div>`);
+};
+
+/* inventory */
+const usedIn=(id)=>S.menu.filter((m)=>m.ing.some((x)=>x[0]===id));
+const qf=(i,v=i.q)=>fmtD(v,i.u==='pcs'||i.u==='btl'?0:1)+' '+i.u;
+VIEWS.inventory=()=>{
+const f=F.inv,q=f.q.trim().toLowerCase(),all=Object.values(INV),l=all.filter((i)=>(f.st==='all'||invSt(i)===f.st)&&(!q||i.n.toLowerCase().includes(q)||i.sup.toLowerCase().includes(q)));
+const alerts=all.filter((i)=>['empty','low'].includes(invSt(i))),autoStop=S.menu.filter((m)=>m.on&&!isAvail(m));
+return head('Inventory',`${pl(all.length,'ingredient')} · stock is deducted when tickets are fired`,`<button class="btn" data-act="csvInv">${ic('down2')}Export CSV</button><button class="btn primary" data-act="po" ${alerts.length?'':'disabled'}>${ic('truck')}Reorder ${alerts.length?pl(alerts.length,'item'):''}</button>`)+
+(autoStop.length?`<div class="finding">${ic('alert')}<span>${autoStop.map((m)=>`<b>${esc(m.n)}</b>`).join(', ')} ${autoStop.length===1?'is':'are'} on the stop-list because of missing stock. ${autoStop.length===1?'It returns':'They return'} automatically when you receive a delivery.</span></div>`:'')+
+`<div class="kpis"><div class="kpi"><b>${eur(all.reduce((s,i)=>s+i.q*i.cost,0))}</b><span>Stock value at cost</span></div><div class="kpi"><b>${all.filter((i)=>invSt(i)==='empty').length}</b><span>Out of stock</span></div><div class="kpi"><b>${all.filter((i)=>invSt(i)==='low').length}</b><span>Below par level</span></div><div class="kpi"><b>${autoStop.length}</b><span>Dishes blocked</span></div></div>
+    <div class="bar2">${srch('inv.q',f.q,'Ingredient or supplier')}${sel('inv.st',f.st,[['all','All statuses'],...Object.entries(INVST).map(([k,v])=>[k,v[0]])],'Stock status')}</div>
+    <div class="card">${dtable('inv',l,[
+{k:'n',l:'Ingredient',w:'minmax(0,1.3fr)',m:true,v:(i)=>i.n,h:(i)=>`<span class="cell-main"><b>${esc(i.n)}</b><span>${esc(i.sup)}</span></span>`},
+{k:'q',l:'On hand',w:'96px',cls:'r',m:'84px',v:(i)=>i.q/i.min,h:(i)=>qf(i)},
+{k:'p',l:'Par',w:'80px',cls:'r',h:(i)=>qf(i,i.min)},
+{k:'c',l:'Value',w:'96px',cls:'r',v:(i)=>i.q*i.cost,h:(i)=>eur(i.q*i.cost)},
+{k:'u',l:'Used in',w:'minmax(0,1fr)',h:(i)=>`<span class="muted">${esc(usedIn(i.id).map((m)=>m.n).slice(0,2).join(', '))}${usedIn(i.id).length>2?` +${usedIn(i.id).length-2}`:''}</span>`},
+{k:'s',l:'Status',w:'120px',cls:'r',m:'110px',v:(i)=>['empty','low','warning','ok'].indexOf(invSt(i)),h:(i)=>`<span class="pill ${INVST[invSt(i)][1]}">${INVST[invSt(i)][0]}</span>`},
+],{open:'openInv'})}</div>`;
+};
+
+/* staff & shifts */
+const NEED={kitchen:4,floor:4,bar:1};
+const evening=(d,dept)=>STAFF.filter((s)=>(s.dept===dept||(dept==='floor'&&s.dept==='mgr'))&&['E','D'].includes(s.sh[d])).length;
+VIEWS.staff=()=>{
+const tab=F.staff,days=[0,1,2,3,4,5,6].map((d)=>day(d-TODAYI));
+const cost=(d)=>STAFF.reduce((s,x)=>s+SHT[x.sh[d]][2]*x.rate,0),on=STAFF.filter(onNow);
+const tabs=`<div class="tabs" role="tablist"><button data-act="staffTab" data-k="schedule" class="${tab==='schedule'?'on':''}">Schedule</button><button data-act="staffTab" data-k="team" class="${tab==='team'?'on':''}">Team</button></div>`;
+const hd=head('Staff & shifts',`Week 45 · 2–8 November 2026 · ${on.length} of ${STAFF.length} on shift now`,``)+tabs;
+if(tab==='team'){
+const sales=(s)=>sum(S.orders.filter((o)=>o.waiter===s.id&&o.st==='paid'),due);
+return hd+`<div class="card"><div class="tbl" style="--cols:minmax(0,1.4fr) 1fr 150px 80px 110px 120px;--colsm:minmax(0,1fr) 110px"><div class="tr th"><span>Employee</span><span class="hm">Role</span><span class="hm">Phone</span><span class="hm r">Rating</span><span class="hm r">Sales today</span><span class="r">Status</span></div>
+      ${STAFF.map((s)=>`<div class="tr"><span class="cell-main"><b>${esc(s.name)}${s.id===USER.id?' <span class="tag">You</span>':''}</b><span>${hours(s)} h this week · ${SHT[s.sh[TODAYI]][0]} today</span></span><span class="hm">${s.role}</span><span class="hm muted">${s.phone}</span><span class="hm r">${fmtD(s.rating)}</span><span class="hm r">${s.dept==='floor'&&s.role==='Waiter'?eur(sales(s)):'<span class="muted">–</span>'}</span><span class="r"><span class="pill ${onNow(s)?'pos':''}"><i></i>${onNow(s)?'On shift':'Off shift'}</span></span></div>`).join('')}</div></div>`;
+}
+const covRow=(dept,label)=>`<div class="nm"><span>${label} evening</span></div>`+days.map((_,d)=>{const n=evening(d,dept),ok=n>=NEED[dept];return `<div class="cov ${d===TODAYI?'td':''}"><span class="${ok?'pos':'neg'}">${n}/${NEED[dept]}</span></div>`;}).join('')+'<div></div>';
+return hd+`<p class="hint" style="margin-bottom:10px">${isMgr()?'Select a cell to assign a shift. Past days are locked; the weekly limit is 48 hours.':'Only managers can change the schedule.'}</p><div class="card sgw" style="padding:12px 16px"><div class="sg">
+    <div class="hd">Employee</div>${days.map((d,i)=>`<div class="hd ${i===TODAYI?'td':''}"><b>${DF.format(d).split(' ')[0].replace(',','')}</b>${d.getDate()} Nov${i===TODAYI?' · today':''}</div>`).join('')}<div class="hd r">Hours</div>
+    ${STAFF.map((s)=>`<div class="nm"><b>${esc(s.name)}</b><span>${s.role}</span></div>`+s.sh.map((c,d)=>`<div class="${d===TODAYI?'td':''}"><button class="sc ${c==='O'?'':c}" data-act="shift" data-id="${s.id}" data-d="${d}" ${d<TODAYI||!isMgr()?'disabled':''} aria-label="${esc(s.name)}, ${DF.format(days[d])}: ${SHT[c][0]}">${c==='O'?'Off':`<b>${SHT[c][0]}</b>${SHT[c][1]}`}</button></div>`).join('')+`<div class="r ${hours(s)>48?'neg':''}" style="align-self:center">${hours(s)} h</div>`).join('')}
+    ${covRow('kitchen','Kitchen')}${covRow('floor','Floor')}${covRow('bar','Bar')}
+    <div class="nm"><b>Labour cost</b></div>${days.map((_,d)=>`<div class="cov ${d===TODAYI?'td':''}">${eur(cost(d)).replace(/\.\d\d$/,'')}</div>`).join('')}<div class="r cov"><b>${eur([0,1,2,3,4,5,6].reduce((s,d)=>s+cost(d),0)).replace(/\.\d\d$/,'')}</b></div></div></div>`;
+};
+
+/* end of day */
+VIEWS.report=()=>{
+const e=reconcile(),n=e.closed.length,M=['Card','Cash','Voucher'];
+const cats=Object.entries(e.byC).sort((a,b)=>b[1]-a[1]),top=Object.entries(e.top).sort((a,b)=>b[1]-a[1]).slice(0,6);
+return head('End of day',`${DFL.format(day(0))} · as of ${hm(NOW)} · business day open`,`<button class="btn" data-act="csvEod">${ic('down2')}Export CSV</button><button class="btn primary" data-act="zReport">${ic('print')}Z-report</button>`)+
+`<div class="kpis k5"><div class="kpi"><b>${eur(e.net)}</b><span>Net sales, ${pl(n,'paid order')}</span></div><div class="kpi"><b>${fmt(e.covers)}</b><span>Covers served</span></div><div class="kpi"><b>${eur(e.covers?e.closed.filter((o)=>o.type==='Dine-in').reduce((s,o)=>s+due(o),0)/e.covers:0)}</b><span>Spend per cover</span></div><div class="kpi"><b>${eur(e.discounts)}</b><span>Discounts & points</span></div><div class="kpi"><b>${eur(e.tips)}</b><span>Tips (not revenue)</span></div></div>
+    <div class="grid">
+      <section class="card c7"><div class="card-h"><h2>Takings by hour, €</h2><span>${eur(e.taken)} in total</span></div><div id="ch-hours"></div></section>
+      <section class="card c5"><div class="card-h"><h2>Payments</h2><span>${e.partial>0?`incl. ${eur(e.partial)} part-payments on open checks`:pl(e.pays.length,'payment')}</span></div>${M.map((m)=>barRow(m,e.taken?(e.byM[m]||0)/e.taken*100:0,eur(e.byM[m]||0),pl(e.pays.filter((p)=>p.m===m).length,'payment'))).join('')}
+        <div class="sum" style="margin-top:14px"><span>Gross sales (paid orders)</span><span>${eur(e.gross)}</span><span>Discounts & points</span><span>${eur(-e.discounts)}</span><b>Net sales</b><b>${eur(e.net)}</b><span class="hint">VAT 10% on ${eur(e.vat[10])}</span><span class="hint">${eur(e.vat[10]/11)}</span><span class="hint">VAT 20% on ${eur(e.vat[20])}</span><span class="hint">${eur(e.vat[20]/6)}</span><span class="hint">Still open: ${pl(e.openN,'check')}</span><span class="hint">${eur(e.open)}</span></div></section>
+      <section class="card c6"><div class="card-h"><h2>Sales mix</h2><span>share of net sales</span></div>${cats.map(([k,v])=>barRow(CATS[k],v/e.net*100,eur(v),Math.round(v/e.net*100)+'%')).join('')}</section>
+      <section class="card c6"><div class="card-h"><h2>Best sellers today</h2><span>portions</span></div><ul class="lst">${top.map(([k,v])=>`<li><span>${esc(k)}</span><b>${fmt(v)}</b></li>`).join('')}</ul></section>
+      <section class="card c6"><div class="card-h"><h2>Waiters</h2><span>paid orders</span></div><div class="tbl" style="--cols:minmax(0,1fr) 60px 70px 100px;--colsm:minmax(0,1fr) 60px 90px"><div class="tr th"><span>Name</span><span class="r">Checks</span><span class="r hm">Covers</span><span class="r">Sales</span></div>${Object.entries(e.waiters).sort((a,b)=>b[1].v-a[1].v).map(([id,w])=>`<div class="tr"><span>${esc(staff(id).name)}</span><span class="r">${w.n}</span><span class="r hm">${w.cov}</span><span class="r">${eur(w.v)}</span></div>`).join('')}</div></section>
+      <section class="card c6"><div class="card-h"><h2>Cancellations</h2><span>${pl(e.cancelled.length,'order')}</span></div>${e.cancelled.length?`<ul class="lst">${e.cancelled.map((o)=>`<li><span>#${o.id} · ${esc(where(o))}<small>${hm(o.t)} · ${esc(o.why||'No reason given')}</small></span><span>${eur(sub(o))}</span></li>`).join('')}</ul>`:'<div class="empty">No cancellations today.</div>'}</section>
+      <section class="card c12"><div class="card-h"><h2>Last 7 days, €</h2><span>today as of ${hm(NOW)}</span></div><div id="ch-week"></div></section></div>`;
+};
+function mount(){
+const a=$('#ch-hours');if(a){const e=eod(),ks=Object.keys(e.hours);chart(a,(w)=>barsSVG(w,{labels:ks,values:ks.map((k)=>e.hours[k]),mark:ks.indexOf(String(Math.min(23,Math.floor(NOW/60)))),fmtV:(v)=>fmt(v),unit:'€'}));}
+const b=$('#ch-week');if(b){const v=[...S.hist.slice(1),eod().taken],l=[-6,-5,-4,-3,-2,-1,0].map((d)=>d?DF.format(day(d)).split(',')[0].split(' ')[0]:'Today');chart(b,(w)=>barsSVG(w,{labels:l,values:v,fmtV:(x)=>fmt(x),unit:'€'}));}
+}
+
+/* drawer, confirm, undo, form errors, CSV */
+function drawer(kind,id){DW={kind,id};let d=$('#drawer');if(!d){d=document.createElement('div');d.id='drawer';d.className='dw-scrim';d.addEventListener('mousedown',(e)=>{if(e.target===d)closeDrawer();});document.body.appendChild(d);}refreshDrawer();const f=$('.dw button',d);if(f)f.focus();}
+function closeDrawer(){DW=null;const d=$('#drawer');if(d)d.remove();}
+function refreshDrawer(){const d=$('#drawer');if(!d||!DW)return;const h=DRAW[DW.kind](DW.id);if(!h)return closeDrawer();d.innerHTML=`<aside class="dw" role="dialog" aria-modal="true" aria-labelledby="dw-t">${h}</aside>`;}
+const dwHead=(t,sub)=>`<div class="dw-h"><div><h2 id="dw-t">${t}</h2><p>${sub}</p></div><button class="ib" data-act="closeDrawer" aria-label="Close">${ic('x')}</button></div>`;
+function confirmBox(title,body,ok,fn,danger=false){
+modal(`<h2>${title}</h2><p>${body}</p><div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn ${danger?'danger':'primary'}" id="cf-ok">${ok}</button></div>`,()=>{$('#cf-ok').onclick=()=>{closeModal();fn();};$('#cf-ok').focus();});
+}
+let undoT;
+function undo(msg,fn){
+let u=$('#undo');if(!u){u=document.createElement('div');u.id='undo';u.className='undo';u.setAttribute('role','status');document.body.appendChild(u);}
+u.innerHTML='<span></span><button class="btn sm">Undo</button>';u.firstChild.textContent=msg;
+u.lastChild.onclick=()=>{fn();u.classList.remove('show');render();toast('Undone');};
+u.classList.add('show');clearTimeout(undoT);undoT=setTimeout(()=>u.classList.remove('show'),6000);
+}
+function errs(map){
+$$('#scrim .err').forEach((x)=>x.remove());$$('#scrim [aria-invalid]').forEach((x)=>x.removeAttribute('aria-invalid'));
+const ks=Object.keys(map);
+ks.forEach((k)=>{const f=$('#'+k);if(!f)return;f.setAttribute('aria-invalid','true');const p=document.createElement('span');p.className='err';p.id=k+'-err';p.textContent=map[k];f.setAttribute('aria-describedby',p.id);(f.closest('.field')||f.parentNode).appendChild(p);});
+if(ks.length){const f=$('#'+ks[0]);if(f)f.focus();}
+return!ks.length;
+}
+function csv(name,rows){
+const s=rows.map((r)=>r.map((v)=>{v=String(v??'');return /[",\n;]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(',')).join('\r\n');
+const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+s],{type:'text/csv;charset=utf-8'}));a.download=name;
+document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+toast(`${name} downloaded · ${pl(rows.length-1,'row')}`);
+}
+const wide=()=>{const m=$('#scrim .modal');if(m)m.classList.add('wide');};
+
+/* drawers */
+const DRAW={
+order(id){
+const o=S.orders.find((x)=>x.id===+id);if(!o)return '';
+const g=guest(o.gid),open=OPEN.includes(o.st);
+return dwHead(`#${o.id} · ${esc(where(o))}`,`${pill(o.st)} &nbsp;${esc(o.type)} · opened ${hm(o.t)} (${ago(o.t)})`)+`<div class="dw-b">
+      <div class="kv"><div><span>Guest</span><b>${g?`<button class="linkbtn" data-act="openGuest" data-id="${g.id}">${esc(g.name)}</button>`:esc(o.name)}</b></div><div><span>Waiter</span><b>${esc(staff(o.waiter).name)}</b></div>
+      <div><span>Source</span><b>${esc(o.src)}</b></div><div><span>${o.type==='Dine-in'?'Covers':'Ticket'}</span><b>${o.type==='Dine-in'?o.cov:o.st==='new'?'Not fired yet':'Fired '+hm(o.fired)}</b></div></div>
+      ${o.why?`<p class="hint">Cancelled: ${esc(o.why)}</p>`:''}
+      <div class="sec">Items</div>${o.items.map((l)=>`<div class="ln"><span>${l.q} × ${esc(l.n)} ${l.done&&o.st!=='paid'?`<span class="ok" title="Done in kitchen">${ic('check')}</span>`:''}${!isAvail(dish(l.n))&&o.st==='new'?' <span class="pill neg">Stop-list</span>':''}</span><b>${eur(lt(l))}</b>${l.mods.length||l.note?`<small>${esc([...l.mods,l.note].filter(Boolean).join(' · '))}</small>`:''}</div>`).join('')}
+      <div class="sum"><span>Subtotal</span><span>${eur(sub(o))}</span>${o.disc?`<span>Discount · ${esc(o.disc.why)} (${o.disc.t==='%'?o.disc.v+'%':eur(o.disc.v)})</span><span>${eur(-disc(o))}</span>`:''}${o.redeem?`<span>${fmt(o.redeem)} points redeemed</span><span>${eur(-redeemV(o))}</span>`:''}
+        <b>Total incl. VAT</b><b class="tot">${eur(due(o))}</b>${o.pays.length?`<span>Paid</span><span>${eur(paid(o))}</span><b>Balance</b><b>${eur(o.st==='cancel'?0:left(o))}</b>`:''}</div>
+      ${o.pays.length?`<div class="sec">Payments</div>${o.pays.map((p)=>`<div class="ln"><span>${p.m}${p.term?' · '+esc(p.term):''}</span><b>${eur(p.a)}</b><small>${hm(p.t)}${p.tip?' · tip '+eur(p.tip):''}${p.chg?' · change '+eur(p.chg):''}</small></div>`).join('')}`:''}
+      </div><div class="dw-f">${open&&!o.pays.length?`<button class="btn ghost" data-act="cancelOrder" data-id="${o.id}">Cancel order</button>`:''}${o.pays.length?`<button class="btn" data-act="receipt" data-id="${o.id}">${ic('print')}Receipt</button>`:''}
+      ${open?`<button class="btn" data-act="discount" data-id="${o.id}">${ic('pct')}Discount</button>${o.table?`<button class="btn" data-act="addItems" data-id="${o.table}">Add items</button>`:''}${o.st!=='served'?`<button class="btn" data-act="payOrder" data-id="${o.id}">Take payment</button>`:''}<button class="btn primary" data-act="adv" data-id="${o.id}">${NEXT[o.st]}</button>`:''}</div>`;
+},
+table(n){
+const T=tbl(n),s=tstat(T),os=openOn(n),rs=RES.filter((r)=>r.o===0&&r.table===T.n&&['booked','seated'].includes(r.st)).sort((a,b)=>a.t-b.t);
+return dwHead(`Table ${T.n}`,`${T.z} · ${pl(T.s,'seat')} · <span class="pill">${TST[s]}</span>`)+`<div class="dw-b">
+      ${T.occ?`<div class="kv"><div><span>Seated</span><b>${hm(T.occ.since)} (${ago(T.occ.since)})</b></div><div><span>Covers</span><b>${T.occ.cov} of ${T.s}</b></div></div>`:`<p class="muted">${s==='cleaning'?'Guests have paid and left. Clear and reset the table before seating.':'Nobody is seated at this table.'}</p>`}
+      <div class="sec">Open checks</div>${os.length?os.map((o)=>`<div class="ln" data-act="openOrder" data-id="${o.id}" style="cursor:pointer" tabindex="0"><span>#${o.id} · ${pill(o.st)}</span><b>${eur(left(o))}</b><small>${esc(o.items.map((l)=>l.q+'× '+l.n).join(', '))}</small></div>`).join(''):'<p class="muted">None.</p>'}
+      <div class="sec">Bookings today</div>${rs.length?rs.map((r)=>`<div class="ln" data-act="openRes" data-id="${r.id}" style="cursor:pointer" tabindex="0"><span>${hm(r.t)} · ${esc(r.name)}</span><span class="pill ${RSM[r.st][1]}">${RSM[r.st][0]}</span><small>${pl(r.size,'guest')}${r.note?' · '+esc(r.note):''}</small></div>`).join(''):'<p class="muted">No bookings.</p>'}
+      </div><div class="dw-f">${s==='cleaning'?`<button class="btn primary" data-act="cleanTable" data-id="${T.n}">Mark as clear</button>`:''}${s==='free'||s==='reserved'?`<button class="btn primary" data-act="walkIn" data-id="${T.n}">Seat guests</button>`:''}
+      ${T.occ&&!os.length?`<button class="btn" data-act="unseat" data-id="${T.n}">Guests left</button>`:''}${T.occ||os.length?`<button class="btn ${os.some((o)=>o.st==='served')?'':'primary'}" data-act="addItems" data-id="${T.n}">Add items</button>`:''}
+      ${os.length?`<button class="btn ${os.some((o)=>o.st==='served')?'primary':''}" data-act="payOrder" data-id="${os[0].id}">Take payment</button>`:''}</div>`;
+},
+guest(id){
+const g=guest(id);if(!g)return '';
+const t=tier(g),nx=t==='Gold'?null:t==='Silver'?1500:500,today=S.orders.filter((o)=>o.gid===g.id);
+return dwHead(esc(g.name),`<span class="pill ${TIERC[t]}">${t}</span> &nbsp;Guest since ${g.since} · last visit ${dago(g.last)}`)+`<div class="dw-b">
+      <div class="kv"><div><span>Phone</span><b>${esc(g.phone)}</b></div><div><span>Email</span><b>${esc(g.email)}</b></div><div><span>Visits</span><b>${fmt(g.visits)}</b></div><div><span>Lifetime spend</span><b>${eur(g.spent)}</b></div>
+      <div><span>Points balance</span><b>${fmt(g.points)} (worth ${eur(Math.floor(g.points/100)*5)})</b></div><div><span>Average check</span><b>${eur(g.spent/g.visits)}</b></div></div>
+      ${nx?`<div class="brow" style="margin-top:12px">${barRow(`${eur(nx-g.spent)} to ${t==='Silver'?'Gold':'Silver'}`,g.spent/nx*100,Math.round(g.spent/nx*100)+'%')}</div>`:'<p class="hint" style="margin-top:12px">Top tier reached. Gold guests get a free dessert on every visit.</p>'}
+      ${g.note?`<div class="sec">Notes</div><p>${esc(g.note)}</p>`:''}
+      <div class="sec">Today</div>${today.length?today.map((o)=>`<div class="ln" data-act="openOrder" data-id="${o.id}" style="cursor:pointer" tabindex="0"><span>#${o.id} · ${esc(where(o))}</span><b>${eur(due(o))}</b><small>${hm(o.t)} · ${SM[o.st][0]}</small></div>`).join(''):'<p class="muted">No orders today.</p>'}
+      <div class="sec">Points history</div>${g.ledger.slice(0,8).map((x)=>`<div class="ln"><span>${esc(x.what)}</span><b class="${x.p<0?'neg':'pos'}">${signed(x.p)}</b><small>${esc(x.d)}</small></div>`).join('')}
+      </div><div class="dw-f"><button class="btn" data-act="adjPoints" data-id="${g.id}">Adjust points</button><button class="btn" data-act="newRes" data-g="${g.id}">Book a table</button><button class="btn primary" data-act="editGuest" data-id="${g.id}">${ic('edit')}Edit</button></div>`;
+},
+res(id){
+const r=RES.find((x)=>x.id===+id);if(!r)return '';
+const T=tbl(r.table),busy=r.o===0&&['seated','bill'].includes(tstat(T))&&r.st==='booked';
+return dwHead(esc(r.name),`<span class="pill ${RSM[r.st][1]}">${RSM[r.st][0]}</span> &nbsp;${DF.format(day(r.o))}, ${hm(r.t)}–${hm(r.t+120)}`)+`<div class="dw-b">
+      <div class="kv"><div><span>Party</span><b>${pl(r.size,'guest')}</b></div><div><span>Table</span><b>Table ${r.table} · ${T.z}</b></div><div><span>Phone</span><b>${esc(r.phone)}</b></div><div><span>Booked via</span><b>${esc(r.src)}</b></div></div>
+      ${r.note?`<div class="sec">Note</div><p>${esc(r.note)}</p>`:''}${busy?`<div class="finding" style="margin-top:14px">${ic('alert')}<span>Table ${r.table} is still occupied. Move this booking to another table.</span></div>`:''}
+      ${r.gid?`<div class="sec">Guest profile</div><button class="linkbtn" data-act="openGuest" data-id="${r.gid}">${esc(guest(r.gid).name)} · ${tier(guest(r.gid))}, ${pl(guest(r.gid).visits,'visit')}</button>`:''}
+      </div><div class="dw-f">${r.st==='booked'?`<button class="btn ghost" data-act="cancelRes" data-id="${r.id}">Cancel booking</button>${r.o===0&&r.t<=NOW+30?`<button class="btn" data-act="noShow" data-id="${r.id}">No-show</button>`:''}<button class="btn" data-act="newRes" data-id="${r.id}">${ic('edit')}Edit</button>${r.o===0&&!busy?`<button class="btn primary" data-act="seatRes" data-id="${r.id}">Seat now</button>`:''}`:''}</div>`;
+},
+};
+
+/* payment */
+let PAY=null;
+const TERMS=['Terminal 1 · bar','Terminal 2 · floor'];
+function payOrder(id){const o=S.orders.find((x)=>x.id===+id);if(!o)return;if(o.st==='new')return toast('Accept the order before taking payment');PAY={id:o.id,mode:'full',parts:2,done:0,sel:[],m:'Card',term:0,tender:'',tip:0,tipC:'',busy:false,err:''};modal('<div id="payb"></div>');wide();payRender();}
+function payAmt(o){
+const L=left(o);if(PAY.mode==='equal'){const k=PAY.parts-PAY.done;return k<=1?L:r2(L/k);}
+if(PAY.mode==='items'){const f=sub(o)?due(o)/sub(o):0;return Math.min(L,r2(PAY.sel.reduce((s,i)=>s+lt(o.items[i])*f,0)));}
+return L;
+}
+function payRender(){
+const b=$('#payb');if(!b)return;const o=S.orders.find((x)=>x.id===PAY.id),g=guest(o.gid),a=payAmt(o);
+const tip=r2(a*PAY.tip),chg=PAY.m==='Cash'&&+PAY.tender?r2(+PAY.tender-a-tip):0;
+b.innerHTML=`<h2>Payment · #${o.id} ${esc(where(o))}</h2><p>Total ${eur(due(o))}${paid(o)?` · paid ${eur(paid(o))}`:''} · <b>${eur(left(o))} to pay</b></p>
+    ${g&&g.points>=100&&!o.redeem&&!o.pays.length?`<div class="finding" style="background:var(--info-bg)">${ic('star')}<span>${esc(g.name)} has ${fmt(g.points)} points. Redeem ${fmt(Math.min(Math.floor(g.points/100)*100,Math.floor(left(o)/5)*100))} points for ${eur(Math.min(Math.floor(g.points/100),Math.floor(left(o)/5))*5)} off.</span><button class="btn sm" data-act="redeem">Redeem</button></div>`:''}
+    <div class="tabs" role="tablist"><button data-act="payMode" data-k="full" class="${PAY.mode==='full'?'on':''}">Full bill</button><button data-act="payMode" data-k="equal" class="${PAY.mode==='equal'?'on':''}">Split equally</button><button data-act="payMode" data-k="items" class="${PAY.mode==='items'?'on':''}" ${o.pays.length&&PAY.mode!=='items'?'disabled':''}>By item</button></div>
+    ${PAY.mode==='equal'?`<div class="field"><label for="pay-parts">Number of guests</label><select class="inp" id="pay-parts" data-payk="parts">${[2,3,4,5,6,7,8].map((n)=>`<option ${PAY.parts===n?'selected':''} ${n<=PAY.done?'disabled':''}>${n}</option>`).join('')}</select><span class="hint">Part ${PAY.done+1} of ${PAY.parts}</span></div>`:''}
+    ${PAY.mode==='items'?`<div class="field"><label>Items this guest pays for</label>${o.items.map((l,i)=>l.pd?`<div class="chk muted">${l.q} × ${esc(l.n)}<em>paid</em></div>`:`<label class="chk"><input type="checkbox" data-payi="${i}" ${PAY.sel.includes(i)?'checked':''}>${l.q} × ${esc(l.n)}<em>${eur(lt(l))}</em></label>`).join('')}</div>`:''}
+    <div class="field"><label>Method</label><div class="chips">${['Card','Cash','Voucher'].map((m)=>`<button class="chip ${PAY.m===m?'on':''}" data-act="payM" data-k="${m}" aria-pressed="${PAY.m===m}">${m}</button>`).join('')}</div></div>
+    <div class="row2">${PAY.m==='Card'?`<div class="field"><label for="pay-term">Card terminal</label><select class="inp" id="pay-term" data-payk="term">${TERMS.map((t,i)=>`<option value="${i}" ${PAY.term===i?'selected':''}>${t}${i?' (offline)':''}</option>`).join('')}</select></div>`:PAY.m==='Cash'?`<div class="field"><label for="pay-tender">Cash received, €</label><input class="inp" id="pay-tender" type="number" min="0" step="0.5" inputmode="decimal" data-payk="tender" value="${esc(PAY.tender)}" placeholder="${fmtD(a+tip,2)}"><span class="hint">${chg>0?'Change '+eur(chg):'Enter the amount handed over'}</span></div>`:`<div class="field"><label for="pay-vc">Voucher code</label><input class="inp" id="pay-vc" placeholder="NL-XXXX-XXXX" data-payk="vc" value="${esc(PAY.vc||'')}"></div>`}
+    <div class="field"><label>Tip</label><div class="chips">${[[0,'None'],[.05,'5%'],[.1,'10%'],[.15,'15%']].map(([v,t])=>`<button class="chip ${PAY.tip===v?'on':''}" data-act="payTip" data-k="${v}">${t}</button>`).join('')}</div></div></div>
+    ${PAY.err?`<div class="state errs" role="alert">${ic('alert')} <b>${esc(PAY.err)}</b><p style="margin:4px 0 0">${PAY.term?'Terminal 2 has not responded for 4 minutes. Use Terminal 1 or take cash.':''}</p>${PAY.term?'<button class="btn sm" data-act="payT1" style="margin-top:8px">Switch to Terminal 1</button>':''}</div>`:''}
+    <div class="modal-actions"><button class="btn" data-act="closeModal">Close</button><button class="btn primary" data-act="payGo" ${PAY.busy||a<=0?'disabled':''}>${PAY.busy?`<span class="spin"></span> Waiting for card on ${TERMS[PAY.term].split(' ·')[0]}…`:`Charge ${eur(a+tip)}`}</button></div>`;
+}
+function payGo(){
+const o=S.orders.find((x)=>x.id===PAY.id),a=payAmt(o),tip=r2(a*PAY.tip);
+PAY.err='';
+if(PAY.mode==='items'&&!PAY.sel.length){PAY.err='Select at least one item';return payRender();}
+if(PAY.m==='Cash'&&PAY.tender!==''&&+PAY.tender<a+tip-.001){payRender();return errs({'pay-tender':`Not enough cash: ${eur(a+tip)} is due`});}
+if(PAY.m==='Voucher'&&!/^[A-Z]{2}-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(PAY.vc||'')){payRender();return errs({'pay-vc':'Enter a voucher code like NL-7K2F-93QX'});}
+const finish=()=>{
+o.pays.push({m:PAY.m,a,tip,t:NOW,term:PAY.m==='Card'?TERMS[PAY.term]:'',chg:PAY.m==='Cash'&&+PAY.tender?r2(+PAY.tender-a-tip):0});
+if(PAY.mode==='items')PAY.sel.forEach((i)=>{o.items[i].pd=true;});PAY.sel=[];
+if(PAY.mode==='equal')PAY.done++;
+PAY.busy=false;PAY.tender='';PAY.vc='';
+if(left(o)<=.004){closeOrder(o);closeModal();render();receipt(o.id);toast(`Paid in full · ${eur(due(o))}`);}
+else{render();payRender();toast(`${eur(a)} received · ${eur(left(o))} still to pay`);}
+};
+if(PAY.m==='Card'){PAY.busy=true;payRender();setTimeout(()=>{if(!PAY||!$('#payb'))return;if(PAY.term===1){PAY.busy=false;PAY.err='Card terminal not responding';return payRender();}finish();},900);}
+else finish();
+}
+function closeOrder(o){
+o.st='paid';o.closed=NOW;
+if(o.table&&!openOn(o.table).length){const T=tbl(o.table);T.occ=null;T.dirty=true;}
+const g=guest(o.gid);
+if(g){const pts=Math.floor(due(o));g.points+=pts;g.spent=r2(g.spent+due(o));g.visits++;g.last=0;g.ledger.unshift({d:'today, '+hm(NOW),what:`Order #${o.id} · earned`,p:pts});}
+note('coin',`${where(o)} paid ${eur(due(o))}`,`Order #${o.id} · ${[...new Set(o.pays.map((p)=>p.m))].join(' + ')}${g?` · ${esc(g.name)} earned ${Math.floor(due(o))} points`:''}`,'report');
+}
+function qrSVG(seed){const r=rng(seed);let p='';for(let y=0;y<21;y++)for(let x=0;x<21;x++){const f=(x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13);const on=f?(x % 14===0||x % 14===6||y % 14===0||y % 14===6||(x % 14>1&&x % 14<5&&y % 14>1&&y % 14<5)):r()<.5;if(on)p+=`M${x} ${y}h1v1h-1z`;}return `<svg class="qr" viewBox="0 0 21 21" aria-label="Receipt signature code"><path d="${p}" fill="#1d1a16"/></svg>`;}
+function receipt(id,z=false){
+const o=S.orders.find((x)=>x.id===+id);
+const row=(a,b)=>`<div class="row"><span>${a}</span><span>${b}</span></div>`;
+modal(`<h2>${z?'Z-report':'Receipt'}</h2><p>${z?'Closing totals for the business day so far.':`Order #${o.id} · ${where(o)}`}</p><div class="rcpt">
+    <div class="c"><b>NORDLICHT</b><br>Restaurant · Vienna<br>Sample address · 1070 Wien<br>VAT ID AT-SAMPLE-0000</div><hr>
+    ${z?(()=>{const e=eod();return row('Date',DFS.format(day(0)))+row('Time',hm(NOW))+row('Z no.','0312')+'<hr>'+row('Paid orders',e.closed.length)+row('Covers',e.covers)+row('Gross sales',eur(e.gross))+row('Discounts',eur(-e.discounts))+row('<b>Net sales</b>',`<b>${eur(e.net)}</b>`)+row('VAT 10%',eur(e.vat[10]/11))+row('VAT 20%',eur(e.vat[20]/6))+'<hr>'+Object.entries(e.byM).map(([k,v])=>row(k,eur(v))).join('')+row('Tips',eur(e.tips))+row('Open checks',`${e.openN} · ${eur(e.open)}`)+row('Cancelled',e.cancelled.length);})()
+:row('Date',`${DFS.format(day(0))} ${hm(o.closed||NOW)}`)+row('Table',o.table||'–')+row('Served by',short(staff(o.waiter).name))+'<hr>'+
+o.items.map((l)=>row(`${l.q} × ${esc(l.n)}${l.vat===20?' B':' A'}`,eur(lt(l)))+(l.mods.length?`<div style="padding-left:2ch;color:#5f5a50">${esc(l.mods.join(', '))}</div>`:'')).join('')+'<hr>'+
+row('Subtotal',eur(sub(o)))+(o.disc?row('Discount',eur(-disc(o))):'')+(o.redeem?row('Points',eur(-redeemV(o))):'')+row('<b>TOTAL EUR</b>',`<b>${eur(due(o))}</b>`)+
+row('A 10% VAT',eur(vatOf(o,10)))+row('B 20% VAT',eur(vatOf(o,20)))+'<hr>'+o.pays.map((p)=>row(p.m,eur(p.a))+(p.tip?row('&nbsp;Tip',eur(p.tip)):'')+(p.chg?row('&nbsp;Change',eur(p.chg)):'')).join('')+
+(o.gid?row('Points earned',Math.floor(due(o))):'')}
+    <hr><div class="c">${qrSVG(z?312:o.id)}Signature (sample)<br>Thank you for your visit!</div></div>
+    <div class="modal-actions"><button class="btn" data-act="closeModal">Close</button><button class="btn primary" data-act="print">${ic('print')}Print</button></div>`);
+}
+
+/* forms */
+const fld=(id,label,input,hint='')=>`<div class="field"><label for="${id}">${label}</label>${input}${hint?`<span class="hint">${hint}</span>`:''}</div>`;
+function discDialog(target){
+const o=target==='pos'?{items:POS.lines,disc:POS.disc}:S.orders.find((x)=>x.id===+target),cur=o.disc||{t:'%',v:'',why:''};
+modal(`<h2>Discount</h2><p>Subtotal ${eur(sub(o))}. Discounts above 30% need a manager.</p>
+    <div class="row2">${fld('d-t','Type',`<select class="inp" id="d-t"><option value="%" ${cur.t==='%'?'selected':''}>Percent</option><option value="€" ${cur.t==='€'?'selected':''}>Amount in €</option></select>`)}${fld('d-v','Value',`<input class="inp" id="d-v" type="number" min="0" step="1" value="${cur.v}">`)}</div>
+    ${fld('d-why','Reason',`<select class="inp" id="d-why"><option value="">Choose a reason</option>${['Regular guest','Service recovery','Staff meal','Manager comp','Happy hour'].map((x)=>`<option ${cur.why===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+    <div class="modal-actions">${o.disc?'<button class="btn ghost" id="d-rm">Remove discount</button>':''}<button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="d-ok">Apply</button></div>`,()=>{
+const set=(d)=>{if(target==='pos')POS.disc=d;else o.disc=d;closeModal();render();};
+if($('#d-rm'))$('#d-rm').onclick=()=>{set(null);toast('Discount removed');};
+$('#d-ok').onclick=()=>{
+const t=$('#d-t').value,v=+$('#d-v').value,w=$('#d-why').value,e={};
+if(!(v>0))e['d-v']='Enter a value above 0';else if(t==='%'&&v>100)e['d-v']='A percentage cannot exceed 100';else if(t==='€'&&v>sub(o))e['d-v']=`Cannot exceed the subtotal of ${eur(sub(o))}`;
+else if(!isMgr()&&(t==='%'?v:v/sub(o)*100)>30)e['d-v']='Discounts above 30% need a manager to sign in';
+if(!w)e['d-why']='Choose a reason for the audit log';
+if(errs(e)){set({t,v,why:w});toast(`Discount applied · ${t==='%'?v+'%':eur(v)}`);}
+};
+});
+}
+function modDialog(n,idx){
+const m=dish(n),l=idx!=null?POS.lines[idx]:null,opts=MODS[m.c]||[],grill=m.c==='grill';
+modal(`<h2>${esc(n)}</h2><p>${eur(m.p)} · ${STATIONS[m.st]}</p>
+    ${fld('m-q','Quantity',`<input class="inp" id="m-q" type="number" min="1" max="20" value="${l?l.q:1}">`)}
+    ${grill?fld('m-dn','Doneness',`<select class="inp" id="m-dn"><option value="">Choose doneness</option>${DONENESS.map((d)=>`<option ${l&&l.mods.includes(d)?'selected':''}>${d}</option>`).join('')}</select>`):''}
+    ${opts.length?`<div class="field"><label>Options</label>${opts.map(([x,p])=>`<label class="chk"><input type="checkbox" value="${esc(x)}" data-mod ${l&&l.mods.includes(x)?'checked':''}>${esc(x)}<em>${p?'+'+eur(p):'free'}</em></label>`).join('')}</div>`:''}
+    ${fld('m-note','Note for the kitchen',`<input class="inp" id="m-note" maxlength="60" value="${esc(l?l.note:'')}" placeholder="E.g. sauce on the side">`)}
+    <div class="modal-actions">${l?'<button class="btn ghost" id="m-rm">Remove</button>':''}<button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="m-ok">${l?'Update':'Add to ticket'}</button></div>`,()=>{
+if($('#m-rm'))$('#m-rm').onclick=()=>{const was=POS.lines.splice(idx,1)[0];closeModal();renderView();undo(`${was.n} removed`,()=>POS.lines.splice(idx,0,was));};
+$('#m-ok').onclick=()=>{
+const q=Math.round(+$('#m-q').value),dn=grill?$('#m-dn').value:'',e={};
+if(!(q>=1&&q<=20))e['m-q']='Quantity must be between 1 and 20';if(grill&&!dn)e['m-dn']='Choose a doneness for the grill';
+if(!errs(e))return;
+const nl=mkLine(n,q,[...(dn?[dn]:[]),...$$('[data-mod]:checked').map((x)=>x.value)],$('#m-note').value.trim());
+if(l)POS.lines[idx]=nl;else POS.lines.push(nl);POS.err='';closeModal();renderView();
+};
+});
+}
+function guestForm(id){
+const g=id?guest(id):{name:'',phone:'+43 ',email:'',note:''};
+modal(`<h2>${id?'Edit guest':'Add guest'}</h2><p>${id?'Changes are saved to the guest profile.':'New guests start in Bronze with 0 points.'}</p>
+    ${fld('g-n','Full name',`<input class="inp" id="g-n" value="${esc(g.name)}" autocomplete="off">`)}<div class="row2">${fld('g-p','Phone',`<input class="inp" id="g-p" type="tel" value="${esc(g.phone)}">`)}${fld('g-e','Email (optional)',`<input class="inp" id="g-e" type="email" value="${esc(g.email)}">`)}</div>
+    ${fld('g-note','Notes & allergies',`<input class="inp" id="g-note" maxlength="80" value="${esc(g.note)}" placeholder="E.g. nut allergy">`)}
+    <div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="g-ok">${id?'Save':'Add guest'}</button></div>`,()=>{
+$('#g-ok').onclick=()=>{
+const n=$('#g-n').value.trim().replace(/\s+/g,' '),p=$('#g-p').value.trim(),em=$('#g-e').value.trim(),e={};
+if(n.length<2)e['g-n']='Enter the guest’s name';
+if(!/^\+\d{1,3}[\d ]{6,14}$/.test(p))e['g-p']='Use international format, e.g. +43 660 123 4567';
+else if(S.guests.some((x)=>x.id!==+id&&x.phone.replace(/ /g,'')===p.replace(/ /g,'')))e['g-p']='Another guest already has this phone number';
+if(em&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em))e['g-e']='Check the email address';
+if(!errs(e))return;
+if(id)Object.assign(g,{name:n,phone:p,email:em,note:$('#g-note').value.trim()});
+else{const ng={id:Math.max(...S.guests.map((x)=>x.id))+1,name:n,phone:p,email:em,note:$('#g-note').value.trim(),visits:0,spent:0,points:0,last:0,since:2026,ledger:[]};ng.visits=1;S.guests.unshift(ng);}
+closeModal();render();toast(id?'Guest saved':`${n} added`);
+};
+});
+}
+function resForm(rid,t0,gid){
+const r=rid?RES.find((x)=>x.id===+rid):null,g=guest(gid);
+const v=r||{name:g?g.name:'',phone:g?g.phone:'',o:F.res.o,t:t0||(F.res.o===0?SLOTS.find((x)=>x>=NOW+15)||21*60+30:19*60+30),size:+F.res.size,note:''};
+modal(`<h2>${r?'Edit booking':'New booking'}</h2><p>A table is held for two hours. RestOS picks the smallest free table.</p>
+    <div class="row2">${fld('r-n','Name',`<input class="inp" id="r-n" value="${esc(v.name)}" list="glist2" autocomplete="off"><datalist id="glist2">${S.guests.map((x)=>`<option value="${esc(x.name)}">`).join('')}</datalist>`)}${fld('r-p','Phone',`<input class="inp" id="r-p" type="tel" value="${esc(v.phone)}">`)}</div>
+    <div class="row2">${fld('r-d','Date',`<select class="inp" id="r-d">${[0,1,2,3,4,5,6].map((d)=>`<option value="${d}" ${v.o===d?'selected':''}>${d?DF.format(day(d)):'Today'}</option>`).join('')}</select>`)}${fld('r-t','Time',`<select class="inp" id="r-t">${SLOTS.map((t)=>`<option value="${t}" ${v.t===t?'selected':''}>${hm(t)}</option>`).join('')}</select>`)}</div>
+    <div class="row2">${fld('r-s','Party size',`<input class="inp" id="r-s" type="number" min="1" max="12" value="${v.size}">`)}${fld('r-note','Note',`<input class="inp" id="r-note" maxlength="60" value="${esc(v.note)}">`)}</div>
+    <div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="r-ok">${r?'Save booking':'Book table'}</button></div>`,()=>{
+$('#r-n').onchange=()=>{const m=S.guests.find((x)=>x.name===$('#r-n').value);if(m)$('#r-p').value=m.phone;};
+$('#r-ok').onclick=()=>{
+const n=$('#r-n').value.trim(),p=$('#r-p').value.trim(),o=+$('#r-d').value,t=+$('#r-t').value,size=Math.round(+$('#r-s').value),e={};
+if(n.length<2)e['r-n']='Enter a name for the booking';
+if(!/^\+?\d[\d ]{6,16}$/.test(p))e['r-p']='Enter a phone number we can call';
+if(!(size>=1&&size<=12))e['r-s']='Party size must be 1–12. Call the events team for larger groups';
+else if(o===0&&t<NOW)e['r-t']=`${hm(t)} has already passed`;
+let tb=null;if(!Object.keys(e).length){tb=freeTable(o,t,size,r);if(!tb){const alt=SLOTS.find((x)=>x>t&&(o||x>NOW)&&freeTable(o,x,size,r));e['r-t']=`No table for ${size} at ${hm(t)}.${alt?' Next free slot: '+hm(alt)+'.':' Fully booked this day.'}`;}}
+if(!errs(e))return;
+const gg=S.guests.find((x)=>x.phone.replace(/ /g,'')===p.replace(/ /g,''));
+if(r)Object.assign(r,{name:n,phone:p,o,t,size,table:tb.n,note:$('#r-note').value.trim(),gid:gg?gg.id:r.gid});
+else RES.push({id:Math.max(...RES.map((x)=>x.id))+1,o,t,size,name:n,phone:p,gid:gg?gg.id:null,table:tb.n,st:'booked',note:$('#r-note').value.trim(),src:'Phone'});
+F.res.o=o;closeModal();render();toast(`${r?'Booking updated':'Booked'}: ${n}, ${hm(t)}, Table ${tb.n}`);
+};
+});
+}
+function dishForm(i){
+const m=i!=null?S.menu[i]:{n:'',c:'hot',p:'',on:true};
+modal(`<h2>${i!=null?'Edit dish':'New dish'}</h2><p>Prices include VAT (10% food, 20% drinks).</p>${fld('d-n','Name',`<input class="inp" id="d-n" value="${esc(m.n)}" placeholder="E.g. Marillenknödel">`)}
+    <div class="row2">${fld('d-c','Category',`<select class="inp" id="d-c">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${m.c===k?'selected':''}>${v}</option>`).join('')}</select>`)}${fld('d-p','Price, €',`<input class="inp" id="d-p" type="number" min="0" step="0.1" value="${m.p}">`)}</div>
+    <div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="d-ok">${i!=null?'Save':'Add to menu'}</button></div>`,()=>{
+$('#d-ok').onclick=()=>{
+const n=$('#d-n').value.trim(),c=$('#d-c').value,p=r2(+$('#d-p').value),e={};
+if(n.length<2)e['d-n']='Enter a dish name';else if(S.menu.some((x,k)=>k!==i&&x.n.toLowerCase()===n.toLowerCase()))e['d-n']='A dish with this name already exists';
+if(!(p>0&&p<=500))e['d-p']='Enter a price between €0.10 and €500';
+if(!errs(e))return;
+if(i!=null){S.orders.forEach((o)=>o.items.forEach((l)=>{if(l.n===m.n)l.n=n;}));Object.assign(m,{n,c,p,vat:c==='drinks'?20:10,st:STN[c]});}
+else S.menu.push({n,c,p,on:true,ing:[],vat:c==='drinks'?20:10,st:STN[c]});
+closeModal();render();toast(i!=null?`${n} saved`:`${n} added to the menu`);
+};
+});
+}
+function invDialog(id){
+const i=INV[id],dishes=usedIn(id);
+modal(`<h2>${esc(i.n)}</h2><p>${qf(i)} on hand · par ${qf(i,i.min)} · ${esc(i.sup)} · ${eur(i.cost)} per ${i.u}</p>
+    <div class="tabs"><button class="on" data-act="invTab" data-k="in">Receive delivery</button><button data-act="invTab" data-k="out">Write off</button></div>
+    <div id="inv-in">${fld('i-q',`Quantity received, ${i.u}`,`<input class="inp" id="i-q" type="number" min="0" step="0.1" value="${r2(Math.max(i.min*2-i.q,i.min))}">`,dishes.length?'Used in '+esc(dishes.map((m)=>m.n).join(', ')):'')}</div>
+    <div id="inv-out" hidden>${fld('o-q',`Quantity, ${i.u}`,`<input class="inp" id="o-q" type="number" min="0" step="0.1">`)}${fld('o-r','Reason',`<select class="inp" id="o-r"><option value="">Choose a reason</option><option>Spoiled</option><option>Damaged</option><option>Staff meal</option><option>Stock count correction</option></select>`)}</div>
+    <div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="i-ok">Save</button></div>`,()=>{
+$('#i-ok').onclick=()=>{
+const before=S.menu.filter(isAvail).map((m)=>m.n),out=!$('#inv-out').hidden;
+if(!out){const q=+$('#i-q').value;if(!errs(q>0&&q<=1000?{}:{'i-q':'Enter a quantity between 0.1 and 1,000'}))return;i.q=r2(i.q+q);}
+else{const q=+$('#o-q').value,r=$('#o-r').value,e={};if(!(q>0))e['o-q']='Enter a quantity above 0';else if(q>i.q)e['o-q']=`Only ${qf(i)} on hand`;if(!r)e['o-r']='Choose a reason';if(!errs(e))return;i.q=r2(i.q-q);consume([]);}
+const back=S.menu.filter((m)=>!before.includes(m.n)&&isAvail(m)).map((m)=>m.n);
+closeModal();render();toast(back.length?`${back.join(', ')} back on the menu`:`${i.n}: ${qf(i)} on hand`);
+};
+});
+}
+
+/* sign-in */
+let AUTH=null;
+function showAuth(){
+closeModal();closeDrawer();pop=null;SIGNED=false;
+AUTH={tab:'pin',who:USER.id,pin:'',err:'',tries:3};
+let a=$('#auth');if(!a){a=document.createElement('div');a.id='auth';a.className='auth';a.setAttribute('role','dialog');a.setAttribute('aria-label','Sign in to RestOS');document.body.appendChild(a);}
+authRender();
+}
+function authRender(){
+const a=$('#auth'),on=STAFF.filter(onNow).slice(0,9);
+a.innerHTML=`<div class="auth-l"><div class="brand"><div class="brand-mark">${ic('utensils')}</div><div><div class="brand-name">RestOS</div><div class="brand-sub">Nordlicht · Vienna</div></div></div><div><h2>Every table, ticket and shift in one place.</h2><p>Sign in on this terminal with your staff PIN. Managers can also use their email and password.</p></div><small style="color:#9a9284">${VERSION} · Terminal POS-2</small></div>
+    <div class="auth-r"><div class="auth-card"><h1>Sign in</h1><p>${DFL.format(day(0))} · ${hm(NOW)}</p>
+    <div class="tabs" role="tablist"><button data-act="authTab" data-k="pin" class="${AUTH.tab==='pin'?'on':''}">Staff PIN</button><button data-act="authTab" data-k="pw" class="${AUTH.tab==='pw'?'on':''}">Email & password</button></div>
+    ${AUTH.tab==='pin'?`<div class="who-pick" role="radiogroup" aria-label="Who is signing in">${on.map((s)=>`<button class="wp ${AUTH.who===s.id?'on':''}" role="radio" aria-checked="${AUTH.who===s.id}" data-act="authWho" data-id="${s.id}"><span class="avatar">${ini(s.name)}</span><span>${esc(s.name.split(' ')[0])}</span><small>${esc(s.role)}</small></button>`).join('')}</div>
+      <div class="pin-dots ${AUTH.err?'shake':''}" aria-label="${AUTH.pin.length} of 4 digits entered">${[0,1,2,3].map((i)=>`<i class="${i<AUTH.pin.length?'f':''}"></i>`).join('')}</div>
+      <p class="${AUTH.err?'err':'hint'}" style="text-align:center;min-height:18px" role="status">${AUTH.err||'Demo PIN for every profile: 2580 <button class="linkbtn" data-act="authFill">Fill it in</button>'}</p>
+      <div class="pad">${[1,2,3,4,5,6,7,8,9].map((d)=>`<button data-act="pin" data-k="${d}">${d}</button>`).join('')}<button class="fn" data-act="pin" data-k="c">Clear</button><button data-act="pin" data-k="0">0</button><button class="fn" data-act="pin" data-k="b" aria-label="Delete last digit">Delete</button></div>`
+:`${fld('a-e','Work email','<input class="inp" id="a-e" type="email" value="katharina.huber@nordlicht.example" autocomplete="username">')}${fld('a-p','Password','<input class="inp" id="a-p" type="password" value="demo-password" autocomplete="current-password">','Demo credentials are filled in.')}
+      ${AUTH.err?`<p class="err" role="alert">${esc(AUTH.err)}</p>`:''}<button class="btn primary" style="width:100%;height:40px;margin-top:6px" data-act="authPw">Sign in</button><p class="hint" style="margin-top:12px">Forgot your password? Ask the restaurant manager to reset it.</p>`}</div></div>`;
+}
+function pinKey(k){
+if(AUTH.lock)return;
+AUTH.err='';if(k==='c')AUTH.pin='';else if(k==='b')AUTH.pin=AUTH.pin.slice(0,-1);else if(AUTH.pin.length<4)AUTH.pin+=k;
+if(AUTH.pin.length===4){
+if(AUTH.pin==='2580')return signIn(AUTH.who);
+AUTH.tries--;AUTH.pin='';
+AUTH.err=AUTH.tries>0?`Incorrect PIN. ${pl(AUTH.tries,'attempt')} left.`:'Too many attempts. Locked for 30 seconds.';
+if(AUTH.tries<=0){AUTH.lock=true;setTimeout(()=>{if(AUTH){AUTH.lock=false;AUTH.tries=3;AUTH.err='';authRender();}},30000);}
+}
+authRender();
+}
+function signIn(id){USER=staff(id);SIGNED=true;AUTH=null;const a=$('#auth');if(a)a.remove();page='dashboard';render();toast(`Signed in as ${USER.name}`);}
+
+/* order flow */
+function advance(id){
+const o=S.orders.find((x)=>x.id===+id);if(!o)return;
+if(o.st==='new'){const b=blocker(o.items);if(b)return toast(`Cannot fire: ${b}`);consume(o.items);o.st='cooking';o.fired=NOW;toast(`#${o.id} accepted and sent to the kitchen`);}
+else if(o.st==='cooking'){o.items.forEach((l)=>{l.done=true;});o.st='ready';toast(`#${o.id} ready at the pass`);}
+else if(o.st==='ready'){o.st='served';toast(o.type==='Dine-in'?`#${o.id} served to ${where(o)}`:`#${o.id} handed over`);if(o.type!=='Dine-in'&&o.pays.length&&left(o)<=.004)closeOrder(o);}
+else if(o.st==='served')return payOrder(o.id);
+render();
+}
+function posSend(pay){
+POS.err='';
+if(!POS.lines.length)POS.err='Add at least one item to the ticket.';
+else if(POS.type==='Dine-in'&&!POS.table)POS.err='table';
+else if(POS.type==='Dine-in'&&!(POS.cov>=1&&POS.cov<=20))POS.err='Covers must be between 1 and 20.';
+else{const b=blocker(POS.lines);if(b)POS.err=`Cannot send: ${b}.`;}
+if(POS.err)return renderView();
+const ex=posOrder(),lines=POS.lines.map((l)=>({...l,done:false}));
+consume(lines);
+let o=ex;
+if(ex){ex.items.push(...lines);if(['ready','served'].includes(ex.st)){ex.st='cooking';ex.fired=NOW;}if(POS.disc)ex.disc=POS.disc;if(POS.gid&&!ex.gid){ex.gid=POS.gid;ex.name=guest(POS.gid).name;}}
+else{
+o={id:Math.max(...S.orders.map((x)=>x.id))+1,t:NOW,type:POS.type,table:POS.type==='Dine-in'?+POS.table:null,cov:POS.type==='Dine-in'?+POS.cov:1,gid:POS.gid,name:POS.gid?guest(POS.gid).name:POS.type==='Dine-in'?'Walk-in':'Guest',
+waiter:['s3','s4','s11','s12'].includes(USER.id)?USER.id:'s3',items:lines,st:'cooking',pays:[],disc:POS.disc,redeem:0,src:'POS',fired:NOW,closed:null,why:''};
+S.orders.unshift(o);
+if(o.table){const T=tbl(o.table);if(!T.occ)T.occ={since:NOW,cov:o.cov,gid:o.gid};T.dirty=false;}
+}
+const n=lines.reduce((s,l)=>s+l.q,0);
+Object.assign(POS,{lines:[],disc:null,err:''});FRESH=o.id;
+render();toast(`${pl(n,'item')} sent to the kitchen · #${o.id}`);
+if(pay)payOrder(o.id);
+}
+function seatDialog(n){
+const T=n?tbl(n):null,free=TABLES.filter((x)=>['free','reserved'].includes(tstat(x)));
+if(!free.length)return toast('Not one table is free right now');
+modal(`<h2>Seat walk-in</h2><p>${T?`Table ${T.n} · ${pl(T.s,'seat')}`:'Pick a free table. Reserved tables show their next booking.'}</p>
+    <div class="row2">${fld('w-t','Table',`<select class="inp" id="w-t">${free.map((x)=>`<option value="${x.n}" ${T&&T.n===x.n?'selected':''}>Table ${x.n} · ${pl(x.s,'seat')}${nextRes(x.n)?' · booked '+hm(nextRes(x.n).t):''}</option>`).join('')}</select>`)}${fld('w-c','Guests','<input class="inp" id="w-c" type="number" min="1" max="12" value="2">')}</div>
+    <div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn" id="w-ok">Seat</button><button class="btn primary" id="w-pos">Seat & open POS</button></div>`,()=>{
+const ok=(toPos)=>{
+const t=tbl($('#w-t').value),c=Math.round(+$('#w-c').value);
+if(!errs(!(c>=1)?{'w-c':'Enter the number of guests'}:c>t.s+2?{'w-c':`Table ${t.n} seats ${t.s}. Pick a larger table`}:{}))return;
+const r=nextRes(t.n);t.occ={since:NOW,cov:c,gid:null};t.dirty=false;closeModal();
+if(r&&r.t-NOW<120)toast(`Heads-up: Table ${t.n} is booked at ${hm(r.t)}`);else toast(`${pl(c,'guest')} seated at Table ${t.n}`);
+if(toPos){Object.assign(POS,{type:'Dine-in',table:String(t.n),cov:c});go('pos');}else render();
+};
+$('#w-ok').onclick=()=>ok(false);$('#w-pos').onclick=()=>ok(true);
+});
+}
+function kitchenTick(){
+const o=S.orders.filter((x)=>x.st==='cooking').sort((a,b)=>a.fired-b.fired)[0];
+if(o&&NOW-o.fired>=6){o.items.forEach((l)=>{l.done=true;});o.st='ready';note('flame',`#${o.id} ready at the pass`,`${where(o)} · ${pl(o.items.length,'item')}`,'dashboard');toast(`#${o.id} is ready to serve`);}
+}
+const LR=rng(7);
+const lpk=(a)=>a[Math.floor(LR()*a.length)];
+function spawn(){
+if(NOW>22*60+30)return;
+const av=S.menu.filter((m)=>isAvail(m)&&m.c!=='drinks'),items=[];
+for(let k=0,n=1+Math.floor(LR()*3);k<n;k++){const m=lpk(av);if(!items.some((l)=>l.n===m.n))items.push(mkLine(m.n,1+Math.floor(LR()*2),m.c==='grill'?['Medium']:[]));}
+const g=LR()<.5?lpk(S.guests):null,type=LR()<.6?'Delivery':'Takeaway';
+const o={id:Math.max(...S.orders.map((x)=>x.id))+1,t:NOW,type,table:null,cov:1,gid:g?g.id:null,name:g?g.name:'Online guest',waiter:'s6',items,st:'new',pays:[],disc:null,redeem:0,src:type==='Delivery'?'Delivery partner':'Online shop',fired:NOW,closed:null,why:''};
+if(type==='Delivery')o.pays.push({m:'Card',a:due(o),tip:0,t:NOW,term:'Paid online'});
+S.orders.unshift(o);FRESH=o.id;
+note('bag',`New ${type.toLowerCase()} order #${o.id}`,`${pl(items.length,'item')} · ${eur(due(o))}${type==='Delivery'?' · prepaid online':''}`,'orders');
+toast(`New ${type.toLowerCase()} order #${o.id}`);
+}
+function settleTick(){
+const o=S.orders.filter((x)=>x.st==='served'&&x.type==='Dine-in'&&!x.pays.length).sort((a,b)=>a.t-b.t)[0];
+if(!o)return;o.pays.push({m:'Card',a:due(o),tip:r2(due(o)*.05),t:NOW,term:'Handheld · '+short(staff(o.waiter).name)});closeOrder(o);
+}
+
+/* exports */
+const EXP={
+csvOrders:()=>csv(`nordlicht-orders-2026-11-07.csv`,[['Order','Opened','Type','Table','Guest','Waiter','Status','Items','Subtotal EUR','Discount EUR','Total EUR','Paid EUR','Tips EUR','Methods'],
+...orderRows().map((o)=>[o.id,hm(o.t),o.type,o.table||'',o.name,staff(o.waiter).name,SM[o.st][0],o.items.reduce((s,l)=>s+l.q,0),sub(o).toFixed(2),r2(disc(o)+redeemV(o)).toFixed(2),due(o).toFixed(2),paid(o).toFixed(2),sum(o.pays,(p)=>p.tip).toFixed(2),[...new Set(o.pays.map((p)=>p.m))].join(' + ')])]),
+csvGuests:()=>csv('nordlicht-guests.csv',[['Name','Phone','Email','Tier','Visits','Spent EUR','Points','Last visit','Notes'],...S.guests.map((g)=>[g.name,g.phone,g.email,tier(g),g.visits,g.spent.toFixed(2),g.points,dago(g.last),g.note])]),
+csvInv:()=>csv('nordlicht-stock-2026-11-07.csv',[['Ingredient','Supplier','Unit','On hand','Par','Status','Cost per unit EUR','Value EUR'],...Object.values(INV).map((i)=>[i.n,i.sup,i.u,i.q,i.min,INVST[invSt(i)][0],i.cost.toFixed(2),(i.q*i.cost).toFixed(2)])]),
+csvEod:()=>{const e=eod();csv('nordlicht-end-of-day-2026-11-07.csv',[['Section','Item','Value EUR'],['Summary','Gross sales',e.gross.toFixed(2)],['Summary','Discounts and points',e.discounts.toFixed(2)],['Summary','Net sales',e.net.toFixed(2)],
+['Summary','Part-payments on open checks',e.partial.toFixed(2)],['Summary','Tips',e.tips.toFixed(2)],['VAT','Net of 10% VAT base',(e.vat[10]/1.1).toFixed(2)],['VAT','VAT 10%',(e.vat[10]/11).toFixed(2)],['VAT','Net of 20% VAT base',(e.vat[20]/1.2).toFixed(2)],['VAT','VAT 20%',(e.vat[20]/6).toFixed(2)],
+...Object.entries(e.byM).map(([k,v])=>['Payments',k,v.toFixed(2)]),...Object.entries(e.byC).map(([k,v])=>['Sales mix',CATS[k],v.toFixed(2)]),...Object.entries(e.hours).map(([k,v])=>['By hour',k+':00',v.toFixed(2)])]);},
+};
+
+/* actions */
+const ACT={
+...EXP,
+closeModal,closeDrawer,
+more(){modal(`<h2>All sections</h2><p>Signed in as ${esc(USER.name)}</p><div class="nav" style="gap:4px">${Object.keys(PAGES).map((k)=>`<a data-page="${k}" tabindex="0" role="link" class="${page===k?'on':''}">${ic(PAGES[k][1])}<span>${PAGES[k][0]}</span>${badge(k)}</a>`).join('')}</div>`);},
+help(){pop=null;topbar();modal(`<h2>Help & shortcuts</h2><p>RestOS keeps orders, tables, stock and staff in sync on every terminal.</p>
+    <ul class="lst">${[['/','Search on the current page'],['Esc','Close a dialog, drawer or menu'],['Enter','Open the selected row'],['0–9, Backspace','Enter your PIN on the sign-in screen']].map(([k,v])=>`<li><span>${v}</span><kbd class="tag">${k}</kbd></li>`).join('')}</ul>
+    <div class="sec">Support</div><p class="muted">Help centre: help.restos.example · Service desk, 24/7: support@restos.example</p><p class="hint" style="margin-top:8px">${VERSION} · build 2026.11.2 · Terminal POS-2</p><div class="modal-actions"><button class="btn primary" data-act="closeModal">Done</button></div>`);},
+bell(){pop=pop==='bell'?null:'bell';topbar();},
+user(){pop=pop==='user'?null:'user';topbar();},
+readAll(){S.notes.forEach((x)=>{x.read=true;});topbar();},
+noteGo(d){const x=S.notes[+d.i];x.read=true;pop=null;if(x.pg)go(x.pg);else topbar();},
+signOut(){pop=null;topbar();confirmBox('Sign out?',`${esc(USER.name)} will be signed out of Terminal POS-2. Open checks stay as they are.`,'Sign out',showAuth);},
+switchUser(){pop=null;showAuth();},
+authTab(d){AUTH.tab=d.k;AUTH.err='';authRender();},
+authWho(d){AUTH.who=d.id;AUTH.pin='';AUTH.err='';authRender();},
+authFill(){AUTH.pin='258';pinKey('0');},
+pin(d){pinKey(d.k);},
+authPw(){const e=$('#a-e').value.trim(),p=$('#a-p').value;if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){AUTH.err='Enter a valid work email.';return authRender();}if(p.length<6){AUTH.err='Incorrect email or password.';return authRender();}signIn(STAFF.find((s)=>e.startsWith(s.name.toLowerCase().replace(' ','.')))?STAFF.find((s)=>e.startsWith(s.name.toLowerCase().replace(' ','.'))).id:'s1');},
+sort(d){const[k,c]=d.k.split(':'),st=TB[k];if(st.s===c)st.d=-st.d;else{st.s=c;st.d=1;}st.pg=0;renderView();},
+pg(d){const[k,s]=d.k.split(':');TB[k].pg+=+s;renderView();const t=$('#view .tbl');if(t)t.scrollIntoView({block:'nearest'});},
+ordTab(d){F.orders.st=d.k;if(TB.orders)TB.orders.pg=0;if(d.go)go('orders');else renderView();},
+openOrder(d){drawer('order',d.id);},openTable(d){drawer('table',d.id);},openGuest(d){drawer('guest',d.id);},openRes(d){drawer('res',d.id);},
+openInv(d){invDialog(d.id);},
+adv(d){advance(d.id);},
+payOrder(d){payOrder(d.id);},
+receipt(d){receipt(d.id);},
+print(){window.print();},
+discount(d){discDialog(d.id);},
+cancelOrder(d){
+const o=S.orders.find((x)=>x.id===+d.id);
+modal(`<h2>Cancel order #${o.id}?</h2><p>${o.st==='new'?'Nothing has been cooked yet.':'Food already fired is written off as waste.'}</p>${fld('c-r','Reason','<select class="inp" id="c-r"><option value="">Choose a reason</option><option>Guest left</option><option>Duplicate order</option><option>Kitchen error</option><option>Dish unavailable</option></select>')}
+      <div class="modal-actions"><button class="btn" data-act="closeModal">Keep order</button><button class="btn danger" id="c-ok">Cancel order</button></div>`,()=>{
+$('#c-ok').onclick=()=>{const r=$('#c-r').value;if(!errs(r?{}:{'c-r':'Choose a reason for the audit log'}))return;const prev=o.st,occ=o.table?tbl(o.table).occ:null;o.st='cancel';o.why=r;if(o.table&&!openOn(o.table).length)tbl(o.table).occ=null;closeModal();render();undo(`Order #${o.id} cancelled`,()=>{o.st=prev;o.why='';if(o.table)tbl(o.table).occ=occ;});};
+});
+},
+addItems(d){closeDrawer();const T=tbl(d.id);Object.assign(POS,{type:'Dine-in',table:String(T.n),cov:T.occ?T.occ.cov:2,err:''});go('pos');},
+walkIn(d){seatDialog(d.id);},
+cleanTable(d){const T=tbl(d.id);T.dirty=false;render();toast(`Table ${T.n} is ready for guests`);},
+unseat(d){const T=tbl(d.id),was=T.occ;T.occ=null;render();undo(`Table ${T.n} marked as free`,()=>{T.occ=was;});},
+posCat(d){POS.cat=d.k;renderView();},
+posAdd(d){const m=dish(d.n);if(!isAvail(m))return toast(`${m.n} is on the stop-list: ${why(m).toLowerCase()}`);if(m.c==='grill')return modDialog(m.n);const ex=POS.lines.find((l)=>l.n===m.n&&!l.mods.length&&!l.note);if(ex)ex.q++;else POS.lines.push(mkLine(m.n,1));POS.err='';renderView();},
+posEdit(d){modDialog(POS.lines[+d.i].n,+d.i);},
+posQty(d){const i=+d.i,l=POS.lines[i];l.q+=+d.d;if(l.q<1){POS.lines.splice(i,1);undo(`${l.n} removed`,()=>{l.q=1;POS.lines.splice(i,0,l);});}renderView();},
+posClear(){const was=POS.lines.slice(),dc=POS.disc;POS.lines=[];POS.disc=null;renderView();undo('Ticket cleared',()=>{POS.lines=was;POS.disc=dc;});},
+posDisc(){discDialog('pos');},
+posSend(d){posSend(!!d.pay);},
+toTicket(){$('#ticket').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});},
+kdsSt(d){F.kds=d.k;renderView();},
+kdsItem(d){const o=S.orders.find((x)=>x.id===+d.id),l=o.items[+d.i];l.done=!l.done;if(o.items.every((x)=>x.done)){o.st='ready';toast(`#${o.id} complete · ready at the pass`);}render();},
+bump(d){
+const o=S.orders.find((x)=>x.id===+d.id),f=F.kds,prev=o.items.map((l)=>l.done);
+o.items.forEach((l)=>{if(f==='all'||l.st===f)l.done=true;});
+if(o.items.every((x)=>x.done)){o.st='ready';note('flame',`#${o.id} ready at the pass`,`${where(o)} · bumped by the kitchen`,'dashboard');}
+render();undo(`#${o.id} bumped${o.st==='ready'?' · ready to serve':''}`,()=>{o.items.forEach((l,i)=>{l.done=prev[i];});o.st='cooking';});
+},
+resDay(d){F.res.o=+d.k;renderView();},
+newRes(d){if(d.t&&(d.t<NOW+15&&F.res.o===0))return;closeDrawer();resForm(d.id,d.t?+d.t:null,d.g);},
+seatRes(d){const r=RES.find((x)=>x.id===+d.id),T=tbl(r.table);r.st='seated';T.occ={since:NOW,cov:r.size,gid:r.gid};T.dirty=false;closeDrawer();render();toast(`${r.name} seated at Table ${T.n}`);},
+noShow(d){const r=RES.find((x)=>x.id===+d.id);r.st='no-show';render();undo(`${r.name} marked as no-show`,()=>{r.st='booked';});},
+cancelRes(d){const r=RES.find((x)=>x.id===+d.id);confirmBox('Cancel this booking?',`${esc(r.name)}, ${pl(r.size,'guest')}, ${DF.format(day(r.o))} at ${hm(r.t)}. The table becomes available again.`,'Cancel booking',()=>{r.st='cancelled';closeDrawer();render();undo('Booking cancelled',()=>{r.st='booked';});},true);},
+editGuest(d){guestForm(d.id);},
+adjPoints(d){
+const g=guest(d.id);
+modal(`<h2>Adjust points</h2><p>${esc(g.name)} has ${fmt(g.points)} points.</p><div class="row2">${fld('p-v','Change (+ or −)','<input class="inp" id="p-v" type="number" step="10" placeholder="e.g. 50 or -100">')}${fld('p-r','Reason','<select class="inp" id="p-r"><option value="">Choose a reason</option><option>Goodwill</option><option>Missed scan</option><option>Correction</option></select>')}</div>
+      <div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="p-ok">Save</button></div>`,()=>{
+$('#p-ok').onclick=()=>{const v=Math.round(+$('#p-v').value),r=$('#p-r').value,e={};if(!v)e['p-v']='Enter a number of points';else if(g.points+v<0)e['p-v']=`Cannot go below 0 (balance ${fmt(g.points)})`;else if(Math.abs(v)>1000)e['p-v']='Adjustments are limited to 1,000 points';if(!r)e['p-r']='Choose a reason';if(!errs(e))return;g.points+=v;g.ledger.unshift({d:'today, '+hm(NOW),what:r+' · '+USER.name.split(' ')[0],p:v});closeModal();render();toast(`${signed(v)} points for ${g.name}`);};
+});
+},
+redeem(){const o=S.orders.find((x)=>x.id===PAY.id),g=guest(o.gid),k=Math.min(Math.floor(g.points/100),Math.floor(left(o)/5));if(k<1)return;o.redeem=k*100;g.points-=k*100;g.ledger.unshift({d:'today, '+hm(NOW),what:`Redeemed on #${o.id}`,p:-k*100});render();payRender();toast(`${fmt(k*100)} points redeemed · ${eur(k*5)} off`);},
+payMode(d){PAY.mode=d.k;PAY.err='';payRender();},payM(d){PAY.m=d.k;PAY.err='';payRender();},payTip(d){PAY.tip=+d.k;payRender();},payT1(){PAY.term=0;PAY.err='';payRender();},payGo,
+toggleDish(d){const m=S.menu[+d.i];m.on=!m.on;render();undo(m.on?`${m.n} back on the menu`:`${m.n} added to the stop-list`,()=>{m.on=!m.on;});},
+editDish(d){dishForm(d.i!=null?+d.i:null);},
+invTab(d){$$('#scrim .tabs button').forEach((b)=>b.classList.toggle('on',b.dataset.k===d.k));$('#inv-in').hidden=d.k!=='in';$('#inv-out').hidden=d.k==='in';$('#i-ok').textContent=d.k==='in'?'Receive':'Write off';const f=$(d.k==='in'?'#i-q':'#o-q');if(f)f.focus();},
+po(){
+const l=Object.values(INV).filter((i)=>['empty','low'].includes(invSt(i))),by={};l.forEach((i)=>{(by[i.sup]=by[i.sup]||[]).push(i);});
+modal(`<h2>Reorder below-par stock</h2><p>Quantities bring each item back to twice its par level.</p>${Object.entries(by).map(([s,is])=>`<div class="sec">${esc(s)}</div>${is.map((i)=>`<div class="ln"><span>${esc(i.n)}</span><b>${qf(i,r2(i.min*2-i.q))}</b><small>${eur((i.min*2-i.q)*i.cost)}</small></div>`).join('')}`).join('')}
+      <div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="po-ok">Create ${pl(Object.keys(by).length,'purchase order')}</button></div>`,()=>{$('#po-ok').onclick=()=>{closeModal();note('truck',`${pl(Object.keys(by).length,'purchase order')} drafted`,Object.keys(by).join(', '),'inventory');topbar();toast('Purchase orders saved as drafts for review');};});
+},
+staffTab(d){F.staff=d.k;renderView();},
+shift(d){
+const s=staff(d.id),di=+d.d,cur=s.sh[di];
+modal(`<h2>${esc(s.name)}</h2><p>${DFL.format(day(di-TODAYI))} · ${hours(s)} h planned this week</p><div class="field"><label>Shift</label>${Object.entries(SHT).map(([k,v])=>`<label class="chk"><input type="radio" name="sh" value="${k}" ${cur===k?'checked':''}>${v[0]}<em>${v[1]||'day off'}${v[2]?' · '+v[2]+' h':''}</em></label>`).join('')}</div>
+      <div class="modal-actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="sh-ok">Assign</button></div>`,()=>{
+$('#sh-ok').onclick=()=>{const v=$('[name=sh]:checked').value,h=hours(s)-SHT[cur][2]+SHT[v][2];if(h>48){$$('#scrim .err').forEach((x)=>x.remove());const p=document.createElement('p');p.className='err';p.setAttribute('role','alert');p.textContent=`This would bring ${s.name.split(' ')[0]} to ${h} hours. The weekly limit is 48 hours.`;$('#scrim .field').appendChild(p);return;}
+s.sh[di]=v;closeModal();render();undo(`${s.name.split(' ')[0]}: ${SHT[v][0]} on ${DF.format(day(di-TODAYI))}`,()=>{s.sh[di]=cur;});};
+});
+},
+zReport(){confirmBox('Print Z-report?','The Z-report summarises today’s takings so far. The business day stays open until closing.','Show Z-report',()=>receipt(null,true));},
+};
+
+/* events */
+let SIGNED=true;
+document.addEventListener('click',(e)=>{
+if(pop&&!e.target.closest('.pop, [data-act="bell"], [data-act="user"]')){pop=null;topbar();}
+const a=e.target.closest('[data-page]');if(a){closeModal();return go(a.dataset.page);}
+const t=e.target.closest('[data-act]');if(!t||t.disabled||t.getAttribute('aria-disabled')==='true'&&t.dataset.act!=='posAdd')return;
+const f=ACT[t.dataset.act];if(f)f(t.dataset,t);
+});
+document.addEventListener('keydown',(e)=>{
+const typing=/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName);
+if($('#auth')&&AUTH&&AUTH.tab==='pin'&&!typing){if(/^\d$/.test(e.key))return pinKey(e.key);if(e.key==='Backspace')return pinKey('b');}
+if(e.key==='Escape'){if($('#scrim'))return;if(pop){pop=null;topbar();return;}if($('#drawer'))return closeDrawer();}
+if(e.key==='/'&&!typing&&!$('#scrim')&&!$('#auth')){const s=$('#view input[type=search]');if(s){e.preventDefault();s.focus();s.select();}}
+if((e.key==='Enter'||e.key===' ')&&!typing&&e.target.matches('[data-page], [data-act]:not(button)')){e.preventDefault();e.target.click();}
+},true);
+const bindVal=(el)=>el.type==='checkbox'?el.checked:el.value;
+function onField(e){
+const el=e.target,b=el.dataset.bind;
+if(b){const[p,k]=b.split('.');if(p==='pos')POS[k]=el.value;else F[p][k]=bindVal(el);const tk={orders:'orders',guests:'guests',inv:'inv'}[p];if(tk&&TB[tk])TB[tk].pg=0;return renderView();}
+if(el.dataset.pos){const k=el.dataset.pos;if(k==='guest'){POS.guest=el.value;const g=S.guests.find((x)=>x.name===el.value||x.phone===el.value),was=POS.gid;POS.gid=g?g.id:null;if(e.type==='change'||was===POS.gid)return;}else if(k==='cov'){POS.cov=Math.round(+el.value);return;}else{POS[k]=el.value;if(k==='type'&&el.value!=='Dine-in')POS.table='';}if(POS.err==='table'&&POS.table)POS.err='';return renderView();}
+if(el.dataset.payk){const k=el.dataset.payk;PAY[k]=k==='parts'||k==='term'?+el.value:el.value;if(k==='parts'||k==='term')payRender();else{const btn=$('[data-act="payGo"]');const o=S.orders.find((x)=>x.id===PAY.id),a=payAmt(o),tip=r2(a*PAY.tip);if(btn&&!PAY.busy)btn.textContent=`Charge ${eur(a+tip)}`;const h=el.parentNode.querySelector('.hint');if(h&&k==='tender'){const c=r2(+el.value-a-tip);h.textContent=+el.value?(c>=0?'Change '+eur(c):`${eur(-c)} short`):'Enter the amount handed over';}}return;}
+if(el.dataset.payi!=null){const i=+el.dataset.payi;PAY.sel=el.checked?[...PAY.sel,i]:PAY.sel.filter((x)=>x!==i);payRender();}
+}
+document.addEventListener('input',(e)=>{if(e.target.matches('input[type=search], input[data-payk], input[data-pos="guest"]'))onField(e);});
+document.addEventListener('change',(e)=>{if(!e.target.matches('input[type=search]'))onField(e);});
+
+/* live service: the clock runs, orders keep arriving, the pass marks tickets ready */
+let beat=0;
+const busy=()=>$('#scrim')||$('#drawer')||pop||/^(INPUT|SELECT|TEXTAREA)$/.test((document.activeElement||{}).tagName||'');
+setInterval(()=>{
+if(document.hidden||!SIGNED)return;
+beat++;NOW+=1;
+if(beat % 3===0)spawn();else if(beat % 4===0)kitchenTick();else if(beat % 10===5)settleTick();
+if(busy()){const c=$('#clk');if(c)c.textContent=`${DF.format(day(0))} · ${hm(NOW)}`;if(!pop)chrome();return;}
+if(['dashboard','orders','kitchen','floor','report'].includes(page)){render();FRESH=null;}else chrome();
+},5000);
 render();
 </script>
 </body>
