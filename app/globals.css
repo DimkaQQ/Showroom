@@ -175,7 +175,7 @@ img { display: block; max-width: 100%; height: auto; }
   letter-spacing: -0.04em;
   line-height: 1;
   margin-bottom: 14px;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .desc { max-width: 560px; margin-bottom: 16px; }
 .tags { font-size: 16px; color: var(--mute); margin-bottom: 28px; }
@@ -214,6 +214,8 @@ img { display: block; max-width: 100%; height: auto; }
   .try .try-on, .try[aria-pressed="true"] .try-off { display: none; }
   .try[aria-pressed="true"] .try-on { display: inline; }
   html.js .inline-shot { display: none; }
+  /* the title sits in a 36% column: size it to the column so names never split mid-word */
+  html.js .project h3 { font-size: clamp(28px, 2.8vw, 52px); }
   html.js .project {
     min-height: 100svh; display: flex; align-items: center;
     padding: 0 var(--gutter) 0 56px;
