@@ -222,7 +222,7 @@ export const de: Translations = {
       },
       {
         q: "Was kostet ein Projekt?",
-        a: "Das hängt vom Umfang ab. Nach einem kurzen Erstgespräch erhalten Sie eine schriftliche Schätzung mit festem Leistungsumfang. Sie wissen also vor dem Start, was Sie bekommen und was es kostet.",
+        a: "Das hängt vom Umfang ab; Projekte beginnen ab 500 €. Nach einem kurzen Erstgespräch erhalten Sie eine schriftliche Schätzung mit festem Leistungsumfang. Sie wissen also vor dem Start, was Sie bekommen und was es kostet.",
       },
       {
         q: "Welche Systeme können entwickelt oder angebunden werden?",

@@ -217,7 +217,7 @@ img { display: block; max-width: 100%; height: auto; }
   /* the title sits in a 36% column: size it to the column so names never split mid-word */
   html.js .project h3 { font-size: clamp(28px, 2.8vw, 52px); }
   html.js .project {
-    min-height: 100svh; display: flex; align-items: center;
+    min-height: 64svh; display: flex; align-items: center;
     padding: 0 var(--gutter) 0 56px;
   }
   /* Without scripts the pictures stay in the list, two columns wide */

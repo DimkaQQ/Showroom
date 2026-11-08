@@ -225,7 +225,7 @@ const en = {
       },
       {
         q: "How much does a project cost?",
-        a: "It depends on scope. After a short discovery call you receive a written estimate with a fixed scope, so you know what you get and what it costs before anything is built.",
+        a: "It depends on scope; projects start from €500. After a short discovery call you receive a written estimate with a fixed scope, so you know what you get and what it costs before anything is built.",
       },
       {
         q: "What kinds of systems can you build or work with?",
@@ -507,7 +507,7 @@ const ru: Translations = {
       },
       {
         q: "Сколько стоит проект?",
-        a: "Зависит от объёма. После короткого разговора вы получаете письменную оценку с зафиксированным объёмом работ, поэтому до начала разработки известно, что вы получите и сколько это стоит.",
+        a: "Зависит от объёма; проекты начинаются от 500 €. После короткого разговора вы получаете письменную оценку с зафиксированным объёмом работ, поэтому до начала разработки известно, что вы получите и сколько это стоит.",
       },
       {
         q: "С какими системами вы можете работать и что можете создать?",

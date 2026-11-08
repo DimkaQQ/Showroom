@@ -222,7 +222,7 @@ export const fr: Translations = {
       },
       {
         q: "Combien coûte un projet ?",
-        a: "Cela dépend du périmètre. Après un court échange de cadrage, vous recevez une estimation écrite à périmètre fixe : vous savez donc ce que vous obtenez et ce que cela coûte avant tout développement.",
+        a: "Cela dépend du périmètre ; les projets démarrent à partir de 500 €. Après un court échange de cadrage, vous recevez une estimation écrite à périmètre fixe : vous savez donc ce que vous obtenez et ce que cela coûte avant tout développement.",
       },
       {
         q: "Quels systèmes peuvent être créés ou intégrés ?",
