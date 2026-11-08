@@ -371,11 +371,11 @@ img { display: block; max-width: 100%; height: auto; }
   body { font-size: 17px; }
   .bar { flex-wrap: wrap; row-gap: 0; }
   .bar-links { order: 3; width: 100%; margin: 0; gap: 18px; flex-wrap: wrap; font-size: 15px; }
-  .bar-links a { padding-block: 8px; }
+  .bar-links a { padding-block: 10px; }
   .bar-ext { display: none; }
   .topbar.is-compact .bar-links { display: none; }
   .topbar.is-compact .bar { flex-wrap: nowrap; }
-  .topbar { padding: 12px var(--gutter) 4px; }
+  .topbar { padding: 12px var(--gutter) 10px; }
   .bar .brand { font-size: 20px; gap: 12px; }
   .bar-links { font-size: 16px; }
   .reel { min-height: 200px; margin-top: 32px; }
