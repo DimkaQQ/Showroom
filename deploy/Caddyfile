@@ -29,12 +29,12 @@
 (demo) {
 	import static
 	root * /var/www/mirelli/current/demos/{args[0]}
-	header Content-Security-Policy "frame-ancestors 'self' https://dimkaprojects.xyz"
+	header Content-Security-Policy "frame-ancestors 'self' https://mirelli.eu https://dimkaprojects.xyz"
 	header X-Robots-Tag "noindex, follow"
 	file_server
 }
 
-dimkaprojects.xyz {
+mirelli.eu {
 	import static
 	root * /var/www/mirelli/current/site
 	handle /coffee* {
@@ -65,37 +65,87 @@ dimkaprojects.xyz {
 	}
 }
 
-www.dimkaprojects.xyz {
+www.mirelli.eu {
 	import security
-	redir https://dimkaprojects.xyz{uri} permanent
+	redir https://mirelli.eu{uri} permanent
+}
+
+# Old domain: everything moves to mirelli.eu with a permanent redirect. The contact endpoint stays reachable
+# so a page cached before the move can still submit its form.
+dimkaprojects.xyz, www.dimkaprojects.xyz {
+	import security
+	handle /api/contact* {
+		reverse_proxy 127.0.0.1:8787
+	}
+	handle {
+		redir https://mirelli.eu{uri} permanent
+	}
+}
+
+# Demos now live on <name>.mirelli.eu; the old subdomains redirect there.
+dizeltrade.mirelli.eu {
+	import demo dizeltrade
+}
+rentoworld.mirelli.eu {
+	import demo rentoworld
+}
+tradinglearn.mirelli.eu {
+	import demo tradinglearn
+}
+shipter.mirelli.eu {
+	import demo shipter
+}
+storage.mirelli.eu {
+	import demo storage
+}
+caspianflow.mirelli.eu {
+	import demo caspianflow
+}
+restaurant.mirelli.eu {
+	import demo restaurant
+}
+hr.mirelli.eu {
+	import demo hr
+}
+botfactory.mirelli.eu {
+	import demo botfactory
 }
 
 dizeltrade.dimkaprojects.xyz {
-	import demo dizeltrade
+	import security
+	redir https://dizeltrade.mirelli.eu{uri} permanent
 }
 rentoworld.dimkaprojects.xyz {
-	import demo rentoworld
+	import security
+	redir https://rentoworld.mirelli.eu{uri} permanent
 }
 tradinglearn.dimkaprojects.xyz {
-	import demo tradinglearn
+	import security
+	redir https://tradinglearn.mirelli.eu{uri} permanent
 }
 shipter.dimkaprojects.xyz {
-	import demo shipter
+	import security
+	redir https://shipter.mirelli.eu{uri} permanent
 }
 storage.dimkaprojects.xyz {
-	import demo storage
+	import security
+	redir https://storage.mirelli.eu{uri} permanent
 }
 caspianflow.dimkaprojects.xyz {
-	import demo caspianflow
+	import security
+	redir https://caspianflow.mirelli.eu{uri} permanent
 }
 restaurant.dimkaprojects.xyz {
-	import demo restaurant
+	import security
+	redir https://restaurant.mirelli.eu{uri} permanent
 }
 hr.dimkaprojects.xyz {
-	import demo hr
+	import security
+	redir https://hr.mirelli.eu{uri} permanent
 }
 botfactory.dimkaprojects.xyz {
-	import demo botfactory
+	import security
+	redir https://botfactory.mirelli.eu{uri} permanent
 }
 
 bot.dimkaprojects.xyz {

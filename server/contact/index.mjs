@@ -20,7 +20,7 @@ const HOST = process.env.HOST || "127.0.0.1";
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const CHAT = process.env.TELEGRAM_CHAT_ID || "";
 const API = (process.env.TELEGRAM_API || "https://api.telegram.org").replace(/\/$/, "");
-const ORIGINS = (process.env.ALLOWED_ORIGINS || "https://dimkaprojects.xyz").split(",").map((s) => s.trim());
+const ORIGINS = (process.env.ALLOWED_ORIGINS || "https://mirelli.eu,https://www.mirelli.eu,https://dimkaprojects.xyz").split(",").map((s) => s.trim());
 const MAX_BODY = 8 * 1024;
 
 const hits = new Map(); // ip -> timestamps
