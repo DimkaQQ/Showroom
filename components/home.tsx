@@ -93,7 +93,7 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
           <div className="hero-cta"><a className="btn" href="#work">{t.hero.viewWork}</a><a className="btn btn-outline" href="#contact">{t.nav.contact}</a></div>
         </div>
         <dl className="hero-stats rise rise-2">
-          <div><dt>{t.hero.statClients}</dt><dd>30+</dd></div>
+          <div><dt>{t.hero.statClients}</dt><dd>100+</dd></div>
           <div><dt>{t.hero.statYears}</dt><dd>3+</dd></div>
           <div><dt>{t.hero.statDemos}</dt><dd>9</dd></div>
         </dl>

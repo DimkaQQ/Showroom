@@ -151,7 +151,7 @@ export const cs: Translations = {
       "Máte co do činění s člověkem, ne s tiketovým systémem: popíšete problém, písemně se dohodneme na rozsahu a ceně a každý týden vidíte funkční verzi. Pracujeme na základě smlouvy nebo jednoduché písemné dohody, jak vám vyhovuje.",
     ],
     facts: [
-      { value: "30+", label: "klientů, se kterými jsme spolupracovali" },
+      { value: "100+", label: "klientů, se kterými jsme spolupracovali" },
       { value: "Většina", label: "se vrací s novými projekty" },
       { value: "Přibližně polovina", label: "provozuje systém na vlastním serveru, nezávisle na nás" },
     ],
@@ -250,7 +250,7 @@ export const cs: Translations = {
       },
       {
         q: "Vracejí se klienti?",
-        a: "Ano. Spolupracovali jsme s více než 30 klienty a většina se vrací s novými projekty. Přibližně polovina provozuje své systémy na vlastních serverech, zcela nezávisle na nás.",
+        a: "Ano. Spolupracovali jsme s více než 100 klienty a většina se vrací s novými projekty. Přibližně polovina provozuje své systémy na vlastních serverech, zcela nezávisle na nás.",
       },
       {
         q: "V jakých jazycích pracujete?",

@@ -151,7 +151,7 @@ export const de: Translations = {
       "Sie haben es mit einer Person zu tun, nicht mit einem Ticketsystem: Sie schildern das Problem, wir vereinbaren Umfang und Preis schriftlich, und Sie sehen jede Woche eine lauffähige Version. Wir arbeiten per Vertrag oder mit einer einfachen schriftlichen Vereinbarung, ganz wie Sie es bevorzugen.",
     ],
     facts: [
-      { value: "30+", label: "betreute Kunden" },
+      { value: "100+", label: "betreute Kunden" },
       { value: "Die meisten", label: "kommen mit neuen Projekten wieder" },
       { value: "Etwa die Hälfte", label: "betreibt ihr System auf dem eigenen Server, unabhängig von uns" },
     ],
@@ -250,7 +250,7 @@ export const de: Translations = {
       },
       {
         q: "Kommen Kunden wieder?",
-        a: "Ja. Wir haben mit mehr als 30 Kunden gearbeitet, und die meisten kommen mit neuen Projekten wieder. Etwa die Hälfte betreibt ihre Systeme auf eigenen Servern, vollständig unabhängig von uns.",
+        a: "Ja. Wir haben mit mehr als 100 Kunden gearbeitet, und die meisten kommen mit neuen Projekten wieder. Etwa die Hälfte betreibt ihre Systeme auf eigenen Servern, vollständig unabhängig von uns.",
       },
       {
         q: "In welchen Sprachen wird gearbeitet?",

@@ -155,7 +155,7 @@ const en = {
       "You deal with a person, not a ticket system: you describe the problem, we agree scope and price in writing, and you see a working version every week. We work by contract or by a simple written agreement, whichever you prefer.",
     ],
     facts: [
-      { value: "30+", label: "clients served" },
+      { value: "100+", label: "clients served" },
       { value: "Most", label: "come back with new projects" },
       { value: "About half", label: "host their systems on their own servers, fully independent of us" },
     ],
@@ -254,7 +254,7 @@ const en = {
       },
       {
         q: "Do clients come back?",
-        a: "Yes. We have worked with more than 30 clients, and most of them come back with new projects. About half run their systems on their own servers, fully independent of us.",
+        a: "Yes. We have worked with more than 100 clients, and most of them come back with new projects. About half run their systems on their own servers, fully independent of us.",
       },
       {
         q: "Which languages do you work in?",
@@ -458,7 +458,7 @@ const ru: Translations = {
       "Вы общаетесь с человеком, а не с тикет-системой: описываете задачу, мы письменно договариваемся об объёме и цене, и каждую неделю вы видите рабочую версию. Работаем по договору или по простой письменной договорённости, как вам удобнее.",
     ],
     facts: [
-      { value: "30+", label: "клиентов за время работы" },
+      { value: "100+", label: "клиентов за время работы" },
       { value: "Большинство", label: "возвращаются с новыми проектами" },
       { value: "Примерно половина", label: "работает на собственных серверах, независимо от нас" },
     ],
@@ -557,7 +557,7 @@ const ru: Translations = {
       },
       {
         q: "Клиенты возвращаются?",
-        a: "Да. Мы работали с более чем 30 клиентами, и большинство возвращается с новыми проектами. Примерно половина работает на собственных серверах, полностью независимо от нас.",
+        a: "Да. Мы работали с более чем 100 клиентами, и большинство возвращается с новыми проектами. Примерно половина работает на собственных серверах, полностью независимо от нас.",
       },
       {
         q: "На каких языках вы работаете?",

@@ -151,7 +151,7 @@ export const fr: Translations = {
       "Vous avez affaire à une personne, pas à un système de tickets : vous décrivez le problème, nous convenons du périmètre et du prix par écrit, et vous voyez une version fonctionnelle chaque semaine. Nous travaillons par contrat ou par un simple accord écrit, comme vous préférez.",
     ],
     facts: [
-      { value: "30+", label: "clients accompagnés" },
+      { value: "100+", label: "clients accompagnés" },
       { value: "La plupart", label: "reviennent avec de nouveaux projets" },
       { value: "Environ la moitié", label: "exploite son système sur son propre serveur, indépendamment de nous" },
     ],
@@ -250,7 +250,7 @@ export const fr: Translations = {
       },
       {
         q: "Les clients reviennent-ils ?",
-        a: "Oui. Nous avons travaillé avec plus de 30 clients, et la plupart reviennent avec de nouveaux projets. Environ la moitié exploite ses systèmes sur ses propres serveurs, en toute indépendance.",
+        a: "Oui. Nous avons travaillé avec plus de 100 clients, et la plupart reviennent avec de nouveaux projets. Environ la moitié exploite ses systèmes sur ses propres serveurs, en toute indépendance.",
       },
       {
         q: "Dans quelles langues travaillez-vous ?",
