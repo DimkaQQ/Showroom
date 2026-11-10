@@ -4,7 +4,7 @@ export const fr: Translations = {
   meta: {
     title: "Développement logiciel sur mesure en Europe | Mirelli Studio",
     description:
-      "ERP et outils internes, plateformes SaaS, places de marché B2B et bots Telegram sur mesure pour les entreprises européennes. Neuf démos en ligne, hébergement dans l'UE.",
+      "Mirelli Studio réalise des sites web, la réservation en ligne, de petits systèmes de gestion et des bots Telegram pour les petites et moyennes entreprises en Europe, et les maintient en état de marche. Exemples en direct à essayer. Hébergement dans l'UE.",
     ogAlt: "Mirelli Studio – logiciels sur mesure pour les entreprises européennes",
   },
   nav: {
@@ -18,18 +18,18 @@ export const fr: Translations = {
     play: "Reprendre l'animation",
   },
   hero: {
-    descriptor: "Studio de logiciels sur mesure",
+    descriptor: "Logiciels et sites web pour petites entreprises",
     lead:
-      "Des logiciels sur mesure pour les entreprises européennes. Quel que soit le socle de votre activité, il peut être créé, relié à l'existant ou remplacé. Neuf produits réels ci-dessous, chacun en démo en ligne avec des données d'exemple.",
-    viewWork: "Voir les réalisations",
-    statProjects: "Produits créés",
-    statYears: "Années en production",
-    statTech: "Hébergé à Francfort",
+      "Dites-nous ce qui freine votre activité : réservations, commandes, tableurs, un site que personne ne trouve. Nous construisons la solution, la connectons à ce que vous utilisez déjà et la maintenons. Vous trouverez ci-dessous des exemples en direct à ouvrir et à parcourir.",
+    viewWork: "Voir des exemples",
+    statClients: "Clients à ce jour",
+    statYears: "Années d'activité",
+    statDemos: "Démos en direct",
   },
   showroom: {
-    title: "Réalisations choisies",
+    title: "Des exemples à essayer",
     subtitle:
-      "Des systèmes réels pour la logistique, la restauration, le trading et les places de marché. Chaque démo fonctionne en direct avec des données d'exemple à la place des données clients : essayez-la vous-même.",
+      "Ce sont des systèmes qui fonctionnent, sur des données d'exemple, pas des images. Ouvrez-en un et parcourez-le pour voir à quoi pourrait ressembler un système pour votre activité.",
     explore: "Ouvrir la démo",
     caseStudy: "Lire l'étude de cas",
     tryOff: "Essayer la démo",
@@ -83,65 +83,77 @@ export const fr: Translations = {
     ],
   },
   services: {
-    title: "Services",
-    subtitle: "De la première réunion de cadrage à un produit déployé et documenté.",
+    title: "Ce que nous pouvons faire pour votre entreprise",
+    subtitle: "Choisissez le problème que vous reconnaissez. Chacun peut démarrer petit et grandir ensuite.",
     items: [
       {
-        title: "Plateformes web et SaaS",
+        title: "Un site qui apporte des demandes",
         description:
-          "Portails clients, places de marché B2B et P2P et produits SaaS par abonnement avec Next.js, React et TypeScript. Rapides, accessibles et conçus pour évoluer.",
+          "Un site rapide, agréable à lire sur téléphone, qui montre votre travail et transforme les visiteurs en demandes : formulaire de contact, demande de devis, réservation en ligne. Pour artisans, garages, salons, cabinets et commerces.",
       },
       {
-        title: "Outils internes et ERP",
+        title: "Réservation en ligne et commandes",
         description:
-          "ERP et logiciels métier sur mesure qui remplacent les tableurs : gestion des stocks, expédition et logistique, achats, planification et processus de back-office.",
+          "Vos clients réservent un créneau, commandent un repas ou réservent une voiture sans téléphoner. Confirmations et rappels automatiques, et un calendrier simple pour vous et votre équipe.",
       },
       {
-        title: "Backend et intégrations",
+        title: "Un système simple à la place d'Excel",
         description:
-          "Relier et automatiser ce qui existe déjà : ERP, CRM, comptabilité, prestataires de paiement et systèmes anciens via des API REST et GraphQL, des webhooks et des imports de données, ainsi que des systèmes temps réel fiables sous charge.",
+          "Stock, clients, chantiers, trajets, factures : un seul endroit au lieu de tableurs, de messageries et de papier. Conçu selon la façon dont votre équipe travaille déjà, pour éviter des semaines de formation.",
       },
       {
-        title: "Bots Telegram et Mini Apps",
+        title: "Connecter ce que vous utilisez déjà",
         description:
-          "Développement de bots Telegram et de Mini Apps pour la vente, le support, les formations et la communauté, avec paiements et une partie administration que votre équipe utilisera vraiment.",
+          "Comptabilité, boutique en ligne, paiements, CRM, anciens logiciels : nous les relions pour que les données soient saisies une seule fois et se mettent à jour seules, et nous automatisons les copier-coller répétitifs.",
       },
       {
-        title: "Infrastructure et DevOps",
+        title: "Bots et automatisation",
         description:
-          "Déploiements conteneurisés, CI/CD, supervision et sauvegardes sur une infrastructure hébergée dans l'UE, documentés pour que vous ne soyez jamais prisonnier.",
+          "Un bot Telegram qui répond aux clients, prend des commandes ou vend des formations, et des automatisations qui envoient rappels, rapports et factures sans que personne n'ait à y penser.",
       },
       {
-        title: "Design produit et UX",
+        title: "Hébergement, corrections et support",
         description:
-          "Des interfaces belles et simples d'usage : prototypes, design systems et écrans conformes WCAG, validés avec vous avant de devenir du code, y compris applications mobile-first et PWA.",
+          "Nous hébergeons dans l'UE ou sur votre propre serveur, selon votre préférence, gardons tout à jour et sécurisé, et corrigeons vite ce qui cesse de fonctionner. Un interlocuteur qui répond.",
       },
     ],
   },
   process: {
-    title: "Le déroulement d'un projet",
-    subtitle: "Quatre étapes, sans surprise.",
+    title: "Comment ça se passe",
+    subtitle: "De votre premier message à un système qui fonctionne, en étapes simples.",
     steps: [
       {
-        title: "Cadrage",
+        title: "Décrivez le problème",
         description:
-          "Objectifs, utilisateurs, périmètre et estimation claire sont validés par écrit avant la moindre ligne de code.",
+          "Écrivez-nous via le formulaire ci-dessous, par e-mail ou sur Telegram, ce qui freine votre activité. Vous recevez une réponse personnelle, pas un modèle.",
       },
       {
-        title: "Conception",
+        title: "Estimation et accord",
         description:
-          "Prototypes cliquables et design system, validés tôt avec vous, tant que les changements coûtent peu.",
+          "Avant de commencer, nous fixons par écrit le périmètre et le prix, sous forme de contrat ou d'accord écrit simple, comme vous préférez.",
       },
       {
-        title: "Réalisation",
+        title: "Réalisation avec des aperçus hebdomadaires",
         description:
-          "Un logiciel fonctionnel sur une URL de préproduction chaque semaine. Vous voyez le produit grandir au lieu de lire des rapports d'avancement.",
+          "Chaque semaine, vous voyez une version qui fonctionne et nous dites ce qu'il faut changer. Pas de long silence, pas de surprise.",
       },
       {
-        title: "Lancement et suivi",
+        title: "Mise en service et support",
         description:
-          "Déploiement, supervision, documentation et une passation qui vous laisse maître de votre produit.",
+          "Nous mettons en ligne, formons vos équipes si besoin et restons disponibles pour les corrections et les étapes suivantes.",
       },
+    ],
+  },
+  about: {
+    title: "Avec qui vous travaillez",
+    paragraphs: [
+      "Mirelli Studio aide les petites et moyennes entreprises en Europe avec des logiciels adaptés à leur façon réelle de travailler : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, et le support pour que tout continue de fonctionner.",
+      "Vous avez affaire à une personne, pas à un système de tickets : vous décrivez le problème, nous convenons du périmètre et du prix par écrit, et vous voyez une version fonctionnelle chaque semaine. Nous travaillons par contrat ou par un simple accord écrit, comme vous préférez.",
+    ],
+    facts: [
+      { value: "30+", label: "clients à ce jour" },
+      { value: "La plupart", label: "reviennent avec de nouveaux projets" },
+      { value: "Environ la moitié", label: "exploite son système sur son propre serveur, indépendamment de nous" },
     ],
   },
   contact: {
@@ -172,7 +184,7 @@ export const fr: Translations = {
     },
   },
   footer: {
-    privacy: "Confidentialité",
+    privacy: "Confidentialité et informations légales",
     rights: "Tous droits réservés.",
     built: "Créé avec Next.js",
   },
@@ -198,7 +210,7 @@ export const fr: Translations = {
     items: [
       {
         q: "Que fait Mirelli Studio ?",
-        a: "Mirelli Studio conçoit et développe des logiciels sur mesure pour les entreprises en Europe : systèmes ERP et outils internes, plateformes SaaS, places de marché B2B, logiciels pour la restauration et la logistique, bots Telegram et Mini Apps. Chaque projet va du premier échange à un produit déployé et documenté.",
+        a: "Mirelli Studio aide les petites et moyennes entreprises en Europe avec le logiciel dont elles ont réellement besoin : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, des liens entre les outils que vous utilisez déjà, des bots Telegram, ainsi que l'hébergement et le support pour que tout fonctionne. Vous avez un seul interlocuteur, du premier échange jusqu'au système final documenté.",
       },
       {
         q: "Quels produits ont déjà été créés ?",
@@ -217,6 +229,14 @@ export const fr: Translations = {
         a: "En quatre étapes : cadrage avec périmètre et estimation écrits, conception avec prototypes cliquables, réalisation avec un logiciel fonctionnel sur une URL de préproduction chaque semaine, puis lancement et suivi avec supervision et documentation. Vous voyez le produit grandir au lieu de lire des rapports d'avancement.",
       },
       {
+        q: "Signe-t-on un contrat ?",
+        a: "Comme vous préférez : un contrat, ou un simple accord écrit qui précise ce qui est réalisé, pour quand et à quel prix. Dans les deux cas, le périmètre et le prix sont fixés par écrit avant le début du travail, et nous échangeons directement, sans service commercial entre nous.",
+      },
+      {
+        q: "Dois-je m'y connaître en informatique ?",
+        a: "Non. Décrivez le problème avec vos mots : ce qui prend trop de temps, ce que demandent vos clients, ce que vous faites à la main aujourd'hui. Nous expliquons les options simplement et proposons la plus simple qui règle le problème.",
+      },
+      {
         q: "Où le logiciel est-il hébergé et comment les données sont-elles traitées ?",
         a: "Ce site et ses démos fonctionnent sur une infrastructure à Francfort et n'utilisent ni cookies, ni outil d'analyse, ni requêtes vers des tiers. Pour les projets clients, les systèmes peuvent être déployés sur le cloud européen de votre choix et conçus dans une logique de minimisation des données, avec une documentation pour que vous ne soyez jamais prisonnier.",
       },
@@ -230,7 +250,7 @@ export const fr: Translations = {
       },
       {
         q: "Les clients reviennent-ils ?",
-        a: "Oui. Les clients sont satisfaits du résultat et reviennent avec de nouveaux projets.",
+        a: "Oui. Nous avons travaillé avec plus de 30 clients, et la plupart reviennent avec de nouveaux projets. Environ la moitié exploite ses systèmes sur ses propres serveurs, en toute indépendance.",
       },
       {
         q: "Dans quelles langues travaillez-vous ?",
@@ -244,6 +264,8 @@ export const fr: Translations = {
     title: "Confidentialité",
     back: "Retour à l'accueil",
     updated: "Dernière mise à jour : novembre 2026",
+    legalTitle: "Prestataire",
+    legalPrefix: "Les services sont fournis par :",
     sections: [
       {
         title: "En bref",

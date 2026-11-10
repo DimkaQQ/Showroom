@@ -4,7 +4,7 @@ export const sk: Translations = {
   meta: {
     title: "Vývoj softvéru na mieru v Európe | Mirelli Studio",
     description:
-      "ERP systémy na mieru, SaaS platformy, B2B marketplace a Telegram boty pre firmy v Európe. Deväť živých ukážok, hosting v EÚ.",
+      "Mirelli Studio vytvára weby, online rezervácie, jednoduché firemné systémy a Telegram boty pre malé a stredné firmy v Európe a stará sa o ich fungovanie. Živé ukážky, ktoré si môžete vyskúšať. Hosting v EÚ.",
     ogAlt: "Mirelli Studio – softvér na mieru pre európske firmy",
   },
   nav: {
@@ -18,18 +18,18 @@ export const sk: Translations = {
     play: "Obnoviť animáciu",
   },
   hero: {
-    descriptor: "Štúdio softvéru na mieru",
+    descriptor: "Softvér a weby pre malé firmy",
     lead:
-      "Softvér na mieru pre európske firmy. Nech váš biznis beží na čomkoľvek, dá sa vytvoriť nanovo, prepojiť s tým, čo už máte, alebo nahradiť. Nižšie nájdete deväť reálnych produktov, každý ako živá ukážka na vzorových dátach.",
-    viewWork: "Pozrieť projekty",
-    statProjects: "Vytvorených produktov",
-    statYears: "Rokov v prevádzke",
-    statTech: "Hosting vo Frankfurte",
+      "Povedzte nám, čo brzdí váš biznis: rezervácie, objednávky, tabuľky, web, ktorý nikto nenájde. Vytvoríme riešenie, prepojíme ho s tým, čo už používate, a postaráme sa o jeho chod. Nižšie sú živé ukážky, ktoré si môžete otvoriť a prekliknúť.",
+    viewWork: "Pozrieť ukážky",
+    statClients: "Klientov doteraz",
+    statYears: "Rokov na trhu",
+    statDemos: "Živých ukážok",
   },
   showroom: {
-    title: "Vybrané projekty",
+    title: "Ukážky, ktoré si môžete vyskúšať",
     subtitle:
-      "Reálne systémy pre logistiku, gastronómiu, obchod a marketplace. Každá ukážka beží naživo na vzorových dátach namiesto dát klienta: vyskúšajte si ju sami.",
+      "Sú to funkčné systémy na vzorových dátach, nie obrázky. Otvorte jeden a prekliknite ho, aby ste videli, ako by mohol vyzerať systém pre váš biznis.",
     explore: "Otvoriť ukážku",
     caseStudy: "Prečítať prípadovú štúdiu",
     tryOff: "Vyskúšať ukážku",
@@ -83,65 +83,77 @@ export const sk: Translations = {
     ],
   },
   services: {
-    title: "Služby",
-    subtitle: "Od prvého rozhovoru o rozsahu až po fungujúci a zdokumentovaný produkt.",
+    title: "Čo môžeme urobiť pre váš biznis",
+    subtitle: "Vyberte si problém, ktorý poznáte. Každý sa dá začať v malom a neskôr rozšíriť.",
     items: [
       {
-        title: "Webové platformy a SaaS",
+        title: "Web, ktorý prináša dopyty",
         description:
-          "Zákaznícke portály, B2B a P2P marketplace a predplatiteľské SaaS produkty v Next.js, Reacte a TypeScripte. Rýchle, prístupné a pripravené na rozširovanie.",
+          "Rýchly web, ktorý sa dobre číta na mobile, ukáže vašu prácu a mení návštevníkov na dopyty: kontaktný formulár, žiadosť o ponuku, online rezervácia. Pre remeselníkov, autoservisy, salóny, ambulancie a obchody.",
       },
       {
-        title: "Interné nástroje a ERP",
+        title: "Online rezervácie a objednávky",
         description:
-          "ERP a prevádzkový softvér na mieru, ktorý nahradí tabuľky: sklad, dispečing a logistika, nákup, plánovanie a back-office procesy.",
+          "Zákazníci si rezervujú termín, objednajú jedlo alebo rezervujú auto bez telefonátu. Automatické potvrdenia a pripomienky a jednoduchý kalendár pre vás a vašich ľudí.",
       },
       {
-        title: "Backend a integrácie",
+        title: "Jednoduchý systém namiesto Excelu",
         description:
-          "Prepojenie a automatizácia toho, čo už používate: ERP, CRM, účtovníctvo, platobné brány a staršie systémy cez REST a GraphQL API, webhooky a importy dát, k tomu systémy v reálnom čase, ktoré zostanú spoľahlivé aj pod záťažou.",
+          "Sklad, zákazníci, zákazky, jazdy, faktúry: jedno miesto namiesto tabuliek, messengerov a papiera. Postavené podľa toho, ako váš tím už pracuje, aby nebolo treba týždne školiť.",
       },
       {
-        title: "Telegram boty a Mini Apps",
+        title: "Prepojíme, čo už používate",
         description:
-          "Vývoj Telegram botov a Mini Apps pre predaj, podporu, kurzy a komunity, s platbami a administráciou, ktorú váš tím naozaj použije.",
+          "Účtovníctvo, e-shop, platby, CRM, staršie programy: prepojíme ich tak, aby sa údaje zadávali raz a aktualizovali sa samy, a zautomatizujeme rutinné prepisovanie.",
       },
       {
-        title: "Infraštruktúra a DevOps",
+        title: "Boty a automatizácia",
         description:
-          "Kontajnerizované nasadenie, CI/CD, monitoring a zálohy na infraštruktúre hostovanej v EÚ, zdokumentované tak, aby ste nikdy neboli zviazaní.",
+          "Telegram bot, ktorý odpovedá zákazníkom, prijíma objednávky alebo predáva kurzy, a automatizácie, ktoré samy posielajú pripomienky, reporty a faktúry.",
       },
       {
-        title: "Produktový dizajn a UX",
+        title: "Hosting, opravy a podpora",
         description:
-          "Krásne a ľahko ovládateľné rozhrania: prototypy, dizajn systémy a obrazovky podľa WCAG, ktoré s vami odsúhlasíme skôr, než sa začne programovať, vrátane mobile-first aplikácií a PWA.",
+          "Hostujeme v EÚ alebo na vašom vlastnom serveri, ako vám vyhovuje, udržiavame všetko aktuálne a zabezpečené a rýchlo opravíme, keď niečo prestane fungovať. Jeden človek, ktorý odpovie.",
       },
     ],
   },
   process: {
-    title: "Ako prebieha projekt",
-    subtitle: "Štyri kroky, žiadne prekvapenia.",
+    title: "Ako to funguje",
+    subtitle: "Od prvej správy až po fungujúci systém, v jednoduchých krokoch.",
     steps: [
       {
-        title: "Analýza",
+        title: "Povedzte nám o probléme",
         description:
-          "Ciele, používatelia, rozsah a jasný odhad sa dohodnú písomne ešte pred prvým riadkom kódu.",
+          "Napíšte cez formulár nižšie, e-mailom alebo cez Telegram, čo brzdí váš biznis. Dostanete osobnú odpoveď, nie šablónu.",
       },
       {
-        title: "Dizajn",
+        title: "Odhad a dohoda",
         description:
-          "Klikateľné prototypy a dizajn systém, odsúhlasené s vami včas, kým sú zmeny ešte lacné.",
+          "Pred začiatkom práce písomne dohodneme rozsah a cenu, formou zmluvy alebo jednoduchej písomnej dohody, ako vám vyhovuje.",
       },
       {
-        title: "Vývoj",
+        title: "Vývoj s týždennými ukážkami",
         description:
-          "Každý týždeň funkčný softvér na staging adrese. Produkt vidíte rásť namiesto čítania štatusových správ.",
+          "Každý týždeň uvidíte funkčnú verziu a poviete, čo zmeniť. Žiadne dlhé ticho ani prekvapenia.",
       },
       {
-        title: "Spustenie a prevádzka",
+        title: "Spustenie a podpora",
         description:
-          "Nasadenie, monitoring, dokumentácia a odovzdanie, ktoré vám necháva kontrolu nad vaším produktom.",
+          "Spustíme, v prípade potreby zaškolíme vašich ľudí a ostaneme k dispozícii pre opravy a ďalšie kroky.",
       },
+    ],
+  },
+  about: {
+    title: "S kým budete pracovať",
+    paragraphs: [
+      "Mirelli Studio pomáha malým a stredným firmám v Európe so softvérom, ktorý zodpovedá tomu, ako reálne pracujú: web, ktorý prináša dopyty, online rezervácie a objednávky, jednoduchý systém namiesto Excelu a podpora, aby všetko fungovalo.",
+      "Máte do činenia s človekom, nie s tiketovým systémom: opíšete problém, písomne sa dohodneme na rozsahu a cene a každý týždeň vidíte funkčnú verziu. Pracujeme na základe zmluvy alebo jednoduchej písomnej dohody, ako vám vyhovuje.",
+    ],
+    facts: [
+      { value: "30+", label: "klientov doteraz" },
+      { value: "Väčšina", label: "sa vracia s novými projektmi" },
+      { value: "Približne polovica", label: "prevádzkuje systém na vlastnom serveri, nezávisle od nás" },
     ],
   },
   contact: {
@@ -172,7 +184,7 @@ export const sk: Translations = {
     },
   },
   footer: {
-    privacy: "Ochrana osobných údajov",
+    privacy: "Ochrana údajov a právne informácie",
     rights: "Všetky práva vyhradené.",
     built: "Vytvorené v Next.js",
   },
@@ -198,7 +210,7 @@ export const sk: Translations = {
     items: [
       {
         q: "Čím sa zaoberá Mirelli Studio?",
-        a: "Mirelli Studio navrhuje a vyvíja softvér na mieru pre firmy v Európe: ERP systémy a interné nástroje, SaaS platformy, B2B marketplace, softvér pre gastronómiu a logistiku, Telegram boty a Mini Apps. Každý projekt vedie od prvého rozhovoru až po fungujúci a zdokumentovaný produkt.",
+        a: "Mirelli Studio pomáha malým a stredným firmám v Európe so softvérom, ktorý naozaj potrebujú: web, ktorý prináša dopyty, online rezervácie a objednávky, jednoduchý systém namiesto Excelu, prepojenie nástrojov, ktoré už používate, Telegram boty a hosting a podpora, aby všetko fungovalo. Od prvého rozhovoru až po hotový zdokumentovaný systém máte jedného človeka.",
       },
       {
         q: "Aké produkty už boli vytvorené?",
@@ -217,6 +229,14 @@ export const sk: Translations = {
         a: "V štyroch krokoch: analýza s písomným rozsahom a odhadom, dizajn s klikateľnými prototypmi, vývoj s funkčným softvérom na staging adrese každý týždeň, potom spustenie a prevádzka s monitoringom a dokumentáciou. Produkt vidíte rásť namiesto čítania štatusových správ.",
       },
       {
+        q: "Podpisujeme zmluvu?",
+        a: "Ako vám vyhovuje: zmluvu alebo jednoduchú písomnú dohodu, v ktorej je uvedené, čo sa robí, dokedy a za akú cenu. V oboch prípadoch sa rozsah a cena písomne dohodnú pred začiatkom práce a komunikujeme priamo, bez obchodného oddelenia medzi nami.",
+      },
+      {
+        q: "Musím sa vyznať v IT?",
+        a: "Nie. Opíšte problém vlastnými slovami: čo zaberá príliš veľa času, na čo sa pýtajú zákazníci, čo robíte dnes ručne. Možnosti vysvetlíme jednoducho a navrhneme najjednoduchšiu, ktorá problém vyrieši.",
+      },
+      {
         q: "Kde sa softvér hostuje a ako sa nakladá s dátami?",
         a: "Táto stránka a jej ukážky bežia na infraštruktúre vo Frankfurte a nepoužívajú cookies, analytické nástroje ani požiadavky na tretie strany. Pri projektoch pre klientov je možné prevádzkovať systémy v EÚ cloude podľa vášho výberu a navrhnúť ich šetrne k dátam, s dokumentáciou, aby ste nikdy neboli zviazaní.",
       },
@@ -230,7 +250,7 @@ export const sk: Translations = {
       },
       {
         q: "Vracajú sa klienti?",
-        a: "Áno. Klienti sú s výsledkom spokojní a vracajú sa s novými projektmi.",
+        a: "Áno. Spolupracovali sme s viac ako 30 klientmi a väčšina sa vracia s novými projektmi. Približne polovica prevádzkuje svoje systémy na vlastných serveroch, úplne nezávisle od nás.",
       },
       {
         q: "V akých jazykoch pracujete?",
@@ -244,6 +264,8 @@ export const sk: Translations = {
     title: "Ochrana osobných údajov",
     back: "Späť na úvodnú stránku",
     updated: "Stav: november 2026",
+    legalTitle: "Poskytovateľ",
+    legalPrefix: "Služby poskytuje:",
     sections: [
       {
         title: "Stručne",

@@ -6,16 +6,19 @@ export const siteConfig = {
   github: "https://github.com/DimkaQQ",
   telegram: "https://t.me/Dimka_Hum",
   founded: "2023",
+  // Shown only on the privacy page (footer link "Privacy and legal"), never in the main text.
+  // Fill in to publish the provider's details; while empty nothing is rendered.
+  legal: { name: "", id: "", address: "" },
 };
 
 // Order matches `services.items` in lib/translations.ts.
 export const services = [
-  { tags: ["Next.js", "React", "TypeScript"] },
+  { tags: ["Next.js", "React", "SEO"] },
+  { tags: ["Booking", "Payments", "Reminders"] },
   { tags: ["FastAPI", "PostgreSQL", "HTMX"] },
   { tags: ["Python", "Node.js", "Stripe"] },
   { tags: ["Telegram", "Mini Apps", "FastAPI"] },
   { tags: ["Docker", "Linux", "CI/CD"] },
-  { tags: ["Design systems", "WCAG", "Prototyping"] },
 ];
 
 export const projects = [

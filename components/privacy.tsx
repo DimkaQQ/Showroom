@@ -6,6 +6,7 @@ import { pathFor, locales, langName, type Lang } from "@/lib/i18n";
 
 export function Privacy({ lang }: { lang: Lang }) {
   const t = translations[lang].privacy;
+  const legal = siteConfig.legal;
   return (
     <main className="doc">
       <nav className="doc-bar" aria-label="Primary">
@@ -23,6 +24,12 @@ export function Privacy({ lang }: { lang: Lang }) {
           ))}
         </section>
       ))}
+      {legal.name && (
+        <section>
+          <h2>{t.legalTitle}</h2>
+          <p>{t.legalPrefix} {[legal.name, legal.id, legal.address].filter(Boolean).join(", ")}.</p>
+        </section>
+      )}
       <p className="doc-foot">© {new Date().getFullYear()} {siteConfig.name}</p>
     </main>
   );

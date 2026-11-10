@@ -20,6 +20,7 @@ export function Home({ lang }: { lang: Lang }) {
       <main id="main" tabIndex={-1}>
         <Work lang={lang} t={t} />
         <Services t={t} />
+        <About t={t} />
         <Quotes lang={lang} />
         <Process t={t} />
         <Faq t={t} />
@@ -92,9 +93,9 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
           <div className="hero-cta"><a className="btn" href="#work">{t.hero.viewWork}</a><a className="btn btn-outline" href="#contact">{t.nav.contact}</a></div>
         </div>
         <dl className="hero-stats rise rise-2">
-          <div><dt>{t.hero.statProjects}</dt><dd>9</dd></div>
+          <div><dt>{t.hero.statClients}</dt><dd>30+</dd></div>
           <div><dt>{t.hero.statYears}</dt><dd>3+</dd></div>
-          <div><dt>{t.hero.statTech}</dt><dd>EU</dd></div>
+          <div><dt>{t.hero.statDemos}</dt><dd>9</dd></div>
         </dl>
       </div>
 
@@ -196,6 +197,29 @@ function Services({ t }: { t: T }) {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+function About({ t }: { t: T }) {
+  return (
+    <section className="about" id="about" aria-labelledby="about-h">
+      <h2 id="about-h" className="reveal">{t.about.title}</h2>
+      <div className="about-body">
+        <div className="about-text reveal">
+          {t.about.paragraphs.map((p) => (
+            <p key={p}>{p}</p>
+          ))}
+        </div>
+        <dl className="about-facts reveal">
+          {t.about.facts.map((f) => (
+            <div key={f.value}>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
     </section>
   );
 }
