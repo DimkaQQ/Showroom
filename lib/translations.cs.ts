@@ -4,7 +4,7 @@ export const cs: Translations = {
   meta: {
     title: "Vývoj softwaru na míru v Evropě | Mirelli Studio",
     description:
-      "Mirelli Studio vytváří weby, online rezervace, jednoduché firemní systémy a Telegram boty pro malé a střední firmy v Evropě a stará se o jejich provoz. Živé ukázky, které si můžete vyzkoušet. Hosting v EU.",
+      "Weby, online rezervace, jednoduché firemní systémy a Telegram boty pro malé a střední firmy v Evropě, včetně podpory. Živé ukázky k vyzkoušení.",
     ogAlt: "Mirelli Studio – software na míru pro evropské firmy",
   },
   nav: {

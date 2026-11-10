@@ -4,7 +4,7 @@ export const fr: Translations = {
   meta: {
     title: "Développement logiciel sur mesure en Europe | Mirelli Studio",
     description:
-      "Mirelli Studio réalise des sites web, la réservation en ligne, de petits systèmes de gestion et des bots Telegram pour les petites et moyennes entreprises en Europe, et les maintient en état de marche. Exemples en direct à essayer. Hébergement dans l'UE.",
+      "Sites web, réservation en ligne, petits systèmes de gestion et bots Telegram pour les PME en Europe, avec support. Démos en direct à essayer.",
     ogAlt: "Mirelli Studio – logiciels sur mesure pour les entreprises européennes",
   },
   nav: {
