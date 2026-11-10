@@ -234,7 +234,7 @@ export const de: Translations = {
       },
       {
         q: "In welchen Sprachen wird gearbeitet?",
-        a: "Englisch und Russisch. Diese Website gibt es auf Englisch, Russisch, Deutsch und Französisch.",
+        a: "Englisch und Russisch. Diese Website gibt es auf Englisch, Russisch, Deutsch, Französisch, Slowakisch und Tschechisch.",
       },
     ],
   },

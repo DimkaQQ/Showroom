@@ -38,7 +38,7 @@ export function llmsTxt(): string {
 
   lines.push("## Optional", "");
   lines.push(`- [Full text for language models](${abs("/llms-full.txt")})`);
-  lines.push(`- [Russian version](${abs("/ru/")}), [German version](${abs("/de/")}), [French version](${abs("/fr/")})`);
+  lines.push(`- [Russian version](${abs("/ru/")}), [German version](${abs("/de/")}), [French version](${abs("/fr/")}), [Slovak version](${abs("/sk/")}), [Czech version](${abs("/cs/")})`);
   lines.push(`- [Privacy](${urlOf("en", "privacy")})`);
   lines.push(`- [Sitemap](${abs("/sitemap.xml")})`, "");
   return lines.join("\n");

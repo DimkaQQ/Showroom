@@ -1,6 +1,8 @@
 import type { Lang } from "./i18n";
 import { caseDe } from "./cases.de";
 import { caseFr } from "./cases.fr";
+import { caseSk } from "./cases.sk";
+import { caseCs } from "./cases.cs";
 
 // One case-study page per project at /work/<id>/ (and /ru/work/<id>/). Facts only: what the product does,
 // who it suits, how it is built. No invented clients or results.
@@ -286,5 +288,5 @@ const base: Record<string, { en: CaseText; ru: CaseText }> = {
 };
 
 export const cases: Record<string, Record<Lang, CaseText>> = Object.fromEntries(
-  Object.entries(base).map(([id, t]) => [id, { ...t, de: caseDe[id], fr: caseFr[id] }])
+  Object.entries(base).map(([id, t]) => [id, { ...t, de: caseDe[id], fr: caseFr[id], sk: caseSk[id], cs: caseCs[id] }])
 );

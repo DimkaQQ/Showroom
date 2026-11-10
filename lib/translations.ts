@@ -1,6 +1,8 @@
 import type { Lang } from "./i18n";
 import { de } from "./translations.de";
 import { fr } from "./translations.fr";
+import { sk } from "./translations.sk";
+import { cs } from "./translations.cs";
 
 const en = {
   meta: {
@@ -237,7 +239,7 @@ const en = {
       },
       {
         q: "Which languages do you work in?",
-        a: "English and Russian. This site is available in English, Russian, German and French.",
+        a: "English and Russian. This site is available in English, Russian, German, French, Slovak and Czech.",
       },
     ],
   },
@@ -519,7 +521,7 @@ const ru: Translations = {
       },
       {
         q: "На каких языках вы работаете?",
-        a: "На английском и русском. Сайт доступен на английском, русском, немецком и французском.",
+        a: "На английском и русском. Сайт доступен на английском, русском, немецком, французском, словацком и чешском.",
       },
     ],
   },
@@ -564,4 +566,4 @@ const ru: Translations = {
   },
 };
 
-export const translations: Record<Lang, Translations> = { en, ru, de, fr };
+export const translations: Record<Lang, Translations> = { en, ru, de, fr, sk, cs };

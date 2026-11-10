@@ -234,7 +234,7 @@ export const fr: Translations = {
       },
       {
         q: "Dans quelles langues travaillez-vous ?",
-        a: "En anglais et en russe. Ce site est disponible en anglais, russe, allemand et français.",
+        a: "En anglais et en russe. Ce site est disponible en anglais, russe, allemand, français, slovaque et tchèque.",
       },
     ],
   },
