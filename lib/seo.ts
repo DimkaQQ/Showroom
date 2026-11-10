@@ -62,11 +62,14 @@ const ORG_ID = `${siteConfig.url}/#studio`;
 const PERSON_ID = `${siteConfig.url}/#founder`;
 
 const KNOWS_ABOUT = [
+  "Website development",
+  "Online booking and ordering systems",
+  "Business process automation",
+  "System integrations",
   "Custom software development",
-  "ERP systems",
-  "Internal tools",
-  "SaaS development",
+  "ERP systems and internal tools",
   "B2B marketplaces",
+  "IT support and hosting",
   "Telegram bots and Mini Apps",
   "Restaurant management software",
   "Logistics and fuel distribution software",
@@ -102,6 +105,7 @@ const organisation = (lang: Lang) => {
       name: t.services.title,
       itemListElement: t.services.items.map((s) => ({
         "@type": "Offer",
+        priceSpecification: { "@type": "PriceSpecification", priceCurrency: "EUR", minPrice: 500 },
         itemOffered: { "@type": "Service", name: s.title, description: s.description, provider: { "@id": ORG_ID } },
       })),
     },
