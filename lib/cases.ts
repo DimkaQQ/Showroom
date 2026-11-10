@@ -18,12 +18,12 @@ const base: Record<string, { en: CaseText; ru: CaseText }> = {
   dizeltrade: {
     en: {
       title: "Fuel Distribution ERP Software | DizelTrade Case Study",
-      description: "Custom ERP for diesel fuel distribution: depot stock, trips, customer debts, fleet and analytics with role-based access. Live demo included.",
+      description: "Custom ERP for diesel fuel distribution: depot stock, trips, customer balances, fleet and analytics with role-based access. Live demo included.",
       lead: "DizelTrade is an internal platform for a diesel-fuel distributor. It tracks what arrives at the depot, what leaves on which truck, who has paid and who owes, and what each month earned.",
       features: [
         "Depot stock with receipts, dispatches and a running balance",
         "Trips with truck and driver assignment and delivery confirmation",
-        "Customer accounts with outstanding debts and balances",
+        "Customer accounts with outstanding balances",
         "Fleet list for trucks and drivers",
         "Financial analytics by month and by customer",
         "Role-based access so each person sees only what they need",

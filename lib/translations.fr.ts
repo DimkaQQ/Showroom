@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const fr: Translations = {
   meta: {
-    title: "Développement logiciel sur mesure en Europe | Mirelli Studio",
+    title: "Logiciels et sites web pour petites entreprises en Europe | Mirelli Studio",
     description:
       "Sites web, réservation en ligne, petits systèmes de gestion et bots Telegram pour les PME en Europe, avec support. Démos en direct à essayer.",
-    ogAlt: "Mirelli Studio – logiciels sur mesure pour les entreprises européennes",
+    ogAlt: "Mirelli Studio – logiciels et sites web pour les petites et moyennes entreprises en Europe",
   },
   nav: {
     work: "Réalisations",
@@ -20,9 +20,9 @@ export const fr: Translations = {
   hero: {
     descriptor: "Logiciels et sites web pour petites entreprises",
     lead:
-      "Dites-nous ce qui freine votre activité : réservations, commandes, tableurs, un site que personne ne trouve. Nous construisons la solution, la connectons à ce que vous utilisez déjà et la maintenons. Vous trouverez ci-dessous des exemples en direct à ouvrir et à parcourir.",
+      "Dites-nous ce qui freine votre activité : réservations, commandes, tableurs, un site qui n'apporte aucune demande. Nous construisons la solution, la connectons à ce que vous utilisez déjà et la maintenons. Vous trouverez ci-dessous des exemples en direct à ouvrir et à parcourir.",
     viewWork: "Voir des exemples",
-    statClients: "Clients à ce jour",
+    statClients: "Clients accompagnés",
     statYears: "Années d'activité",
     statDemos: "Démos en direct",
   },
@@ -151,7 +151,7 @@ export const fr: Translations = {
       "Vous avez affaire à une personne, pas à un système de tickets : vous décrivez le problème, nous convenons du périmètre et du prix par écrit, et vous voyez une version fonctionnelle chaque semaine. Nous travaillons par contrat ou par un simple accord écrit, comme vous préférez.",
     ],
     facts: [
-      { value: "30+", label: "clients à ce jour" },
+      { value: "30+", label: "clients accompagnés" },
       { value: "La plupart", label: "reviennent avec de nouveaux projets" },
       { value: "Environ la moitié", label: "exploite son système sur son propre serveur, indépendamment de nous" },
     ],
@@ -214,7 +214,7 @@ export const fr: Translations = {
       },
       {
         q: "Quels produits ont déjà été créés ?",
-        a: "Neuf produits réels, chacun avec une démo en ligne sur des données d'exemple : un ERP de distribution de carburant, une place de marché B2B de négoce de carburant, un système d'exploitation de restaurant, la gestion des stocks et des achats de restauration, une application d'intégration du personnel, une place de marché de location de voitures entre particuliers, une plateforme de formation au trading avec simulateur, un planificateur de lancement par IA et un créateur de bots Telegram.",
+        a: "Neuf produits, chacun avec une démo en ligne sur des données d'exemple : un ERP de distribution de carburant, une place de marché B2B de négoce de carburant, un système d'exploitation de restaurant, la gestion des stocks et des achats de restauration, une application d'intégration du personnel, une place de marché de location de voitures entre particuliers, une plateforme de formation au trading avec simulateur, un planificateur de lancement par IA et un créateur de bots Telegram.",
       },
       {
         q: "Quelles technologies utilisez-vous ?",

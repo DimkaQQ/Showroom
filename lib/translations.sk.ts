@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const sk: Translations = {
   meta: {
-    title: "Vývoj softvéru na mieru v Európe | Mirelli Studio",
+    title: "Softvér a weby pre malé firmy v Európe | Mirelli Studio",
     description:
       "Weby, online rezervácie, jednoduché firemné systémy a Telegram boty pre malé a stredné firmy v Európe, vrátane podpory. Živé ukážky na vyskúšanie.",
-    ogAlt: "Mirelli Studio – softvér na mieru pre európske firmy",
+    ogAlt: "Mirelli Studio – softvér a weby pre malé a stredné firmy v Európe",
   },
   nav: {
     work: "Projekty",
@@ -20,9 +20,9 @@ export const sk: Translations = {
   hero: {
     descriptor: "Softvér a weby pre malé firmy",
     lead:
-      "Povedzte nám, čo brzdí váš biznis: rezervácie, objednávky, tabuľky, web, ktorý nikto nenájde. Vytvoríme riešenie, prepojíme ho s tým, čo už používate, a postaráme sa o jeho chod. Nižšie sú živé ukážky, ktoré si môžete otvoriť a prekliknúť.",
+      "Povedzte nám, čo brzdí váš biznis: rezervácie, objednávky, tabuľky, web, ktorý neprináša dopyty. Vytvoríme riešenie, prepojíme ho s tým, čo už používate, a postaráme sa o jeho chod. Nižšie sú živé ukážky, ktoré si môžete otvoriť a prekliknúť.",
     viewWork: "Pozrieť ukážky",
-    statClients: "Klientov doteraz",
+    statClients: "Klientov",
     statYears: "Rokov na trhu",
     statDemos: "Živých ukážok",
   },
@@ -151,7 +151,7 @@ export const sk: Translations = {
       "Máte do činenia s človekom, nie s tiketovým systémom: opíšete problém, písomne sa dohodneme na rozsahu a cene a každý týždeň vidíte funkčnú verziu. Pracujeme na základe zmluvy alebo jednoduchej písomnej dohody, ako vám vyhovuje.",
     ],
     facts: [
-      { value: "30+", label: "klientov doteraz" },
+      { value: "30+", label: "klientov, s ktorými sme spolupracovali" },
       { value: "Väčšina", label: "sa vracia s novými projektmi" },
       { value: "Približne polovica", label: "prevádzkuje systém na vlastnom serveri, nezávisle od nás" },
     ],
@@ -214,7 +214,7 @@ export const sk: Translations = {
       },
       {
         q: "Aké produkty už boli vytvorené?",
-        a: "Deväť reálnych produktov, každý so živou ukážkou na vzorových dátach: ERP pre distribúciu paliva, B2B obchodné miesto pre palivá, operačný systém pre reštaurácie, sklad a nákup pre gastronómiu, aplikácia na zaškoľovanie zamestnancov, peer-to-peer marketplace na prenájom áut, vzdelávacia platforma pre trading so simulátorom, AI plánovač spustenia produktu a konštruktor Telegram botov.",
+        a: "Deväť produktov, každý so živou ukážkou na vzorových dátach: ERP pre distribúciu paliva, B2B obchodné miesto pre palivá, operačný systém pre reštaurácie, sklad a nákup pre gastronómiu, aplikácia na zaškoľovanie zamestnancov, peer-to-peer marketplace na prenájom áut, vzdelávacia platforma pre trading so simulátorom, AI plánovač spustenia produktu a konštruktor Telegram botov.",
       },
       {
         q: "Aké technológie sa používajú?",

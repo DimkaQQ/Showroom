@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const cs: Translations = {
   meta: {
-    title: "Vývoj softwaru na míru v Evropě | Mirelli Studio",
+    title: "Software a weby pro malé firmy v Evropě | Mirelli Studio",
     description:
       "Weby, online rezervace, jednoduché firemní systémy a Telegram boty pro malé a střední firmy v Evropě, včetně podpory. Živé ukázky k vyzkoušení.",
-    ogAlt: "Mirelli Studio – software na míru pro evropské firmy",
+    ogAlt: "Mirelli Studio – software a weby pro malé a střední firmy v Evropě",
   },
   nav: {
     work: "Projekty",
@@ -20,9 +20,9 @@ export const cs: Translations = {
   hero: {
     descriptor: "Software a weby pro malé firmy",
     lead:
-      "Řekněte nám, co brzdí váš byznys: rezervace, objednávky, tabulky, web, který nikdo nenajde. Vytvoříme řešení, propojíme ho s tím, co už používáte, a postaráme se o jeho chod. Níže jsou živé ukázky, které si můžete otevřít a proklikat.",
+      "Řekněte nám, co brzdí váš byznys: rezervace, objednávky, tabulky, web, který nepřináší poptávky. Vytvoříme řešení, propojíme ho s tím, co už používáte, a postaráme se o jeho chod. Níže jsou živé ukázky, které si můžete otevřít a proklikat.",
     viewWork: "Prohlédnout ukázky",
-    statClients: "Klientů dosud",
+    statClients: "Klientů",
     statYears: "Let na trhu",
     statDemos: "Živých ukázek",
   },
@@ -151,7 +151,7 @@ export const cs: Translations = {
       "Máte co do činění s člověkem, ne s tiketovým systémem: popíšete problém, písemně se dohodneme na rozsahu a ceně a každý týden vidíte funkční verzi. Pracujeme na základě smlouvy nebo jednoduché písemné dohody, jak vám vyhovuje.",
     ],
     facts: [
-      { value: "30+", label: "klientů dosud" },
+      { value: "30+", label: "klientů, se kterými jsme spolupracovali" },
       { value: "Většina", label: "se vrací s novými projekty" },
       { value: "Přibližně polovina", label: "provozuje systém na vlastním serveru, nezávisle na nás" },
     ],
@@ -214,7 +214,7 @@ export const cs: Translations = {
       },
       {
         q: "Jaké produkty už byly vytvořeny?",
-        a: "Devět skutečných produktů, každý se živou ukázkou na vzorových datech: ERP pro distribuci paliva, B2B obchodní místo pro paliva, operační systém pro restaurace, sklad a nákup pro gastronomii, aplikace pro zaškolování zaměstnanců, peer-to-peer marketplace pro pronájem aut, vzdělávací platforma pro trading se simulátorem, AI plánovač spuštění produktu a konstruktér Telegram botů.",
+        a: "Devět produktů, každý se živou ukázkou na vzorových datech: ERP pro distribuci paliva, B2B obchodní místo pro paliva, operační systém pro restaurace, sklad a nákup pro gastronomii, aplikace pro zaškolování zaměstnanců, peer-to-peer marketplace pro pronájem aut, vzdělávací platforma pro trading se simulátorem, AI plánovač spuštění produktu a konstruktér Telegram botů.",
       },
       {
         q: "Jaké technologie se používají?",

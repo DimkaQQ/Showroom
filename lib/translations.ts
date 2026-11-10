@@ -6,10 +6,10 @@ import { cs } from "./translations.cs";
 
 const en = {
   meta: {
-    title: "Custom Software Development Studio in Europe | Mirelli Studio",
+    title: "Software and Websites for Small Business in Europe | Mirelli Studio",
     description:
       "Websites, online booking, simple business systems and Telegram bots for small and medium businesses in Europe, built and kept running. Live demos to try.",
-    ogAlt: "Mirelli Studio — custom software for European businesses",
+    ogAlt: "Mirelli Studio — software and websites for small and medium businesses in Europe",
   },
   nav: {
     work: "Work",
@@ -22,18 +22,18 @@ const en = {
     play: "Resume motion",
   },
   hero: {
-    descriptor: "Software and websites for small business",
+    descriptor: "Software and websites for small and medium businesses",
     lead:
-      "Tell us what slows your business down: bookings, orders, spreadsheets, a website nobody finds. We build the fix, connect it to what you already use and keep it running. Below are live examples you can open and click through.",
+      "Tell us where your business loses time: bookings, orders, spreadsheets, a website that brings no enquiries. We build the solution, connect it to the tools you already use and keep it running. Below are live examples you can open and explore.",
     viewWork: "See examples",
-    statClients: "Clients so far",
+    statClients: "Clients served",
     statYears: "Years in business",
-    statDemos: "Live demos to try",
+    statDemos: "Live demos",
   },
   showroom: {
     title: "Examples you can try",
     subtitle:
-      "These are working systems on sample data, not pictures. Open one and click through it to see how a system for your business could look.",
+      "These are working systems running on sample data, not screenshots. Open one and explore it to see how a system for your business could look.",
     explore: "Open the demo",
     caseStudy: "Read the case study",
     tryOff: "Try the demo",
@@ -42,7 +42,7 @@ const en = {
       {
         tagline: "Distribution management",
         description:
-          "Internal platform for diesel fuel distribution: truck fleet, client debts, delivery dispatches and financial analytics with role-based access control.",
+          "Internal platform for diesel fuel distribution: vehicle fleet, customer receivables, delivery dispatch and financial analytics with role-based access control.",
       },
       {
         tagline: "Car rental marketplace",
@@ -93,7 +93,7 @@ const en = {
       {
         title: "A website that brings enquiries",
         description:
-          "A fast site that reads well on a phone, shows your work and turns visitors into enquiries: contact form, quote request, online booking. For craftsmen, garages, salons, clinics and shops.",
+          "A fast site that is easy to read on a phone, shows your work and turns visitors into enquiries: contact form, quote request, online booking. For tradespeople, garages, salons, clinics and shops.",
       },
       {
         title: "Online booking and orders",
@@ -108,7 +108,7 @@ const en = {
       {
         title: "Connect what you already use",
         description:
-          "Accounting, online shop, payments, CRM, old software: we connect them so data is entered once and updates itself, and we automate the routine copy-and-paste.",
+          "Accounting, online shop, payments, CRM, legacy software: we connect them so data is entered once and updates automatically, and we automate repetitive data entry.",
       },
       {
         title: "Bots and automation",
@@ -118,7 +118,7 @@ const en = {
       {
         title: "Hosting, fixes and support",
         description:
-          "We host it in the EU or on your own server, whichever you prefer, keep it updated and secure, and fix things quickly when something stops working. One person who answers.",
+          "We host it in the EU or on your own server, whichever you prefer, keep it updated and secure, and resolve issues quickly when something stops working. One point of contact who responds.",
       },
     ],
   },
@@ -129,12 +129,12 @@ const en = {
       {
         title: "Tell us the problem",
         description:
-          "Write through the form below, by e-mail or on Telegram, what slows your business down. You get a personal reply, not a template.",
+          "Describe what slows your business down using the form below, by email or on Telegram. You receive a personal reply, not a template.",
       },
       {
         title: "Estimate and agreement",
         description:
-          "Before any work starts we fix scope and price in writing, as a contract or a simple written agreement, whichever you prefer.",
+          "Before any work starts, we agree the scope and price in writing, as a contract or a simple written agreement, whichever you prefer.",
       },
       {
         title: "Build, with weekly previews",
@@ -149,15 +149,15 @@ const en = {
     ],
   },
   about: {
-    title: "Who you work with",
+    title: "Who you will work with",
     paragraphs: [
       "Mirelli Studio helps small and medium businesses in Europe with software that fits how they really work: a website that brings enquiries, online booking and orders, a simple system instead of Excel, and the support to keep it all running.",
       "You deal with a person, not a ticket system: you describe the problem, we agree scope and price in writing, and you see a working version every week. We work by contract or by a simple written agreement, whichever you prefer.",
     ],
     facts: [
-      { value: "30+", label: "clients so far" },
+      { value: "30+", label: "clients served" },
       { value: "Most", label: "come back with new projects" },
-      { value: "About half", label: "run their system on their own server, independent of us" },
+      { value: "About half", label: "host their systems on their own servers, fully independent of us" },
     ],
   },
   contact: {
@@ -172,13 +172,13 @@ const en = {
       message: "Describe your project",
       send: "Send message",
       sending: "Sending…",
-      ok: "Thank you. Your message is on its way and will get a personal reply.",
+      ok: "Thank you. Your message has been sent and you will receive a personal reply.",
       invalid: "Please fill in your name, a valid email and a short message.",
-      fail: "Sorry, that did not go through. Please write directly to:",
+      fail: "Your message could not be sent. Please write to us directly at:",
       consent: "These details are used only to reply to you.",
       privacy: "Privacy",
       topics: [
-        "A new web platform or SaaS",
+        "A new website or web platform",
         "An internal tool or ERP",
         "A marketplace",
         "A Telegram bot or Mini App",
@@ -200,17 +200,17 @@ const en = {
     console: "You read the console, so we should talk. Try the Konami code. Or type 404.",
   },
   case: {
-    back: "All work",
+    back: "All projects",
     what: "What it does",
     who: "Who it is for",
-    builtWith: "Built with",
+    builtWith: "Technologies",
     tryDemo: "Open the live demo",
     contactCta: "Discuss a similar project",
-    other: "More work",
+    other: "More projects",
     sample: "The demo runs on sample data.",
   },
   faq: {
-    title: "Questions, answered",
+    title: "Frequently asked questions",
     items: [
       {
         q: "What does Mirelli Studio do?",
@@ -218,7 +218,7 @@ const en = {
       },
       {
         q: "What kinds of products have you built?",
-        a: "Nine real products, each with a live demo on sample data: a fuel-distribution ERP, a B2B fuel trading marketplace, a restaurant operating system, restaurant inventory and purchasing, an employee onboarding app, a peer-to-peer car rental marketplace, a trading education platform with a simulator, an AI launch planner and a Telegram bot builder.",
+        a: "Nine products, each with a live demo on sample data: a fuel-distribution ERP, a B2B fuel trading marketplace, a restaurant operating system, restaurant inventory and purchasing, an employee onboarding app, a peer-to-peer car rental marketplace, a trading education platform with a simulator, an AI launch planner and a Telegram bot builder.",
       },
       {
         q: "Which technologies do you use?",
@@ -272,7 +272,7 @@ const en = {
     legalPrefix: "Services are provided by:",
     sections: [
       {
-        title: "Short version",
+        title: "Summary",
         body: [
           "This website and the live demos set no cookies, run no analytics and load nothing from third-party servers. Fonts and images are served from this site.",
         ],
@@ -309,10 +309,10 @@ export type Translations = typeof en;
 
 const ru: Translations = {
   meta: {
-    title: "ПО на заказ в Европе: ERP, SaaS, Telegram-боты | Mirelli Studio",
+    title: "Софт и сайты для малого бизнеса в Европе | Mirelli Studio",
     description:
       "Сайты, онлайн-запись, простые системы учёта и Telegram-боты для малого и среднего бизнеса в Европе, с поддержкой. Живые примеры можно попробовать.",
-    ogAlt: "Mirelli Studio — программное обеспечение под заказ для бизнеса в Европе",
+    ogAlt: "Mirelli Studio — софт и сайты для малого и среднего бизнеса в Европе",
   },
   nav: {
     work: "Работы",
@@ -327,7 +327,7 @@ const ru: Translations = {
   hero: {
     descriptor: "Софт и сайты для малого бизнеса",
     lead:
-      "Расскажите, что тормозит ваш бизнес: записи, заказы, таблицы, сайт, который никто не находит. Мы сделаем решение, подключим его к тому, чем вы уже пользуетесь, и будем поддерживать. Ниже живые примеры, их можно открыть и пощёлкать.",
+      "Расскажите, что тормозит ваш бизнес: записи, заказы, таблицы, сайт, который не приносит заявок. Мы сделаем решение, подключим его к тому, чем вы уже пользуетесь, и будем поддерживать. Ниже живые примеры, их можно открыть и пощёлкать.",
     viewWork: "Смотреть примеры",
     statClients: "Клиентов",
     statYears: "Лет в деле",
@@ -521,7 +521,7 @@ const ru: Translations = {
       },
       {
         q: "Какие продукты вы делали?",
-        a: "Девять реальных продуктов, у каждого есть живое демо на примерных данных: ERP для дистрибуции топлива, B2B-маркетплейс топлива, операционная система ресторана, склад и закупки для ресторанов, приложение для онбординга персонала, P2P-маркетплейс аренды авто, платформа обучения трейдингу с симулятором, ИИ-планировщик запуска и конструктор Telegram-ботов.",
+        a: "Девять продуктов, у каждого есть живое демо на примерных данных: ERP для дистрибуции топлива, B2B-маркетплейс топлива, операционная система ресторана, склад и закупки для ресторанов, приложение для онбординга персонала, P2P-маркетплейс аренды авто, платформа обучения трейдингу с симулятором, ИИ-планировщик запуска и конструктор Telegram-ботов.",
       },
       {
         q: "Какие технологии вы используете?",
