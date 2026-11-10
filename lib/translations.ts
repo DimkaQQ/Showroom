@@ -6,10 +6,10 @@ import { cs } from "./translations.cs";
 
 const en = {
   meta: {
-    title: "Software and Websites for Small Business in Europe | Mirelli Studio",
+    title: "Software and Websites for Businesses in Europe | Mirelli Studio",
     description:
-      "Websites, online booking, simple business systems and Telegram bots for small and medium businesses in Europe, built and kept running. Live demos to try.",
-    ogAlt: "Mirelli Studio — software and websites for small and medium businesses in Europe",
+      "Websites, online booking, simple business systems and Telegram bots for businesses in Europe, built and kept running. Live demos to try.",
+    ogAlt: "Mirelli Studio — software and websites for businesses in Europe",
   },
   nav: {
     work: "Work",
@@ -22,7 +22,7 @@ const en = {
     play: "Resume motion",
   },
   hero: {
-    descriptor: "Software and websites for small and medium businesses",
+    descriptor: "Software and websites for businesses",
     lead:
       "Tell us where your business loses time: bookings, orders, spreadsheets, a website that brings no enquiries. We build the solution, connect it to the tools you already use and keep it running. Below are live examples you can open and explore.",
     viewWork: "See examples",
@@ -151,7 +151,7 @@ const en = {
   about: {
     title: "Who you will work with",
     paragraphs: [
-      "Mirelli Studio helps small and medium businesses in Europe with software that fits how they really work: a website that brings enquiries, online booking and orders, a simple system instead of Excel, and the support to keep it all running.",
+      "Mirelli Studio helps businesses in Europe with software that fits how they really work: a website that brings enquiries, online booking and orders, a simple system instead of Excel, and the support to keep it all running.",
       "You deal with a person, not a ticket system: you describe the problem, we agree scope and price in writing, and you see a working version every week. We work by contract or by a simple written agreement, whichever you prefer.",
     ],
     facts: [
@@ -214,7 +214,7 @@ const en = {
     items: [
       {
         q: "What does Mirelli Studio do?",
-        a: "Mirelli Studio helps small and medium businesses in Europe with the software they actually need: a website that brings enquiries, online booking and orders, a simple system instead of Excel, connections between the tools you already use, Telegram bots, and the hosting and support to keep it all running. You deal with one person, from the first conversation to the finished, documented system.",
+        a: "Mirelli Studio helps businesses in Europe with the software they actually need: a website that brings enquiries, online booking and orders, a simple system instead of Excel, connections between the tools you already use, Telegram bots, and the hosting and support to keep it all running. You deal with one person, from the first conversation to the finished, documented system.",
       },
       {
         q: "What kinds of products have you built?",
@@ -309,10 +309,10 @@ export type Translations = typeof en;
 
 const ru: Translations = {
   meta: {
-    title: "Софт и сайты для малого бизнеса в Европе | Mirelli Studio",
+    title: "Софт и сайты для бизнеса в Европе | Mirelli Studio",
     description:
-      "Сайты, онлайн-запись, простые системы учёта и Telegram-боты для малого и среднего бизнеса в Европе, с поддержкой. Живые примеры можно попробовать.",
-    ogAlt: "Mirelli Studio — софт и сайты для малого и среднего бизнеса в Европе",
+      "Сайты, онлайн-запись, простые системы учёта и Telegram-боты для бизнеса в Европе, с поддержкой. Живые примеры можно попробовать.",
+    ogAlt: "Mirelli Studio — софт и сайты для бизнеса в Европе",
   },
   nav: {
     work: "Работы",
@@ -325,7 +325,7 @@ const ru: Translations = {
     play: "Возобновить движение",
   },
   hero: {
-    descriptor: "Софт и сайты для малого бизнеса",
+    descriptor: "Софт и сайты для бизнеса",
     lead:
       "Расскажите, что тормозит ваш бизнес: записи, заказы, таблицы, сайт, который не приносит заявок. Мы сделаем решение, подключим его к тому, чем вы уже пользуетесь, и будем поддерживать. Ниже живые примеры, их можно открыть и пощёлкать.",
     viewWork: "Смотреть примеры",
@@ -454,7 +454,7 @@ const ru: Translations = {
   about: {
     title: "С кем вы будете работать",
     paragraphs: [
-      "Mirelli Studio помогает малому и среднему бизнесу в Европе с программами, которые подходят под то, как вы реально работаете: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel и поддержка, чтобы всё продолжало работать.",
+      "Mirelli Studio помогает бизнесу в Европе с программами, которые подходят под то, как вы реально работаете: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel и поддержка, чтобы всё продолжало работать.",
       "Вы общаетесь с человеком, а не с тикет-системой: описываете задачу, мы письменно договариваемся об объёме и цене, и каждую неделю вы видите рабочую версию. Работаем по договору или по простой письменной договорённости, как вам удобнее.",
     ],
     facts: [
@@ -517,7 +517,7 @@ const ru: Translations = {
     items: [
       {
         q: "Чем занимается Mirelli Studio?",
-        a: "Mirelli Studio помогает малому и среднему бизнесу в Европе с нужным ему софтом: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel, связь между инструментами, которыми вы уже пользуетесь, Telegram-боты, а также хостинг и поддержка, чтобы всё работало. Вы общаетесь с одним человеком от первого разговора до готовой документированной системы.",
+        a: "Mirelli Studio помогает бизнесу в Европе с нужным ему софтом: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel, связь между инструментами, которыми вы уже пользуетесь, Telegram-боты, а также хостинг и поддержка, чтобы всё работало. Вы общаетесь с одним человеком от первого разговора до готовой документированной системы.",
       },
       {
         q: "Какие продукты вы делали?",

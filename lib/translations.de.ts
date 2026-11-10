@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const de: Translations = {
   meta: {
-    title: "Software und Websites für kleine Unternehmen in Europa | Mirelli Studio",
+    title: "Software und Websites für Unternehmen in Europa | Mirelli Studio",
     description:
-      "Websites, Online-Buchung, einfache Betriebssysteme und Telegram-Bots für kleine und mittlere Unternehmen in Europa, mit Support. Live-Demos zum Testen.",
-    ogAlt: "Mirelli Studio – Software und Websites für kleine und mittlere Unternehmen in Europa",
+      "Websites, Online-Buchung, einfache Unternehmenssoftware und Telegram-Bots für Unternehmen in Europa, mit Support. Live-Demos zum Testen.",
+    ogAlt: "Mirelli Studio – Software und Websites für Unternehmen in Europa",
   },
   nav: {
     work: "Projekte",
@@ -18,7 +18,7 @@ export const de: Translations = {
     play: "Animation fortsetzen",
   },
   hero: {
-    descriptor: "Software und Websites für kleine Unternehmen",
+    descriptor: "Software und Websites für Unternehmen",
     lead:
       "Sagen Sie uns, was Ihr Geschäft ausbremst: Buchungen, Bestellungen, Tabellen, eine Website, die keine Anfragen bringt. Wir bauen die Lösung, binden sie an das an, was Sie schon nutzen, und halten sie am Laufen. Unten finden Sie Live-Beispiele zum Öffnen und Ausprobieren.",
     viewWork: "Beispiele ansehen",
@@ -147,7 +147,7 @@ export const de: Translations = {
   about: {
     title: "Mit wem Sie arbeiten",
     paragraphs: [
-      "Mirelli Studio unterstützt kleine und mittlere Unternehmen in Europa mit Software, die zu Ihrem tatsächlichen Arbeitsalltag passt: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel und der Support, damit alles läuft.",
+      "Mirelli Studio unterstützt Unternehmen in Europa mit Software, die zu Ihrem tatsächlichen Arbeitsalltag passt: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel und der Support, damit alles läuft.",
       "Sie haben es mit einer Person zu tun, nicht mit einem Ticketsystem: Sie schildern das Problem, wir vereinbaren Umfang und Preis schriftlich, und Sie sehen jede Woche eine lauffähige Version. Wir arbeiten per Vertrag oder mit einer einfachen schriftlichen Vereinbarung, ganz wie Sie es bevorzugen.",
     ],
     facts: [
@@ -210,7 +210,7 @@ export const de: Translations = {
     items: [
       {
         q: "Was macht Mirelli Studio?",
-        a: "Mirelli Studio unterstützt kleine und mittlere Unternehmen in Europa mit der Software, die sie wirklich brauchen: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel, Verbindungen zwischen den Werkzeugen, die Sie schon nutzen, Telegram-Bots sowie Hosting und Support, damit alles läuft. Sie haben vom ersten Gespräch bis zum fertigen, dokumentierten System einen persönlichen Ansprechpartner.",
+        a: "Mirelli Studio unterstützt Unternehmen in Europa mit der Software, die sie wirklich brauchen: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel, Verbindungen zwischen den Werkzeugen, die Sie schon nutzen, Telegram-Bots sowie Hosting und Support, damit alles läuft. Sie haben vom ersten Gespräch bis zum fertigen, dokumentierten System einen persönlichen Ansprechpartner.",
       },
       {
         q: "Welche Produkte wurden bereits entwickelt?",

@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const sk: Translations = {
   meta: {
-    title: "Softvér a weby pre malé firmy v Európe | Mirelli Studio",
+    title: "Softvér a weby pre firmy v Európe | Mirelli Studio",
     description:
-      "Weby, online rezervácie, jednoduché firemné systémy a Telegram boty pre malé a stredné firmy v Európe, vrátane podpory. Živé ukážky na vyskúšanie.",
-    ogAlt: "Mirelli Studio – softvér a weby pre malé a stredné firmy v Európe",
+      "Weby, online rezervácie, jednoduché firemné systémy a Telegram boty pre firmy v Európe, vrátane podpory. Živé ukážky na vyskúšanie.",
+    ogAlt: "Mirelli Studio – softvér a weby pre firmy v Európe",
   },
   nav: {
     work: "Projekty",
@@ -18,7 +18,7 @@ export const sk: Translations = {
     play: "Obnoviť animáciu",
   },
   hero: {
-    descriptor: "Softvér a weby pre malé firmy",
+    descriptor: "Softvér a weby pre firmy",
     lead:
       "Povedzte nám, čo brzdí váš biznis: rezervácie, objednávky, tabuľky, web, ktorý neprináša dopyty. Vytvoríme riešenie, prepojíme ho s tým, čo už používate, a postaráme sa o jeho chod. Nižšie sú živé ukážky, ktoré si môžete otvoriť a prekliknúť.",
     viewWork: "Pozrieť ukážky",
@@ -147,7 +147,7 @@ export const sk: Translations = {
   about: {
     title: "S kým budete pracovať",
     paragraphs: [
-      "Mirelli Studio pomáha malým a stredným firmám v Európe so softvérom, ktorý zodpovedá tomu, ako reálne pracujú: web, ktorý prináša dopyty, online rezervácie a objednávky, jednoduchý systém namiesto Excelu a podpora, aby všetko fungovalo.",
+      "Mirelli Studio pomáha firmám v Európe so softvérom, ktorý zodpovedá tomu, ako reálne pracujú: web, ktorý prináša dopyty, online rezervácie a objednávky, jednoduchý systém namiesto Excelu a podpora, aby všetko fungovalo.",
       "Máte do činenia s človekom, nie s tiketovým systémom: opíšete problém, písomne sa dohodneme na rozsahu a cene a každý týždeň vidíte funkčnú verziu. Pracujeme na základe zmluvy alebo jednoduchej písomnej dohody, ako vám vyhovuje.",
     ],
     facts: [
@@ -210,7 +210,7 @@ export const sk: Translations = {
     items: [
       {
         q: "Čím sa zaoberá Mirelli Studio?",
-        a: "Mirelli Studio pomáha malým a stredným firmám v Európe so softvérom, ktorý naozaj potrebujú: web, ktorý prináša dopyty, online rezervácie a objednávky, jednoduchý systém namiesto Excelu, prepojenie nástrojov, ktoré už používate, Telegram boty a hosting a podpora, aby všetko fungovalo. Od prvého rozhovoru až po hotový zdokumentovaný systém máte jedného človeka.",
+        a: "Mirelli Studio pomáha firmám v Európe so softvérom, ktorý naozaj potrebujú: web, ktorý prináša dopyty, online rezervácie a objednávky, jednoduchý systém namiesto Excelu, prepojenie nástrojov, ktoré už používate, Telegram boty a hosting a podpora, aby všetko fungovalo. Od prvého rozhovoru až po hotový zdokumentovaný systém máte jedného človeka.",
       },
       {
         q: "Aké produkty už boli vytvorené?",

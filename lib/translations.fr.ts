@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const fr: Translations = {
   meta: {
-    title: "Logiciels et sites web pour petites entreprises en Europe | Mirelli Studio",
+    title: "Logiciels et sites web pour les entreprises en Europe | Mirelli Studio",
     description:
-      "Sites web, réservation en ligne, petits systèmes de gestion et bots Telegram pour les PME en Europe, avec support. Démos en direct à essayer.",
-    ogAlt: "Mirelli Studio – logiciels et sites web pour les petites et moyennes entreprises en Europe",
+      "Sites web, réservation en ligne, petits systèmes de gestion et bots Telegram pour les entreprises en Europe, avec support. Démos en direct à essayer.",
+    ogAlt: "Mirelli Studio – logiciels et sites web pour les entreprises en Europe",
   },
   nav: {
     work: "Réalisations",
@@ -18,7 +18,7 @@ export const fr: Translations = {
     play: "Reprendre l'animation",
   },
   hero: {
-    descriptor: "Logiciels et sites web pour petites entreprises",
+    descriptor: "Logiciels et sites web pour les entreprises",
     lead:
       "Dites-nous ce qui freine votre activité : réservations, commandes, tableurs, un site qui n'apporte aucune demande. Nous construisons la solution, la connectons à ce que vous utilisez déjà et la maintenons. Vous trouverez ci-dessous des exemples en direct à ouvrir et à parcourir.",
     viewWork: "Voir des exemples",
@@ -147,7 +147,7 @@ export const fr: Translations = {
   about: {
     title: "Avec qui vous travaillez",
     paragraphs: [
-      "Mirelli Studio aide les petites et moyennes entreprises en Europe avec des logiciels adaptés à leur façon réelle de travailler : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, et le support pour que tout continue de fonctionner.",
+      "Mirelli Studio aide les entreprises en Europe avec des logiciels adaptés à leur façon réelle de travailler : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, et le support pour que tout continue de fonctionner.",
       "Vous avez affaire à une personne, pas à un système de tickets : vous décrivez le problème, nous convenons du périmètre et du prix par écrit, et vous voyez une version fonctionnelle chaque semaine. Nous travaillons par contrat ou par un simple accord écrit, comme vous préférez.",
     ],
     facts: [
@@ -210,7 +210,7 @@ export const fr: Translations = {
     items: [
       {
         q: "Que fait Mirelli Studio ?",
-        a: "Mirelli Studio aide les petites et moyennes entreprises en Europe avec le logiciel dont elles ont réellement besoin : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, des liens entre les outils que vous utilisez déjà, des bots Telegram, ainsi que l'hébergement et le support pour que tout fonctionne. Vous avez un seul interlocuteur, du premier échange jusqu'au système final documenté.",
+        a: "Mirelli Studio aide les entreprises en Europe avec le logiciel dont elles ont réellement besoin : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, des liens entre les outils que vous utilisez déjà, des bots Telegram, ainsi que l'hébergement et le support pour que tout fonctionne. Vous avez un seul interlocuteur, du premier échange jusqu'au système final documenté.",
       },
       {
         q: "Quels produits ont déjà été créés ?",
