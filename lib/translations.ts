@@ -288,7 +288,7 @@ export type Translations = typeof en;
 
 const ru: Translations = {
   meta: {
-    title: "Разработка ПО на заказ в Европе: ERP, SaaS, Telegram-боты | Mirelli Studio",
+    title: "ПО на заказ в Европе: ERP, SaaS, Telegram-боты | Mirelli Studio",
     description:
       "Mirelli Studio разрабатывает заказные ERP и внутренние системы, SaaS-платформы, B2B-маркетплейсы и Telegram-ботов для бизнеса в Европе. Девять живых демо. Хостинг в ЕС.",
     ogAlt: "Mirelli Studio — программное обеспечение под заказ для бизнеса в Европе",

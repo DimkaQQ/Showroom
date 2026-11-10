@@ -44,7 +44,7 @@ export const caseSk: Record<string, CaseText> = {
     audience: "Tradingové školy, brokeri a poskytovatelia vzdelávania vo fintechu a kryptu, ktorí chcú do svojej kurzovej platformy pridať praktický tréning.",
   },
   shipter: {
-    title: "AI plánovač spustenia pre indie zakladateľov | Prípadová štúdia Shipter",
+    title: "AI plánovač spustenia produktu | Prípadová štúdia Shipter",
     description: "Plánovač spustenia s pomocou AI: opíšte cieľovú skupinu, dostanete týždenný plán šírenia a úlohy sledujete na launch boarde. So živou ukážkou.",
     lead: "Shipter premení popis produktu na konkrétny plán spustenia. Navrhne, kde nájsť prvých zákazníkov a čo kedy zverejniť, a drží prácu na boarde, ktorý ukazuje, čo je hotové a čo mešká.",
     features: [
@@ -72,7 +72,7 @@ export const caseSk: Record<string, CaseText> = {
     audience: "Reštauračné reťazce, kaviarne, hotely a cateringové firmy, ktoré objednávajú od viacerých dodávateľov a chcú skončiť s počítaním zásob v tabuľkách.",
   },
   caspianflow: {
-    title: "B2B marketplace pre obchod s palivom | Prípadová štúdia CaspianFlow",
+    title: "B2B marketplace s palivom | Prípadová štúdia CaspianFlow",
     description: "B2B marketplace pre európskych obchodníkov s palivom: živá cenová tabuľa, ponuky a dopyty, kalkulačka ceny s dodaním, platené tarify. So živou ukážkou.",
     lead: "CaspianFlow je marketplace, na ktorom obchodníci s palivom zverejňujú ponuky a dopyty na naftu, benzín a letecký petrolej na európskych termináloch, porovnávajú ich so živým benchmarkom a počítajú cenu s dodaním na miesto.",
     features: [
@@ -100,7 +100,7 @@ export const caseSk: Record<string, CaseText> = {
     audience: "Reštaurácie vedené majiteľom, skupiny reštaurácií a kaviarne, ktoré hľadajú štíhlejšiu a lacnejšiu alternatívu k ťažkopádnym pokladničným systémom.",
   },
   hr: {
-    title: "Aplikácia na zaškoľovanie personálu reštaurácií | Prípadová štúdia RestOS HR",
+    title: "Zaškoľovanie personálu reštaurácií | Prípadová štúdia RestOS HR",
     description: "Mobilná aplikácia na zaškoľovanie personálu reštaurácií: študijná cesta, kvízy s XP, certifikáty a kontrolné zoznamy zmien s pohľadom manažéra. So živou ukážkou.",
     lead: "RestOS HR pripraví nových čašníkov na prácu za pár dní. Aplikácia ich prevedie krátkymi modulmi a kvízmi, sleduje denné kontrolné zoznamy zmien a ukazuje manažérom, kto je v pláne a kto sa zasekol.",
     features: [
