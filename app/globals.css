@@ -431,3 +431,13 @@ img { display: block; max-width: 100%; height: auto; }
 @media (max-width: 360px) {
   .hero-stats dd { font-size: 32px; }
 }
+
+.doc .checks { list-style: none; padding: 0; margin: 20px 0; display: grid; gap: 8px; }
+.doc .checks li { padding-left: 1.6em; position: relative; }
+.doc .checks li::before { content: "✓"; position: absolute; left: 0; font-weight: 700; }
+.doc.niche h3 { margin: 16px 0 4px; font-size: 1.05em; }
+.doc .steps { list-style: decimal; }
+.niches { padding: 48px var(--gutter, 20px); max-width: 1200px; margin: 0 auto; }
+.niches-h { font-size: clamp(22px, 2.4vw, 32px); margin-bottom: 16px; }
+.niches ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.niches a { display: inline-block; padding: 12px 18px; border: 1px solid currentColor; border-radius: 999px; text-decoration: none; min-height: 44px; }

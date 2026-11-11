@@ -8,6 +8,7 @@ import { LangMenu } from "@/components/lang-menu";
 import { ContactForm } from "@/components/contact-form";
 import { testimonials } from "@/lib/testimonials";
 import { jsonLdFor } from "@/lib/seo";
+import { niches, nicheUi, nicheSlugs } from "@/lib/niches";
 
 export function Home({ lang }: { lang: Lang }) {
   const t = translations[lang];
@@ -20,6 +21,7 @@ export function Home({ lang }: { lang: Lang }) {
       <main id="main" tabIndex={-1}>
         <Work lang={lang} t={t} />
         <Services t={t} />
+        <Niches lang={lang} />
         <About t={t} />
         <Quotes lang={lang} />
         <Process t={t} />
@@ -277,6 +279,22 @@ function Faq({ t }: { t: T }) {
 }
 
 const STACK = ["TypeScript", "React", "Next.js", "Node.js", "Python", "FastAPI", "PostgreSQL", "Redis", "Docker", "Stripe", "Telegram", "Tailwind"];
+
+function Niches({ lang }: { lang: Lang }) {
+  const ui = nicheUi[lang];
+  return (
+    <section className="niches" aria-labelledby="niches-h">
+      <h2 id="niches-h" className="niches-h">{ui.others}</h2>
+      <ul>
+        {nicheSlugs.map((s) => (
+          <li key={s}>
+            <a href={`${pathFor(lang)}for/${s}/`}>{niches[s][lang].name}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 function Stack({ t }: { t: T }) {
   return (

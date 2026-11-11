@@ -1,3 +1,4 @@
+import { niches, nicheSlugs } from "./niches";
 import { siteConfig, projects } from "./data";
 import { cases } from "./cases";
 import { translations } from "./translations";
@@ -41,6 +42,10 @@ export function llmsTxt(): string {
   projects.forEach((p, i) => {
     lines.push(`- [${p.name}](${urlOf("en", `work/${p.id}`)}): ${en.showroom.projects[i].tagline}. ${en.showroom.projects[i].description}`);
   });
+  lines.push("");
+
+  lines.push("## Solutions by business type", "");
+  for (const s of nicheSlugs) lines.push(`- [${niches[s].en.name}](${urlOf("en", `for/${s}`)}): ${niches[s].en.description}`);
   lines.push("");
 
   lines.push("## Frequently asked questions", "");
