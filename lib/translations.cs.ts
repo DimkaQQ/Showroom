@@ -36,6 +36,18 @@ export const cs: Translations = {
     tryOn: "Zpět k posouvání",
     projects: [
       {
+        tagline: "Chytrý systém pro autoservis",
+        description: "Rezervace, která spáruje stání, mechanika a díly na skladě, živá tabule zakázek, schvalování prací navíc zákazníkem přes odkaz v SMS, kontrola skladu a pohled majitele se záznamem změn.",
+      },
+      {
+        tagline: "Chytrý rozvrh pro ordinace",
+        description: "Objednávací systém pro ordinace a veterináře: riziko neúčasti u každé návštěvy, automatické připomínky, čekací listina, která doplňuje zrušené termíny, a rezervace s výběrem správného odborníka.",
+      },
+      {
+        tagline: "Rezervace, členství a přístup",
+        description: "Jeden systém pro coworkingy a kluby: rezervace míst a místností, tarify a platby a přístup dveřmi podle pravidel: zaplaceno, rezervováno, v čase.",
+      },
+      {
         tagline: "Řízení distribuce",
         description:
           "Interní platforma pro distribuci nafty: vozový park, pohledávky za zákazníky, plánování dodávek a finanční analýzy s přístupem podle rolí.",
@@ -214,7 +226,7 @@ export const cs: Translations = {
       },
       {
         q: "Jaké produkty už byly vytvořeny?",
-        a: "Devět produktů, každý se živou ukázkou na vzorových datech: ERP pro distribuci paliva, B2B obchodní místo pro paliva, operační systém pro restaurace, sklad a nákup pro gastronomii, aplikace pro zaškolování zaměstnanců, peer-to-peer marketplace pro pronájem aut, vzdělávací platforma pro trading se simulátorem, AI plánovač spuštění produktu a konstruktér Telegram botů.",
+        a: "Dvanáct produktů, každý se živou ukázkou na vzorových datech: chytrý systém pro autoservis, chytrý rozvrh pro ordinace, coworkingový systém s přístupem dveřmi, ERP pro distribuci paliva, B2B obchodní místo pro paliva, operační systém pro restaurace, sklad a nákup pro gastronomii, aplikace pro zaškolování zaměstnanců, peer-to-peer marketplace pro pronájem aut, vzdělávací platforma pro trading se simulátorem, AI plánovač spuštění produktu a konstruktér Telegram botů.",
       },
       {
         q: "Jaké technologie se používají?",
@@ -222,7 +234,7 @@ export const cs: Translations = {
       },
       {
         q: "Umíte vytvořit Telegram bota nebo Mini App?",
-        a: "Ano. BotFactory, jeden z devíti produktů, je vizuální konstruktér Telegram botů jako Mini App, s platbami, prodejním trychtýřem a přehledem kupujících. Boti pro prodej, podporu, kurzy a komunity jsou základní služba.",
+        a: "Ano. BotFactory, jeden z dvanácti produktů, je vizuální konstruktér Telegram botů jako Mini App, s platbami, prodejním trychtýřem a přehledem kupujících. Boti pro prodej, podporu, kurzy a komunity jsou základní služba.",
       },
       {
         q: "Jak probíhá projekt?",

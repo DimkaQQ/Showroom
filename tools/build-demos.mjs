@@ -13,7 +13,7 @@ const kitJs = readFileSync(join(src, "kit.js"), "utf8");
 const brand = {
   dizeltrade: ["D", "#c8f03c", "#0b0c0a"], rentoworld: ["R", "#0c8a5f", "#ffffff"], tradinglearn: ["T", "#8b7bff", "#0c0a1f"],
   shipter: ["S", "#ff7a45", "#1d0a02"], storage: ["S", "#a85f00", "#ffffff"], caspianflow: ["C", "#f0b33c", "#1a1203"],
-  restaurant: ["R", "#d9461f", "#ffffff"], hr: ["H", "#b02a73", "#ffffff"], botfactory: ["B", "#1b78c8", "#ffffff"],
+  restaurant: ["R", "#d9461f", "#ffffff"], hr: ["H", "#b02a73", "#ffffff"], garage: ["S", "#1456d9", "#ffffff"], clinic: ["C", "#0b7a7c", "#ffffff"], spaces: ["G", "#28d1e0", "#04161a"], botfactory: ["B", "#1b78c8", "#ffffff"],
 };
 const icon = (id) => {
   const [ch, bg, fg] = brand[id] ?? ["·", "#888888", "#ffffff"];

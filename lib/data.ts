@@ -23,6 +23,30 @@ export const services = [
 
 export const projects = [
   {
+    id: "garage",
+    name: "Servisio",
+    tags: ["Booking engine", "JavaScript", "SMS", "Roles"],
+    subdomain: "garage",
+    stage: "#181b20",
+    year: "2026",
+  },
+  {
+    id: "clinic",
+    name: "Clinio",
+    tags: ["Scheduling", "JavaScript", "Reminders", "Waiting list"],
+    subdomain: "clinic",
+    stage: "#181b20",
+    year: "2026",
+  },
+  {
+    id: "spaces",
+    name: "Gatehouse",
+    tags: ["Access rules", "Billing", "JavaScript", "Booking"],
+    subdomain: "spaces",
+    stage: "#181b20",
+    year: "2026",
+  },
+  {
     id: "dizeltrade",
     name: "DizelTrade",
     tags: ["FastAPI", "PostgreSQL", "JavaScript", "Python"],

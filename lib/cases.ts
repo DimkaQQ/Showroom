@@ -15,6 +15,96 @@ export type CaseText = {
 };
 
 const base: Record<string, { en: CaseText; ru: CaseText }> = {
+  garage: {
+    en: {
+      title: "Smart Booking and Management System for Car Services | Servisio",
+      description: "Booking system for a garage that matches bay, mechanic and parts in stock, with a live job board, SMS approval of extra work, stock control and an owner dashboard. Live demo included.",
+      lead: "Servisio runs a car service from booking to hand-over. A customer picks the work, the system finds a bay and a mechanic with the right skill, checks the parts are in stock, and keeps everyone informed as the car moves through the workshop.",
+      features: [
+        "Booking that matches a free bay, a skilled mechanic and parts in stock, and suggests the best-fitting slot",
+        "Plate lookup with vehicle history and service suggestions by mileage",
+        "Live timeline of bays and a job board from booked to ready",
+        "The customer approves extra work from an SMS link, with the price and the mechanic's note",
+        "Parts stock reduced by booked jobs, with order suggestions before it runs out",
+        "Roles for reception, mechanic and owner, and an audit log of every change",
+      ],
+      audience: "Garages, tyre shops and small service centres that book by phone and paper, lose time to no-shows and gaps in the day, and want the owner to see the whole workshop on one screen.",
+    },
+    ru: {
+      title: "Умная система записи и управления автосервисом | Servisio",
+      description: "Система записи для автосервиса: подбор поста, мастера и деталей на складе, живая доска работ, согласование доп. работ по SMS, контроль склада и панель владельца. С живой демо.",
+      lead: "Servisio ведёт автосервис от записи до выдачи автомобиля. Клиент выбирает работы, система находит пост и мастера с нужным навыком, проверяет наличие деталей и держит всех в курсе, пока машина проходит через мастерскую.",
+      features: [
+        "Запись, которая подбирает свободный пост, мастера и детали на складе и предлагает лучшее по загрузке время",
+        "Поиск по госномеру с историей автомобиля и подсказками по пробегу",
+        "Живая шкала постов и доска работ от записи до готовности",
+        "Клиент согласует доп. работы по ссылке из SMS, с ценой и заметкой мастера",
+        "Склад деталей уменьшается по записанным работам, заказ предлагается до того, как закончится",
+        "Роли для администратора, мастера и владельца и журнал всех изменений",
+      ],
+      audience: "Автосервисы, шиномонтаж и небольшие сервисные центры, которые записывают по телефону и на бумаге, теряют время на неявках и пустых окнах и хотят видеть всю мастерскую на одном экране.",
+    },
+  },
+  clinic: {
+    en: {
+      title: "Smart Appointment Scheduling for Clinics and Vets | Clinio",
+      description: "Appointment system for clinics and vets: no-show risk for each visit, automatic reminders, a waiting list that refills cancelled slots and booking by specialist. Live demo included.",
+      lead: "Clinio keeps a clinic's day full. It estimates the chance that each patient will miss a visit, asks the risky ones to confirm, and when someone cancels it offers the slot to the best-fitting patient on the waiting list.",
+      features: [
+        "No-show risk for every appointment, based on history, confirmation and lead time",
+        "Booking by reason: the system picks the specialist and the visit length, with extra time for new patients",
+        "A waiting list that ranks patients and refills a cancelled slot in one click",
+        "Automatic reminders with confirm and reschedule links, and recall invitations",
+        "A calendar per specialist, with an urgent same-day option",
+        "Roles for reception, doctor and manager, and an activity log",
+      ],
+      audience: "Medical, dental and veterinary clinics, therapists and physiotherapists whose chairs sit empty because of missed visits, and who spend the day on the phone confirming and rebooking.",
+    },
+    ru: {
+      title: "Умная запись на приём для клиник и ветеринаров | Clinio",
+      description: "Система записи для клиник и ветеринаров: риск неявки по каждому визиту, автоматические напоминания, лист ожидания для отменённых окон и подбор специалиста. С живой демо.",
+      lead: "Clinio держит расписание клиники заполненным. Система оценивает вероятность того, что пациент не придёт, просит рискованных подтвердить визит, а при отмене предлагает освободившееся время подходящему пациенту из листа ожидания.",
+      features: [
+        "Риск неявки по каждому визиту на основе истории, подтверждения и срока записи",
+        "Запись по причине обращения: система выбирает специалиста и длительность, с запасом времени для новых пациентов",
+        "Лист ожидания, который ранжирует пациентов и заполняет отменённое окно в один клик",
+        "Автоматические напоминания со ссылками подтвердить или перенести и приглашения на ежегодный осмотр",
+        "Календарь на каждого специалиста и срочная запись на сегодня",
+        "Роли для регистратуры, врача и руководителя и журнал действий",
+      ],
+      audience: "Медицинские, стоматологические и ветеринарные клиники, терапевты и физиотерапевты, у которых кабинеты простаивают из-за неявок и которые проводят день на телефоне, подтверждая и переписывая записи.",
+    },
+  },
+  spaces: {
+    en: {
+      title: "Coworking and Club Management: Bookings, Memberships, Door Access | Gatehouse",
+      description: "One system for coworkings and clubs: desk and room booking, plans and billing, and door access by rules (paid, booked, in hours). Live demo included.",
+      lead: "Gatehouse connects the three things a shared space runs on: who booked what, who has paid, and who may open which door. A failed payment closes the door, a room booking opens it only for that time, and the owner sees how full the space is.",
+      features: [
+        "Desk and room booking with conflict checks and alternatives when a room is taken",
+        "Plans with room credits, and a price that follows the member's plan",
+        "Door access that follows the rules: active plan, hours, and a booking for meeting rooms",
+        "A failed payment suspends access automatically and restores it when paid",
+        "A live floor view, a door log and a rule to release rooms nobody arrives for",
+        "Roles for front desk, community manager and owner, with revenue and occupancy results",
+      ],
+      audience: "Coworking spaces, studios, fitness and sports clubs and rented workshops that sell memberships, hand out keys or cards by hand and chase payments manually.",
+    },
+    ru: {
+      title: "Управление коворкингом и клубом: брони, абонементы, доступ | Gatehouse",
+      description: "Одна система для коворкингов и клубов: бронирование мест и комнат, тарифы и оплата и доступ в двери по правилам (оплачено, забронировано, в рабочее время). С живой демо.",
+      lead: "Gatehouse объединяет три вещи, на которых держится общее пространство: кто что забронировал, кто оплатил и кому какую дверь можно открыть. Неудачный платёж закрывает дверь, бронь комнаты открывает её только на нужное время, а владелец видит, насколько заполнено пространство.",
+      features: [
+        "Бронирование мест и комнат с проверкой конфликтов и вариантами, если комната занята",
+        "Тарифы с часами для переговорных и цена, которая зависит от тарифа участника",
+        "Доступ в двери по правилам: активный тариф, часы работы и бронь для переговорных",
+        "Неудачный платёж автоматически приостанавливает доступ, а оплата возвращает его",
+        "Живая карта пространства, журнал дверей и правило освобождать комнаты, куда никто не пришёл",
+        "Роли для администратора, комьюнити-менеджера и владельца, с результатами по выручке и загрузке",
+      ],
+      audience: "Коворкинги, студии, фитнес- и спортивные клубы и арендуемые мастерские, которые продают абонементы, выдают ключи или карты вручную и вручную собирают оплату.",
+    },
+  },
   dizeltrade: {
     en: {
       title: "Fuel Distribution ERP Software | DizelTrade Case Study",

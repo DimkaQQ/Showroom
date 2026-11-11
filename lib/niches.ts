@@ -123,7 +123,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
 
 export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> = {
   "car-service": {
-    "demo": "rentoworld",
+    "demo": "garage",
     "en": {
       "name": "Car services and tyre shops",
       "title": "Online Booking System for Car Services | Mirelli Studio",
@@ -143,7 +143,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Approve, reschedule or cancel a booking in one click",
         "Customer and car history, and the day's workload at a glance"
       ],
-      "example": "The booking flow in our RentoWorld demo shows how this feels for a customer: choose, pick dates in a calendar, see the price, confirm. Your garage version is built around your services and staff.",
+      "example": "Our Servisio demo shows a service centre run this way: a booking that finds a bay, a mechanic and parts, a live job board, and the customer approving extra work from an SMS link. Your version is built around your services and staff.",
       "faq": [
         {
           "q": "Can it connect to our garage software?",
@@ -174,7 +174,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Подтвердить, перенести или отменить запись в один клик",
         "История клиентов и автомобилей, загрузка дня на одном экране"
       ],
-      "example": "Процесс записи в нашем демо RentoWorld показывает, как это выглядит для клиента: выбрать, отметить даты в календаре, увидеть цену, подтвердить. Версия для вашего сервиса строится под ваши услуги и сотрудников.",
+      "example": "Наше демо Servisio показывает сервис, работающий так: запись подбирает пост, мастера и детали, живая доска работ и клиент, который согласует доп. работы по ссылке из SMS. Ваша версия строится под ваши услуги и сотрудников.",
       "faq": [
         {
           "q": "Можно ли связать систему с нашей программой для сервиса?",
@@ -205,7 +205,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Buchung mit einem Klick bestätigen, verschieben oder stornieren",
         "Kunden- und Fahrzeughistorie sowie die Tagesauslastung auf einen Blick"
       ],
-      "example": "Der Buchungsablauf in unserer RentoWorld-Demo zeigt, wie sich das für den Kunden anfühlt: auswählen, Daten im Kalender wählen, Preis sehen, bestätigen. Die Version für Ihre Werkstatt richtet sich nach Ihren Leistungen und Ihrem Team.",
+      "example": "Unsere Servisio-Demo zeigt eine so geführte Werkstatt: eine Buchung, die Arbeitsplatz, Mechaniker und Teile findet, eine Live-Auftragstafel und den Kunden, der Zusatzarbeiten per SMS-Link freigibt. Ihre Version richtet sich nach Ihren Leistungen und Ihrem Team.",
       "faq": [
         {
           "q": "Lässt sich das System an unsere Werkstattsoftware anbinden?",
@@ -236,7 +236,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Valider, déplacer ou annuler une réservation en un clic",
         "Historique des clients et des véhicules, charge du jour en un coup d'œil"
       ],
-      "example": "Le parcours de réservation de notre démo RentoWorld montre ce que le client ressent : choisir, sélectionner des dates dans un calendrier, voir le prix, confirmer. La version de votre garage est conçue autour de vos prestations et de votre équipe.",
+      "example": "Notre démo Servisio montre un garage géré ainsi : une réservation qui trouve un poste, un mécanicien et les pièces, un tableau d'ordres en direct et le client qui approuve les travaux supplémentaires via un lien SMS. Votre version est conçue autour de vos prestations et de votre équipe.",
       "faq": [
         {
           "q": "Peut-on le relier à notre logiciel de garage ?",
@@ -267,7 +267,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Schváliť, presunúť alebo zrušiť rezerváciu jedným klikom",
         "História zákazníkov a áut a vyťaženosť dňa na prvý pohľad"
       ],
-      "example": "Priebeh rezervácie v našej ukážke RentoWorld ukazuje, ako to vyzerá pre zákazníka: vybrať, zvoliť dátumy v kalendári, vidieť cenu, potvrdiť. Verzia pre váš servis sa robí podľa vašich služieb a ľudí.",
+      "example": "Naša ukážka Servisio ukazuje takto vedený servis: rezerváciu, ktorá nájde stanovište, mechanika a diely, živú tabuľu zákaziek a zákazníka, ktorý schváli práce navyše cez odkaz v SMS. Verzia pre váš servis sa robí podľa vašich služieb a ľudí.",
       "faq": [
         {
           "q": "Dá sa prepojiť s naším softvérom pre servis?",
@@ -298,7 +298,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Schválit, přesunout nebo zrušit rezervaci jedním klikem",
         "Historie zákazníků a aut a vytížení dne na první pohled"
       ],
-      "example": "Průběh rezervace v naší ukázce RentoWorld ukazuje, jak to vypadá pro zákazníka: vybrat, zvolit data v kalendáři, vidět cenu, potvrdit. Verze pro váš servis se dělá podle vašich služeb a lidí.",
+      "example": "Naše ukázka Servisio ukazuje takto vedený servis: rezervaci, která najde stání, mechanika a díly, živou tabuli zakázek a zákazníka, který schválí práce navíc přes odkaz v SMS. Verze pro váš servis se dělá podle vašich služeb a lidí.",
       "faq": [
         {
           "q": "Dá se propojit s naším softwarem pro servis?",
@@ -312,7 +312,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     }
   },
   "salon": {
-    "demo": "rentoworld",
+    "demo": "clinic",
     "en": {
       "name": "Hair and beauty salons",
       "title": "Online Booking for Hair and Beauty Salons | Mirelli Studio",
@@ -332,7 +332,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "A client list with visit history and notes",
         "An optional deposit or prepayment to protect against no-shows"
       ],
-      "example": "In our RentoWorld demo you can see a booking flow with a calendar, a price and a confirmation. Your salon version uses your own services and stylists.",
+      "example": "Our Clinio demo shows the same ideas for appointment businesses: a calendar per person, no-show risk, reminders and a waiting list that refills cancelled slots. Your salon version uses your own services and stylists.",
       "faq": [
         {
           "q": "Can clients book from Instagram or Facebook?",
@@ -363,7 +363,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Список клиентов с историей визитов и заметками",
         "Предоплата или депозит по желанию, чтобы защититься от неявок"
       ],
-      "example": "В нашем демо RentoWorld виден процесс записи: календарь, цена и подтверждение. Версия для вашего салона использует ваши услуги и ваших мастеров.",
+      "example": "Наше демо Clinio показывает те же идеи для бизнеса с записью: календарь на каждого, риск неявки, напоминания и лист ожидания, который заполняет отменённые окна. Версия для вашего салона использует ваши услуги и ваших мастеров.",
       "faq": [
         {
           "q": "Можно ли записываться из Instagram или Facebook?",
@@ -394,7 +394,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Kundenliste mit Besuchsverlauf und Notizen",
         "Optional Anzahlung oder Vorauszahlung als Schutz vor Nichterscheinen"
       ],
-      "example": "In unserer RentoWorld-Demo sehen Sie einen Buchungsablauf mit Kalender, Preis und Bestätigung. Die Version für Ihren Salon nutzt Ihre eigenen Leistungen und Ihr Team.",
+      "example": "Unsere Clinio-Demo zeigt dieselben Ideen für Terminbetriebe: ein Kalender je Person, Nichterscheinen-Risiko, Erinnerungen und eine Warteliste, die abgesagte Termine neu füllt. Die Version für Ihren Salon nutzt Ihre eigenen Leistungen und Ihr Team.",
       "faq": [
         {
           "q": "Können Kunden über Instagram oder Facebook buchen?",
@@ -425,7 +425,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Liste de clients avec historique des visites et notes",
         "Acompte ou prépaiement facultatif pour limiter les absences"
       ],
-      "example": "Dans notre démo RentoWorld, vous voyez un parcours de réservation avec calendrier, prix et confirmation. La version de votre salon utilise vos propres prestations et vos coiffeurs.",
+      "example": "Notre démo Clinio montre les mêmes idées pour les activités sur rendez-vous : un calendrier par personne, le risque d'absence, des rappels et une liste d'attente qui comble les créneaux annulés. La version de votre salon utilise vos propres prestations et vos coiffeurs.",
       "faq": [
         {
           "q": "Les clients peuvent-ils réserver depuis Instagram ou Facebook ?",
@@ -456,7 +456,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Zoznam klientov s históriou návštev a poznámkami",
         "Voliteľná záloha alebo platba vopred ako ochrana pred neprítomnosťou"
       ],
-      "example": "V našej ukážke RentoWorld vidíte priebeh rezervácie s kalendárom, cenou a potvrdením. Verzia pre váš salón používa vaše vlastné služby a kaderníčky.",
+      "example": "Naša ukážka Clinio ukazuje rovnaké nápady pre podnikanie s objednávkami: kalendár pre každého, riziko neprítomnosti, pripomienky a čakaciu listinu, ktorá dopĺňa zrušené termíny. Verzia pre váš salón používa vaše vlastné služby a kaderníčky.",
       "faq": [
         {
           "q": "Môžu klienti rezervovať z Instagramu alebo Facebooku?",
@@ -487,7 +487,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Seznam klientů s historií návštěv a poznámkami",
         "Volitelná záloha nebo platba předem jako ochrana před neúčastí"
       ],
-      "example": "V naší ukázce RentoWorld vidíte průběh rezervace s kalendářem, cenou a potvrzením. Verze pro váš salon používá vaše vlastní služby a kadeřnice.",
+      "example": "Naše ukázka Clinio ukazuje stejné nápady pro podnikání s objednávkami: kalendář pro každého, riziko neúčasti, připomínky a čekací listinu, která doplňuje zrušené termíny. Verze pro váš salon používá vaše vlastní služby a kadeřnice.",
       "faq": [
         {
           "q": "Mohou klienti rezervovat z Instagramu nebo Facebooku?",
@@ -504,7 +504,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "demo": "restaurant",
     "en": {
       "name": "Restaurants and cafés",
-      "title": "Table Reservations and Online Ordering for Restaurants | Mirelli Studio",
+      "title": "Table Reservations and Online Ordering for Restaurants",
       "description": "Online table reservations and ordering for restaurants and cafés: a live order board, menu with stop list and clear daily numbers. Built for you, from €500.",
       "h1": "Table reservations and online ordering for restaurants and cafés",
       "lead": "Guests reserve a table or order online, and the kitchen sees every order on one screen. We build it around your menu and the way your place runs, without a heavy till system.",
@@ -535,7 +535,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     },
     "ru": {
       "name": "Рестораны и кафе",
-      "title": "Бронирование столов и онлайн-заказы для ресторанов | Mirelli Studio",
+      "title": "Бронирование столов и онлайн-заказы для ресторанов",
       "description": "Онлайн-бронирование столов и заказы для ресторанов и кафе: живая доска заказов, меню со стоп-листом и понятные цифры за день. Под ваш бизнес, от 500 €.",
       "h1": "Бронирование столов и онлайн-заказы для ресторанов и кафе",
       "lead": "Гости бронируют стол или заказывают онлайн, а кухня видит каждый заказ на одном экране. Мы строим систему под ваше меню и порядок работы, без тяжёлой кассовой системы.",
@@ -566,7 +566,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     },
     "de": {
       "name": "Restaurants und Cafés",
-      "title": "Tischreservierung und Online-Bestellung für Restaurants | Mirelli Studio",
+      "title": "Tischreservierung und Online-Bestellung für Restaurants",
       "description": "Online-Tischreservierung und Bestellung für Restaurants und Cafés: Live-Bestelltafel, Speisekarte mit Stopp-Liste und klare Tageszahlen. Ab 500 €.",
       "h1": "Tischreservierung und Online-Bestellung für Restaurants und Cafés",
       "lead": "Gäste reservieren einen Tisch oder bestellen online, und die Küche sieht jede Bestellung auf einem Bildschirm. Wir bauen das System passend zu Ihrer Speisekarte und Ihren Abläufen, ohne schwerfälliges Kassensystem.",
@@ -597,7 +597,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     },
     "fr": {
       "name": "Restaurants et cafés",
-      "title": "Réservation de tables et commande en ligne pour restaurants | Mirelli Studio",
+      "title": "Réservation de tables et commande en ligne pour restaurants",
       "description": "Réservation de tables et commande en ligne pour restaurants et cafés : tableau de commandes en direct, carte avec liste d'indisponibilités et chiffres du jour. Dès 500 €.",
       "h1": "Réservation de tables et commande en ligne pour restaurants et cafés",
       "lead": "Les clients réservent une table ou commandent en ligne, et la cuisine voit chaque commande sur un seul écran. Nous le construisons autour de votre carte et de votre organisation, sans caisse lourde.",
@@ -628,7 +628,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     },
     "sk": {
       "name": "Reštaurácie a kaviarne",
-      "title": "Rezervácia stolov a online objednávky pre reštaurácie | Mirelli Studio",
+      "title": "Rezervácia stolov a online objednávky pre reštaurácie",
       "description": "Online rezervácia stolov a objednávky pre reštaurácie a kaviarne: živá tabuľa objednávok, menu so stop zoznamom a prehľadné čísla za deň. Na mieru, od 500 €.",
       "h1": "Rezervácia stolov a online objednávky pre reštaurácie a kaviarne",
       "lead": "Hostia si rezervujú stôl alebo objednávajú online a kuchyňa vidí každú objednávku na jednej obrazovke. Postavíme to podľa vášho menu a spôsobu práce, bez ťažkopádneho pokladničného systému. Pracujeme s firmami na Slovensku, v Česku, Rakúsku a Nemecku.",
@@ -659,7 +659,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     },
     "cs": {
       "name": "Restaurace a kavárny",
-      "title": "Rezervace stolů a online objednávky pro restaurace | Mirelli Studio",
+      "title": "Rezervace stolů a online objednávky pro restaurace",
       "description": "Online rezervace stolů a objednávky pro restaurace a kavárny: živá tabule objednávek, menu se stop seznamem a přehledná čísla za den. Na míru, od 500 €.",
       "h1": "Rezervace stolů a online objednávky pro restaurace a kavárny",
       "lead": "Hosté si rezervují stůl nebo objednávají online a kuchyně vidí každou objednávku na jedné obrazovce. Postavíme to podle vašeho menu a způsobu práce, bez těžkopádného pokladního systému. Pracujeme s firmami v Česku, na Slovensku, v Rakousku a v Německu.",
@@ -690,10 +690,10 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     }
   },
   "clinic": {
-    "demo": "rentoworld",
+    "demo": "clinic",
     "en": {
       "name": "Clinics, vets and therapists",
-      "title": "Online Appointment Booking for Clinics and Vets | Mirelli Studio",
+      "title": "Online Appointment Booking for Clinics and Vets",
       "description": "Online appointment booking for clinics, vets, dentists and therapists: patients pick a service and a time, you get reminders and a clear schedule. From €500.",
       "h1": "Online appointment booking for clinics, vets and therapists",
       "lead": "Patients book a visit without calling during opening hours, and automatic reminders reduce missed appointments. We build it around your services and your specialists, with attention to privacy.",
@@ -710,7 +710,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Minimal patient data, stored on a server in the EU",
         "A waiting list that fills cancelled slots"
       ],
-      "example": "The booking flow in our RentoWorld demo shows the idea: choose, pick a time in a calendar, confirm. Your version uses your own services and specialists.",
+      "example": "Our Clinio demo shows it working: a calendar per specialist, no-show risk on every visit, automatic reminders and a waiting list that refills a cancelled slot in one click. Your version uses your own services and specialists.",
       "faq": [
         {
           "q": "How is patient data protected?",
@@ -724,7 +724,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     },
     "ru": {
       "name": "Клиники, ветеринары и терапевты",
-      "title": "Онлайн-запись на приём для клиник и ветеринаров | Mirelli Studio",
+      "title": "Онлайн-запись на приём для клиник и ветеринаров",
       "description": "Онлайн-запись на приём для клиник, ветеринаров, стоматологов и терапевтов: пациент выбирает услугу и время, у вас напоминания и понятное расписание. От 500 €.",
       "h1": "Онлайн-запись на приём для клиник, ветеринаров и терапевтов",
       "lead": "Пациенты записываются на визит без звонка в рабочее время, а автоматические напоминания сокращают неявки. Мы строим систему под ваши услуги и специалистов, с вниманием к конфиденциальности.",
@@ -741,7 +741,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Минимум данных о пациенте, хранение на сервере в ЕС",
         "Лист ожидания, который заполняет освободившиеся окна"
       ],
-      "example": "Процесс записи в нашем демо RentoWorld показывает идею: выбрать, отметить время в календаре, подтвердить. Ваша версия использует ваши услуги и специалистов.",
+      "example": "Наше демо Clinio показывает это в работе: календарь на каждого специалиста, риск неявки по каждому визиту, автоматические напоминания и лист ожидания, который заполняет отменённое окно в один клик. Ваша версия использует ваши услуги и специалистов.",
       "faq": [
         {
           "q": "Как защищены данные пациентов?",
@@ -772,7 +772,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Minimale Patientendaten, gespeichert auf einem Server in der EU",
         "Eine Warteliste, die frei gewordene Termine füllt"
       ],
-      "example": "Der Buchungsablauf in unserer RentoWorld-Demo zeigt die Idee: auswählen, Zeit im Kalender wählen, bestätigen. Ihre Version nutzt Ihre eigenen Leistungen und Fachkräfte.",
+      "example": "Unsere Clinio-Demo zeigt es im Einsatz: ein Kalender je Fachkraft, Nichterscheinen-Risiko bei jedem Termin, automatische Erinnerungen und eine Warteliste, die einen abgesagten Termin mit einem Klick neu füllt. Ihre Version nutzt Ihre eigenen Leistungen und Fachkräfte.",
       "faq": [
         {
           "q": "Wie werden Patientendaten geschützt?",
@@ -786,7 +786,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     },
     "fr": {
       "name": "Cliniques, vétérinaires et thérapeutes",
-      "title": "Prise de rendez-vous en ligne pour cliniques et vétérinaires | Mirelli Studio",
+      "title": "Prise de rendez-vous en ligne pour cliniques et vétérinaires",
       "description": "Prise de rendez-vous en ligne pour cliniques, vétérinaires, dentistes et thérapeutes : le patient choisit une prestation et un créneau, vous avez rappels et planning clair. Dès 500 €.",
       "h1": "Prise de rendez-vous en ligne pour cliniques, vétérinaires et thérapeutes",
       "lead": "Les patients prennent rendez-vous sans appeler pendant les heures d'ouverture, et les rappels automatiques réduisent les rendez-vous manqués. Nous le construisons autour de vos prestations et de vos praticiens, en veillant à la confidentialité.",
@@ -803,7 +803,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Données de patient minimales, stockées sur un serveur dans l'UE",
         "Une liste d'attente qui comble les créneaux annulés"
       ],
-      "example": "Le parcours de réservation de notre démo RentoWorld montre l'idée : choisir, sélectionner un créneau dans un calendrier, confirmer. Votre version utilise vos propres prestations et praticiens.",
+      "example": "Notre démo Clinio le montre en action : un calendrier par praticien, le risque d'absence pour chaque visite, des rappels automatiques et une liste d'attente qui comble un créneau annulé en un clic. Votre version utilise vos propres prestations et praticiens.",
       "faq": [
         {
           "q": "Comment les données des patients sont-elles protégées ?",
@@ -817,7 +817,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     },
     "sk": {
       "name": "Ambulancie, veterinári a terapeuti",
-      "title": "Online objednávanie pre ambulancie a veterinárov | Mirelli Studio",
+      "title": "Online objednávanie pre ambulancie a veterinárov",
       "description": "Online objednávanie pre ambulancie, veterinárov, zubárov a terapeutov: pacient si vyberie službu a čas, vy máte pripomienky a prehľadný rozvrh. Od 500 €.",
       "h1": "Online objednávanie pre ambulancie, veterinárov a terapeutov",
       "lead": "Pacienti sa objednajú bez telefonátu v ordinačných hodinách a automatické pripomienky znižujú zmeškané termíny. Postavíme to podľa vašich služieb a odborníkov, s dôrazom na súkromie. Pracujeme s firmami na Slovensku, v Česku, Rakúsku a Nemecku.",
@@ -834,7 +834,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Minimum údajov o pacientovi, uložených na serveri v EÚ",
         "Čakacia listina, ktorá zaplní uvoľnené termíny"
       ],
-      "example": "Priebeh rezervácie v našej ukážke RentoWorld ukazuje princíp: vybrať, zvoliť čas v kalendári, potvrdiť. Vaša verzia používa vaše vlastné služby a odborníkov.",
+      "example": "Naša ukážka Clinio to ukazuje v praxi: kalendár pre každého odborníka, riziko neprítomnosti pri každej návšteve, automatické pripomienky a čakaciu listinu, ktorá zrušený termín doplní jedným klikom. Vaša verzia používa vaše vlastné služby a odborníkov.",
       "faq": [
         {
           "q": "Ako sú chránené údaje pacientov?",
@@ -865,7 +865,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Minimum údajů o pacientovi, uložených na serveru v EU",
         "Čekací listina, která zaplní uvolněné termíny"
       ],
-      "example": "Průběh rezervace v naší ukázce RentoWorld ukazuje princip: vybrat, zvolit čas v kalendáři, potvrdit. Vaše verze používá vaše vlastní služby a odborníky.",
+      "example": "Naše ukázka Clinio to ukazuje v praxi: kalendář pro každého odborníka, riziko neúčasti u každé návštěvy, automatické připomínky a čekací listinu, která zrušený termín doplní jedním klikem. Vaše verze používá vaše vlastní služby a odborníky.",
       "faq": [
         {
           "q": "Jak jsou chráněna data pacientů?",
@@ -874,6 +874,195 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         {
           "q": "Dá se objednat zvíře nebo dítě?",
           "a": "Ano. Formulář se může ptát na jméno zvířete nebo pacienta a důvod návštěvy, abyste byli připraveni."
+        }
+      ]
+    }
+  },
+  "spaces": {
+    "demo": "spaces",
+    "en": {
+      "name": "Coworking, studios and sports clubs",
+      "title": "Booking, Memberships and Door Access for Coworking and Clubs",
+      "description": "One system for coworkings, studios and clubs: desk and room booking, memberships and billing, and door access by rules. Built for you, from €500.",
+      "h1": "Booking, memberships and door access for coworking spaces and clubs",
+      "lead": "Members book a desk, a room or a class, pay by plan, and the door opens for them by itself. You stop handing out keys, chasing payments and answering the same messages.",
+      "checks": [
+        "Booking with a free-slot check and alternatives",
+        "Plans and billing, including failed payments",
+        "Door access that follows paid, booked, in hours"
+      ],
+      "features": [
+        "Desk, room and class booking with conflict checks",
+        "Plans with credits, day passes and teams, and a price that follows the plan",
+        "Door access by rules: an active plan, opening hours and a booking for meeting rooms",
+        "A failed payment suspends access automatically and restores it when paid",
+        "A live view of who is in the space, a door log and results for the owner",
+        "Rooms are released automatically when nobody arrives"
+      ],
+      "example": "Our Gatehouse demo shows the live floor, booking, a door you can try to open as different members, and the rules that decide the answer. Your version uses your plans, rooms and doors.",
+      "faq": [
+        {
+          "q": "Which door hardware does it work with?",
+          "a": "Most modern smart locks and card or QR readers that have an API or a relay. We check your hardware first and tell you honestly if a lock cannot be connected."
+        },
+        {
+          "q": "Can members pay by card automatically?",
+          "a": "Yes. Plans renew by card through a payment provider, and failed payments are handled by the rules you choose."
+        }
+      ]
+    },
+    "ru": {
+      "name": "Коворкинги, студии и спортивные клубы",
+      "title": "Бронирование, абонементы и доступ для коворкингов и клубов",
+      "description": "Одна система для коворкингов, студий и клубов: бронирование мест и комнат, абонементы и оплата, доступ в двери по правилам. Под ваш бизнес, от 500 €.",
+      "h1": "Бронирование, абонементы и доступ в двери для коворкингов и клубов",
+      "lead": "Участники сами бронируют место, комнату или занятие, платят по тарифу, а дверь открывается для них сама. Вы перестаёте выдавать ключи, догонять платежи и отвечать на одни и те же сообщения.",
+      "checks": [
+        "Бронирование с проверкой свободных мест и вариантами",
+        "Тарифы и оплата, включая неудачные платежи",
+        "Доступ в двери по правилу: оплачено, забронировано, в часы"
+      ],
+      "features": [
+        "Бронирование мест, комнат и занятий с проверкой конфликтов",
+        "Тарифы с кредитами, разовые пропуска и команды, цена зависит от тарифа",
+        "Доступ в двери по правилам: активный тариф, часы работы и бронь для переговорных",
+        "Неудачный платёж автоматически приостанавливает доступ, а оплата возвращает его",
+        "Живой экран «кто сейчас в пространстве», журнал дверей и результаты для владельца",
+        "Комнаты освобождаются автоматически, если никто не пришёл"
+      ],
+      "example": "Наше демо Gatehouse показывает живую карту пространства, бронирование, дверь, которую можно пробовать открыть за разных участников, и правила, по которым принимается решение. Ваша версия использует ваши тарифы, комнаты и двери.",
+      "faq": [
+        {
+          "q": "С каким оборудованием дверей это работает?",
+          "a": "С большинством современных умных замков и считывателей карт или QR-кодов, у которых есть API или реле. Сначала мы проверяем ваше оборудование и честно скажем, если замок подключить нельзя."
+        },
+        {
+          "q": "Могут ли участники платить картой автоматически?",
+          "a": "Да. Тарифы продлеваются картой через платёжного провайдера, а неудачные платежи обрабатываются по выбранным вами правилам."
+        }
+      ]
+    },
+    "de": {
+      "name": "Coworking, Studios und Sportclubs",
+      "title": "Buchung, Mitgliedschaften und Zutritt für Coworking und Clubs",
+      "description": "Ein System für Coworking-Spaces, Studios und Clubs: Buchung von Plätzen und Räumen, Mitgliedschaften und Abrechnung, Türzutritt nach Regeln. Ab 500 €.",
+      "h1": "Buchung, Mitgliedschaften und Türzutritt für Coworking-Spaces und Clubs",
+      "lead": "Mitglieder buchen selbst einen Platz, einen Raum oder einen Kurs, zahlen nach Tarif, und die Tür öffnet sich von allein. Sie müssen keine Schlüssel mehr verteilen, keinen Zahlungen hinterherlaufen und nicht ständig dieselben Nachrichten beantworten.",
+      "checks": [
+        "Buchung mit Prüfung freier Zeiten und Alternativen",
+        "Tarife und Abrechnung, auch bei fehlgeschlagenen Zahlungen",
+        "Zutritt nach der Regel: bezahlt, gebucht, innerhalb der Zeiten"
+      ],
+      "features": [
+        "Buchung von Plätzen, Räumen und Kursen mit Konfliktprüfung",
+        "Tarife mit Guthaben, Tagespässe und Teams, der Preis folgt dem Tarif",
+        "Türzutritt nach Regeln: aktiver Tarif, Öffnungszeiten und Buchung für Besprechungsräume",
+        "Eine fehlgeschlagene Zahlung sperrt den Zutritt automatisch, die Zahlung stellt ihn wieder her",
+        "Live-Ansicht, wer im Raum ist, Türprotokoll und Ergebnisse für die Inhaber",
+        "Räume werden automatisch freigegeben, wenn niemand erscheint"
+      ],
+      "example": "Unsere Gatehouse-Demo zeigt die Live-Raumansicht, die Buchung, eine Tür, die Sie als verschiedene Mitglieder öffnen können, und die Regeln, die die Antwort bestimmen. Ihre Version nutzt Ihre Tarife, Räume und Türen.",
+      "faq": [
+        {
+          "q": "Mit welcher Türhardware funktioniert das?",
+          "a": "Mit den meisten modernen Smart-Locks und Karten- oder QR-Lesern, die eine Schnittstelle oder ein Relais haben. Wir prüfen zuerst Ihre Hardware und sagen ehrlich, wenn ein Schloss nicht anbindbar ist."
+        },
+        {
+          "q": "Können Mitglieder automatisch per Karte zahlen?",
+          "a": "Ja. Tarife verlängern sich per Karte über einen Zahlungsanbieter, und fehlgeschlagene Zahlungen werden nach den von Ihnen gewählten Regeln behandelt."
+        }
+      ]
+    },
+    "fr": {
+      "name": "Coworkings, studios et clubs de sport",
+      "title": "Réservation, abonnements et accès pour coworkings et clubs",
+      "description": "Un seul système pour coworkings, studios et clubs : réservation de postes et de salles, abonnements et facturation, accès aux portes selon des règles. Dès 500 €.",
+      "h1": "Réservation, abonnements et accès aux portes pour coworkings et clubs",
+      "lead": "Les membres réservent eux-mêmes un poste, une salle ou un cours, paient selon leur formule, et la porte s'ouvre toute seule pour eux. Plus de clés à remettre, de paiements à relancer ni de mêmes messages à traiter.",
+      "checks": [
+        "Réservation avec contrôle des créneaux libres et alternatives",
+        "Formules et facturation, y compris paiements échoués",
+        "Accès selon la règle : payé, réservé, dans les horaires"
+      ],
+      "features": [
+        "Réservation de postes, de salles et de cours avec contrôle des conflits",
+        "Formules avec crédits, pass journée et équipes, le prix suit la formule",
+        "Accès aux portes selon des règles : formule active, horaires et réservation pour les salles de réunion",
+        "Un paiement échoué suspend l'accès automatiquement, le paiement le rétablit",
+        "Vue en direct de qui est dans l'espace, journal des portes et résultats pour le propriétaire",
+        "Les salles sont libérées automatiquement quand personne n'arrive"
+      ],
+      "example": "Notre démo Gatehouse montre la vue en direct de l'espace, la réservation, une porte que vous pouvez essayer d'ouvrir avec différents membres et les règles qui décident de la réponse. Votre version utilise vos formules, vos salles et vos portes.",
+      "faq": [
+        {
+          "q": "Avec quel matériel de porte cela fonctionne-t-il ?",
+          "a": "Avec la plupart des serrures connectées et lecteurs de cartes ou de QR codes modernes qui disposent d'une API ou d'un relais. Nous vérifions d'abord votre matériel et vous disons honnêtement si une serrure ne peut pas être connectée."
+        },
+        {
+          "q": "Les membres peuvent-ils payer automatiquement par carte ?",
+          "a": "Oui. Les formules se renouvellent par carte via un prestataire de paiement, et les paiements échoués suivent les règles que vous choisissez."
+        }
+      ]
+    },
+    "sk": {
+      "name": "Coworkingy, štúdiá a športové kluby",
+      "title": "Rezervácie, členstvá a prístup pre coworkingy a kluby",
+      "description": "Jeden systém pre coworkingy, štúdiá a kluby: rezervácia miest a miestností, členstvá a platby, prístup cez dvere podľa pravidiel. Na mieru, od 500 €.",
+      "h1": "Rezervácie, členstvá a prístup cez dvere pre coworkingy a kluby",
+      "lead": "Členovia si sami rezervujú miesto, miestnosť alebo lekciu, platia podľa tarifu a dvere sa im otvoria samy. Prestanete rozdávať kľúče, naháňať platby a odpisovať na tie isté správy. Pracujeme s firmami na Slovensku, v Česku, Rakúsku a Nemecku.",
+      "checks": [
+        "Rezervácia s kontrolou voľných termínov a alternatívami",
+        "Tarify a platby vrátane neúspešných platieb",
+        "Prístup podľa pravidla: zaplatené, rezervované, v čase"
+      ],
+      "features": [
+        "Rezervácia miest, miestností a lekcií s kontrolou kolízií",
+        "Tarify s kreditom, denné vstupy a tímy, cena podľa tarifu",
+        "Prístup cez dvere podľa pravidiel: aktívny tarif, čas a rezervácia pre zasadacie miestnosti",
+        "Neúspešná platba automaticky pozastaví prístup a po zaplatení sa obnoví",
+        "Živý pohľad, kto je v priestore, záznam dverí a výsledky pre majiteľa",
+        "Miestnosti sa uvoľnia automaticky, ak nikto nepríde"
+      ],
+      "example": "Naša ukážka Gatehouse ukazuje živý pohľad na priestor, rezerváciu, dvere, ktoré skúsite otvoriť za rôznych členov, a pravidlá, podľa ktorých sa rozhoduje. Vaša verzia používa vaše tarify, miestnosti a dvere.",
+      "faq": [
+        {
+          "q": "S akým hardvérom dverí to funguje?",
+          "a": "S väčšinou moderných smart zámkov a čítačiek kariet alebo QR kódov, ktoré majú API alebo relé. Najprv skontrolujeme váš hardvér a úprimne povieme, ak sa zámok nedá pripojiť."
+        },
+        {
+          "q": "Môžu členovia platiť kartou automaticky?",
+          "a": "Áno. Tarify sa obnovujú kartou cez poskytovateľa platieb a neúspešné platby sa riešia podľa pravidiel, ktoré si zvolíte."
+        }
+      ]
+    },
+    "cs": {
+      "name": "Coworkingy, ateliéry a sportovní kluby",
+      "title": "Rezervace, členství a přístup pro coworkingy a kluby",
+      "description": "Jeden systém pro coworkingy, ateliéry a kluby: rezervace míst a místností, členství a platby, přístup dveřmi podle pravidel. Na míru, od 500 €.",
+      "h1": "Rezervace, členství a přístup dveřmi pro coworkingy a kluby",
+      "lead": "Členové si sami rezervují místo, místnost nebo lekci, platí podle tarifu a dveře se jim otevřou samy. Přestanete rozdávat klíče, honit platby a odpovídat na stále stejné zprávy. Pracujeme s firmami v Česku, na Slovensku, v Rakousku a v Německu.",
+      "checks": [
+        "Rezervace s kontrolou volných termínů a alternativami",
+        "Tarify a platby včetně neúspěšných plateb",
+        "Přístup podle pravidla: zaplaceno, rezervováno, v čase"
+      ],
+      "features": [
+        "Rezervace míst, místností a lekcí s kontrolou kolizí",
+        "Tarify s kreditem, denní vstupy a týmy, cena podle tarifu",
+        "Přístup dveřmi podle pravidel: aktivní tarif, čas a rezervace pro zasedací místnosti",
+        "Neúspěšná platba automaticky pozastaví přístup a po zaplacení se obnoví",
+        "Živý pohled, kdo je v prostoru, záznam dveří a výsledky pro majitele",
+        "Místnosti se uvolní automaticky, pokud nikdo nepřijde"
+      ],
+      "example": "Naše ukázka Gatehouse ukazuje živý pohled na prostor, rezervaci, dveře, které zkusíte otevřít za různé členy, a pravidla, podle kterých se rozhoduje. Vaše verze používá vaše tarify, místnosti a dveře.",
+      "faq": [
+        {
+          "q": "S jakým hardwarem dveří to funguje?",
+          "a": "S většinou moderních chytrých zámků a čteček karet nebo QR kódů, které mají API nebo relé. Nejprve zkontrolujeme váš hardware a upřímně řekneme, pokud se zámek nedá připojit."
+        },
+        {
+          "q": "Mohou členové platit kartou automaticky?",
+          "a": "Ano. Tarify se obnovují kartou přes poskytovatele plateb a neúspěšné platby se řeší podle pravidel, která si zvolíte."
         }
       ]
     }

@@ -36,6 +36,18 @@ export const de: Translations = {
     tryOn: "Zurück zum Scrollen",
     projects: [
       {
+        tagline: "Intelligentes System für Autowerkstätten",
+        description: "Buchung, die Arbeitsplatz, Mechaniker und Teile auf Lager abgleicht, eine Live-Auftragstafel, Freigabe von Zusatzarbeiten per SMS-Link, Lagerkontrolle und Inhaberansicht mit Protokoll.",
+      },
+      {
+        tagline: "Intelligente Terminplanung für Praxen",
+        description: "Terminsystem für Praxen und Tierärzte: Nichterscheinen-Risiko je Termin, automatische Erinnerungen, eine Warteliste, die abgesagte Termine neu füllt, und Buchung mit passender Fachkraft.",
+      },
+      {
+        tagline: "Buchung, Mitgliedschaften und Zutritt",
+        description: "Ein System für Coworking-Spaces und Clubs: Buchung von Plätzen und Räumen, Tarife und Abrechnung sowie Türzutritt nach Regeln: bezahlt, gebucht, innerhalb der Zeiten.",
+      },
+      {
         tagline: "Vertriebssteuerung",
         description:
           "Interne Plattform für den Dieselvertrieb: Fuhrpark, Kundenforderungen, Lieferdisposition und Finanzanalysen mit rollenbasierter Zugriffskontrolle.",
@@ -214,7 +226,7 @@ export const de: Translations = {
       },
       {
         q: "Welche Produkte wurden bereits entwickelt?",
-        a: "Neun Produkte, jedes mit Live-Demo auf Beispieldaten: ein ERP für den Kraftstoffvertrieb, ein B2B-Handelsplatz für Kraftstoffe, ein Betriebssystem für Restaurants, Lager und Einkauf für die Gastronomie, eine Onboarding-App für Mitarbeiter, ein Peer-to-Peer-Marktplatz für Autovermietung, eine Trading-Lernplattform mit Simulator, ein KI-Launch-Planer und ein Telegram-Bot-Baukasten.",
+        a: "Zwölf Produkte, jedes mit Live-Demo auf Beispieldaten: ein intelligentes System für Autowerkstätten, intelligente Terminplanung für Praxen, ein Coworking-System mit Türzutritt, ein ERP für den Kraftstoffvertrieb, ein B2B-Handelsplatz für Kraftstoffe, ein Betriebssystem für Restaurants, Lager und Einkauf für die Gastronomie, eine Onboarding-App für Mitarbeiter, ein Peer-to-Peer-Marktplatz für Autovermietung, eine Trading-Lernplattform mit Simulator, ein KI-Launch-Planer und ein Telegram-Bot-Baukasten.",
       },
       {
         q: "Welche Technologien kommen zum Einsatz?",
@@ -222,7 +234,7 @@ export const de: Translations = {
       },
       {
         q: "Können Sie einen Telegram-Bot oder eine Mini-App entwickeln?",
-        a: "Ja. BotFactory, eines der neun Produkte, ist ein visueller Telegram-Bot-Baukasten als Mini-App, mit Zahlungen, Verkaufstrichter und Käufer-Dashboard. Bots für Vertrieb, Support, Kurse und Communitys sind eine Kernleistung.",
+        a: "Ja. BotFactory, eines der zwölf Produkte, ist ein visueller Telegram-Bot-Baukasten als Mini-App, mit Zahlungen, Verkaufstrichter und Käufer-Dashboard. Bots für Vertrieb, Support, Kurse und Communitys sind eine Kernleistung.",
       },
       {
         q: "Wie läuft ein Projekt ab?",

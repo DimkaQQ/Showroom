@@ -36,6 +36,18 @@ export const fr: Translations = {
     tryOn: "Retour au défilement",
     projects: [
       {
+        tagline: "Système intelligent pour garages",
+        description: "Une réservation qui associe un poste, un mécanicien et les pièces en stock, un tableau d'ordres en direct, l'accord du client sur les travaux supplémentaires via un lien SMS, le contrôle du stock et une vue propriétaire avec journal.",
+      },
+      {
+        tagline: "Planning intelligent pour cliniques",
+        description: "Système de rendez-vous pour cliniques et vétérinaires : risque d'absence pour chaque visite, rappels automatiques, liste d'attente qui comble les créneaux annulés et réservation qui choisit le bon praticien.",
+      },
+      {
+        tagline: "Réservations, abonnements et accès",
+        description: "Un seul système pour coworkings et clubs : réservation de postes et de salles, formules et facturation, et accès aux portes selon des règles : payé, réservé, dans les horaires.",
+      },
+      {
         tagline: "Gestion de la distribution",
         description:
           "Plateforme interne de distribution de gazole : flotte de camions, créances clients, expéditions et analyses financières avec contrôle d'accès par rôle.",
@@ -214,7 +226,7 @@ export const fr: Translations = {
       },
       {
         q: "Quels produits ont déjà été créés ?",
-        a: "Neuf produits, chacun avec une démo en ligne sur des données d'exemple : un ERP de distribution de carburant, une place de marché B2B de négoce de carburant, un système d'exploitation de restaurant, la gestion des stocks et des achats de restauration, une application d'intégration du personnel, une place de marché de location de voitures entre particuliers, une plateforme de formation au trading avec simulateur, un planificateur de lancement par IA et un créateur de bots Telegram.",
+        a: "Douze produits, chacun avec une démo en ligne sur des données d'exemple : un système intelligent pour garages, un planning intelligent pour cliniques, un système de coworking avec accès aux portes, un ERP de distribution de carburant, une place de marché B2B de négoce de carburant, un système d'exploitation de restaurant, la gestion des stocks et des achats de restauration, une application d'intégration du personnel, une place de marché de location de voitures entre particuliers, une plateforme de formation au trading avec simulateur, un planificateur de lancement par IA et un créateur de bots Telegram.",
       },
       {
         q: "Quelles technologies utilisez-vous ?",
@@ -222,7 +234,7 @@ export const fr: Translations = {
       },
       {
         q: "Pouvez-vous créer un bot ou une Mini App Telegram ?",
-        a: "Oui. BotFactory, l'un des neuf produits, est un créateur visuel de bots Telegram livré sous forme de Mini App, avec paiements, entonnoir de vente et tableau de bord des acheteurs. Les bots pour la vente, le support, les formations et les communautés font partie du cœur de l'offre.",
+        a: "Oui. BotFactory, l'un des douze produits, est un créateur visuel de bots Telegram livré sous forme de Mini App, avec paiements, entonnoir de vente et tableau de bord des acheteurs. Les bots pour la vente, le support, les formations et les communautés font partie du cœur de l'offre.",
       },
       {
         q: "Comment se déroule un projet ?",

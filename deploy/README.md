@@ -21,7 +21,7 @@ The site, the contact form and the nine demos now use `mirelli.eu` (demos on `<n
 
 1. **DNS first.** At the domain registrar point these records at the server's IP (A, plus AAAA if the server has IPv6):
    `@`, `www`, and `dizeltrade`, `rentoworld`, `tradinglearn`, `shipter`, `storage`, `caspianflow`, `restaurant`,
-   `hr`, `botfactory` (or one wildcard `*`). Wait until `dig mirelli.eu` shows the server IP. Caddy cannot get
+   `hr`, `botfactory`, `garage`, `clinic`, `spaces` (or one wildcard `*`). Wait until `dig mirelli.eu` shows the server IP. Caddy cannot get
    certificates before that.
 2. **Contact form origin.** On the server edit `server/contact/.env` (it is not in git) and set
    `ALLOWED_ORIGINS=https://mirelli.eu,https://www.mirelli.eu,https://dimkaprojects.xyz`, otherwise the form is

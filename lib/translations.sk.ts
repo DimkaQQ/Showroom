@@ -36,6 +36,18 @@ export const sk: Translations = {
     tryOn: "Späť na posúvanie",
     projects: [
       {
+        tagline: "Inteligentný systém pre autoservis",
+        description: "Rezervácia, ktorá spáruje stanovište, mechanika a diely na sklade, živá tabuľa zákaziek, schvaľovanie prác navyše zákazníkom cez odkaz v SMS, kontrola skladu a pohľad majiteľa so záznamom zmien.",
+      },
+      {
+        tagline: "Inteligentný rozvrh pre ambulancie",
+        description: "Objednávací systém pre ambulancie a veterinárov: riziko neprítomnosti pri každej návšteve, automatické pripomienky, čakacia listina, ktorá dopĺňa zrušené termíny, a rezervácia s výberom správneho odborníka.",
+      },
+      {
+        tagline: "Rezervácie, členstvá a prístup",
+        description: "Jeden systém pre coworkingy a kluby: rezervácia miest a miestností, tarify a platby a prístup cez dvere podľa pravidiel: zaplatené, rezervované, v čase.",
+      },
+      {
         tagline: "Riadenie distribúcie",
         description:
           "Interná platforma pre distribúciu nafty: vozový park, pohľadávky od zákazníkov, plánovanie dodávok a finančné analýzy s prístupom podľa rolí.",
@@ -214,7 +226,7 @@ export const sk: Translations = {
       },
       {
         q: "Aké produkty už boli vytvorené?",
-        a: "Deväť produktov, každý so živou ukážkou na vzorových dátach: ERP pre distribúciu paliva, B2B obchodné miesto pre palivá, operačný systém pre reštaurácie, sklad a nákup pre gastronómiu, aplikácia na zaškoľovanie zamestnancov, peer-to-peer marketplace na prenájom áut, vzdelávacia platforma pre trading so simulátorom, AI plánovač spustenia produktu a konštruktor Telegram botov.",
+        a: "Dvanásť produktov, každý so živou ukážkou na vzorových dátach: inteligentný systém pre autoservis, inteligentný rozvrh pre ambulancie, coworkingový systém s prístupom cez dvere, ERP pre distribúciu paliva, B2B obchodné miesto pre palivá, operačný systém pre reštaurácie, sklad a nákup pre gastronómiu, aplikácia na zaškoľovanie zamestnancov, peer-to-peer marketplace na prenájom áut, vzdelávacia platforma pre trading so simulátorom, AI plánovač spustenia produktu a konštruktor Telegram botov.",
       },
       {
         q: "Aké technológie sa používajú?",
@@ -222,7 +234,7 @@ export const sk: Translations = {
       },
       {
         q: "Viete vytvoriť Telegram bota alebo Mini App?",
-        a: "Áno. BotFactory, jeden z deviatich produktov, je vizuálny konštruktor Telegram botov ako Mini App, s platbami, predajným lievikom a prehľadom kupujúcich. Boty pre predaj, podporu, kurzy a komunity sú základná služba.",
+        a: "Áno. BotFactory, jeden z dvanástich produktov, je vizuálny konštruktor Telegram botov ako Mini App, s platbami, predajným lievikom a prehľadom kupujúcich. Boty pre predaj, podporu, kurzy a komunity sú základná služba.",
       },
       {
         q: "Ako prebieha projekt?",

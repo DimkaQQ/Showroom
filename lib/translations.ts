@@ -40,6 +40,18 @@ const en = {
     tryOn: "Back to scrolling",
     projects: [
       {
+        tagline: "Smart car-service system",
+        description: "Booking that matches a bay, a mechanic and parts in stock, a live job board, customer approval of extra work from an SMS link, stock control and an owner view with an audit log.",
+      },
+      {
+        tagline: "Smart scheduling for clinics",
+        description: "Appointment system for clinics and vets: no-show risk for every visit, automatic reminders, a waiting list that refills cancelled slots and booking that picks the right specialist.",
+      },
+      {
+        tagline: "Bookings, memberships and door access",
+        description: "One system for coworkings and clubs: desk and room booking, plans and billing, and door access that follows the rules: paid, booked, in hours.",
+      },
+      {
         tagline: "Distribution management",
         description:
           "Internal platform for diesel fuel distribution: vehicle fleet, customer receivables, delivery dispatch and financial analytics with role-based access control.",
@@ -218,7 +230,7 @@ const en = {
       },
       {
         q: "What kinds of products have you built?",
-        a: "Nine products, each with a live demo on sample data: a fuel-distribution ERP, a B2B fuel trading marketplace, a restaurant operating system, restaurant inventory and purchasing, an employee onboarding app, a peer-to-peer car rental marketplace, a trading education platform with a simulator, an AI launch planner and a Telegram bot builder.",
+        a: "Twelve products, each with a live demo on sample data: a smart car-service system, smart scheduling for clinics, a coworking system with door access, a fuel-distribution ERP, a B2B fuel trading marketplace, a restaurant operating system, restaurant inventory and purchasing, an employee onboarding app, a peer-to-peer car rental marketplace, a trading education platform with a simulator, an AI launch planner and a Telegram bot builder.",
       },
       {
         q: "Which technologies do you use?",
@@ -226,7 +238,7 @@ const en = {
       },
       {
         q: "Can you build a Telegram bot or Mini App?",
-        a: "Yes. BotFactory, one of the nine products, is a visual Telegram bot builder delivered as a Mini App, with payments, a sales funnel and a buyers dashboard. Bots for sales, support, courses and communities are a core service.",
+        a: "Yes. BotFactory, one of the twelve products, is a visual Telegram bot builder delivered as a Mini App, with payments, a sales funnel and a buyers dashboard. Bots for sales, support, courses and communities are a core service.",
       },
       {
         q: "How does a project run?",
@@ -342,6 +354,18 @@ const ru: Translations = {
     tryOff: "Потрогать демо",
     tryOn: "Вернуть прокрутку",
     projects: [
+      {
+        tagline: "Умная система для автосервиса",
+        description: "Запись, которая подбирает пост, мастера и проверяет детали на складе, живая доска работ, согласование доп. работ клиентом по ссылке из SMS, контроль склада и панель владельца с журналом действий.",
+      },
+      {
+        tagline: "Умное расписание для клиник",
+        description: "Запись на приём для клиник и ветеринаров: риск неявки по каждому визиту, автоматические напоминания, лист ожидания, который заполняет отменённые окна, и подбор нужного специалиста.",
+      },
+      {
+        tagline: "Бронирование, абонементы и доступ",
+        description: "Одна система для коворкингов и клубов: бронирование мест и комнат, тарифы и оплата, а также доступ в двери по правилам: оплачено, забронировано, в рабочее время.",
+      },
       {
         tagline: "Управление дистрибуцией",
         description:
@@ -521,7 +545,7 @@ const ru: Translations = {
       },
       {
         q: "Какие продукты вы делали?",
-        a: "Девять продуктов, у каждого есть живое демо на примерных данных: ERP для дистрибуции топлива, B2B-маркетплейс топлива, операционная система ресторана, склад и закупки для ресторанов, приложение для онбординга персонала, P2P-маркетплейс аренды авто, платформа обучения трейдингу с симулятором, ИИ-планировщик запуска и конструктор Telegram-ботов.",
+        a: "Двенадцать продуктов, у каждого есть живое демо на примерных данных: умная система для автосервиса, умное расписание для клиник, коворкинг с доступом в двери, ERP для дистрибуции топлива, B2B-маркетплейс топлива, операционная система ресторана, склад и закупки для ресторанов, приложение для онбординга персонала, P2P-маркетплейс аренды авто, платформа обучения трейдингу с симулятором, ИИ-планировщик запуска и конструктор Telegram-ботов.",
       },
       {
         q: "Какие технологии вы используете?",
@@ -529,7 +553,7 @@ const ru: Translations = {
       },
       {
         q: "Вы делаете Telegram-ботов и Mini App?",
-        a: "Да. BotFactory, один из девяти продуктов, — визуальный конструктор Telegram-ботов в формате Mini App с оплатой, воронкой продаж и панелью покупателей. Боты для продаж, поддержки, курсов и сообществ — одна из основных услуг.",
+        a: "Да. BotFactory, один из двенадцати продуктов, — визуальный конструктор Telegram-ботов в формате Mini App с оплатой, воронкой продаж и панелью покупателей. Боты для продаж, поддержки, курсов и сообществ — одна из основных услуг.",
       },
       {
         q: "Как идёт проект?",

@@ -110,6 +110,15 @@ hr.mirelli.eu {
 botfactory.mirelli.eu {
 	import demo botfactory
 }
+garage.mirelli.eu {
+	import demo garage
+}
+clinic.mirelli.eu {
+	import demo clinic
+}
+spaces.mirelli.eu {
+	import demo spaces
+}
 
 dizeltrade.dimkaprojects.xyz {
 	import security

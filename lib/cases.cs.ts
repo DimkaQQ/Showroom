@@ -1,6 +1,48 @@
 import type { CaseText } from "./cases";
 
 export const caseCs: Record<string, CaseText> = {
+  garage: {
+      title: "Chytrý rezervační a řídicí systém pro autoservis | Servisio",
+      description: "Rezervační systém pro autoservis, který spáruje stání, mechanika a díly na skladě, se živou tabulí zakázek, SMS schvalováním prací navíc, kontrolou skladu a pohledem majitele. S živou ukázkou.",
+      lead: "Servisio vede autoservis od rezervace po předání auta. Zákazník vybere práci, systém najde stání a mechanika s vhodnou kvalifikací, zkontroluje díly na skladě a drží všechny v obraze, zatímco auto prochází dílnou.",
+      features: [
+        "Rezervace, která spáruje volné stání, kvalifikovaného mechanika a díly na skladě a navrhne nejvhodnější termín",
+        "Vyhledání podle registrační značky s historií auta a návrhy servisu podle kilometrů",
+        "Živá časová osa stání a tabule zakázek od rezervace po hotovo",
+        "Zákazník schválí práce navíc přes odkaz v SMS, s cenou a poznámkou mechanika",
+        "Sklad dílů se snižuje podle rezervovaných zakázek, objednávku navrhne dřív, než dojde",
+        "Role pro recepci, mechanika a majitele a záznam každé změny",
+      ],
+      audience: "Autoservisy, pneuservisy a menší servisní střediska, která objednávají telefonicky a na papíře, ztrácejí čas neúčastí zákazníků a dírami ve dni a chtějí vidět celou dílnu na jedné obrazovce.",
+    },
+  clinic: {
+      title: "Chytré objednávání pro ordinace a veterináře | Clinio",
+      description: "Objednávací systém pro ordinace a veterináře: riziko neúčasti u každé návštěvy, automatické připomínky, čekací listina pro zrušené termíny a rezervace podle odborníka. S živou ukázkou.",
+      lead: "Clinio drží den ordinace zaplněný. Odhadne, s jakou pravděpodobností pacient nepřijde, rizikové požádá o potvrzení a při zrušení nabídne uvolněný termín nejvhodnějšímu pacientovi z čekací listiny.",
+      features: [
+        "Riziko neúčasti u každého termínu podle historie, potvrzení a předstihu objednání",
+        "Rezervace podle důvodu návštěvy: systém vybere odborníka a délku, s časem navíc pro nové pacienty",
+        "Čekací listina, která řadí pacienty a zrušený termín doplní jedním klikem",
+        "Automatické připomínky s odkazy na potvrzení nebo přesun a pozvánky na roční prohlídku",
+        "Kalendář pro každého odborníka a možnost urgentního termínu na dnes",
+        "Role pro recepci, lékaře a vedení a záznam aktivity",
+      ],
+      audience: "Lékařské, zubní a veterinární ordinace, terapeuti a fyzioterapeuti, kterým kvůli zmeškaným termínům stojí ordinace prázdné a kteří tráví den na telefonu potvrzováním a přeobjednáváním.",
+    },
+  spaces: {
+      title: "Správa coworkingu a klubu: rezervace, členství, přístup | Gatehouse",
+      description: "Jeden systém pro coworkingy a kluby: rezervace míst a místností, tarify a platby a přístup dveřmi podle pravidel (zaplaceno, rezervováno, v čase). S živou ukázkou.",
+      lead: "Gatehouse spojuje tři věci, na kterých stojí sdílený prostor: kdo co rezervoval, kdo zaplatil a kdo může otevřít které dveře. Neúspěšná platba dveře zavře, rezervace místnosti je otevře jen na daný čas a majitel vidí, jak je prostor zaplněný.",
+      features: [
+        "Rezervace míst a místností s kontrolou kolizí a alternativami, když je místnost obsazená",
+        "Tarify s kreditem na místnosti a cena podle tarifu člena",
+        "Přístup dveřmi podle pravidel: aktivní tarif, čas a rezervace pro zasedací místnosti",
+        "Neúspěšná platba automaticky pozastaví přístup a po zaplacení se obnoví",
+        "Živý pohled na prostor, záznam dveří a pravidlo uvolnit místnosti, kam nikdo nepřijde",
+        "Role pro recepci, komunitního manažera a majitele, s výsledky tržeb a vytíženosti",
+      ],
+      audience: "Coworkingy, ateliéry, fitness a sportovní kluby a pronajímané dílny, které prodávají členství, klíče nebo karty vydávají ručně a platby vymáhají ručně.",
+    },
   dizeltrade: {
     title: "ERP software pro distribuci paliva | Případová studie DizelTrade",
     description: "ERP na míru pro distribuci nafty: zásoby ve skladu, jízdy, dluhy zákazníků, vozový park a analytika s právy podle rolí. S živou ukázkou.",

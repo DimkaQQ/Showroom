@@ -1,6 +1,48 @@
 import type { CaseText } from "./cases";
 
 export const caseSk: Record<string, CaseText> = {
+  garage: {
+      title: "Inteligentný rezervačný a riadiaci systém pre autoservis | Servisio",
+      description: "Rezervačný systém pre autoservis, ktorý spáruje stanovište, mechanika a diely na sklade, so živou tabuľou zákaziek, SMS schvaľovaním prác navyše, kontrolou skladu a pohľadom majiteľa. So živou ukážkou.",
+      lead: "Servisio vedie autoservis od rezervácie po odovzdanie auta. Zákazník vyberie prácu, systém nájde stanovište a mechanika s vhodnou kvalifikáciou, skontroluje diely na sklade a drží všetkých v obraze, kým auto prechádza dielňou.",
+      features: [
+        "Rezervácia, ktorá spáruje voľné stanovište, kvalifikovaného mechanika a diely na sklade a navrhne najvhodnejší termín",
+        "Vyhľadanie podľa evidenčného čísla s históriou auta a návrhmi servisu podľa kilometrov",
+        "Živá časová os stanovíšť a tabuľa zákaziek od rezervácie po hotovo",
+        "Zákazník schváli práce navyše cez odkaz v SMS, s cenou a poznámkou mechanika",
+        "Sklad dielov sa znižuje podľa rezervovaných zákaziek, objednávku navrhne skôr, než dôjde",
+        "Roly pre recepciu, mechanika a majiteľa a záznam každej zmeny",
+      ],
+      audience: "Autoservisy, pneuservisy a menšie servisné strediská, ktoré objednávajú telefonicky a na papieri, strácajú čas neprítomnosťou zákazníkov a dierami v dni a chcú vidieť celú dielňu na jednej obrazovke.",
+    },
+  clinic: {
+      title: "Inteligentné objednávanie pre ambulancie a veterinárov | Clinio",
+      description: "Objednávací systém pre ambulancie a veterinárov: riziko neprítomnosti pri každej návšteve, automatické pripomienky, čakacia listina pre zrušené termíny a rezervácia podľa odborníka. So živou ukážkou.",
+      lead: "Clinio drží deň ambulancie zaplnený. Odhadne, s akou pravdepodobnosťou pacient nepríde, rizikových požiada o potvrdenie a pri zrušení ponúkne uvoľnený termín najvhodnejšiemu pacientovi z čakacej listiny.",
+      features: [
+        "Riziko neprítomnosti pri každom termíne podľa histórie, potvrdenia a predstihu objednania",
+        "Rezervácia podľa dôvodu návštevy: systém vyberie odborníka a dĺžku, s časom navyše pre nových pacientov",
+        "Čakacia listina, ktorá radí pacientov a zrušený termín doplní jedným klikom",
+        "Automatické pripomienky s odkazmi na potvrdenie alebo presun a pozvánky na ročnú prehliadku",
+        "Kalendár pre každého odborníka a možnosť urgentného termínu na dnes",
+        "Roly pre recepciu, lekára a vedenie a záznam aktivity",
+      ],
+      audience: "Lekárske, zubné a veterinárne ambulancie, terapeuti a fyzioterapeuti, ktorým kvôli zmeškaným termínom stoja ordinácie prázdne a ktorí trávia deň na telefóne potvrdzovaním a prerezervovaním.",
+    },
+  spaces: {
+      title: "Správa coworkingu a klubu: rezervácie, členstvá, prístup | Gatehouse",
+      description: "Jeden systém pre coworkingy a kluby: rezervácia miest a miestností, tarify a platby a prístup cez dvere podľa pravidiel (zaplatené, rezervované, v čase). So živou ukážkou.",
+      lead: "Gatehouse spája tri veci, na ktorých stojí zdieľaný priestor: kto čo rezervoval, kto zaplatil a kto môže otvoriť ktoré dvere. Neúspešná platba dvere zatvorí, rezervácia miestnosti ich otvorí len na daný čas a majiteľ vidí, ako je priestor zaplnený.",
+      features: [
+        "Rezervácia miest a miestností s kontrolou kolízií a alternatívami, keď je miestnosť obsadená",
+        "Tarify s kreditom na miestnosti a cena podľa tarifu člena",
+        "Prístup cez dvere podľa pravidiel: aktívny tarif, čas a rezervácia pre zasadacie miestnosti",
+        "Neúspešná platba automaticky pozastaví prístup a po zaplatení sa obnoví",
+        "Živý pohľad na priestor, záznam dverí a pravidlo uvoľniť miestnosti, kam nikto nepríde",
+        "Roly pre recepciu, komunitného manažéra a majiteľa, s výsledkami tržieb a vyťaženosti",
+      ],
+      audience: "Coworkingy, štúdiá, fitness a športové kluby a prenajímané dielne, ktoré predávajú členstvá, kľúče alebo karty vydávajú ručne a platby vymáhajú manuálne.",
+    },
   dizeltrade: {
     title: "ERP softvér pre distribúciu paliva | Prípadová štúdia DizelTrade",
     description: "ERP na mieru pre distribúciu nafty: zásoby v sklade, jazdy, dlhy zákazníkov, vozový park a analytika s právami podľa rolí. So živou ukážkou.",
