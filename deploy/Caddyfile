@@ -85,10 +85,10 @@ shipter.dimkaprojects.xyz {
 storage.dimkaprojects.xyz {
 	import demo storage
 }
-# Old warehouse link from before the server migration: keep it alive and send people to the demo.
+# Warehouse app (Storage repo, docker compose publishes it on 127.0.0.1:3000). Project subdomains stay on dimkaprojects.xyz.
 sklad.dimkaprojects.xyz {
 	import security
-	redir https://storage.mirelli.eu{uri} permanent
+	reverse_proxy 127.0.0.1:3000
 }
 caspianflow.dimkaprojects.xyz {
 	import demo caspianflow
