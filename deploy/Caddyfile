@@ -85,6 +85,11 @@ shipter.dimkaprojects.xyz {
 storage.dimkaprojects.xyz {
 	import demo storage
 }
+# Old warehouse link from before the server migration: keep it alive and send people to the demo.
+sklad.dimkaprojects.xyz {
+	import security
+	redir https://storage.mirelli.eu{uri} permanent
+}
 caspianflow.dimkaprojects.xyz {
 	import demo caspianflow
 }
