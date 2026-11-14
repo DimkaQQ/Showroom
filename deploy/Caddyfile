@@ -103,9 +103,6 @@ bot.dimkaprojects.xyz {
 	reverse_proxy 127.0.0.1:8010
 }
 
-# Price check (DimkaQQ/Storage, branch claude/desktop-web-app-build-4nwh3c): docker compose, frontend on 127.0.0.1:3000.
-# deploy.sh overwrites /etc/caddy/Caddyfile with this file, so every site served by Caddy must be listed here.
-sklad.dimkaprojects.xyz {
-	import security
-	reverse_proxy 127.0.0.1:3000
-}
+# Sites of other projects live in /etc/caddy/sites/*.caddy (one file per project, e.g. sklad.caddy from the Storage repo).
+# deploy.sh overwrites only this file, so those sites are never dropped. No matching files is fine.
+import /etc/caddy/sites/*.caddy
