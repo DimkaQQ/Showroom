@@ -85,6 +85,11 @@ shipter.dimkaprojects.xyz {
 storage.dimkaprojects.xyz {
 	import demo storage
 }
+# Warehouse app (Storage repo, docker compose publishes it on 127.0.0.1:3000). Project subdomains stay on dimkaprojects.xyz.
+sklad.dimkaprojects.xyz {
+	import security
+	reverse_proxy 127.0.0.1:3000
+}
 caspianflow.dimkaprojects.xyz {
 	import demo caspianflow
 }
