@@ -102,3 +102,7 @@ bot.dimkaprojects.xyz {
 	import security
 	reverse_proxy 127.0.0.1:8010
 }
+
+# Sites of other projects live in /etc/caddy/sites/*.caddy (one file per project, e.g. sklad.caddy from the Storage repo).
+# deploy.sh overwrites only this file, so those sites are never dropped. No matching files is fine.
+import /etc/caddy/sites/*.caddy
