@@ -19,6 +19,7 @@ rel="$ROOT/releases/$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)"
 mkdir -p "$rel"
 cp -a out "$rel/site"
 cp -a demos "$rel/demos"
+sudo mkdir -p /etc/caddy/sites
 sudo install -m 644 deploy/Caddyfile /etc/caddy/Caddyfile
 ln -sfn "$rel" "$ROOT/current"
 sudo systemctl reload caddy
