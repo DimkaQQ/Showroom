@@ -77,6 +77,24 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
   const [first, second] = siteConfig.name.split(" ");
   return (
     <header className="hero" id="top">
+      <h1 className="wordmark">
+        <Letters word={first} from={0} /> <Letters word={second} from={first.length} />
+        <span className="sr-only">{siteConfig.name}: {t.hero.descriptor}</span>
+      </h1>
+
+      <div className="hero-mid">
+        <div className="hero-copy rise rise-1">
+          <p className="eyebrow">{t.hero.descriptor}</p>
+          <p className="lead">{t.hero.lead}</p>
+          <div className="hero-cta"><a className="btn" href="#work">{t.hero.viewWork}</a><a className="textlink" href="#contact">{t.nav.contact}</a></div>
+        </div>
+        <dl className="hero-stats rise rise-2">
+          <div><dt>{t.hero.statClients}</dt><dd>100+</dd></div>
+          <div><dt>{t.hero.statYears}</dt><dd>3+</dd></div>
+          <div><dt>{t.hero.statDemos}</dt><dd>12</dd></div>
+        </dl>
+      </div>
+
       <div className="reel" aria-hidden="true">
         <div className="reel-track">
           {[...projects, ...projects].map((p, i) => (
@@ -87,24 +105,6 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
           ))}
         </div>
       </div>
-
-      <div className="hero-mid">
-        <div className="hero-copy rise rise-1">
-          <p className="eyebrow">{t.hero.descriptor}</p>
-          <p className="lead">{t.hero.lead}</p>
-          <div className="hero-cta"><a className="btn" href="#work">{t.hero.viewWork}</a><a className="btn btn-outline" href="#contact">{t.nav.contact}</a></div>
-        </div>
-        <dl className="hero-stats rise rise-2">
-          <div><dt>{t.hero.statClients}</dt><dd>100+</dd></div>
-          <div><dt>{t.hero.statYears}</dt><dd>3+</dd></div>
-          <div><dt>{t.hero.statDemos}</dt><dd>12</dd></div>
-        </dl>
-      </div>
-
-      <h1 className="wordmark">
-        <Letters word={first} from={0} /> <Letters word={second} from={first.length} />
-        <span className="sr-only">{siteConfig.name}: {t.hero.descriptor}</span>
-      </h1>
     </header>
   );
 }
