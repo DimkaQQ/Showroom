@@ -1,6 +1,48 @@
 import type { CaseText } from "./cases";
 
 export const caseFr: Record<string, CaseText> = {
+  garage: {
+      title: "Système intelligent de réservation et de gestion pour garages | Servisio",
+      description: "Système de réservation pour garage qui associe poste, mécanicien et pièces en stock, avec tableau d'ordres en direct, accord par SMS des travaux supplémentaires, contrôle du stock et vue propriétaire. Avec démo en ligne.",
+      lead: "Servisio gère un garage de la réservation à la remise du véhicule. Le client choisit les travaux, le système trouve un poste et un mécanicien compétent, vérifie que les pièces sont en stock et tient chacun informé pendant que la voiture avance dans l'atelier.",
+      features: [
+        "Réservation qui associe un poste libre, un mécanicien compétent et les pièces en stock, et propose le créneau le plus cohérent",
+        "Recherche par immatriculation avec historique du véhicule et suggestions selon le kilométrage",
+        "Frise en direct des postes et tableau d'ordres de réservé à prêt",
+        "Le client approuve les travaux supplémentaires via un lien SMS, avec le prix et la note du mécanicien",
+        "Stock de pièces réduit par les travaux réservés, suggestions de commande avant la rupture",
+        "Rôles pour l'accueil, le mécanicien et le propriétaire, et journal de chaque modification",
+      ],
+      audience: "Garages, centres de pneus et petits ateliers qui réservent par téléphone et sur papier, perdent du temps avec les absences et les trous dans la journée, et veulent voir tout l'atelier sur un seul écran.",
+    },
+  clinic: {
+      title: "Planning intelligent pour cliniques et vétérinaires | Clinio",
+      description: "Système de rendez-vous pour cliniques et vétérinaires : risque d'absence par visite, rappels automatiques, liste d'attente pour créneaux annulés et réservation par praticien. Avec démo en ligne.",
+      lead: "Clinio garde la journée d'une clinique remplie. Il estime la probabilité qu'un patient manque sa visite, demande aux cas risqués de confirmer et, en cas d'annulation, propose le créneau au patient le mieux adapté de la liste d'attente.",
+      features: [
+        "Risque d'absence pour chaque rendez-vous, selon l'historique, la confirmation et le délai",
+        "Réservation par motif : le système choisit le praticien et la durée, avec du temps en plus pour les nouveaux patients",
+        "Une liste d'attente qui classe les patients et comble un créneau annulé en un clic",
+        "Rappels automatiques avec liens pour confirmer ou déplacer, et invitations de rappel annuel",
+        "Un calendrier par praticien, avec une option urgence le jour même",
+        "Rôles pour l'accueil, le médecin et la direction, et journal d'activité",
+      ],
+      audience: "Cliniques médicales, dentaires et vétérinaires, thérapeutes et kinésithérapeutes dont les cabinets restent vides à cause des absences et qui passent la journée au téléphone à confirmer et reprogrammer.",
+    },
+  spaces: {
+      title: "Gestion de coworking et de club : réservations, abonnements, accès | Gatehouse",
+      description: "Un seul système pour coworkings et clubs : réservation de postes et de salles, formules et facturation, et accès aux portes selon des règles (payé, réservé, dans les horaires). Avec démo en ligne.",
+      lead: "Gatehouse relie les trois choses dont vit un espace partagé : qui a réservé quoi, qui a payé et qui peut ouvrir quelle porte. Un paiement échoué ferme la porte, la réservation d'une salle ne l'ouvre que pour ce créneau, et le propriétaire voit le taux de remplissage.",
+      features: [
+        "Réservation de postes et de salles avec contrôle des conflits et alternatives quand une salle est prise",
+        "Formules avec crédit de salle et un prix qui suit la formule du membre",
+        "Accès aux portes selon des règles : formule active, horaires et réservation pour les salles de réunion",
+        "Un paiement échoué suspend l'accès automatiquement, le paiement le rétablit",
+        "Vue en direct de l'espace, journal des portes et règle pour libérer les salles où personne n'arrive",
+        "Rôles pour l'accueil, le community manager et le propriétaire, avec résultats de chiffre d'affaires et de fréquentation",
+      ],
+      audience: "Coworkings, studios, clubs de sport et ateliers loués qui vendent des abonnements, remettent clés ou cartes à la main et relancent les paiements manuellement.",
+    },
   dizeltrade: {
     title: "Logiciel ERP de distribution de carburant | Étude de cas DizelTrade",
     description: "ERP sur mesure pour la distribution de gazole : stocks du dépôt, tournées, dettes clients, flotte et analyses, avec accès par rôle. Démo en ligne incluse.",

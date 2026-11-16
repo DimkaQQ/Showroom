@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-fx="push">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clinio — smart scheduling for clinics (demo)</title>
+<meta name="description" content="Demo: scheduling for a medical or veterinary clinic. No-show risk per appointment, automatic reminders, a waiting list that refills cancelled slots, and booking that picks the right specialist. Sample data shown.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/*@kit.css*/
+:root[data-theme="light"] {
+  --bg: #eef4f3; --surface: #ffffff; --raised: #f3f8f7; --hover: #e7f0ef; --border: #d8e5e3; --rule: #ebf2f1;
+  --text: #12292b; --muted: #50696b; --faint: #688183;
+  --accent: #0b7a7c; --accent-ink: #ffffff; --accent-bg: #dcf1f0;
+  --font: "Manrope", system-ui, sans-serif; --display: "Manrope", system-ui, sans-serif;
+}
+.tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; font-size: 11.5px; font-weight: 700; background: var(--raised); color: var(--muted); white-space: nowrap; }
+.tag.acc { background: var(--accent-bg); color: var(--accent); } .tag.pos { background: var(--pos-bg); color: var(--pos); } .tag.neg { background: var(--neg-bg); color: var(--neg); } .tag.warn { background: var(--warn-bg); color: var(--warn); }
+.insights { display: grid; gap: 10px; margin-bottom: var(--gap); }
+.ins { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius); background: var(--accent-bg); }
+.ins .ic { color: var(--accent); } .ins span { flex: 1; min-width: 0; } .ins.warn { background: var(--warn-bg); } .ins.warn .ic { color: var(--warn); }
+.tl-wrap { overflow-x: auto; } .tl { min-width: 1000px; position: relative; }
+.tl-h { display: grid; grid-template-columns: 150px 1fr; font-size: 12px; color: var(--faint); height: 24px; }
+.tl-hours { display: grid; grid-template-columns: repeat(8, 1fr); }
+.tl-row { display: grid; grid-template-columns: 150px 1fr; min-height: 60px; border-top: 1px solid var(--rule); }
+.tl-name { padding: 8px 8px 8px 0; font-weight: 700; } .tl-name small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+.tl-lane { position: relative; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(100%/8 - 1px), var(--rule) calc(100%/8 - 1px), var(--rule) calc(100%/8)); }
+.blk { position: absolute; min-width: 44px; top: 5px; bottom: 5px; border-radius: 8px; padding: 5px 7px; border: 0; text-align: left; cursor: pointer; overflow: hidden; background: var(--accent-bg); color: var(--text); font-size: 12px; line-height: 1.25; border-left: 4px solid var(--accent); }
+.blk b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .blk span { color: var(--muted); white-space: nowrap; }
+.blk.r-hi { border-color: var(--neg); background: var(--neg-bg); } .blk.r-mid { border-color: #d98a00; background: #fff1d6; } .blk.x-done { opacity: .55; } .blk.x-cancelled { background: repeating-linear-gradient(45deg, var(--raised), var(--raised) 6px, var(--hover) 6px, var(--hover) 12px); border-color: var(--faint); } .blk.x-cancelled b { text-decoration: line-through; }
+.now { position: absolute; top: 24px; bottom: 0; width: 2px; background: var(--neg); z-index: 3; pointer-events: none; }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.slot { text-align: left; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; } .slot:hover { border-color: var(--accent); } .slot.rec { border-color: var(--accent); background: var(--accent-bg); }
+.slot b { display: block; font-size: 15px; } .slot span { display: block; color: var(--muted); font-size: 12.5px; }
+.rsn { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.rs { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; width: 100%; text-align: left; } .rs.on { border-color: var(--accent); background: var(--accent-bg); } .rs .ic { color: var(--accent); } .rs b { display: block; } .rs span { color: var(--muted); font-size: 12.5px; }
+.sw { position: relative; width: 40px; height: 24px; border-radius: 12px; border: 0; background: var(--border); cursor: pointer; flex: none; } .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; } .sw[aria-checked="true"] { background: var(--accent); } .sw[aria-checked="true"]::after { transform: translateX(16px); }
+.rule { display: flex; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid var(--rule); } .rule:first-of-type { border-top: 0; } .rule div { flex: 1; min-width: 0; } .rule b { display: block; } .rule span { color: var(--muted); font-size: 13px; }
+.who-sw { display: flex; gap: 4px; padding: 3px; background: var(--raised); border-radius: 9px; } .who-sw button { border: 0; background: none; height: 28px; padding: 0 10px; border-radius: 7px; cursor: pointer; color: var(--muted); } .who-sw button.on { background: var(--surface); color: var(--text); font-weight: 700; }
+.sms { background: var(--raised); border-radius: 14px; padding: 12px 14px; max-width: 360px; font-size: 14px; border: 1px solid var(--border); }
+.logrow { display: flex; gap: 12px; padding: 8px 0; border-top: 1px solid var(--rule); font-size: 13px; } .logrow time { color: var(--faint); width: 52px; flex: none; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; } .dot.hi { background: var(--neg); } .dot.mid { background: #d98a00; } .dot.lo { background: var(--pos); }
+.rolesm { display: none; } @media (max-width: 899px) { .rolesm { display: flex; margin-bottom: 14px; width: max-content; max-width: 100%; } }
+</style>
+</head>
+<body>
+<div class="notice"><b>Demo</b> Clinio · sample data</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-8-5-8-11a4.5 4.5 0 018-2.5A4.5 4.5 0 0120 9c0 6-8 11-8 11z"/></svg></div><div><div class="brand-name">Clinio</div><div class="brand-sub">Lipa Medical Centre</div></div></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="side-foot"><div class="who-sw" id="roles"></div></div>
+  </aside>
+  <main class="main" id="main"><div class="who-sw rolesm" id="rolesm" aria-label="Role"></div><div id="view"></div></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+<script>
+/*@kit.js*/
+'use strict';
+const DAYS = ['Thu 12 Nov', 'Fri 13 Nov', 'Mon 16 Nov', 'Tue 17 Nov', 'Wed 18 Nov'];
+const T0 = performance.now(), M0 = 10 * 60 + 5;
+const nowMin = () => M0 + Math.floor((performance.now() - T0) / 60000);
+const hm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const OPEN = 8 * 60, CLOSE = 16 * 60;
+const eur = (n) => '€' + fmt(n);
+const DOCS = [
+  { id: 'gp', n: 'Dr. Anna Kováčová', r: 'General practice' }, { id: 'dent', n: 'Dr. Peter Malý', r: 'Dentist' },
+  { id: 'derm', n: 'Dr. Zuzana Hrubá', r: 'Dermatology' }, { id: 'phys', n: 'Mgr. Tomáš Beňo', r: 'Physiotherapy' },
+];
+const DOC = Object.fromEntries(DOCS.map((d) => [d.id, d]));
+const REASONS = [
+  { id: 'check', n: 'Check-up', min: 20, px: 35, sp: 'gp', ic: 'heart' }, { id: 'vacc', n: 'Vaccination', min: 15, px: 25, sp: 'gp', ic: 'shield' },
+  { id: 'skin', n: 'Skin problem', min: 30, px: 55, sp: 'derm', ic: 'eye' }, { id: 'clean', n: 'Dental cleaning', min: 45, px: 60, sp: 'dent', ic: 'zap' },
+  { id: 'pain', n: 'Toothache', min: 30, px: 45, sp: 'dent', ic: 'alert', urgent: true }, { id: 'phys', n: 'Physiotherapy session', min: 45, px: 40, sp: 'phys', ic: 'users' },
+];
+const RS = Object.fromEntries(REASONS.map((r) => [r.id, r]));
+const PAT = {
+  'Mária Zelená': { ph: '+421 905 441 120', miss: 0, v: 14, last: '2026-05-03', recall: false }, 'Peter Horák': { ph: '+421 918 220 931', miss: 2, v: 5, last: '2026-09-18', recall: false },
+  'Katarína Bednárová': { ph: '+421 902 118 774', miss: 0, v: 9, last: '2025-10-22', recall: true }, 'Jozef Králik': { ph: '+421 944 350 662', miss: 1, v: 6, last: '2026-02-11', recall: false },
+  'Simona Tóthová': { ph: '+421 911 603 245', miss: 0, v: 1, last: '2026-08-30', recall: false }, 'Marek Šulc': { ph: '+421 907 819 003', miss: 3, v: 4, last: '2026-06-04', recall: false },
+  'Eva Mrázová': { ph: '+421 903 774 018', miss: 0, v: 12, last: '2025-11-05', recall: true }, 'Ladislav Kmeť': { ph: '+421 915 902 336', miss: 1, v: 3, last: '2026-07-14', recall: false },
+};
+let aid = 0; const A = [];
+const mk = (day, doc, start, reason, pat, o = {}) => { const r = RS[reason]; const a = { id: ++aid, day, doc, start, reason, pat, dur: r.min + (PAT[pat] && PAT[pat].v < 2 ? 10 : 0), st: 'booked', conf: true, ask: false, lead: 4, ...o }; A.push(a); return a; };
+mk(0, 'gp', 8 * 60, 'check', 'Mária Zelená', { st: 'done' }); mk(0, 'gp', 8 * 60 + 30, 'vacc', 'Katarína Bednárová', { st: 'done' }); mk(0, 'gp', 9 * 60, 'check', 'Jozef Králik', { st: 'done' });
+mk(0, 'gp', 10 * 60 + 20, 'check', 'Peter Horák', { conf: false, lead: 18 }); mk(0, 'gp', 11 * 60, 'vacc', 'Eva Mrázová'); mk(0, 'gp', 13 * 60, 'check', 'Marek Šulc', { conf: false, lead: 16 });
+mk(0, 'dent', 8 * 60 + 30, 'clean', 'Simona Tóthová', { st: 'done' }); mk(0, 'dent', 10 * 60 + 30, 'pain', 'Marek Šulc', { conf: false, lead: 1 }); mk(0, 'dent', 14 * 60, 'clean', 'Peter Horák', { conf: false, lead: 21 });
+mk(0, 'derm', 9 * 60, 'skin', 'Eva Mrázová'); mk(0, 'derm', 11 * 60 + 30, 'skin', 'Ladislav Kmeť', { conf: false });
+mk(0, 'phys', 9 * 60, 'phys', 'Jozef Králik'); mk(0, 'phys', 12 * 60, 'phys', 'Mária Zelená'); mk(0, 'phys', 15 * 60, 'phys', 'Marek Šulc', { conf: false, lead: 12 });
+mk(1, 'gp', 9 * 60, 'check', 'Simona Tóthová'); mk(1, 'dent', 9 * 60, 'clean', 'Mária Zelená'); mk(2, 'gp', 10 * 60, 'check', 'Ladislav Kmeť');
+const WAIT = [
+  { id: 1, pat: 'Katarína Bednárová', reason: 'clean', win: 'any', days: 9, urg: 1 }, { id: 2, pat: 'Ladislav Kmeť', reason: 'check', win: 'am', days: 6, urg: 2 },
+  { id: 3, pat: 'Simona Tóthová', reason: 'skin', win: 'any', days: 12, urg: 1 }, { id: 4, pat: 'Mária Zelená', reason: 'pain', win: 'any', days: 2, urg: 3 }, { id: 5, pat: 'Jozef Králik', reason: 'phys', win: 'pm', days: 4, urg: 1 },
+];
+const AUTO = [
+  { id: 'r24', n: '24 hours before: SMS with confirm / cancel link', on: true, sent: 41 }, { id: 'r2', n: '2 hours before: short reminder', on: true, sent: 36 },
+  { id: 'rc', n: 'Unconfirmed after 12 hours: second request, then flag to reception', on: true, sent: 9 }, { id: 'rr', n: 'Recall: invite patients 12 months after the last visit', on: false, sent: 0 },
+];
+const AUDIT = [['09:50', 'System', 'Reminder sent: Peter Horák 10:20, no reply yet'], ['09:12', 'System', 'Cancelled slot refilled from the waiting list: 09:30 Dr. Hrubá']];
+let role = 'reception', cur = 'today', day = 0, rsn = null, who = '', urgent = false, saved = 7, recovered = 245;
+const PERM = { book: 'reception manager', money: 'manager', move: 'reception doctor manager' };
+const WHO = { reception: 'Reception', doctor: 'Doctor', manager: 'Manager' };
+const can = (p) => PERM[p].includes(role);
+const guard = (p) => can(p) || (toast('Not available for the ' + WHO[role] + ' role'), false);
+const log = (t) => AUDIT.unshift([hm(nowMin()), WHO[role], t]);
+/* ---------- risk model ---------- */
+function risk(a) {
+  const p = PAT[a.pat] || { miss: 0, v: 0 }; let s = 8;
+  s += Math.min(50, p.miss * 22); if (p.v < 2) s += 14; if (!a.conf) s += a.ask ? 4 : 14; if (a.lead > 14) s += 9; if (a.start < 9 * 60 || a.start >= 15 * 60) s += 5;
+  return Math.max(2, Math.min(92, s));
+}
+const rcls = (s) => (s >= 45 ? 'hi' : s >= 25 ? 'mid' : 'lo');
+const overlap = (d, doc, t, dur, skip) => A.some((a) => a.day === d && a.doc === doc && a.st !== 'cancelled' && a.id !== skip && t < a.start + a.dur && t + dur > a.start);
+function slotsFor(reasonId, patName, isUrgent) {
+  const r = RS[reasonId], dur = r.min + ((PAT[patName] ? PAT[patName].v : 0) < 2 ? 10 : 0), out = [];
+  DAYS.forEach((_, d) => { if (isUrgent && d > 0) return; for (let t = OPEN; t + dur <= CLOSE; t += 10) {
+    if (d === 0 && t < nowMin() + 10) continue; if (overlap(d, r.sp, t, dur, -1)) continue;
+    const near = A.filter((a) => a.day === d && a.doc === r.sp && a.st !== 'cancelled' && (Math.abs(a.start + a.dur - t) <= 10 || Math.abs(t + dur - a.start) <= 10)).length;
+    out.push({ d, t, dur, doc: r.sp, score: d * 60 + (t - OPEN) / 10 - near * 18 + ((PAT[patName] || { miss: 0 }).miss > 1 && t < 10 * 60 ? 25 : 0) }); } });
+  out.sort((a, b) => a.score - b.score); const pick = []; const seen = new Set();
+  for (const s of out) { const k = s.d + '-' + Math.floor(s.t / 90); if (seen.has(k)) continue; seen.add(k); pick.push(s); if (pick.length >= 6) break; }
+  return { dur, slots: pick.sort((a, b) => a.d - b.d || a.t - b.t), best: out[0] };
+}
+/* ---------- views ---------- */
+const head = (t, p, ac = '') => `<div class="head"><div><h1>${t}</h1><p>${p}</p></div><div class="head-actions">${ac}</div></div>`;
+const dayTabs = () => `<div class="tabs" role="tablist">${DAYS.map((d, i) => `<button type="button" role="tab" data-day="${i}" class="${i === day ? 'on' : ''}">${d}</button>`).join('')}</div>`;
+function timeline() {
+  const span = CLOSE - OPEN;
+  const rows = DOCS.map((dc) => `<div class="tl-row"><div class="tl-name">${dc.n}<small>${dc.r}</small></div><div class="tl-lane">${A.filter((a) => a.day === day && a.doc === dc.id).map((a) => { const s = risk(a); return `<button type="button" class="blk r-${rcls(s)} ${a.st === 'done' ? 'x-done' : ''} ${a.st === 'cancelled' ? 'x-cancelled' : ''}" data-appt="${a.id}" style="left:${(a.start - OPEN) / span * 100}%;width:${a.dur / span * 100}%" aria-label="${esc(a.pat)}, ${hm(a.start)}"><b>${esc(a.pat)}</b><span>${a.st === 'cancelled' ? 'Cancelled' : s + '% no-show risk'}</span></button>`; }).join('')}</div></div>`).join('');
+  const nowx = day === 0 ? `<div class="now" style="left:calc(150px + (100% - 150px) * ${(nowMin() - OPEN) / span})"></div>` : '';
+  return `<div class="tl-wrap"><div class="tl"><div class="tl-h"><div></div><div class="tl-hours">${[8, 9, 10, 11, 12, 13, 14, 15].map((h) => `<span>${h}:00</span>`).join('')}</div></div>${rows}${nowx}</div></div>`;
+}
+function insights() {
+  if (day !== 0) return [];
+  const r = [], hi = A.filter((a) => a.day === 0 && a.st === 'booked' && !a.conf && !a.ask && risk(a) >= 25 && a.start > nowMin());
+  if (hi.length) r.push({ w: 1, ic: 'alert', t: `${hi.length} upcoming visits are not confirmed and look risky (${hi.slice(0, 2).map((a) => a.pat.split(' ')[1] + ' ' + hm(a.start)).join(', ')}). Ask them to confirm now.`, a: 'Ask to confirm', f: 'ask' });
+  const hot = DOCS.map((d) => [d, A.filter((a) => a.day === 0 && a.doc === d.id && a.st === 'booked' && a.start > nowMin() && risk(a) >= 25)]).filter((x) => x[1].length >= 2)[0];
+  if (hot) r.push({ w: 0, ic: 'zap', t: `${hot[0].n} has ${hot[1].length} risky visits this afternoon. Keep 2 waiting-list patients on standby for those slots.`, a: 'Notify standby', f: 'standby' });
+  const rc = Object.entries(PAT).filter(([, p]) => p.recall).length;
+  if (rc && AUTO[3].on === false) r.push({ w: 0, ic: 'bell', t: `${rc} patients are due for a yearly check-up. Turn on recall invitations and the system will contact them.`, a: 'Turn on', f: 'recall' });
+  return r;
+}
+function vToday() {
+  const t = A.filter((a) => a.day === day && a.st !== 'cancelled'), exp = t.filter((a) => a.st === 'booked').reduce((s, a) => s + risk(a) / 100, 0);
+  const ins = insights();
+  return head('Today', `${DAYS[day]} · ${hm(nowMin())} now`, `<button class="btn primary" data-go="book">${ic('plus')} New appointment</button>`) + dayTabs() +
+    `<div class="kpis"><div class="kpi"><b>${t.length}</b><span>appointments</span></div><div class="kpi"><b>${fmtD(exp, 1)}</b><span>expected no-shows</span></div>${can('money') ? `<div class="kpi"><b>${eur(t.reduce((s, a) => s + RS[a.reason].px, 0))}</b><span>planned revenue</span></div>` : ''}<div class="kpi"><b>${t.filter((a) => !a.conf && a.st === 'booked').length}</b><span>not confirmed</span></div></div>` +
+    (ins.length ? `<div class="insights">${ins.map((i) => `<div class="ins ${i.w ? 'warn' : ''}">${ic(i.ic)}<span>${esc(i.t)}</span><button class="btn sm" data-ins="${i.f}">${i.a}</button></div>`).join('')}</div>` : '') +
+    `<div class="card"><div class="card-h"><h2>Specialists</h2><span><span class="dot hi"></span>high risk <span class="dot mid" style="margin-left:8px"></span>medium. Click a visit to open it.</span></div>${timeline()}</div>`;
+}
+function vBook() {
+  const f = rsn ? slotsFor(rsn, who, urgent) : null, isNew = who && (!PAT[who] || PAT[who].v < 2);
+  return head('Smart booking', 'Describe the reason. The system chooses the specialist, the visit length and the best times.') +
+    `<div class="card" style="margin-bottom:var(--gap)"><div class="card-h"><h2>1. Reason for the visit</h2></div><div class="rsn">${REASONS.map((r) => `<button type="button" class="rs ${rsn === r.id ? 'on' : ''}" data-rsn="${r.id}" aria-pressed="${rsn === r.id}">${ic(r.ic)}<div><b>${r.n}</b><span>${DOC[r.sp].r} · ${r.min} min</span></div></button>`).join('')}</div>
+      ${rsn && RS[rsn].urgent ? `<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="urg" ${urgent ? 'checked' : ''}> Urgent: needs to be seen today</label>` : ''}</div>` +
+    `<div class="card" style="margin-bottom:var(--gap)"><div class="card-h"><h2>2. Patient</h2><span>Try Peter Horák or Eva Mrázová</span></div><div class="field" style="max-width:340px"><label for="who">Name</label><input id="who" list="pl" value="${esc(who)}" autocomplete="off"><datalist id="pl">${Object.keys(PAT).map((p) => `<option value="${p}">`).join('')}</datalist></div>
+      ${who ? (PAT[who] ? `<p>${PAT[who].v} previous visits · last ${PAT[who].last}${PAT[who].miss ? ` · <span class="tag warn">${PAT[who].miss} missed</span>` : ''}</p>` : '<p><span class="tag acc">New patient</span> The system adds 10 minutes for registration.</p>') : '<p class="muted">Type a name. Known patients load their history.</p>'}</div>` +
+    `<div class="card"><div class="card-h"><h2>3. Time</h2><span>${f ? f.dur + ' min with ' + DOC[RS[rsn].sp].n + (isNew ? ' (incl. registration)' : '') : ''}</span></div>` +
+    (!rsn || !who ? '<p class="muted">Choose a reason and enter the patient.</p>' : f.slots.length ? `<div class="slots">${f.slots.map((s, i) => `<button type="button" class="slot ${s === f.best ? 'rec' : ''}" data-slot="${i}"><b>${DAYS[s.d]} ${hm(s.t)}</b><span>${DOC[s.doc].n}</span>${s === f.best ? '<span style="color:var(--accent);font-weight:700">Earliest good fit</span>' : ''}</button>`).join('')}</div>` : '<p class="muted">No free time for this request. The patient can join the waiting list.</p>') + `</div>`;
+}
+function vWait() {
+  const open = A.filter((a) => a.st === 'cancelled' && a.day === 0 && !a.filled);
+  return head('Waiting list', 'When someone cancels, the system finds patients who fit the slot and offers it in order of priority.') +
+    `<div class="card" style="margin-bottom:var(--gap)"><div class="card-h"><h2>Free slots from cancellations</h2><span>Cancel a visit on the Today page to try it</span></div>${open.length ? open.map((a) => `<div class="rule"><div><b>${DOC[a.doc].n} · ${hm(a.start)}–${hm(a.start + a.dur)}</b><span>${DAYS[a.day]}</span></div><button class="btn primary sm" data-match="${a.id}">Find patients</button></div>`).join('') : '<p class="muted">No open slots. Everything is filled.</p>'}</div>` +
+    `<div class="card"><div class="card-h"><h2>Waiting</h2><span>${WAIT.length} patients</span></div><div class="tbl" style="--cols:1.6fr 1.4fr 1fr 1fr;--colsm:1.4fr 1.2fr 1fr"><div class="tr th"><div>Patient</div><div>Reason</div><div class="r">Waiting</div><div class="hm r">Priority</div></div>${WAIT.map((w) => `<div class="tr"><div class="cell-main"><b>${w.pat}</b><span>Prefers ${w.win === 'any' ? 'any time' : w.win === 'am' ? 'mornings' : 'afternoons'}</span></div><div>${RS[w.reason].n}</div><div class="r">${w.days} d</div><div class="hm r"><span class="tag ${w.urg > 2 ? 'neg' : w.urg > 1 ? 'warn' : ''}">${w.urg > 2 ? 'Urgent' : w.urg > 1 ? 'High' : 'Normal'}</span></div></div>`).join('')}</div></div>`;
+}
+function vAuto() {
+  return head('Reminders and automation', 'These run without anyone remembering. Switch them on and off.') +
+    `<div class="grid"><div class="card c7"><div class="card-h"><h2>Rules</h2></div>${AUTO.map((r) => `<div class="rule"><div><b>${r.n}</b><span>${r.on ? r.sent + ' messages this week' : 'Off'}</span></div><button type="button" class="sw" role="switch" aria-checked="${r.on}" aria-label="${esc(r.n)}" data-sw="${r.id}"></button></div>`).join('')}</div>
+    <div class="card c5"><div class="card-h"><h2>What the patient receives</h2></div><div class="sms">Hello Peter, this is a reminder: tomorrow 10:20, Dr. Kováčová, Lipa Medical Centre. Confirm: <u>mirelli.eu/c/8f3k</u> · Cancel or move: <u>mirelli.eu/m/8f3k</u></div><p class="muted" style="margin-top:10px;font-size:13px">One tap confirms. A cancellation frees the slot for the waiting list immediately.</p></div></div>`;
+}
+function vPatients() {
+  return head('Patients', 'Visit history, missed visits and who is due for a check-up.') +
+    `<div class="card"><div class="tbl" style="--cols:1.6fr 1fr 1fr 1fr;--colsm:1.4fr 1fr 1fr"><div class="tr th"><div>Patient</div><div class="r">Visits</div><div class="r">Missed</div><div class="hm">Recall</div></div>${Object.entries(PAT).map(([n, p]) => `<div class="tr"><div class="cell-main"><b>${n}</b><span>${p.ph}</span></div><div class="r">${p.v}</div><div class="r">${p.miss ? `<span class="tag warn">${p.miss}</span>` : '0'}</div><div class="hm">${p.recall ? `<button class="btn sm" data-recall="${n}">Invite</button>` : '<span class="muted">Not due</span>'}</div></div>`).join('')}</div></div>`;
+}
+function vStats() {
+  if (!can('money')) return head('Insights', 'Manager view') + `<div class="card empty">Switch to the Manager role (top of the page on a phone, bottom left on desktop) to see results.</div>`;
+  const util = DOCS.map((d) => { const m = A.filter((a) => a.day === day && a.doc === d.id && a.st !== 'cancelled').reduce((s, a) => s + a.dur, 0); return barRow(d.n, m / (CLOSE - OPEN) * 100, Math.round(m / (CLOSE - OPEN) * 100) + '%', DOC[d.id].r); }).join('');
+  return head('Insights', 'What the automation achieves.') + dayTabs() +
+    `<div class="kpis"><div class="kpi"><b>4<small>%</small></b><span>no-show rate, was 11% in October</span></div><div class="kpi"><b>${saved}</b><span>slots refilled this week</span></div><div class="kpi"><b>${eur(recovered)}</b><span>revenue recovered</span></div></div>
+    <div class="grid"><div class="card c6"><div class="card-h"><h2>No-show rate by week</h2><span>%</span></div><div id="ns"></div></div><div class="card c6"><div class="card-h"><h2>Specialist load, ${DAYS[day]}</h2></div>${util}</div>
+    <div class="card c12"><div class="card-h"><h2>Activity log</h2></div>${AUDIT.map((a) => `<div class="logrow"><time>${a[0]}</time><div><b>${esc(a[1])}</b> · ${esc(a[2])}</div></div>`).join('')}</div></div>`;
+}
+const PAGES = { today: ['Today', 'calendar', vToday], book: ['Book', 'plus', vBook], wait: ['Waiting', 'clock', vWait], auto: ['Reminders', 'bell', vAuto], patients: ['Patients', 'users', vPatients], stats: ['Insights', 'chart', vStats] };
+function render() {
+  $('#nav').innerHTML = Object.entries(PAGES).map(([k, [n, i]]) => `<a data-page="${k}" tabindex="0" role="link">${ic(i)}<span>${n}</span></a>`).join('');
+  $('#tabbar').innerHTML = Object.entries(PAGES).filter(([k]) => k !== 'patients').map(([k, [n, i]]) => `<a data-page="${k}" tabindex="0" role="link">${ic(i)}<span>${n}</span></a>`).join('');
+  const roleHtml = Object.entries(WHO).map(([k, n]) => `<button type="button" data-role="${k}" class="${k === role ? 'on' : ''}">${n}</button>`).join('');
+  $('#roles').innerHTML = roleHtml; $('#rolesm').innerHTML = roleHtml;
+  $('#view').innerHTML = PAGES[cur][2](); setNav(cur);
+  if (cur === 'stats' && can('money')) chart($('#ns'), (w) => barsSVG(w, { labels: ['Oct 5', 'Oct 12', 'Oct 19', 'Oct 26', 'Nov 2', 'Nov 9'], values: [11, 10, 9, 7, 5, 4], mark: 5, fmtV: fmt }));
+}
+/* ---------- actions ---------- */
+function openAppt(id) {
+  const a = A.find((x) => x.id === id), s = risk(a), p = PAT[a.pat] || {};
+  modal(`<h2>${esc(a.pat)}</h2><p>${RS[a.reason].n} · ${DOC[a.doc].n} · ${DAYS[a.day]} ${hm(a.start)}–${hm(a.start + a.dur)}</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"><span class="tag ${rcls(s) === 'hi' ? 'neg' : rcls(s) === 'mid' ? 'warn' : 'pos'}">${s}% no-show risk</span><span class="tag">${a.conf ? 'Confirmed' : a.ask ? 'Asked to confirm' : 'Not confirmed'}</span>${can('money') ? `<span class="tag">${eur(RS[a.reason].px)}</span>` : ''}</div>
+    <p class="muted" style="font-size:13px">Why: ${[p.miss ? p.miss + ' missed visits' : '', (p.v || 0) < 2 ? 'new patient' : '', !a.conf ? 'not confirmed' : '', a.lead > 14 ? 'booked long ago' : ''].filter(Boolean).join(', ') || 'regular patient, confirmed'}.</p>
+    <div class="modal-actions" style="justify-content:flex-start;flex-wrap:wrap">${a.st === 'booked' ? `<button class="btn primary" data-arrive="${a.id}">Mark arrived</button>${a.conf ? '' : `<button class="btn" data-askone="${a.id}">Ask to confirm</button>`}<button class="btn" data-cancel="${a.id}">Patient cancels</button>` : ''}${a.st === 'arrived' ? `<button class="btn primary" data-done="${a.id}">Finish visit</button>` : ''}<button class="btn ghost" onclick="closeModal()">Close</button></div>`);
+}
+function matches(a) {
+  const dur = a.dur, am = a.start < 12 * 60;
+  return WAIT.filter((w) => RS[w.reason].sp === a.doc && RS[w.reason].min <= dur && (w.win === 'any' || (w.win === 'am') === am)).map((w) => ({ w, sc: w.urg * 30 + w.days * 2 })).sort((x, y) => y.sc - x.sc).slice(0, 3);
+}
+function openMatch(id) {
+  const a = A.find((x) => x.id === id), m = matches(a);
+  modal(`<h2>Slot ${hm(a.start)} with ${DOC[a.doc].n}</h2><p>${a.dur} minutes are free. Best matches from the waiting list:</p>${m.length ? m.map((x, i) => `<div class="rule"><div><b>${x.w.pat}</b><span>${RS[x.w.reason].n} · waiting ${x.w.days} days · score ${x.sc}</span></div><button class="btn ${i ? '' : 'primary'} sm" data-offer="${a.id}:${x.w.id}">Offer</button></div>`).join('') : '<p class="muted">Nobody on the list fits this slot.</p>'}<div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button></div>`);
+}
+function offer(aid2, wid) {
+  const a = A.find((x) => x.id === aid2), w = WAIT.find((x) => x.id === wid); const r = RS[w.reason];
+  a.filled = true; mk(a.day, a.doc, a.start, w.reason, w.pat, { dur: Math.min(a.dur, r.min), lead: 0 });
+  WAIT.splice(WAIT.indexOf(w), 1); saved++; recovered += r.px; log(`Refilled ${hm(a.start)} ${DOC[a.doc].n} with ${w.pat} from the waiting list`);
+  closeModal(); toast(`${w.pat.split(' ')[0]} accepted by SMS in 2 min. Slot refilled`); render();
+}
+function doIns(f) {
+  if (f === 'ask') { A.filter((a) => a.day === 0 && a.st === 'booked' && !a.conf && !a.ask && risk(a) >= 25 && a.start > nowMin()).forEach((a) => { a.ask = true; }); log('Sent confirmation requests'); toast('SMS sent: please confirm your visit'); }
+  if (f === 'standby') { log('Notified 2 standby patients'); toast('2 waiting-list patients on standby'); }
+  if (f === 'recall') { AUTO[3].on = true; log('Recall invitations turned on'); toast('Recall is on: invitations go out tonight'); }
+  render();
+}
+function book(i) {
+  if (!guard('book')) return; const f = slotsFor(rsn, who, urgent), s = f.slots[i]; if (!s) return;
+  if (!PAT[who]) PAT[who] = { ph: '+421 9xx xxx xxx', miss: 0, v: 0, last: '—', recall: false };
+  const a = mk(s.d, s.doc, s.t, rsn, who, { lead: 3 }); log(`Booked ${who}: ${RS[rsn].n} ${DAYS[s.d]} ${hm(s.t)}`);
+  modal(`<h2>Booked</h2><p>${esc(who)} · ${RS[rsn].n} · ${DAYS[s.d]} ${hm(s.t)} · ${DOC[s.doc].n}</p><p>The patient gets an SMS now and a reminder 24 hours before. The visit is ${a.dur} minutes${a.dur > RS[rsn].min ? ' including registration' : ''}.</p><div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button><button class="btn primary" data-go="today" data-d="${s.d}">Show in calendar</button></div>`);
+  rsn = null; who = ''; urgent = false; toast('Booked. SMS confirmation sent'); render();
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('button,[data-page]'); if (!t) return; const d = t.dataset;
+  if (d.page) { cur = d.page; render(); scrollTo(0, 0); }
+  else if (d.go) { closeModal(); if (d.d) day = +d.d; cur = d.go; render(); }
+  else if (d.day) { day = +d.day; render(); }
+  else if (d.role) { role = d.role; render(); toast('Role: ' + WHO[role]); }
+  else if (d.appt) openAppt(+d.appt);
+  else if (d.arrive) { const a = A.find((x) => x.id === +d.arrive); a.st = 'arrived'; a.conf = true; log(`${a.pat} arrived`); closeModal(); toast(`${DOC[a.doc].n.split(' ').pop()} sees: ${a.pat} is waiting`); render(); }
+  else if (d.done) { const a = A.find((x) => x.id === +d.done); a.st = 'done'; log(`${a.pat}: visit finished`); closeModal(); toast('Visit finished. Receipt sent'); render(); }
+  else if (d.askone) { const a = A.find((x) => x.id === +d.askone); a.ask = true; log(`Asked ${a.pat} to confirm`); closeModal(); toast('SMS sent: please confirm'); render(); }
+  else if (d.cancel) { const a = A.find((x) => x.id === +d.cancel); a.st = 'cancelled'; log(`${a.pat} cancelled ${hm(a.start)}`); closeModal(); toast(`Slot ${hm(a.start)} is free. ${matches(a).length} patients on the list fit`); openMatch(a.id); render(); }
+  else if (d.match) openMatch(+d.match);
+  else if (d.offer) { const [x, y] = d.offer.split(':'); offer(+x, +y); }
+  else if (d.ins) doIns(d.ins);
+  else if (d.rsn) { rsn = d.rsn; urgent = false; render(); }
+  else if (d.slot !== undefined) book(+d.slot);
+  else if (d.sw) { const r = AUTO.find((x) => x.id === d.sw); r.on = !r.on; log(`${r.on ? 'Enabled' : 'Disabled'} rule: ${r.n.split(':')[0]}`); render(); }
+  else if (d.recall) { PAT[d.recall].recall = false; log(`Recall sent to ${d.recall}`); toast('Invitation sent to ' + d.recall); render(); }
+});
+document.addEventListener('input', (e) => { if (e.target.id === 'who') { who = e.target.value; const pos = e.target.selectionStart; render(); const el = $('#who'); el.focus(); el.setSelectionRange(pos, pos); } });
+document.addEventListener('change', (e) => { if (e.target.id === 'urg') { urgent = e.target.checked; render(); } });
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page]')) { e.preventDefault(); e.target.click(); } });
+render();
+</script>
+</body>
+</html>

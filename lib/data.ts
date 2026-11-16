@@ -1,24 +1,51 @@
 export const siteConfig = {
   name: "Mirelli Studio",
-  domain: "dimkaprojects.xyz",
-  url: "https://dimkaprojects.xyz",
+  domain: "mirelli.eu",
+  url: "https://mirelli.eu",
   email: "darian.mirelli@gmail.com",
   github: "https://github.com/DimkaQQ",
   telegram: "https://t.me/Dimka_Hum",
   founded: "2023",
+  // Shown only on the privacy page (footer link "Privacy and legal"), never in the main text.
+  // Fill in to publish the provider's details; while empty nothing is rendered.
+  legal: { name: "", id: "", address: "" },
 };
 
 // Order matches `services.items` in lib/translations.ts.
 export const services = [
-  { tags: ["Next.js", "React", "TypeScript"] },
+  { tags: ["Next.js", "React", "SEO"] },
+  { tags: ["Booking", "Payments", "Reminders"] },
   { tags: ["FastAPI", "PostgreSQL", "HTMX"] },
   { tags: ["Python", "Node.js", "Stripe"] },
   { tags: ["Telegram", "Mini Apps", "FastAPI"] },
   { tags: ["Docker", "Linux", "CI/CD"] },
-  { tags: ["Design systems", "WCAG", "Prototyping"] },
 ];
 
 export const projects = [
+  {
+    id: "garage",
+    name: "Servisio",
+    tags: ["Booking engine", "JavaScript", "SMS", "Roles"],
+    subdomain: "garage",
+    stage: "#181b20",
+    year: "2026",
+  },
+  {
+    id: "clinic",
+    name: "Clinio",
+    tags: ["Scheduling", "JavaScript", "Reminders", "Waiting list"],
+    subdomain: "clinic",
+    stage: "#181b20",
+    year: "2026",
+  },
+  {
+    id: "spaces",
+    name: "Gatehouse",
+    tags: ["Access rules", "Billing", "JavaScript", "Booking"],
+    subdomain: "spaces",
+    stage: "#181b20",
+    year: "2026",
+  },
   {
     id: "dizeltrade",
     name: "DizelTrade",

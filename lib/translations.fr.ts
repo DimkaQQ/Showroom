@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const fr: Translations = {
   meta: {
-    title: "Développement logiciel sur mesure en Europe | Mirelli Studio",
+    title: "Logiciels et sites web pour les entreprises en Europe | Mirelli Studio",
     description:
-      "ERP et outils internes, plateformes SaaS, places de marché B2B et bots Telegram sur mesure pour les entreprises européennes. Neuf démos en ligne, hébergement dans l'UE.",
-    ogAlt: "Mirelli Studio – logiciels sur mesure pour les entreprises européennes",
+      "Sites web, réservation en ligne, petits systèmes de gestion et bots Telegram pour les entreprises en Europe, avec support. Démos en direct à essayer.",
+    ogAlt: "Mirelli Studio – logiciels et sites web pour les entreprises en Europe",
   },
   nav: {
     work: "Réalisations",
@@ -18,23 +18,35 @@ export const fr: Translations = {
     play: "Reprendre l'animation",
   },
   hero: {
-    descriptor: "Studio de logiciels sur mesure",
+    descriptor: "Logiciels et sites web pour les entreprises",
     lead:
-      "Des logiciels sur mesure pour les entreprises européennes. Quel que soit le socle de votre activité, il peut être créé, relié à l'existant ou remplacé. Neuf produits réels ci-dessous, chacun en démo en ligne avec des données d'exemple.",
-    viewWork: "Voir les réalisations",
-    statProjects: "Produits créés",
-    statYears: "Années en production",
-    statTech: "Hébergé à Francfort",
+      "Dites-nous ce qui freine votre activité : réservations, commandes, tableurs, un site qui n'apporte aucune demande. Nous construisons la solution, la connectons à ce que vous utilisez déjà et la maintenons. Vous trouverez ci-dessous des exemples en direct à ouvrir et à parcourir.",
+    viewWork: "Voir des exemples",
+    statClients: "Clients accompagnés",
+    statYears: "Années d'activité",
+    statDemos: "Démos en direct",
   },
   showroom: {
-    title: "Réalisations choisies",
+    title: "Des exemples à essayer",
     subtitle:
-      "Des systèmes réels pour la logistique, la restauration, le trading et les places de marché. Chaque démo fonctionne en direct avec des données d'exemple à la place des données clients : essayez-la vous-même.",
+      "Ce sont des systèmes qui fonctionnent, sur des données d'exemple, pas des images. Ouvrez-en un et parcourez-le pour voir à quoi pourrait ressembler un système pour votre activité.",
     explore: "Ouvrir la démo",
     caseStudy: "Lire l'étude de cas",
     tryOff: "Essayer la démo",
     tryOn: "Retour au défilement",
     projects: [
+      {
+        tagline: "Système intelligent pour garages",
+        description: "Une réservation qui associe un poste, un mécanicien et les pièces en stock, un tableau d'ordres en direct, l'accord du client sur les travaux supplémentaires via un lien SMS, le contrôle du stock et une vue propriétaire avec journal.",
+      },
+      {
+        tagline: "Planning intelligent pour cliniques",
+        description: "Système de rendez-vous pour cliniques et vétérinaires : risque d'absence pour chaque visite, rappels automatiques, liste d'attente qui comble les créneaux annulés et réservation qui choisit le bon praticien.",
+      },
+      {
+        tagline: "Réservations, abonnements et accès",
+        description: "Un seul système pour coworkings et clubs : réservation de postes et de salles, formules et facturation, et accès aux portes selon des règles : payé, réservé, dans les horaires.",
+      },
       {
         tagline: "Gestion de la distribution",
         description:
@@ -83,65 +95,77 @@ export const fr: Translations = {
     ],
   },
   services: {
-    title: "Services",
-    subtitle: "De la première réunion de cadrage à un produit déployé et documenté.",
+    title: "Ce que nous pouvons faire pour votre entreprise",
+    subtitle: "Choisissez le problème que vous reconnaissez. Chacun peut démarrer petit et grandir ensuite.",
     items: [
       {
-        title: "Plateformes web et SaaS",
+        title: "Un site qui apporte des demandes",
         description:
-          "Portails clients, places de marché B2B et P2P et produits SaaS par abonnement avec Next.js, React et TypeScript. Rapides, accessibles et conçus pour évoluer.",
+          "Un site rapide, agréable à lire sur téléphone, qui montre votre travail et transforme les visiteurs en demandes : formulaire de contact, demande de devis, réservation en ligne. Pour artisans, garages, salons, cabinets et commerces.",
       },
       {
-        title: "Outils internes et ERP",
+        title: "Réservation en ligne et commandes",
         description:
-          "ERP et logiciels métier sur mesure qui remplacent les tableurs : gestion des stocks, expédition et logistique, achats, planification et processus de back-office.",
+          "Vos clients réservent un créneau, commandent un repas ou réservent une voiture sans téléphoner. Confirmations et rappels automatiques, et un calendrier simple pour vous et votre équipe.",
       },
       {
-        title: "Backend et intégrations",
+        title: "Un système simple à la place d'Excel",
         description:
-          "Relier et automatiser ce qui existe déjà : ERP, CRM, comptabilité, prestataires de paiement et systèmes anciens via des API REST et GraphQL, des webhooks et des imports de données, ainsi que des systèmes temps réel fiables sous charge.",
+          "Stock, clients, chantiers, trajets, factures : un seul endroit au lieu de tableurs, de messageries et de papier. Conçu selon la façon dont votre équipe travaille déjà, pour éviter des semaines de formation.",
       },
       {
-        title: "Bots Telegram et Mini Apps",
+        title: "Connecter ce que vous utilisez déjà",
         description:
-          "Développement de bots Telegram et de Mini Apps pour la vente, le support, les formations et la communauté, avec paiements et une partie administration que votre équipe utilisera vraiment.",
+          "Comptabilité, boutique en ligne, paiements, CRM, anciens logiciels : nous les relions pour que les données soient saisies une seule fois et se mettent à jour seules, et nous automatisons les copier-coller répétitifs.",
       },
       {
-        title: "Infrastructure et DevOps",
+        title: "Bots et automatisation",
         description:
-          "Déploiements conteneurisés, CI/CD, supervision et sauvegardes sur une infrastructure hébergée dans l'UE, documentés pour que vous ne soyez jamais prisonnier.",
+          "Un bot Telegram qui répond aux clients, prend des commandes ou vend des formations, et des automatisations qui envoient rappels, rapports et factures sans que personne n'ait à y penser.",
       },
       {
-        title: "Design produit et UX",
+        title: "Hébergement, corrections et support",
         description:
-          "Des interfaces belles et simples d'usage : prototypes, design systems et écrans conformes WCAG, validés avec vous avant de devenir du code, y compris applications mobile-first et PWA.",
+          "Nous hébergeons dans l'UE ou sur votre propre serveur, selon votre préférence, gardons tout à jour et sécurisé, et corrigeons vite ce qui cesse de fonctionner. Un interlocuteur qui répond.",
       },
     ],
   },
   process: {
-    title: "Le déroulement d'un projet",
-    subtitle: "Quatre étapes, sans surprise.",
+    title: "Comment ça se passe",
+    subtitle: "De votre premier message à un système qui fonctionne, en étapes simples.",
     steps: [
       {
-        title: "Cadrage",
+        title: "Décrivez le problème",
         description:
-          "Objectifs, utilisateurs, périmètre et estimation claire sont validés par écrit avant la moindre ligne de code.",
+          "Écrivez-nous via le formulaire ci-dessous, par e-mail ou sur Telegram, ce qui freine votre activité. Vous recevez une réponse personnelle, pas un modèle.",
       },
       {
-        title: "Conception",
+        title: "Estimation et accord",
         description:
-          "Prototypes cliquables et design system, validés tôt avec vous, tant que les changements coûtent peu.",
+          "Avant de commencer, nous fixons par écrit le périmètre et le prix, sous forme de contrat ou d'accord écrit simple, comme vous préférez.",
       },
       {
-        title: "Réalisation",
+        title: "Réalisation avec des aperçus hebdomadaires",
         description:
-          "Un logiciel fonctionnel sur une URL de préproduction chaque semaine. Vous voyez le produit grandir au lieu de lire des rapports d'avancement.",
+          "Chaque semaine, vous voyez une version qui fonctionne et nous dites ce qu'il faut changer. Pas de long silence, pas de surprise.",
       },
       {
-        title: "Lancement et suivi",
+        title: "Mise en service et support",
         description:
-          "Déploiement, supervision, documentation et une passation qui vous laisse maître de votre produit.",
+          "Nous mettons en ligne, formons vos équipes si besoin et restons disponibles pour les corrections et les étapes suivantes.",
       },
+    ],
+  },
+  about: {
+    title: "Avec qui vous travaillez",
+    paragraphs: [
+      "Mirelli Studio aide les entreprises en Europe avec des logiciels adaptés à leur façon réelle de travailler : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, et le support pour que tout continue de fonctionner.",
+      "Vous avez affaire à une personne, pas à un système de tickets : vous décrivez le problème, nous convenons du périmètre et du prix par écrit, et vous voyez une version fonctionnelle chaque semaine. Nous travaillons par contrat ou par un simple accord écrit, comme vous préférez.",
+    ],
+    facts: [
+      { value: "100+", label: "clients accompagnés" },
+      { value: "La plupart", label: "reviennent avec de nouveaux projets" },
+      { value: "Environ la moitié", label: "exploite son système sur son propre serveur, indépendamment de nous" },
     ],
   },
   contact: {
@@ -172,7 +196,7 @@ export const fr: Translations = {
     },
   },
   footer: {
-    privacy: "Confidentialité",
+    privacy: "Confidentialité et informations légales",
     rights: "Tous droits réservés.",
     built: "Créé avec Next.js",
   },
@@ -198,11 +222,11 @@ export const fr: Translations = {
     items: [
       {
         q: "Que fait Mirelli Studio ?",
-        a: "Mirelli Studio conçoit et développe des logiciels sur mesure pour les entreprises en Europe : systèmes ERP et outils internes, plateformes SaaS, places de marché B2B, logiciels pour la restauration et la logistique, bots Telegram et Mini Apps. Chaque projet va du premier échange à un produit déployé et documenté.",
+        a: "Mirelli Studio aide les entreprises en Europe avec le logiciel dont elles ont réellement besoin : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, des liens entre les outils que vous utilisez déjà, des bots Telegram, ainsi que l'hébergement et le support pour que tout fonctionne. Vous avez un seul interlocuteur, du premier échange jusqu'au système final documenté.",
       },
       {
         q: "Quels produits ont déjà été créés ?",
-        a: "Neuf produits réels, chacun avec une démo en ligne sur des données d'exemple : un ERP de distribution de carburant, une place de marché B2B de négoce de carburant, un système d'exploitation de restaurant, la gestion des stocks et des achats de restauration, une application d'intégration du personnel, une place de marché de location de voitures entre particuliers, une plateforme de formation au trading avec simulateur, un planificateur de lancement par IA et un créateur de bots Telegram.",
+        a: "Douze produits, chacun avec une démo en ligne sur des données d'exemple : un système intelligent pour garages, un planning intelligent pour cliniques, un système de coworking avec accès aux portes, un ERP de distribution de carburant, une place de marché B2B de négoce de carburant, un système d'exploitation de restaurant, la gestion des stocks et des achats de restauration, une application d'intégration du personnel, une place de marché de location de voitures entre particuliers, une plateforme de formation au trading avec simulateur, un planificateur de lancement par IA et un créateur de bots Telegram.",
       },
       {
         q: "Quelles technologies utilisez-vous ?",
@@ -210,11 +234,19 @@ export const fr: Translations = {
       },
       {
         q: "Pouvez-vous créer un bot ou une Mini App Telegram ?",
-        a: "Oui. BotFactory, l'un des neuf produits, est un créateur visuel de bots Telegram livré sous forme de Mini App, avec paiements, entonnoir de vente et tableau de bord des acheteurs. Les bots pour la vente, le support, les formations et les communautés font partie du cœur de l'offre.",
+        a: "Oui. BotFactory, l'un des douze produits, est un créateur visuel de bots Telegram livré sous forme de Mini App, avec paiements, entonnoir de vente et tableau de bord des acheteurs. Les bots pour la vente, le support, les formations et les communautés font partie du cœur de l'offre.",
       },
       {
         q: "Comment se déroule un projet ?",
         a: "En quatre étapes : cadrage avec périmètre et estimation écrits, conception avec prototypes cliquables, réalisation avec un logiciel fonctionnel sur une URL de préproduction chaque semaine, puis lancement et suivi avec supervision et documentation. Vous voyez le produit grandir au lieu de lire des rapports d'avancement.",
+      },
+      {
+        q: "Signe-t-on un contrat ?",
+        a: "Comme vous préférez : un contrat, ou un simple accord écrit qui précise ce qui est réalisé, pour quand et à quel prix. Dans les deux cas, le périmètre et le prix sont fixés par écrit avant le début du travail, et nous échangeons directement, sans service commercial entre nous.",
+      },
+      {
+        q: "Dois-je m'y connaître en informatique ?",
+        a: "Non. Décrivez le problème avec vos mots : ce qui prend trop de temps, ce que demandent vos clients, ce que vous faites à la main aujourd'hui. Nous expliquons les options simplement et proposons la plus simple qui règle le problème.",
       },
       {
         q: "Où le logiciel est-il hébergé et comment les données sont-elles traitées ?",
@@ -222,7 +254,7 @@ export const fr: Translations = {
       },
       {
         q: "Combien coûte un projet ?",
-        a: "Cela dépend du périmètre. Après un court échange de cadrage, vous recevez une estimation écrite à périmètre fixe : vous savez donc ce que vous obtenez et ce que cela coûte avant tout développement.",
+        a: "Cela dépend du périmètre ; les projets démarrent à partir de 500 €. Après un court échange de cadrage, vous recevez une estimation écrite à périmètre fixe : vous savez donc ce que vous obtenez et ce que cela coûte avant tout développement.",
       },
       {
         q: "Quels systèmes peuvent être créés ou intégrés ?",
@@ -230,11 +262,11 @@ export const fr: Translations = {
       },
       {
         q: "Les clients reviennent-ils ?",
-        a: "Oui. Les clients sont satisfaits du résultat et reviennent avec de nouveaux projets.",
+        a: "Oui. Nous avons travaillé avec plus de 100 clients, et la plupart reviennent avec de nouveaux projets. Environ la moitié exploite ses systèmes sur ses propres serveurs, en toute indépendance.",
       },
       {
         q: "Dans quelles langues travaillez-vous ?",
-        a: "En anglais et en russe. Ce site est disponible en anglais, russe, allemand et français.",
+        a: "En anglais et en russe. Ce site est disponible en anglais, russe, allemand, français, slovaque et tchèque.",
       },
     ],
   },
@@ -244,6 +276,8 @@ export const fr: Translations = {
     title: "Confidentialité",
     back: "Retour à l'accueil",
     updated: "Dernière mise à jour : novembre 2026",
+    legalTitle: "Prestataire",
+    legalPrefix: "Les services sont fournis par :",
     sections: [
       {
         title: "En bref",

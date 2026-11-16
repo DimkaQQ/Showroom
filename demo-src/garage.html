@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-fx="push">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Servisio — smart service-centre system (demo)</title>
+<meta name="description" content="Demo: smart booking for a car service. Slots are matched to bay, mechanic and parts in stock; jobs move through a live board; customers approve extra work from their phone. Sample data shown.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/*@kit.css*/
+:root[data-theme="light"] {
+  --bg: #eef1f5; --surface: #ffffff; --raised: #f4f6f9; --hover: #e9edf3; --border: #dde3ec; --rule: #edf0f5;
+  --text: #13202e; --muted: #56657a; --faint: #6b7a8e;
+  --accent: #1456d9; --accent-ink: #ffffff; --accent-bg: #e3ecfd;
+  --font: "Hanken Grotesk", system-ui, sans-serif; --display: "Hanken Grotesk", system-ui, sans-serif;
+}
+.tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; font-size: 11.5px; font-weight: 600; background: var(--raised); color: var(--muted); white-space: nowrap; }
+.tag.acc { background: var(--accent-bg); color: var(--accent); } .tag.pos { background: var(--pos-bg); color: var(--pos); } .tag.neg { background: var(--neg-bg); color: var(--neg); } .tag.warn { background: var(--warn-bg); color: var(--warn); }
+.insights { display: grid; gap: 10px; margin-bottom: var(--gap); }
+.ins { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius); background: var(--accent-bg); }
+.ins .ic { color: var(--accent); } .ins span { flex: 1; min-width: 0; } .ins.warn { background: var(--warn-bg); } .ins.warn .ic { color: var(--warn); }
+.tl-wrap { overflow-x: auto; }
+.tl { min-width: 760px; position: relative; }
+.tl-h { display: grid; grid-template-columns: 120px 1fr; font-size: 12px; color: var(--faint); height: 24px; }
+.tl-hours { display: grid; grid-template-columns: repeat(9, 1fr); }
+.tl-row { display: grid; grid-template-columns: 120px 1fr; min-height: 56px; border-top: 1px solid var(--rule); }
+.tl-name { padding: 8px 8px 8px 0; font-weight: 600; } .tl-name small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.tl-lane { position: relative; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(100%/9 - 1px), var(--rule) calc(100%/9 - 1px), var(--rule) calc(100%/9)); }
+.blk { position: absolute; top: 5px; bottom: 5px; border-radius: 8px; padding: 5px 8px; border: 0; text-align: left; cursor: pointer; overflow: hidden; background: var(--accent-bg); color: var(--text); font-size: 12px; line-height: 1.25; border-left: 4px solid var(--accent); }
+.blk b { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .blk span { color: var(--muted); white-space: nowrap; }
+.blk.s-work { background: #fff1d6; border-color: #d98a00; } .blk.s-ready { background: var(--pos-bg); border-color: var(--pos); } .blk.s-approval { background: var(--neg-bg); border-color: var(--neg); } .blk.s-diag { background: #ece6fb; border-color: #6a43d6; }
+.blk.new { outline: 2px solid var(--accent); }
+.now { position: absolute; top: 24px; bottom: 0; width: 2px; background: var(--neg); z-index: 3; pointer-events: none; }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.slot { text-align: left; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; }
+.slot:hover { border-color: var(--accent); } .slot.rec { border-color: var(--accent); background: var(--accent-bg); }
+.slot b { display: block; font-size: 15px; } .slot span { display: block; color: var(--muted); font-size: 12.5px; }
+.svc { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; width: 100%; text-align: left; }
+.svc.on { border-color: var(--accent); background: var(--accent-bg); } .svc .ic { color: var(--accent); } .svc div { flex: 1; min-width: 0; } .svc b { display: block; } .svc span { color: var(--muted); font-size: 12.5px; }
+.svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.kan { display: grid; grid-template-columns: repeat(6, minmax(190px, 1fr)); gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+.col { background: var(--raised); border-radius: 12px; padding: 10px; min-height: 200px; } .col h3 { font-size: 13px; margin: 2px 4px 10px; display: flex; justify-content: space-between; }
+.jc { display: block; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 8px; cursor: pointer; } .jc:hover { border-color: var(--accent); }
+.jc b { display: block; } .jc span { color: var(--muted); font-size: 12.5px; display: block; }
+.phone { width: 300px; max-width: 100%; margin: 0 auto; border: 8px solid #10161f; border-radius: 30px; background: #fff; padding: 16px; }
+.phone h3 { font-size: 15px; margin-bottom: 4px; }
+.trk { display: grid; gap: 6px; margin: 12px 0; } .trk div { display: flex; gap: 8px; align-items: center; color: var(--faint); font-size: 13px; } .trk i { width: 10px; height: 10px; border-radius: 50%; background: var(--border); } .trk .d { color: var(--text); } .trk .d i { background: var(--pos); } .trk .c { color: var(--text); font-weight: 700; } .trk .c i { background: var(--accent); }
+.logrow { display: flex; gap: 12px; padding: 8px 0; border-top: 1px solid var(--rule); font-size: 13px; } .logrow time { color: var(--faint); width: 52px; flex: none; }
+.who-sw { display: flex; gap: 4px; padding: 3px; background: var(--raised); border-radius: 9px; } .who-sw button { border: 0; background: none; height: 28px; padding: 0 10px; border-radius: 7px; cursor: pointer; color: var(--muted); } .who-sw button.on { background: var(--surface); color: var(--text); font-weight: 600; }
+.top2 { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+[aria-disabled="true"] { opacity: .5; }
+@media (max-width: 899px) { .kan { grid-template-columns: repeat(6, 78vw); } }
+.rolesm { display: none; } @media (max-width: 899px) { .rolesm { display: flex; margin-bottom: 14px; width: max-content; max-width: 100%; } }
+</style>
+</head>
+<body>
+<div class="notice"><b>Demo</b> Servisio · sample data</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 005 5L21 13l-8 8-5-5 8-8zM3 21l5-5"/></svg></div><div><div class="brand-name">Servisio</div><div class="brand-sub">Nordring Auto</div></div></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="side-foot"><div class="who-sw" id="who"></div></div>
+  </aside>
+  <main class="main" id="main"><div class="who-sw rolesm" id="rolesm" aria-label="Role"></div><div id="view"></div></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+<script>
+/*@kit.js*/
+'use strict';
+/* ---------- time: today is Thu 12 Nov 2026, clock starts at 10:20 ---------- */
+const DAYS = ['2026-11-12', '2026-11-13', '2026-11-16', '2026-11-17', '2026-11-18'];
+const DL = ['Thu 12 Nov', 'Fri 13 Nov', 'Mon 16 Nov', 'Tue 17 Nov', 'Wed 18 Nov'];
+const T0 = performance.now(), M0 = 10 * 60 + 20;
+const nowMin = () => M0 + Math.floor((performance.now() - T0) / 60000);
+const hm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const OPEN = 8 * 60, CLOSE = 17 * 60;
+const eur = (n) => '€' + fmt(n);
+const NOWTXT = () => hm(nowMin());
+
+/* ---------- master data ---------- */
+const BAYS = [
+  { id: 'L1', n: 'Lift 1', t: 'lift' }, { id: 'L2', n: 'Lift 2', t: 'lift' },
+  { id: 'T1', n: 'Tyre bay', t: 'tyre' }, { id: 'D1', n: 'Diagnostics', t: 'diag' },
+];
+const MECH = [
+  { id: 'm1', n: 'Marek Hudec', sk: ['lift', 'diag'] }, { id: 'm2', n: 'Tomáš Varga', sk: ['lift', 'tyre'] },
+  { id: 'm3', n: 'Peter Balog', sk: ['tyre', 'diag'] }, { id: 'm4', n: 'Jana Kováčová', sk: ['diag'] },
+];
+const SERVICES = [
+  { id: 'oil', n: 'Oil and filter service', min: 60, px: 89, t: 'lift', parts: { oil: 1, ofilter: 1 }, ic: 'drop' },
+  { id: 'brake', n: 'Front brake pads', min: 90, px: 149, t: 'lift', parts: { pads: 1 }, ic: 'shield' },
+  { id: 'tyres', n: 'Tyre change, 4 wheels', min: 40, px: 39, t: 'tyre', parts: {}, ic: 'sliders' },
+  { id: 'align', n: 'Wheel alignment', min: 45, px: 59, t: 'tyre', parts: {}, ic: 'sliders' },
+  { id: 'diag', n: 'Computer diagnostics', min: 45, px: 49, t: 'diag', parts: {}, ic: 'search' },
+  { id: 'belt', n: 'Timing belt kit', min: 240, px: 390, t: 'lift', parts: { belt: 1 }, ic: 'wrench' },
+  { id: 'stk', n: 'Pre-inspection check', min: 60, px: 35, t: 'lift', parts: {}, ic: 'check' },
+  { id: 'cabin', n: 'Cabin filter', min: 30, px: 29, t: 'diag', parts: { cfilter: 1 }, ic: 'zap' },
+];
+const SV = Object.fromEntries(SERVICES.map((s) => [s.id, s]));
+const PARTS = {
+  oil: { n: 'Engine oil 5 L', stock: 14, min: 6, px: 38 }, ofilter: { n: 'Oil filter', stock: 20, min: 8, px: 7 },
+  pads: { n: 'Front brake pads', stock: 3, min: 4, px: 46, arrive: [['2026-11-16', 10]] }, belt: { n: 'Timing belt kit', stock: 1, min: 2, px: 180 },
+  cfilter: { n: 'Cabin filter', stock: 12, min: 5, px: 9 },
+};
+const CARS = {
+  'BA 482 KL': { owner: 'Lucia Horváthová', phone: '+421 905 112 340', car: 'Škoda Octavia 2.0 TDI, 2019', km: 148200, last: { oil: 129000, brake: 101000 }, stk: '2026-12-02' },
+  'BL 901 RT': { owner: 'Ján Mikuš', phone: '+421 918 771 220', car: 'VW Golf 1.6 TDI, 2016', km: 212500, last: { oil: 195000 }, stk: '2027-03-14' },
+  'KE 330 AB': { owner: 'Dominika Šebová', phone: '+421 902 540 118', car: 'Hyundai i30 1.4, 2021', km: 61400, last: { oil: 50000, brake: 30000 }, stk: '2026-11-30' },
+  'TT 718 CD': { owner: 'Martin Pavlík', phone: '+421 944 262 809', car: 'Ford Transit 2.2, 2018', km: 187900, last: { oil: 170200, belt: 90000 }, stk: '2027-01-20' },
+  'NR 255 MN': { owner: 'Eva Gregorová', phone: '+421 911 903 004', car: 'Toyota Yaris Hybrid, 2022', km: 38900, last: { oil: 30000 }, stk: '2027-09-01' },
+};
+const INTERVAL = { oil: 15000, brake: 40000, belt: 120000 };
+
+/* ---------- state ---------- */
+let jid = 100;
+const J = [];
+const mkJob = (day, bay, start, svcs, plate, st, mech, extra = {}) => {
+  const dur = svcs.reduce((a, s) => a + SV[s].min, 0);
+  const j = { id: ++jid, day, bay, start, dur, svcs, plate, st, mech, extra: null, log: [], act: 0, ...extra };
+  j.px = svcs.reduce((a, s) => a + SV[s].px, 0);
+  J.push(j); return j;
+};
+mkJob(0, 'L1', 8 * 60, ['oil'], 'BL 901 RT', 'ready', 'm1');
+mkJob(0, 'L1', 9 * 60 + 30, ['brake'], 'KE 330 AB', 'work', 'm1', { act: 100 });
+mkJob(0, 'L2', 8 * 60 + 30, ['belt'], 'TT 718 CD', 'work', 'm2', { act: 0 });
+mkJob(0, 'L2', 13 * 60, ['stk'], 'NR 255 MN', 'booked', 'm2');
+mkJob(0, 'T1', 8 * 60, ['tyres', 'align'], 'BA 482 KL', 'ready', 'm3');
+mkJob(0, 'T1', 11 * 60, ['tyres'], 'NR 255 MN', 'booked', 'm3');
+mkJob(0, 'D1', 9 * 60, ['diag'], 'BL 901 RT', 'approval', 'm4', { extra: { n: 'Replace rear wheel bearing', px: 210 } });
+mkJob(0, 'D1', 14 * 60, ['cabin'], 'KE 330 AB', 'booked', 'm4');
+mkJob(1, 'L1', 9 * 60, ['brake'], 'BA 482 KL', 'booked', 'm1');
+mkJob(1, 'L2', 8 * 60, ['oil', 'cabin'], 'NR 255 MN', 'booked', 'm2');
+mkJob(1, 'L1', 13 * 60, ['brake'], 'KE 330 AB', 'booked', 'm1');
+mkJob(2, 'L1', 8 * 60, ['brake'], 'TT 718 CD', 'booked', 'm1');
+mkJob(2, 'T1', 9 * 60, ['tyres'], 'BL 901 RT', 'booked', 'm3');
+const AUDIT = [['09:58', 'Marek Hudec', 'Started front brake pads for KE 330 AB'], ['09:41', 'System', 'Customer BL 901 RT notified: extra work needs approval'], ['08:55', 'Reception', 'Checked in TT 718 CD']];
+const ORDERS = [];
+let role = 'reception', cur = 'today', day = 0, sel = new Set(), plate = '';
+const PERM = { book: 'reception owner', move: 'reception mechanic owner', money: 'reception owner', control: 'owner', order: 'owner reception' };
+const can = (p) => PERM[p].includes(role);
+const WHO = { reception: 'Reception', mechanic: 'Mechanic', owner: 'Owner' };
+const guard = (p, msg) => { if (can(p)) return true; toast(msg || 'Not available for the ' + WHO[role] + ' role'); return false; };
+const log = (t) => AUDIT.unshift([NOWTXT(), WHO[role], t]);
+const jobName = (j) => j.svcs.map((s) => SV[s].n).join(' + ');
+const car = (p) => CARS[p] || { owner: 'Walk-in customer', phone: '', car: 'Unknown vehicle', km: 0, last: {}, stk: '' };
+const STAGES = [['booked', 'Booked'], ['in', 'Checked in'], ['diag', 'Diagnostics'], ['approval', 'Awaiting approval'], ['work', 'In work'], ['ready', 'Ready']];
+const stName = (s) => (STAGES.find((x) => x[0] === s) || [0, s === 'done' ? 'Collected' : s])[1];
+const stClass = (s) => (s === 'work' ? 's-work' : s === 'ready' ? 's-ready' : s === 'approval' ? 's-approval' : s === 'diag' ? 's-diag' : '');
+
+/* ---------- smart scheduling ---------- */
+const need = (svcs) => svcs.reduce((a, s) => { for (const [p, q] of Object.entries(SV[s].parts)) a[p] = (a[p] || 0) + q; return a; }, {});
+const bayType = (svcs) => (svcs.some((s) => SV[s].t === 'lift') ? 'lift' : svcs.some((s) => SV[s].t === 'tyre') ? 'tyre' : 'diag');
+function partsAvail(partId, d) {
+  const p = PARTS[partId]; let s = p.stock;
+  (p.arrive || []).forEach(([date, q]) => { if (DAYS.indexOf(date) <= d) s += q; });
+  J.forEach((j) => { if (j.day <= d && !['ready', 'done'].includes(j.st) && j.st !== 'work') s -= need(j.svcs)[partId] || 0; });
+  return s;
+}
+const partsOk = (svcs, d) => Object.entries(need(svcs)).every(([p, q]) => partsAvail(p, d) >= q);
+function findSlots(svcs) {
+  const dur = svcs.reduce((a, s) => a + SV[s].min, 0), type = bayType(svcs), out = [], blocked = [];
+  DAYS.forEach((_, d) => {
+    if (!partsOk(svcs, d)) { blocked.push(d); return; }
+    for (let t = OPEN; t + dur <= CLOSE; t += 30) {
+      if (d === 0 && t < nowMin() + 30) continue;
+      let best = null;
+      BAYS.filter((b) => b.t === type).forEach((b) => {
+        const jobs = J.filter((j) => j.day === d && j.bay === b.id);
+        if (jobs.some((j) => t < j.start + j.dur && t + dur > j.start)) return;
+        MECH.filter((m) => m.sk.includes(type)).forEach((m) => {
+          if (J.some((j) => j.day === d && j.mech === m.id && t < j.start + j.dur && t + dur > j.start)) return;
+          const before = Math.max(0, ...jobs.filter((j) => j.start + j.dur <= t).map((j) => j.start + j.dur)); const gb = t - Math.max(before, OPEN);
+          const after = Math.min(CLOSE, ...jobs.filter((j) => j.start >= t + dur).map((j) => j.start)); const ga = after - (t + dur);
+          const frag = (gb > 0 && gb < 60 ? gb : 0) + (ga > 0 && ga < 60 ? ga : 0);
+          const load = J.filter((j) => j.mech === m.id && j.day === d).reduce((a, j) => a + j.dur, 0);
+          const score = frag * 2 + load / 30 + d * 25 + (t - OPEN) / 20;
+          if (!best || score < best.score) best = { d, t, bay: b, mech: m, score, dur };
+        });
+      });
+      if (best) out.push(best);
+    }
+  });
+  out.sort((a, b) => a.score - b.score);
+  const pick = []; const seen = new Set();
+  for (const s of out) { const k = s.d + '-' + Math.floor(s.t / 120); if (seen.has(k) && pick.length < 3) continue; seen.add(k); pick.push(s); if (pick.length >= 6) break; }
+  pick.sort((a, b) => a.d - b.d || a.t - b.t);
+  const rec = out[0];
+  return { slots: pick, rec, blocked, dur, type };
+}
+
+/* ---------- derived insights ---------- */
+function insights() {
+  const r = [];
+  const lowParts = Object.entries(PARTS).filter(([id, p]) => partsAvail(id, 4) < p.min && !ORDERS.includes(id));
+  if (lowParts.length) { const [id, p] = lowParts[0]; r.push({ w: 1, ic: 'alert', t: `${p.n}: ${Math.max(0, partsAvail(id, 4))} left after booked jobs, minimum is ${p.min}. Order ${p.min * 2 - Math.max(0, partsAvail(id, 4))}.`, a: 'Create order', f: `order:${id}` }); }
+  const ap = J.filter((j) => j.st === 'approval');
+  if (ap.length) r.push({ w: 1, ic: 'clock', t: `${car(ap[0].plate).owner} has not answered for ${nowMin() - 9 * 60 - 41} min: extra work ${ap[0].extra.n}, ${eur(ap[0].extra.px)}.`, a: 'Send reminder', f: `remind:${ap[0].id}` });
+  const over = J.filter((j) => j.day === 0 && j.st === 'work' && nowMin() > j.start + j.dur);
+  if (over.length) r.push({ w: 1, ic: 'alert', t: `${over[0].plate} runs over its planned time. The next customer on this lift would wait about ${nowMin() - over[0].start - over[0].dur + 20} min.`, a: 'Notify next customer', f: `late:${over[0].id}` });
+  const due = Object.entries(CARS).filter(([p, c]) => c.last.oil !== undefined && c.km - c.last.oil >= INTERVAL.oil - 1500);
+  const gap = freeGap();
+  if (gap && due.length) r.push({ w: 0, ic: 'zap', t: `Free ${gap.len} min on ${gap.bay} ${DL[gap.d]} ${hm(gap.t)}. ${due.length} customers are due for an oil service: offer them the slot.`, a: 'Send offers', f: `offer:${gap.bay}` });
+  return r;
+}
+function freeGap() {
+  for (let d = 1; d < 3; d++) for (const b of BAYS.filter((b) => b.t === 'lift')) {
+    const js = J.filter((j) => j.day === d && j.bay === b.id).sort((a, b2) => a.start - b2.start);
+    let t = OPEN; for (const j of [...js, { start: CLOSE, dur: 0 }]) { if (j.start - t >= 60) return { d, bay: b.n, t, len: j.start - t }; t = j.start + j.dur; }
+  }
+  return null;
+}
+function doInsight(f) {
+  const [k, v] = f.split(':');
+  if (k === 'order') { if (!guard('order')) return; ORDERS.push(v); PARTS[v].arrive = (PARTS[v].arrive || []).concat([[DAYS[3], PARTS[v].min * 2]]); log(`Ordered ${PARTS[v].n} from the supplier`); toast('Order sent: arrives Tue 17 Nov'); }
+  if (k === 'remind') { log('Sent reminder to customer about extra work'); toast('SMS sent: please confirm the extra work'); }
+  if (k === 'late') { log('Told next customer about a delay'); toast('SMS sent to next customer: about 20 min later'); }
+  if (k === 'offer') { log('Offered a free slot to 2 customers'); toast('Offer sent to 2 customers, first to reply gets the slot'); }
+  render();
+}
+
+/* ---------- views ---------- */
+const sym = (n) => ic(n);
+function head(t, p, actions = '') { return `<div class="head"><div><h1>${t}</h1><p>${p}</p></div><div class="head-actions">${actions}</div></div>`; }
+function dayTabs() { return `<div class="tabs" role="tablist">${DL.map((d, i) => `<button type="button" role="tab" data-day="${i}" class="${i === day ? 'on' : ''}">${d}</button>`).join('')}</div>`; }
+function timeline(d) {
+  const span = CLOSE - OPEN;
+  const rows = BAYS.map((b) => {
+    const blocks = J.filter((j) => j.day === d && j.bay === b.id).map((j) => `<button type="button" class="blk ${stClass(j.st)} ${j.id === lastId ? 'new' : ''}" data-job="${j.id}" style="left:${(j.start - OPEN) / span * 100}%;width:${j.dur / span * 100}%" aria-label="${esc(jobName(j))}, ${esc(j.plate)}"><b>${esc(j.plate)}</b><span>${esc(jobName(j))}</span></button>`).join('');
+    return `<div class="tl-row"><div class="tl-name">${b.n}<small>${b.t === 'lift' ? 'Lift' : b.t === 'tyre' ? 'Tyres and alignment' : 'Diagnostics'}</small></div><div class="tl-lane">${blocks}</div></div>`;
+  }).join('');
+  const nowx = d === 0 ? `<div class="now" style="left:calc(120px + (100% - 120px) * ${(nowMin() - OPEN) / span})" title="Now ${NOWTXT()}"></div>` : '';
+  return `<div class="tl-wrap"><div class="tl"><div class="tl-h"><div></div><div class="tl-hours">${[8, 9, 10, 11, 12, 13, 14, 15, 16].map((h) => `<span>${h}:00</span>`).join('')}</div></div>${rows}${nowx}</div></div>`;
+}
+let lastId = 0;
+function vToday() {
+  const tj = J.filter((j) => j.day === day);
+  const cap = BAYS.length * (CLOSE - OPEN), used = tj.reduce((a, j) => a + j.dur, 0);
+  const rev = tj.reduce((a, j) => a + j.px + (j.extra && j.extra.ok ? j.extra.px : 0), 0);
+  const ins = day === 0 ? insights() : [];
+  return head('Workshop', `${DL[day]} · ${NOWTXT()} now`, `<button class="btn primary" data-go="book">${sym('plus')} New booking</button>`) +
+    dayTabs() +
+    `<div class="kpis"><div class="kpi"><b>${tj.length}</b><span>jobs</span></div><div class="kpi"><b>${Math.round(used / cap * 100)}<small>%</small></b><span>bays booked</span></div>${can('money') ? `<div class="kpi"><b>${eur(rev)}</b><span>expected revenue</span></div>` : ''}<div class="kpi"><b>${tj.filter((j) => j.st === 'approval').length}</b><span>waiting for approval</span></div></div>` +
+    (ins.length ? `<div class="insights" aria-label="Suggestions">${ins.map((i) => `<div class="ins ${i.w ? 'warn' : ''}">${sym(i.ic)}<span>${esc(i.t)}</span><button class="btn sm" data-ins="${i.f}">${i.a}</button></div>`).join('')}</div>` : '') +
+    `<div class="card"><div class="card-h"><h2>Bays and mechanics</h2><span>Click a job to open it</span></div>${timeline(day)}</div>`;
+}
+function vBook() {
+  const f = sel.size ? findSlots([...sel]) : null;
+  const c = plate ? car(plate) : null;
+  const sug = c ? Object.entries(INTERVAL).filter(([k, v]) => c.km - (c.last[k] || 0) >= v - 1500 && !sel.has(k)).map(([k]) => k) : [];
+  return head('Smart booking', 'Pick the work. The system finds a free bay, a mechanic with the right skill and checks that the parts are in stock.') +
+    `<div class="card" style="margin-bottom:var(--gap)"><div class="card-h"><h2>1. Vehicle</h2><span>Try BA 482 KL, KE 330 AB or TT 718 CD</span></div>
+      <div class="field" style="max-width:320px"><label for="pl">Registration plate</label><input id="pl" value="${esc(plate)}" placeholder="BA 482 KL" autocomplete="off"></div>
+      ${c ? `<p><b>${esc(c.car)}</b> · ${esc(c.owner)} · ${fmt(c.km)} km${c.stk ? ` · inspection valid until ${c.stk}` : ''}</p>${sug.length ? `<div class="ins" style="margin-top:10px">${sym('zap')}<span>Due by mileage: ${sug.map((s) => SV[s].n.toLowerCase()).join(', ')}. Add them to the same visit?</span><button class="btn sm" data-addsug="${sug.join(',')}">Add</button></div>` : ''}` : `<p class="muted">Enter a plate to load the vehicle and its history.</p>`}</div>` +
+    `<div class="card" style="margin-bottom:var(--gap)"><div class="card-h"><h2>2. Work</h2><span>${sel.size ? sel.size + ' selected' : 'Choose one or more'}</span></div><div class="svc-grid">${SERVICES.map((s) => `<button type="button" class="svc ${sel.has(s.id) ? 'on' : ''}" data-svc="${s.id}" aria-pressed="${sel.has(s.id)}">${sym(s.ic)}<div><b>${s.n}</b><span>${s.min} min · from ${eur(s.px)}</span></div></button>`).join('')}</div></div>` +
+    `<div class="card"><div class="card-h"><h2>3. Time</h2><span>${f ? f.dur + ' min · ' + (f.type === 'lift' ? 'needs a lift' : f.type === 'tyre' ? 'needs the tyre bay' : 'diagnostics bay') : ''}</span></div>` +
+    (!f ? `<p class="muted">Select work to see available times.</p>` :
+      `${f.blocked.length ? `<div class="ins warn" style="margin-bottom:12px">${sym('alert')}<span>Parts are not available on ${f.blocked.map((d) => DL[d]).join(', ')}. ${Object.keys(need([...sel])).filter((p) => partsAvail(p, f.blocked[0]) < need([...sel])[p]).map((p) => PARTS[p].n).join(', ')} arrives later.</span></div>` : ''}
+      ${f.slots.length ? `<div class="slots">${f.slots.map((s, i) => `<button type="button" class="slot ${s === f.rec ? 'rec' : ''}" data-slot="${i}"><b>${DL[s.d]} ${hm(s.t)}</b><span>${s.bay.n} · ${s.mech.n}</span>${s === f.rec ? '<span><b style="font-size:12px;color:var(--accent)">Best fit: keeps the day compact</b></span>' : ''}</button>`).join('')}</div>` : `<p class="muted">No free slot this week for this combination.</p>`}`) + `</div>`;
+}
+function vJobs() {
+  return head('Job board', 'Every vehicle in the workshop. Moving a card tells the customer automatically.') +
+    `<div class="kan">${STAGES.map(([k, n]) => { const js = J.filter((j) => j.st === k && j.day === 0); return `<div class="col"><h3>${n}<span class="muted">${js.length}</span></h3>${js.map((j) => `<button type="button" class="jc" data-job="${j.id}"><b>${esc(j.plate)}</b><span>${esc(jobName(j))}</span><span>${hm(j.start)} · ${esc((MECH.find((m) => m.id === j.mech) || {}).n || '')}</span></button>`).join('') || '<p class="muted" style="padding:8px 4px">Nothing here</p>'}</div>`; }).join('')}</div>`;
+}
+function vParts() {
+  return head('Parts and stock', 'Stock is reduced by booked jobs. The system suggests what to order before you run out.') +
+    `<div class="card"><div class="tbl" style="--cols:2fr 1fr 1fr 1.2fr 1fr;--colsm:2fr 1fr 1fr 1fr"><div class="tr th"><div>Part</div><div class="r">In stock</div><div class="r">Needed this week</div><div class="hm">Incoming</div><div class="r">Status</div></div>` +
+    Object.entries(PARTS).map(([id, p]) => { const needW = J.filter((j) => !['ready', 'done', 'work'].includes(j.st)).reduce((a, j) => a + (need(j.svcs)[id] || 0), 0), left = partsAvail(id, 4); const st = left < 0 ? ['neg', 'Short'] : left < p.min ? ['warn', 'Order'] : ['pos', 'OK']; return `<div class="tr"><div class="cell-main"><b>${p.n}</b><span>${eur(p.px)} each</span></div><div class="r">${p.stock}</div><div class="r">${needW}</div><div class="hm">${(p.arrive || []).map(([d, q]) => '+' + q + ' ' + DL[DAYS.indexOf(d)]).join(', ') || '—'}</div><div class="r"><span class="pill ${st[0]}">${st[1]}</span></div></div>`; }).join('') + `</div></div>`;
+}
+function vCustomers() {
+  return head('Customers and vehicles', 'History, mileage and what is due next. Reminders go out without anyone remembering.') +
+    `<div class="card"><div class="tbl" style="--cols:1.6fr 1.4fr 1fr 1.4fr;--colsm:1.4fr 1fr 1fr"><div class="tr th"><div>Customer</div><div>Vehicle</div><div class="r">Mileage</div><div class="hm">Due</div></div>` +
+    Object.entries(CARS).map(([p, c]) => { const due = Object.entries(INTERVAL).filter(([k, v]) => c.last[k] !== undefined && c.km - c.last[k] >= v - 1500).map(([k]) => SV[k].n.split(' ')[0]); return `<div class="tr" data-open data-plate="${p}" tabindex="0" role="button"><div class="cell-main"><b>${c.owner}</b><span>${p}</span></div><div>${c.car}</div><div class="r">${fmt(c.km)} km</div><div class="hm">${due.length ? due.map((d) => `<span class="tag warn">${d}</span>`).join(' ') : '<span class="muted">Nothing due</span>'}</div></div>`; }).join('') + `</div></div>`;
+}
+function vControl() {
+  if (!can('control')) return head('Control', 'Owner view') + `<div class="card empty">Switch to the Owner role (top of the page on a phone, bottom left on desktop) to see utilisation, revenue and the audit log.</div>`;
+  const util = MECH.map((m) => { const mins = J.filter((j) => j.mech === m.id && j.day === day).reduce((a, j) => a + j.dur, 0); return barRow(m.n, mins / (CLOSE - OPEN) * 100, Math.round(mins / (CLOSE - OPEN) * 100) + '%', Math.round(mins / 60 * 10) / 10 + ' h'); }).join('');
+  const rev = DAYS.map((_, d) => J.filter((j) => j.day === d).reduce((a, j) => a + j.px, 0));
+  return head('Control', 'Who works on what, how the workshop is loaded and what happened today.') + dayTabs() +
+    `<div class="grid"><div class="card c6"><div class="card-h"><h2>Mechanic load, ${DL[day]}</h2></div>${util}</div><div class="card c6"><div class="card-h"><h2>Expected revenue by day</h2><span>€</span></div><div id="rv"></div></div>
+    <div class="card c12"><div class="card-h"><h2>Audit log</h2><span>Every change is recorded with who and when</span></div>${AUDIT.map((a) => `<div class="logrow"><time>${a[0]}</time><div><b>${esc(a[1])}</b> · ${esc(a[2])}</div></div>`).join('')}</div></div>`;
+}
+const PAGES = { today: ['Workshop', 'calendar', vToday], book: ['Book', 'plus', vBook], jobs: ['Jobs', 'wrench', vJobs], parts: ['Parts', 'box', vParts], customers: ['Customers', 'users', vCustomers], control: ['Control', 'chart', vControl] };
+function render() {
+  $('#nav').innerHTML = Object.entries(PAGES).map(([k, [n, i]]) => `<a data-page="${k}" tabindex="0" role="link">${sym(i)}<span>${n}</span></a>`).join('');
+  $('#tabbar').innerHTML = Object.entries(PAGES).filter(([k]) => k !== 'customers').map(([k, [n, i]]) => `<a data-page="${k}" tabindex="0" role="link">${sym(i)}<span>${n}</span></a>`).join('');
+  const roleHtml = Object.entries(WHO).map(([k, n]) => `<button type="button" data-role="${k}" class="${k === role ? 'on' : ''}">${n}</button>`).join('');
+  $('#who').innerHTML = roleHtml; $('#rolesm').innerHTML = roleHtml;
+  $('#view').innerHTML = PAGES[cur][2]();
+  setNav(cur);
+  if (cur === 'control' && can('control')) chart($('#rv'), (w) => barsSVG(w, { labels: DL.map((d) => d.slice(0, 3)), values: DAYS.map((_, d) => J.filter((j) => j.day === d).reduce((a, j) => a + j.px, 0)), mark: day, fmtV: fmt }));
+}
+/* ---------- job card, booking, customer view ---------- */
+function openJob(id) {
+  const j = J.find((x) => x.id === id), c = car(j.plate), m = MECH.find((x) => x.id === j.mech), b = BAYS.find((x) => x.id === j.bay);
+  const idx = STAGES.findIndex((s) => s[0] === j.st);
+  const next = STAGES[idx + 1];
+  modal(`<h2>${esc(j.plate)} · ${esc(jobName(j))}</h2><p>${esc(c.car)} · ${esc(c.owner)}</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"><span class="tag acc">${stName(j.st)}</span><span class="tag">${DL[j.day]} ${hm(j.start)}–${hm(j.start + j.dur)}</span><span class="tag">${b.n}</span><span class="tag">${m ? m.n : ''}</span>${can('money') ? `<span class="tag">${eur(j.px)}</span>` : ''}</div>
+    ${j.extra ? `<div class="ins ${j.extra.ok ? '' : 'warn'}" style="margin-bottom:12px">${sym('alert')}<span>Extra work found: ${esc(j.extra.n)}${can('money') ? ', ' + eur(j.extra.px) : ''}. ${j.extra.ok ? 'Approved by the customer.' : 'Waiting for the customer.'}</span></div>` : ''}
+    <div class="modal-actions" style="justify-content:flex-start;flex-wrap:wrap">
+      ${next && j.st !== 'approval' ? `<button class="btn primary" data-adv="${j.id}">Move to: ${next[1]}</button>` : ''}
+      ${j.st === 'diag' && !j.extra ? `<button class="btn" data-find="${j.id}">Add extra work found</button>` : ''}
+      ${j.st === 'ready' ? `<button class="btn primary" data-collect="${j.id}">Hand over and close</button>` : ''}
+      <button class="btn" data-portal="${j.id}">Customer view</button><button class="btn ghost" onclick="closeModal()">Close</button></div>`);
+}
+function advance(id) {
+  const j = J.find((x) => x.id === id); if (!guard('move')) return;
+  const idx = STAGES.findIndex((s) => s[0] === j.st), n = STAGES[idx + 1]; if (!n) return;
+  j.st = n[0]; log(`${j.plate}: ${n[1]}`);
+  closeModal(); toast(({ in: 'Customer notified: your car is with us', diag: 'Customer notified: diagnostics started', work: 'Customer notified: work has started', ready: `SMS to ${car(j.plate).owner.split(' ')[0]}: your car is ready` })[n[0]] || 'Status updated'); render();
+}
+function portal(id) {
+  const j = J.find((x) => x.id === id), c = car(j.plate), idx = STAGES.findIndex((s) => s[0] === j.st);
+  const trk = STAGES.map(([k, n], i) => `<div class="${i < idx || j.st === 'done' ? 'd' : i === idx ? 'c' : ''}"><i></i>${n}</div>`).join('');
+  modal(`<h2>What the customer sees</h2><p>A link in the SMS. No app, no login.</p><div class="phone"><h3>Hello, ${esc(c.owner.split(' ')[0])}</h3><p class="muted" style="font-size:13px">${esc(c.car)} · ${esc(j.plate)}</p><div class="trk">${trk}</div>
+    ${j.st === 'approval' ? `<p><b>We found:</b> ${esc(j.extra.n)}</p><p class="muted" style="font-size:13px">Price ${eur(j.extra.px)}. Photo and mechanic's note attached.</p><div style="display:flex;gap:8px;margin-top:10px"><button class="btn primary" data-appr="${j.id}:1">Approve</button><button class="btn" data-appr="${j.id}:0">Decline</button></div>` : `<p class="muted" style="font-size:13px">${j.st === 'ready' ? 'Your car is ready. Open until 17:00.' : 'We will message you at the next step.'}</p>`}</div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button></div>`);
+}
+function bookSlot(i) {
+  if (!guard('book')) return;
+  const f = findSlots([...sel]), s = f.slots[i]; if (!s) return;
+  const p = plate || 'WALK-IN';
+  const j = mkJob(s.d, s.bay.id, s.t, [...sel], p, 'booked', s.mech.id); lastId = j.id; log(`Booked ${p}: ${jobName(j)} on ${DL[s.d]} ${hm(s.t)}`);
+  const c = car(p); sel = new Set();
+  modal(`<h2>Booked</h2><p>${esc(jobName(j))} · ${DL[s.d]} ${hm(s.t)} · ${s.bay.n} · ${s.mech.n}</p><p>Confirmation is sent to ${esc(c.phone || 'the customer')} and a reminder goes out 24 hours before. Parts are reserved for this job.</p><div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button><button class="btn primary" data-go="today" data-d="${s.d}">Show on timeline</button></div>`);
+  toast('Booked. SMS confirmation sent'); render();
+}
+/* ---------- events ---------- */
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('button,[data-page],[data-open]'); if (!t) return;
+  const d = t.dataset;
+  if (d.page) { cur = d.page; render(); scrollTo(0, 0); }
+  else if (d.go) { closeModal(); if (d.d) day = +d.d; cur = d.go; render(); }
+  else if (d.day) { day = +d.day; render(); }
+  else if (d.role) { role = d.role; if (cur === 'control' && !can('control')) { /* show locked state */ } render(); toast('Role: ' + WHO[role]); }
+  else if (d.job) openJob(+d.job);
+  else if (d.adv) advance(+d.adv);
+  else if (d.collect) { const j = J.find((x) => x.id === +d.collect); j.st = 'done'; log(`${j.plate}: handed over`); closeModal(); toast('Handed over. Receipt sent by email'); render(); }
+  else if (d.find) { const j = J.find((x) => x.id === +d.find); j.extra = { n: 'Replace front wheel bearing', px: 180 }; j.st = 'approval'; log(`${j.plate}: extra work found, customer asked to approve`); closeModal(); toast('Customer asked to approve: €180'); render(); }
+  else if (d.portal) portal(+d.portal);
+  else if (d.appr) { const [id, v] = d.appr.split(':'), j = J.find((x) => x.id === +id); if (v === '1') { j.extra.ok = true; j.st = 'work'; log(`${j.plate}: customer approved extra work`); toast('Approved. Work continues'); } else { j.st = 'work'; j.extra = null; log(`${j.plate}: customer declined extra work`); toast('Declined. Original work continues'); } closeModal(); render(); }
+  else if (d.ins) doInsight(d.ins);
+  else if (d.svc) { sel.has(d.svc) ? sel.delete(d.svc) : sel.add(d.svc); render(); }
+  else if (d.addsug) { d.addsug.split(',').forEach((s) => sel.add(s)); render(); }
+  else if (d.slot !== undefined) bookSlot(+d.slot);
+  else if (d.plate) { plate = d.plate; cur = 'book'; render(); }
+});
+document.addEventListener('input', (e) => { if (e.target.id === 'pl') { const v = e.target.value.toUpperCase().trim(); const p = Object.keys(CARS).find((k) => k.replace(/ /g, '') === v.replace(/ /g, '')); if (p && p !== plate) { plate = p; const pos = e.target.selectionStart; render(); const el = $('#pl'); el.focus(); el.setSelectionRange(pos, pos); } else if (!p) plate = v; } });
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-open],[data-page]')) { e.preventDefault(); e.target.click(); } });
+render();
+</script>
+</body>
+</html>

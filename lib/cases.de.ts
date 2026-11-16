@@ -1,6 +1,48 @@
 import type { CaseText } from "./cases";
 
 export const caseDe: Record<string, CaseText> = {
+  garage: {
+      title: "Intelligentes Buchungs- und Verwaltungssystem für Autowerkstätten | Servisio",
+      description: "Buchungssystem für Werkstätten, das Arbeitsplatz, Mechaniker und Teile auf Lager abgleicht, mit Live-Auftragstafel, SMS-Freigabe von Zusatzarbeiten, Lagerkontrolle und Inhaberansicht. Mit Live-Demo.",
+      lead: "Servisio führt eine Autowerkstatt von der Buchung bis zur Übergabe. Der Kunde wählt die Arbeiten, das System findet einen Arbeitsplatz und einen Mechaniker mit passender Qualifikation, prüft die Teile auf Lager und hält alle auf dem Laufenden, während das Auto durch die Werkstatt läuft.",
+      features: [
+        "Buchung, die einen freien Arbeitsplatz, einen qualifizierten Mechaniker und Teile auf Lager abgleicht und den passendsten Termin vorschlägt",
+        "Kennzeichensuche mit Fahrzeughistorie und Wartungsvorschlägen nach Kilometerstand",
+        "Live-Zeitleiste der Arbeitsplätze und Auftragstafel von gebucht bis fertig",
+        "Der Kunde gibt Zusatzarbeiten über einen SMS-Link frei, mit Preis und Hinweis des Mechanikers",
+        "Teilebestand sinkt mit gebuchten Aufträgen, Bestellvorschläge kommen vor dem Engpass",
+        "Rollen für Empfang, Mechaniker und Inhaber und ein Protokoll jeder Änderung",
+      ],
+      audience: "Werkstätten, Reifenservices und kleine Servicebetriebe, die per Telefon und Papier buchen, Zeit durch Nichterscheinen und Lücken im Tag verlieren und die gesamte Werkstatt auf einem Bildschirm sehen möchten.",
+    },
+  clinic: {
+      title: "Intelligente Terminplanung für Praxen und Tierärzte | Clinio",
+      description: "Terminsystem für Praxen und Tierärzte: Nichterscheinen-Risiko je Termin, automatische Erinnerungen, Warteliste für abgesagte Termine und Buchung nach Fachkraft. Mit Live-Demo.",
+      lead: "Clinio hält den Tag einer Praxis gefüllt. Es schätzt, wie wahrscheinlich ein Patient einen Termin verpasst, bittet riskante Fälle um Bestätigung und bietet bei einer Absage den Termin dem am besten passenden Patienten von der Warteliste an.",
+      features: [
+        "Nichterscheinen-Risiko je Termin, basierend auf Historie, Bestätigung und Vorlaufzeit",
+        "Buchung nach Anlass: das System wählt Fachkraft und Terminlänge, mit Zusatzzeit für neue Patienten",
+        "Eine Warteliste, die Patienten einordnet und einen abgesagten Termin mit einem Klick neu füllt",
+        "Automatische Erinnerungen mit Links zum Bestätigen oder Verschieben sowie Recall-Einladungen",
+        "Ein Kalender je Fachkraft, mit Option für dringende Termine am selben Tag",
+        "Rollen für Empfang, Ärztin oder Arzt und Leitung sowie ein Aktivitätsprotokoll",
+      ],
+      audience: "Arzt-, Zahnarzt- und Tierarztpraxen, Therapeuten und Physiotherapeuten, deren Behandlungszimmer wegen verpasster Termine leer bleiben und die den Tag am Telefon mit Bestätigen und Umbuchen verbringen.",
+    },
+  spaces: {
+      title: "Coworking und Club verwalten: Buchungen, Mitgliedschaften, Zutritt | Gatehouse",
+      description: "Ein System für Coworking-Spaces und Clubs: Buchung von Plätzen und Räumen, Tarife und Abrechnung und Türzutritt nach Regeln (bezahlt, gebucht, innerhalb der Zeiten). Mit Live-Demo.",
+      lead: "Gatehouse verbindet die drei Dinge, von denen ein gemeinsam genutzter Raum lebt: wer was gebucht hat, wer bezahlt hat und wer welche Tür öffnen darf. Eine fehlgeschlagene Zahlung schließt die Tür, eine Raumbuchung öffnet sie nur für diese Zeit, und die Inhaberin oder der Inhaber sieht, wie voll der Raum ist.",
+      features: [
+        "Buchung von Plätzen und Räumen mit Konfliktprüfung und Alternativen, wenn ein Raum belegt ist",
+        "Tarife mit Raumguthaben und ein Preis, der dem Tarif des Mitglieds folgt",
+        "Türzutritt nach Regeln: aktiver Tarif, Zeiten und eine Buchung für Besprechungsräume",
+        "Eine fehlgeschlagene Zahlung sperrt den Zutritt automatisch, die Zahlung stellt ihn wieder her",
+        "Eine Live-Raumansicht, ein Türprotokoll und eine Regel, Räume freizugeben, in denen niemand erscheint",
+        "Rollen für Empfang, Community-Management und Inhaber, mit Ergebnissen zu Umsatz und Auslastung",
+      ],
+      audience: "Coworking-Spaces, Studios, Fitness- und Sportclubs und vermietete Werkstätten, die Mitgliedschaften verkaufen, Schlüssel oder Karten von Hand ausgeben und Zahlungen manuell nachverfolgen.",
+    },
   dizeltrade: {
     title: "ERP-Software für den Kraftstoffvertrieb | DizelTrade Fallstudie",
     description: "Individuelle ERP für den Dieselvertrieb: Depotbestand, Fahrten, Kundenschulden, Fuhrpark und Analysen mit Rollenrechten. Mit Live-Demo.",

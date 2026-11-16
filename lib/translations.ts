@@ -1,13 +1,16 @@
 import type { Lang } from "./i18n";
 import { de } from "./translations.de";
 import { fr } from "./translations.fr";
+import { sk } from "./translations.sk";
+import { cs } from "./translations.cs";
+import { kk } from "./translations.kk";
 
 const en = {
   meta: {
-    title: "Custom Software Development Studio in Europe | Mirelli Studio",
+    title: "Software and Websites for Businesses in Europe | Mirelli Studio",
     description:
-      "Mirelli Studio builds custom ERP and internal tools, SaaS platforms, B2B marketplaces and Telegram bots for European businesses. Nine live product demos. EU-hosted.",
-    ogAlt: "Mirelli Studio — custom software for European businesses",
+      "Websites, online booking, simple business systems and Telegram bots for businesses in Europe, built and kept running. Live demos to try.",
+    ogAlt: "Mirelli Studio — software and websites for businesses in Europe",
   },
   nav: {
     work: "Work",
@@ -20,27 +23,39 @@ const en = {
     play: "Resume motion",
   },
   hero: {
-    descriptor: "Custom software studio",
+    descriptor: "Software and websites for businesses",
     lead:
-      "Custom software for European businesses. Whatever your business runs on, it can be built, connected to what you already have, or replaced. Nine real products below, each a live demo on sample data.",
-    viewWork: "See the work",
-    statProjects: "Products built",
-    statYears: "Years in production",
-    statTech: "Hosted in Frankfurt",
+      "Tell us where your business loses time: bookings, orders, spreadsheets, a website that brings no enquiries. We build the solution, connect it to the tools you already use and keep it running. Below are live examples you can open and explore.",
+    viewWork: "See examples",
+    statClients: "Clients served",
+    statYears: "Years in business",
+    statDemos: "Live demos",
   },
   showroom: {
-    title: "Selected work",
+    title: "Examples you can try",
     subtitle:
-      "Real systems for logistics, hospitality, trading and marketplaces. Every demo runs live with sample data in place of client data: click through it yourself.",
+      "These are working systems running on sample data, not screenshots. Open one and explore it to see how a system for your business could look.",
     explore: "Open the demo",
     caseStudy: "Read the case study",
     tryOff: "Try the demo",
     tryOn: "Back to scrolling",
     projects: [
       {
+        tagline: "Smart car-service system",
+        description: "Booking that matches a bay, a mechanic and parts in stock, a live job board, customer approval of extra work from an SMS link, stock control and an owner view with an audit log.",
+      },
+      {
+        tagline: "Smart scheduling for clinics",
+        description: "Appointment system for clinics and vets: no-show risk for every visit, automatic reminders, a waiting list that refills cancelled slots and booking that picks the right specialist.",
+      },
+      {
+        tagline: "Bookings, memberships and door access",
+        description: "One system for coworkings and clubs: desk and room booking, plans and billing, and door access that follows the rules: paid, booked, in hours.",
+      },
+      {
         tagline: "Distribution management",
         description:
-          "Internal platform for diesel fuel distribution: truck fleet, client debts, delivery dispatches and financial analytics with role-based access control.",
+          "Internal platform for diesel fuel distribution: vehicle fleet, customer receivables, delivery dispatch and financial analytics with role-based access control.",
       },
       {
         tagline: "Car rental marketplace",
@@ -85,66 +100,77 @@ const en = {
     ],
   },
   services: {
-    title: "Services",
-    subtitle:
-      "From the first scoping call to a deployed, documented product.",
+    title: "What we can do for your business",
+    subtitle: "Pick the problem you recognise. Each one can start small and grow later.",
     items: [
       {
-        title: "Web platforms & SaaS",
+        title: "A website that brings enquiries",
         description:
-          "Customer portals, B2B and P2P marketplaces and subscription SaaS products on Next.js, React and TypeScript. Fast, accessible and built to be extended.",
+          "A fast site that is easy to read on a phone, shows your work and turns visitors into enquiries: contact form, quote request, online booking. For tradespeople, garages, salons, clinics and shops.",
       },
       {
-        title: "Internal tools & ERP",
+        title: "Online booking and orders",
         description:
-          "Custom ERP and operations software that replaces spreadsheets: inventory management, dispatch and logistics, procurement, scheduling and back-office workflows.",
+          "Customers book a time, order food or reserve a car without calling. Automatic confirmations and reminders, and a simple calendar for you and your staff.",
       },
       {
-        title: "Backend & integrations",
+        title: "A simple system instead of Excel",
         description:
-          "Connect and automate what you already run: ERP, CRM, accounting, payment providers and legacy systems through REST and GraphQL APIs, webhooks and data imports, plus real-time systems that stay reliable under load.",
+          "Stock, clients, jobs, trips, invoices: one place instead of spreadsheets, messengers and paper. Built around how your team already works, so nobody needs weeks of training.",
       },
       {
-        title: "Telegram bots & Mini Apps",
+        title: "Connect what you already use",
         description:
-          "Telegram bot and Mini App development for sales, support, courses and community, with payments and an admin side your team can actually use.",
+          "Accounting, online shop, payments, CRM, legacy software: we connect them so data is entered once and updates automatically, and we automate repetitive data entry.",
       },
       {
-        title: "Infrastructure & DevOps",
+        title: "Bots and automation",
         description:
-          "Containerised deployments, CI/CD, monitoring and backups on EU-hosted infrastructure, documented so you are never locked in.",
+          "A Telegram bot that answers customers, takes orders or sells courses, and automations that send reminders, reports and invoices without anyone having to remember.",
       },
       {
-        title: "Product design & UX",
+        title: "Hosting, fixes and support",
         description:
-          "Beautiful, easy-to-use interfaces: prototypes, design systems and WCAG-aware screens, reviewed with you before they turn into code, including mobile-first apps and PWAs.",
+          "We host it in the EU or on your own server, whichever you prefer, keep it updated and secure, and resolve issues quickly when something stops working. One point of contact who responds.",
       },
     ],
   },
   process: {
-    title: "How a project runs",
-    subtitle: "Four steps, no surprises.",
+    title: "How it works",
+    subtitle: "From your first message to a working system, in plain steps.",
     steps: [
       {
-        title: "Discovery",
+        title: "Tell us the problem",
         description:
-          "Goals, users, scope and a clear estimate are agreed in writing before any code is written.",
+          "Describe what slows your business down using the form below, by email or on Telegram. You receive a personal reply, not a template.",
       },
       {
-        title: "Design",
+        title: "Estimate and agreement",
         description:
-          "Clickable prototypes and a design system, reviewed with you early while changes are still cheap.",
+          "Before any work starts, we agree the scope and price in writing, as a contract or a simple written agreement, whichever you prefer.",
       },
       {
-        title: "Build",
+        title: "Build, with weekly previews",
         description:
-          "Working software on a staging URL every week. You see the product grow, not status reports.",
+          "Every week you see a working version and tell us what to change. No long silences, no surprises.",
       },
       {
-        title: "Launch & support",
+        title: "Launch and support",
         description:
-          "Deployment, monitoring, documentation and a handover that leaves you in control of your product.",
+          "We put it live, train your people if needed and stay available for fixes and next steps.",
       },
+    ],
+  },
+  about: {
+    title: "Who you will work with",
+    paragraphs: [
+      "Mirelli Studio helps businesses in Europe with software that fits how they really work: a website that brings enquiries, online booking and orders, a simple system instead of Excel, and the support to keep it all running.",
+      "You deal with a person, not a ticket system: you describe the problem, we agree scope and price in writing, and you see a working version every week. We work by contract or by a simple written agreement, whichever you prefer.",
+    ],
+    facts: [
+      { value: "100+", label: "clients served" },
+      { value: "Most", label: "come back with new projects" },
+      { value: "About half", label: "host their systems on their own servers, fully independent of us" },
     ],
   },
   contact: {
@@ -159,13 +185,13 @@ const en = {
       message: "Describe your project",
       send: "Send message",
       sending: "Sending…",
-      ok: "Thank you. Your message is on its way and will get a personal reply.",
+      ok: "Thank you. Your message has been sent and you will receive a personal reply.",
       invalid: "Please fill in your name, a valid email and a short message.",
-      fail: "Sorry, that did not go through. Please write directly to:",
+      fail: "Your message could not be sent. Please write to us directly at:",
       consent: "These details are used only to reply to you.",
       privacy: "Privacy",
       topics: [
-        "A new web platform or SaaS",
+        "A new website or web platform",
         "An internal tool or ERP",
         "A marketplace",
         "A Telegram bot or Mini App",
@@ -175,7 +201,7 @@ const en = {
     },
   },
   footer: {
-    privacy: "Privacy",
+    privacy: "Privacy and legal",
     rights: "All rights reserved.",
     built: "Built with Next.js",
   },
@@ -187,25 +213,25 @@ const en = {
     console: "You read the console, so we should talk. Try the Konami code. Or type 404.",
   },
   case: {
-    back: "All work",
+    back: "All projects",
     what: "What it does",
     who: "Who it is for",
-    builtWith: "Built with",
+    builtWith: "Technologies",
     tryDemo: "Open the live demo",
     contactCta: "Discuss a similar project",
-    other: "More work",
+    other: "More projects",
     sample: "The demo runs on sample data.",
   },
   faq: {
-    title: "Questions, answered",
+    title: "Frequently asked questions",
     items: [
       {
         q: "What does Mirelli Studio do?",
-        a: "Mirelli Studio designs and builds custom software for businesses in Europe: ERP systems and internal tools, SaaS platforms, B2B marketplaces, restaurant and logistics software, and Telegram bots and Mini Apps. Every project goes from the first call to a deployed, documented product.",
+        a: "Mirelli Studio helps businesses in Europe with the software they actually need: a website that brings enquiries, online booking and orders, a simple system instead of Excel, connections between the tools you already use, Telegram bots, and the hosting and support to keep it all running. You deal with one person, from the first conversation to the finished, documented system.",
       },
       {
         q: "What kinds of products have you built?",
-        a: "Nine real products, each with a live demo on sample data: a fuel-distribution ERP, a B2B fuel trading marketplace, a restaurant operating system, restaurant inventory and purchasing, an employee onboarding app, a peer-to-peer car rental marketplace, a trading education platform with a simulator, an AI launch planner and a Telegram bot builder.",
+        a: "Twelve products, each with a live demo on sample data: a smart car-service system, smart scheduling for clinics, a coworking system with door access, a fuel-distribution ERP, a B2B fuel trading marketplace, a restaurant operating system, restaurant inventory and purchasing, an employee onboarding app, a peer-to-peer car rental marketplace, a trading education platform with a simulator, an AI launch planner and a Telegram bot builder.",
       },
       {
         q: "Which technologies do you use?",
@@ -213,11 +239,19 @@ const en = {
       },
       {
         q: "Can you build a Telegram bot or Mini App?",
-        a: "Yes. BotFactory, one of the nine products, is a visual Telegram bot builder delivered as a Mini App, with payments, a sales funnel and a buyers dashboard. Bots for sales, support, courses and communities are a core service.",
+        a: "Yes. BotFactory, one of the twelve products, is a visual Telegram bot builder delivered as a Mini App, with payments, a sales funnel and a buyers dashboard. Bots for sales, support, courses and communities are a core service.",
       },
       {
         q: "How does a project run?",
         a: "Four steps: discovery with a written scope and estimate, design with clickable prototypes, build with working software on a staging URL every week, then launch and support with monitoring and documentation. You see the product grow instead of reading status reports.",
+      },
+      {
+        q: "Do we sign a contract?",
+        a: "Whatever is easier for you: a contract, or a simple written agreement that states what is built, by when and for what price. Either way, scope and price are fixed in writing before any work starts, and we deal person to person, with no sales department in between.",
+      },
+      {
+        q: "Do I need to understand IT?",
+        a: "No. Describe the problem in your own words: what takes too much time, what customers ask for, what you do by hand today. We explain the options in plain language and propose the simplest one that solves it.",
       },
       {
         q: "Where is the software hosted and how is data handled?",
@@ -225,7 +259,7 @@ const en = {
       },
       {
         q: "How much does a project cost?",
-        a: "It depends on scope. After a short discovery call you receive a written estimate with a fixed scope, so you know what you get and what it costs before anything is built.",
+        a: "It depends on scope; projects start from €500. After a short discovery call you receive a written estimate with a fixed scope, so you know what you get and what it costs before anything is built.",
       },
       {
         q: "What kinds of systems can you build or work with?",
@@ -233,11 +267,11 @@ const en = {
       },
       {
         q: "Do clients come back?",
-        a: "Yes. Clients are happy with what they get and come back with new projects.",
+        a: "Yes. We have worked with more than 100 clients, and most of them come back with new projects. About half run their systems on their own servers, fully independent of us.",
       },
       {
         q: "Which languages do you work in?",
-        a: "English and Russian. This site is available in English, Russian, German and French.",
+        a: "English and Russian. This site is available in English, Russian, German, French, Slovak and Czech.",
       },
     ],
   },
@@ -247,9 +281,11 @@ const en = {
     title: "Privacy",
     back: "Back to the home page",
     updated: "Last updated: November 2026",
+    legalTitle: "Provider",
+    legalPrefix: "Services are provided by:",
     sections: [
       {
-        title: "Short version",
+        title: "Summary",
         body: [
           "This website and the live demos set no cookies, run no analytics and load nothing from third-party servers. Fonts and images are served from this site.",
         ],
@@ -286,10 +322,10 @@ export type Translations = typeof en;
 
 const ru: Translations = {
   meta: {
-    title: "Разработка ПО на заказ в Европе: ERP, SaaS, Telegram-боты | Mirelli Studio",
+    title: "Студия софта и сайтов из Европы | Mirelli Studio",
     description:
-      "Mirelli Studio разрабатывает заказные ERP и внутренние системы, SaaS-платформы, B2B-маркетплейсы и Telegram-ботов для бизнеса в Европе. Девять живых демо. Хостинг в ЕС.",
-    ogAlt: "Mirelli Studio — программное обеспечение под заказ для бизнеса в Европе",
+      "Европейская студия: сайты, онлайн-запись, системы учёта, автоматизация и Telegram-боты для бизнеса в Казахстане и Европе. Работаем из Словакии, серверы в Германии. Живые примеры можно попробовать.",
+    ogAlt: "Mirelli Studio — студия софта и сайтов из Европы",
   },
   nav: {
     work: "Работы",
@@ -302,23 +338,35 @@ const ru: Translations = {
     play: "Возобновить движение",
   },
   hero: {
-    descriptor: "Студия разработки на заказ",
+    descriptor: "Софт и сайты для бизнеса",
     lead:
-      "Заказное ПО для бизнеса в Европе. Что бы ни лежало в основе вашего бизнеса, это можно создать, подключить к тому, что у вас уже есть, или заменить. Ниже девять реальных продуктов, у каждого живое демо на примерных данных.",
-    viewWork: "Смотреть работы",
-    statProjects: "Продуктов создано",
-    statYears: "Лет в продакшене",
-    statTech: "Хостинг во Франкфурте",
+      "Расскажите, что тормозит ваш бизнес: записи, заказы, таблицы, сайт, который не приносит заявок. Мы сделаем решение, подключим его к тому, чем вы уже пользуетесь, и будем поддерживать. Мы работаем из Европы: Словакия, серверы во Франкфурте, стандарты качества и защиты данных ЕС. Ниже живые примеры, их можно открыть и пощёлкать.",
+    viewWork: "Смотреть примеры",
+    statClients: "Клиентов",
+    statYears: "Лет в деле",
+    statDemos: "Живых примеров",
   },
   showroom: {
-    title: "Избранные работы",
+    title: "Примеры, которые можно попробовать",
     subtitle:
-      "Реальные системы для логистики, ресторанов, трейдинга и маркетплейсов. Каждое демо работает вживую на примерных данных вместо данных клиентов: кликайте сами.",
+      "Это рабочие системы на тестовых данных, а не картинки. Откройте любую и пощёлкайте, чтобы увидеть, как может выглядеть система для вашего бизнеса.",
     explore: "Открыть демо",
     caseStudy: "Читать кейс",
     tryOff: "Потрогать демо",
     tryOn: "Вернуть прокрутку",
     projects: [
+      {
+        tagline: "Умная система для автосервиса",
+        description: "Запись, которая подбирает пост, мастера и проверяет детали на складе, живая доска работ, согласование доп. работ клиентом по ссылке из SMS, контроль склада и панель владельца с журналом действий.",
+      },
+      {
+        tagline: "Умное расписание для клиник",
+        description: "Запись на приём для клиник и ветеринаров: риск неявки по каждому визиту, автоматические напоминания, лист ожидания, который заполняет отменённые окна, и подбор нужного специалиста.",
+      },
+      {
+        tagline: "Бронирование, абонементы и доступ",
+        description: "Одна система для коворкингов и клубов: бронирование мест и комнат, тарифы и оплата, а также доступ в двери по правилам: оплачено, забронировано, в рабочее время.",
+      },
       {
         tagline: "Управление дистрибуцией",
         description:
@@ -367,66 +415,78 @@ const ru: Translations = {
     ],
   },
   services: {
-    title: "Услуги",
-    subtitle:
-      "От первого разговора о задаче до развёрнутого и задокументированного продукта.",
+    title: "Что мы можем сделать для вашего бизнеса",
+    subtitle: "Выберите проблему, которую узнаёте. Любую можно начать с малого и развивать дальше.",
     items: [
       {
-        title: "Веб-платформы и SaaS",
+        title: "Сайт, который приносит заявки",
         description:
-          "Клиентские порталы, B2B- и P2P-маркетплейсы и подписочные SaaS-продукты на Next.js, React и TypeScript. Быстро, доступно и с запасом на развитие.",
+          "Быстрый сайт, который удобно читать с телефона, показывает вашу работу и превращает посетителей в заявки: форма, запрос расчёта, онлайн-запись. Подходит мастерским, автосервисам, салонам, клиникам и магазинам.",
       },
       {
-        title: "Внутренние системы и ERP",
+        title: "Онлайн-запись и заказы",
         description:
-          "Заказная ERP и операционный софт, который заменяет таблицы: складской учёт, диспетчеризация и логистика, закупки, расписание и бэк-офис.",
+          "Клиент сам записывается, заказывает еду или бронирует авто без звонка. Автоматические подтверждения и напоминания и простой календарь для вас и сотрудников.",
       },
       {
-        title: "Бэкенд и интеграции",
+        title: "Простая система вместо Excel",
         description:
-          "Связь и автоматизация того, что у вас уже работает: ERP, CRM, бухгалтерия, платёжные сервисы и старые системы через REST и GraphQL API, вебхуки и импорт данных, плюс real-time системы, устойчивые под нагрузкой.",
+          "Склад, клиенты, заказы, рейсы, счета: одно место вместо таблиц, мессенджеров и бумаги. Строим под то, как ваша команда уже работает, чтобы не приходилось неделями обучать людей.",
       },
       {
-        title: "Telegram-боты и Mini Apps",
+        title: "Подключаем то, чем вы уже пользуетесь",
         description:
-          "Разработка Telegram-ботов и Mini App для продаж, поддержки, курсов и сообществ, с платежами и админкой, которой удобно пользоваться команде.",
+          "Бухгалтерия, интернет-магазин, платежи, CRM, старые программы: соединяем их, чтобы данные вводились один раз и обновлялись сами, и автоматизируем рутину копирования.",
       },
       {
-        title: "Инфраструктура и DevOps",
+        title: "Боты и автоматизация",
         description:
-          "Контейнерный деплой, CI/CD, мониторинг и бэкапы на инфраструктуре в ЕС, с документацией, чтобы вы не зависели от подрядчика.",
+          "Telegram-бот, который отвечает клиентам, принимает заказы или продаёт курсы, и автоматизации, которые сами шлют напоминания, отчёты и счета.",
       },
       {
-        title: "Продуктовый дизайн и UX",
+        title: "Хостинг, исправления и поддержка",
         description:
-          "Красивые и удобные интерфейсы: прототипы, дизайн-системы и экраны с учётом WCAG, согласованные с вами до того, как станут кодом, включая mobile-first приложения и PWA.",
+          "Размещаем в ЕС или на вашем собственном сервере, как удобнее, следим за обновлениями и безопасностью и быстро чиним, если что-то перестало работать. Один человек, который отвечает.",
       },
     ],
   },
   process: {
-    title: "Как идёт проект",
-    subtitle: "Четыре шага, без сюрпризов.",
+    title: "Как это работает",
+    subtitle: "От первого сообщения до работающей системы простыми шагами.",
     steps: [
       {
-        title: "Погружение",
+        title: "Расскажите о задаче",
         description:
-          "Цели, пользователи, объём работ и понятная оценка фиксируются письменно до начала разработки.",
+          "Напишите через форму ниже, на почту или в Telegram, что тормозит ваш бизнес. Вы получите личный ответ, а не шаблон.",
       },
       {
-        title: "Дизайн",
+        title: "Оценка и договорённость",
         description:
-          "Кликабельные прототипы и дизайн-система, согласованные на раннем этапе, пока правки дёшевы.",
+          "До начала работы мы письменно фиксируем объём и цену. Это может быть договор или простая письменная договорённость, как вам удобнее.",
       },
       {
-        title: "Разработка",
+        title: "Разработка с еженедельными показами",
         description:
-          "Рабочая версия на тестовом адресе каждую неделю. Вы видите, как растёт продукт, а не отчёты о статусе.",
+          "Каждую неделю вы видите рабочую версию и говорите, что поменять. Без долгого молчания и сюрпризов.",
       },
       {
         title: "Запуск и поддержка",
         description:
-          "Деплой, мониторинг, документация и передача, после которой продукт остаётся под вашим контролем.",
+          "Запускаем, при необходимости обучаем ваших людей и остаёмся на связи для исправлений и следующих шагов.",
       },
+    ],
+  },
+  about: {
+    title: "С кем вы будете работать",
+    paragraphs: [
+      "Mirelli Studio помогает бизнесу в Европе с программами, которые подходят под то, как вы реально работаете: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel и поддержка, чтобы всё продолжало работать.",
+      "Вы общаетесь с человеком, а не с тикет-системой: описываете задачу, мы письменно договариваемся об объёме и цене, и каждую неделю вы видите рабочую версию. Работаем по договору или по простой письменной договорённости, как вам удобнее.",
+      "Мы работаем из Европы (Словакия) и ведём проекты для клиентов в Казахстане и странах ЕС: европейские стандарты качества и защиты данных (GDPR), понятные сроки, письменные договорённости и цена до начала работы.",
+    ],
+    facts: [
+      { value: "100+", label: "клиентов за время работы" },
+      { value: "Большинство", label: "возвращаются с новыми проектами" },
+      { value: "Примерно половина", label: "работает на собственных серверах, независимо от нас" },
     ],
   },
   contact: {
@@ -457,7 +517,7 @@ const ru: Translations = {
     },
   },
   footer: {
-    privacy: "Конфиденциальность",
+    privacy: "Конфиденциальность и реквизиты",
     rights: "Все права защищены.",
     built: "Создано на Next.js",
   },
@@ -483,11 +543,11 @@ const ru: Translations = {
     items: [
       {
         q: "Чем занимается Mirelli Studio?",
-        a: "Mirelli Studio проектирует и разрабатывает заказное программное обеспечение для бизнеса в Европе: ERP и внутренние системы, SaaS-платформы, B2B-маркетплейсы, софт для ресторанов и логистики, Telegram-ботов и Mini App. Каждый проект идёт от первого разговора до запущенного и задокументированного продукта.",
+        a: "Mirelli Studio помогает бизнесу в Европе с нужным ему софтом: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel, связь между инструментами, которыми вы уже пользуетесь, Telegram-боты, а также хостинг и поддержка, чтобы всё работало. Вы общаетесь с одним человеком от первого разговора до готовой документированной системы.",
       },
       {
         q: "Какие продукты вы делали?",
-        a: "Девять реальных продуктов, у каждого есть живое демо на примерных данных: ERP для дистрибуции топлива, B2B-маркетплейс топлива, операционная система ресторана, склад и закупки для ресторанов, приложение для онбординга персонала, P2P-маркетплейс аренды авто, платформа обучения трейдингу с симулятором, ИИ-планировщик запуска и конструктор Telegram-ботов.",
+        a: "Двенадцать продуктов, у каждого есть живое демо на примерных данных: умная система для автосервиса, умное расписание для клиник, коворкинг с доступом в двери, ERP для дистрибуции топлива, B2B-маркетплейс топлива, операционная система ресторана, склад и закупки для ресторанов, приложение для онбординга персонала, P2P-маркетплейс аренды авто, платформа обучения трейдингу с симулятором, ИИ-планировщик запуска и конструктор Telegram-ботов.",
       },
       {
         q: "Какие технологии вы используете?",
@@ -495,11 +555,19 @@ const ru: Translations = {
       },
       {
         q: "Вы делаете Telegram-ботов и Mini App?",
-        a: "Да. BotFactory, один из девяти продуктов, — визуальный конструктор Telegram-ботов в формате Mini App с оплатой, воронкой продаж и панелью покупателей. Боты для продаж, поддержки, курсов и сообществ — одна из основных услуг.",
+        a: "Да. BotFactory, один из двенадцати продуктов, — визуальный конструктор Telegram-ботов в формате Mini App с оплатой, воронкой продаж и панелью покупателей. Боты для продаж, поддержки, курсов и сообществ — одна из основных услуг.",
       },
       {
         q: "Как идёт проект?",
         a: "Четыре шага: погружение с письменным объёмом работ и оценкой, дизайн с кликабельными прототипами, разработка с рабочей версией на тестовом адресе каждую неделю, затем запуск и поддержка с мониторингом и документацией. Вы видите, как растёт продукт, а не отчёты о статусе.",
+      },
+      {
+        q: "Мы подписываем договор?",
+        a: "Как вам удобнее: договор или простая письменная договорённость, где указано, что делается, к какому сроку и за какую цену. В любом случае объём и цена фиксируются письменно до начала работы, а мы общаемся напрямую, без отдела продаж.",
+      },
+      {
+        q: "Нужно ли мне разбираться в IT?",
+        a: "Нет. Опишите задачу своими словами: что занимает слишком много времени, о чём просят клиенты, что вы делаете вручную. Мы объясним варианты простым языком и предложим самый простой, который решает задачу.",
       },
       {
         q: "Где хостится софт и как обрабатываются данные?",
@@ -507,7 +575,7 @@ const ru: Translations = {
       },
       {
         q: "Сколько стоит проект?",
-        a: "Зависит от объёма. После короткого разговора вы получаете письменную оценку с зафиксированным объёмом работ, поэтому до начала разработки известно, что вы получите и сколько это стоит.",
+        a: "Зависит от объёма; проекты начинаются от 500 €. После короткого разговора вы получаете письменную оценку с зафиксированным объёмом работ, поэтому до начала разработки известно, что вы получите и сколько это стоит.",
       },
       {
         q: "С какими системами вы можете работать и что можете создать?",
@@ -515,11 +583,11 @@ const ru: Translations = {
       },
       {
         q: "Клиенты возвращаются?",
-        a: "Да. Клиенты довольны результатом и возвращаются с новыми проектами.",
+        a: "Да. Мы работали с более чем 100 клиентами, и большинство возвращается с новыми проектами. Примерно половина работает на собственных серверах, полностью независимо от нас.",
       },
       {
         q: "На каких языках вы работаете?",
-        a: "На английском и русском. Сайт доступен на английском, русском, немецком и французском.",
+        a: "На английском и русском, можно писать и по-казахски. Сайт доступен на английском, русском, казахском, немецком, французском, словацком и чешском.",
       },
     ],
   },
@@ -529,6 +597,8 @@ const ru: Translations = {
     title: "Конфиденциальность",
     back: "На главную",
     updated: "Обновлено: ноябрь 2026",
+    legalTitle: "Исполнитель",
+    legalPrefix: "Услуги оказывает:",
     sections: [
       {
         title: "Коротко",
@@ -564,4 +634,4 @@ const ru: Translations = {
   },
 };
 
-export const translations: Record<Lang, Translations> = { en, ru, de, fr };
+export const translations: Record<Lang, Translations> = { en, ru, kk, de, fr, sk, cs };

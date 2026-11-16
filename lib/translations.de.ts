@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const de: Translations = {
   meta: {
-    title: "Individuelle Softwareentwicklung in Europa | Mirelli Studio",
+    title: "Software und Websites für Unternehmen in Europa | Mirelli Studio",
     description:
-      "Individuelle ERP-Systeme, SaaS-Plattformen, B2B-Marktplätze und Telegram-Bots für Unternehmen in Europa. Neun Live-Demos, Hosting in der EU.",
-    ogAlt: "Mirelli Studio – individuelle Software für europäische Unternehmen",
+      "Websites, Online-Buchung, einfache Unternehmenssoftware und Telegram-Bots für Unternehmen in Europa, mit Support. Live-Demos zum Testen.",
+    ogAlt: "Mirelli Studio – Software und Websites für Unternehmen in Europa",
   },
   nav: {
     work: "Projekte",
@@ -18,23 +18,35 @@ export const de: Translations = {
     play: "Animation fortsetzen",
   },
   hero: {
-    descriptor: "Studio für individuelle Software",
+    descriptor: "Software und Websites für Unternehmen",
     lead:
-      "Individuelle Software für europäische Unternehmen. Worauf Ihr Geschäft auch läuft: Es lässt sich neu entwickeln, an Bestehendes anbinden oder ablösen. Unten finden Sie neun reale Produkte, jedes als Live-Demo mit Beispieldaten.",
-    viewWork: "Projekte ansehen",
-    statProjects: "Produkte entwickelt",
-    statYears: "Jahre im Betrieb",
-    statTech: "Hosting in Frankfurt",
+      "Sagen Sie uns, was Ihr Geschäft ausbremst: Buchungen, Bestellungen, Tabellen, eine Website, die keine Anfragen bringt. Wir bauen die Lösung, binden sie an das an, was Sie schon nutzen, und halten sie am Laufen. Unten finden Sie Live-Beispiele zum Öffnen und Ausprobieren.",
+    viewWork: "Beispiele ansehen",
+    statClients: "Betreute Kunden",
+    statYears: "Jahre im Geschäft",
+    statDemos: "Live-Demos",
   },
   showroom: {
-    title: "Ausgewählte Projekte",
+    title: "Beispiele zum Ausprobieren",
     subtitle:
-      "Reale Systeme für Logistik, Gastronomie, Handel und Marktplätze. Jede Demo läuft live mit Beispieldaten statt Kundendaten: Probieren Sie sie selbst aus.",
+      "Das sind funktionierende Systeme mit Beispieldaten, keine Bilder. Öffnen Sie eines und klicken Sie sich durch, um zu sehen, wie ein System für Ihr Geschäft aussehen könnte.",
     explore: "Demo öffnen",
     caseStudy: "Fallstudie lesen",
     tryOff: "Demo ausprobieren",
     tryOn: "Zurück zum Scrollen",
     projects: [
+      {
+        tagline: "Intelligentes System für Autowerkstätten",
+        description: "Buchung, die Arbeitsplatz, Mechaniker und Teile auf Lager abgleicht, eine Live-Auftragstafel, Freigabe von Zusatzarbeiten per SMS-Link, Lagerkontrolle und Inhaberansicht mit Protokoll.",
+      },
+      {
+        tagline: "Intelligente Terminplanung für Praxen",
+        description: "Terminsystem für Praxen und Tierärzte: Nichterscheinen-Risiko je Termin, automatische Erinnerungen, eine Warteliste, die abgesagte Termine neu füllt, und Buchung mit passender Fachkraft.",
+      },
+      {
+        tagline: "Buchung, Mitgliedschaften und Zutritt",
+        description: "Ein System für Coworking-Spaces und Clubs: Buchung von Plätzen und Räumen, Tarife und Abrechnung sowie Türzutritt nach Regeln: bezahlt, gebucht, innerhalb der Zeiten.",
+      },
       {
         tagline: "Vertriebssteuerung",
         description:
@@ -83,65 +95,77 @@ export const de: Translations = {
     ],
   },
   services: {
-    title: "Leistungen",
-    subtitle: "Vom ersten Scoping-Gespräch bis zum produktiven, dokumentierten Produkt.",
+    title: "Was wir für Ihr Geschäft tun können",
+    subtitle: "Wählen Sie das Problem, das Sie kennen. Jedes lässt sich klein beginnen und später ausbauen.",
     items: [
       {
-        title: "Webplattformen und SaaS",
+        title: "Eine Website, die Anfragen bringt",
         description:
-          "Kundenportale, B2B- und P2P-Marktplätze sowie Abo-SaaS-Produkte mit Next.js, React und TypeScript. Schnell, barrierearm und auf Erweiterung ausgelegt.",
+          "Eine schnelle Website, die sich auf dem Smartphone gut lesen lässt, Ihre Arbeit zeigt und Besucher zu Anfragen macht: Kontaktformular, Angebotsanfrage, Online-Buchung. Für Handwerker, Werkstätten, Salons, Praxen und Läden.",
       },
       {
-        title: "Interne Tools und ERP",
+        title: "Online-Buchung und Bestellungen",
         description:
-          "Individuelle ERP- und Betriebssoftware, die Tabellen ersetzt: Lagerverwaltung, Disposition und Logistik, Einkauf, Planung und Backoffice-Abläufe.",
+          "Kunden buchen einen Termin, bestellen Essen oder reservieren ein Auto, ohne anzurufen. Automatische Bestätigungen und Erinnerungen sowie ein einfacher Kalender für Sie und Ihr Team.",
       },
       {
-        title: "Backend und Integrationen",
+        title: "Ein einfaches System statt Excel",
         description:
-          "Bestehendes verbinden und automatisieren: ERP, CRM, Buchhaltung, Zahlungsanbieter und Altsysteme über REST- und GraphQL-Schnittstellen, Webhooks und Datenimporte, dazu Echtzeitsysteme, die auch unter Last zuverlässig bleiben.",
+          "Lager, Kunden, Aufträge, Fahrten, Rechnungen: ein Ort statt Tabellen, Messenger und Papier. Gebaut nach der Art, wie Ihr Team schon arbeitet, damit niemand wochenlang geschult werden muss.",
       },
       {
-        title: "Telegram-Bots und Mini-Apps",
+        title: "Anbindung an das, was Sie schon nutzen",
         description:
-          "Entwicklung von Telegram-Bots und Mini-Apps für Vertrieb, Support, Kurse und Community, mit Zahlungen und einem Admin-Bereich, den Ihr Team wirklich nutzen kann.",
+          "Buchhaltung, Onlineshop, Zahlungen, CRM, Altsoftware: Wir verbinden sie, damit Daten nur einmal erfasst werden und sich selbst aktualisieren, und automatisieren das ständige Kopieren.",
       },
       {
-        title: "Infrastruktur und DevOps",
+        title: "Bots und Automatisierung",
         description:
-          "Containerisierte Deployments, CI/CD, Monitoring und Backups auf EU-gehosteter Infrastruktur, so dokumentiert, dass Sie nie gebunden sind.",
+          "Ein Telegram-Bot, der Kunden antwortet, Bestellungen annimmt oder Kurse verkauft, und Automatisierungen, die Erinnerungen, Berichte und Rechnungen von selbst verschicken.",
       },
       {
-        title: "Produktdesign und UX",
+        title: "Hosting, Fehlerbehebung und Support",
         description:
-          "Schöne, leicht bedienbare Oberflächen: Prototypen, Designsysteme und WCAG-gerechte Screens, die vor der Umsetzung mit Ihnen abgestimmt werden, auch Mobile-first-Apps und PWAs.",
+          "Wir hosten in der EU oder auf Ihrem eigenen Server, ganz wie Sie möchten, halten alles aktuell und sicher und beheben Störungen schnell. Ein Ansprechpartner, der antwortet.",
       },
     ],
   },
   process: {
-    title: "So läuft ein Projekt",
-    subtitle: "Vier Schritte, keine Überraschungen.",
+    title: "So läuft es ab",
+    subtitle: "Von Ihrer ersten Nachricht bis zum funktionierenden System, in einfachen Schritten.",
     steps: [
       {
-        title: "Analyse",
+        title: "Schildern Sie das Problem",
         description:
-          "Ziele, Nutzer, Umfang und eine klare Schätzung werden schriftlich vereinbart, bevor eine Zeile Code entsteht.",
+          "Schreiben Sie uns über das Formular unten, per E-Mail oder Telegram, was Ihr Geschäft ausbremst. Sie erhalten eine persönliche Antwort, keine Vorlage.",
       },
       {
-        title: "Design",
+        title: "Schätzung und Vereinbarung",
         description:
-          "Klickbare Prototypen und ein Designsystem, früh mit Ihnen abgestimmt, solange Änderungen noch günstig sind.",
+          "Vor Arbeitsbeginn halten wir Umfang und Preis schriftlich fest, als Vertrag oder als einfache schriftliche Vereinbarung, ganz wie Sie es bevorzugen.",
       },
       {
-        title: "Umsetzung",
+        title: "Umsetzung mit wöchentlichen Vorschauen",
         description:
-          "Jede Woche lauffähige Software auf einer Staging-URL. Sie sehen das Produkt wachsen, statt Statusberichte zu lesen.",
+          "Jede Woche sehen Sie eine lauffähige Version und sagen uns, was zu ändern ist. Kein langes Schweigen, keine Überraschungen.",
       },
       {
-        title: "Start und Betrieb",
+        title: "Start und Support",
         description:
-          "Deployment, Monitoring, Dokumentation und eine Übergabe, die Ihnen die Kontrolle über Ihr Produkt lässt.",
+          "Wir gehen live, schulen bei Bedarf Ihre Leute und bleiben für Korrekturen und nächste Schritte erreichbar.",
       },
+    ],
+  },
+  about: {
+    title: "Mit wem Sie arbeiten",
+    paragraphs: [
+      "Mirelli Studio unterstützt Unternehmen in Europa mit Software, die zu Ihrem tatsächlichen Arbeitsalltag passt: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel und der Support, damit alles läuft.",
+      "Sie haben es mit einer Person zu tun, nicht mit einem Ticketsystem: Sie schildern das Problem, wir vereinbaren Umfang und Preis schriftlich, und Sie sehen jede Woche eine lauffähige Version. Wir arbeiten per Vertrag oder mit einer einfachen schriftlichen Vereinbarung, ganz wie Sie es bevorzugen.",
+    ],
+    facts: [
+      { value: "100+", label: "betreute Kunden" },
+      { value: "Die meisten", label: "kommen mit neuen Projekten wieder" },
+      { value: "Etwa die Hälfte", label: "betreibt ihr System auf dem eigenen Server, unabhängig von uns" },
     ],
   },
   contact: {
@@ -172,7 +196,7 @@ export const de: Translations = {
     },
   },
   footer: {
-    privacy: "Datenschutz",
+    privacy: "Datenschutz und Anbieter",
     rights: "Alle Rechte vorbehalten.",
     built: "Erstellt mit Next.js",
   },
@@ -198,11 +222,11 @@ export const de: Translations = {
     items: [
       {
         q: "Was macht Mirelli Studio?",
-        a: "Mirelli Studio konzipiert und entwickelt individuelle Software für Unternehmen in Europa: ERP-Systeme und interne Tools, SaaS-Plattformen, B2B-Marktplätze, Software für Gastronomie und Logistik sowie Telegram-Bots und Mini-Apps. Jedes Projekt reicht vom ersten Gespräch bis zum produktiven, dokumentierten Produkt.",
+        a: "Mirelli Studio unterstützt Unternehmen in Europa mit der Software, die sie wirklich brauchen: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel, Verbindungen zwischen den Werkzeugen, die Sie schon nutzen, Telegram-Bots sowie Hosting und Support, damit alles läuft. Sie haben vom ersten Gespräch bis zum fertigen, dokumentierten System einen persönlichen Ansprechpartner.",
       },
       {
         q: "Welche Produkte wurden bereits entwickelt?",
-        a: "Neun reale Produkte, jedes mit Live-Demo auf Beispieldaten: ein ERP für den Kraftstoffvertrieb, ein B2B-Handelsplatz für Kraftstoffe, ein Betriebssystem für Restaurants, Lager und Einkauf für die Gastronomie, eine Onboarding-App für Mitarbeiter, ein Peer-to-Peer-Marktplatz für Autovermietung, eine Trading-Lernplattform mit Simulator, ein KI-Launch-Planer und ein Telegram-Bot-Baukasten.",
+        a: "Zwölf Produkte, jedes mit Live-Demo auf Beispieldaten: ein intelligentes System für Autowerkstätten, intelligente Terminplanung für Praxen, ein Coworking-System mit Türzutritt, ein ERP für den Kraftstoffvertrieb, ein B2B-Handelsplatz für Kraftstoffe, ein Betriebssystem für Restaurants, Lager und Einkauf für die Gastronomie, eine Onboarding-App für Mitarbeiter, ein Peer-to-Peer-Marktplatz für Autovermietung, eine Trading-Lernplattform mit Simulator, ein KI-Launch-Planer und ein Telegram-Bot-Baukasten.",
       },
       {
         q: "Welche Technologien kommen zum Einsatz?",
@@ -210,11 +234,19 @@ export const de: Translations = {
       },
       {
         q: "Können Sie einen Telegram-Bot oder eine Mini-App entwickeln?",
-        a: "Ja. BotFactory, eines der neun Produkte, ist ein visueller Telegram-Bot-Baukasten als Mini-App, mit Zahlungen, Verkaufstrichter und Käufer-Dashboard. Bots für Vertrieb, Support, Kurse und Communitys sind eine Kernleistung.",
+        a: "Ja. BotFactory, eines der zwölf Produkte, ist ein visueller Telegram-Bot-Baukasten als Mini-App, mit Zahlungen, Verkaufstrichter und Käufer-Dashboard. Bots für Vertrieb, Support, Kurse und Communitys sind eine Kernleistung.",
       },
       {
         q: "Wie läuft ein Projekt ab?",
         a: "In vier Schritten: Analyse mit schriftlichem Umfang und Schätzung, Design mit klickbaren Prototypen, Umsetzung mit lauffähiger Software auf einer Staging-URL jede Woche, dann Start und Betrieb mit Monitoring und Dokumentation. Sie sehen das Produkt wachsen, statt Statusberichte zu lesen.",
+      },
+      {
+        q: "Schließen wir einen Vertrag?",
+        a: "Ganz wie Sie möchten: einen Vertrag oder eine einfache schriftliche Vereinbarung, die festhält, was gebaut wird, bis wann und zu welchem Preis. In beiden Fällen werden Umfang und Preis vor Arbeitsbeginn schriftlich fixiert, und wir sprechen direkt miteinander, ohne Vertriebsabteilung dazwischen.",
+      },
+      {
+        q: "Muss ich mich mit IT auskennen?",
+        a: "Nein. Beschreiben Sie das Problem mit Ihren eigenen Worten: was zu viel Zeit kostet, was Kunden verlangen, was Sie heute von Hand erledigen. Wir erklären die Möglichkeiten verständlich und schlagen die einfachste Lösung vor.",
       },
       {
         q: "Wo wird die Software gehostet und wie wird mit Daten umgegangen?",
@@ -222,7 +254,7 @@ export const de: Translations = {
       },
       {
         q: "Was kostet ein Projekt?",
-        a: "Das hängt vom Umfang ab. Nach einem kurzen Erstgespräch erhalten Sie eine schriftliche Schätzung mit festem Leistungsumfang. Sie wissen also vor dem Start, was Sie bekommen und was es kostet.",
+        a: "Das hängt vom Umfang ab; Projekte beginnen ab 500 €. Nach einem kurzen Erstgespräch erhalten Sie eine schriftliche Schätzung mit festem Leistungsumfang. Sie wissen also vor dem Start, was Sie bekommen und was es kostet.",
       },
       {
         q: "Welche Systeme können entwickelt oder angebunden werden?",
@@ -230,11 +262,11 @@ export const de: Translations = {
       },
       {
         q: "Kommen Kunden wieder?",
-        a: "Ja. Kunden sind mit dem Ergebnis zufrieden und kommen mit neuen Projekten wieder.",
+        a: "Ja. Wir haben mit mehr als 100 Kunden gearbeitet, und die meisten kommen mit neuen Projekten wieder. Etwa die Hälfte betreibt ihre Systeme auf eigenen Servern, vollständig unabhängig von uns.",
       },
       {
         q: "In welchen Sprachen wird gearbeitet?",
-        a: "Englisch und Russisch. Diese Website gibt es auf Englisch, Russisch, Deutsch und Französisch.",
+        a: "Englisch und Russisch. Diese Website gibt es auf Englisch, Russisch, Deutsch, Französisch, Slowakisch und Tschechisch.",
       },
     ],
   },
@@ -244,6 +276,8 @@ export const de: Translations = {
     title: "Datenschutz",
     back: "Zur Startseite",
     updated: "Stand: November 2026",
+    legalTitle: "Anbieter",
+    legalPrefix: "Die Leistungen erbringt:",
     sections: [
       {
         title: "Kurz gesagt",

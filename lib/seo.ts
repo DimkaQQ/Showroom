@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { siteConfig, projects } from "./data";
 import { cases } from "./cases";
-import { locales, defaultLang, ogLocale, pathFor, type Lang } from "./i18n";
+import { niches, nicheUi } from "./niches";
+import { locales, defaultLang, ogLocale, pathFor, hreflangs, type Lang } from "./i18n";
 import { translations } from "./translations";
 
 export const abs = (path: string) => new URL(path, siteConfig.url).toString();
@@ -18,13 +19,16 @@ function textFor(lang: Lang, page: Page) {
     const c = cases[page.slice(5)]?.[lang];
     if (c) return { ...tr.meta, title: c.title, description: c.description };
   }
+  if (page.startsWith("for/")) {
+    const n = niches[page.slice(4)]?.[lang];
+    if (n) return { ...tr.meta, title: n.title, description: n.description };
+  }
   return tr.meta;
 }
 
 export function metadataFor(lang: Lang, page: Page = "home"): Metadata {
   const t = textFor(lang, page);
-  const languages: Record<string, string> = Object.fromEntries(locales.map((l) => [l, urlOf(l, page)]));
-  languages["x-default"] = urlOf(defaultLang, page);
+  const languages = hreflangs(siteConfig.url, sub(page));
   const image = page.startsWith("work/") ? abs(`/shots/${page.slice(5)}.webp`) : abs("/og.png");
 
   return {
@@ -62,11 +66,14 @@ const ORG_ID = `${siteConfig.url}/#studio`;
 const PERSON_ID = `${siteConfig.url}/#founder`;
 
 const KNOWS_ABOUT = [
+  "Website development",
+  "Online booking and ordering systems",
+  "Business process automation",
+  "System integrations",
   "Custom software development",
-  "ERP systems",
-  "Internal tools",
-  "SaaS development",
+  "ERP systems and internal tools",
   "B2B marketplaces",
+  "IT support and hosting",
   "Telegram bots and Mini Apps",
   "Restaurant management software",
   "Logistics and fuel distribution software",
@@ -92,7 +99,7 @@ const organisation = (lang: Lang) => {
     logo: abs("/icon-512.png"),
     image: abs("/og.png"),
     founder: { "@id": PERSON_ID },
-    areaServed: [{ "@type": "Continent", name: "Europe" }],
+    areaServed: [{ "@type": "Continent", name: "Europe" }, ...["Slovakia", "Czechia", "Austria", "Germany", "Kazakhstan"].map((name) => ({ "@type": "Country", name }))],
     knowsLanguage: locales,
     knowsAbout: KNOWS_ABOUT,
     sameAs: [siteConfig.github, siteConfig.telegram],
@@ -102,6 +109,7 @@ const organisation = (lang: Lang) => {
       name: t.services.title,
       itemListElement: t.services.items.map((s) => ({
         "@type": "Offer",
+        priceSpecification: { "@type": "PriceSpecification", priceCurrency: "EUR", minPrice: 500 },
         itemOffered: { "@type": "Service", name: s.title, description: s.description, provider: { "@id": ORG_ID } },
       })),
     },
@@ -186,6 +194,40 @@ export function caseJsonLd(lang: Lang, id: string) {
           { "@type": "ListItem", position: 1, name: siteConfig.name, item: urlOf(lang, "home") },
           { "@type": "ListItem", position: 2, name: t.case.back, item: abs(pathFor(lang) + "#work") },
           { "@type": "ListItem", position: 3, name: p.name, item: urlOf(lang, `work/${id}`) },
+        ],
+      },
+    ],
+  };
+}
+
+export function nicheJsonLd(lang: Lang, slug: string) {
+  const n = niches[slug][lang];
+  const ui = nicheUi[lang];
+  const url = urlOf(lang, `for/${slug}`);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "@id": `${url}#service`,
+        name: n.h1,
+        description: n.description,
+        url,
+        inLanguage: lang,
+        serviceType: n.name,
+        provider: { "@id": ORG_ID },
+        areaServed: ["Slovakia", "Czechia", "Austria", "Germany", "Kazakhstan"].map((name) => ({ "@type": "Country", name })),
+        offers: { "@type": "Offer", priceCurrency: "EUR", priceSpecification: { "@type": "PriceSpecification", priceCurrency: "EUR", minPrice: 500 } },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: n.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: siteConfig.name, item: urlOf(lang, "home") },
+          { "@type": "ListItem", position: 2, name: n.name, item: url },
         ],
       },
     ],

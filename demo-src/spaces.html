@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-fx="corner">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gatehouse — bookings, memberships and door access (demo)</title>
+<meta name="description" content="Demo: one system for a coworking space or club. Desk and room booking, memberships and billing, and door access that follows the rules automatically: paid, booked, in hours. Sample data shown.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/*@kit.css*/
+:root {
+  --bg: #0d1117; --surface: #151b24; --raised: #1c2430; --hover: #222c3a; --border: #2a3545; --rule: #1f2937;
+  --text: #eef2f7; --muted: #a3b0c2; --faint: #8794a8; --accent: #28d1e0; --accent-ink: #04161a;
+  --font: "Rubik", system-ui, sans-serif; --display: "Rubik", system-ui, sans-serif;
+}
+.tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 6px; font-size: 11.5px; font-weight: 600; background: var(--raised); color: var(--muted); white-space: nowrap; }
+.tag.acc { background: rgba(40,209,224,.14); color: var(--accent); } .tag.pos { background: var(--pos-bg); color: var(--pos); } .tag.neg { background: var(--neg-bg); color: var(--neg); } .tag.warn { background: var(--warn-bg); color: var(--warn); }
+.insights { display: grid; gap: 10px; margin-bottom: var(--gap); }
+.ins { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius); background: rgba(40,209,224,.1); }
+.ins .ic { color: var(--accent); } .ins span { flex: 1; min-width: 0; } .ins.warn { background: var(--warn-bg); } .ins.warn .ic { color: var(--warn); }
+.map { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.dk { aspect-ratio: 1.5; border-radius: 10px; border: 1px solid var(--border); background: var(--raised); color: var(--text); cursor: pointer; display: grid; place-items: center; text-align: center; font-size: 12px; padding: 4px; }
+.dk b { display: block; font-size: 13px; } .dk span { color: var(--muted); font-size: 11px; }
+.dk.free { border-color: rgba(76,203,134,.5); } .dk.in { background: rgba(40,209,224,.16); border-color: var(--accent); } .dk.bk { background: var(--warn-bg); border-color: rgba(232,176,75,.6); }
+.rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
+.rm { padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--raised); text-align: left; color: var(--text); cursor: pointer; } .rm b { display: block; } .rm span { color: var(--muted); font-size: 12.5px; } .rm.on { border-color: var(--accent); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 12.5px; margin-top: 10px; } .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.sw { position: relative; width: 40px; height: 24px; border-radius: 12px; border: 0; background: var(--border); cursor: pointer; flex: none; } .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; } .sw[aria-checked="true"] { background: var(--accent); } .sw[aria-checked="true"]::after { transform: translateX(16px); }
+.rule { display: flex; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid var(--rule); } .rule:first-of-type { border-top: 0; } .rule div { flex: 1; min-width: 0; } .rule b { display: block; } .rule span { color: var(--muted); font-size: 13px; }
+.who-sw { display: flex; gap: 4px; padding: 3px; background: var(--raised); border-radius: 9px; flex-wrap: wrap; } .who-sw button { border: 0; background: none; height: 28px; padding: 0 9px; border-radius: 7px; cursor: pointer; color: var(--muted); font-size: 13px; } .who-sw button.on { background: var(--surface); color: var(--text); font-weight: 600; }
+.logrow { display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid var(--rule); font-size: 13.5px; align-items: center; } .logrow time { color: var(--faint); width: 48px; flex: none; }
+.res { padding: 16px; border-radius: 12px; margin: 10px 0 14px; border: 1px solid; } .res.ok { background: var(--pos-bg); border-color: var(--pos); } .res.no { background: var(--neg-bg); border-color: var(--neg); } .res b { font-size: 18px; display: block; margin-bottom: 4px; } .res ul { margin-top: 6px; color: var(--muted); font-size: 13.5px; list-style: disc; padding-left: 18px; }
+.fld2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } @media (max-width: 560px) { .fld2 { grid-template-columns: 1fr; } .map { grid-template-columns: repeat(4, 1fr); } }
+.rolesm { display: none; } @media (max-width: 899px) { .rolesm { display: flex; margin-bottom: 14px; width: max-content; max-width: 100%; } }
+</style>
+</head>
+<body>
+<div class="notice"><b>Demo</b> Gatehouse · sample data</div>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="brand-mark"><svg class="ic" viewBox="0 0 24 24"><path d="M6 11h12v9H6zM8 11V8a4 4 0 018 0v3"/></svg></div><div><div class="brand-name">Gatehouse</div><div class="brand-sub">Hub Bratislava</div></div></div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="side-foot"><div class="who-sw" id="who"></div></div>
+  </aside>
+  <main class="main" id="main"><div class="who-sw rolesm" id="rolesm" aria-label="Role"></div><div id="view"></div></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+<script>
+/*@kit.js*/
+'use strict';
+const T0 = performance.now(), M0 = 10 * 60 + 15; let skew = 0;
+const nowMin = () => M0 + Math.floor((performance.now() - T0) / 60000) + skew;
+const hm = (m) => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+const eur = (n) => '€' + fmt(n);
+const PLANS = {
+  day: { n: 'Day pass', px: 15, hours: [8, 19], credit: 0, desk: 'pay' }, flex: { n: 'Flex 10', px: 120, hours: [8, 19], credit: 2, desk: 'incl' },
+  res: { n: 'Resident', px: 220, hours: [0, 24], credit: 8, desk: 'incl' }, team: { n: 'Team of 4', px: 690, hours: [0, 24], credit: 20, desk: 'incl' },
+};
+const MEM = {
+  1: { n: 'Nikola Baran', plan: 'res', st: 'active', cr: 6, ren: '1 Dec', in: true }, 2: { n: 'Adam Kováč', plan: 'flex', st: 'active', cr: 1, ren: '28 Nov', in: true },
+  3: { n: 'Studio Lumen (team)', plan: 'team', st: 'active', cr: 14, ren: '5 Dec', in: true }, 4: { n: 'Sára Mináriková', plan: 'day', st: 'active', cr: 0, ren: 'today', in: true },
+  5: { n: 'Tibor Hlaváč', plan: 'res', st: 'failed', cr: 8, ren: 'overdue 2 days', in: false }, 6: { n: 'Lenka Dudová', plan: 'flex', st: 'expired', cr: 0, ren: 'ended 3 Nov', in: false },
+  7: { n: 'Ondrej Šimko', plan: 'res', st: 'active', cr: 8, ren: '19 Nov', in: false },
+};
+const ROOMS = [{ id: 'r1', n: 'Focus room', cap: 2, px: 8 }, { id: 'r2', n: 'Meeting room', cap: 6, px: 14 }, { id: 'r3', n: 'Studio', cap: 12, px: 24 }];
+const RM = Object.fromEntries(ROOMS.map((r) => [r.id, r]));
+const DESKS = Array.from({ length: 18 }, (_, i) => 'D' + (i + 1));
+const BK = [
+  { id: 1, res: 'r2', d: 0, s: 9 * 60 + 30, e: 11 * 60, m: 3, st: 'booked' }, { id: 2, res: 'r1', d: 0, s: 14 * 60, e: 15 * 60, m: 1, st: 'booked' }, { id: 3, res: 'r3', d: 1, s: 10 * 60, e: 13 * 60, m: 3, st: 'booked' },
+  { id: 4, res: 'D4', d: 0, s: 8 * 60, e: 19 * 60, m: 4, st: 'in' }, { id: 5, res: 'D7', d: 0, s: 8 * 60, e: 19 * 60, m: 2, st: 'in' }, { id: 6, res: 'D1', d: 0, s: 8 * 60, e: 19 * 60, m: 1, st: 'in' }, { id: 7, res: 'D12', d: 0, s: 12 * 60, e: 19 * 60, m: 7, st: 'booked' },
+];
+const LOG = [{ t: '09:58', m: 'Nikola Baran', door: 'Main entrance', ok: 1, why: 'Resident plan, in hours' }, { t: '09:47', m: 'Adam Kováč', door: 'Main entrance', ok: 1, why: 'Flex plan, in hours' }, { t: '09:12', m: 'Tibor Hlaváč', door: 'Main entrance', ok: 0, why: 'Payment failed, access suspended' }, { t: '08:44', m: 'Studio Lumen (team)', door: 'Main entrance', ok: 1, why: 'Team plan, in hours' }];
+const AUTO = [
+  { id: 'pay', n: 'Suspend door access when a payment fails', d: 'The member gets an SMS with a payment link. Access returns as soon as it is paid.', on: true },
+  { id: 'room', n: 'Meeting-room doors open only during a booking', d: 'No booking, no key. No need to hand over cards or reset codes.', on: true },
+  { id: 'rel', n: 'Release a room if nobody arrives in 15 minutes', d: 'Another member can take it, and the original holder is told.', on: true },
+  { id: 'eco', n: 'Turn on lights and heating for the first member in', d: 'And off again when the last one leaves.', on: false },
+];
+let role = 'desk', cur = 'live', bd = 0, bres = 'D', bstart = 11 * 60, bdur = 120, bmem = 1, bid = 0;
+const PERM = { book: 'desk manager owner', members: 'manager owner', billing: 'owner', rules: 'owner' };
+const WHO = { desk: 'Front desk', manager: 'Community', owner: 'Owner' };
+const can = (p) => PERM[p].includes(role);
+const guard = (p) => can(p) || (toast('Not available for the ' + WHO[role] + ' role'), false);
+const log = (m, door, ok, why) => LOG.unshift({ t: hm(nowMin()), m, door, ok, why });
+/* ---------- access engine ---------- */
+function check(mid, door, t = nowMin()) {
+  const m = MEM[mid], p = PLANS[m.plan], why = []; let ok = true;
+  if (m.st === 'expired') { ok = false; why.push('Membership ended 3 Nov'); }
+  if (m.st === 'failed' && AUTO[0].on) { ok = false; why.push('Last payment failed, access suspended'); }
+  if (m.st === 'failed' && !AUTO[0].on) why.push('Payment failed, but the suspend rule is off');
+  if (m.st === 'frozen') { ok = false; why.push('Membership is frozen'); }
+  const h = t / 60 % 24; if (ok && (h < p.hours[0] || h >= p.hours[1])) { ok = false; why.push(`${p.n} is valid ${p.hours[0]}:00–${p.hours[1]}:00. This is ${hm(t)}.`); }
+  if (ok && door !== 'main') {
+    const b = BK.find((x) => x.res === door && x.d === 0 && x.m === mid && t >= x.s - 5 && t < x.e);
+    if (!b && AUTO[1].on) { ok = false; why.push(`No booking for ${RM[door].n} right now`); } else if (b) why.push(`Booked ${hm(b.s)}–${hm(b.e)}`);
+  }
+  if (ok && !why.length) why.push(`${p.n}, in hours`);
+  return { ok, why };
+}
+function occupancy() { return Object.values(MEM).filter((m) => m.in).length + 2; }
+/* ---------- booking ---------- */
+function conflicts(res, d, s, e, skip) { return BK.filter((b) => b.res === res && b.d === d && b.id !== skip && s < b.e && e > b.s && b.st !== 'released'); }
+function price(mid, res, mins) {
+  const m = MEM[mid], p = PLANS[m.plan], hrs = mins / 60;
+  if (res === 'D') return p.desk === 'incl' ? { amt: 0, note: 'Included in the ' + p.n + ' plan' } : { amt: p.px, note: 'Day pass' };
+  const r = RM[res], useCr = Math.min(m.cr, hrs), extra = (hrs - useCr) * r.px;
+  return { amt: extra, note: useCr ? `${useCr} h from credits${extra ? ', rest ' + eur(extra) : ''}` : `${hrs} h at ${eur(r.px)}/h`, cr: useCr };
+}
+/* ---------- views ---------- */
+const head = (t, p, a = '') => `<div class="head"><div><h1>${t}</h1><p>${p}</p></div><div class="head-actions">${a}</div></div>`;
+function deskState(id) { const b = BK.find((x) => x.res === id && x.d === 0 && nowMin() < x.e && nowMin() >= x.s - 0); const b2 = BK.find((x) => x.res === id && x.d === 0 && x.e > nowMin()); return b && b.st === 'in' ? ['in', MEM[b.m].n.split(' ')[0]] : b2 ? ['bk', 'from ' + hm(b2.s)] : ['free', 'free']; }
+function roomState(id) { const b = BK.find((x) => x.res === id && x.d === 0 && nowMin() >= x.s && nowMin() < x.e && x.st !== 'released'); const n = BK.find((x) => x.res === id && x.d === 0 && x.s > nowMin() && x.st !== 'released'); return b ? ['in', 'Busy until ' + hm(b.e)] : n ? ['bk', 'Next ' + hm(n.s)] : ['free', 'Free all day']; }
+function vLive() {
+  const occ = occupancy();
+  const insights = [];
+  const f = Object.values(MEM).filter((m) => m.st === 'failed' && AUTO[0].on);
+  if (f.length) insights.push(['warn', 'alert', `${f[0].n}: payment failed 2 days ago. Door access is suspended automatically.`, 'Send payment link', 'link']);
+  const nsb = BK.find((b) => b.res[0] === 'r' && b.d === 0 && b.st === 'booked' && nowMin() > b.s + 15 && nowMin() < b.e && AUTO[2].on);
+  if (nsb) insights.push(['', 'clock', `${RM[nsb.res].n}: ${MEM[nsb.m].n} has not arrived 15 minutes after the start. Release the room?`, 'Release room', 'rel:' + nsb.id]);
+  return head('Live floor', `${hm(nowMin())} · what is happening in the space right now`, `<button class="btn primary" data-go="access">${ic('lock')} Try the door</button>`) +
+    `<div class="kpis"><div class="kpi"><b>${occ}<small>/ 24</small></b><span>people in the space</span></div><div class="kpi"><b>${DESKS.filter((d) => deskState(d)[0] === 'free').length}</b><span>desks free</span></div><div class="kpi"><b>${ROOMS.filter((r) => roomState(r.id)[0] === 'free').length}/3</b><span>rooms free</span></div><div class="kpi"><b>${LOG.filter((l) => !l.ok).length}</b><span>denied today</span></div></div>` +
+    (insights.length ? `<div class="insights">${insights.map((i) => `<div class="ins ${i[0]}">${ic(i[1])}<span>${esc(i[2])}</span><button class="btn sm" data-ins="${i[4]}">${i[3]}</button></div>`).join('')}</div>` : '') +
+    `<div class="grid"><div class="card c8"><div class="card-h"><h2>Desks</h2><span>Click a free desk to book it</span></div><div class="map">${DESKS.map((id) => { const [s, l] = deskState(id); return `<button type="button" class="dk ${s}" data-desk="${id}" aria-label="Desk ${id}, ${l}"><div><b>${id}</b><span>${l}</span></div></button>`; }).join('')}</div>
+      <div class="legend"><span><i style="background:rgba(76,203,134,.5)"></i>free</span><span><i style="background:var(--accent)"></i>in use</span><span><i style="background:var(--warn)"></i>booked later</span></div>
+      <div class="rooms">${ROOMS.map((r) => { const [s, l] = roomState(r.id); return `<button type="button" class="rm" data-rm="${r.id}"><b>${r.n}</b><span>${r.cap} people · ${eur(r.px)}/h</span><br><span class="tag ${s === 'in' ? 'acc' : s === 'bk' ? 'warn' : 'pos'}">${l}</span></button>`; }).join('')}</div></div>
+    <div class="card c4"><div class="card-h"><h2>Door log</h2><span>live</span></div>${LOG.slice(0, 8).map((l) => `<div class="logrow"><time>${l.t}</time><div><b>${esc(l.m)}</b><br><span class="muted" style="font-size:12.5px">${l.door} · ${esc(l.why)}</span></div><span class="tag ${l.ok ? 'pos' : 'neg'}">${l.ok ? 'Open' : 'Denied'}</span></div>`).join('')}</div></div>`;
+}
+function vBook() {
+  const s = bstart, e = bstart + bdur, rid = bres, cf = conflicts(rid === 'D' ? 'D?' : rid, bd, s, e, -1);
+  const pr = price(bmem, rid === 'D' ? 'D' : rid, bdur);
+  const alt = rid !== 'D' && cf.length ? ROOMS.filter((r) => r.id !== rid && r.cap >= RM[rid].cap && !conflicts(r.id, bd, s, e, -1).length) : [];
+  const later = rid !== 'D' && cf.length ? (() => { for (let t = s; t + bdur <= 19 * 60; t += 30) if (!conflicts(rid, bd, t, t + bdur, -1).length) return t; return null; })() : null;
+  return head('Book a desk or room', 'Conflicts are blocked, price follows the member’s plan, and the door opens by itself for the booked time.') +
+    `<div class="card"><div class="fld2"><div class="field"><label for="bm">Member</label><select id="bm">${Object.entries(MEM).map(([i, m]) => `<option value="${i}" ${+i === bmem ? 'selected' : ''}>${m.n} · ${PLANS[m.plan].n}</option>`).join('')}</select></div>
+    <div class="field"><label for="br">What</label><select id="br"><option value="D" ${rid === 'D' ? 'selected' : ''}>Hot desk</option>${ROOMS.map((r) => `<option value="${r.id}" ${rid === r.id ? 'selected' : ''}>${r.n} (${r.cap} people)</option>`).join('')}</select></div>
+    <div class="field"><label for="bd">Day</label><select id="bd"><option value="0" ${bd === 0 ? 'selected' : ''}>Today</option><option value="1" ${bd === 1 ? 'selected' : ''}>Tomorrow</option></select></div>
+    <div class="field"><label for="bs">From</label><select id="bs">${Array.from({ length: 21 }, (_, i) => 8 * 60 + i * 30).map((t) => `<option value="${t}" ${t === s ? 'selected' : ''}>${hm(t)}</option>`).join('')}</select></div>
+    <div class="field"><label for="bl">Length</label><select id="bl">${[60, 90, 120, 180, 240, 480].map((t) => `<option value="${t}" ${t === bdur ? 'selected' : ''}>${t / 60} h</option>`).join('')}</select></div></div>
+    ${e > 19 * 60 + 1 && PLANS[MEM[bmem].plan].hours[1] < 24 ? `<div class="ins warn">${ic('alert')}<span>Ends after 19:00. This plan has no access after hours, so the door would not open.</span></div>` : ''}
+    ${cf.length ? `<div class="ins warn" style="margin-top:10px">${ic('alert')}<span>${RM[rid].n} is booked ${hm(cf[0].s)}–${hm(cf[0].e)}. ${alt.length ? 'Free at this time: ' + alt.map((r) => r.n).join(', ') + '.' : ''} ${later !== null ? 'Next free start: ' + hm(later) + '.' : ''}</span></div>` : ''}
+    <p style="margin:14px 0"><b>Price: ${eur(pr.amt)}</b> <span class="muted">${pr.note}</span></p>
+    <button class="btn primary" data-bookit ${cf.length ? 'disabled' : ''}>Confirm booking</button></div>`;
+}
+function vAccess() {
+  return head('Door access', 'Pick a member and a door, like scanning a pass. The system answers from the rules.', `<button class="btn" data-skew="${skew ? 0 : 750}">${skew ? 'Back to now' : 'Pretend it is 22:30'}</button>`) +
+    `<div class="card" style="margin-bottom:var(--gap)"><div class="fld2"><div class="field"><label for="am">Member scans pass</label><select id="am">${Object.entries(MEM).map(([i, m]) => `<option value="${i}">${m.n} · ${PLANS[m.plan].n}</option>`).join('')}</select></div><div class="field"><label for="ad">Door</label><select id="ad"><option value="main">Main entrance</option>${ROOMS.map((r) => `<option value="${r.id}">${r.n}</option>`).join('')}</select></div></div><button class="btn primary" data-scan>Scan</button><div id="res" aria-live="polite"></div><p class="muted" style="font-size:13px">Clock: ${hm(nowMin())}</p></div>` +
+    `<div class="card"><div class="card-h"><h2>Recent</h2></div>${LOG.slice(0, 8).map((l) => `<div class="logrow"><time>${l.t}</time><div><b>${esc(l.m)}</b> · ${l.door}<br><span class="muted" style="font-size:12.5px">${esc(l.why)}</span></div><span class="tag ${l.ok ? 'pos' : 'neg'}" style="margin-left:auto">${l.ok ? 'Open' : 'Denied'}</span></div>`).join('')}</div>`;
+}
+function vMembers() {
+  if (!can('members')) return head('Members', '') + `<div class="card empty">Switch to Community or Owner to manage members.</div>`;
+  const stt = { active: ['pos', 'Active'], failed: ['neg', 'Payment failed'], expired: ['', 'Expired'], frozen: ['warn', 'Frozen'] };
+  return head('Members and billing', 'Plans, renewals and payments. Failed payments close doors by themselves.') +
+    `<div class="card"><div class="tbl" style="--cols:1.6fr 1fr 1.1fr 1fr 1.2fr;--colsm:1.5fr 1fr 1fr"><div class="tr th"><div>Member</div><div>Plan</div><div class="hm">Renews</div><div class="r">Credits</div><div class="r">Status</div></div>${Object.entries(MEM).map(([i, m]) => `<div class="tr" data-open data-mem="${i}" tabindex="0" role="button"><div class="cell-main"><b>${m.n}</b><span>${m.in ? 'In the space now' : 'Not in'}</span></div><div>${PLANS[m.plan].n}</div><div class="hm">${m.ren}</div><div class="r">${m.cr} h</div><div class="r"><span class="tag ${stt[m.st][0]}">${stt[m.st][1]}</span></div></div>`).join('')}</div></div>`;
+}
+function vOwner() {
+  if (!can('billing')) return head('Results', '') + `<div class="card empty">Switch to the Owner role to see revenue and rules.</div>`;
+  const mrr = Object.values(MEM).filter((m) => m.st === 'active' || m.st === 'failed').reduce((s, m) => s + (m.plan === 'day' ? 0 : PLANS[m.plan].px), 0);
+  return head('Results and rules', 'Money in, how full the space is, and the rules that run the doors.') +
+    `<div class="kpis"><div class="kpi"><b>${eur(mrr)}</b><span>monthly recurring</span></div><div class="kpi"><b>${eur(Object.values(MEM).filter((m) => m.st === 'failed').reduce((s, m) => s + PLANS[m.plan].px, 0))}</b><span>unpaid</span></div><div class="kpi"><b>71<small>%</small></b><span>desk occupancy this week</span></div></div>
+    <div class="grid"><div class="card c6"><div class="card-h"><h2>Occupancy by hour, today</h2><span>people</span></div><div id="oc"></div></div><div class="card c6"><div class="card-h"><h2>Revenue by plan</h2><span>€ / month</span></div><div id="rp"></div></div>
+    <div class="card c12"><div class="card-h"><h2>Automation rules</h2><span>Every rule changes what the doors do</span></div>${AUTO.map((r) => `<div class="rule"><div><b>${r.n}</b><span>${r.d}</span></div><button type="button" class="sw" role="switch" aria-checked="${r.on}" aria-label="${esc(r.n)}" data-sw="${r.id}"></button></div>`).join('')}</div></div>`;
+}
+const PAGES = { live: ['Live', 'home', vLive], book: ['Book', 'calendar', vBook], access: ['Access', 'lock', vAccess], members: ['Members', 'users', vMembers], owner: ['Results', 'chart', vOwner] };
+function render() {
+  $('#nav').innerHTML = Object.entries(PAGES).map(([k, [n, i]]) => `<a data-page="${k}" tabindex="0" role="link">${ic(i)}<span>${n}</span></a>`).join('');
+  $('#tabbar').innerHTML = $('#nav').innerHTML;
+  const roleHtml = Object.entries(WHO).map(([k, n]) => `<button type="button" data-role="${k}" class="${k === role ? 'on' : ''}">${n}</button>`).join('');
+  $('#who').innerHTML = roleHtml; $('#rolesm').innerHTML = roleHtml;
+  $('#view').innerHTML = PAGES[cur][2](); setNav(cur);
+  if (cur === 'owner' && can('billing')) {
+    chart($('#oc'), (w) => barsSVG(w, { labels: ['8', '9', '10', '11', '12', '13', '14', '15', '16', '17'], values: [6, 14, 19, 20, 17, 15, 18, 16, 12, 7], mark: 2, fmtV: fmt }));
+    chart($('#rp'), (w) => barsSVG(w, { labels: ['Day', 'Flex', 'Resident', 'Team'], values: [150, 480, 880, 690], mark: [2], fmtV: fmt }));
+  }
+}
+/* ---------- actions ---------- */
+function bookNow() {
+  if (!guard('book')) return; const s = bstart, e = bstart + bdur, rid = bres === 'D' ? pickDesk(bd, s, e) : bres;
+  if (!rid) return toast('No desk is free at this time');
+  if (conflicts(rid, bd, s, e, -1).length) return toast('That time is already booked');
+  const pr = price(bmem, bres, bdur); if (pr.cr) MEM[bmem].cr -= pr.cr;
+  BK.push({ id: ++bid + 100, res: rid, d: bd, s, e, m: bmem, st: 'booked' });
+  log(MEM[bmem].n, 'Booking', 1, `${bres === 'D' ? 'Desk ' + rid : RM[rid].n} ${bd ? 'tomorrow' : 'today'} ${hm(s)}–${hm(e)}`);
+  toast(`Booked ${bres === 'D' ? 'desk ' + rid : RM[rid].n}. The door opens for ${MEM[bmem].n.split(' ')[0]} at ${hm(s)}`); cur = 'live'; render();
+}
+function pickDesk(d, s, e) { return DESKS.find((x) => !conflicts(x, d, s, e, -1).length); }
+function scan() {
+  const mid = +$('#am').value, door = $('#ad').value, r = check(mid, door), name = MEM[mid].n;
+  log(name, door === 'main' ? 'Main entrance' : RM[door].n, r.ok ? 1 : 0, r.why.join('. '));
+  if (r.ok && door === 'main') MEM[mid].in = true;
+  const html = `<div class="res ${r.ok ? 'ok' : 'no'}"><b>${r.ok ? 'Door opens' : 'Access denied'}</b>${esc(name)} · ${door === 'main' ? 'Main entrance' : RM[door].n}<ul>${r.why.map((w) => `<li>${esc(w)}</li>`).join('')}</ul></div>`;
+  toast(r.ok ? 'Door opened' : 'Denied: ' + r.why[0]); render(); $('#am').value = mid; $('#ad').value = door; $('#res').innerHTML = html;
+}
+function memModal(i) {
+  const m = MEM[i];
+  modal(`<h2>${esc(m.n)}</h2><p>${PLANS[m.plan].n} · renews ${m.ren} · ${m.cr} h room credit</p><div class="modal-actions" style="justify-content:flex-start;flex-wrap:wrap">${m.st === 'failed' ? `<button class="btn primary" data-pay="${i}">Mark as paid</button>` : ''}${m.st === 'active' ? `<button class="btn" data-fail="${i}">Simulate failed payment</button><button class="btn" data-freeze="${i}">Freeze</button>` : ''}${m.st === 'frozen' || m.st === 'expired' ? `<button class="btn primary" data-pay="${i}">Reactivate</button>` : ''}<button class="btn ghost" onclick="closeModal()">Close</button></div>`);
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('button,[data-page],[data-open]'); if (!t) return; const d = t.dataset;
+  if (d.page) { cur = d.page; render(); scrollTo(0, 0); }
+  else if (d.go) { cur = d.go; render(); }
+  else if (d.role) { role = d.role; render(); toast('Role: ' + WHO[role]); }
+  else if (d.desk) { bres = 'D'; bd = 0; bstart = Math.max(8 * 60, Math.ceil(nowMin() / 30) * 30); bdur = 120; cur = 'book'; render(); }
+  else if (d.rm) { bres = d.rm; bd = 0; cur = 'book'; render(); }
+  else if (d.bookit !== undefined) bookNow();
+  else if (d.scan !== undefined) scan();
+  else if (d.skew !== undefined) { skew = +d.skew; render(); }
+  else if (d.mem) { if (guard('members')) memModal(d.mem); }
+  else if (d.pay) { MEM[d.pay].st = 'active'; log(MEM[d.pay].n, 'Billing', 1, 'Payment received, access restored'); closeModal(); toast('Paid. Door access is back'); render(); }
+  else if (d.fail) { MEM[d.fail].st = 'failed'; log(MEM[d.fail].n, 'Billing', 0, 'Payment failed'); closeModal(); toast(AUTO[0].on ? 'Payment failed: access suspended automatically' : 'Payment failed (suspend rule is off)'); render(); }
+  else if (d.freeze) { MEM[d.freeze].st = 'frozen'; closeModal(); toast('Frozen. No charges, no access'); render(); }
+  else if (d.sw) { if (!guard('rules')) return; const r = AUTO.find((x) => x.id === d.sw); r.on = !r.on; toast((r.on ? 'On: ' : 'Off: ') + r.n); render(); }
+  else if (d.ins) { if (d.ins === 'link') toast('SMS sent with a payment link'); else { const b = BK.find((x) => x.id === +d.ins.split(':')[1]); b.st = 'released'; log(MEM[b.m].n, RM[b.res].n, 0, 'Booking released after 15 minutes'); toast('Room released and the member was told'); } render(); }
+});
+document.addEventListener('change', (e) => { const i = e.target.id; if (i === 'bm') bmem = +e.target.value; else if (i === 'br') bres = e.target.value; else if (i === 'bd') bd = +e.target.value; else if (i === 'bs') bstart = +e.target.value; else if (i === 'bl') bdur = +e.target.value; else return; render(); });
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-page],[data-open]')) { e.preventDefault(); e.target.click(); } });
+render();
+</script>
+</body>
+</html>
