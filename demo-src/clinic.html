@@ -168,7 +168,7 @@ function vWait() {
 function vAuto() {
   return head('Reminders and automation', 'These run without anyone remembering. Switch them on and off.') +
     `<div class="grid"><div class="card c7"><div class="card-h"><h2>Rules</h2></div>${AUTO.map((r) => `<div class="rule"><div><b>${r.n}</b><span>${r.on ? r.sent + ' messages this week' : 'Off'}</span></div><button type="button" class="sw" role="switch" aria-checked="${r.on}" aria-label="${esc(r.n)}" data-sw="${r.id}"></button></div>`).join('')}</div>
-    <div class="card c5"><div class="card-h"><h2>What the patient receives</h2></div><div class="sms">Hello Peter, this is a reminder: tomorrow 10:20, Dr. Kováčová, Lipa Medical Centre. Confirm: <u>dimkaprojects.xyz/c/8f3k</u> · Cancel or move: <u>dimkaprojects.xyz/m/8f3k</u></div><p class="muted" style="margin-top:10px;font-size:13px">One tap confirms. A cancellation frees the slot for the waiting list immediately.</p></div></div>`;
+    <div class="card c5"><div class="card-h"><h2>What the patient receives</h2></div><div class="sms">Hello Peter, this is a reminder: tomorrow 10:20, Dr. Kováčová, Lipa Medical Centre. Confirm: <u>mirelli.eu/c/8f3k</u> · Cancel or move: <u>mirelli.eu/m/8f3k</u></div><p class="muted" style="margin-top:10px;font-size:13px">One tap confirms. A cancellation frees the slot for the waiting list immediately.</p></div></div>`;
 }
 function vPatients() {
   return head('Patients', 'Visit history, missed visits and who is due for a check-up.') +
