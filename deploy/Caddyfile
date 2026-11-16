@@ -119,6 +119,9 @@ clinic.mirelli.eu {
 spaces.mirelli.eu {
 	import demo spaces
 }
+zakupki.mirelli.eu {
+	import demo zakupki
+}
 
 dizeltrade.dimkaprojects.xyz {
 	import security
