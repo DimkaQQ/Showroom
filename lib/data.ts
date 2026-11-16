@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "Mirelli Studio",
-  domain: "mirelli.eu",
-  url: "https://mirelli.eu",
+  domain: "dimkaprojects.xyz",
+  url: "https://dimkaprojects.xyz",
   email: "darian.mirelli@gmail.com",
   github: "https://github.com/DimkaQQ",
   telegram: "https://t.me/Dimka_Hum",

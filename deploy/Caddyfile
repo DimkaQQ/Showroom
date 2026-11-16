@@ -29,12 +29,12 @@
 (demo) {
 	import static
 	root * /var/www/mirelli/current/demos/{args[0]}
-	header Content-Security-Policy "frame-ancestors 'self' https://mirelli.eu https://dimkaprojects.xyz"
+	header Content-Security-Policy "frame-ancestors 'self' https://dimkaprojects.xyz"
 	header X-Robots-Tag "noindex, follow"
 	file_server
 }
 
-mirelli.eu {
+dimkaprojects.xyz {
 	import static
 	root * /var/www/mirelli/current/site
 	handle /coffee* {
@@ -65,96 +65,47 @@ mirelli.eu {
 	}
 }
 
-www.mirelli.eu {
+www.dimkaprojects.xyz {
 	import security
-	redir https://mirelli.eu{uri} permanent
+	redir https://dimkaprojects.xyz{uri} permanent
 }
 
-# Old domain: everything moves to mirelli.eu with a permanent redirect. The contact endpoint stays reachable
-# so a page cached before the move can still submit its form.
-dimkaprojects.xyz, www.dimkaprojects.xyz {
-	import security
-	handle /api/contact* {
-		reverse_proxy 127.0.0.1:8787
-	}
-	handle {
-		redir https://mirelli.eu{uri} permanent
-	}
-}
-
-# Demos now live on <name>.mirelli.eu; the old subdomains redirect there.
-dizeltrade.mirelli.eu {
+# Demos live on <name>.dimkaprojects.xyz (DNS has a wildcard record pointing at this server).
+dizeltrade.dimkaprojects.xyz {
 	import demo dizeltrade
 }
-rentoworld.mirelli.eu {
+rentoworld.dimkaprojects.xyz {
 	import demo rentoworld
 }
-tradinglearn.mirelli.eu {
+tradinglearn.dimkaprojects.xyz {
 	import demo tradinglearn
 }
-shipter.mirelli.eu {
+shipter.dimkaprojects.xyz {
 	import demo shipter
 }
-storage.mirelli.eu {
+storage.dimkaprojects.xyz {
 	import demo storage
 }
-caspianflow.mirelli.eu {
+caspianflow.dimkaprojects.xyz {
 	import demo caspianflow
 }
-restaurant.mirelli.eu {
+restaurant.dimkaprojects.xyz {
 	import demo restaurant
 }
-hr.mirelli.eu {
+hr.dimkaprojects.xyz {
 	import demo hr
 }
-botfactory.mirelli.eu {
+botfactory.dimkaprojects.xyz {
 	import demo botfactory
 }
-garage.mirelli.eu {
+garage.dimkaprojects.xyz {
 	import demo garage
 }
-clinic.mirelli.eu {
+clinic.dimkaprojects.xyz {
 	import demo clinic
 }
-spaces.mirelli.eu {
+spaces.dimkaprojects.xyz {
 	import demo spaces
-}
-
-dizeltrade.dimkaprojects.xyz {
-	import security
-	redir https://dizeltrade.mirelli.eu{uri} permanent
-}
-rentoworld.dimkaprojects.xyz {
-	import security
-	redir https://rentoworld.mirelli.eu{uri} permanent
-}
-tradinglearn.dimkaprojects.xyz {
-	import security
-	redir https://tradinglearn.mirelli.eu{uri} permanent
-}
-shipter.dimkaprojects.xyz {
-	import security
-	redir https://shipter.mirelli.eu{uri} permanent
-}
-storage.dimkaprojects.xyz {
-	import security
-	redir https://storage.mirelli.eu{uri} permanent
-}
-caspianflow.dimkaprojects.xyz {
-	import security
-	redir https://caspianflow.mirelli.eu{uri} permanent
-}
-restaurant.dimkaprojects.xyz {
-	import security
-	redir https://restaurant.mirelli.eu{uri} permanent
-}
-hr.dimkaprojects.xyz {
-	import security
-	redir https://hr.mirelli.eu{uri} permanent
-}
-botfactory.dimkaprojects.xyz {
-	import security
-	redir https://botfactory.mirelli.eu{uri} permanent
 }
 
 bot.dimkaprojects.xyz {
