@@ -31,7 +31,7 @@ export function NichePage({ lang, slug }: { lang: Lang; slug: string }) {
       </ul>
       <p className="case-cta">
         <a className="btn" href={`${pathFor(lang)}#contact`}>{ui.cta}</a>{" "}
-        <a className="btn btn-light" href={demo} target="_blank" rel="noopener noreferrer">{ui.demo}</a>
+        <a className="btn btn-light" href={demo} target="_blank" rel="nofollow noopener noreferrer">{ui.demo}</a>
       </p>
       <p className="doc-date">{ui.from_}</p>
 
@@ -54,7 +54,7 @@ export function NichePage({ lang, slug }: { lang: Lang; slug: string }) {
       <section>
         <h2>{ui.example}</h2>
         <p>{n.example}</p>
-        <p><a className="btn btn-light" href={demo} target="_blank" rel="noopener noreferrer">{ui.demo}</a></p>
+        <p><a className="btn btn-light" href={demo} target="_blank" rel="nofollow noopener noreferrer">{ui.demo}</a></p>
       </section>
       <section>
         <h2>{ui.faq}</h2>

@@ -63,8 +63,8 @@ function TopBar({ lang, t }: { lang: Lang; t: T }) {
           <li><a href="#contact">{t.nav.contact}</a></li>
         </ul>
         <div className="bar-end">
-          <a className="bar-ext" href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
-          <a className="bar-ext" href={siteConfig.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a className="bar-ext" href={siteConfig.telegram} target="_blank" rel="me noopener noreferrer">Telegram</a>
+          <a className="bar-ext" href={siteConfig.github} target="_blank" rel="me noopener noreferrer">GitHub</a>
           <a className="bar-cta btn" href="#contact">{t.nav.contact}</a>
           <LangMenu lang={lang} />
         </div>
@@ -154,7 +154,7 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
             const href = `https://${p.subdomain}.${siteConfig.domain}`;
             return (
               <li key={p.id} className="project" data-project={p.id} id={p.id}>
-                <a className="inline-shot" href={href} target="_blank" rel="noopener noreferrer" style={{ background: p.stage }} tabIndex={-1} aria-hidden="true">
+                <a className="inline-shot" href={href} target="_blank" rel="nofollow noopener noreferrer" style={{ background: p.stage }} tabIndex={-1} aria-hidden="true">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/shots/${p.id}-s.webp`} width={720} height={450} alt="" loading="lazy" />
                 </a>
@@ -163,7 +163,7 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
                   <p className="tagline">{t.showroom.projects[i].tagline}, {p.year}</p>
                   <p className="desc">{t.showroom.projects[i].description}</p>
                   <p className="tags">{p.tags.join(", ")}</p>
-                  <a className="btn btn-light" href={href} target="_blank" rel="noopener noreferrer">
+                  <a className="btn btn-light" href={href} target="_blank" rel="nofollow noopener noreferrer">
                     {t.showroom.explore}
                     <span className="sr-only"> — {p.name}</span>
                   </a>
@@ -319,8 +319,8 @@ function Contact({ lang, t }: { lang: Lang; t: T }) {
           <p>{t.contact.description}</p>
           <div className="contact-links">
             <a className="mail" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
-            <a href={siteConfig.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
-            <a href={siteConfig.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href={siteConfig.telegram} target="_blank" rel="me noopener noreferrer">Telegram</a>
+            <a href={siteConfig.github} target="_blank" rel="me noopener noreferrer">GitHub</a>
           </div>
         </div>
         <ContactForm lang={lang} />

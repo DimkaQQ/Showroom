@@ -50,7 +50,7 @@ export function CasePage({ lang, slug }: { lang: Lang; slug: string }) {
       </section>
 
       <p className="case-cta">
-        <a className="btn" href={demo} target="_blank" rel="noopener noreferrer">{t.case.tryDemo}</a>{" "}
+        <a className="btn" href={demo} target="_blank" rel="nofollow noopener noreferrer">{t.case.tryDemo}</a>{" "}
         <a className="btn btn-light" href={`mailto:${siteConfig.email}?subject=${encodeURIComponent(p.name)}`}>{t.case.contactCta}</a>
       </p>
       <p className="doc-date">{t.case.sample}</p>
