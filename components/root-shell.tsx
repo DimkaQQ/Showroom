@@ -1,12 +1,12 @@
-import { Onest, Unbounded } from "next/font/google";
+import { Onest, Cormorant_Garamond } from "next/font/google";
 import "@/app/globals.css";
 import type { Lang } from "@/lib/i18n";
 
 // Latin-script pages load only the Latin subsets; Russian also gets Cyrillic (so nothing Cyrillic is preloaded elsewhere).
 const onestLatin = Onest({ subsets: ["latin"], variable: "--font-text", display: "swap" });
-const unboundedLatin = Unbounded({ subsets: ["latin"], weight: ["800"], variable: "--font-display", display: "swap" });
+const unboundedLatin = Cormorant_Garamond({ subsets: ["latin"], weight: ["300", "400", "500"], style: ["normal", "italic"], variable: "--font-display", display: "swap" });
 const onestCyr = Onest({ subsets: ["latin", "cyrillic", "cyrillic-ext"], variable: "--font-text", display: "swap" });
-const unboundedCyr = Unbounded({ subsets: ["latin", "cyrillic", "cyrillic-ext"], weight: ["800"], variable: "--font-display", display: "swap" });
+const unboundedCyr = Cormorant_Garamond({ subsets: ["latin", "cyrillic", "cyrillic-ext"], weight: ["300", "400", "500"], style: ["normal", "italic"], variable: "--font-display", display: "swap" });
 
 // Flags that scripts work; everything on the page is readable without it.
 const boot = `document.documentElement.classList.add("js")`;

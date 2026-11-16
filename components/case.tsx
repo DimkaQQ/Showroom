@@ -27,7 +27,7 @@ export function CasePage({ lang, slug }: { lang: Lang; slug: string }) {
       <h1>{p.name}</h1>
       <p className="case-lead">{c.lead}</p>
 
-      <div className="case-shot" style={{ background: p.stage }}>
+      <div className="case-shot">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={`/shots/${slug}.webp`} width={1200} height={750} alt={`${p.name}: ${t.showroom.projects[i].tagline}`} decoding="async" />
       </div>

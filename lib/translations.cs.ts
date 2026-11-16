@@ -254,7 +254,7 @@ export const cs: Translations = {
       },
       {
         q: "Kolik stojí projekt?",
-        a: "Záleží na rozsahu; projekty začínají od 500 €. Po krátkém úvodním rozhovoru dostanete písemný odhad s pevně daným rozsahem, takže ještě před začátkem víte, co dostanete a kolik to bude stát.",
+        a: "Záleží na rozsahu. Po krátkém úvodním rozhovoru dostanete písemný odhad s pevně daným rozsahem, takže ještě před začátkem víte, co dostanete a kolik to bude stát.",
       },
       {
         q: "Jaké systémy lze vytvořit nebo propojit?",

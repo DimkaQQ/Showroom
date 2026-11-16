@@ -109,7 +109,6 @@ const organisation = (lang: Lang) => {
       name: t.services.title,
       itemListElement: t.services.items.map((s) => ({
         "@type": "Offer",
-        priceSpecification: { "@type": "PriceSpecification", priceCurrency: "EUR", minPrice: 500 },
         itemOffered: { "@type": "Service", name: s.title, description: s.description, provider: { "@id": ORG_ID } },
       })),
     },
@@ -217,7 +216,6 @@ export function nicheJsonLd(lang: Lang, slug: string) {
         serviceType: n.name,
         provider: { "@id": ORG_ID },
         areaServed: ["Slovakia", "Czechia", "Austria", "Germany", "Kazakhstan"].map((name) => ({ "@type": "Country", name })),
-        offers: { "@type": "Offer", priceCurrency: "EUR", priceSpecification: { "@type": "PriceSpecification", priceCurrency: "EUR", minPrice: 500 } },
       },
       {
         "@type": "FAQPage",

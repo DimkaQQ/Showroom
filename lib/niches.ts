@@ -15,7 +15,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
       "We host it, fix issues and add what you need next"
     ],
     "example": "See how it works",
-    "from_": "From €500, with a written estimate before we start",
+    "from_": "A written estimate before we start",
     "cta": "Describe your task",
     "demo": "Open the demo",
     "faq": "Questions",
@@ -34,7 +34,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
       "Размещаем, исправляем и добавляем то, что понадобится дальше"
     ],
     "example": "Посмотреть, как это работает",
-    "from_": "От 500 €, с письменной оценкой до начала работы",
+    "from_": "Письменная оценка до начала работы",
     "cta": "Описать задачу",
     "demo": "Открыть демо",
     "faq": "Вопросы",
@@ -53,7 +53,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
       "Wir hosten es, beheben Fehler und ergänzen, was als Nächstes nötig ist"
     ],
     "example": "So funktioniert es",
-    "from_": "Ab 500 €, mit schriftlichem Angebot vor Projektstart",
+    "from_": "Mit schriftlichem Angebot vor Projektstart",
     "cta": "Aufgabe beschreiben",
     "demo": "Demo öffnen",
     "faq": "Fragen",
@@ -72,7 +72,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
       "Nous l'hébergeons, corrigeons les problèmes et ajoutons la suite"
     ],
     "example": "Voir comment ça marche",
-    "from_": "Dès 500 €, avec une estimation écrite avant de commencer",
+    "from_": "Avec une estimation écrite avant de commencer",
     "cta": "Décrire votre besoin",
     "demo": "Ouvrir la démo",
     "faq": "Questions",
@@ -91,7 +91,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
       "Hostujeme, opravujeme a pridávame, čo bude treba ďalej"
     ],
     "example": "Pozrite si, ako to funguje",
-    "from_": "Od 500 €, s písomným odhadom pred začiatkom práce",
+    "from_": "S písomným odhadom pred začiatkom práce",
     "cta": "Popísať zadanie",
     "demo": "Otvoriť ukážku",
     "faq": "Otázky",
@@ -110,7 +110,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
       "Hostujeme, opravujeme a přidáváme, co bude potřeba dál"
     ],
     "example": "Podívejte se, jak to funguje",
-    "from_": "Od 500 €, s písemným odhadem před zahájením práce",
+    "from_": "S písemným odhadem před zahájením práce",
     "cta": "Popsat zadání",
     "demo": "Otevřít ukázku",
     "faq": "Otázky",
@@ -129,7 +129,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
       "Орналастырамыз, қателерді түзетеміз және келесі қажетті нәрсені қосамыз"
     ],
     "example": "Бұл қалай жұмыс істейтінін қараңыз",
-    "from_": "500 €-дан, жұмыс басталмай тұрып жазбаша бағамен",
+    "from_": "Жұмыс басталмай тұрып жазбаша бағамен",
     "cta": "Міндетті сипаттау",
     "demo": "Демоны ашу",
     "faq": "Сұрақтар",
@@ -146,7 +146,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "en": {
       "name": "Car services and tyre shops",
       "title": "Online Booking System for Car Services | Mirelli Studio",
-      "description": "Online booking for garages and tyre shops: customers pick a service and a time, you get a clear calendar and automatic reminders. Built for you, from €500.",
+      "description": "Online booking for garages and tyre shops: customers pick a service and a time, you get a clear calendar and automatic reminders.",
       "h1": "Online booking system for car services and tyre shops",
       "lead": "Fewer phone calls and fewer missed appointments. Customers choose a service and a free time on your website, and your team sees the day at a glance. We build it around how your garage works.",
       "checks": [
@@ -177,7 +177,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "ru": {
       "name": "Автосервисы и шиномонтаж",
       "title": "Онлайн-запись для автосервиса и шиномонтажа | Mirelli Studio",
-      "description": "Онлайн-запись для автосервисов и шиномонтажа: клиент выбирает услугу и время, у вас понятный календарь и автоматические напоминания. Под ваш бизнес, от 500 €.",
+      "description": "Онлайн-запись для автосервисов и шиномонтажа: клиент выбирает услугу и время, у вас понятный календарь и автоматические напоминания.",
       "h1": "Система онлайн-записи для автосервиса и шиномонтажа",
       "lead": "Меньше звонков и меньше неявок. Клиент выбирает услугу и свободное время на вашем сайте, а команда видит день целиком. Мы строим систему под то, как работает ваш сервис.",
       "checks": [
@@ -208,7 +208,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "de": {
       "name": "Autowerkstätten und Reifenservice",
       "title": "Online-Terminbuchung für Autowerkstätten | Mirelli Studio",
-      "description": "Online-Terminbuchung für Werkstätten und Reifenservice: Kunden wählen Leistung und Uhrzeit, Sie haben einen klaren Kalender und automatische Erinnerungen. Ab 500 €.",
+      "description": "Online-Terminbuchung für Werkstätten und Reifenservice: Kunden wählen Leistung und Uhrzeit, Sie haben einen klaren Kalender und automatische Erinnerungen.",
       "h1": "Online-Terminbuchung für Autowerkstätten und Reifenservice",
       "lead": "Weniger Telefonate und weniger verpasste Termine. Kunden wählen auf Ihrer Website eine Leistung und eine freie Zeit, und Ihr Team sieht den Tag auf einen Blick. Wir bauen das System passend zu den Abläufen Ihrer Werkstatt.",
       "checks": [
@@ -239,7 +239,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "fr": {
       "name": "Garages et centres de pneus",
       "title": "Réservation en ligne pour garages et pneus | Mirelli Studio",
-      "description": "Réservation en ligne pour garages et centres de pneus : le client choisit une prestation et un créneau, vous avez un calendrier clair et des rappels automatiques. Dès 500 €.",
+      "description": "Réservation en ligne pour garages et centres de pneus : le client choisit une prestation et un créneau, vous avez un calendrier clair et des rappels automatiques.",
       "h1": "Système de réservation en ligne pour garages et centres de pneus",
       "lead": "Moins d'appels et moins de rendez-vous manqués. Vos clients choisissent une prestation et un créneau libre sur votre site, et votre équipe voit la journée d'un coup d'œil. Nous le construisons autour du fonctionnement de votre garage.",
       "checks": [
@@ -270,7 +270,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "sk": {
       "name": "Autoservisy a pneuservisy",
       "title": "Rezervačný systém pre autoservis a pneuservis | Mirelli Studio",
-      "description": "Online rezervácie pre autoservisy a pneuservisy: zákazník si vyberie službu a termín, vy máte prehľadný kalendár a automatické pripomienky. Na mieru, od 500 €.",
+      "description": "Online rezervácie pre autoservisy a pneuservisy: zákazník si vyberie službu a termín, vy máte prehľadný kalendár a automatické pripomienky.",
       "h1": "Rezervačný systém pre autoservis a pneuservis",
       "lead": "Menej telefonátov a menej zmeškaných termínov. Zákazník si na vašom webe vyberie službu a voľný čas a váš tím vidí celý deň na jednom mieste. Postavíme to podľa toho, ako funguje váš servis. Pracujeme s firmami na Slovensku, v Česku, Rakúsku a Nemecku.",
       "checks": [
@@ -301,7 +301,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "cs": {
       "name": "Autoservisy a pneuservisy",
       "title": "Rezervační systém pro autoservis a pneuservis | Mirelli Studio",
-      "description": "Online rezervace pro autoservisy a pneuservisy: zákazník si vybere službu a termín, vy máte přehledný kalendář a automatické připomínky. Na míru, od 500 €.",
+      "description": "Online rezervace pro autoservisy a pneuservisy: zákazník si vybere službu a termín, vy máte přehledný kalendář a automatické připomínky. Na míru.",
       "h1": "Rezervační systém pro autoservis a pneuservis",
       "lead": "Méně telefonátů a méně zmeškaných termínů. Zákazník si na vašem webu vybere službu a volný čas a váš tým vidí celý den na jednom místě. Postavíme to podle toho, jak funguje váš servis. Pracujeme s firmami v Česku, na Slovensku, v Rakousku a v Německu.",
       "checks": [
@@ -332,7 +332,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "kk": {
       "name": "Автосервистер мен шиномонтаж",
       "title": "Автосервис пен шиномонтажға арналған онлайн жазылу жүйесі",
-      "description": "Автосервистер мен шиномонтажға арналған онлайн жазылу: клиент қызмет пен уақытты таңдайды, сізде түсінікті күнтізбе және автоматты еске салғыштар. Бизнесіңізге, 500 €-дан.",
+      "description": "Автосервистер мен шиномонтажға арналған онлайн жазылу: клиент қызмет пен уақытты таңдайды, сізде түсінікті күнтізбе және автоматты еске салғыштар.",
       "h1": "Автосервис пен шиномонтажға арналған онлайн жазылу жүйесі",
       "lead": "Қоңыраулар аз және келмей қалу аз. Клиент сайтыңызда қызмет пен бос уақытты таңдайды, ал командаңыз күнді бір қарауда көреді. Біз жүйені сервисіңіздің жұмыс тәсіліне сай жасаймыз.",
       "checks": [
@@ -366,7 +366,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "en": {
       "name": "Hair and beauty salons",
       "title": "Online Booking for Hair and Beauty Salons | Mirelli Studio",
-      "description": "Online booking for salons: clients choose a service, a stylist and a time, and get reminders. A system built around your salon, from €500.",
+      "description": "Online booking for salons: clients choose a service, a stylist and a time, and get reminders. A system built around your salon.",
       "h1": "Online booking system for hair and beauty salons",
       "lead": "Clients book a stylist and a time themselves, even when the salon is closed, and you stop answering messages all day. We build it around your services, your team and your style.",
       "checks": [
@@ -397,7 +397,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "ru": {
       "name": "Парикмахерские и салоны красоты",
       "title": "Онлайн-запись для салонов красоты | Mirelli Studio",
-      "description": "Онлайн-запись для салонов: клиент выбирает услугу, мастера и время и получает напоминание. Система под ваш салон, от 500 €.",
+      "description": "Онлайн-запись для салонов: клиент выбирает услугу, мастера и время и получает напоминание. Система под ваш салон.",
       "h1": "Система онлайн-записи для парикмахерских и салонов красоты",
       "lead": "Клиенты сами записываются к мастеру на удобное время, даже когда салон закрыт, а вы перестаёте целый день отвечать на сообщения. Мы строим систему под ваши услуги, команду и стиль.",
       "checks": [
@@ -428,7 +428,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "de": {
       "name": "Friseur- und Kosmetiksalons",
       "title": "Online-Terminbuchung für Friseur und Kosmetik | Mirelli Studio",
-      "description": "Online-Terminbuchung für Salons: Kunden wählen Leistung, Stylist und Uhrzeit und erhalten Erinnerungen. Ein System für Ihren Salon, ab 500 €.",
+      "description": "Online-Terminbuchung für Salons: Kunden wählen Leistung, Stylist und Uhrzeit und erhalten Erinnerungen. Ein System für Ihren Salon.",
       "h1": "Online-Terminbuchung für Friseur- und Kosmetiksalons",
       "lead": "Kunden buchen Stylist und Termin selbst, auch wenn der Salon geschlossen ist, und Sie beantworten nicht mehr den ganzen Tag Nachrichten. Wir bauen das System passend zu Ihren Leistungen, Ihrem Team und Ihrem Stil.",
       "checks": [
@@ -459,7 +459,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "fr": {
       "name": "Salons de coiffure et de beauté",
       "title": "Réservation en ligne pour salons de coiffure | Mirelli Studio",
-      "description": "Réservation en ligne pour salons : le client choisit une prestation, un coiffeur et un créneau, et reçoit un rappel. Un système pour votre salon, dès 500 €.",
+      "description": "Réservation en ligne pour salons : le client choisit une prestation, un coiffeur et un créneau, et reçoit un rappel. Un système pour votre salon.",
       "h1": "Système de réservation en ligne pour salons de coiffure et de beauté",
       "lead": "Vos clients réservent eux-mêmes un coiffeur et un créneau, même quand le salon est fermé, et vous ne répondez plus aux messages toute la journée. Nous le construisons autour de vos prestations, de votre équipe et de votre style.",
       "checks": [
@@ -490,7 +490,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "sk": {
       "name": "Kaderníctva a salóny krásy",
       "title": "Online rezervácie pre kaderníctva a salóny | Mirelli Studio",
-      "description": "Online rezervácie pre salóny: klient si vyberie službu, kaderníčku a čas a dostane pripomienku. Systém na mieru pre váš salón, od 500 €.",
+      "description": "Online rezervácie pre salóny: klient si vyberie službu, kaderníčku a čas a dostane pripomienku. Systém na mieru pre váš salón.",
       "h1": "Rezervačný systém pre kaderníctva a salóny krásy",
       "lead": "Klienti si sami rezervujú kaderníčku a čas, aj keď je salón zatvorený, a vy prestanete celý deň odpisovať na správy. Postavíme to podľa vašich služieb, tímu a štýlu. Pracujeme s firmami na Slovensku, v Česku, Rakúsku a Nemecku.",
       "checks": [
@@ -521,7 +521,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "cs": {
       "name": "Kadeřnictví a salony krásy",
       "title": "Online rezervace pro kadeřnictví a salony | Mirelli Studio",
-      "description": "Online rezervace pro salony: klient si vybere službu, kadeřnici a čas a dostane připomínku. Systém na míru pro váš salon, od 500 €.",
+      "description": "Online rezervace pro salony: klient si vybere službu, kadeřnici a čas a dostane připomínku. Systém na míru pro váš salon.",
       "h1": "Rezervační systém pro kadeřnictví a salony krásy",
       "lead": "Klienti si sami rezervují kadeřnici a čas, i když je salon zavřený, a vy přestanete celý den odpovídat na zprávy. Postavíme to podle vašich služeb, týmu a stylu. Pracujeme s firmami v Česku, na Slovensku, v Rakousku a v Německu.",
       "checks": [
@@ -552,7 +552,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "kk": {
       "name": "Шаштараз және сұлулық салондары",
       "title": "Сұлулық салондарына арналған онлайн жазылу | Mirelli Studio",
-      "description": "Салондарға арналған онлайн жазылу: клиент қызметті, шебер мен уақытты таңдайды және еске салу алады. Салоныңызға арналған жүйе, 500 €-дан.",
+      "description": "Салондарға арналған онлайн жазылу: клиент қызметті, шебер мен уақытты таңдайды және еске салу алады. Салоныңызға арналған жүйе.",
       "h1": "Шаштараз және сұлулық салондарына арналған онлайн жазылу жүйесі",
       "lead": "Клиенттер салон жабық болғанда да өздері шеберге ыңғайлы уақытқа жазылады, ал сіз күні бойы хабарламаларға жауап беруді доғарасыз. Қызметтеріңіз, командаңыз және стиліңізге сай жүйе жасаймыз.",
       "checks": [
@@ -586,7 +586,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "en": {
       "name": "Restaurants and cafés",
       "title": "Table Reservations and Online Ordering for Restaurants",
-      "description": "Online table reservations and ordering for restaurants and cafés: a live order board, menu with stop list and clear daily numbers. Built for you, from €500.",
+      "description": "Online table reservations and ordering for restaurants and cafés: a live order board, menu with stop list and clear daily numbers.",
       "h1": "Table reservations and online ordering for restaurants and cafés",
       "lead": "Guests reserve a table or order online, and the kitchen sees every order on one screen. We build it around your menu and the way your place runs, without a heavy till system.",
       "checks": [
@@ -617,7 +617,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "ru": {
       "name": "Рестораны и кафе",
       "title": "Бронирование столов и онлайн-заказы для ресторанов",
-      "description": "Онлайн-бронирование столов и заказы для ресторанов и кафе: живая доска заказов, меню со стоп-листом и понятные цифры за день. Под ваш бизнес, от 500 €.",
+      "description": "Онлайн-бронирование столов и заказы для ресторанов и кафе: живая доска заказов, меню со стоп-листом и понятные цифры за день.",
       "h1": "Бронирование столов и онлайн-заказы для ресторанов и кафе",
       "lead": "Гости бронируют стол или заказывают онлайн, а кухня видит каждый заказ на одном экране. Мы строим систему под ваше меню и порядок работы, без тяжёлой кассовой системы.",
       "checks": [
@@ -648,7 +648,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "de": {
       "name": "Restaurants und Cafés",
       "title": "Tischreservierung und Online-Bestellung für Restaurants",
-      "description": "Online-Tischreservierung und Bestellung für Restaurants und Cafés: Live-Bestelltafel, Speisekarte mit Stopp-Liste und klare Tageszahlen. Ab 500 €.",
+      "description": "Online-Tischreservierung und Bestellung für Restaurants und Cafés: Live-Bestelltafel, Speisekarte mit Stopp-Liste und klare Tageszahlen.",
       "h1": "Tischreservierung und Online-Bestellung für Restaurants und Cafés",
       "lead": "Gäste reservieren einen Tisch oder bestellen online, und die Küche sieht jede Bestellung auf einem Bildschirm. Wir bauen das System passend zu Ihrer Speisekarte und Ihren Abläufen, ohne schwerfälliges Kassensystem.",
       "checks": [
@@ -679,7 +679,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "fr": {
       "name": "Restaurants et cafés",
       "title": "Réservation de tables et commande en ligne pour restaurants",
-      "description": "Réservation de tables et commande en ligne pour restaurants et cafés : tableau de commandes en direct, carte avec liste d'indisponibilités et chiffres du jour. Dès 500 €.",
+      "description": "Réservation de tables et commande en ligne pour restaurants et cafés : tableau de commandes en direct, carte avec liste d'indisponibilités et chiffres du jour.",
       "h1": "Réservation de tables et commande en ligne pour restaurants et cafés",
       "lead": "Les clients réservent une table ou commandent en ligne, et la cuisine voit chaque commande sur un seul écran. Nous le construisons autour de votre carte et de votre organisation, sans caisse lourde.",
       "checks": [
@@ -710,7 +710,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "sk": {
       "name": "Reštaurácie a kaviarne",
       "title": "Rezervácia stolov a online objednávky pre reštaurácie",
-      "description": "Online rezervácia stolov a objednávky pre reštaurácie a kaviarne: živá tabuľa objednávok, menu so stop zoznamom a prehľadné čísla za deň. Na mieru, od 500 €.",
+      "description": "Online rezervácia stolov a objednávky pre reštaurácie a kaviarne: živá tabuľa objednávok, menu so stop zoznamom a prehľadné čísla za deň.",
       "h1": "Rezervácia stolov a online objednávky pre reštaurácie a kaviarne",
       "lead": "Hostia si rezervujú stôl alebo objednávajú online a kuchyňa vidí každú objednávku na jednej obrazovke. Postavíme to podľa vášho menu a spôsobu práce, bez ťažkopádneho pokladničného systému. Pracujeme s firmami na Slovensku, v Česku, Rakúsku a Nemecku.",
       "checks": [
@@ -741,7 +741,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "cs": {
       "name": "Restaurace a kavárny",
       "title": "Rezervace stolů a online objednávky pro restaurace",
-      "description": "Online rezervace stolů a objednávky pro restaurace a kavárny: živá tabule objednávek, menu se stop seznamem a přehledná čísla za den. Na míru, od 500 €.",
+      "description": "Online rezervace stolů a objednávky pro restaurace a kavárny: živá tabule objednávek, menu se stop seznamem a přehledná čísla za den. Na míru.",
       "h1": "Rezervace stolů a online objednávky pro restaurace a kavárny",
       "lead": "Hosté si rezervují stůl nebo objednávají online a kuchyně vidí každou objednávku na jedné obrazovce. Postavíme to podle vašeho menu a způsobu práce, bez těžkopádného pokladního systému. Pracujeme s firmami v Česku, na Slovensku, v Rakousku a v Německu.",
       "checks": [
@@ -772,7 +772,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "kk": {
       "name": "Мейрамханалар мен кафелер",
       "title": "Мейрамханаларға арналған үстел брондау және онлайн тапсырыс",
-      "description": "Мейрамхана мен кафеге арналған үстел брондау және онлайн тапсырыс: тапсырыстардың тірі тақтасы, стоп-тізімі бар мәзір және күннің түсінікті сандары. Бизнесіңізге, 500 €-дан.",
+      "description": "Мейрамхана мен кафеге арналған үстел брондау және онлайн тапсырыс: тапсырыстардың тірі тақтасы, стоп-тізімі бар мәзір және күннің түсінікті сандары.",
       "h1": "Мейрамхана мен кафеге арналған үстел брондау және онлайн тапсырыс",
       "lead": "Қонақтар үстел брондайды немесе онлайн тапсырыс береді, ал асхана әр тапсырысты бір экраннан көреді. Жүйені мәзіріңіз бен жұмыс тәртібіңізге сай жасаймыз, ауыр касса жүйесінсіз.",
       "checks": [
@@ -806,7 +806,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "en": {
       "name": "Clinics, vets and therapists",
       "title": "Online Appointment Booking for Clinics and Vets",
-      "description": "Online appointment booking for clinics, vets, dentists and therapists: patients pick a service and a time, you get reminders and a clear schedule. From €500.",
+      "description": "Online appointment booking for clinics, vets, dentists and therapists: patients pick a service and a time, you get reminders and a clear schedule.",
       "h1": "Online appointment booking for clinics, vets and therapists",
       "lead": "Patients book a visit without calling during opening hours, and automatic reminders reduce missed appointments. We build it around your services and your specialists, with attention to privacy.",
       "checks": [
@@ -837,7 +837,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "ru": {
       "name": "Клиники, ветеринары и терапевты",
       "title": "Онлайн-запись на приём для клиник и ветеринаров",
-      "description": "Онлайн-запись на приём для клиник, ветеринаров, стоматологов и терапевтов: пациент выбирает услугу и время, у вас напоминания и понятное расписание. От 500 €.",
+      "description": "Онлайн-запись на приём для клиник, ветеринаров, стоматологов и терапевтов: пациент выбирает услугу и время, у вас напоминания и понятное расписание.",
       "h1": "Онлайн-запись на приём для клиник, ветеринаров и терапевтов",
       "lead": "Пациенты записываются на визит без звонка в рабочее время, а автоматические напоминания сокращают неявки. Мы строим систему под ваши услуги и специалистов, с вниманием к конфиденциальности.",
       "checks": [
@@ -868,7 +868,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "de": {
       "name": "Praxen, Tierärzte und Therapeuten",
       "title": "Online-Terminbuchung für Praxen und Tierärzte | Mirelli Studio",
-      "description": "Online-Terminbuchung für Praxen, Tierärzte, Zahnärzte und Therapeuten: Patienten wählen Leistung und Zeit, Sie haben Erinnerungen und einen klaren Plan. Ab 500 €.",
+      "description": "Online-Terminbuchung für Praxen, Tierärzte, Zahnärzte und Therapeuten: Patienten wählen Leistung und Zeit, Sie haben Erinnerungen und einen klaren Plan.",
       "h1": "Online-Terminbuchung für Praxen, Tierärzte und Therapeuten",
       "lead": "Patienten buchen einen Termin, ohne in den Öffnungszeiten anzurufen, und automatische Erinnerungen verringern verpasste Termine. Wir bauen das System passend zu Ihren Leistungen und Ihren Fachkräften, mit Blick auf den Datenschutz.",
       "checks": [
@@ -899,7 +899,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "fr": {
       "name": "Cliniques, vétérinaires et thérapeutes",
       "title": "Prise de rendez-vous en ligne pour cliniques et vétérinaires",
-      "description": "Prise de rendez-vous en ligne pour cliniques, vétérinaires, dentistes et thérapeutes : le patient choisit une prestation et un créneau, vous avez rappels et planning clair. Dès 500 €.",
+      "description": "Prise de rendez-vous en ligne pour cliniques, vétérinaires, dentistes et thérapeutes : le patient choisit une prestation et un créneau, vous avez rappels et planning clair.",
       "h1": "Prise de rendez-vous en ligne pour cliniques, vétérinaires et thérapeutes",
       "lead": "Les patients prennent rendez-vous sans appeler pendant les heures d'ouverture, et les rappels automatiques réduisent les rendez-vous manqués. Nous le construisons autour de vos prestations et de vos praticiens, en veillant à la confidentialité.",
       "checks": [
@@ -930,7 +930,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "sk": {
       "name": "Ambulancie, veterinári a terapeuti",
       "title": "Online objednávanie pre ambulancie a veterinárov",
-      "description": "Online objednávanie pre ambulancie, veterinárov, zubárov a terapeutov: pacient si vyberie službu a čas, vy máte pripomienky a prehľadný rozvrh. Od 500 €.",
+      "description": "Online objednávanie pre ambulancie, veterinárov, zubárov a terapeutov: pacient si vyberie službu a čas, vy máte pripomienky a prehľadný rozvrh.",
       "h1": "Online objednávanie pre ambulancie, veterinárov a terapeutov",
       "lead": "Pacienti sa objednajú bez telefonátu v ordinačných hodinách a automatické pripomienky znižujú zmeškané termíny. Postavíme to podľa vašich služieb a odborníkov, s dôrazom na súkromie. Pracujeme s firmami na Slovensku, v Česku, Rakúsku a Nemecku.",
       "checks": [
@@ -961,7 +961,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "cs": {
       "name": "Ordinace, veterináři a terapeuti",
       "title": "Online objednávání pro ordinace a veterináře | Mirelli Studio",
-      "description": "Online objednávání pro ordinace, veterináře, zubaře a terapeuty: pacient si vybere službu a čas, vy máte připomínky a přehledný rozvrh. Od 500 €.",
+      "description": "Online objednávání pro ordinace, veterináře, zubaře a terapeuty: pacient si vybere službu a čas, vy máte připomínky a přehledný rozvrh.",
       "h1": "Online objednávání pro ordinace, veterináře a terapeuty",
       "lead": "Pacienti se objednají bez telefonátu v ordinačních hodinách a automatické připomínky snižují zmeškané termíny. Postavíme to podle vašich služeb a odborníků, s ohledem na soukromí. Pracujeme s firmami v Česku, na Slovensku, v Rakousku a v Německu.",
       "checks": [
@@ -992,7 +992,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "kk": {
       "name": "Клиникалар, ветеринарлар және терапевтер",
       "title": "Клиникалар мен ветеринарларға арналған қабылдауға онлайн жазылу",
-      "description": "Клиника, ветеринар, стоматолог және терапевтерге арналған қабылдауға онлайн жазылу: пациент қызмет пен уақытты таңдайды, сізде еске салғыштар мен түсінікті кесте. 500 €-дан.",
+      "description": "Клиника, ветеринар, стоматолог және терапевтерге арналған қабылдауға онлайн жазылу: пациент қызмет пен уақытты таңдайды, сізде еске салғыштар мен түсінікті кесте.",
       "h1": "Клиникалар, ветеринарлар және терапевтерге арналған қабылдауға онлайн жазылу",
       "lead": "Пациенттер жұмыс уақытында қоңырау шалмай визитке жазылады, ал автоматты еске салғыштар келмеуді азайтады. Қызметтеріңіз бен мамандарыңызға сай, құпиялылыққа назар аудара отырып жүйе жасаймыз.",
       "checks": [
@@ -1026,7 +1026,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "en": {
       "name": "Coworking, studios and sports clubs",
       "title": "Booking, Memberships and Door Access for Coworking and Clubs",
-      "description": "One system for coworkings, studios and clubs: desk and room booking, memberships and billing, and door access by rules. Built for you, from €500.",
+      "description": "One system for coworkings, studios and clubs: desk and room booking, memberships and billing, and door access by rules.",
       "h1": "Booking, memberships and door access for coworking spaces and clubs",
       "lead": "Members book a desk, a room or a class, pay by plan, and the door opens for them by itself. You stop handing out keys, chasing payments and answering the same messages.",
       "checks": [
@@ -1057,7 +1057,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "ru": {
       "name": "Коворкинги, студии и спортивные клубы",
       "title": "Бронирование, абонементы и доступ для коворкингов и клубов",
-      "description": "Одна система для коворкингов, студий и клубов: бронирование мест и комнат, абонементы и оплата, доступ в двери по правилам. Под ваш бизнес, от 500 €.",
+      "description": "Одна система для коворкингов, студий и клубов: бронирование мест и комнат, абонементы и оплата, доступ в двери по правилам.",
       "h1": "Бронирование, абонементы и доступ в двери для коворкингов и клубов",
       "lead": "Участники сами бронируют место, комнату или занятие, платят по тарифу, а дверь открывается для них сама. Вы перестаёте выдавать ключи, догонять платежи и отвечать на одни и те же сообщения.",
       "checks": [
@@ -1088,7 +1088,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "de": {
       "name": "Coworking, Studios und Sportclubs",
       "title": "Buchung, Mitgliedschaften und Zutritt für Coworking und Clubs",
-      "description": "Ein System für Coworking-Spaces, Studios und Clubs: Buchung von Plätzen und Räumen, Mitgliedschaften und Abrechnung, Türzutritt nach Regeln. Ab 500 €.",
+      "description": "Ein System für Coworking-Spaces, Studios und Clubs: Buchung von Plätzen und Räumen, Mitgliedschaften und Abrechnung, Türzutritt nach Regeln.",
       "h1": "Buchung, Mitgliedschaften und Türzutritt für Coworking-Spaces und Clubs",
       "lead": "Mitglieder buchen selbst einen Platz, einen Raum oder einen Kurs, zahlen nach Tarif, und die Tür öffnet sich von allein. Sie müssen keine Schlüssel mehr verteilen, keinen Zahlungen hinterherlaufen und nicht ständig dieselben Nachrichten beantworten.",
       "checks": [
@@ -1119,7 +1119,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "fr": {
       "name": "Coworkings, studios et clubs de sport",
       "title": "Réservation, abonnements et accès pour coworkings et clubs",
-      "description": "Un seul système pour coworkings, studios et clubs : réservation de postes et de salles, abonnements et facturation, accès aux portes selon des règles. Dès 500 €.",
+      "description": "Un seul système pour coworkings, studios et clubs : réservation de postes et de salles, abonnements et facturation, accès aux portes selon des règles.",
       "h1": "Réservation, abonnements et accès aux portes pour coworkings et clubs",
       "lead": "Les membres réservent eux-mêmes un poste, une salle ou un cours, paient selon leur formule, et la porte s'ouvre toute seule pour eux. Plus de clés à remettre, de paiements à relancer ni de mêmes messages à traiter.",
       "checks": [
@@ -1150,7 +1150,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "sk": {
       "name": "Coworkingy, štúdiá a športové kluby",
       "title": "Rezervácie, členstvá a prístup pre coworkingy a kluby",
-      "description": "Jeden systém pre coworkingy, štúdiá a kluby: rezervácia miest a miestností, členstvá a platby, prístup cez dvere podľa pravidiel. Na mieru, od 500 €.",
+      "description": "Jeden systém pre coworkingy, štúdiá a kluby: rezervácia miest a miestností, členstvá a platby, prístup cez dvere podľa pravidiel.",
       "h1": "Rezervácie, členstvá a prístup cez dvere pre coworkingy a kluby",
       "lead": "Členovia si sami rezervujú miesto, miestnosť alebo lekciu, platia podľa tarifu a dvere sa im otvoria samy. Prestanete rozdávať kľúče, naháňať platby a odpisovať na tie isté správy. Pracujeme s firmami na Slovensku, v Česku, Rakúsku a Nemecku.",
       "checks": [
@@ -1181,7 +1181,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "cs": {
       "name": "Coworkingy, ateliéry a sportovní kluby",
       "title": "Rezervace, členství a přístup pro coworkingy a kluby",
-      "description": "Jeden systém pro coworkingy, ateliéry a kluby: rezervace míst a místností, členství a platby, přístup dveřmi podle pravidel. Na míru, od 500 €.",
+      "description": "Jeden systém pro coworkingy, ateliéry a kluby: rezervace míst a místností, členství a platby, přístup dveřmi podle pravidel. Na míru.",
       "h1": "Rezervace, členství a přístup dveřmi pro coworkingy a kluby",
       "lead": "Členové si sami rezervují místo, místnost nebo lekci, platí podle tarifu a dveře se jim otevřou samy. Přestanete rozdávat klíče, honit platby a odpovídat na stále stejné zprávy. Pracujeme s firmami v Česku, na Slovensku, v Rakousku a v Německu.",
       "checks": [
@@ -1212,7 +1212,7 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
     "kk": {
       "name": "Коворкингтер, студиялар және спорт клубтары",
       "title": "Коворкинг пен клубтарға арналған брондау, абонементтер және қолжетімділік",
-      "description": "Коворкинг, студия және клубтарға арналған бір жүйе: орын мен бөлмелерді брондау, абонементтер мен төлем, ереже бойынша есікке кіру. Бизнесіңізге, 500 €-дан.",
+      "description": "Коворкинг, студия және клубтарға арналған бір жүйе: орын мен бөлмелерді брондау, абонементтер мен төлем, ереже бойынша есікке кіру.",
       "h1": "Коворкинг пен клубтарға арналған брондау, абонементтер және есікке кіру",
       "lead": "Қатысушылар орынды, бөлмені немесе сабақты өздері брондайды, тариф бойынша төлейді, ал есік олар үшін өздігінен ашылады. Кілт таратпайсыз, төлем қуаламайсыз және бір хабарламаларға жауап бермейсіз.",
       "checks": [

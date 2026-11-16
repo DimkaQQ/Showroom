@@ -27,7 +27,7 @@ export function Home({ lang }: { lang: Lang }) {
         <Process t={t} />
         <Faq t={t} />
       </main>
-      <Stack t={t} />
+      <Stack />
       <Contact lang={lang} t={t} />
       <Footer lang={lang} t={t} />
       <Enhance />
@@ -80,7 +80,7 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
       <div className="reel" aria-hidden="true">
         <div className="reel-track">
           {[...projects, ...projects].map((p, i) => (
-            <a key={i} className="reel-item" href={`#${p.id}`} tabIndex={-1} style={{ background: p.stage }}>
+            <a key={i} className="reel-item" href={`#${p.id}`} tabIndex={-1}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`/shots/${p.id}-s.webp`} width={720} height={450} alt="" loading={i < 3 ? "eager" : "lazy"} decoding="async" />
             </a>
@@ -103,7 +103,7 @@ function Hero({ lang, t }: { lang: Lang; t: T }) {
 
       <h1 className="wordmark">
         <Letters word={first} from={0} /> <Letters word={second} from={first.length} />
-        <span className="sr-only">{siteConfig.name} — {t.hero.descriptor}</span>
+        <span className="sr-only">{siteConfig.name}: {t.hero.descriptor}</span>
       </h1>
     </header>
   );
@@ -120,7 +120,7 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
       <div className="scene">
         <div className="stage">
           {projects.map((p, i) => (
-            <div key={p.id} className={`frame${i === 0 ? " is-active" : ""}`} data-frame={p.id} style={{ background: p.stage }}>
+            <div key={p.id} className={`frame${i === 0 ? " is-active" : ""}`} data-frame={p.id}>
               <div className="frame-in">
                 <div className="win" data-win>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -128,7 +128,7 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
                     {...(i === 0 ? { src: `/shots/${p.id}.webp` } : { "data-src": `/shots/${p.id}.webp` })}
                     width={1200}
                     height={750}
-                    alt={`${p.name} — ${t.showroom.projects[i].tagline}`}
+                    alt={`${p.name}: ${t.showroom.projects[i].tagline}`}
                     decoding="async"
                   />
                   <iframe
@@ -154,22 +154,23 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
             const href = `https://${p.subdomain}.${siteConfig.domain}`;
             return (
               <li key={p.id} className="project" data-project={p.id} id={p.id}>
-                <a className="inline-shot" href={href} target="_blank" rel="nofollow noopener noreferrer" style={{ background: p.stage }} tabIndex={-1} aria-hidden="true">
+                <a className="inline-shot" href={href} target="_blank" rel="nofollow noopener noreferrer" tabIndex={-1} aria-hidden="true">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={`/shots/${p.id}-s.webp`} width={720} height={450} alt="" loading="lazy" />
                 </a>
                 <div className="project-text">
+                  <p className="no" aria-hidden="true">No. {String(i + 1).padStart(2, "0")}</p>
                   <h3>{p.name}</h3>
                   <p className="tagline">{t.showroom.projects[i].tagline}, {p.year}</p>
                   <p className="desc">{t.showroom.projects[i].description}</p>
                   <p className="tags">{p.tags.join(", ")}</p>
                   <a className="btn btn-light" href={href} target="_blank" rel="nofollow noopener noreferrer">
                     {t.showroom.explore}
-                    <span className="sr-only"> — {p.name}</span>
+                    <span className="sr-only">: {p.name}</span>
                   </a>
                   <a className="textlink" href={`${pathFor(lang)}work/${p.id}/`}>
                     {t.showroom.caseStudy}
-                    <span className="sr-only"> — {p.name}</span>
+                    <span className="sr-only">: {p.name}</span>
                   </a>
                 </div>
               </li>
@@ -296,16 +297,14 @@ function Niches({ lang }: { lang: Lang }) {
   );
 }
 
-function Stack({ t }: { t: T }) {
+function Stack() {
   return (
     <section className="stack" aria-label="Stack">
-      <button type="button" className="mq-toggle" data-mq aria-pressed="false" data-on={t.nav.pause} data-off={t.nav.play}>{t.nav.pause}</button>
-      <p className="sr-only">{STACK.join(", ")}</p>
-      <div className="stack-track" aria-hidden="true">
-        {[...STACK, ...STACK].map((s, i) => (
-          <span key={i}>{s}</span>
+      <ul className="stack-list">
+        {STACK.map((s) => (
+          <li key={s}>{s}</li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }
