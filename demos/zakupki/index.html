@@ -95,6 +95,14 @@ td small{display:block;color:var(--muted);font-size:12px;line-height:1.2}
 .empty{padding:40px 20px;text-align:center;color:var(--muted)}
 [hidden]{display:none!important}
 .cards{display:none}
+.need{display:block;color:var(--p-warn);font-size:12px;line-height:1.25;margin-top:2px}
+.hello{display:flex;gap:16px;justify-content:space-between;align-items:center;padding:16px 20px;margin-bottom:var(--gap)}
+.hello b{font-weight:500;font-size:15px}.hello p{margin:2px 0 0;color:var(--muted)}.hbtns{display:flex;gap:8px;flex:none}
+.gd h4{margin:18px 0 4px;font-size:13px;font-weight:400;color:var(--muted)}.gd p{margin:0;line-height:1.5}
+.gd .todo{background:var(--ground);border-radius:var(--rc);padding:12px 14px;margin-top:4px}
+.term{padding:10px 0;border-top:1px solid var(--rule)}.term b{display:block;font-weight:500}.term span{color:var(--muted)}
+.term .pill{display:block;width:fit-content;margin-bottom:6px}.hsteps{margin:6px 0 0;padding-left:20px}.hsteps li{margin:6px 0;line-height:1.45}
+.tb .hp{margin-right:8px;font-weight:700;font-size:18px}
 .pick.two{height:54px;min-width:220px;gap:12px;padding:0 12px}.pick.two .ic2{flex:none;color:var(--muted)}
 .pick.two .pl{display:flex;flex-direction:column;min-width:0;line-height:1.25;flex:1}.pick.two small{font-size:11px;color:var(--muted)}
 .pick.two b{font-weight:500;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -165,6 +173,8 @@ td small{display:block;color:var(--muted);font-size:12px;line-height:1.2}
  .srow{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:12px 16px}.srow.shead{display:none}
  .srow .shw{grid-column:1/-1;grid-row:2}.srow .am{grid-row:1;grid-column:2}.srow .dl{grid-row:3;grid-column:1/-1;text-align:left!important;font-size:13px}
  .tools #exp{display:none}
+ .hello{display:block}.hbtns{margin-top:12px}.hbtns .btn{flex:1;height:44px}
+ .ccard .nd{grid-column:1/-1;font-size:13px;color:var(--p-warn)}
 }
 @media (prefers-reduced-motion:no-preference){.sheet.on{animation:up .22s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}}}
 </style></head><body>
@@ -175,22 +185,23 @@ td small{display:block;color:var(--muted);font-size:12px;line-height:1.2}
   <button class="nav" data-go="check"><svg viewBox="0 0 16 16"><path d="M3 4h10M3 8h10M3 12h6"/></svg>Проверка цен</button>
   <button class="nav" data-go="dyn"><svg viewBox="0 0 16 16"><path d="M2 12l3.5-4 3 2.5L14 4"/></svg>Динамика цен</button>
   <button class="nav" data-go="sup"><svg viewBox="0 0 16 16"><path d="M2 6l6-3 6 3v1H2zM4 8v4m4-4v4m4-4v4M2 13h12"/></svg>Поставщики</button>
-  <div class="side-foot"><button class="btn sec th" style="width:100%;margin-bottom:12px">Тёмная тема</button><b>Демо-данные</b>Все названия и суммы вымышлены</div>
+  <div class="side-foot"><button class="btn sec" id="hbtn" style="width:100%;margin-bottom:8px">Как читать экран</button><button class="btn sec th" style="width:100%;margin-bottom:12px">Тёмная тема</button><b>Демо-данные</b>Все названия и суммы вымышлены</div>
 </aside>
 <div>
-<div class="tb"><svg class="mark" viewBox="0 0 30 30"><rect width="30" height="30" rx="7" style="fill:var(--accent)"/><path d="M8 20.5l5-6 3.5 3.5L22 10" style="stroke:var(--btnfg)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="10" r="2" fill="#4f8df0"/></svg><b id="tbt">Закупки</b><button class="th ic" aria-label="Сменить тему"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="7.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.75a7.25 7.25 0 0 0 0 14.5z" fill="currentColor"/></svg></button></div>
+<div class="tb"><svg class="mark" viewBox="0 0 30 30"><rect width="30" height="30" rx="7" style="fill:var(--accent)"/><path d="M8 20.5l5-6 3.5 3.5L22 10" style="stroke:var(--btnfg)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="22" cy="10" r="2" fill="#4f8df0"/></svg><b id="tbt">Закупки</b><button class="hp ic" id="hbtn2" aria-label="Как читать экран">?</button><button class="th ic" aria-label="Сменить тему"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="7.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 2.75a7.25 7.25 0 0 0 0 14.5z" fill="currentColor"/></svg></button></div>
 <main class="canvas">
   <div class="top"><div><h1 id="h1">Обзор</h1><p class="lede" id="lede"></p></div><button class="btn" id="cta">Открыть переплаты</button></div>
   <div class="scope"><button class="pick two" id="pbtn" type="button" aria-haspopup="dialog"><svg class="ic2" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 8.5h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="pl"><small>Период</small><b id="plbl"></b></span><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" class="chev"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="pick two" id="rbtn" type="button" aria-haspopup="dialog"><svg class="ic2" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M10 17.5s5.5-5 5.5-9.2A5.5 5.5 0 0 0 4.5 8.3c0 4.2 5.5 9.2 5.5 9.2z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="8.3" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="pl"><small>Точки</small><b id="rlbl"></b></span><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" class="chev"><path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
 
   <section class="page on" id="p-over">
+    <div class="card hello" id="hello" hidden><div><b>Впервые здесь?</b><p>За минуту объясним, что показывает экран и что делать с цифрами.</p></div><div class="hbtns"><button class="btn" id="hopen">Как читать</button><button class="btn sec" id="hclose">Понятно</button></div></div>
     <div class="card kpis" id="kpis"></div>
     <div class="grid">
       <div style="display:grid;gap:var(--gap)">
         <div class="card sec chart"><h2>Разница с договором по месяцам</h2><p class="sub" id="trsub"></p><div id="trend"></div></div>
         <div class="card sec"><h2>По точкам</h2><p class="sub">Разница с договором за выбранный период. Нажмите на точку, чтобы увидеть её позиции</p><div class="bars" id="bars"></div></div>
       </div>
-      <div class="rail"><h2>Что проверить в первую очередь</h2><div class="card"><div class="lines" id="attn"></div><button class="btn sec more" id="more">Все позиции с переплатой</button></div></div>
+      <div class="rail"><h2>Что проверить в первую очередь</h2><p class="sub" style="margin:0 0 10px">Где вы заплатили больше всего сверх договора. Нажмите на позицию: расскажем, что случилось и что делать.</p><div class="card"><div class="lines" id="attn"></div><button class="btn sec more" id="more">Все позиции с переплатой</button></div></div>
     </div>
   </section>
 
@@ -225,6 +236,9 @@ for(const mk of ['2026-10','2026-11']){const days=mk==='2026-11'?30:31
  WK.forEach(([a,b0],w)=>{const b=b0||days,key=`${mk}-w${w+1}`;PAR[key]=mk;WEEKS.push({k:key,m:mk,n:`${a}–${b} ${MON_G[mk]}`})
   DATA[key]=DATA[mk].map(r=>{if(r[4]==='notPurchased')return r;const f=(b-a+1)/days*(1+.25*noise(key+r.join('|'))),pf=1+.025*noise('p'+key+r[0]+r[1]+r[2])
    return[r[0],r[1],r[2],r[3],r[4],r[5],r[6]==null?null:r[6]*pf,r[7]*f,r[8]]})})}
+const DESIG={},UNITS={}
+for(const[mk]of MONTHS)for(const r of DATA[mk]){if(r[3])UNITS[r[2]]=r[3]}
+for(const[mk]of MONTHS)for(const r of DATA[mk])if(r[4]==='ok'||r[4]==='notPurchased'){DESIG[r[0]+'|'+r[2]]=r[1];DESIG['|'+r[2]]??=r[1]}
 const perName=k=>{const w=WEEKS.find(x=>x.k===k);return w?w.n:MONTHS.find(m=>m[0]===k)[1]+' 2026'}
 const prevOf=k=>{const w=WEEKS.findIndex(x=>x.k===k);if(w>=0)return w>0&&WEEKS[w-1].m===WEEKS[w].m?WEEKS[w-1].k:null;const i=MONTHS.findIndex(m=>m[0]===k);return i>0?MONTHS[i-1][0]:null}
 const prevLbl=k=>WEEKS.some(x=>x.k===k)?'к прошлой неделе':'к '+MONTHS.find(m=>m[0]===prevOf(k))[1].toLowerCase()
@@ -249,7 +263,7 @@ let S={m:'2026-11',rest:[],page:'over',q:'',sup:'',st:'',sort:'delta'}
 // строка: [точка, поставщик, товар, ед., статус, план, факт, кол-во, план назначенного]
 const rowsOf=m=>DATA[m].map(r=>{const plan=r[5]??r[8],q=r[7]||0,bought=r[4]!=='notPurchased'&&q>0
  const fact=bought&&r[6]!=null?q*r[6]:null,pl=bought&&plan!=null?q*plan:null
- return{rest:r[0],sup:r[1],prod:r[2],unit:r[3],st:r[4],pu:plan,fu:r[6],q,fact,pl,d:fact!=null&&pl!=null?pl-fact:null}})
+ return{need:r[4]==='wrongSupplier'?(DESIG[r[0]+'|'+r[2]]||DESIG['|'+r[2]]||null):null,rest:r[0],sup:r[1],prod:r[2],unit:r[3],st:r[4],pu:plan,fu:r[6],q,fact,pl,d:fact!=null&&pl!=null?pl-fact:null}})
 const scoped=(m,rest)=>rowsOf(m).filter(r=>!rest||!rest.length||rest.includes(r.rest))
 function metrics(m,rest){const R=scoped(m,rest),b=R.filter(r=>r.st!=='notPurchased')
  const ok=R.filter(r=>r.st==='ok'),wr=R.filter(r=>r.st==='wrongSupplier')
@@ -262,7 +276,9 @@ function fillSelects(){const rs=[...new Set(DATA[S.m].map(r=>r[0]))].sort()
  const ss=[...new Set(scoped(S.m,S.rest).map(r=>r.sup))].sort()
  if(S.sup&&!ss.includes(S.sup))S.sup=''
  $('#sup').innerHTML='<option value="">Все поставщики</option>'+ss.map(x=>`<option${x===S.sup?' selected':''}>${esc(x)}</option>`).join('')}
+function helloOn(){let d=null;try{d=localStorage.getItem('hello')}catch(e){}return d!=='1'}
 function over(){
+ $('#hello').hidden=!helloOn()
  const M=metrics(S.m,S.rest),pk=prevOf(S.m),prev=pk?metrics(pk,S.rest):null
  const dv=prev&&prev.fact?(M.fact/prev.fact-1)*100:null
  $('#kpis').innerHTML=`
@@ -290,7 +306,7 @@ function over(){
  $$('#bars .bar').forEach(b=>b.onclick=()=>{S.rest=[b.dataset.r];S.st='';S.sort='delta';go('check')})
  // attention
  const A=scoped(S.m,S.rest).filter(r=>r.d!=null&&r.d<0&&(r.st==='ok'||r.st==='wrongSupplier')).sort((a,b)=>a.d-b.d).slice(0,6)
- $('#attn').innerHTML=A.length?A.map((r,k)=>`<button class="ln" data-k="${k}"><span style="min-width:0"><div class="t">${esc(r.prod)}</div><div class="s">${esc(r.rest)} · ${esc(r.sup)}</div></span><span class="a neg">${sgn(r.d)}</span></button>`).join(''):'<div class="empty">Переплат нет</div>'
+ $('#attn').innerHTML=A.length?A.map((r,k)=>`<button class="ln" data-k="${k}"><span style="min-width:0"><div class="t">${esc(r.prod)}</div><div class="s">${esc(r.rest)} · ${r.need?'купили у '+esc(r.sup)+', нужно у '+esc(r.need):esc(r.sup)}</div></span><span class="a neg">${sgn(r.d)}</span></button>`).join(''):'<div class="empty">Переплат нет</div>'
  $$('#attn .ln').forEach(b=>b.onclick=()=>sheet(A[b.dataset.k]))
 }
 function filtered(){let R=scoped(S.m,S.rest);const q=S.q.trim().toLowerCase()
@@ -305,8 +321,8 @@ function check(){
  const K={delta:(a,b)=>(a.d??1e12)-(b.d??1e12),sum:(a,b)=>(b.fact??0)-(a.fact??0),rest:(a,b)=>a.rest.localeCompare(b.rest)||a.sup.localeCompare(b.sup)||a.prod.localeCompare(b.prod)}[S.sort]
  R=[...R].sort(K);LAST=R;const cap=R.slice(0,400)
  const pill=r=>`<span class="pill s-${r.st}">${LBL[r.st]}</span>`
- $('#tb').innerHTML=cap.map((r,k)=>`<tr class="row" tabindex="0" data-k="${k}"><td>${esc(r.rest)}</td><td>${esc(r.sup)}</td><td>${esc(r.prod)}<small>${esc(r.unit)}</small></td><td class="r">${r.pu==null?'<span class="grey">—</span>':money(r.pu)}</td><td class="r">${r.fu==null||r.st==='notPurchased'?'<span class="grey">—</span>':money(r.fu)}</td><td class="r">${r.q&&r.st!=='notPurchased'?fmt(r.q)+NB+esc(r.unit):'<span class="grey">—</span>'}</td><td class="r m ${r.d==null?'grey':cls(r.d)}">${r.d==null?'—':sgn(r.d)}</td><td>${pill(r)}</td></tr>`).join('')
- $('#cards').innerHTML=cap.map((r,k)=>`<button class="ccard" data-k="${k}"><span class="t">${esc(r.prod)}</span><span class="a ${r.d==null?'grey':cls(r.d)}">${r.d==null?'—':sgn(r.d)}</span><span class="s">${esc(r.rest)} · ${esc(r.sup)}</span><span class="p">${pill(r)}</span></button>`).join('')
+ $('#tb').innerHTML=cap.map((r,k)=>`<tr class="row" tabindex="0" data-k="${k}"><td>${esc(r.rest)}</td><td>${esc(r.sup)}${r.need?`<span class="need">Нужен: ${esc(r.need)}</span>`:''}</td><td>${esc(r.prod)}<small>${esc(r.unit)}</small></td><td class="r">${r.pu==null?'<span class="grey">—</span>':money(r.pu)}</td><td class="r">${r.fu==null||r.st==='notPurchased'?'<span class="grey">—</span>':money(r.fu)}</td><td class="r">${r.q&&r.st!=='notPurchased'?fmt(r.q)+NB+esc(r.unit):'<span class="grey">—</span>'}</td><td class="r m ${r.d==null?'grey':cls(r.d)}">${r.d==null?'—':sgn(r.d)}</td><td>${pill(r)}</td></tr>`).join('')
+ $('#cards').innerHTML=cap.map((r,k)=>`<button class="ccard" data-k="${k}"><span class="t">${esc(r.prod)}</span><span class="a ${r.d==null?'grey':cls(r.d)}">${r.d==null?'—':sgn(r.d)}</span><span class="s">${esc(r.rest)} · ${esc(r.sup)}</span><span class="p">${pill(r)}</span>${r.need?`<span class="nd">Нужно у: ${esc(r.need)}</span>`:''}</button>`).join('')
  $('#empty').hidden=!!cap.length
  $('#count').textContent=R.length>cap.length?`Показаны первые ${cap.length} из ${R.length}`:`Позиций: ${R.length}`
  $$('#tb .row').forEach(e=>{e.onclick=()=>sheet(cap[e.dataset.k]);e.onkeydown=ev=>{if(ev.key==='Enter')sheet(cap[e.dataset.k])}})
@@ -315,15 +331,48 @@ function check(){
 function sheet(r){
  const row=(k,v)=>`<div class="k">${k}</div><div class="vv">${v}</div>`
  $('#sheet').innerHTML=`<button class="x" aria-label="Закрыть" id="xx"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><h3 id="sh-t">${esc(r.prod)}</h3><span class="pill s-${r.st}">${LBL[r.st]}</span>
- <div class="kv">${row('Точка',esc(r.rest))}${row('Поставщик',esc(r.sup))}${row('Куплено',r.q&&r.st!=='notPurchased'?fmt(r.q)+NB+esc(r.unit):'—')}${row('Цена по договору',r.pu==null?'—':money(r.pu))}${row('Заплатили за единицу',r.fu==null||r.st==='notPurchased'?'—':money(r.fu))}${row('По договору за всё',r.pl==null?'—':money(r.pl))}${row('Заплатили за всё',r.fact==null?'—':money(r.fact))}${row('Разница с договором',r.d==null?'—':`<span class="m ${cls(r.d)}">${sgn(r.d)}</span>`)}</div>
- <p class="note">${WHY[r.st]}</p>`
+ <div class="kv">${row('Точка',esc(r.rest))}${row('Купили у',esc(r.sup))}${r.need?row('Должен быть',`<b>${esc(r.need)}</b>`):''}${row('Куплено',r.q&&r.st!=='notPurchased'?fmt(r.q)+NB+esc(r.unit):'—')}${row('Цена по договору',r.pu==null?'—':money(r.pu))}${row('Заплатили за единицу',r.fu==null||r.st==='notPurchased'?'—':money(r.fu))}${row('По договору за всё',r.pl==null?'—':money(r.pl))}${row('Заплатили за всё',r.fact==null?'—':money(r.fact))}${row('Разница с договором',r.d==null?'—':`<span class="m ${cls(r.d)}">${sgn(r.d)}</span>`)}</div>
+ ${guide(r)}`
  $('#sheet').classList.add('on');$('#veil').classList.add('on');$('#xx').focus()
  $('#xx').onclick=close}
+function guide(r){
+ const u=r.unit||UNITS[r.prod]||'',per=u?' за '+esc(u):'',pr=v=>v==null?'—':money(v),L=[]
+ const big=r.d!=null&&r.pl&&Math.abs(r.d)>r.pl*.02
+ if(r.st==='ok'){
+  L.push(['Что произошло',`В точке «${esc(r.rest)}» купили «${esc(r.prod)}» у ${esc(r.sup)} по ${pr(r.fu)}${per}. По договору цена ${pr(r.pu)}.`+(big&&r.d<0?` Заплатили на ${money(-r.d)} больше, чем должны были.`:big?` Вышло дешевле договора на ${money(r.d)}.`:' Разница небольшая.')])
+  L.push(['Что делать',big&&r.d<0?'Спросите у поставщика, почему цена выше договорной, и покажите накладную. Если цену повысили, договор нужно обновить.':'Ничего. Цена в порядке.'])}
+ if(r.st==='wrongSupplier'){
+  L.push(['Что произошло',`Товар «${esc(r.prod)}» в точке «${esc(r.rest)}» купили у ${esc(r.sup)}. По договору его нужно брать у ${r.need?'<b>'+esc(r.need)+'</b>':'другого поставщика'}.`+(r.d!=null?(r.d<0?` Из-за этого переплатили ${money(-r.d)} (у ${r.need?esc(r.need):'назначенного'} цена по договору ${pr(r.pu)}${per}).`:` Здесь вышло дешевле на ${money(r.d)}, но договор всё равно требует другого поставщика.`):'')])
+  L.push(['Что делать',`Следующий заказ на этот товар сделайте у ${r.need?'<b>'+esc(r.need)+'</b>':'назначенного поставщика'}. Если он не смог поставить, запишите причину: это пригодится при пересмотре договора.`])}
+ if(r.st==='nomatrix'){
+  L.push(['Что произошло',`В точке «${esc(r.rest)}» купили «${esc(r.prod)}» у ${esc(r.sup)}, но в договоре такого товара нет, поэтому цену не с чем сравнить.`])
+  L.push(['Что делать','Попросите закупщика согласовать цену с поставщиком и добавить товар в договор. Пока этого нет, проверить цену по этой позиции нельзя.'])}
+ if(r.st==='notPurchased'){
+  L.push(['Что произошло',`По договору у ${esc(r.sup)} для точки «${esc(r.rest)}» есть цена ${pr(r.pu)}${per}, но в выбранном периоде этот товар не закупали.`])
+  L.push(['Что делать','Если товар нужен, проверьте остатки и закажите. Если больше не используете, его можно убрать из договора.'])}
+ return `<div class="gd">`+L.map(([h,p],i)=>`<h4>${h}</h4>${i?`<div class="todo"><p>${p}</p></div>`:`<p>${p}</p>`}`).join('')+`</div>`}
+function openHelp(){
+ const pill=k=>`<span class="pill s-${k}">${LBL[k]}</span>`
+ $('#sheet').innerHTML=`<button class="x" aria-label="Закрыть" id="xx">`+XI+`</button><h3 id="sh-t">Как читать этот экран</h3>
+ <p style="margin:6px 0 0;line-height:1.5">Программа сравнивает цены, о которых вы договорились с поставщиками, с тем, сколько вы реально заплатили по накладным. Если заплатили больше, вы увидите сколько и где.</p>
+ <div class="pg">Что означают слова</div>
+ <div class="term"><b>По договору</b><span>Цена, о которой вы договорились с поставщиком.</span></div>
+ <div class="term"><b>Заплатили</b><span>Цена из накладной: по ней товар реально купили.</span></div>
+ <div class="term"><b>Разница с договором</b><span>Договор минус заплатили. Красный минус: переплата. Зелёный плюс: вышло дешевле.</span></div>
+ <div class="pg">Четыре статуса позиции</div>
+ <div class="term">${pill('ok')}<span>Купили у нужного поставщика. Цену можно сверить с договором.</span></div>
+ <div class="term">${pill('wrongSupplier')}<span>Товар есть в договоре, но купили у другого поставщика. В строке написано, у кого нужно брать.</span></div>
+ <div class="term">${pill('nomatrix')}<span>Такого товара в договоре нет. Цену не с чем сравнить, её нужно добавить.</span></div>
+ <div class="term">${pill('notPurchased')}<span>Цена по договору есть, но в этом периоде товар не покупали.</span></div>
+ <div class="pg">С чего начать</div>
+ <ol class="hsteps"><li>Выберите период и точки вверху.</li><li>Посмотрите «Что проверить в первую очередь»: там самые большие переплаты.</li><li>Нажмите на позицию. Мы напишем, что произошло и что сделать.</li></ol>
+ <div class="pfoot" style="grid-template-columns:1fr"><button class="btn" id="pok">Понятно</button></div>`
+ $('#sheet').classList.add('on');$('#veil').classList.add('on');$('#xx').onclick=close;$('#pok').onclick=close}
 function close(){$('#sheet').classList.remove('on');$('#veil').classList.remove('on')}
 $('#veil').onclick=close;document.addEventListener('keydown',e=>{if(e.key==='Escape')close()})
 function go(p){S.page=p;render()}
 const TITLES={over:'Обзор',check:'Проверка цен',dyn:'Динамика цен',sup:'Поставщики'}
-const LEDE={check:'Каждая строка: товар у поставщика в одной точке. «По договору» — цена, о которой договорились; «Заплатили» — цена по накладным.',dyn:'Как менялась цена, по которой реально покупали, и что было по договору.',sup:'Кому и сколько заплатили за период и где цена отклоняется от договора.'}
+const LEDE={check:'Каждая строка: товар у поставщика в одной точке. Нажмите на строку: покажем, что произошло и что делать.',dyn:'Как менялась цена, по которой реально покупали, и что было по договору.',sup:'Кому и сколько заплатили за период и где цена отклоняется от договора.'}
 let LAST=[]
 function render(keep){
  $$('[data-go]').forEach(b=>b.setAttribute('aria-current',b.dataset.go===S.page?'page':'false'))
@@ -375,6 +424,7 @@ $$('.th').forEach(b=>b.onclick=()=>setTheme(document.documentElement.dataset.the
 $('#exp').onclick=csv
 $$('[data-go]').forEach(b=>b.onclick=()=>{S.st='';S.sup='';go(b.dataset.go)})
 $('#cta').onclick=()=>{S.st='';S.sort='delta';go('check')};$('#more').onclick=$('#cta').onclick
+$('#hbtn').onclick=$('#hbtn2').onclick=$('#hopen').onclick=openHelp;$('#hclose').onclick=()=>{try{localStorage.setItem('hello','1')}catch(e){}$('#hello').hidden=true}
 $('#rbtn').onclick=openPicker;$('#pbtn').onclick=openPeriod
 function openPicker(){
  const all=[...new Set(DATA[S.m].map(r=>r[0]))].sort(),on=n=>!S.rest.length||S.rest.includes(n)
