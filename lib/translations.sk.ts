@@ -29,7 +29,7 @@ export const sk: Translations = {
   showroom: {
     title: "Ukážky, ktoré si môžete vyskúšať",
     subtitle:
-      "Sú to funkčné systémy na vzorových dátach, nie obrázky. Otvorte jeden a prekliknite ho, aby ste videli, ako by mohol vyzerať systém pre váš biznis.",
+      "Sú to funkčné systémy na vzorových dátach, nie obrázky. Otvorte jeden a prekliknite ho, aby ste videli, ako by mohol vyzerať systém pre váš biznis. Každý z nich vznikol pre skutočného klienta.",
     explore: "Otvoriť ukážku",
     caseStudy: "Prečítať prípadovú štúdiu",
     tryOff: "Vyskúšať ukážku",
@@ -254,7 +254,7 @@ export const sk: Translations = {
       },
       {
         q: "Koľko stojí projekt?",
-        a: "Závisí od rozsahu; projekty začínajú od 500 €. Po krátkom úvodnom rozhovore dostanete písomný odhad s pevne daným rozsahom, takže ešte pred začiatkom viete, čo dostanete a koľko to bude stáť.",
+        a: "Závisí od rozsahu. Po krátkom úvodnom rozhovore dostanete písomný odhad s pevne daným rozsahom, takže ešte pred začiatkom viete, čo dostanete a koľko to bude stáť.",
       },
       {
         q: "Aké systémy sa dajú vytvoriť alebo prepojiť?",
@@ -299,7 +299,7 @@ export const sk: Translations = {
       },
       {
         title: "Zodpovedná osoba",
-        body: ["Mirelli Studio, Darian Mirelli. Kontakt: darian.mirelli@gmail.com."],
+        body: ["Mirelli Studio, Darian Mirelli. Kontakt: info@mirelli.eu."],
       },
       {
         title: "Vaše práva",

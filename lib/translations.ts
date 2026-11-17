@@ -34,7 +34,7 @@ const en = {
   showroom: {
     title: "Examples you can try",
     subtitle:
-      "These are working systems running on sample data, not screenshots. Open one and explore it to see how a system for your business could look.",
+      "These are working systems running on sample data, not screenshots. Open one and explore it to see how a system for your business could look. Each one was built for a real client.",
     explore: "Open the demo",
     caseStudy: "Read the case study",
     tryOff: "Try the demo",
@@ -259,7 +259,7 @@ const en = {
       },
       {
         q: "How much does a project cost?",
-        a: "It depends on scope; projects start from €500. After a short discovery call you receive a written estimate with a fixed scope, so you know what you get and what it costs before anything is built.",
+        a: "It depends on scope. After a short first conversation you receive a written estimate with a fixed scope, so you know what you get and what it costs before anything is built.",
       },
       {
         q: "What kinds of systems can you build or work with?",
@@ -305,7 +305,7 @@ const en = {
       {
         title: "Who is responsible",
         body: [
-          "Mirelli Studio, Darian Mirelli. Contact: darian.mirelli@gmail.com.",
+          "Mirelli Studio, Darian Mirelli. Contact: info@mirelli.eu.",
         ],
       },
       {
@@ -349,7 +349,7 @@ const ru: Translations = {
   showroom: {
     title: "Примеры, которые можно попробовать",
     subtitle:
-      "Это рабочие системы на тестовых данных, а не картинки. Откройте любую и пощёлкайте, чтобы увидеть, как может выглядеть система для вашего бизнеса.",
+      "Это рабочие системы на тестовых данных, а не картинки. Откройте любую и пощёлкайте, чтобы увидеть, как может выглядеть система для вашего бизнеса. Каждая из них построена для реального клиента.",
     explore: "Открыть демо",
     caseStudy: "Читать кейс",
     tryOff: "Потрогать демо",
@@ -575,7 +575,7 @@ const ru: Translations = {
       },
       {
         q: "Сколько стоит проект?",
-        a: "Зависит от объёма; проекты начинаются от 500 €. После короткого разговора вы получаете письменную оценку с зафиксированным объёмом работ, поэтому до начала разработки известно, что вы получите и сколько это стоит.",
+        a: "Зависит от объёма. После короткого разговора вы получаете письменную оценку с зафиксированным объёмом работ, поэтому до начала разработки известно, что вы получите и сколько это стоит.",
       },
       {
         q: "С какими системами вы можете работать и что можете создать?",
@@ -621,7 +621,7 @@ const ru: Translations = {
       {
         title: "Кто отвечает",
         body: [
-          "Mirelli Studio, Darian Mirelli. Контакт: darian.mirelli@gmail.com.",
+          "Mirelli Studio, Darian Mirelli. Контакт: info@mirelli.eu.",
         ],
       },
       {

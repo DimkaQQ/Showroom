@@ -1,6 +1,6 @@
 /* TEAM */
 Mirelli Studio
-Contact: darian.mirelli@gmail.com
+Contact: info@mirelli.eu
 
 /* SITE */
 Built with: Next.js, Caddy, vanilla JS, too much coffee

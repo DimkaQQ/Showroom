@@ -29,7 +29,7 @@ export const fr: Translations = {
   showroom: {
     title: "Des exemples à essayer",
     subtitle:
-      "Ce sont des systèmes qui fonctionnent, sur des données d'exemple, pas des images. Ouvrez-en un et parcourez-le pour voir à quoi pourrait ressembler un système pour votre activité.",
+      "Ce sont des systèmes qui fonctionnent, sur des données d'exemple, pas des images. Ouvrez-en un et parcourez-le pour voir à quoi pourrait ressembler un système pour votre activité. Chacune a été réalisée pour un vrai client.",
     explore: "Ouvrir la démo",
     caseStudy: "Lire l'étude de cas",
     tryOff: "Essayer la démo",
@@ -254,7 +254,7 @@ export const fr: Translations = {
       },
       {
         q: "Combien coûte un projet ?",
-        a: "Cela dépend du périmètre ; les projets démarrent à partir de 500 €. Après un court échange de cadrage, vous recevez une estimation écrite à périmètre fixe : vous savez donc ce que vous obtenez et ce que cela coûte avant tout développement.",
+        a: "Cela dépend du périmètre. Après un court échange de cadrage, vous recevez une estimation écrite à périmètre fixe : vous savez donc ce que vous obtenez et ce que cela coûte avant tout développement.",
       },
       {
         q: "Quels systèmes peuvent être créés ou intégrés ?",
@@ -299,7 +299,7 @@ export const fr: Translations = {
       },
       {
         title: "Responsable",
-        body: ["Mirelli Studio, Darian Mirelli. Contact : darian.mirelli@gmail.com."],
+        body: ["Mirelli Studio, Darian Mirelli. Contact : info@mirelli.eu."],
       },
       {
         title: "Vos droits",

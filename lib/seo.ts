@@ -103,13 +103,15 @@ const organisation = (lang: Lang) => {
     knowsLanguage: locales,
     knowsAbout: KNOWS_ABOUT,
     sameAs: [siteConfig.github, siteConfig.telegram],
-    contactPoint: [{ "@type": "ContactPoint", contactType: "sales", email: siteConfig.email, availableLanguage: ["English", "Russian"] }],
+    contactPoint: [
+      { "@type": "ContactPoint", contactType: "sales", email: siteConfig.email, availableLanguage: ["English", "Russian"] },
+      { "@type": "ContactPoint", contactType: "customer support", email: siteConfig.supportEmail, availableLanguage: ["English", "Russian"] },
+    ],
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: t.services.title,
       itemListElement: t.services.items.map((s) => ({
         "@type": "Offer",
-        priceSpecification: { "@type": "PriceSpecification", priceCurrency: "EUR", minPrice: 500 },
         itemOffered: { "@type": "Service", name: s.title, description: s.description, provider: { "@id": ORG_ID } },
       })),
     },
@@ -217,7 +219,6 @@ export function nicheJsonLd(lang: Lang, slug: string) {
         serviceType: n.name,
         provider: { "@id": ORG_ID },
         areaServed: ["Slovakia", "Czechia", "Austria", "Germany", "Kazakhstan"].map((name) => ({ "@type": "Country", name })),
-        offers: { "@type": "Offer", priceCurrency: "EUR", priceSpecification: { "@type": "PriceSpecification", priceCurrency: "EUR", minPrice: 500 } },
       },
       {
         "@type": "FAQPage",

@@ -1,0 +1,400 @@
+<meta charset="utf-8">
+<title>Mirelli Motion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Onest:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: a kinetic stage. Everything reads without motion; with motion on, the page performs:
+   split-letter headline, scrambling keyword, depth-parallax screenshots, one velocity-reactive marquee,
+   a pinned horizontal showcase, a sticky card stack, a scroll-drawn timeline and magnetic controls.
+   Radius system: 4px. One accent: signal orange. Monospace only for counters and data. */
+:root {
+  --bg: #050507;
+  --panel: #0c0c11;
+  --panel-2: #121218;
+  --fg: #f3f3f5;
+  --soft: #c8c8d0;
+  --mute: #8b8b98;
+  --line: rgba(243, 243, 245, 0.12);
+  --line-2: rgba(243, 243, 245, 0.24);
+  --accent: #ff6a2b;
+  --accent-ink: #1a0900;
+  --display: "Unbounded", "Onest", system-ui, sans-serif;
+  --text: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r: 4px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scrollbar-color: #2b2b33 var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--text); font-size: 17px; line-height: 1.6; font-weight: 400; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 120; background: var(--bg); }
+h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+img { display: block; max-width: 100%; height: auto; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.wrap { width: 100%; max-width: 1440px; margin: 0 auto; padding-left: max(clamp(16px, 4vw, 64px), env(safe-area-inset-left, 0px)); padding-right: max(clamp(16px, 4vw, 64px), env(safe-area-inset-right, 0px)); }
+.mono { font-family: var(--mono); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+#progress { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); height: 2px; z-index: 110; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; padding: 0 28px; border-radius: var(--r); font-weight: 500; font-size: 16px; border: 1px solid var(--line-2); transition: background-color 220ms, color 220ms, border-color 220ms; white-space: nowrap; will-change: transform; }
+.btn:hover { border-color: var(--fg); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn-primary:hover { background: #ff8a56; border-color: #ff8a56; }
+.ico { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Header */
+.top { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); z-index: 100; transition: background-color 300ms, border-color 300ms, transform 400ms var(--ease); border-bottom: 1px solid transparent; }
+.top.solid { background: rgba(5, 5, 7, 0.78); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom-color: var(--line); }
+.top.hide { transform: translateY(-110%); }
+.top .wrap { display: flex; align-items: center; gap: 28px; min-height: 72px; }
+.brand { display: inline-flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 500; font-size: 15px; letter-spacing: -0.01em; margin-right: auto; }
+.brand svg { width: 34px; height: 34px; }
+.nav { display: flex; gap: 28px; font-size: 15px; color: var(--soft); }
+.nav a { padding: 10px 0; transition: color 160ms; }
+.nav a:hover { color: var(--fg); }
+.top .btn { min-height: 44px; padding: 0 20px; font-size: 14px; }
+
+/* Hero */
+.hero { position: relative; min-height: 100svh; display: flex; align-items: center; overflow: hidden; padding-block: 140px 80px; }
+.grid { position: absolute; inset: -80px 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 72px 72px; -webkit-mask-image: radial-gradient(70% 70% at 50% 40%, #000 20%, transparent 100%); mask-image: radial-gradient(70% 70% at 50% 40%, #000 20%, transparent 100%); will-change: transform; }
+.spot { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(520px circle at var(--mx, 70%) var(--my, 30%), rgba(255, 106, 43, 0.16), transparent 62%); }
+.hero .wrap { position: relative; z-index: 3; }
+.hero h1 { font-family: var(--display); font-weight: 500; font-size: clamp(26px, 5vw, 82px); line-height: 1.1; letter-spacing: -0.035em; }
+.hero h1 .ln { display: block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+.hero h1 .ch { display: inline-block; will-change: transform; }
+.hero h1 .acc { color: var(--accent); }
+.hero .lead { margin-top: clamp(24px, 4vh, 40px); max-width: 50ch; font-size: clamp(17px, 1.5vw, 21px); color: var(--soft); }
+.hero .cta { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 14px; }
+.floats { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.fl { position: absolute; width: clamp(200px, 24vw, 380px); border: 1px solid var(--line-2); border-radius: var(--r); overflow: hidden; background: var(--panel); box-shadow: 0 40px 90px -20px rgba(0, 0, 0, 0.85); }
+.fl img { width: 100%; aspect-ratio: 1200 / 750; object-fit: cover; opacity: 0.9; }
+.fl:nth-child(1) { right: 3%; top: 17%; }
+.fl:nth-child(2) { right: 22%; top: 49%; width: clamp(180px, 20vw, 320px); }
+.fl:nth-child(3) { right: 3%; top: 60%; width: clamp(160px, 17vw, 280px); }
+.fl:nth-child(4) { right: 28%; top: 14%; width: clamp(140px, 14vw, 230px); }
+
+/* Marquee (the only one) */
+.mq { border-block: 1px solid var(--line); overflow: hidden; padding-block: 28px; background: var(--bg); }
+.mq-track { display: flex; width: max-content; font-family: var(--display); font-weight: 400; font-size: clamp(28px, 5vw, 72px); letter-spacing: -0.03em; line-height: 1; will-change: transform; }
+.mq-track span { padding-right: 0.9em; white-space: nowrap; color: var(--mute); }
+.mq-track span:nth-child(3n + 1) { color: var(--fg); }
+
+/* Sections */
+.sec { padding-block: clamp(88px, 14vh, 168px); }
+.sec h2 { font-family: var(--display); font-weight: 500; font-size: clamp(26px, 4.6vw, 68px); line-height: 1.08; letter-spacing: -0.035em; max-width: 16ch; text-wrap: balance; }
+.sec .sub { margin-top: 22px; max-width: 54ch; color: var(--mute); font-size: 18px; }
+.head { margin-bottom: clamp(40px, 7vh, 80px); }
+
+/* Showcase: vertical grid by default, pinned horizontal pan with motion on desktop */
+.hz-track { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.card { position: relative; display: block; background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--r); overflow: hidden; transform-style: preserve-3d; transition: border-color 240ms; }
+.card:hover { border-color: var(--accent); }
+.card .shot { overflow: hidden; background: var(--panel-2); }
+.card .shot img { width: 100%; aspect-ratio: 1200 / 750; object-fit: cover; transition: transform 700ms var(--ease); }
+.card:hover .shot img { transform: scale(1.04); }
+.card .meta { padding: 22px 26px 26px; display: grid; gap: 8px; }
+.card h3 { font-family: var(--display); font-weight: 500; font-size: clamp(22px, 2.4vw, 34px); letter-spacing: -0.03em; line-height: 1.1; }
+.card p { color: var(--mute); font-size: 15px; max-width: 52ch; }
+.card .go { margin-top: 6px; display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 500; font-size: 15px; }
+.hz-count { display: none; }
+.motion .hz-pin { height: 100svh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+.motion .hz-track { display: flex; gap: 32px; width: max-content; padding-inline: max(clamp(16px, 4vw, 64px), env(safe-area-inset-left, 0px)); will-change: transform; }
+.motion .card { width: min(60vw, 780px, calc((100svh - 330px) * 1.6)); flex: none; }
+.motion .hz-count { display: flex; justify-content: space-between; align-items: end; padding-inline: max(clamp(16px, 4vw, 64px), env(safe-area-inset-left, 0px)); margin-bottom: 28px; gap: 20px; }
+.hz-count .big { font-family: var(--mono); font-size: clamp(28px, 4vw, 56px); letter-spacing: -0.04em; line-height: 1; }
+.hz-count .big i { font-style: normal; color: var(--mute); }
+.hz-count .bar { flex: 1; max-width: 420px; height: 2px; background: var(--line-2); position: relative; margin-bottom: 14px; }
+.hz-count .bar b { position: absolute; inset: 0; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); }
+
+/* Sticky stack of services */
+.stack { display: grid; gap: 24px; }
+.sc { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: center; min-height: 360px; padding: clamp(24px, 4vw, 56px); background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--r); overflow: hidden; }
+.sc:nth-child(even) { background: var(--panel-2); }
+.sc h3 { font-family: var(--display); font-weight: 500; font-size: clamp(24px, 3.2vw, 46px); line-height: 1.08; letter-spacing: -0.035em; }
+.sc p { margin-top: 18px; color: var(--soft); max-width: 46ch; }
+.sc .tg { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px; }
+.sc .tg span { font-family: var(--mono); font-size: 12px; padding: 5px 10px; border: 1px solid var(--line-2); border-radius: var(--r); color: var(--soft); }
+.sc .vis { border: 1px solid var(--line-2); border-radius: var(--r); overflow: hidden; background: var(--bg); }
+.sc .vis img { width: 100%; aspect-ratio: 1200 / 750; object-fit: cover; }
+.motion .stack { display: block; }
+.motion .sc { position: sticky; top: calc(88px + var(--i) * 16px); margin-bottom: 38vh; transform-origin: 50% 0; will-change: transform, filter; }
+.motion .sc:last-child { margin-bottom: 0; }
+
+/* About numbers */
+.nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: clamp(40px, 7vh, 72px); }
+.nums div { border-top: 1px solid var(--line-2); padding-top: 20px; }
+.nums dd { font-family: var(--display); font-weight: 400; font-size: clamp(34px, 5vw, 76px); letter-spacing: -0.04em; line-height: 1; }
+.nums dt { margin-top: 12px; color: var(--mute); font-size: 15px; }
+.about p.t { margin-top: 26px; max-width: 60ch; font-size: clamp(18px, 1.7vw, 24px); color: var(--soft); }
+
+/* Timeline */
+.tl { position: relative; display: grid; gap: clamp(40px, 8vh, 96px); padding-left: clamp(28px, 6vw, 96px); }
+.tl::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--line-2); }
+.tl .rail { position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--accent); transform-origin: 50% 0; transform: scaleY(0); }
+.motion .tl .rail { transform: scaleY(0); }
+.tl .st { position: relative; max-width: 62ch; }
+.tl .st::before { content: ""; position: absolute; left: calc(-1 * clamp(28px, 6vw, 96px) - 3px); top: 10px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--line-2); transition: background-color 300ms, border-color 300ms; }
+.tl .st.on::before { background: var(--accent); border-color: var(--accent); }
+.tl h3 { font-family: var(--display); font-weight: 500; font-size: clamp(22px, 3vw, 40px); letter-spacing: -0.03em; line-height: 1.1; }
+.tl p { margin-top: 14px; color: var(--soft); font-size: 19px; }
+
+/* Contact */
+.contact { position: relative; overflow: hidden; }
+.contact .mail { display: block; margin-top: 28px; font-family: var(--display); font-weight: 500; font-size: clamp(20px, 5.2vw, 84px); letter-spacing: -0.04em; line-height: 1.1; word-break: break-word; user-select: all; }
+.contact .mail .ch { display: inline-block; will-change: transform; }
+.contact .row { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 12px; }
+.status { min-height: 1.6em; margin-top: 14px; color: var(--mute); font-size: 14px; }
+footer { padding-block: 36px; color: var(--mute); font-size: 14px; border-top: 1px solid var(--line); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; }
+
+@media (max-width: 960px) {
+  .nav { display: none; }
+  .floats { display: none; }
+  .hz-track { grid-template-columns: minmax(0, 1fr); }
+  .sc { grid-template-columns: minmax(0, 1fr); }
+  .nums { grid-template-columns: minmax(0, 1fr); }
+  /* On phones the showcase is a native horizontal swipe, not a pinned pan */
+  .motion .hz-pin { height: auto; overflow: visible; }
+  .motion .hz-track { width: auto; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; }
+  .motion .card { width: 84vw; scroll-snap-align: center; }
+  .motion .hz-count { display: none; }
+  .motion .sc { position: relative; top: auto; margin-bottom: 20px; }
+}
+@media (max-width: 520px) {
+  .hero .cta .btn { flex: 1 1 100%; }
+  .top .btn { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div id="progress" aria-hidden="true"></div>
+
+<header class="top" id="top-bar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Mirelli Studio">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="6" fill="#0c0c11" stroke="#2b2b33" stroke-width="2"/><path d="M16 47V17l16 20 16-20v30" fill="none" stroke="#ff6a2b" stroke-width="6" stroke-miterlimit="4"/></svg>
+      Mirelli Studio
+    </a>
+    <nav class="nav" aria-label="Primary"><a href="#work">Work</a><a href="#services">Services</a><a href="#process">Process</a><a href="#contact">Contact</a></nav>
+    <a class="btn btn-primary mag" href="#contact">Start a project</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" id="hero">
+    <div class="grid" id="grid"></div>
+    <div class="spot" id="spot"></div>
+    <div class="floats" id="floats" aria-hidden="true"></div>
+    <div class="wrap">
+      <h1 id="h1" aria-label="We try the new. We build the impossible.">
+        <span class="ln" aria-hidden="true"><span class="split">We try the new.</span></span>
+        <span class="ln" aria-hidden="true"><span class="split">We build the</span></span>
+        <span class="ln" aria-hidden="true"><span class="acc" id="rot" data-words="impossible,unreal,beautiful,fast">impossible</span></span>
+      </h1>
+      <p class="lead">Mirelli Studio makes software, websites and bots for any business. New tools, hard problems, results people want to show off.</p>
+      <div class="cta">
+        <a class="btn btn-primary mag" href="#work">See what we built</a>
+        <a class="btn mag" href="#contact">Start a project</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="mq" aria-label="Technologies">
+    <div class="mq-track" id="mq"></div>
+  </div>
+
+  <section class="sec" id="work" style="padding-bottom:0">
+    <div class="wrap">
+      <div class="head">
+        <h2>Twelve systems. Scroll through them.</h2>
+        <p class="sub">Working products on sample data. Open any of them and try it.</p>
+      </div>
+    </div>
+    <div class="hz-pin" id="hz-pin">
+      <div class="hz-count" id="hz-count" aria-hidden="true"><div class="big"><span id="hz-n">01</span><i> / 12</i></div><div class="bar"><b id="hz-bar"></b></div></div>
+      <div class="hz-track" id="hz-track"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="services">
+    <div class="wrap">
+      <div class="head"><h2>What we build.</h2><p class="sub" id="sub-services"></p></div>
+      <div class="stack" id="stack"></div>
+    </div>
+  </section>
+
+  <section class="sec about" id="about" style="padding-top:0">
+    <div class="wrap">
+      <h2>People come back.</h2>
+      <p class="t" id="about-t"></p>
+      <dl class="nums" id="nums"></dl>
+    </div>
+  </section>
+
+  <section class="sec" id="process">
+    <div class="wrap">
+      <div class="head"><h2>From first message to launch.</h2></div>
+      <div class="tl" id="tl"><div class="rail" id="rail"></div></div>
+    </div>
+  </section>
+
+  <section class="sec contact" id="contact">
+    <div class="wrap">
+      <h2>Let's build it.</h2>
+      <p class="sub">Describe it in a few lines. You get a personal reply with concrete next steps.</p>
+      <p class="mail" id="mail" aria-label=""></p>
+      <div class="row">
+        <button class="btn btn-primary mag" id="copy" type="button">
+          <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 012-2h9"/></svg>
+          Copy email</button>
+        <a class="btn mag" id="tg" target="_blank" rel="noopener noreferrer">Telegram</a>
+        <a class="btn mag" id="gh" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+      <p class="status" id="status" role="status"></p>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap"><span>Mirelli Studio</span><span>Est. 2023</span></div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+const DATA = /*DATA*/;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const el = (tag, attrs = {}, kids = []) => { const n = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") n.className = v; else if (k === "text") n.textContent = v; else n.setAttribute(k, v); } for (const kid of [].concat(kids)) if (kid) n.append(kid); return n; };
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const demoUrl = (p) => "https://" + p.sub + "." + DATA.site.domain;
+const byId = (id) => DATA.projects.find((p) => p.id === id);
+
+/* Static content (complete without motion) */
+$("#sub-services").textContent = DATA.servicesSub;
+$("#about-t").textContent = DATA.about.paragraphs[0];
+$("#tg").href = DATA.site.telegram; $("#gh").href = DATA.site.github;
+const floats = $("#floats");
+["garage", "clinic", "spaces", "restaurant"].forEach((id) => floats.append(el("div", { class: "fl" }, [el("img", { src: byId(id).shot, alt: "", width: 1200, height: 750 })])));
+const STACK = ["TypeScript", "React", "Next.js", "Node.js", "Python", "FastAPI", "PostgreSQL", "Redis", "Docker", "Stripe", "Telegram", "Tailwind"];
+const mq = $("#mq"); [...STACK, ...STACK].forEach((s) => mq.append(el("span", { text: s })));
+const hz = $("#hz-track");
+DATA.projects.forEach((p) => {
+  hz.append(el("a", { class: "card", href: demoUrl(p), target: "_blank", rel: "noopener noreferrer", "aria-label": p.name + ": " + p.tagline }, [
+    el("div", { class: "shot" }, [el("img", { src: p.shot, alt: "", width: 1200, height: 750, loading: "lazy" })]),
+    el("div", { class: "meta" }, [el("h3", { text: p.name }), el("p", { text: p.tagline + ", " + p.year }), el("p", { text: p.description }), el("span", { class: "go" }, ["Open the live demo", (() => { const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("class", "ico"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true"); const pth = document.createElementNS("http://www.w3.org/2000/svg", "path"); pth.setAttribute("d", "M7 17L17 7M9 7h8v8"); s.append(pth); return s; })()])])
+  ]));
+});
+const VIS = ["rentoworld", "garage", "storage", "caspianflow", "botfactory", "dizeltrade"];
+const stack = $("#stack");
+DATA.services.forEach((s, i) => stack.append(el("article", { class: "sc", style: "--i:" + i }, [
+  el("div", {}, [el("h3", { text: s.title }), el("p", { text: s.description }), el("div", { class: "tg" }, s.tags.map((t) => el("span", { text: t })))]),
+  el("div", { class: "vis" }, [el("img", { src: byId(VIS[i]).shot, alt: "", width: 1200, height: 750, loading: "lazy" })])
+])));
+const nums = $("#nums");
+[["100+", DATA.about.facts[0].label], ["3+", "years in business"], ["12", "live demos you can open"]].forEach(([v, l]) => nums.append(el("div", {}, [el("dt", { text: l }), el("dd", { text: v, "data-n": parseInt(v, 10), "data-suf": v.replace(/[0-9]/g, "") })])));
+nums.querySelectorAll("div").forEach((d) => d.append(d.querySelector("dd"), d.querySelector("dt")));
+const tl = $("#tl");
+DATA.process.forEach((s) => tl.append(el("div", { class: "st" }, [el("h3", { text: s.title }), el("p", { text: s.description })])));
+const mail = $("#mail"); mail.setAttribute("aria-label", DATA.site.email);
+[...DATA.site.email].forEach((c) => mail.append(el("span", { class: "ch", "aria-hidden": "true", text: c })));
+$("#copy").onclick = () => {
+  const st = $("#status"), done = () => { st.textContent = "Email copied."; setTimeout(() => { st.textContent = ""; }, 3500); };
+  const fb = () => { const ta = el("textarea", { "aria-hidden": "true" }); ta.value = DATA.site.email; ta.style.cssText = "position:fixed;left:-9999px"; document.body.append(ta); ta.select(); try { document.execCommand("copy"); done(); } catch (e) { st.textContent = "Select the address and copy it."; } ta.remove(); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(DATA.site.email).then(done, fb); else fb();
+};
+
+/* Header behaviour (no scroll listeners: ScrollTrigger below) */
+
+/* Motion layer */
+function splitChars(node) { const t = node.textContent; node.textContent = ""; return [...t].map((c) => { const s = el("span", { class: "ch", text: c === " " ? " " : c }); node.append(s); return s; }); }
+
+if (window.gsap && window.ScrollTrigger && !reduce) {
+  gsap.registerPlugin(ScrollTrigger);
+  document.documentElement.classList.add("motion");
+  const bar = $("#top-bar");
+
+  // Progress bar and header
+  gsap.to("#progress", { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.2 } });
+  ScrollTrigger.create({ start: 80, end: "max", onUpdate: (self) => { bar.classList.toggle("solid", self.scroll() > 80); bar.classList.toggle("hide", self.direction === 1 && self.scroll() > 600); } });
+
+  // Hero: split-letter headline, scrambling keyword
+  const chars = $$("#h1 .split").flatMap(splitChars);
+  gsap.set(chars, { yPercent: 115 });
+  gsap.to(chars, { yPercent: 0, duration: 1.1, ease: "expo.out", stagger: 0.028, delay: 0.15 });
+  gsap.from(".hero .lead, .hero .cta", { y: 28, opacity: 0.1, duration: 1, ease: "expo.out", delay: 0.9, stagger: 0.12 });
+  gsap.from(".fl", { y: 80, opacity: 0, rotate: () => gsap.utils.random(-8, 8), duration: 1.4, ease: "expo.out", delay: 0.5, stagger: 0.12 });
+  const rot = $("#rot"), words = rot.dataset.words.split(","); let wi = 0; const GL = "!<>-_/[]{}=+*^?#";
+  function scramble(to) { const from = rot.textContent, len = Math.max(from.length, to.length), o = { p: 0 }; gsap.to(o, { p: 1, duration: 0.9, ease: "none", onUpdate: () => { let s = ""; for (let i = 0; i < len; i++) { const k = i / len; s += o.p > k + 0.15 ? (to[i] || "") : (i < to.length ? GL[(Math.random() * GL.length) | 0] : ""); } rot.textContent = s; }, onComplete: () => { rot.textContent = to; } }); }
+  gsap.delayedCall(2.4, function loop() { wi = (wi + 1) % words.length; scramble(words[wi]); gsap.delayedCall(2.6, loop); });
+
+  // Hero: spotlight, grid drift and depth parallax with the pointer
+  const hero = $("#hero"), spot = $("#spot");
+  const fl = $$(".fl"), depth = [28, 46, 70, 18];
+  const qx = fl.map((n, i) => gsap.quickTo(n, "x", { duration: 0.9, ease: "power3" })), qy = fl.map((n) => gsap.quickTo(n, "y", { duration: 0.9, ease: "power3" }));
+  hero.addEventListener("pointermove", (e) => {
+    const r = hero.getBoundingClientRect(), nx = (e.clientX - r.left) / r.width - 0.5, ny = (e.clientY - r.top) / r.height - 0.5;
+    spot.style.setProperty("--mx", e.clientX - r.left + "px"); spot.style.setProperty("--my", e.clientY - r.top + "px");
+    fl.forEach((n, i) => { qx[i](-nx * depth[i]); qy[i](-ny * depth[i]); });
+  }, { passive: true });
+  gsap.to("#grid", { y: 120, ease: "none", scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: true } });
+  gsap.to(".fl", { yPercent: (i) => -20 - i * 12, ease: "none", scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: true } });
+
+  // The one marquee: speed and skew follow scroll velocity
+  const mqTl = gsap.to("#mq", { xPercent: -50, duration: 38, ease: "none", repeat: -1 });
+  ScrollTrigger.create({ trigger: ".mq", start: "top bottom", end: "bottom top", onUpdate: (self) => { const v = self.getVelocity(); gsap.to(mqTl, { timeScale: 1 + Math.min(6, Math.abs(v) / 400), duration: 0.2, overwrite: true }); gsap.to(mqTl, { timeScale: 1, duration: 1.2, delay: 0.2 }); gsap.to("#mq", { skewX: gsap.utils.clamp(-8, 8, -v / 220), duration: 0.3, overwrite: "auto" }); } });
+
+  // Section headings: clip and lift in
+  $$(".sec h2").forEach((h) => gsap.from(h, { y: 60, opacity: 0.1, filter: "blur(8px)", duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: h, start: "top 88%", once: true } }));
+  $$(".sec .sub").forEach((h) => gsap.from(h, { y: 30, opacity: 0.1, duration: 1, ease: "expo.out", scrollTrigger: { trigger: h, start: "top 92%", once: true } }));
+
+  const mm = gsap.matchMedia();
+  mm.add("(min-width: 961px)", () => {
+    // Pinned horizontal showcase
+    const pin = $("#hz-pin"), track = $("#hz-track"), n = $("#hz-n"), barEl = $("#hz-bar"), count = DATA.projects.length;
+    const dist = () => track.scrollWidth - window.innerWidth + 0;
+    gsap.to(track, { x: () => -dist(), ease: "none", scrollTrigger: { trigger: pin, start: "top top", end: () => "+=" + dist(), pin: true, scrub: 1, invalidateOnRefresh: true, anticipatePin: 1,
+      onUpdate: (s) => { n.textContent = String(Math.min(count, Math.floor(s.progress * count) + 1)).padStart(2, "0"); gsap.set(barEl, { scaleX: s.progress }); } } });
+    // Pointer tilt on cards
+    const cleanups = [];
+    $$(".card").forEach((c) => {
+      const rx = gsap.quickTo(c, "rotationX", { duration: 0.5, ease: "power3" }), ry = gsap.quickTo(c, "rotationY", { duration: 0.5, ease: "power3" });
+      gsap.set(c, { transformPerspective: 1100 });
+      const mv = (e) => { const r = c.getBoundingClientRect(); ry(((e.clientX - r.left) / r.width - 0.5) * 7); rx(-((e.clientY - r.top) / r.height - 0.5) * 6); };
+      const lv = () => { rx(0); ry(0); };
+      c.addEventListener("pointermove", mv); c.addEventListener("pointerleave", lv); cleanups.push(() => { c.removeEventListener("pointermove", mv); c.removeEventListener("pointerleave", lv); });
+    });
+    return () => cleanups.forEach((f) => f());
+  });
+  mm.add("(min-width: 961px)", () => {
+    // Sticky stack: each card recedes while the next one arrives
+    const cards = $$(".sc");
+    cards.forEach((c, i) => { if (i === cards.length - 1) return; gsap.to(c, { scale: 0.93, filter: "blur(4px)", opacity: 0.45, ease: "none", scrollTrigger: { trigger: cards[i + 1], start: "top 92%", end: "top " + (88 + (i + 1) * 16 + 20) + "px", scrub: true } }); });
+  });
+
+  // Counters
+  $$("[data-n]").forEach((d) => { const end = +d.dataset.n, suf = d.dataset.suf, o = { v: 0 }; d.textContent = "0" + suf; gsap.to(o, { v: end, duration: 1.8, ease: "power3.out", scrollTrigger: { trigger: d, start: "top 90%", once: true }, onUpdate: () => { d.textContent = Math.round(o.v) + suf; }, onComplete: () => { d.textContent = end + suf; } }); });
+  gsap.from("#about-t", { y: 40, opacity: 0.1, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: "#about-t", start: "top 90%", once: true } });
+
+  // Timeline: the rail draws with scroll, each step lights up
+  gsap.to("#rail", { scaleY: 1, ease: "none", scrollTrigger: { trigger: "#tl", start: "top 70%", end: "bottom 60%", scrub: true } });
+  $$("#tl .st").forEach((s) => { ScrollTrigger.create({ trigger: s, start: "top 65%", onEnter: () => s.classList.add("on"), onLeaveBack: () => s.classList.remove("on") }); gsap.from(s, { x: 40, opacity: 0.15, duration: 1, ease: "expo.out", scrollTrigger: { trigger: s, start: "top 85%", once: true } }); });
+
+  // Contact: letters react to the pointer
+  const letters = $$("#mail .ch"); let mx = -999, my = -999, raf = 0;
+  const paint = () => { raf = 0; letters.forEach((c) => { const b = c.getBoundingClientRect(); const d = Math.hypot(mx - (b.left + b.width / 2), my - (b.top + b.height / 2)); const k = Math.max(0, 1 - d / 200); c.style.transform = "translateY(" + (-k * k * 22).toFixed(1) + "px)"; c.style.color = k > 0.05 ? "color-mix(in srgb, var(--accent) " + Math.round(k * 100) + "%, var(--fg))" : ""; }); };
+  window.addEventListener("pointermove", (e) => { mx = e.clientX; my = e.clientY; const r = $("#mail").getBoundingClientRect(); if (r.bottom > -200 && r.top < innerHeight + 200 && !raf) raf = requestAnimationFrame(paint); }, { passive: true });
+
+  // Magnetic controls
+  $$(".mag").forEach((b) => { const qx = gsap.quickTo(b, "x", { duration: 0.5, ease: "power3" }), qy = gsap.quickTo(b, "y", { duration: 0.5, ease: "power3" });
+    b.addEventListener("pointermove", (e) => { const r = b.getBoundingClientRect(); qx((e.clientX - (r.left + r.width / 2)) * 0.28); qy((e.clientY - (r.top + r.height / 2)) * 0.34); });
+    b.addEventListener("pointerleave", () => { qx(0); qy(0); }); });
+
+  window.addEventListener("load", () => ScrollTrigger.refresh());
+}
+</script>

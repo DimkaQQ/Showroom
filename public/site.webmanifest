@@ -11,10 +11,16 @@
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "theme_color": "#0d0f12",
-  "background_color": "#0d0f12",
+  "theme_color": "#050507",
+  "background_color": "#050507",
   "display": "browser",
   "id": "/",
   "start_url": "/",
