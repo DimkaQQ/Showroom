@@ -16,7 +16,7 @@ export type Hybrid = {
 
 export const hybrid: Record<Lang, Hybrid> = {
   en: {
-    hero: { l1: "We try the new.", l2: "We build the", words: ["impossible", "unreal", "beautiful", "fast"], lead: "Mirelli Studio makes software, websites and bots for any business. New tools, hard problems, results people want to show off." },
+    hero: { l1: "We try the new.", l2: "We build the", words: ["impossible", "unreal", "beautiful", "fast"], lead: "We build websites, online booking, business systems and Telegram bots for companies of any size. New tools, hard problems, results people want to show off." },
     build: {
       title: "Sketch your system in a minute.", sub: "Pick what you run and what it should do. You get a clear brief to send us, and the closest demo to try first.",
       q1: "What do you run?", q2: "What should it do?", notesLabel: "Anything unusual or hard?", notesPh: "For example: three locations, two languages, must talk to our accounting tool.",
@@ -28,7 +28,7 @@ export const hybrid: Record<Lang, Hybrid> = {
     pal: { placeholder: "Search projects, sections, actions", go: "Go to", project: "Project", openDemo: "Open demo", copyEmail: "Copy email", openTg: "Open Telegram", nothing: "Nothing found.", search: "Search", emailCopied: "Email copied.", builder: "Project brief" },
   },
   ru: {
-    hero: { l1: "Мы пробуем новое.", l2: "Мы строим", words: ["невозможное", "нереальное", "красивое", "быстрое"], lead: "Mirelli Studio делает софт, сайты и ботов для любого бизнеса. Новые инструменты, сложные задачи, результат, которым хочется хвастаться." },
+    hero: { l1: "Мы пробуем новое.", l2: "Мы строим", words: ["невозможное", "нереальное", "красивое", "быстрое"], lead: "Мы делаем сайты, онлайн-запись, системы для бизнеса и Telegram-ботов для компаний любого размера. Новые инструменты, сложные задачи, результат, которым хочется хвастаться." },
     build: {
       title: "Набросайте свою систему за минуту.", sub: "Выберите, чем вы занимаетесь и что система должна уметь. Вы получите понятное описание задачи для нас и ближайшее демо, чтобы попробовать.",
       q1: "Чем вы занимаетесь?", q2: "Что она должна делать?", notesLabel: "Что-то необычное или сложное?", notesPh: "Например: три точки, два языка, связь с нашей бухгалтерской программой.",
@@ -40,7 +40,7 @@ export const hybrid: Record<Lang, Hybrid> = {
     pal: { placeholder: "Искать проекты, разделы, действия", go: "Перейти", project: "Проект", openDemo: "Открыть демо", copyEmail: "Скопировать почту", openTg: "Открыть Telegram", nothing: "Ничего не найдено.", search: "Поиск", emailCopied: "Почта скопирована.", builder: "Описание задачи" },
   },
   de: {
-    hero: { l1: "Wir probieren Neues aus.", l2: "Wir bauen das", words: ["Unmögliche", "Unglaubliche", "Schöne", "Schnelle"], lead: "Mirelli Studio entwickelt Software, Websites und Bots für jedes Unternehmen. Neue Werkzeuge, schwierige Aufgaben, Ergebnisse, die man gern zeigt." },
+    hero: { l1: "Wir probieren Neues aus.", l2: "Wir bauen das", words: ["Unmögliche", "Unglaubliche", "Schöne", "Schnelle"], lead: "Wir entwickeln Websites, Online-Buchung, Geschäftssysteme und Telegram-Bots für Unternehmen jeder Größe. Neue Werkzeuge, schwierige Aufgaben, Ergebnisse, die man gern zeigt." },
     build: {
       title: "Skizzieren Sie Ihr System in einer Minute.", sub: "Wählen Sie, was Sie betreiben und was das System können soll. Sie erhalten eine klare Beschreibung für uns und die passendste Demo zum Ausprobieren.",
       q1: "Was betreiben Sie?", q2: "Was soll es können?", notesLabel: "Etwas Besonderes oder Schwieriges?", notesPh: "Zum Beispiel: drei Standorte, zwei Sprachen, Anbindung an unsere Buchhaltung.",
@@ -52,7 +52,7 @@ export const hybrid: Record<Lang, Hybrid> = {
     pal: { placeholder: "Projekte, Abschnitte, Aktionen suchen", go: "Gehe zu", project: "Projekt", openDemo: "Demo öffnen", copyEmail: "E-Mail kopieren", openTg: "Telegram öffnen", nothing: "Nichts gefunden.", search: "Suche", emailCopied: "E-Mail kopiert.", builder: "Projektbeschreibung" },
   },
   fr: {
-    hero: { l1: "On teste le nouveau.", l2: "On construit", words: ["l'impossible", "l'incroyable", "le beau", "le rapide"], lead: "Mirelli Studio crée logiciels, sites web et bots pour toute entreprise. Nouveaux outils, problèmes difficiles, des résultats dont on est fier." },
+    hero: { l1: "On teste le nouveau.", l2: "On construit", words: ["l'impossible", "l'incroyable", "le beau", "le rapide"], lead: "Nous créons des sites web, la réservation en ligne, des systèmes de gestion et des bots Telegram pour des entreprises de toute taille. Nouveaux outils, problèmes difficiles, des résultats dont on est fier." },
     build: {
       title: "Esquissez votre système en une minute.", sub: "Choisissez ce que vous gérez et ce que le système doit faire. Vous obtenez une description claire à nous envoyer et la démo la plus proche à essayer.",
       q1: "Que gérez-vous ?", q2: "Que doit-il faire ?", notesLabel: "Quelque chose d'inhabituel ou de difficile ?", notesPh: "Par exemple : trois sites, deux langues, lien avec notre logiciel de comptabilité.",
@@ -64,7 +64,7 @@ export const hybrid: Record<Lang, Hybrid> = {
     pal: { placeholder: "Chercher projets, sections, actions", go: "Aller à", project: "Projet", openDemo: "Ouvrir la démo", copyEmail: "Copier l'e-mail", openTg: "Ouvrir Telegram", nothing: "Rien trouvé.", search: "Recherche", emailCopied: "E-mail copié.", builder: "Description du projet" },
   },
   sk: {
-    hero: { l1: "Skúšame nové.", l2: "Staviame", words: ["nemožné", "neuveriteľné", "krásne", "rýchle"], lead: "Mirelli Studio vytvára softvér, weby a botov pre každý biznis. Nové nástroje, ťažké úlohy, výsledky, ktorými sa dá pochváliť." },
+    hero: { l1: "Skúšame nové.", l2: "Staviame", words: ["nemožné", "neuveriteľné", "krásne", "rýchle"], lead: "Vytvárame weby, online rezervácie, firemné systémy a Telegram botov pre firmy každej veľkosti. Nové nástroje, ťažké úlohy, výsledky, ktorými sa dá pochváliť." },
     build: {
       title: "Načrtnite svoj systém za minútu.", sub: "Vyberte, čo prevádzkujete a čo má systém vedieť. Dostanete jasný popis pre nás a najbližšie demo na vyskúšanie.",
       q1: "Čo prevádzkujete?", q2: "Čo má vedieť?", notesLabel: "Niečo neobvyklé alebo ťažké?", notesPh: "Napríklad: tri prevádzky, dva jazyky, prepojenie na naše účtovníctvo.",
@@ -76,7 +76,7 @@ export const hybrid: Record<Lang, Hybrid> = {
     pal: { placeholder: "Hľadať projekty, sekcie, akcie", go: "Prejsť na", project: "Projekt", openDemo: "Otvoriť demo", copyEmail: "Kopírovať e-mail", openTg: "Otvoriť Telegram", nothing: "Nič sa nenašlo.", search: "Hľadať", emailCopied: "E-mail skopírovaný.", builder: "Popis projektu" },
   },
   cs: {
-    hero: { l1: "Zkoušíme nové.", l2: "Stavíme", words: ["nemožné", "neuvěřitelné", "krásné", "rychlé"], lead: "Mirelli Studio vytváří software, weby a boty pro jakýkoli byznys. Nové nástroje, těžké úkoly, výsledky, kterými se lze pochlubit." },
+    hero: { l1: "Zkoušíme nové.", l2: "Stavíme", words: ["nemožné", "neuvěřitelné", "krásné", "rychlé"], lead: "Vytváříme weby, online rezervace, firemní systémy a Telegram boty pro firmy každé velikosti. Nové nástroje, těžké úkoly, výsledky, kterými se lze pochlubit." },
     build: {
       title: "Načrtněte svůj systém za minutu.", sub: "Vyberte, co provozujete a co má systém umět. Dostanete jasný popis pro nás a nejbližší demo k vyzkoušení.",
       q1: "Co provozujete?", q2: "Co má umět?", notesLabel: "Něco neobvyklého nebo těžkého?", notesPh: "Například: tři provozovny, dva jazyky, propojení s naším účetnictvím.",
@@ -88,7 +88,7 @@ export const hybrid: Record<Lang, Hybrid> = {
     pal: { placeholder: "Hledat projekty, sekce, akce", go: "Přejít na", project: "Projekt", openDemo: "Otevřít demo", copyEmail: "Kopírovat e-mail", openTg: "Otevřít Telegram", nothing: "Nic nenalezeno.", search: "Hledat", emailCopied: "E-mail zkopírován.", builder: "Popis projektu" },
   },
   kk: {
-    hero: { l1: "Біз жаңаны сынаймыз.", l2: "Біз жасаймыз", words: ["мүмкін еместі", "сенгісізді", "әдеміні", "жылдамды"], lead: "Mirelli Studio кез келген бизнеске бағдарламалық қамтамасыз ету, сайттар мен боттар жасайды. Жаңа құралдар, күрделі міндеттер, көрсетуге болатын нәтиже." },
+    hero: { l1: "Біз жаңаны сынаймыз.", l2: "Біз жасаймыз", words: ["мүмкін еместі", "сенгісізді", "әдеміні", "жылдамды"], lead: "Біз кез келген көлемдегі компанияларға сайттар, онлайн жазылу, бизнес жүйелері және Telegram-боттар жасаймыз. Жаңа құралдар, күрделі міндеттер, көрсетуге болатын нәтиже." },
     build: {
       title: "Жүйеңізді бір минутта сызып көріңіз.", sub: "Не істейтініңізді және жүйе не істеуі керектігін таңдаңыз. Сіз біз үшін түсінікті сипаттама мен сынап көретін ең жақын демоны аласыз.",
       q1: "Немен айналысасыз?", q2: "Ол не істеуі керек?", notesLabel: "Ерекше немесе қиын нәрсе бар ма?", notesPh: "Мысалы: үш нүкте, екі тіл, бухгалтериямызбен байланыс.",

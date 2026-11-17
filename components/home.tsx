@@ -25,6 +25,7 @@ export function Home({ lang }: { lang: Lang }) {
       <TopBar lang={lang} t={t} />
       <Hero t={t} lang={lang} />
       <main id="main" tabIndex={-1}>
+        <Niches lang={lang} />
         <Marquee />
         <Work lang={lang} t={t} />
         <Services t={t} />
@@ -33,7 +34,6 @@ export function Home({ lang }: { lang: Lang }) {
         <Quotes lang={lang} />
         <Process t={t} />
         <Faq t={t} />
-        <Niches lang={lang} />
         <Contact lang={lang} t={t} />
       </main>
       <Footer lang={lang} t={t} />
@@ -281,9 +281,9 @@ function Faq({ t }: { t: T }) {
 function Niches({ lang }: { lang: Lang }) {
   const ui = nicheUi[lang];
   return (
-    <section className="niches" aria-labelledby="niches-h">
+    <section className="niches" aria-label={ui.others}>
       <div className="wrap">
-        <h2 id="niches-h" className="niches-h">{ui.others}</h2>
+        <p className="for-label">{ui.label}</p>
         <ul>
           {nicheSlugs.map((s) => (
             <li key={s}>

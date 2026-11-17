@@ -29,7 +29,7 @@ export const fr: Translations = {
   showroom: {
     title: "Des exemples à essayer",
     subtitle:
-      "Ce sont des systèmes qui fonctionnent, sur des données d'exemple, pas des images. Ouvrez-en un et parcourez-le pour voir à quoi pourrait ressembler un système pour votre activité.",
+      "Ce sont des systèmes qui fonctionnent, sur des données d'exemple, pas des images. Ouvrez-en un et parcourez-le pour voir à quoi pourrait ressembler un système pour votre activité. Chacune a été réalisée pour un vrai client.",
     explore: "Ouvrir la démo",
     caseStudy: "Lire l'étude de cas",
     tryOff: "Essayer la démo",

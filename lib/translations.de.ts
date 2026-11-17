@@ -29,7 +29,7 @@ export const de: Translations = {
   showroom: {
     title: "Beispiele zum Ausprobieren",
     subtitle:
-      "Das sind funktionierende Systeme mit Beispieldaten, keine Bilder. Öffnen Sie eines und klicken Sie sich durch, um zu sehen, wie ein System für Ihr Geschäft aussehen könnte.",
+      "Das sind funktionierende Systeme mit Beispieldaten, keine Bilder. Öffnen Sie eines und klicken Sie sich durch, um zu sehen, wie ein System für Ihr Geschäft aussehen könnte. Jede davon wurde für einen echten Kunden gebaut.",
     explore: "Demo öffnen",
     caseStudy: "Fallstudie lesen",
     tryOff: "Demo ausprobieren",

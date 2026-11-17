@@ -34,7 +34,7 @@ const en = {
   showroom: {
     title: "Examples you can try",
     subtitle:
-      "These are working systems running on sample data, not screenshots. Open one and explore it to see how a system for your business could look.",
+      "These are working systems running on sample data, not screenshots. Open one and explore it to see how a system for your business could look. Each one was built for a real client.",
     explore: "Open the demo",
     caseStudy: "Read the case study",
     tryOff: "Try the demo",
@@ -349,7 +349,7 @@ const ru: Translations = {
   showroom: {
     title: "Примеры, которые можно попробовать",
     subtitle:
-      "Это рабочие системы на тестовых данных, а не картинки. Откройте любую и пощёлкайте, чтобы увидеть, как может выглядеть система для вашего бизнеса.",
+      "Это рабочие системы на тестовых данных, а не картинки. Откройте любую и пощёлкайте, чтобы увидеть, как может выглядеть система для вашего бизнеса. Каждая из них построена для реального клиента.",
     explore: "Открыть демо",
     caseStudy: "Читать кейс",
     tryOff: "Потрогать демо",

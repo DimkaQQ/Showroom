@@ -29,7 +29,7 @@ export const sk: Translations = {
   showroom: {
     title: "Ukážky, ktoré si môžete vyskúšať",
     subtitle:
-      "Sú to funkčné systémy na vzorových dátach, nie obrázky. Otvorte jeden a prekliknite ho, aby ste videli, ako by mohol vyzerať systém pre váš biznis.",
+      "Sú to funkčné systémy na vzorových dátach, nie obrázky. Otvorte jeden a prekliknite ho, aby ste videli, ako by mohol vyzerať systém pre váš biznis. Každý z nich vznikol pre skutočného klienta.",
     explore: "Otvoriť ukážku",
     caseStudy: "Prečítať prípadovú štúdiu",
     tryOff: "Vyskúšať ukážku",

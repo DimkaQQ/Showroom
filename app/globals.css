@@ -1,4 +1,4 @@
-/* Mirelli Studio. Technological dark theme: near-black, one signal accent (change --accent to recolour the whole site),
+/* Mirelli Studio. Technological dark theme: near-black, one teal-mint accent (change --accent to recolour the whole site),
    Unbounded for headlines, Onest for text, JetBrains Mono only for counters and data. One radius (4px) everywhere.
    Everything reads without motion; the .motion class (added by components/fx.tsx) switches on the pinned and sticky layouts. */
 
@@ -12,9 +12,9 @@
   --mute: #8b8b98;
   --line: rgba(243, 243, 245, 0.12);
   --line-2: rgba(243, 243, 245, 0.24);
-  --accent: #ff6a2b;
-  --accent-ink: #1a0900;
-  --accent-hi: #ff8a56;
+  --accent: #2ee6c5;
+  --accent-ink: #02201a;
+  --accent-hi: #66f0d8;
   --display: var(--font-display), "Onest", system-ui, sans-serif;
   --text: var(--font-text), system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: var(--font-mono), ui-monospace, Menlo, Consolas, monospace;
@@ -205,10 +205,11 @@ html:not(.motion) .mq-track ul { flex-wrap: wrap; row-gap: 10px; }
 .faq-item p { padding: 0 48px 30px 0; max-width: 64ch; color: var(--mute); }
 
 /* Niches */
-.niches { padding-block: 56px; border-top: 1px solid var(--line); }
-.niches-h { font-size: clamp(20px, 2vw, 28px); margin-bottom: 20px; font-weight: 400; }
-.niches ul { display: flex; flex-wrap: wrap; gap: 12px; }
-.niches a { display: inline-flex; align-items: center; padding: 0 20px; border: 1px solid var(--line-2); border-radius: var(--r); min-height: 48px; font-size: 15px; color: var(--soft); transition: border-color 200ms, color 200ms; }
+.niches { padding-block: 28px; border-block: 1px solid var(--line); }
+.niches .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; }
+.for-label { color: var(--mute); font-size: 15px; }
+.niches ul { display: flex; flex-wrap: wrap; gap: 10px; }
+.niches a { display: inline-flex; align-items: center; padding: 0 18px; border: 1px solid var(--line-2); border-radius: var(--r); min-height: 44px; font-size: 15px; color: var(--soft); transition: border-color 200ms, color 200ms; }
 .niches a:hover { border-color: var(--accent); color: var(--accent); }
 
 /* Quotes (rendered only when there are real ones) */
