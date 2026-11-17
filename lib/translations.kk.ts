@@ -301,7 +301,7 @@ export const kk: Translations = {
       {
         title: "Кім жауап береді",
         body: [
-          "Mirelli Studio, Darian Mirelli. Байланыс: darian.mirelli@gmail.com.",
+          "Mirelli Studio, Darian Mirelli. Байланыс: info@mirelli.eu.",
         ],
       },
       {

@@ -14,6 +14,16 @@ export type Hybrid = {
   pal: { placeholder: string; go: string; project: string; openDemo: string; copyEmail: string; openTg: string; nothing: string; search: string; emailCopied: string; builder: string };
 };
 
+export const supportLine: Record<Lang, string> = {
+  en: "Already a client? Write to",
+  ru: "Уже клиент? Пишите на",
+  de: "Schon Kunde? Schreiben Sie an",
+  fr: "Déjà client ? Écrivez à",
+  sk: "Už ste náš klient? Píšte na",
+  cs: "Už jste náš klient? Pište na",
+  kk: "Клиент болсаңыз, мына мекенжайға жазыңыз:",
+};
+
 export const hybrid: Record<Lang, Hybrid> = {
   en: {
     hero: { l1: "We try the new.", l2: "We build the", words: ["impossible", "unreal", "beautiful", "fast"], lead: "We build websites, online booking, business systems and Telegram bots for companies of any size. New tools, hard problems, results people want to show off." },

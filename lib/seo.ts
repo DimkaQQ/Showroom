@@ -103,7 +103,10 @@ const organisation = (lang: Lang) => {
     knowsLanguage: locales,
     knowsAbout: KNOWS_ABOUT,
     sameAs: [siteConfig.github, siteConfig.telegram],
-    contactPoint: [{ "@type": "ContactPoint", contactType: "sales", email: siteConfig.email, availableLanguage: ["English", "Russian"] }],
+    contactPoint: [
+      { "@type": "ContactPoint", contactType: "sales", email: siteConfig.email, availableLanguage: ["English", "Russian"] },
+      { "@type": "ContactPoint", contactType: "customer support", email: siteConfig.supportEmail, availableLanguage: ["English", "Russian"] },
+    ],
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: t.services.title,

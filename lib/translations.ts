@@ -305,7 +305,7 @@ const en = {
       {
         title: "Who is responsible",
         body: [
-          "Mirelli Studio, Darian Mirelli. Contact: darian.mirelli@gmail.com.",
+          "Mirelli Studio, Darian Mirelli. Contact: info@mirelli.eu.",
         ],
       },
       {
@@ -621,7 +621,7 @@ const ru: Translations = {
       {
         title: "Кто отвечает",
         body: [
-          "Mirelli Studio, Darian Mirelli. Контакт: darian.mirelli@gmail.com.",
+          "Mirelli Studio, Darian Mirelli. Контакт: info@mirelli.eu.",
         ],
       },
       {

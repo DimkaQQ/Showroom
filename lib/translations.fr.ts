@@ -299,7 +299,7 @@ export const fr: Translations = {
       },
       {
         title: "Responsable",
-        body: ["Mirelli Studio, Darian Mirelli. Contact : darian.mirelli@gmail.com."],
+        body: ["Mirelli Studio, Darian Mirelli. Contact : info@mirelli.eu."],
       },
       {
         title: "Vos droits",

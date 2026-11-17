@@ -1,6 +1,6 @@
 import { projects, services, siteConfig } from "@/lib/data";
 import { translations } from "@/lib/translations";
-import { hybrid } from "@/lib/hybrid";
+import { hybrid, supportLine } from "@/lib/hybrid";
 import { pathFor, type Lang } from "@/lib/i18n";
 import { Fx } from "@/components/fx";
 import { Eggs } from "@/components/eggs";
@@ -305,6 +305,7 @@ function Contact({ lang, t }: { lang: Lang; t: T }) {
           <div className="contact-info">
             <p>{t.contact.description}</p>
             <a className="mail" id="mail" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
+            <p className="support">{supportLine[lang]} <a href={`mailto:${siteConfig.supportEmail}`}>{siteConfig.supportEmail}</a></p>
             <div className="contact-links">
               <a href={siteConfig.telegram} target="_blank" rel="me noopener noreferrer">Telegram</a>
               <a href={siteConfig.github} target="_blank" rel="me noopener noreferrer">GitHub</a>

@@ -2,7 +2,9 @@ export const siteConfig = {
   name: "Mirelli Studio",
   domain: "mirelli.eu",
   url: "https://mirelli.eu",
-  email: "darian.mirelli@gmail.com",
+  email: "info@mirelli.eu",
+  // For existing clients. Shown in the contact section; the contact form itself posts to Telegram, not to mail.
+  supportEmail: "support@mirelli.eu",
   github: "https://github.com/DimkaQQ",
   telegram: "https://t.me/Dimka_Hum",
   founded: "2023",
