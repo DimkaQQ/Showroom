@@ -126,7 +126,7 @@ export const de: Translations = {
       {
         title: "Hosting, Fehlerbehebung und Support",
         description:
-          "Wir hosten in der EU oder auf Ihrem eigenen Server, ganz wie Sie möchten, halten alles aktuell und sicher und beheben Störungen schnell. Ein Ansprechpartner, der antwortet.",
+          "Schnelle, zuverlässige Server: Wir hosten das System, halten es rund um die Uhr online, aktuell und sicher und beheben Störungen schnell. Ein Ansprechpartner, der antwortet.",
       },
     ],
   },
@@ -159,7 +159,7 @@ export const de: Translations = {
   about: {
     title: "Mit wem Sie arbeiten",
     paragraphs: [
-      "Mirelli Studio unterstützt Unternehmen in Europa mit Software, die zu Ihrem tatsächlichen Arbeitsalltag passt: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel und der Support, damit alles läuft.",
+      "Mirelli Studio unterstützt Unternehmen auf der ganzen Welt mit Software, die zu Ihrem tatsächlichen Arbeitsalltag passt: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel und der Support, damit alles läuft.",
       "Sie haben es mit einer Person zu tun, nicht mit einem Ticketsystem: Sie schildern das Problem, wir vereinbaren Umfang und Preis schriftlich, und Sie sehen jede Woche eine lauffähige Version. Wir arbeiten per Vertrag oder mit einer einfachen schriftlichen Vereinbarung, ganz wie Sie es bevorzugen.",
     ],
     facts: [

@@ -126,7 +126,7 @@ export const fr: Translations = {
       {
         title: "Hébergement, corrections et support",
         description:
-          "Nous hébergeons dans l'UE ou sur votre propre serveur, selon votre préférence, gardons tout à jour et sécurisé, et corrigeons vite ce qui cesse de fonctionner. Un interlocuteur qui répond.",
+          "Des serveurs rapides et fiables : nous hébergeons le système, le gardons en ligne en permanence, à jour et sécurisé, et corrigeons vite ce qui cesse de fonctionner. Un interlocuteur qui répond.",
       },
     ],
   },
@@ -159,7 +159,7 @@ export const fr: Translations = {
   about: {
     title: "Avec qui vous travaillez",
     paragraphs: [
-      "Mirelli Studio aide les entreprises en Europe avec des logiciels adaptés à leur façon réelle de travailler : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, et le support pour que tout continue de fonctionner.",
+      "Mirelli Studio aide les entreprises du monde entier avec des logiciels adaptés à leur façon réelle de travailler : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, et le support pour que tout continue de fonctionner.",
       "Vous avez affaire à une personne, pas à un système de tickets : vous décrivez le problème, nous convenons du périmètre et du prix par écrit, et vous voyez une version fonctionnelle chaque semaine. Nous travaillons par contrat ou par un simple accord écrit, comme vous préférez.",
     ],
     facts: [

@@ -7,6 +7,8 @@ export const siteConfig = {
   supportEmail: "support@mirelli.eu",
   github: "https://github.com/DimkaQQ",
   telegram: "https://t.me/Dimka_Hum",
+  // The studio bot. Set it to e.g. "https://t.me/YourBot" and the contact link and the search palette will use it.
+  telegramBot: "",
   founded: "2023",
   // Shown only on the privacy page (footer link "Privacy and legal"), never in the main text.
   // Fill in to publish the provider's details; while empty nothing is rendered.

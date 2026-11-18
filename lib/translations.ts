@@ -131,7 +131,7 @@ const en = {
       {
         title: "Hosting, fixes and support",
         description:
-          "We host it in the EU or on your own server, whichever you prefer, keep it updated and secure, and resolve issues quickly when something stops working. One point of contact who responds.",
+          "Fast, reliable servers: we host it, keep it online around the clock, updated and secure, and fix things quickly if something stops working. One point of contact who responds.",
       },
     ],
   },
@@ -164,7 +164,7 @@ const en = {
   about: {
     title: "Who you will work with",
     paragraphs: [
-      "Mirelli Studio helps businesses in Europe with software that fits how they really work: a website that brings enquiries, online booking and orders, a simple system instead of Excel, and the support to keep it all running.",
+      "Mirelli Studio helps businesses around the world with software that fits how they really work: a website that brings enquiries, online booking and orders, a simple system instead of Excel, and the support to keep it all running.",
       "You deal with a person, not a ticket system: you describe the problem, we agree scope and price in writing, and you see a working version every week. We work by contract or by a simple written agreement, whichever you prefer.",
     ],
     facts: [
@@ -446,7 +446,7 @@ const ru: Translations = {
       {
         title: "Хостинг, исправления и поддержка",
         description:
-          "Размещаем в ЕС или на вашем собственном сервере, как удобнее, следим за обновлениями и безопасностью и быстро чиним, если что-то перестало работать. Один человек, который отвечает.",
+          "Быстрые и надёжные серверы: мы размещаем систему, держим её онлайн круглосуточно, следим за обновлениями и безопасностью и быстро чиним, если что-то перестало работать. Один человек, который отвечает.",
       },
     ],
   },
@@ -479,7 +479,7 @@ const ru: Translations = {
   about: {
     title: "С кем вы будете работать",
     paragraphs: [
-      "Mirelli Studio помогает бизнесу в Европе с программами, которые подходят под то, как вы реально работаете: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel и поддержка, чтобы всё продолжало работать.",
+      "Mirelli Studio помогает бизнесу по всему миру с программами, которые подходят под то, как вы реально работаете: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel и поддержка, чтобы всё продолжало работать.",
       "Вы общаетесь с человеком, а не с тикет-системой: описываете задачу, мы письменно договариваемся об объёме и цене, и каждую неделю вы видите рабочую версию. Работаем по договору или по простой письменной договорённости, как вам удобнее.",
     ],
     facts: [
