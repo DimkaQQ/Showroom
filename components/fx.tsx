@@ -129,7 +129,7 @@ export function Fx() {
             gsap.to("#rail", { scaleY: 1, ease: "none", scrollTrigger: { trigger: "#tl", start: "top 70%", end: "bottom 60%", scrub: true } });
             $$("#tl .st").forEach((st) => {
               ScrollTrigger.create({ trigger: st, start: "top 65%", onEnter: () => st.classList.add("on"), onLeaveBack: () => st.classList.remove("on") });
-              gsap.from(st, { x: 40, opacity: 0.15, duration: 1, ease: "expo.out", scrollTrigger: { trigger: st, start: "top 85%", once: true } });
+              gsap.from(st, { y: 32, opacity: 0.15, duration: 1, ease: "expo.out", scrollTrigger: { trigger: st, start: "top 85%", once: true } });
             });
           }
 
