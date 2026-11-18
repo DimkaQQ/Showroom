@@ -268,6 +268,10 @@ export const de: Translations = {
         q: "In welchen Sprachen wird gearbeitet?",
         a: "Englisch und Russisch. Diese Website gibt es auf Englisch, Russisch, Kasachisch, Deutsch, Französisch, Slowakisch und Tschechisch.",
       },
+      {
+        q: "Ist Mirelli Studio dasselbe wie Studio Mirelli?",
+        a: "Nein. Mirelli Studio (mirelli.eu) ist ein Studio für Software und Websites: Buchungssysteme, Geschäftssysteme, Websites und Telegram-Bots. Es hat nichts mit Studio Mirelli (studiomirelli.com), einem Online-Modeshop, oder anderen Unternehmen mit ähnlichem Namen zu tun.",
+      },
     ],
   },
   privacy: {

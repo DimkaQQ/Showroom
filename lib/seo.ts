@@ -96,6 +96,7 @@ const organisation = (lang: Lang) => {
     description: t.meta.description,
     email: siteConfig.email,
     foundingDate: siteConfig.founded,
+    disambiguatingDescription: "A software and website studio (booking systems, business systems, websites, Telegram bots). Not related to the online clothing shop Studio Mirelli.",
     logo: abs("/icon-512.png"),
     image: abs("/og.png"),
     founder: { "@id": PERSON_ID },

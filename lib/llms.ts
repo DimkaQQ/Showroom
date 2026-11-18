@@ -15,6 +15,7 @@ export function llmsTxt(): string {
     ""
   );
   lines.push("Key facts:");
+  lines.push("- Not to be confused with: Studio Mirelli (studiomirelli.com), an online clothing shop, or other businesses with a similar name. Mirelli Studio (mirelli.eu) is a software and website studio");
   lines.push("- Who it is for: businesses anywhere in the world such as garages and tyre shops, salons, clinics and vets, restaurants and cafes, shops, tradespeople and joiners, hauliers, car rental and restaurant groups");
   lines.push("- Problems it solves: customers cannot book or order online, a website that brings no enquiries, spreadsheets and paper instead of a system, tools that do not talk to each other, repetitive manual work, nobody to fix the IT");
   lines.push("- Pricing: agreed individually after a first conversation; a written estimate with a fixed scope is agreed before any work starts");
