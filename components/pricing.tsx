@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import pricing from "@/lib/pricing.json";
 import { pricingText } from "@/lib/pricing-text";
+import { Calculator } from "@/components/calculator";
 import type { Lang } from "@/lib/i18n";
 
 type Region = "cis" | "intl";
@@ -99,41 +100,5 @@ export function Pricing({ lang }: { lang: Lang }) {
         <Calculator lang={lang} cur={cur} money={money} />
       </div>
     </section>
-  );
-}
-
-function Calculator({ lang, cur, money }: { lang: Lang; cur: string; money: { format: (n: number) => string } }) {
-  const c = pricingText[lang].calc;
-  const [bookings, setBookings] = useState(40);
-  const [noshow, setNoshow] = useState(10);
-  const [value, setValue] = useState(cur === "KZT" ? 15000 : cur === "RUB" ? 3000 : 40);
-  const [cut, setCut] = useState(50);
-  const [hours, setHours] = useState(5);
-  useEffect(() => { setValue(cur === "KZT" ? 15000 : cur === "RUB" ? 3000 : 40); }, [cur]);
-
-  const weeks = 52 / 12;
-  const lost = bookings * (noshow / 100) * value * weeks;
-  const saved = lost * (cut / 100);
-  const hoursBack = hours * weeks * (cut / 100);
-  const num = (v: string) => { const n = Number(v.replace(",", ".")); return Number.isFinite(n) && n >= 0 ? n : 0; };
-
-  return (
-    <div className="calc" aria-labelledby="calc-h">
-      <h3 id="calc-h">{c.title}</h3>
-      <p className="sub">{c.sub}</p>
-      <div className="calc-grid">
-        <label><span>{c.bookings}</span><input className="tx" inputMode="decimal" value={bookings} onChange={(e) => setBookings(num(e.target.value))} /></label>
-        <label><span>{c.noshow}</span><input className="tx" inputMode="decimal" value={noshow} onChange={(e) => setNoshow(Math.min(100, num(e.target.value)))} /></label>
-        <label><span>{c.value} ({cur})</span><input className="tx" inputMode="decimal" value={value} onChange={(e) => setValue(num(e.target.value))} /></label>
-        <label><span>{c.cut}</span><input className="tx" inputMode="decimal" value={cut} onChange={(e) => setCut(Math.min(100, num(e.target.value)))} /></label>
-        <label><span>{c.hours}</span><input className="tx" inputMode="decimal" value={hours} onChange={(e) => setHours(num(e.target.value))} /></label>
-      </div>
-      <div className="calc-out" aria-live="polite">
-        <div><p className="calc-k">{c.lost}</p><p className="calc-v">{money.format(Math.round(lost))}</p></div>
-        <div><p className="calc-k">{c.saved}</p><p className="calc-v acc">{money.format(Math.round(saved))}</p></div>
-        <div><p className="calc-k">{c.hoursBack}</p><p className="calc-v acc">{Math.round(hoursBack)}</p></div>
-      </div>
-      <p className="calc-note">{c.disclaimer} {c.hoursNote}</p>
-    </div>
   );
 }
