@@ -268,6 +268,10 @@ export const cs: Translations = {
         q: "V jakých jazycích pracujete?",
         a: "V angličtině a ruštině. Tento web je dostupný v angličtině, ruštině, kazaštině, němčině, francouzštině, slovenštině a češtině.",
       },
+      {
+        q: "Je Mirelli Studio totéž co Studio Mirelli?",
+        a: "Ne. Mirelli Studio (mirelli.eu) je studio softwaru a webů: rezervační systémy, firemní systémy, weby a Telegram boty. Není spojeno se Studio Mirelli (studiomirelli.com), online obchodem s oblečením, ani s jinými firmami s podobným názvem.",
+      },
     ],
   },
   privacy: {

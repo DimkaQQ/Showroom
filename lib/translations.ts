@@ -273,6 +273,10 @@ const en = {
         q: "Which languages do you work in?",
         a: "English and Russian. This site is available in English, Russian, Kazakh, German, French, Slovak and Czech.",
       },
+      {
+        q: "Is Mirelli Studio the same as Studio Mirelli?",
+        a: "No. Mirelli Studio (mirelli.eu) is a software and website studio: booking systems, business systems, websites and Telegram bots. It is not connected to Studio Mirelli (studiomirelli.com), an online clothing shop, or to other businesses with a similar name.",
+      },
     ],
   },
   privacy: {
@@ -587,6 +591,10 @@ const ru: Translations = {
       {
         q: "На каких языках вы работаете?",
         a: "На английском и русском, можно писать и по-казахски. Сайт доступен на английском, русском, казахском, немецком, французском, словацком и чешском.",
+      },
+      {
+        q: "Mirelli Studio и Studio Mirelli — это одно и то же?",
+        a: "Нет. Mirelli Studio (mirelli.eu) — студия софта и сайтов: системы записи, системы для бизнеса, сайты и Telegram-боты. Она не связана с Studio Mirelli (studiomirelli.com), интернет-магазином одежды, и с другими компаниями со схожим названием.",
       },
     ],
   },
