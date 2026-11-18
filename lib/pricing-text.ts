@@ -19,10 +19,6 @@ export type PricingText = {
   startLabel: string;
   note: string;
   cta: string;
-  calc: {
-    title: string; sub: string; bookings: string; noshow: string; value: string; cut: string;
-    lost: string; saved: string; per: string; disclaimer: string; hours: string; hoursBack: string; hoursNote: string;
-  };
   studio: { title: string; text: string; point1: string; point2: string; point3: string; contract: string; owner: string };
   cases: { title: string; demoTag: string; sub: string; highlight: string; sector: string; changed: string };
 };
@@ -46,12 +42,6 @@ export const pricingText: Record<Lang, PricingText> = {
       start: { title: "Analysis and prototype", text: "Analysis and a clickable prototype in 1-2 weeks. The amount is credited towards the project if we continue." },
     },
     startLabel: "Quick start", note: "Final price depends on scope. After a short conversation you receive a written estimate.", cta: "Describe your task",
-    calc: {
-      title: "How much do you lose today?", sub: "Enter your own numbers. The result is a calculation, not a promise.",
-      bookings: "Bookings or visits per week", noshow: "Missed or cancelled, %", value: "Average value of one booking", cut: "If a system cuts the misses by, %",
-      lost: "You lose per month", saved: "You could keep per month", per: "per month", disclaimer: "Your own numbers and your own assumption. Real results depend on the business.",
-      hours: "Hours of manual work per week", hoursBack: "Hours freed per month", hoursNote: "Every hour you stop doing by hand is an hour for customers.",
-    },
     studio: {
       title: "Who is behind the studio",
       text: "Mirelli Studio is run by its founder, who is also the developer. You talk directly to the person who builds your system.",
@@ -78,12 +68,6 @@ export const pricingText: Record<Lang, PricingText> = {
       start: { title: "Разбор и прототип", text: "Разбор задачи и кликабельный прототип за 1-2 недели. Сумма засчитывается в проект, если продолжаем." },
     },
     startLabel: "Быстрый старт", note: "Итоговая цена зависит от объёма. После короткого разговора вы получаете письменную смету.", cta: "Описать задачу",
-    calc: {
-      title: "Сколько вы теряете сейчас?", sub: "Введите свои цифры. Результат это расчёт, а не обещание.",
-      bookings: "Записей или визитов в неделю", noshow: "Не пришли или отменили, %", value: "Средняя сумма одной записи", cut: "Если система сократит неявки на, %",
-      lost: "Вы теряете в месяц", saved: "Можно сохранить в месяц", per: "в месяц", disclaimer: "Ваши цифры и ваше допущение. Реальный результат зависит от бизнеса.",
-      hours: "Часов ручной работы в неделю", hoursBack: "Освобождается часов в месяц", hoursNote: "Каждый час, который вы перестали делать руками, это час для клиентов.",
-    },
     studio: {
       title: "Кто стоит за студией",
       text: "Mirelli Studio ведёт основатель, который сам же и разработчик. Вы общаетесь напрямую с тем, кто строит вашу систему.",
@@ -110,12 +94,6 @@ export const pricingText: Record<Lang, PricingText> = {
       start: { title: "Analyse und Prototyp", text: "Analyse und klickbarer Prototyp in 1-2 Wochen. Der Betrag wird auf das Projekt angerechnet, wenn wir weitermachen." },
     },
     startLabel: "Schnellstart", note: "Der Endpreis hängt vom Umfang ab. Nach einem kurzen Gespräch erhalten Sie eine schriftliche Schätzung.", cta: "Aufgabe beschreiben",
-    calc: {
-      title: "Wie viel verlieren Sie heute?", sub: "Geben Sie Ihre eigenen Zahlen ein. Das Ergebnis ist eine Rechnung, kein Versprechen.",
-      bookings: "Buchungen oder Besuche pro Woche", noshow: "Nicht erschienen oder abgesagt, %", value: "Durchschnittlicher Wert einer Buchung", cut: "Wenn ein System die Ausfälle senkt um, %",
-      lost: "Sie verlieren pro Monat", saved: "Sie könnten pro Monat behalten", per: "pro Monat", disclaimer: "Ihre eigenen Zahlen und Ihre eigene Annahme. Echte Ergebnisse hängen vom Unternehmen ab.",
-      hours: "Stunden Handarbeit pro Woche", hoursBack: "Frei werdende Stunden pro Monat", hoursNote: "Jede Stunde, die Sie nicht mehr von Hand erledigen, gehört Ihren Kunden.",
-    },
     studio: {
       title: "Wer hinter dem Studio steht",
       text: "Mirelli Studio wird vom Gründer geführt, der selbst entwickelt. Sie sprechen direkt mit der Person, die Ihr System baut.",
@@ -142,12 +120,6 @@ export const pricingText: Record<Lang, PricingText> = {
       start: { title: "Analyse et prototype", text: "Analyse et prototype cliquable en 1-2 semaines. Le montant est déduit du projet si nous continuons." },
     },
     startLabel: "Démarrage rapide", note: "Le prix final dépend du périmètre. Après un court échange, vous recevez une estimation écrite.", cta: "Décrire votre besoin",
-    calc: {
-      title: "Combien perdez-vous aujourd'hui ?", sub: "Saisissez vos propres chiffres. Le résultat est un calcul, pas une promesse.",
-      bookings: "Réservations ou visites par semaine", noshow: "Absents ou annulés, %", value: "Valeur moyenne d'une réservation", cut: "Si un système réduit ces pertes de, %",
-      lost: "Vous perdez par mois", saved: "Vous pourriez garder par mois", per: "par mois", disclaimer: "Vos chiffres et votre hypothèse. Les résultats réels dépendent de l'entreprise.",
-      hours: "Heures de travail manuel par semaine", hoursBack: "Heures libérées par mois", hoursNote: "Chaque heure que vous ne faites plus à la main est une heure pour vos clients.",
-    },
     studio: {
       title: "Qui est derrière le studio",
       text: "Mirelli Studio est dirigé par son fondateur, qui est aussi le développeur. Vous parlez directement à la personne qui construit votre système.",
@@ -174,12 +146,6 @@ export const pricingText: Record<Lang, PricingText> = {
       start: { title: "Analýza a prototyp", text: "Analýza a klikateľný prototyp za 1-2 týždne. Suma sa započíta do projektu, ak pokračujeme." },
     },
     startLabel: "Rýchly štart", note: "Konečná cena závisí od rozsahu. Po krátkom rozhovore dostanete písomný odhad.", cta: "Opísať zadanie",
-    calc: {
-      title: "Koľko dnes strácate?", sub: "Zadajte vlastné čísla. Výsledok je výpočet, nie sľub.",
-      bookings: "Rezervácií alebo návštev týždenne", noshow: "Neprišli alebo zrušili, %", value: "Priemerná hodnota jednej rezervácie", cut: "Ak systém zníži výpadky o, %",
-      lost: "Mesačne strácate", saved: "Mesačne by ste mohli ušetriť", per: "mesačne", disclaimer: "Vaše čísla a váš predpoklad. Skutočné výsledky závisia od biznisu.",
-      hours: "Hodín ručnej práce týždenne", hoursBack: "Uvoľnených hodín mesačne", hoursNote: "Každá hodina, ktorú už nerobíte ručne, patrí zákazníkom.",
-    },
     studio: {
       title: "Kto stojí za štúdiom",
       text: "Mirelli Studio vedie zakladateľ, ktorý je zároveň vývojár. Rozprávate sa priamo s človekom, ktorý váš systém stavia.",
@@ -206,12 +172,6 @@ export const pricingText: Record<Lang, PricingText> = {
       start: { title: "Analýza a prototyp", text: "Analýza a proklikávací prototyp za 1-2 týdny. Částka se započítá do projektu, pokud pokračujeme." },
     },
     startLabel: "Rychlý start", note: "Konečná cena závisí na rozsahu. Po krátkém rozhovoru dostanete písemný odhad.", cta: "Popsat zadání",
-    calc: {
-      title: "Kolik dnes ztrácíte?", sub: "Zadejte vlastní čísla. Výsledek je výpočet, ne slib.",
-      bookings: "Rezervací nebo návštěv týdně", noshow: "Nepřišli nebo zrušili, %", value: "Průměrná hodnota jedné rezervace", cut: "Pokud systém sníží výpadky o, %",
-      lost: "Měsíčně ztrácíte", saved: "Měsíčně byste mohli ušetřit", per: "měsíčně", disclaimer: "Vaše čísla a váš předpoklad. Skutečné výsledky závisí na byznysu.",
-      hours: "Hodin ruční práce týdně", hoursBack: "Uvolněných hodin měsíčně", hoursNote: "Každá hodina, kterou už neděláte ručně, patří zákazníkům.",
-    },
     studio: {
       title: "Kdo stojí za studiem",
       text: "Mirelli Studio vede zakladatel, který je zároveň vývojář. Mluvíte přímo s člověkem, který váš systém staví.",
@@ -238,12 +198,6 @@ export const pricingText: Record<Lang, PricingText> = {
       start: { title: "Талдау және прототип", text: "Міндетті талдау және басып көретін прототип 1-2 аптада. Жалғастырсақ, сома жобаға есептеледі." },
     },
     startLabel: "Жылдам бастау", note: "Соңғы баға көлемге байланысты. Қысқа әңгімеден кейін жазбаша баға аласыз.", cta: "Міндетті сипаттау",
-    calc: {
-      title: "Қазір қанша жоғалтасыз?", sub: "Өз сандарыңызды енгізіңіз. Нәтиже есеп, уәде емес.",
-      bookings: "Аптасына жазылу немесе визит саны", noshow: "Келмеген немесе бас тартқан, %", value: "Бір жазылудың орташа сомасы", cut: "Жүйе келмей қалуды қысқартса, %",
-      lost: "Айына жоғалтасыз", saved: "Айына сақтап қалуға болады", per: "айына", disclaimer: "Сіздің сандарыңыз бен болжамыңыз. Нақты нәтиже бизнеске байланысты.",
-      hours: "Аптасына қолмен жұмыс сағаты", hoursBack: "Айына босайтын сағат", hoursNote: "Қолмен істеуді тоқтатқан әр сағат клиенттерге арналған сағат.",
-    },
     studio: {
       title: "Студияның артында кім тұр",
       text: "Mirelli Studio-ны негізін қалаушы басқарады, ол өзі әзірлеуші. Жүйеңізді жасайтын адаммен тікелей сөйлесесіз.",

@@ -230,6 +230,17 @@ html:not(.motion) .mq-track ul { flex-wrap: wrap; row-gap: 10px; }
 .calc-k { color: var(--mute); font-size: 14px; }
 .calc-v { font-family: var(--display); font-weight: 500; font-size: clamp(24px, 2.8vw, 38px); letter-spacing: -0.03em; margin-top: 6px; }
 .calc-v.acc { color: var(--accent); }
+.calc-q { margin-top: 26px; font-size: 14px; color: var(--soft); }
+.calc-sectors { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+.calc-tasks { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.calc-tasks li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: var(--r); background: var(--bg); }
+.calc-tasks li.on { border-color: var(--accent); }
+.calc-check { display: flex; align-items: center; gap: 12px; flex: 1 1 260px; font-size: 16px; cursor: pointer; }
+.calc-check input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+.calc-h { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--soft); }
+.calc-h input.tx { width: 76px; font: inherit; font-size: 16px; color: var(--fg); background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--r); padding: 8px 10px; min-height: 44px; }
+.calc-grid small { color: var(--mute); font-size: 13px; }
+.calc-note.calc-empty { margin-top: 24px; }
 .calc-note { margin-top: 20px; color: var(--mute); font-size: 14px; max-width: 70ch; }
 .studio-text { max-width: 56ch; font-size: clamp(18px, 1.7vw, 24px); color: var(--soft); margin-top: 24px; }
 .studio-points { margin-top: 28px; display: grid; gap: 10px; }
