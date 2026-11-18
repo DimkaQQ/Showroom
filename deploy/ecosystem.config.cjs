@@ -7,5 +7,12 @@ module.exports = {
       max_memory_restart: "100M",
       env: { NODE_ENV: "production" },
     },
+    {
+      name: "mirelli-bot",
+      script: "bot/index.mjs",
+      cwd: "/opt/docker/showroom",
+      max_memory_restart: "100M",
+      env: { NODE_ENV: "production" },
+    },
   ],
 };

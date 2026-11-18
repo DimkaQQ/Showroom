@@ -8,6 +8,8 @@ import { Logo } from "@/components/logo";
 import { LangMenu } from "@/components/lang-menu";
 import { Wizard } from "@/components/wizard";
 import { Palette } from "@/components/palette";
+import { Pricing } from "@/components/pricing";
+import { pricingText } from "@/lib/pricing-text";
 import { testimonials } from "@/lib/testimonials";
 import { jsonLdFor } from "@/lib/seo";
 import { niches, nicheUi, nicheSlugs } from "@/lib/niches";
@@ -28,6 +30,8 @@ export function Home({ lang }: { lang: Lang }) {
         <Marquee />
         <Work lang={lang} t={t} />
         <Services t={t} lang={lang} />
+        <Pricing lang={lang} />
+        <Studio lang={lang} />
         <About t={t} />
         <Quotes lang={lang} />
         <Process t={t} />
@@ -52,8 +56,9 @@ function TopBar({ lang, t }: { lang: Lang; t: T }) {
           <span>{siteConfig.name}</span>
         </a>
         <nav className="nav" aria-label="Primary">
-          <a href="#work">{t.nav.work}</a>
+          <a href="#work">{pricingText[lang].cases.title}</a>
           <a href="#services">{t.nav.services}</a>
+          <a href="#pricing">{pricingText[lang].nav}</a>
           <a href="#process">{t.nav.process}</a>
           <a href="#contact">{t.nav.contact}</a>
         </nav>
@@ -120,8 +125,9 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
     <section className="sec work" id="work" aria-labelledby="work-h">
       <div className="wrap">
         <div className="head">
-          <h2 id="work-h">{t.showroom.title}</h2>
-          <p className="sub">{t.showroom.subtitle}</p>
+          <h2 id="work-h">{pricingText[lang].cases.title}</h2>
+          <p className="sub">{pricingText[lang].cases.sub}</p>
+          <p className="highlight">{pricingText[lang].cases.highlight}</p>
         </div>
       </div>
       <div className="hz-pin" id="hz-pin">
@@ -143,6 +149,7 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
                   <h3>{p.name}</h3>
                   <p className="tg">{s.tagline}, {p.year}</p>
                   <p className="desc">{s.description}</p>
+                  <p className="changed">{pricingText[lang].cases.changed}</p>
                   <ul className="helps">{hybrid[lang].helps[i].map((x) => <li key={x}>{x}</li>)}</ul>
                   <div className="links">
                     <a className="go" href={href} target="_blank" rel="nofollow noopener noreferrer">
@@ -294,6 +301,34 @@ function Niches({ lang }: { lang: Lang }) {
   );
 }
 
+function Studio({ lang }: { lang: Lang }) {
+  const t = pricingText[lang].studio;
+  return (
+    <section className="sec studio" id="studio" aria-labelledby="studio-h">
+      <div className="wrap">
+        <h2 id="studio-h">{t.title}</h2>
+        <p className="studio-text">{t.text}</p>
+        <ul className="studio-points">
+          <li>{t.point1}</li>
+          <li>{t.point2}</li>
+          <li>{t.point3}</li>
+        </ul>
+        <p className="studio-owner">{siteConfig.owner}, {t.owner}</p>
+        {siteConfig.entities.length > 0 && (
+          <div className="studio-ent">
+            <p className="studio-k">{t.contract}</p>
+            <ul>
+              {siteConfig.entities.map((e) => (
+                <li key={e.role}><b>{pricingText[lang].regions[e.role]}</b>: {e.name}, {e.id}, {e.address}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function Contact({ lang, t }: { lang: Lang; t: T }) {
   return (
     <section className="sec contact" id="contact" aria-labelledby="contact-h">
@@ -305,7 +340,8 @@ function Contact({ lang, t }: { lang: Lang; t: T }) {
             <a className="mail" id="mail" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
             <p className="support">{supportLine[lang]} <a href={`mailto:${siteConfig.supportEmail}`}>{siteConfig.supportEmail}</a></p>
             <div className="contact-links">
-              <a href={siteConfig.telegramBot || siteConfig.telegram} target="_blank" rel="me noopener noreferrer">Telegram</a>
+              {siteConfig.whatsapp && <a href={`https://wa.me/${siteConfig.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>}
+              {siteConfig.telegramBot && <a href={siteConfig.telegramBot} target="_blank" rel="me noopener noreferrer">Telegram</a>}
             </div>
           </div>
           <Wizard lang={lang} />

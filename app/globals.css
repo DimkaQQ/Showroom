@@ -198,6 +198,50 @@ html:not(.motion) .mq-track ul { flex-wrap: wrap; row-gap: 10px; }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes fall { 0% { transform: translateY(0) rotate(var(--r)); opacity: 0.9; } 100% { transform: translateY(420px) rotate(calc(var(--r) + 360deg)); opacity: 0; } }
 
+/* Cases header, pricing, calculator, studio */
+.head .highlight { margin-top: 18px; max-width: 56ch; color: var(--accent); font-weight: 500; font-size: 18px; }
+.changed { margin-top: 10px; font-size: 13px; color: var(--mute); }
+.pr-controls { display: flex; flex-wrap: wrap; gap: 16px 28px; margin-bottom: 14px; }
+.seg { display: flex; flex-wrap: wrap; gap: 8px; }
+.pr-note { color: var(--mute); font-size: 15px; max-width: 70ch; margin-bottom: 36px; }
+.pr-list { border-top: 1px solid var(--line-2); }
+.pr-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); padding: 30px 0; border-bottom: 1px solid var(--line-2); align-items: start; }
+.pr-row h3 { font-size: clamp(20px, 2vw, 28px); letter-spacing: -0.03em; line-height: 1.15; }
+.pr-row p { margin-top: 8px; color: var(--soft); max-width: 52ch; }
+.pr-meta { text-align: right; }
+.pr-price { font-family: var(--display); font-weight: 500; font-size: clamp(18px, 1.8vw, 24px); letter-spacing: -0.02em; margin-top: 0 !important; color: var(--fg) !important; }
+.pr-time { margin-top: 6px !important; font-size: 14px; color: var(--mute) !important; font-family: var(--text); font-weight: 400; letter-spacing: 0; }
+.pr-start { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); align-items: start; margin-top: 28px; padding: 26px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: var(--r); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.pr-start h3 { font-size: clamp(18px, 1.8vw, 24px); letter-spacing: -0.02em; }
+.pr-start p { margin-top: 8px; color: var(--soft); }
+.pr-start .pr-price { text-align: right; }
+.pr-foot { margin-top: 28px; color: var(--mute); font-size: 15px; }
+.pr-cta { margin-top: 24px; }
+.calc { margin-top: clamp(56px, 9vh, 96px); padding: clamp(20px, 3vw, 36px); background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--r); }
+.calc h3 { font-size: clamp(22px, 2.4vw, 32px); letter-spacing: -0.03em; }
+.calc .sub { margin-top: 10px; font-size: 16px; }
+.calc-grid { margin-top: 26px; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px 20px; }
+.calc-grid label { display: grid; gap: 8px; font-size: 14px; color: var(--soft); }
+.calc-grid input.tx { width: 100%; font: inherit; font-size: 17px; color: var(--fg); background: var(--bg); border: 1px solid var(--line-2); border-radius: var(--r); padding: 12px 14px; min-height: 50px; }
+.calc-grid input.tx:focus { outline: none; border-color: var(--accent); }
+.calc-out { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding-top: 24px; border-top: 1px solid var(--line); }
+.calc-k { color: var(--mute); font-size: 14px; }
+.calc-v { font-family: var(--display); font-weight: 500; font-size: clamp(24px, 2.8vw, 38px); letter-spacing: -0.03em; margin-top: 6px; }
+.calc-v.acc { color: var(--accent); }
+.calc-note { margin-top: 20px; color: var(--mute); font-size: 14px; max-width: 70ch; }
+.studio-text { max-width: 56ch; font-size: clamp(18px, 1.7vw, 24px); color: var(--soft); margin-top: 24px; }
+.studio-points { margin-top: 28px; display: grid; gap: 10px; }
+.studio-points li { position: relative; padding-left: 22px; color: var(--soft); }
+.studio-points li::before { content: ""; position: absolute; left: 0; top: 0.8em; width: 10px; height: 1px; background: var(--accent); }
+.studio-owner { margin-top: 28px; font-family: var(--display); font-size: 18px; letter-spacing: -0.02em; }
+.studio-ent { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); max-width: 72ch; }
+.studio-k { color: var(--mute); font-size: 14px; margin-bottom: 10px; }
+.studio-ent li { color: var(--soft); font-size: 15px; margin-bottom: 8px; }
+@media (max-width: 960px) {
+  .pr-row, .pr-start { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .pr-meta, .pr-start .pr-price { text-align: left; }
+}
+
 /* About */
 .about .about-body { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(32px, 6vw, 96px); align-items: start; margin-top: clamp(36px, 6vh, 64px); }
 .about-text p { max-width: 60ch; margin-bottom: 22px; color: var(--mute); }
