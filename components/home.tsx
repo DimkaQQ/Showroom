@@ -10,6 +10,7 @@ import { Wizard } from "@/components/wizard";
 import { Palette } from "@/components/palette";
 import { Pricing } from "@/components/pricing";
 import { pricingText } from "@/lib/pricing-text";
+import { results } from "@/lib/results";
 import { testimonials } from "@/lib/testimonials";
 import { jsonLdFor } from "@/lib/seo";
 import { niches, nicheUi, nicheSlugs } from "@/lib/niches";
@@ -149,6 +150,7 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
                   <h3>{p.name}</h3>
                   <p className="tg">{s.tagline}, {p.year}</p>
                   <p className="desc">{s.description}</p>
+                  {(results[p.id]?.[lang] ?? results[p.id]?.en) && <p className="result">{results[p.id]?.[lang] ?? results[p.id]?.en}</p>}
                   <p className="changed">{pricingText[lang].cases.changed}</p>
                   <ul className="helps">{hybrid[lang].helps[i].map((x) => <li key={x}>{x}</li>)}</ul>
                   <div className="links">
