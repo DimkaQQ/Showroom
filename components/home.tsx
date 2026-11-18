@@ -148,6 +148,7 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
                 </a>
                 <div className="meta">
                   <h3>{p.name}</h3>
+                  <p className="demotag">{pricingText[lang].cases.demoTag}</p>
                   <p className="tg">{s.tagline}, {p.year}</p>
                   <p className="desc">{s.description}</p>
                   {(results[p.id]?.[lang] ?? results[p.id]?.en) && <p className="result">{results[p.id]?.[lang] ?? results[p.id]?.en}</p>}

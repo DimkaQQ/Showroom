@@ -201,6 +201,7 @@ html:not(.motion) .mq-track ul { flex-wrap: wrap; row-gap: 10px; }
 /* Cases header, pricing, calculator, studio */
 .head .highlight { margin-top: 18px; max-width: 56ch; color: var(--accent); font-weight: 500; font-size: 18px; }
 .result { margin-top: 12px; padding: 10px 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: var(--r); background: color-mix(in srgb, var(--accent) 8%, transparent); color: var(--fg); font-weight: 500; font-size: 15px; }
+.demotag { margin-top: -2px; font-size: 13px; color: var(--mute); }
 .changed { margin-top: 10px; font-size: 13px; color: var(--mute); }
 .pr-controls { display: flex; flex-wrap: wrap; gap: 16px 28px; margin-bottom: 14px; }
 .seg { display: flex; flex-wrap: wrap; gap: 8px; }
