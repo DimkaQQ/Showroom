@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const fr: Translations = {
   meta: {
-    title: "Logiciels et sites web pour les entreprises en Europe | Mirelli Studio",
+    title: "Logiciels et sites web pour les entreprises | Mirelli Studio",
     description:
-      "Sites web, réservation en ligne, petits systèmes de gestion et bots Telegram pour les entreprises en Europe, avec support. Démos en direct à essayer.",
-    ogAlt: "Mirelli Studio – logiciels et sites web pour les entreprises en Europe",
+      "Sites web, réservation en ligne, petits systèmes de gestion et bots Telegram pour les entreprises du monde entier, avec support. Démos en direct à essayer.",
+    ogAlt: "Mirelli Studio – logiciels et sites web pour les entreprises",
   },
   nav: {
     work: "Réalisations",
@@ -222,7 +222,7 @@ export const fr: Translations = {
     items: [
       {
         q: "Que fait Mirelli Studio ?",
-        a: "Mirelli Studio aide les entreprises en Europe avec le logiciel dont elles ont réellement besoin : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, des liens entre les outils que vous utilisez déjà, des bots Telegram, ainsi que l'hébergement et le support pour que tout fonctionne. Vous avez un seul interlocuteur, du premier échange jusqu'au système final documenté.",
+        a: "Mirelli Studio aide les entreprises du monde entier avec le logiciel dont elles ont réellement besoin : un site qui apporte des demandes, la réservation en ligne et les commandes, un système simple à la place d'Excel, des liens entre les outils que vous utilisez déjà, des bots Telegram, ainsi que l'hébergement et le support pour que tout fonctionne. Vous avez un seul interlocuteur, du premier échange jusqu'au système final documenté.",
       },
       {
         q: "Quels produits ont déjà été créés ?",
@@ -250,7 +250,7 @@ export const fr: Translations = {
       },
       {
         q: "Où le logiciel est-il hébergé et comment les données sont-elles traitées ?",
-        a: "Ce site et ses démos fonctionnent sur une infrastructure à Francfort et n'utilisent ni cookies, ni outil d'analyse, ni requêtes vers des tiers. Pour les projets clients, les systèmes peuvent être déployés sur le cloud européen de votre choix et conçus dans une logique de minimisation des données, avec une documentation pour que vous ne soyez jamais prisonnier.",
+        a: "Ce site et ses démos fonctionnent sur des serveurs rapides et fiables et n'utilisent ni cookies, ni outil d'analyse, ni requêtes vers des tiers. Pour les projets clients, nous hébergeons le système, le gardons en ligne en permanence et le concevons dans une logique de minimisation des données, avec une documentation pour que vous ne soyez jamais prisonnier.",
       },
       {
         q: "Combien coûte un projet ?",
@@ -262,11 +262,11 @@ export const fr: Translations = {
       },
       {
         q: "Les clients reviennent-ils ?",
-        a: "Oui. Nous avons travaillé avec plus de 100 clients, et la plupart reviennent avec de nouveaux projets. Environ la moitié exploite ses systèmes sur ses propres serveurs, en toute indépendance.",
+        a: "Oui. Nous avons travaillé avec plus de 100 clients, et chacun d'eux est revenu avec une nouvelle idée.",
       },
       {
         q: "Dans quelles langues travaillez-vous ?",
-        a: "En anglais et en russe. Ce site est disponible en anglais, russe, allemand, français, slovaque et tchèque.",
+        a: "En anglais et en russe. Ce site est disponible en anglais, russe, kazakh, allemand, français, slovaque et tchèque.",
       },
     ],
   },

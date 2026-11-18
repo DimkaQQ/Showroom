@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const de: Translations = {
   meta: {
-    title: "Software und Websites für Unternehmen in Europa | Mirelli Studio",
+    title: "Software und Websites für Unternehmen | Mirelli Studio",
     description:
-      "Websites, Online-Buchung, einfache Unternehmenssoftware und Telegram-Bots für Unternehmen in Europa, mit Support. Live-Demos zum Testen.",
-    ogAlt: "Mirelli Studio – Software und Websites für Unternehmen in Europa",
+      "Websites, Online-Buchung, einfache Unternehmenssoftware und Telegram-Bots für Unternehmen weltweit, mit Support. Live-Demos zum Testen.",
+    ogAlt: "Mirelli Studio – Software und Websites für Unternehmen",
   },
   nav: {
     work: "Projekte",
@@ -222,7 +222,7 @@ export const de: Translations = {
     items: [
       {
         q: "Was macht Mirelli Studio?",
-        a: "Mirelli Studio unterstützt Unternehmen in Europa mit der Software, die sie wirklich brauchen: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel, Verbindungen zwischen den Werkzeugen, die Sie schon nutzen, Telegram-Bots sowie Hosting und Support, damit alles läuft. Sie haben vom ersten Gespräch bis zum fertigen, dokumentierten System einen persönlichen Ansprechpartner.",
+        a: "Mirelli Studio unterstützt Unternehmen auf der ganzen Welt mit der Software, die sie wirklich brauchen: eine Website, die Anfragen bringt, Online-Buchung und Bestellungen, ein einfaches System statt Excel, Verbindungen zwischen den Werkzeugen, die Sie schon nutzen, Telegram-Bots sowie Hosting und Support, damit alles läuft. Sie haben vom ersten Gespräch bis zum fertigen, dokumentierten System einen persönlichen Ansprechpartner.",
       },
       {
         q: "Welche Produkte wurden bereits entwickelt?",
@@ -250,7 +250,7 @@ export const de: Translations = {
       },
       {
         q: "Wo wird die Software gehostet und wie wird mit Daten umgegangen?",
-        a: "Diese Website und ihre Demos laufen auf Infrastruktur in Frankfurt und verwenden keine Cookies, keine Analyse-Tools und keine Anfragen an Dritte. Für Kundenprojekte lassen sich Systeme in der EU-Cloud Ihrer Wahl betreiben und datensparsam auslegen, mit Dokumentation, damit Sie nie gebunden sind.",
+        a: "Diese Website und ihre Demos laufen auf schnellen, zuverlässigen Servern und verwenden keine Cookies, keine Analyse-Tools und keine Anfragen an Dritte. Für Kundenprojekte hosten wir das System, halten es rund um die Uhr online und legen es datensparsam aus, mit Dokumentation, damit Sie nie gebunden sind.",
       },
       {
         q: "Was kostet ein Projekt?",
@@ -262,11 +262,11 @@ export const de: Translations = {
       },
       {
         q: "Kommen Kunden wieder?",
-        a: "Ja. Wir haben mit mehr als 100 Kunden gearbeitet, und die meisten kommen mit neuen Projekten wieder. Etwa die Hälfte betreibt ihre Systeme auf eigenen Servern, vollständig unabhängig von uns.",
+        a: "Ja. Wir haben mit mehr als 100 Kunden gearbeitet, und jeder von ihnen kam mit einer neuen Idee wieder.",
       },
       {
         q: "In welchen Sprachen wird gearbeitet?",
-        a: "Englisch und Russisch. Diese Website gibt es auf Englisch, Russisch, Deutsch, Französisch, Slowakisch und Tschechisch.",
+        a: "Englisch und Russisch. Diese Website gibt es auf Englisch, Russisch, Kasachisch, Deutsch, Französisch, Slowakisch und Tschechisch.",
       },
     ],
   },

@@ -7,10 +7,10 @@ import { kk } from "./translations.kk";
 
 const en = {
   meta: {
-    title: "Software and Websites for Businesses in Europe | Mirelli Studio",
+    title: "Software and Websites for Businesses | Mirelli Studio",
     description:
-      "Websites, online booking, simple business systems and Telegram bots for businesses in Europe, built and kept running. Live demos to try.",
-    ogAlt: "Mirelli Studio — software and websites for businesses in Europe",
+      "Websites, online booking, simple business systems and Telegram bots for businesses worldwide, built and kept running. Live demos to try.",
+    ogAlt: "Mirelli Studio — software and websites for businesses",
   },
   nav: {
     work: "Work",
@@ -227,7 +227,7 @@ const en = {
     items: [
       {
         q: "What does Mirelli Studio do?",
-        a: "Mirelli Studio helps businesses in Europe with the software they actually need: a website that brings enquiries, online booking and orders, a simple system instead of Excel, connections between the tools you already use, Telegram bots, and the hosting and support to keep it all running. You deal with one person, from the first conversation to the finished, documented system.",
+        a: "Mirelli Studio helps businesses around the world with the software they actually need: a website that brings enquiries, online booking and orders, a simple system instead of Excel, connections between the tools you already use, Telegram bots, and the hosting and support to keep it all running. You deal with one person, from the first conversation to the finished, documented system.",
       },
       {
         q: "What kinds of products have you built?",
@@ -255,7 +255,7 @@ const en = {
       },
       {
         q: "Where is the software hosted and how is data handled?",
-        a: "This site and its demos run on infrastructure in Frankfurt and use no cookies, analytics or third-party requests. For client projects, systems can be deployed on the EU cloud infrastructure of your choice and designed around data minimisation, with documentation so you are never locked in.",
+        a: "This site and its demos run on fast, reliable servers and use no cookies, analytics or third-party requests. For client projects we host the system, keep it online around the clock and design it around data minimisation, with documentation so you are never locked in.",
       },
       {
         q: "How much does a project cost?",
@@ -267,11 +267,11 @@ const en = {
       },
       {
         q: "Do clients come back?",
-        a: "Yes. We have worked with more than 100 clients, and most of them come back with new projects. About half run their systems on their own servers, fully independent of us.",
+        a: "Yes. We have worked with more than 100 clients, and every one of them has come back with a new idea.",
       },
       {
         q: "Which languages do you work in?",
-        a: "English and Russian. This site is available in English, Russian, German, French, Slovak and Czech.",
+        a: "English and Russian. This site is available in English, Russian, Kazakh, German, French, Slovak and Czech.",
       },
     ],
   },
@@ -322,10 +322,10 @@ export type Translations = typeof en;
 
 const ru: Translations = {
   meta: {
-    title: "Студия софта и сайтов из Европы | Mirelli Studio",
+    title: "Студия софта и сайтов для бизнеса | Mirelli Studio",
     description:
-      "Европейская студия: сайты, онлайн-запись, системы учёта, автоматизация и Telegram-боты для бизнеса в Казахстане и Европе. Работаем из Словакии, серверы в Германии. Живые примеры можно попробовать.",
-    ogAlt: "Mirelli Studio — студия софта и сайтов из Европы",
+      "Сайты, онлайн-запись, системы учёта, автоматизация и Telegram-боты для бизнеса по всему миру. Живые примеры можно попробовать.",
+    ogAlt: "Mirelli Studio — студия софта и сайтов для бизнеса",
   },
   nav: {
     work: "Работы",
@@ -340,7 +340,7 @@ const ru: Translations = {
   hero: {
     descriptor: "Софт и сайты для бизнеса",
     lead:
-      "Расскажите, что тормозит ваш бизнес: записи, заказы, таблицы, сайт, который не приносит заявок. Мы сделаем решение, подключим его к тому, чем вы уже пользуетесь, и будем поддерживать. Мы работаем из Европы: Словакия, серверы во Франкфурте, стандарты качества и защиты данных ЕС. Ниже живые примеры, их можно открыть и пощёлкать.",
+      "Расскажите, что тормозит ваш бизнес: записи, заказы, таблицы, сайт, который не приносит заявок. Мы сделаем решение, подключим его к тому, чем вы уже пользуетесь, и будем поддерживать. Ниже живые примеры, их можно открыть и пощёлкать.",
     viewWork: "Смотреть примеры",
     statClients: "Клиентов",
     statYears: "Лет в деле",
@@ -542,7 +542,7 @@ const ru: Translations = {
     items: [
       {
         q: "Чем занимается Mirelli Studio?",
-        a: "Mirelli Studio помогает бизнесу в Европе с нужным ему софтом: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel, связь между инструментами, которыми вы уже пользуетесь, Telegram-боты, а также хостинг и поддержка, чтобы всё работало. Вы общаетесь с одним человеком от первого разговора до готовой документированной системы.",
+        a: "Mirelli Studio помогает бизнесу по всему миру с нужным ему софтом: сайт, который приносит заявки, онлайн-запись и заказы, простая система вместо Excel, связь между инструментами, которыми вы уже пользуетесь, Telegram-боты, а также хостинг и поддержка, чтобы всё работало. Вы общаетесь с одним человеком от первого разговора до готовой документированной системы.",
       },
       {
         q: "Какие продукты вы делали?",
@@ -570,7 +570,7 @@ const ru: Translations = {
       },
       {
         q: "Где хостится софт и как обрабатываются данные?",
-        a: "Этот сайт и его демо работают на инфраструктуре во Франкфурте и не используют cookie, аналитику и сторонние запросы. Для клиентских проектов систему можно развернуть в выбранном вами облаке в ЕС и спроектировать с минимизацией данных и с документацией, чтобы вы не зависели от подрядчика.",
+        a: "Этот сайт и его демо работают на быстрых и надёжных серверах и не используют cookie, аналитику и сторонние запросы. Для клиентских проектов мы размещаем систему, держим её онлайн круглосуточно и проектируем с минимизацией данных, с документацией, чтобы вы никогда не были привязаны.",
       },
       {
         q: "Сколько стоит проект?",
@@ -582,7 +582,7 @@ const ru: Translations = {
       },
       {
         q: "Клиенты возвращаются?",
-        a: "Да. Мы работали с более чем 100 клиентами, и большинство возвращается с новыми проектами. Примерно половина работает на собственных серверах, полностью независимо от нас.",
+        a: "Да. Мы работали с более чем 100 клиентами, и каждый из них возвращался с новой идеей.",
       },
       {
         q: "На каких языках вы работаете?",

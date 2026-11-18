@@ -99,7 +99,7 @@ const organisation = (lang: Lang) => {
     logo: abs("/icon-512.png"),
     image: abs("/og.png"),
     founder: { "@id": PERSON_ID },
-    areaServed: [{ "@type": "Continent", name: "Europe" }, ...["Slovakia", "Czechia", "Austria", "Germany", "Kazakhstan"].map((name) => ({ "@type": "Country", name }))],
+    areaServed: "Worldwide",
     knowsLanguage: locales,
     knowsAbout: KNOWS_ABOUT,
     sameAs: [siteConfig.github, siteConfig.telegram],
@@ -218,7 +218,7 @@ export function nicheJsonLd(lang: Lang, slug: string) {
         inLanguage: lang,
         serviceType: n.name,
         provider: { "@id": ORG_ID },
-        areaServed: ["Slovakia", "Czechia", "Austria", "Germany", "Kazakhstan"].map((name) => ({ "@type": "Country", name })),
+        areaServed: "Worldwide",
       },
       {
         "@type": "FAQPage",

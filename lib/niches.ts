@@ -21,7 +21,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
     "faq": "Questions",
     "others": "Other business types",
     "back": "Back to home",
-    "areas": "We work with businesses in Slovakia, Czechia, Austria, Germany and across Europe, and remotely in Kazakhstan.",
+    "areas": "We work with businesses all over the world, remotely.",
     "label": "For"
   },
   "ru": {
@@ -40,7 +40,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
     "faq": "Вопросы",
     "others": "Другие виды бизнеса",
     "back": "На главную",
-    "areas": "Работаем с бизнесом в Словакии, Чехии, Австрии, Германии и по всей Европе, а также удалённо в Казахстане.",
+    "areas": "Работаем с бизнесом по всему миру, удалённо.",
     "label": "Для"
   },
   "de": {
@@ -59,7 +59,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
     "faq": "Fragen",
     "others": "Weitere Branchen",
     "back": "Zur Startseite",
-    "areas": "Wir arbeiten mit Unternehmen in der Slowakei, Tschechien, Österreich, Deutschland und ganz Europa sowie remote in Kasachstan.",
+    "areas": "Wir arbeiten mit Unternehmen auf der ganzen Welt, remote.",
     "label": "Für"
   },
   "fr": {
@@ -78,7 +78,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
     "faq": "Questions",
     "others": "Autres types d'activité",
     "back": "Retour à l'accueil",
-    "areas": "Nous travaillons avec des entreprises en Slovaquie, en Tchéquie, en Autriche, en Allemagne et partout en Europe, ainsi qu'à distance au Kazakhstan.",
+    "areas": "Nous travaillons avec des entreprises du monde entier, à distance.",
     "label": "Pour"
   },
   "sk": {
@@ -97,7 +97,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
     "faq": "Otázky",
     "others": "Ďalšie druhy podnikania",
     "back": "Späť na úvod",
-    "areas": "Pracujeme s firmami na Slovensku, v Česku, Rakúsku, Nemecku a v celej Európe, a na diaľku v Kazachstane.",
+    "areas": "Pracujeme s firmami po celom svete, na diaľku.",
     "label": "Pre"
   },
   "cs": {
@@ -116,7 +116,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
     "faq": "Otázky",
     "others": "Další druhy podnikání",
     "back": "Zpět na úvod",
-    "areas": "Pracujeme s firmami v Česku, na Slovensku, v Rakousku, v Německu a v celé Evropě, a na dálku v Kazachstanu.",
+    "areas": "Pracujeme s firmami po celém světě, na dálku.",
     "label": "Pro"
   },
   "kk": {
@@ -135,7 +135,7 @@ export const nicheUi: Record<Lang, NicheUi> = {
     "faq": "Сұрақтар",
     "others": "Бизнестің басқа түрлері",
     "back": "Басты бетке",
-    "areas": "Біз Қазақстанда, Словакияда, Чехияда, Австрияда, Германияда және бүкіл Еуропада бизнеспен жұмыс істейміз.",
+    "areas": "Біз бүкіл әлемде бизнеспен қашықтан жұмыс істейміз.",
     "label": "Үшін"
   }
 };
@@ -819,14 +819,14 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "A schedule per specialist with working hours and absences",
         "Confirmations and reminders by email or SMS",
         "Rescheduling and cancelling in one click",
-        "Minimal patient data, stored on a server in the EU",
+        "Minimal patient data, stored securely",
         "A waiting list that fills cancelled slots"
       ],
       "example": "Our Clinio demo shows it working: a calendar per specialist, no-show risk on every visit, automatic reminders and a waiting list that refills a cancelled slot in one click. Your version uses your own services and specialists.",
       "faq": [
         {
           "q": "How is patient data protected?",
-          "a": "We store only what is needed to confirm a visit, on a server in the EU, with access limited to your team. We explain what is stored and where in plain language."
+          "a": "We store only what is needed to confirm a visit, on a secure server, with access limited to your team. We explain what is stored and where in plain language."
         },
         {
           "q": "Can patients book for a pet or for a child?",
@@ -850,14 +850,14 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Расписание на каждого специалиста с рабочим временем и отсутствиями",
         "Подтверждения и напоминания по e-mail или SMS",
         "Перенос и отмена записи в один клик",
-        "Минимум данных о пациенте, хранение на сервере в ЕС",
+        "Минимум данных о пациенте, надёжное хранение",
         "Лист ожидания, который заполняет освободившиеся окна"
       ],
       "example": "Наше демо Clinio показывает это в работе: календарь на каждого специалиста, риск неявки по каждому визиту, автоматические напоминания и лист ожидания, который заполняет отменённое окно в один клик. Ваша версия использует ваши услуги и специалистов.",
       "faq": [
         {
           "q": "Как защищены данные пациентов?",
-          "a": "Мы храним только то, что нужно для подтверждения визита, на сервере в ЕС, с доступом только у вашей команды. Что и где хранится, объясняем простым языком."
+          "a": "Мы храним только то, что нужно для подтверждения визита, на защищённом сервере, с доступом только у вашей команды. Что и где хранится, объясняем простым языком."
         },
         {
           "q": "Можно ли записать питомца или ребёнка?",
@@ -881,14 +881,14 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Ein Plan je Fachkraft mit Arbeitszeiten und Abwesenheiten",
         "Bestätigungen und Erinnerungen per E-Mail oder SMS",
         "Verschieben und Absagen mit einem Klick",
-        "Minimale Patientendaten, gespeichert auf einem Server in der EU",
+        "Minimale Patientendaten, sicher gespeichert",
         "Eine Warteliste, die frei gewordene Termine füllt"
       ],
       "example": "Unsere Clinio-Demo zeigt es im Einsatz: ein Kalender je Fachkraft, Nichterscheinen-Risiko bei jedem Termin, automatische Erinnerungen und eine Warteliste, die einen abgesagten Termin mit einem Klick neu füllt. Ihre Version nutzt Ihre eigenen Leistungen und Fachkräfte.",
       "faq": [
         {
           "q": "Wie werden Patientendaten geschützt?",
-          "a": "Wir speichern nur, was zur Bestätigung eines Termins nötig ist, auf einem Server in der EU, mit Zugriff nur für Ihr Team. Was wo gespeichert wird, erklären wir in einfachen Worten."
+          "a": "Wir speichern nur, was zur Bestätigung eines Termins nötig ist, auf einem geschützten Server, mit Zugriff nur für Ihr Team. Was wo gespeichert wird, erklären wir in einfachen Worten."
         },
         {
           "q": "Können Patienten für ein Haustier oder ein Kind buchen?",
@@ -912,14 +912,14 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Un planning par praticien avec horaires et absences",
         "Confirmations et rappels par e-mail ou SMS",
         "Report et annulation en un clic",
-        "Données de patient minimales, stockées sur un serveur dans l'UE",
+        "Données de patient minimales, stockées en toute sécurité",
         "Une liste d'attente qui comble les créneaux annulés"
       ],
       "example": "Notre démo Clinio le montre en action : un calendrier par praticien, le risque d'absence pour chaque visite, des rappels automatiques et une liste d'attente qui comble un créneau annulé en un clic. Votre version utilise vos propres prestations et praticiens.",
       "faq": [
         {
           "q": "Comment les données des patients sont-elles protégées ?",
-          "a": "Nous ne stockons que ce qui est nécessaire pour confirmer une visite, sur un serveur dans l'UE, avec un accès limité à votre équipe. Nous expliquons en termes simples ce qui est stocké et où."
+          "a": "Nous ne stockons que ce qui est nécessaire pour confirmer une visite, sur un serveur sécurisé, avec un accès limité à votre équipe. Nous expliquons en termes simples ce qui est stocké et où."
         },
         {
           "q": "Peut-on réserver pour un animal ou un enfant ?",
@@ -943,14 +943,14 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Rozvrh pre každého odborníka s pracovným časom a neprítomnosťou",
         "Potvrdenia a pripomienky e-mailom alebo SMS",
         "Presunutie a zrušenie termínu jedným klikom",
-        "Minimum údajov o pacientovi, uložených na serveri v EÚ",
+        "Minimum údajov o pacientovi, bezpečne uložených",
         "Čakacia listina, ktorá zaplní uvoľnené termíny"
       ],
       "example": "Naša ukážka Clinio to ukazuje v praxi: kalendár pre každého odborníka, riziko neprítomnosti pri každej návšteve, automatické pripomienky a čakaciu listinu, ktorá zrušený termín doplní jedným klikom. Vaša verzia používa vaše vlastné služby a odborníkov.",
       "faq": [
         {
           "q": "Ako sú chránené údaje pacientov?",
-          "a": "Ukladáme len to, čo treba na potvrdenie návštevy, na serveri v EÚ, s prístupom len pre váš tím. Čo a kde sa ukladá, vysvetlíme jednoduchými slovami."
+          "a": "Ukladáme len to, čo treba na potvrdenie návštevy, na zabezpečenom serveri, s prístupom len pre váš tím. Čo a kde sa ukladá, vysvetlíme jednoduchými slovami."
         },
         {
           "q": "Dá sa objednať zviera alebo dieťa?",
@@ -974,14 +974,14 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Rozvrh pro každého odborníka s pracovní dobou a nepřítomností",
         "Potvrzení a připomínky e-mailem nebo SMS",
         "Přesunutí a zrušení termínu jedním klikem",
-        "Minimum údajů o pacientovi, uložených na serveru v EU",
+        "Minimum údajů o pacientovi, bezpečně uložených",
         "Čekací listina, která zaplní uvolněné termíny"
       ],
       "example": "Naše ukázka Clinio to ukazuje v praxi: kalendář pro každého odborníka, riziko neúčasti u každé návštěvy, automatické připomínky a čekací listinu, která zrušený termín doplní jedním klikem. Vaše verze používá vaše vlastní služby a odborníky.",
       "faq": [
         {
           "q": "Jak jsou chráněna data pacientů?",
-          "a": "Ukládáme jen to, co je třeba k potvrzení návštěvy, na serveru v EU, s přístupem jen pro váš tým. Co a kde se ukládá, vysvětlíme jednoduchými slovy."
+          "a": "Ukládáme jen to, co je třeba k potvrzení návštěvy, na zabezpečeném serveru, s přístupem jen pro váš tým. Co a kde se ukládá, vysvětlíme jednoduchými slovy."
         },
         {
           "q": "Dá se objednat zvíře nebo dítě?",
@@ -1005,14 +1005,14 @@ export const niches: Record<string, { demo: string } & Record<Lang, NicheText>> 
         "Жұмыс уақыты мен болмаулары бар әр маманға кесте",
         "E-mail немесе SMS арқылы растаулар мен еске салғыштар",
         "Жазылуды бір рет басумен ауыстыру және болдырмау",
-        "Пациент туралы ең аз деректер, ЕО-дағы серверде сақталады",
+        "Пациент туралы ең аз деректер, қауіпсіз сақталады",
         "Босаған уақытты толтыратын күту тізімі"
       ],
       "example": "Біздің Clinio демосы мұны жұмыста көрсетеді: әр маманға күнтізбе, әр визит бойынша келмеу тәуекелі, автоматты еске салғыштар және бас тартылған уақытты бір рет басумен толтыратын күту тізімі. Нұсқаңыз өз қызметтеріңіз бен мамандарыңызды пайдаланады.",
       "faq": [
         {
           "q": "Пациенттер деректері қалай қорғалады?",
-          "a": "Біз визитті растауға қажеттіні ғана, ЕО-дағы серверде, тек командаңызға қолжетімділікпен сақтаймыз. Не және қайда сақталатынын қарапайым сөзбен түсіндіреміз."
+          "a": "Біз визитті растауға қажеттіні ғана, қорғалған серверде, тек командаңызға қолжетімділікпен сақтаймыз. Не және қайда сақталатынын қарапайым сөзбен түсіндіреміз."
         },
         {
           "q": "Үй жануарына немесе балаға жазылуға бола ма?",
