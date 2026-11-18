@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { projects, siteConfig } from "@/lib/data";
 import { hybrid } from "@/lib/hybrid";
+import { pricingText } from "@/lib/pricing-text";
 import type { Lang } from "@/lib/i18n";
 import { translations } from "@/lib/translations";
 
@@ -21,12 +22,12 @@ export function Palette({ lang }: { lang: Lang }) {
   const items = useMemo<Item[]>(() => {
     const reduce = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
     const to = (id: string) => () => document.getElementById(id)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
-    const sections: [string, string][] = [[t.nav.work, "work"], [t.nav.services, "services"], [p.builder, "build"], [t.nav.process, "process"], [t.nav.contact, "contact"]];
+    const sections: [string, string][] = [[pricingText[lang].cases.title, "work"], [t.nav.services, "services"], [pricingText[lang].nav, "pricing"], [p.builder, "build"], [t.nav.process, "process"], [t.nav.contact, "contact"]];
     const a: Item[] = sections.map(([label, id]) => ({ label: `${p.go} ${label}`, hint: "", run: to(id) }));
     projects.forEach((pr, i) => a.push({ label: `${p.project}: ${pr.name}`, hint: t.showroom.projects[i].tagline, run: to(pr.id) }));
     projects.forEach((pr) => a.push({ label: `${p.openDemo}: ${pr.name}`, hint: `${pr.subdomain}.${siteConfig.domain}`, run: () => window.open(`https://${pr.subdomain}.${siteConfig.domain}`, "_blank", "noopener") }));
     a.push({ label: p.copyEmail, hint: siteConfig.email, run: () => { navigator.clipboard?.writeText(siteConfig.email).catch(() => {}); to("contact")(); } });
-    a.push({ label: p.openTg, hint: "t.me", run: () => window.open(siteConfig.telegramBot || siteConfig.telegram, "_blank", "noopener") });
+    if (siteConfig.telegramBot) a.push({ label: p.openTg, hint: "t.me", run: () => window.open(siteConfig.telegramBot, "_blank", "noopener") });
     return a;
   }, [p, t]);
 

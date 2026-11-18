@@ -9,6 +9,12 @@ export const siteConfig = {
   telegram: "https://t.me/Dimka_Hum",
   // The studio bot. Set it to e.g. "https://t.me/YourBot" and the contact link and the search palette will use it.
   telegramBot: "",
+  // WhatsApp number in international format without plus or spaces, e.g. "77001234567". Empty = no WhatsApp button.
+  whatsapp: "",
+  owner: "Darian Mirelli",
+  // The legal entities the studio contracts through. Empty list = nothing is shown.
+  // role "intl" = company in the EU (EUR, USD); role "cis" = sole proprietorship in Kazakhstan (KZT, RUB).
+  entities: [] as { role: "intl" | "cis"; name: string; id: string; address: string }[],
   founded: "2023",
   // Shown only on the privacy page (footer link "Privacy and legal"), never in the main text.
   // Fill in to publish the provider's details; while empty nothing is rendered.

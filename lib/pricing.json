@@ -1,0 +1,16 @@
+{
+  "_note": "Indicative prices. Edit the numbers here; the site and the Telegram bot read this file. Regions: cis = Kazakhstan and CIS (KZT, RUB), intl = international (EUR, USD). Each item: [from, to]; support is per month.",
+  "regions": {
+    "cis": { "currencies": ["KZT", "RUB"], "default": "KZT" },
+    "intl": { "currencies": ["EUR", "USD"], "default": "EUR" }
+  },
+  "items": [
+    { "id": "site", "time": "1-3w", "prices": { "KZT": [150000, 500000], "RUB": [30000, 95000], "EUR": [800, 2500], "USD": [900, 2800] } },
+    { "id": "bot", "time": "1-3w", "prices": { "KZT": [100000, 400000], "RUB": [20000, 75000], "EUR": [500, 2500], "USD": [550, 2800] } },
+    { "id": "booking", "time": "3-8w", "prices": { "KZT": [500000, 1500000], "RUB": [95000, 280000], "EUR": [2500, 7000], "USD": [2800, 7700] } },
+    { "id": "system", "time": "2-4m", "prices": { "KZT": [1200000, 4000000], "RUB": [225000, 750000], "EUR": [5000, 15000], "USD": [5500, 16500] } },
+    { "id": "integration", "time": "1-3w", "prices": { "KZT": [100000, 400000], "RUB": [20000, 75000], "EUR": [400, 2500], "USD": [450, 2800] } },
+    { "id": "support", "time": "month", "prices": { "KZT": [15000, 60000], "RUB": [3000, 11000], "EUR": [50, 300], "USD": [55, 330] } },
+    { "id": "start", "time": "1-2w", "prices": { "KZT": [30000, 80000], "RUB": [6000, 15000], "EUR": [100, 300], "USD": [110, 330] } }
+  ]
+}
