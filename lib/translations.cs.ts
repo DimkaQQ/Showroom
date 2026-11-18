@@ -2,10 +2,10 @@ import type { Translations } from "./translations";
 
 export const cs: Translations = {
   meta: {
-    title: "Software a weby pro firmy v Evropě | Mirelli Studio",
+    title: "Software a weby pro firmy | Mirelli Studio",
     description:
-      "Weby, online rezervace, jednoduché firemní systémy a Telegram boty pro firmy v Evropě, včetně podpory. Živé ukázky k vyzkoušení.",
-    ogAlt: "Mirelli Studio – software a weby pro firmy v Evropě",
+      "Weby, online rezervace, jednoduché firemní systémy a Telegram boty pro firmy po celém světě, včetně podpory. Živé ukázky k vyzkoušení.",
+    ogAlt: "Mirelli Studio – software a weby pro firmy",
   },
   nav: {
     work: "Projekty",
@@ -222,7 +222,7 @@ export const cs: Translations = {
     items: [
       {
         q: "Čím se zabývá Mirelli Studio?",
-        a: "Mirelli Studio pomáhá firmám v Evropě se softwarem, který skutečně potřebují: web, který přináší poptávky, online rezervace a objednávky, jednoduchý systém místo Excelu, propojení nástrojů, které už používáte, Telegram boty a hosting a podpora, aby vše fungovalo. Od prvního rozhovoru až po hotový zdokumentovaný systém máte jednoho člověka.",
+        a: "Mirelli Studio pomáhá firmám po celém světě se softwarem, který skutečně potřebují: web, který přináší poptávky, online rezervace a objednávky, jednoduchý systém místo Excelu, propojení nástrojů, které už používáte, Telegram boty a hosting a podpora, aby vše fungovalo. Od prvního rozhovoru až po hotový zdokumentovaný systém máte jednoho člověka.",
       },
       {
         q: "Jaké produkty už byly vytvořeny?",
@@ -250,7 +250,7 @@ export const cs: Translations = {
       },
       {
         q: "Kde se software hostuje a jak se nakládá s daty?",
-        a: "Tento web a jeho ukázky běží na infrastruktuře ve Frankfurtu a nepoužívají cookies, analytické nástroje ani požadavky na třetí strany. U projektů pro klienty lze systémy provozovat v EU cloudu podle vašeho výběru a navrhnout je šetrně k datům, s dokumentací, abyste nikdy nebyli svázaní.",
+        a: "Tento web a jeho ukázky běží na rychlých a spolehlivých serverech a nepoužívají cookies, analytické nástroje ani požadavky na třetí strany. U projektů pro klienty systém hostujeme, držíme ho online nepřetržitě a navrhujeme ho šetrně k datům, s dokumentací, abyste nikdy nebyli svázaní.",
       },
       {
         q: "Kolik stojí projekt?",
@@ -262,11 +262,11 @@ export const cs: Translations = {
       },
       {
         q: "Vracejí se klienti?",
-        a: "Ano. Spolupracovali jsme s více než 100 klienty a většina se vrací s novými projekty. Přibližně polovina provozuje své systémy na vlastních serverech, zcela nezávisle na nás.",
+        a: "Ano. Spolupracovali jsme s více než 100 klienty a každý z nich se vrátil s novým nápadem.",
       },
       {
         q: "V jakých jazycích pracujete?",
-        a: "V angličtině a ruštině. Tento web je dostupný v angličtině, ruštině, němčině, francouzštině, slovenštině a češtině.",
+        a: "V angličtině a ruštině. Tento web je dostupný v angličtině, ruštině, kazaštině, němčině, francouzštině, slovenštině a češtině.",
       },
     ],
   },
