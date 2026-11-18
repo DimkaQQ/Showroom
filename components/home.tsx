@@ -6,8 +6,7 @@ import { Fx } from "@/components/fx";
 import { Eggs } from "@/components/eggs";
 import { Logo } from "@/components/logo";
 import { LangMenu } from "@/components/lang-menu";
-import { ContactForm } from "@/components/contact-form";
-import { Builder } from "@/components/builder";
+import { Wizard } from "@/components/wizard";
 import { Palette } from "@/components/palette";
 import { testimonials } from "@/lib/testimonials";
 import { jsonLdFor } from "@/lib/seo";
@@ -28,8 +27,7 @@ export function Home({ lang }: { lang: Lang }) {
         <Niches lang={lang} />
         <Marquee />
         <Work lang={lang} t={t} />
-        <Services t={t} />
-        <Builder lang={lang} />
+        <Services t={t} lang={lang} />
         <About t={t} />
         <Quotes lang={lang} />
         <Process t={t} />
@@ -145,7 +143,7 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
                   <h3>{p.name}</h3>
                   <p className="tg">{s.tagline}, {p.year}</p>
                   <p className="desc">{s.description}</p>
-                  <p className="tags">{p.tags.join(", ")}</p>
+                  <ul className="helps">{hybrid[lang].helps[i].map((x) => <li key={x}>{x}</li>)}</ul>
                   <div className="links">
                     <a className="go" href={href} target="_blank" rel="nofollow noopener noreferrer">
                       {t.showroom.explore}
@@ -169,7 +167,7 @@ function Work({ lang, t }: { lang: Lang; t: T }) {
 // Which demo to show next to each service, in the order of translations.services.items.
 const VIS = ["rentoworld", "garage", "storage", "caspianflow", "botfactory", "dizeltrade"];
 
-function Services({ t }: { t: T }) {
+function Services({ t, lang }: { t: T; lang: Lang }) {
   return (
     <section className="sec" id="services" aria-labelledby="services-h">
       <div className="wrap">
@@ -183,7 +181,7 @@ function Services({ t }: { t: T }) {
               <div>
                 <h3>{t.services.items[i].title}</h3>
                 <p>{t.services.items[i].description}</p>
-                <p className="tg">{s.tags.map((x) => <span key={x}>{x}</span>)}</p>
+                <ul className="tg">{hybrid[lang].chips[i].map((x) => <li key={x}>{x}</li>)}</ul>
               </div>
               <div className="vis">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -311,7 +309,7 @@ function Contact({ lang, t }: { lang: Lang; t: T }) {
               <a href={siteConfig.github} target="_blank" rel="me noopener noreferrer">GitHub</a>
             </div>
           </div>
-          <ContactForm lang={lang} />
+          <Wizard lang={lang} />
         </div>
       </div>
     </section>
@@ -323,7 +321,7 @@ function Footer({ lang, t }: { lang: Lang; t: T }) {
     <footer className="foot">
       <div className="wrap">
         <p className="foot-note">
-          © {new Date().getFullYear()} {siteConfig.name}. {t.footer.rights} {t.footer.built}.{" "}
+          <span data-egg-year>© {new Date().getFullYear()}</span> {siteConfig.name}. {t.footer.rights}{" "}
           <a href={`${pathFor(lang)}privacy/`}>{t.footer.privacy}</a>
         </p>
       </div>

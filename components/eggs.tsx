@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { siteConfig } from "@/lib/data";
 import { pathFor, type Lang } from "@/lib/i18n";
 import { translations } from "@/lib/translations";
+import { hybrid } from "@/lib/hybrid";
 
 const KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"];
 const GLYPHS = ["404", "{ }", "</>", "€", "0", "418"];
@@ -12,6 +13,7 @@ const GLYPHS = ["404", "{ }", "</>", "€", "0", "418"];
 export function Eggs({ lang }: { lang: Lang }) {
   useEffect(() => {
     const t = translations[lang].eggs;
+    const e2 = hybrid[lang].eggs2;
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const timers: number[] = [];
     const later = (fn: () => void, ms: number) => { timers.push(window.setTimeout(fn, ms)); };
@@ -88,6 +90,26 @@ export function Eggs({ lang }: { lang: Lang }) {
       tapTimes(stats[0], 5, 2500, () => { say(t.konami); rain(); }),
       tapTimes(stats[2], 5, 2000, goTo404),
     ];
+    // Light extras: click the changing word, the logo seven times, or the copyright year three times.
+    const rot = document.getElementById("rot");
+    const onRot = () => say(e2.challenge);
+    rot?.addEventListener("click", onRot);
+    const brand = document.querySelector<HTMLElement>(".top .brand");
+    let logoHits: number[] = [];
+    const onBrand = (e: MouseEvent) => {
+      if (location.pathname !== pathFor(lang)) return;
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      const now = Date.now();
+      logoHits = [...logoHits.filter((h) => now - h < 4000), now];
+      if (logoHits.length >= 7) {
+        logoHits = [];
+        say(e2.logo);
+        if (!reduce) brand?.querySelector("svg")?.animate([{ transform: "rotate(0)" }, { transform: "rotate(360deg)" }], { duration: 900, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+      }
+    };
+    brand?.addEventListener("click", onBrand);
+    offTaps.push(tapTimes(document.querySelector<HTMLElement>("[data-egg-year]") ?? undefined, 3, 2000, () => say(e2.year)));
     let hold = 0;
     const holdStart = () => { hold = window.setTimeout(() => say(t.sudo), 800); };
     const holdEnd = () => window.clearTimeout(hold);
@@ -110,6 +132,7 @@ export function Eggs({ lang }: { lang: Lang }) {
       if (keys.join() === KONAMI.join()) { say(t.konami); rain(); }
       else if (typed.endsWith("sudo")) { typed = ""; say(t.sudo); }
       else if (typed.endsWith("404")) { typed = ""; goTo404(); }
+      else if (typed.endsWith("coffee")) { typed = ""; say(e2.coffee); }
     };
     addEventListener("keydown", onKey);
 
@@ -117,6 +140,8 @@ export function Eggs({ lang }: { lang: Lang }) {
       removeEventListener("keydown", onKey);
       document.removeEventListener("visibilitychange", onVisibility);
       mark?.removeEventListener("click", wave);
+      rot?.removeEventListener("click", onRot);
+      brand?.removeEventListener("click", onBrand);
       mark?.removeEventListener("pointerdown", holdStart);
       ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => mark?.removeEventListener(ev, holdEnd));
       offTaps.forEach((off) => off());

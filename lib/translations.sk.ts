@@ -164,8 +164,8 @@ export const sk: Translations = {
     ],
     facts: [
       { value: "100+", label: "klientov, s ktorými sme spolupracovali" },
-      { value: "Väčšina", label: "sa vracia s novými projektmi" },
-      { value: "Približne polovica", label: "prevádzkuje systém na vlastnom serveri, nezávisle od nás" },
+      { value: "100%", label: "klientov sa vrátilo s novým nápadom" },
+      { value: "Každý týždeň", label: "vidíte funkčnú verziu" },
     ],
   },
   contact: {

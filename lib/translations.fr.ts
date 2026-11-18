@@ -164,8 +164,8 @@ export const fr: Translations = {
     ],
     facts: [
       { value: "100+", label: "clients accompagnés" },
-      { value: "La plupart", label: "reviennent avec de nouveaux projets" },
-      { value: "Environ la moitié", label: "exploite son système sur son propre serveur, indépendamment de nous" },
+      { value: "100%", label: "des clients sont revenus avec une nouvelle idée" },
+      { value: "Chaque semaine", label: "vous voyez une version fonctionnelle" },
     ],
   },
   contact: {
