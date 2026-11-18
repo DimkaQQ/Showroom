@@ -58,7 +58,7 @@ export const pricingText: Record<Lang, PricingText> = {
       point1: "A direct line to the developer", point2: "Fast decisions, no layers of managers", point3: "One person responsible for the result",
       contract: "Contract and payment", owner: "Founder and developer",
     },
-    cases: { title: demoTag: "Demo site on sample data. The name is the one the project had when it was built.", "Cases", sub: "Working systems built for real clients, shown here on sample data. Open any of them and try it.", highlight: "One restaurant group freed about 100 hours of manual work.", sector: "Sector", changed: "What changed" },
+    cases: { title: "Cases", demoTag: "Demo site on sample data. The name is the one the project had when it was built.", sub: "Working systems built for real clients, shown here on sample data. Open any of them and try it.", highlight: "One restaurant group freed about 100 hours of manual work.", sector: "Sector", changed: "What changed" },
   },
   ru: {
     nav: "Цены",
@@ -90,7 +90,7 @@ export const pricingText: Record<Lang, PricingText> = {
       point1: "Прямой контакт с разработчиком", point2: "Быстрые решения, без цепочки менеджеров", point3: "Один человек отвечает за результат",
       contract: "Договор и оплата", owner: "Основатель и разработчик",
     },
-    cases: { title: demoTag: "Демо-сайт на тестовых данных. Название то, под которым проект создавался.", "Кейсы", sub: "Рабочие системы, построенные для реальных клиентов, здесь на тестовых данных. Откройте любую и попробуйте.", highlight: "Одна ресторанная сеть освободила около 100 часов ручной работы.", sector: "Сфера", changed: "Что изменилось" },
+    cases: { title: "Кейсы", demoTag: "Демо-сайт на тестовых данных. Название то, под которым проект создавался.", sub: "Рабочие системы, построенные для реальных клиентов, здесь на тестовых данных. Откройте любую и попробуйте.", highlight: "Одна ресторанная сеть освободила около 100 часов ручной работы.", sector: "Сфера", changed: "Что изменилось" },
   },
   de: {
     nav: "Preise",
@@ -122,7 +122,7 @@ export const pricingText: Record<Lang, PricingText> = {
       point1: "Direkter Draht zum Entwickler", point2: "Schnelle Entscheidungen, keine Manager-Ebenen", point3: "Eine Person verantwortet das Ergebnis",
       contract: "Vertrag und Zahlung", owner: "Gründer und Entwickler",
     },
-    cases: { title: demoTag: "Demo-Seite mit Beispieldaten. Der Name ist der, den das Projekt beim Bau hatte.", "Fälle", sub: "Funktionierende Systeme für echte Kunden, hier mit Beispieldaten. Öffnen Sie eines und probieren Sie es aus.", highlight: "Eine Restaurantgruppe hat rund 100 Stunden Handarbeit eingespart.", sector: "Branche", changed: "Was sich geändert hat" },
+    cases: { title: "Fälle", demoTag: "Demo-Seite mit Beispieldaten. Der Name ist der, den das Projekt beim Bau hatte.", sub: "Funktionierende Systeme für echte Kunden, hier mit Beispieldaten. Öffnen Sie eines und probieren Sie es aus.", highlight: "Eine Restaurantgruppe hat rund 100 Stunden Handarbeit eingespart.", sector: "Branche", changed: "Was sich geändert hat" },
   },
   fr: {
     nav: "Tarifs",
@@ -154,7 +154,7 @@ export const pricingText: Record<Lang, PricingText> = {
       point1: "Une ligne directe avec le développeur", point2: "Des décisions rapides, sans couches de managers", point3: "Une seule personne responsable du résultat",
       contract: "Contrat et paiement", owner: "Fondateur et développeur",
     },
-    cases: { title: demoTag: "Site de démonstration avec données d'exemple. Le nom est celui du projet lors de sa création.", "Cas", sub: "Des systèmes qui fonctionnent, construits pour de vrais clients, ici sur des données d'exemple. Ouvrez-en un et essayez-le.", highlight: "Un groupe de restaurants a libéré environ 100 heures de travail manuel.", sector: "Secteur", changed: "Ce qui a changé" },
+    cases: { title: "Cas", demoTag: "Site de démonstration avec données d'exemple. Le nom est celui du projet lors de sa création.", sub: "Des systèmes qui fonctionnent, construits pour de vrais clients, ici sur des données d'exemple. Ouvrez-en un et essayez-le.", highlight: "Un groupe de restaurants a libéré environ 100 heures de travail manuel.", sector: "Secteur", changed: "Ce qui a changé" },
   },
   sk: {
     nav: "Ceny",
@@ -186,7 +186,7 @@ export const pricingText: Record<Lang, PricingText> = {
       point1: "Priama linka na vývojára", point2: "Rýchle rozhodnutia, žiadne vrstvy manažérov", point3: "Jeden človek zodpovedá za výsledok",
       contract: "Zmluva a platba", owner: "Zakladateľ a vývojár",
     },
-    cases: { title: demoTag: "Demo stránka na vzorových dátach. Názov je ten, pod ktorým projekt vznikal.", "Prípady", sub: "Fungujúce systémy postavené pre skutočných klientov, tu na vzorových dátach. Otvorte ktorýkoľvek a vyskúšajte ho.", highlight: "Jedna reštauračná skupina uvoľnila približne 100 hodín ručnej práce.", sector: "Odvetvie", changed: "Čo sa zmenilo" },
+    cases: { title: "Prípady", demoTag: "Demo stránka na vzorových dátach. Názov je ten, pod ktorým projekt vznikal.", sub: "Fungujúce systémy postavené pre skutočných klientov, tu na vzorových dátach. Otvorte ktorýkoľvek a vyskúšajte ho.", highlight: "Jedna reštauračná skupina uvoľnila približne 100 hodín ručnej práce.", sector: "Odvetvie", changed: "Čo sa zmenilo" },
   },
   cs: {
     nav: "Ceny",
@@ -218,7 +218,7 @@ export const pricingText: Record<Lang, PricingText> = {
       point1: "Přímá linka na vývojáře", point2: "Rychlá rozhodnutí, žádné vrstvy manažerů", point3: "Jeden člověk odpovídá za výsledek",
       contract: "Smlouva a platba", owner: "Zakladatel a vývojář",
     },
-    cases: { title: demoTag: "Demo stránka na vzorových datech. Název je ten, pod kterým projekt vznikal.", "Případy", sub: "Fungující systémy postavené pro skutečné klienty, zde na vzorových datech. Otevřete kterýkoli a vyzkoušejte ho.", highlight: "Jedna restaurační skupina uvolnila přibližně 100 hodin ruční práce.", sector: "Obor", changed: "Co se změnilo" },
+    cases: { title: "Případy", demoTag: "Demo stránka na vzorových datech. Název je ten, pod kterým projekt vznikal.", sub: "Fungující systémy postavené pro skutečné klienty, zde na vzorových datech. Otevřete kterýkoli a vyzkoušejte ho.", highlight: "Jedna restaurační skupina uvolnila přibližně 100 hodin ruční práce.", sector: "Obor", changed: "Co se změnilo" },
   },
   kk: {
     nav: "Бағалар",
@@ -250,6 +250,6 @@ export const pricingText: Record<Lang, PricingText> = {
       point1: "Әзірлеушімен тікелей байланыс", point2: "Жылдам шешімдер, менеджерлер тізбегісіз", point3: "Нәтижеге бір адам жауап береді",
       contract: "Шарт және төлем", owner: "Негізін қалаушы және әзірлеуші",
     },
-    cases: { title: demoTag: "Сынақ деректеріндегі демо-сайт. Атауы жоба жасалған кездегі атау.", "Кейстер", sub: "Нақты клиенттер үшін жасалған жұмыс істейтін жүйелер, мұнда сынақ деректерінде. Кез келгенін ашып көріңіз.", highlight: "Бір мейрамхана желісі шамамен 100 сағат қолмен жұмысты босатты.", sector: "Сала", changed: "Не өзгерді" },
+    cases: { title: "Кейстер", demoTag: "Сынақ деректеріндегі демо-сайт. Атауы жоба жасалған кездегі атау.", sub: "Нақты клиенттер үшін жасалған жұмыс істейтін жүйелер, мұнда сынақ деректерінде. Кез келгенін ашып көріңіз.", highlight: "Бір мейрамхана желісі шамамен 100 сағат қолмен жұмысты босатты.", sector: "Сала", changed: "Не өзгерді" },
   },
 };
