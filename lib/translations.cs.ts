@@ -126,7 +126,7 @@ export const cs: Translations = {
       {
         title: "Hosting, opravy a podpora",
         description:
-          "Hostujeme v EU nebo na vašem vlastním serveru, jak vám vyhovuje, udržujeme vše aktuální a zabezpečené a rychle opravíme, když něco přestane fungovat. Jeden člověk, který odpoví.",
+          "Rychlé a spolehlivé servery: systém hostujeme, držíme ho online nepřetržitě, aktuální a zabezpečený a rychle opravíme, když něco přestane fungovat. Jeden člověk, který odpoví.",
       },
     ],
   },
@@ -159,7 +159,7 @@ export const cs: Translations = {
   about: {
     title: "S kým budete pracovat",
     paragraphs: [
-      "Mirelli Studio pomáhá firmám v Evropě se softwarem, který odpovídá tomu, jak skutečně pracují: web, který přináší poptávky, online rezervace a objednávky, jednoduchý systém místo Excelu a podpora, aby vše fungovalo.",
+      "Mirelli Studio pomáhá firmám po celém světě se softwarem, který odpovídá tomu, jak skutečně pracují: web, který přináší poptávky, online rezervace a objednávky, jednoduchý systém místo Excelu a podpora, aby vše fungovalo.",
       "Máte co do činění s člověkem, ne s tiketovým systémem: popíšete problém, písemně se dohodneme na rozsahu a ceně a každý týden vidíte funkční verzi. Pracujeme na základě smlouvy nebo jednoduché písemné dohody, jak vám vyhovuje.",
     ],
     facts: [

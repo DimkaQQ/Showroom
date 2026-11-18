@@ -305,8 +305,7 @@ function Contact({ lang, t }: { lang: Lang; t: T }) {
             <a className="mail" id="mail" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
             <p className="support">{supportLine[lang]} <a href={`mailto:${siteConfig.supportEmail}`}>{siteConfig.supportEmail}</a></p>
             <div className="contact-links">
-              <a href={siteConfig.telegram} target="_blank" rel="me noopener noreferrer">Telegram</a>
-              <a href={siteConfig.github} target="_blank" rel="me noopener noreferrer">GitHub</a>
+              <a href={siteConfig.telegramBot || siteConfig.telegram} target="_blank" rel="me noopener noreferrer">Telegram</a>
             </div>
           </div>
           <Wizard lang={lang} />

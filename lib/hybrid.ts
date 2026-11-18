@@ -63,7 +63,7 @@ export const hybrid: Record<Lang, Hybrid> = {
       ["Stock and orders", "Roles for your team", "Reports for the owner"],
       ["Accounting", "Online shops", "Payments", "CRM"],
       ["Orders in Telegram", "Reminders to customers", "Daily reports"],
-      ["EU hosting or your own server", "Updates", "Quick fixes"],
+      ["Fast, reliable servers", "Online around the clock", "Quick fixes"],
     ],
   },
   ru: {
@@ -98,7 +98,7 @@ export const hybrid: Record<Lang, Hybrid> = {
       ["Склад и заказы", "Роли для команды", "Отчёты для владельца"],
       ["Бухгалтерия", "Интернет-магазин", "Платежи", "CRM"],
       ["Заказы в Telegram", "Напоминания клиентам", "Ежедневные отчёты"],
-      ["Хостинг в ЕС или на вашем сервере", "Обновления", "Быстрые исправления"],
+      ["Быстрые и надёжные серверы", "Онлайн круглосуточно", "Быстрые исправления"],
     ],
   },
   de: {
@@ -133,7 +133,7 @@ export const hybrid: Record<Lang, Hybrid> = {
       ["Lager und Bestellungen", "Rollen für Ihr Team", "Auswertungen für die Inhaber"],
       ["Buchhaltung", "Onlineshops", "Zahlungen", "CRM"],
       ["Bestellungen in Telegram", "Erinnerungen an Kunden", "Tägliche Berichte"],
-      ["EU-Hosting oder eigener Server", "Updates", "Schnelle Fehlerbehebung"],
+      ["Schnelle, zuverlässige Server", "Rund um die Uhr online", "Schnelle Fehlerbehebung"],
     ],
   },
   fr: {
@@ -168,7 +168,7 @@ export const hybrid: Record<Lang, Hybrid> = {
       ["Stock et commandes", "Rôles pour votre équipe", "Rapports pour le propriétaire"],
       ["Comptabilité", "Boutiques en ligne", "Paiements", "CRM"],
       ["Commandes dans Telegram", "Rappels aux clients", "Rapports quotidiens"],
-      ["Hébergement UE ou votre serveur", "Mises à jour", "Corrections rapides"],
+      ["Serveurs rapides et fiables", "En ligne en permanence", "Corrections rapides"],
     ],
   },
   sk: {
@@ -203,7 +203,7 @@ export const hybrid: Record<Lang, Hybrid> = {
       ["Sklad a objednávky", "Roly pre tím", "Prehľady pre majiteľa"],
       ["Účtovníctvo", "E-shopy", "Platby", "CRM"],
       ["Objednávky v Telegrame", "Pripomienky zákazníkom", "Denné reporty"],
-      ["Hosting v EÚ alebo na vašom serveri", "Aktualizácie", "Rýchle opravy"],
+      ["Rýchle a spoľahlivé servery", "Online nepretržite", "Rýchle opravy"],
     ],
   },
   cs: {
@@ -238,7 +238,7 @@ export const hybrid: Record<Lang, Hybrid> = {
       ["Sklad a objednávky", "Role pro tým", "Přehledy pro majitele"],
       ["Účetnictví", "E-shopy", "Platby", "CRM"],
       ["Objednávky v Telegramu", "Připomínky zákazníkům", "Denní reporty"],
-      ["Hosting v EU nebo na vašem serveru", "Aktualizace", "Rychlé opravy"],
+      ["Rychlé a spolehlivé servery", "Online nepřetržitě", "Rychlé opravy"],
     ],
   },
   kk: {
@@ -273,7 +273,7 @@ export const hybrid: Record<Lang, Hybrid> = {
       ["Қойма және тапсырыстар", "Командаңызға рөлдер", "Иесіне арналған есептер"],
       ["Бухгалтерия", "Интернет-дүкен", "Төлемдер", "CRM"],
       ["Telegram-дағы тапсырыстар", "Клиенттерге еске салулар", "Күнделікті есептер"],
-      ["ЕО-да немесе өз серверіңізде хостинг", "Жаңартулар", "Жылдам түзетулер"],
+      ["Жылдам әрі сенімді серверлер", "Тәулік бойы онлайн", "Жылдам түзетулер"],
     ],
   },
 };
