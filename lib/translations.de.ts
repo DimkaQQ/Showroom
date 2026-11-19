@@ -20,7 +20,7 @@ export const de: Translations = {
   hero: {
     descriptor: "Software und Websites für Unternehmen",
     lead:
-      "Sagen Sie uns, was Ihr Geschäft ausbremst: Buchungen, Bestellungen, Tabellen, eine Website, die keine Anfragen bringt. Wir bauen die Lösung, binden sie an das an, was Sie schon nutzen, und halten sie am Laufen. Unten finden Sie Live-Beispiele zum Öffnen und Ausprobieren.",
+      "Sagen Sie uns, was Ihr Geschäft ausbremst: Buchungen, Bestellungen, Tabellen, eine Website, die keine Anfragen bringt. Wir bauen die Lösung, verbinden sie mit den Werkzeugen, die Sie schon nutzen, und halten sie am Laufen. Unten finden Sie Live-Beispiele zum Öffnen und Ausprobieren.",
     viewWork: "Beispiele ansehen",
     statClients: "Betreute Kunden",
     statYears: "Jahre im Geschäft",
@@ -41,7 +41,7 @@ export const de: Translations = {
       },
       {
         tagline: "Intelligente Terminplanung für Praxen",
-        description: "Terminsystem für Praxen und Tierärzte: Nichterscheinen-Risiko je Termin, automatische Erinnerungen, eine Warteliste, die abgesagte Termine neu füllt, und Buchung mit passender Fachkraft.",
+        description: "Terminsystem für Praxen und Tierärzte: No-Show-Risiko je Termin, automatische Erinnerungen, eine Warteliste, die abgesagte Termine neu füllt, und Buchung mit passender Fachkraft.",
       },
       {
         tagline: "Buchung, Mitgliedschaften und Zutritt",
@@ -75,7 +75,7 @@ export const de: Translations = {
       {
         tagline: "Energiemarktplatz",
         description:
-          "B2B-Handelsplattform für Kraftstoffe an europäischen Terminals von Rotterdam bis Triest. Live-Preisreferenz, P2P-Marktplatz für Diesel, Benzin und Kerosin, Rechner für gelieferte Kosten und Stripe-Zahlungen.",
+          "B2B-Handelsplattform für Kraftstoffe an europäischen Terminals von Rotterdam bis Triest. Live-Preisreferenz, P2P-Marktplatz für Diesel, Benzin und Kerosin, Rechner für Lieferkosten und Stripe-Zahlungen.",
       },
       {
         tagline: "Restaurantbetrieb",

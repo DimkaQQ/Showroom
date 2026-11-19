@@ -37,7 +37,7 @@ export const cs: Translations = {
     projects: [
       {
         tagline: "Chytrý systém pro autoservis",
-        description: "Rezervace, která spáruje stání, mechanika a díly na skladě, živá tabule zakázek, schvalování prací navíc zákazníkem přes odkaz v SMS, kontrola skladu a pohled majitele se záznamem změn.",
+        description: "Rezervace, která přiřadí stání, mechanika a díly na skladě, živá tabule zakázek, schvalování prací navíc zákazníkem přes odkaz v SMS, kontrola skladu a pohled majitele se záznamem změn.",
       },
       {
         tagline: "Chytrý rozvrh pro ordinace",
@@ -80,7 +80,7 @@ export const cs: Translations = {
       {
         tagline: "Provoz restaurace",
         description:
-          "Operační systém pro restaurace: živá tabule objednávek s pohledem pro kuchyň, správa menu a hostů, plánování směn personálu, věrnostní body a analytika napříč provozy.",
+          "Provozní systém pro restaurace: živá tabule objednávek s pohledem pro kuchyň, správa menu a hostů, plánování směn personálu, věrnostní body a analytika napříč provozy.",
       },
       {
         tagline: "Zaškolování zaměstnanců a HR",
@@ -111,7 +111,7 @@ export const cs: Translations = {
       {
         title: "Jednoduchý systém místo Excelu",
         description:
-          "Sklad, zákazníci, zakázky, jízdy, faktury: jedno místo místo tabulek, messengerů a papíru. Postavené podle toho, jak váš tým už pracuje, aby nebylo nutné týdny školit.",
+          "Sklad, zákazníci, zakázky, jízdy, faktury: jedno místo namísto tabulek, messengerů a papíru. Postavené podle toho, jak váš tým už pracuje, aby nebylo nutné týdny školit.",
       },
       {
         title: "Propojíme, co už používáte",
@@ -204,7 +204,7 @@ export const cs: Translations = {
     away: "Psst. Vraťte se.",
     konami: "Našli jste to. Sleva: žádná. Respekt: neomezený.",
     sudo: "mirelli není v souboru sudoers. Tento incident bude nahlášen.",
-    four04: "Vy jste si o to řekli.",
+    four04: "Sami jste si o to řekli.",
     console: "Čtete konzoli, takže bychom si měli promluvit. Zkuste Konami kód. Nebo napište 404.",
   },
   case: {
@@ -226,7 +226,7 @@ export const cs: Translations = {
       },
       {
         q: "Jaké produkty už byly vytvořeny?",
-        a: "Dvanáct produktů, každý se živou ukázkou na vzorových datech: chytrý systém pro autoservis, chytrý rozvrh pro ordinace, coworkingový systém s přístupem dveřmi, ERP pro distribuci paliva, B2B obchodní místo pro paliva, operační systém pro restaurace, sklad a nákup pro gastronomii, aplikace pro zaškolování zaměstnanců, peer-to-peer marketplace pro pronájem aut, vzdělávací platforma pro trading se simulátorem, AI plánovač spuštění produktu a konstruktér Telegram botů.",
+        a: "Dvanáct produktů, každý se živou ukázkou na vzorových datech: chytrý systém pro autoservis, chytrý rozvrh pro ordinace, coworkingový systém s přístupem dveřmi, ERP pro distribuci paliva, B2B obchodní platforma pro paliva, provozní systém pro restaurace, sklad a nákup pro gastronomii, aplikace pro zaškolování zaměstnanců, peer-to-peer marketplace pro pronájem aut, vzdělávací platforma pro trading se simulátorem, AI plánovač spuštění produktu a konstruktér Telegram botů.",
       },
       {
         q: "Jaké technologie se používají?",

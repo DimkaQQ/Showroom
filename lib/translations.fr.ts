@@ -29,7 +29,7 @@ export const fr: Translations = {
   showroom: {
     title: "Des exemples à essayer",
     subtitle:
-      "Ce sont des systèmes qui fonctionnent, sur des données d'exemple, pas des images. Ouvrez-en un et parcourez-le pour voir à quoi pourrait ressembler un système pour votre activité. Chacune a été réalisée pour un vrai client.",
+      "Ce sont des systèmes qui fonctionnent, sur des données d'exemple, pas des images. Ouvrez-en un et parcourez-le pour voir à quoi pourrait ressembler un système pour votre activité. Chacun a été réalisé pour un vrai client.",
     explore: "Ouvrir la démo",
     caseStudy: "Lire l'étude de cas",
     tryOff: "Essayer la démo",
@@ -78,9 +78,9 @@ export const fr: Translations = {
           "Plateforme de négoce B2B de carburants pour les terminaux européens, de Rotterdam à Trieste. Référence de prix en direct, place de marché P2P pour gazole, essence et kérosène, calculateur de coût livré et paiements Stripe.",
       },
       {
-        tagline: "Exploitation de restaurant",
+        tagline: "Gestion de restaurant",
         description:
-          "Système d'exploitation de restaurant : tableau de commandes en direct avec vue cuisine, gestion du menu et des clients, planning du personnel, points de fidélité et analyses multi-établissements.",
+          "Système de gestion de restaurant : tableau de commandes en direct avec vue cuisine, gestion du menu et des clients, planning du personnel, points de fidélité et analyses multi-établissements.",
       },
       {
         tagline: "Intégration du personnel et RH",
@@ -111,7 +111,7 @@ export const fr: Translations = {
       {
         title: "Un système simple à la place d'Excel",
         description:
-          "Stock, clients, chantiers, trajets, factures : un seul endroit au lieu de tableurs, de messageries et de papier. Conçu selon la façon dont votre équipe travaille déjà, pour éviter des semaines de formation.",
+          "Stock, clients, interventions, trajets, factures : un seul endroit au lieu de tableurs, de messageries et de papier. Conçu selon la façon dont votre équipe travaille déjà, pour éviter des semaines de formation.",
       },
       {
         title: "Connecter ce que vous utilisez déjà",
@@ -226,7 +226,7 @@ export const fr: Translations = {
       },
       {
         q: "Quels produits ont déjà été créés ?",
-        a: "Douze produits, chacun avec une démo en ligne sur des données d'exemple : un système intelligent pour garages, un planning intelligent pour cliniques, un système de coworking avec accès aux portes, un ERP de distribution de carburant, une place de marché B2B de négoce de carburant, un système d'exploitation de restaurant, la gestion des stocks et des achats de restauration, une application d'intégration du personnel, une place de marché de location de voitures entre particuliers, une plateforme de formation au trading avec simulateur, un planificateur de lancement par IA et un créateur de bots Telegram.",
+        a: "Douze produits, chacun avec une démo en ligne sur des données d'exemple : un système intelligent pour garages, un planning intelligent pour cliniques, un système de coworking avec accès aux portes, un ERP de distribution de carburant, une place de marché B2B de négoce de carburant, un système de gestion de restaurant, la gestion des stocks et des achats de restauration, une application d'intégration du personnel, une place de marché de location de voitures entre particuliers, une plateforme de formation au trading avec simulateur, un planificateur de lancement par IA et un créateur de bots Telegram.",
       },
       {
         q: "Quelles technologies utilisez-vous ?",
