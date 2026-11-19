@@ -303,7 +303,7 @@ export const sk: Translations = {
       },
       {
         title: "Zodpovedná osoba",
-        body: ["Mirelli Studio, Darian Mirelli. Kontakt: info@mirelli.eu."],
+        body: ["Mirelli Studio, prevádzkuje Dinmukhammed Altynbek, samostatne zárobkovo činná osoba (ИП ADM), BIN/IIN 040721551748, Kazachstan. Kontakt: info@mirelli.eu."],
       },
       {
         title: "Vaše práva",

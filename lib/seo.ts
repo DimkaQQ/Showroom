@@ -63,7 +63,6 @@ export function metadataFor(lang: Lang, page: Page = "home"): Metadata {
 }
 
 const ORG_ID = `${siteConfig.url}/#studio`;
-const PERSON_ID = `${siteConfig.url}/#founder`;
 
 const KNOWS_ABOUT = [
   "Website development",
@@ -99,11 +98,10 @@ const organisation = (lang: Lang) => {
     disambiguatingDescription: "A software and website studio (booking systems, business systems, websites, Telegram bots). Not related to the online clothing shop Studio Mirelli.",
     logo: abs("/icon-512.png"),
     image: abs("/og.png"),
-    founder: { "@id": PERSON_ID },
     areaServed: "Worldwide",
     knowsLanguage: locales,
     knowsAbout: KNOWS_ABOUT,
-    sameAs: [siteConfig.github, siteConfig.telegram],
+    sameAs: [siteConfig.github, siteConfig.telegramBot].filter(Boolean),
     contactPoint: [
       { "@type": "ContactPoint", contactType: "sales", email: siteConfig.email, availableLanguage: ["English", "Russian"] },
       { "@type": "ContactPoint", contactType: "customer support", email: siteConfig.supportEmail, availableLanguage: ["English", "Russian"] },
@@ -119,24 +117,12 @@ const organisation = (lang: Lang) => {
   };
 };
 
-const person = {
-  "@type": "Person",
-  "@id": PERSON_ID,
-  name: "Darian Mirelli",
-  jobTitle: "Founder",
-  worksFor: { "@id": ORG_ID },
-  url: abs("/"),
-  sameAs: [siteConfig.github, siteConfig.telegram],
-  knowsAbout: KNOWS_ABOUT,
-};
-
 export function jsonLdFor(lang: Lang) {
   const t = translations[lang];
   return {
     "@context": "https://schema.org",
     "@graph": [
       organisation(lang),
-      person,
       {
         "@type": "WebSite",
         "@id": `${siteConfig.url}/#website`,
