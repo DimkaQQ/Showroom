@@ -129,12 +129,12 @@ async function onMessage(m) {
 
 // Texts shown before the user presses Start (Telegram picks them by the user's Telegram app language).
 const ABOUT = {
-  en: "Mirelli Studio: websites, bots and booking systems. Ask a question or leave a request, we reply personally.",
-  ru: "Mirelli Studio: сайты, боты и системы записи под ключ. Задайте вопрос или оставьте заявку, ответим лично.",
+  en: "Mirelli Studio: websites, bots and custom software. Ask a question or leave a request, we reply personally.",
+  ru: "Mirelli Studio: сайты, боты и софт под ключ. Задайте вопрос или оставьте заявку, ответим лично.",
 };
 const DESC = {
-  en: "Hi! This is the Mirelli Studio bot. We build websites, Telegram bots, booking systems and business systems, so routine runs itself and you can focus on the work.\n\nHere you can:\n• see what we do and roughly what it costs\n• learn how we work and how long it takes\n• leave a request, and I will reply personally\n\nPress Start.",
-  ru: "Привет! Это бот студии Mirelli Studio. Мы делаем сайты, Telegram-боты, системы записи и системы для бизнеса, чтобы рутина шла сама, а вы занимались делом.\n\nЗдесь можно:\n• узнать, что мы делаем и сколько это примерно стоит\n• понять, как мы работаем и за какое время\n• оставить заявку, и я отвечу лично\n\nНажмите «Начать».",
+  en: "Hi! This is the Mirelli Studio bot. We build websites, Telegram bots and custom software for business, so routine runs itself and you can focus on the work.\n\nHere you can:\n• see what we do and roughly what it costs\n• learn how we work and how long it takes\n• leave a request, and I will reply personally\n\nPress Start.",
+  ru: "Привет! Это бот студии Mirelli Studio. Мы делаем сайты, Telegram-боты и софт для бизнеса, чтобы рутина шла сама, а вы занимались делом.\n\nЗдесь можно:\n• узнать, что мы делаем и сколько это примерно стоит\n• понять, как мы работаем и за какое время\n• оставить заявку, и я отвечу лично\n\nНажмите «Начать».",
 };
 async function setup() {
   if (process.env.BOT_SETUP === "0") return;
