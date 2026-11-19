@@ -12,16 +12,23 @@ export type Page = string;
 const sub = (page: Page) => (page === "home" ? "" : `${page}/`);
 export const urlOf = (lang: Lang, page: Page) => abs(pathFor(lang) + sub(page));
 
+// Search results cut long titles and descriptions: trim at a word boundary.
+const fit = (str: string, max: number, dots = false) => {
+  if (str.length <= max) return str;
+  const cut = str.slice(0, max - (dots ? 1 : 0)).replace(/\s+\S*$/, "").replace(/[\s,;:.\-–—|]+$/, "");
+  return dots ? cut + "…" : cut;
+};
+
 function textFor(lang: Lang, page: Page) {
   const tr = translations[lang];
   if (page === "privacy") return { ...tr.meta, title: tr.privacy.metaTitle, description: tr.privacy.metaDescription };
   if (page.startsWith("work/")) {
     const c = cases[page.slice(5)]?.[lang];
-    if (c) return { ...tr.meta, title: c.title, description: c.description };
+    if (c) return { ...tr.meta, title: fit(c.title, 65), description: fit(c.description, 160, true) };
   }
   if (page.startsWith("for/")) {
     const n = niches[page.slice(4)]?.[lang];
-    if (n) return { ...tr.meta, title: n.title, description: n.description };
+    if (n) return { ...tr.meta, title: fit(n.title, 65), description: fit(n.description, 160, true) };
   }
   return tr.meta;
 }
