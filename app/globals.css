@@ -312,6 +312,8 @@ html:not(.motion) .mq-track ul { flex-wrap: wrap; row-gap: 10px; }
 .contact-info .support a:hover { color: var(--accent); }
 .contact-links { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 8px 28px; }
 .contact-links a { padding-block: 12px; color: var(--soft); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; text-decoration-color: var(--line-2); transition: color 200ms, text-decoration-color 200ms; }
+.contact-links a.btn { padding-block: 0; color: var(--accent-ink); text-decoration: none; }
+.contact-links a.btn:hover { color: var(--accent-ink); }
 .contact-links a:hover { color: var(--accent); text-decoration-color: currentColor; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .cform-note { font-size: 14px; color: var(--mute); max-width: none; }
