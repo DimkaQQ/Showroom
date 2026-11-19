@@ -8,7 +8,7 @@ export const siteConfig = {
   github: "https://github.com/DimkaQQ",
   telegram: "https://t.me/Dimka_Hum",
   // The studio bot. Set it to e.g. "https://t.me/YourBot" and the contact link and the search palette will use it.
-  telegramBot: "https://t.me/mireli_studio_bot",
+  telegramBot: "https://t.me/Mirelli_studio_bot",
   // WhatsApp number in international format without plus or spaces, e.g. "77001234567". Empty = no WhatsApp button.
   whatsapp: "",
   owner: "Darian Mirelli",
