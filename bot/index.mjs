@@ -88,10 +88,11 @@ async function onMessage(m) {
   const text = (m.text || "").trim();
 
   // The owner replies to a forwarded message: send the answer to the client.
-  if (chat === OWNER) {
-    const target = m.reply_to_message && forwarded.get(m.reply_to_message.message_id);
+  // Any other message from the owner goes through the normal flow, so the owner can try the bot too.
+  if (chat === OWNER && m.reply_to_message) {
+    const target = forwarded.get(m.reply_to_message.message_id);
     if (target && text) await tg("sendMessage", { chat_id: target, text });
-    else if (!text.startsWith("/")) await say(chat, "Чтобы ответить клиенту, ответьте реплаем на пересланное сообщение.");
+    else await say(chat, "Не нашёл, кому отправить этот ответ (после перезапуска бота старые пересылки забываются).");
     return;
   }
 
