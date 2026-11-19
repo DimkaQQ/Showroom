@@ -309,7 +309,7 @@ const en = {
       {
         title: "Who is responsible",
         body: [
-          "Mirelli Studio, Darian Mirelli. Contact: info@mirelli.eu.",
+          "Mirelli Studio, operated by Dinmukhammed Altynbek, sole proprietor (ИП ADM), BIN/IIN 040721551748, Kazakhstan. Contact: info@mirelli.eu.",
         ],
       },
       {
@@ -628,7 +628,7 @@ const ru: Translations = {
       {
         title: "Кто отвечает",
         body: [
-          "Mirelli Studio, Darian Mirelli. Контакт: info@mirelli.eu.",
+          "Mirelli Studio, Динмухаммед Алтынбек, ИП ADM, БИН/ИИН 040721551748, Казахстан. Контакт: info@mirelli.eu.",
         ],
       },
       {

@@ -303,7 +303,7 @@ export const de: Translations = {
       },
       {
         title: "Verantwortlich",
-        body: ["Mirelli Studio, Darian Mirelli. Kontakt: info@mirelli.eu."],
+        body: ["Mirelli Studio, betrieben von Dinmukhammed Altynbek, Einzelunternehmer (ИП ADM), BIN/IIN 040721551748, Kasachstan. Kontakt: info@mirelli.eu."],
       },
       {
         title: "Ihre Rechte",

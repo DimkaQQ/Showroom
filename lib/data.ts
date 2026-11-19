@@ -11,7 +11,6 @@ export const siteConfig = {
   telegramBot: "https://t.me/Mirelli_studio_bot",
   // WhatsApp number in international format without plus or spaces, e.g. "77001234567". Empty = no WhatsApp button.
   whatsapp: "",
-  owner: "Darian Mirelli",
   // The legal entities the studio contracts through. Empty list = nothing is shown.
   // role "intl" = company in the EU (EUR, USD); role "cis" = sole proprietorship in Kazakhstan (KZT, RUB).
   entities: [] as { role: "intl" | "cis"; name: string; id: string; address: string }[],

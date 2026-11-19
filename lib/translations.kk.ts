@@ -304,7 +304,7 @@ export const kk: Translations = {
       {
         title: "Кім жауап береді",
         body: [
-          "Mirelli Studio, Darian Mirelli. Байланыс: info@mirelli.eu.",
+          "Mirelli Studio, Динмухаммед Алтынбек, ЖК ADM, БСН/ЖСН 040721551748, Қазақстан. Байланыс: info@mirelli.eu.",
         ],
       },
       {
