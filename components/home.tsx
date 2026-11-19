@@ -344,7 +344,7 @@ function Contact({ lang, t }: { lang: Lang; t: T }) {
             <p className="support">{supportLine[lang]} <a href={`mailto:${siteConfig.supportEmail}`}>{siteConfig.supportEmail}</a></p>
             <div className="contact-links">
               {siteConfig.whatsapp && <a href={`https://wa.me/${siteConfig.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>}
-              {siteConfig.telegramBot && <a href={siteConfig.telegramBot} target="_blank" rel="me noopener noreferrer">Telegram</a>}
+              {siteConfig.telegramBot && <a href={`${siteConfig.telegramBot}?start=${lang}`} target="_blank" rel="me noopener noreferrer">Telegram</a>}
             </div>
           </div>
           <Wizard lang={lang} />
