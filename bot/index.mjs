@@ -27,38 +27,40 @@ let langs = {};
 try { langs = JSON.parse(readFileSync(LANGFILE, "utf8")); } catch { /* first run */ }
 const saveLangs = () => { try { writeFileSync(LANGFILE, JSON.stringify(langs)); } catch (e) { console.error("lang save:", e.message); } };
 const SITE_LANG = { ru: "ru", kk: "ru", en: "en", de: "en", fr: "en", sk: "en", cs: "en" }; // site languages without a bot translation fall back to English
-const PICK = ["🇷🇺 Русский", "🇬🇧 English"];
+
+const esc = (x) => String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const IMG = `${SITE}/brand/bot-welcome-1280x720.png`;
 
 const T = {
   ru: {
-    hello: "Здравствуйте! Это Mirelli Studio: сайты, онлайн-запись, системы для бизнеса и Telegram-боты. Выберите, что интересно, или просто напишите задачу своими словами.",
-    menu: ["Услуги и цены", "Как мы работаем", "Кейсы и демо", "Оставить заявку", "Связаться с человеком", "🌐 Язык / Language"],
-    pick: "Выберите язык / Choose a language:", langSet: "Язык: русский.",
-    services: (cur) => `Ориентиры (${cur}, точная смета письменно до начала работы):\n\n` +
-      `• Сайт, который приносит заявки: ${range("site", cur)}\n• Telegram-бот или автоматизация: ${range("bot", cur)}\n• Онлайн-запись и заказы: ${range("booking", cur)}\n• Система для бизнеса: ${range("system", cur)}\n• Интеграция: ${range("integration", cur)}\n• Поддержка и хостинг: ${range("support", cur)} в месяц\n• Быстрый старт (разбор и прототип): ${range("start", cur)}\n\nПодробнее: ${SITE}/ru/#pricing`,
-    how: "Как мы работаем: 1) вы описываете задачу, 2) мы письменно фиксируем объём и цену, 3) каждую неделю вы видите рабочую версию, 4) запуск и поддержка. С вами говорит основатель и разработчик, без менеджеров.",
-    cases: `Наши работы на живых демо: ${SITE}/ru/#work`,
-    askName: "Как вас зовут?",
-    askContact: "Как с вами связаться? Напишите Telegram, телефон или почту.",
-    askTask: "Опишите задачу в нескольких словах.",
-    done: "Спасибо! Заявка отправлена. Мы ответим как можно скорее.",
-    human: "Передаю вопрос специалисту. Ответ придёт сюда.",
-    fallback: "Передаю ваш вопрос специалисту, ответ придёт сюда. Пока можно посмотреть меню.",
+    hello: "<b>Mirelli Studio</b>\n<i>Сайты, боты и софт, которые берут рутину на себя.</i>\n\nМы строим то, что другие считают слишком сложным: от сайта до системы, на которой держится весь бизнес.\n\n⚡ Рабочая версия каждую неделю\n🧾 Объём и цена письменно до старта\n👤 С вами говорит основатель, без менеджеров\n\n<b>С чего начнём?</b> 👇",
+    btn: { svc: "💼 Услуги и цены", how: "⚙️ Как работаем", cases: "🧪 Кейсы и демо", lead: "✍️ Оставить заявку", site: "🌐 Открыть сайт", human: "💬 Написать человеку", lang: "🌍 Language", cancel: "✖️ Отмена", calc: "🧮 Посчитать выгоду", all: "↩️ В меню" },
+    services: (cur) => `<b>💼 Что мы делаем и сколько это стоит</b>\n<i>Ориентиры в ${cur}. Точная смета письменно до начала работы.</i>\n\n` +
+      `🌐 <b>Сайт, который приносит заявки</b>\n${range("site", cur)}\n\n🤖 <b>Telegram-бот или автоматизация</b>\n${range("bot", cur)}\n\n📅 <b>Онлайн-запись и заказы</b>\n${range("booking", cur)}\n\n🧩 <b>Система для бизнеса</b>\n${range("system", cur)}\n\n🔌 <b>Интеграция</b>\n${range("integration", cur)}\n\n🛟 <b>Поддержка и хостинг</b>\n${range("support", cur)} в месяц\n\n⚡ <b>Быстрый старт: разбор и прототип</b>\n${range("start", cur)}`,
+    how: "<b>⚙️ Как мы работаем</b>\n\n<b>1 · Задача.</b> Вы описываете, что нужно, своими словами.\n<b>2 · Договорённость.</b> Фиксируем объём и цену письменно.\n<b>3 · Каждую неделю.</b> Вы видите рабочую версию, а не отчёты.\n<b>4 · Запуск и поддержка.</b> Остаёмся рядом после старта.\n\nС вами говорит основатель и разработчик, без менеджеров посередине.",
+    cases: "<b>🧪 Кейсы и демо</b>\n\nЖивые демо, где можно всё потрогать, и что изменилось у клиентов: меньше рутины, больше записей, порядок в данных.",
+    askName: "<b>✍️ Заявка · 1 из 3</b>\nКак вас зовут?",
+    askContact: "<b>✍️ Заявка · 2 из 3</b>\nКак с вами связаться? Telegram, телефон или почта.",
+    askTask: "<b>✍️ Заявка · 3 из 3</b>\nОпишите задачу в паре слов. Подойдёт и «пока не знаю, нужен совет».",
+    done: "✅ <b>Заявка отправлена</b>\n\nЛично посмотрю и отвечу как можно скорее. Ответ придёт сюда.",
+    human: "💬 <b>Передал основателю</b>\nОтвет придёт прямо сюда.",
+    fallback: "📨 <b>Передал основателю</b>\nОтвет придёт сюда. А пока можно заглянуть в меню 👇",
+    pick: "Выберите язык / Choose a language:", langSet: "Язык: русский 🇷🇺", cancelled: "Отменил. Что дальше? 👇",
   },
   en: {
-    hello: "Hello! This is Mirelli Studio: websites, online booking, business systems and Telegram bots. Pick a topic or just describe your task.",
-    menu: ["Services and prices", "How we work", "Cases and demos", "Leave a request", "Talk to a person", "🌐 Язык / Language"],
-    pick: "Выберите язык / Choose a language:", langSet: "Language: English.",
-    services: (cur) => `Indicative ranges (${cur}, an exact written estimate comes before any work):\n\n` +
-      `• A website that brings enquiries: ${range("site", cur)}\n• A Telegram bot or automation: ${range("bot", cur)}\n• Online booking and orders: ${range("booking", cur)}\n• A business system: ${range("system", cur)}\n• An integration: ${range("integration", cur)}\n• Hosting and support: ${range("support", cur)} per month\n• Quick start (analysis and prototype): ${range("start", cur)}\n\nMore: ${SITE}/#pricing`,
-    how: "How we work: 1) you describe the task, 2) we agree scope and price in writing, 3) you see a working version every week, 4) launch and support. You talk to the founder and developer, no managers in between.",
-    cases: `Our work, with live demos: ${SITE}/#work`,
-    askName: "What is your name?",
-    askContact: "How can we reach you? Write a Telegram handle, phone or email.",
-    askTask: "Describe your task in a few words.",
-    done: "Thank you! Your request has been sent. We will reply as soon as possible.",
-    human: "I am passing your question to a person. The answer will arrive here.",
-    fallback: "I am passing your question to a person, the answer will arrive here. Meanwhile you can use the menu.",
+    hello: "<b>Mirelli Studio</b>\n<i>Websites, bots and software that take routine off your hands.</i>\n\nWe build what others call too complex: from a website to the system that runs a whole business.\n\n⚡ A working version every week\n🧾 Scope and price in writing before we start\n👤 You talk to the founder, no managers in between\n\n<b>Where shall we start?</b> 👇",
+    btn: { svc: "💼 Services and prices", how: "⚙️ How we work", cases: "🧪 Cases and demos", lead: "✍️ Leave a request", site: "🌐 Open the website", human: "💬 Talk to a person", lang: "🌍 Language", cancel: "✖️ Cancel", calc: "🧮 Calculate the savings", all: "↩️ Menu" },
+    services: (cur) => `<b>💼 What we do and what it costs</b>\n<i>Indicative ranges in ${cur}. An exact written estimate comes before any work.</i>\n\n` +
+      `🌐 <b>A website that brings enquiries</b>\n${range("site", cur)}\n\n🤖 <b>A Telegram bot or automation</b>\n${range("bot", cur)}\n\n📅 <b>Online booking and orders</b>\n${range("booking", cur)}\n\n🧩 <b>A business system</b>\n${range("system", cur)}\n\n🔌 <b>An integration</b>\n${range("integration", cur)}\n\n🛟 <b>Hosting and support</b>\n${range("support", cur)} per month\n\n⚡ <b>Quick start: analysis and prototype</b>\n${range("start", cur)}`,
+    how: "<b>⚙️ How we work</b>\n\n<b>1 · The task.</b> You describe what you need in your own words.\n<b>2 · The agreement.</b> We fix scope and price in writing.\n<b>3 · Every week.</b> You see a working version, not reports.\n<b>4 · Launch and support.</b> We stay around after go-live.\n\nYou talk to the founder and developer, no managers in between.",
+    cases: "<b>🧪 Cases and demos</b>\n\nLive demos you can click through, and what changed for clients: less routine, more bookings, order in the data.",
+    askName: "<b>✍️ Request · 1 of 3</b>\nWhat is your name?",
+    askContact: "<b>✍️ Request · 2 of 3</b>\nHow can we reach you? Telegram, phone or email.",
+    askTask: "<b>✍️ Request · 3 of 3</b>\nDescribe the task in a few words. \"Not sure yet, need advice\" is fine too.",
+    done: "✅ <b>Request sent</b>\n\nI will look at it personally and reply as soon as possible. The answer will arrive here.",
+    human: "💬 <b>Passed to the founder</b>\nThe answer will arrive right here.",
+    fallback: "📨 <b>Passed to the founder</b>\nThe answer will arrive here. Meanwhile, have a look at the menu 👇",
+    pick: "Выберите язык / Choose a language:", langSet: "Language: English 🇬🇧", cancelled: "Cancelled. What next? 👇",
   },
 };
 
@@ -74,13 +76,56 @@ async function tg(method, body) {
 const tgLang = (m) => (["ru", "kk", "uk", "be"].includes(m.from?.language_code) ? "ru" : "en");
 const langOf = (m) => langs[String(m.chat.id)] || tgLang(m);
 const curOf = (m) => (langOf(m) === "ru" ? "KZT" : "EUR");
-const keyboard = (l) => ({ keyboard: T[l].menu.map((x) => [{ text: x }]), resize_keyboard: true });
-const say = (chat, text, l, extra = {}) => tg("sendMessage", { chat_id: chat, text, reply_markup: l ? keyboard(l) : undefined, disable_web_page_preview: true, ...extra });
+const url = (l, hash = "") => (l === "ru" ? `${SITE}/ru/${hash}` : `${SITE}/${hash}`);
+
+// Inline menus. callback_data: "m:<action>" or "l:<lang>".
+const menu = (l) => { const b = T[l].btn; return { inline_keyboard: [
+  [{ text: b.svc, callback_data: "m:svc" }, { text: b.how, callback_data: "m:how" }],
+  [{ text: b.cases, callback_data: "m:cases" }, { text: b.lead, callback_data: "m:lead" }],
+  [{ text: b.site, url: url(l) }, { text: b.human, callback_data: "m:human" }],
+  [{ text: b.lang, callback_data: "m:lang" }],
+] }; };
+const back = (l, extra = []) => { const b = T[l].btn; return { inline_keyboard: [...extra, [{ text: b.lead, callback_data: "m:lead" }, { text: b.all, callback_data: "m:menu" }]] }; };
+const say = (chat, text, markup) => tg("sendMessage", { chat_id: chat, text, parse_mode: "HTML", reply_markup: markup, disable_web_page_preview: true });
+const typing = (chat) => tg("sendChatAction", { chat_id: chat, action: "typing" });
 const who = (m) => `${m.from?.first_name || ""} ${m.from?.last_name || ""} ${m.from?.username ? "@" + m.from.username : ""} (id ${m.chat.id})`.trim();
 
-async function toOwner(text, m) {
-  const r = await tg("sendMessage", { chat_id: OWNER, text: `${text}\n\nОт: ${who(m)}\nОтветьте реплаем на это сообщение, и ответ уйдёт клиенту.`, disable_web_page_preview: true });
+async function toOwner(html, m) {
+  const r = await tg("sendMessage", { chat_id: OWNER, parse_mode: "HTML", text: `${html}\n\n👤 <i>${esc(who(m))}</i>\n↩️ Ответьте реплаем на это сообщение, и ответ уйдёт клиенту.` });
   if (r.ok) forwarded.set(r.result.message_id, m.chat.id);
+}
+
+async function hello(chat, l) {
+  // Clear the old reply keyboard some chats still have, then show the welcome picture with the menu.
+  const tmp = await tg("sendMessage", { chat_id: chat, text: "✨", reply_markup: { remove_keyboard: true } });
+  if (tmp.ok) tg("deleteMessage", { chat_id: chat, message_id: tmp.result.message_id });
+  const r = await tg("sendPhoto", { chat_id: chat, photo: IMG, caption: T[l].hello, parse_mode: "HTML", reply_markup: menu(l) });
+  if (!r.ok) await say(chat, T[l].hello, menu(l));
+}
+
+// One handler for menu buttons.
+async function action(chat, l, key, m) {
+  const t = T[l];
+  await typing(chat);
+  if (key === "menu") return say(chat, t.hello, menu(l));
+  if (key === "svc") return say(chat, t.services(curOf(m)), back(l, [[{ text: t.btn.calc, url: url(l, "#pricing") }]]));
+  if (key === "how") return say(chat, t.how, back(l));
+  if (key === "cases") return say(chat, t.cases, back(l, [[{ text: t.btn.cases, url: url(l, "#work") }]]));
+  if (key === "lead") { state.set(chat, { step: "name" }); return say(chat, t.askName, { inline_keyboard: [[{ text: t.btn.cancel, callback_data: "m:cancel" }]] }); }
+  if (key === "cancel") { state.delete(chat); return say(chat, t.cancelled, menu(l)); }
+  if (key === "human") { await toOwner("💬 <b>Клиент просит связаться</b>", m); return say(chat, t.human, back(l)); }
+  if (key === "lang") return say(chat, T.ru.pick, { inline_keyboard: [[{ text: "🇷🇺 Русский", callback_data: "l:ru" }, { text: "🇬🇧 English", callback_data: "l:en" }]] });
+}
+
+async function onCallback(q) {
+  const msg = q.message;
+  if (!msg) return;
+  const m = { chat: msg.chat, from: q.from };
+  const chat = String(msg.chat.id);
+  tg("answerCallbackQuery", { callback_query_id: q.id });
+  const [kind, val] = (q.data || "").split(":");
+  if (kind === "l" && (val === "ru" || val === "en")) { langs[chat] = val; saveLangs(); state.delete(chat); await say(chat, T[val].langSet); return hello(chat, val); }
+  if (kind === "m") return action(chat, langOf(m), val, m);
 }
 
 async function onMessage(m) {
@@ -99,33 +144,31 @@ async function onMessage(m) {
   // /start may carry the website language: https://t.me/<bot>?start=ru
   const st = text.match(/^\/start(?:@\w+)?(?:\s+(\w+))?$/);
   if (st && st[1] && SITE_LANG[st[1]]) { langs[chat] = SITE_LANG[st[1]]; saveLangs(); }
-  if (PICK.includes(text)) { langs[chat] = text === PICK[0] ? "ru" : "en"; saveLangs(); state.delete(chat); return say(chat, `${T[langs[chat]].langSet}\n\n${T[langs[chat]].hello}`, langs[chat]); }
 
   const l = langOf(m), t = T[l], s = state.get(chat);
-  if (st) { state.delete(chat); return say(chat, t.hello, l); }
-  if (text === "/lang" || text === t.menu[5]) return tg("sendMessage", { chat_id: chat, text: t.pick, reply_markup: { keyboard: [PICK.map((x) => ({ text: x }))], resize_keyboard: true, one_time_keyboard: true } });
+  if (st) { state.delete(chat); return hello(chat, l); }
+  if (text === "/lang") return action(chat, l, "lang", m);
+  if (text === "/menu") return action(chat, l, "menu", m);
 
   if (s) {
-    if (s.step === "name") { s.name = text; s.step = "contact"; return say(chat, t.askContact, l); }
-    if (s.step === "contact") { s.contact = text; s.step = "task"; return say(chat, t.askTask, l); }
+    await typing(chat);
+    if (s.step === "name") { s.name = text; s.step = "contact"; return say(chat, t.askContact, { inline_keyboard: [[{ text: t.btn.cancel, callback_data: "m:cancel" }]] }); }
+    if (s.step === "contact") { s.contact = text; s.step = "task"; return say(chat, t.askTask, { inline_keyboard: [[{ text: t.btn.cancel, callback_data: "m:cancel" }]] }); }
     if (s.step === "task") {
       state.delete(chat);
-      await toOwner(`Новая заявка из бота\nИмя: ${s.name}\nКонтакт: ${s.contact}\nЗадача: ${text}`, m);
-      return say(chat, t.done, l);
+      await toOwner(`📩 <b>Новая заявка из бота</b>\n\n👤 ${esc(s.name)}\n📞 ${esc(s.contact)}\n📝 ${esc(text)}`, m);
+      return say(chat, t.done, menu(l));
     }
   }
 
-  const i = t.menu.indexOf(text);
   const low = text.toLowerCase();
-  if (i === 0 || /цен|стоим|сколько|price|cost|how much/.test(low)) return say(chat, t.services(curOf(m)), l);
-  if (i === 1 || /как работ|процесс|этап|how do you work|process/.test(low)) return say(chat, t.how, l);
-  if (i === 2 || /кейс|пример|демо|портфолио|case|demo|portfolio/.test(low)) return say(chat, t.cases, l);
-  if (i === 3) { state.set(chat, { step: "name" }); return say(chat, t.askName, l); }
-  if (i === 4) { await toOwner(`Клиент просит связаться: ${text}`, m); return say(chat, t.human, l); }
+  if (/цен|стоим|сколько|price|cost|how much/.test(low)) return action(chat, l, "svc", m);
+  if (/как работ|процесс|этап|how do you work|process/.test(low)) return action(chat, l, "how", m);
+  if (/кейс|пример|демо|портфолио|case|demo|portfolio/.test(low)) return action(chat, l, "cases", m);
 
   // Anything else goes to a person.
-  await toOwner(`Вопрос из бота:\n${text}`, m);
-  return say(chat, t.fallback, l);
+  await toOwner(`❓ <b>Вопрос из бота</b>\n\n${esc(text || "(не текст)")}`, m);
+  return say(chat, t.fallback, menu(l));
 }
 
 // Texts shown before the user presses Start (Telegram picks them by the user's Telegram app language).
@@ -144,7 +187,7 @@ async function setup() {
     await tg("setMyShortDescription", { short_description: ABOUT[code], ...extra });
     await tg("setMyDescription", { description: DESC[code], ...extra });
   }
-  await tg("setMyCommands", { commands: [{ command: "start", description: "Start / Начать" }, { command: "lang", description: "Language / Язык" }] });
+  await tg("setMyCommands", { commands: [{ command: "start", description: "Start / Начать" }, { command: "menu", description: "Menu / Меню" }, { command: "lang", description: "Language / Язык" }] });
 }
 await setup().catch((e) => console.error("setup:", e.message));
 
@@ -152,7 +195,7 @@ let offset = 0;
 console.log("mirelli bot started");
 for (;;) {
   try {
-    const r = await tg("getUpdates", { offset, timeout: 30, allowed_updates: ["message"] });
-    for (const u of r.result || []) { offset = u.update_id + 1; if (u.message && u.message.chat.type === "private") await onMessage(u.message).catch((e) => console.error("handler:", e.message)); }
+    const r = await tg("getUpdates", { offset, timeout: 30, allowed_updates: ["message", "callback_query"] });
+    for (const u of r.result || []) { offset = u.update_id + 1; if (u.message && u.message.chat.type === "private") await onMessage(u.message).catch((e) => console.error("handler:", e.message)); else if (u.callback_query) await onCallback(u.callback_query).catch((e) => console.error("callback:", e.message)); }
   } catch (e) { console.error("poll:", e.message); await new Promise((res) => setTimeout(res, 5000)); }
 }
