@@ -1,6 +1,6 @@
 import { projects, services, siteConfig } from "@/lib/data";
 import { translations } from "@/lib/translations";
-import { hybrid, supportLine } from "@/lib/hybrid";
+import { hybrid, supportLine, tgLabel } from "@/lib/hybrid";
 import { pathFor, type Lang } from "@/lib/i18n";
 import { Fx } from "@/components/fx";
 import { Eggs } from "@/components/eggs";
@@ -344,7 +344,7 @@ function Contact({ lang, t }: { lang: Lang; t: T }) {
             <p className="support">{supportLine[lang]} <a href={`mailto:${siteConfig.supportEmail}`}>{siteConfig.supportEmail}</a></p>
             <div className="contact-links">
               {siteConfig.whatsapp && <a href={`https://wa.me/${siteConfig.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>}
-              {siteConfig.telegramBot && <a href={`${siteConfig.telegramBot}?start=${lang}`} target="_blank" rel="me noopener noreferrer">Telegram</a>}
+              {siteConfig.telegramBot && <a href={`${siteConfig.telegramBot}?start=${lang}`} target="_blank" rel="me noopener noreferrer" className="btn btn-primary tg-btn">{tgLabel[lang]}</a>}
             </div>
           </div>
           <Wizard lang={lang} />

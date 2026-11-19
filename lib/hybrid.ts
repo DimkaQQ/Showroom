@@ -20,6 +20,10 @@ export type Hybrid = {
   chips: string[][];
 };
 
+export const tgLabel: Record<Lang, string> = {
+  en: "Message us on Telegram", ru: "Написать в Telegram", kk: "Telegram-да жазу", de: "Auf Telegram schreiben", fr: "Écrire sur Telegram", sk: "Napísať na Telegram", cs: "Napsat na Telegram",
+};
+
 export const supportLine: Record<Lang, string> = {
   en: "Already a client? Write to",
   ru: "Уже клиент? Пишите на",
