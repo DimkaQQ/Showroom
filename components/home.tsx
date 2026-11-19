@@ -316,7 +316,7 @@ function Studio({ lang }: { lang: Lang }) {
           <li>{t.point2}</li>
           <li>{t.point3}</li>
         </ul>
-        <p className="studio-owner">{siteConfig.owner}, {t.owner}</p>
+        <p className="studio-owner">{t.owner}</p>
         {siteConfig.entities.length > 0 && (
           <div className="studio-ent">
             <p className="studio-k">{t.contract}</p>
