@@ -27,9 +27,9 @@ export function Palette({ lang }: { lang: Lang }) {
     projects.forEach((pr, i) => a.push({ label: `${p.project}: ${pr.name}`, hint: t.showroom.projects[i].tagline, run: to(pr.id) }));
     projects.forEach((pr) => a.push({ label: `${p.openDemo}: ${pr.name}`, hint: `${pr.subdomain}.${siteConfig.domain}`, run: () => window.open(`https://${pr.subdomain}.${siteConfig.domain}`, "_blank", "noopener") }));
     a.push({ label: p.copyEmail, hint: siteConfig.email, run: () => { navigator.clipboard?.writeText(siteConfig.email).catch(() => {}); to("contact")(); } });
-    if (siteConfig.telegramBot) a.push({ label: p.openTg, hint: "t.me", run: () => window.open(siteConfig.telegramBot, "_blank", "noopener") });
+    if (siteConfig.telegramBot) a.push({ label: p.openTg, hint: "t.me", run: () => window.open(`${siteConfig.telegramBot}?start=${lang}`, "_blank", "noopener") });
     return a;
-  }, [p, t]);
+  }, [p, t, lang]);
 
   const shown = useMemo(() => {
     const s = q.trim().toLowerCase();

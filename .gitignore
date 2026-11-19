@@ -20,3 +20,4 @@ tsconfig.tsbuildinfo
 
 # secrets
 server/contact/.env
+bot/lang.json
