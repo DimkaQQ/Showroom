@@ -37,7 +37,7 @@ export const sk: Translations = {
     projects: [
       {
         tagline: "Inteligentný systém pre autoservis",
-        description: "Rezervácia, ktorá spáruje stanovište, mechanika a diely na sklade, živá tabuľa zákaziek, schvaľovanie prác navyše zákazníkom cez odkaz v SMS, kontrola skladu a pohľad majiteľa so záznamom zmien.",
+        description: "Rezervácia, ktorá priradí stojisko, mechanika a diely na sklade, živá tabuľa zákaziek, schvaľovanie prác navyše zákazníkom cez odkaz v SMS, kontrola skladu a pohľad majiteľa so záznamom zmien.",
       },
       {
         tagline: "Inteligentný rozvrh pre ambulancie",
@@ -80,7 +80,7 @@ export const sk: Translations = {
       {
         tagline: "Prevádzka reštaurácie",
         description:
-          "Operačný systém pre reštaurácie: živá tabuľa objednávok s pohľadom pre kuchyňu, správa menu a hostí, plánovanie zmien personálu, vernostné body a analytika naprieč prevádzkami.",
+          "Prevádzkový systém pre reštaurácie: živá tabuľa objednávok s pohľadom pre kuchyňu, správa menu a hostí, plánovanie zmien personálu, vernostné body a analytika naprieč prevádzkami.",
       },
       {
         tagline: "Zaškoľovanie zamestnancov a HR",
@@ -204,7 +204,7 @@ export const sk: Translations = {
     away: "Psst. Vráťte sa.",
     konami: "Našli ste to. Zľava: žiadna. Rešpekt: neobmedzený.",
     sudo: "mirelli sa nenachádza v súbore sudoers. Tento incident bude nahlásený.",
-    four04: "Vy ste si o to povedali.",
+    four04: "Sami ste si o to pýtali.",
     console: "Čítate konzolu, takže by sme sa mali porozprávať. Skúste Konami kód. Alebo napíšte 404.",
   },
   case: {
@@ -226,7 +226,7 @@ export const sk: Translations = {
       },
       {
         q: "Aké produkty už boli vytvorené?",
-        a: "Dvanásť produktov, každý so živou ukážkou na vzorových dátach: inteligentný systém pre autoservis, inteligentný rozvrh pre ambulancie, coworkingový systém s prístupom cez dvere, ERP pre distribúciu paliva, B2B obchodné miesto pre palivá, operačný systém pre reštaurácie, sklad a nákup pre gastronómiu, aplikácia na zaškoľovanie zamestnancov, peer-to-peer marketplace na prenájom áut, vzdelávacia platforma pre trading so simulátorom, AI plánovač spustenia produktu a konštruktor Telegram botov.",
+        a: "Dvanásť produktov, každý so živou ukážkou na vzorových dátach: inteligentný systém pre autoservis, inteligentný rozvrh pre ambulancie, coworkingový systém s prístupom cez dvere, ERP pre distribúciu paliva, B2B obchodná platforma pre palivá, prevádzkový systém pre reštaurácie, sklad a nákup pre gastronómiu, aplikácia na zaškoľovanie zamestnancov, peer-to-peer marketplace na prenájom áut, vzdelávacia platforma pre trading so simulátorom, AI plánovač spustenia produktu a konštruktor Telegram botov.",
       },
       {
         q: "Aké technológie sa používajú?",
